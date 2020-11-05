@@ -1,4 +1,4 @@
-# cointpanel fe
+# coinpanel fe
 
 
 ## things
