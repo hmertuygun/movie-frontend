@@ -1,7 +1,8 @@
-import logo from './logo.svg'
-import './App.css'
-import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
+import logo from "./logo.svg"
+import "./App.css"
+import React from "react"
+import { BrowserRouter as Router, Link } from "react-router-dom"
+import Routes from "./Routes"
 
 export default function App() {
   return (
@@ -9,6 +10,9 @@ export default function App() {
       <div>
         <nav>
           <ul>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
             <li>
               <Link to="/">Home</Link>
             </li>
@@ -21,25 +25,13 @@ export default function App() {
           </ul>
         </nav>
 
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/users">
-            <Users />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
+        <Routes />
       </div>
     </Router>
   )
 }
 
-function Home() {
+export function Home() {
   return (
     <div className="App">
       <header className="App-header">
@@ -60,10 +52,10 @@ function Home() {
   )
 }
 
-function About() {
+export function About() {
   return <h2>About</h2>
 }
 
-function Users() {
+export function Users() {
   return <h2>Users</h2>
 }
