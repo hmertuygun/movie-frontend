@@ -1,34 +1,6 @@
-import React from "react"
-
-// Firebase App (the core Firebase SDK) is always required and must be listed first
-import firebase from "firebase/app"
-// If you are using v7 or any earlier version of the JS SDK, you should import firebase using namespace import
-// import * as firebase from "firebase/app"
-
-// If you enabled Analytics in your project, add the Firebase SDK for Analytics
-import "firebase/analytics"
-
-// Add the Firebase products that you want to use
-import "firebase/auth"
-import "firebase/firestore"
-
-// TODO: Replace the following with your app's Firebase project configuration
-// For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field
-
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGEBUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGESENDERID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENTID,
-}
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig)
-firebase.analytics()
+import React from 'react'
+import axios from 'axios'
+import { firebase } from '../firebase/firebase'
 
 const Login = () => {
   async function register(email, password) {
@@ -61,18 +33,62 @@ const Login = () => {
     console.log(signedin)
   }
 
+  async function getPositions() {
+    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
+
+    const token = await firebase.auth().currentUser.getIdToken()
+    const positions = await fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: `Bearer ${token}`,
+        'Access-Control-Allow-Methods':
+          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    }).then((res) => res.json())
+
+    console.log(positions)
+    return positions
+  }
+
+  async function setPositions() {
+    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
+
+    const token = await firebase.auth().currentUser.getIdToken()
+    const positions = await axios(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: `Bearer ${token}`,
+        'Access-Control-Allow-Methods':
+          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+      method: 'POST',
+      data: { position: 'is erikp in the house' },
+    })
+
+    console.log(positions)
+    return positions
+  }
+
   return (
     <section>
       <h1>Login</h1>
       <p>Login</p>
 
-      <button onClick={() => register("erik.pantzar@jayway.com", "Furia123!")}>
+      <button onClick={() => register('erik.pantzar@jayway.com', 'Furia123!')}>
         Register
       </button>
 
-      <button onClick={() => login("erik.pantzar@jayway.com", "Furia123!")}>
+      <button onClick={() => login('erik.pantzar@jayway.com', 'Furia123!')}>
         Login
       </button>
+
+      <button onClick={() => getPositions()}>Positions log</button>
+
+      <button onClick={() => setPositions()}>Positions POST</button>
     </section>
   )
 }
