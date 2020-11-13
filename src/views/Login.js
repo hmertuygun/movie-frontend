@@ -1,6 +1,7 @@
 import React from 'react'
-import axios from 'axios'
 import { firebase } from '../firebase/firebase'
+import './Login.css'
+import { Button, Input, Typography, Logo, Link } from '../components'
 
 const Login = () => {
   async function register(email, password) {
@@ -33,62 +34,33 @@ const Login = () => {
     console.log(signedin)
   }
 
-  async function getPositions() {
-    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
-
-    const token = await firebase.auth().currentUser.getIdToken()
-    const positions = await fetch(apiUrl, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Bearer ${token}`,
-        'Access-Control-Allow-Methods':
-          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    }).then((res) => res.json())
-
-    console.log(positions)
-    return positions
-  }
-
-  async function setPositions() {
-    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
-
-    const token = await firebase.auth().currentUser.getIdToken()
-    const positions = await axios(apiUrl, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Bearer ${token}`,
-        'Access-Control-Allow-Methods':
-          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-      method: 'POST',
-      data: { position: 'is erikp in the house' },
-    })
-
-    console.log(positions)
-    return positions
-  }
-
   return (
-    <section>
-      <h1>Login</h1>
-      <p>Login</p>
+    <section className="Login-container">
+              
+      <Logo />
 
-      <button onClick={() => register('erik.pantzar@jayway.com', 'Furia123!')}>
-        Register
-      </button>
 
-      <button onClick={() => login('erik.pantzar@jayway.com', 'Furia123!')}>
-        Login
-      </button>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        console.log('submitForm')
+      }}>
+        <Input label="Email adress" type="email" placeholder="name@example.com"  />
 
-      <button onClick={() => getPositions()}>Positions log</button>
+        <Input label="Password" type="password" placeholder="Password" />
 
-      <button onClick={() => setPositions()}>Positions POST</button>
+        <Button primary type="submit">
+          Log in
+        </Button>
+      </form>
+
+
+      <div style={{
+      display: 'flex'
+       }}>
+        <Typography color="muted" inline size="small">Not registered?</Typography>  
+        <Link to="/register">Create account</Link>
+      </div>
+
     </section>
   )
 }

@@ -1,0 +1,19 @@
+:root {
+  --blue: #008aff;
+  --red: #f25767;
+  --orange: #ffbe3d;
+  --light: #eff2f7;
+  --dark: #171347;
+  --neutral: #fff;
+  --muted: #718096;
+
+  --warning: var(--orange);
+  --danger: var(--red);
+  --primary: var(--blue);
+
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+}
