@@ -1,7 +1,7 @@
 import React from 'react'
 import './Typography.css'
 
-const Typography = ({ as = 'paragraph', color = 'default', size, children, ...props }) => {
+const Typography = ({ as = 'p', color = 'default', size, children, ...props }) => {
   
   const TextElement = React.createElement(as, {
     className: [
