@@ -6,6 +6,7 @@
   --dark: #171347;
   --neutral: #fff;
   --muted: #718096;
+  --grey: #ccc;
 
   --warning: var(--orange);
   --danger: var(--red);

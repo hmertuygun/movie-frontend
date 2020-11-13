@@ -24,7 +24,7 @@ const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, subLabel,
         className={[
           "Input-container", 
           icon && "Input-container--has-icon",
-          isFocused  && "Input-container--is-Focused" 
+          isFocused && "Input-container--is-Focused"
         ].join(' ')}
       >
         {icon && <span className="Input-Icon">{icon}</span>}

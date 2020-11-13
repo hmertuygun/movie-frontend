@@ -1,7 +1,9 @@
 :root {
   --primary-background: #008aff;
+  --primary-color: #fff;
   --primary-background-hover: #0075d9;
   --defualt-border-color: #c1c9d4;
+  --default-color: #273444;
 }
 
 .Button {
@@ -15,13 +17,12 @@
   background: transparent;
   border: 2px solid #ccc;
   transition: background 300ms ease-in-out;
-  color: #273444;
-
+  color: var(--defualt-color);
   margin-bottom: 1rem;
 }
 
 .Button:hover {
-  color: #111;
+  color: var(--default-color);
   border: 2px solid var(--primary-background);
   transition: border-color 100ms ease-out;
 }
@@ -36,11 +37,11 @@
 .Button-primary {
   border: 2px solid var(--primary-background);
   background: var(--primary-background);
-  color: #fff;
+  color: var(--primary-color);
 }
 
 .Button-primary:hover {
-  color: #fff;
+  color: var(--primary-color);
   border: 2px solid var(--primary-background-hover);
   background: var(--primary-background-hover);
   transition: background 100ms ease-out;
