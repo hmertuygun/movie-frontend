@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './Input.css'
 
-const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, subLabel, ...props }) => {
+const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, disabled, postLabel, trade, ...props }) => {
   const [isFocused, setIsFocused] = useState(false)
   const [isType, setType] = useState(type)
 
@@ -36,6 +36,7 @@ const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, subLabel,
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
+          disabled={disabled}
         />
       </div>
     </div>
