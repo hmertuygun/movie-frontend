@@ -5,7 +5,6 @@ const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, disabled,
   const [isFocused, setIsFocused] = useState(false)
   const [isType, setType] = useState(type)
 
-
   const toggleTypeText = () => {
     if (isType === 'text') {
       setType('password')
