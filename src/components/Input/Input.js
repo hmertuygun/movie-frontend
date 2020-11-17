@@ -1,7 +1,17 @@
 import React, { useState } from 'react'
 import './Input.css'
 
-const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, disabled, postLabel, trade, ...props }) => {
+const Input = ({
+  label,
+  type = 'text',
+  placeholder,
+  icon,
+  inlineLabel,
+  disabled,
+  postLabel,
+  trade,
+  ...props
+}) => {
   const [isFocused, setIsFocused] = useState(false)
   const [isType, setType] = useState(type)
 
@@ -14,16 +24,26 @@ const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, disabled,
   }
 
   return (
-    <div className="Input-wrapper">
-      <label className="Input-label" htmlFor={`${label}${type}`}>{label}</label>
+    <div className={['Input-wrapper'].join(' ')}>
+      <label className="Input-label" htmlFor={`${label}${type}`}>
+        {label}
+      </label>
 
-      {type === 'password' && (<span className="Input-showHide Input-label" onClick={() => toggleTypeText()}>Show/hide password</span>)}
+      {type === 'password' && (
+        <span
+          className="Input-showHide Input-label"
+          onClick={() => toggleTypeText()}
+        >
+          Show/hide password
+        </span>
+      )}
 
-      <div 
+      <div
         className={[
-          "Input-container", 
-          icon && "Input-container--has-icon",
-          isFocused && "Input-container--is-Focused"
+          'Input-container',
+          icon ? 'Input-container--has-icon' : null,
+          isFocused ? 'Input-container--is-Focused' : null,
+          disabled ? 'Input-container--disabled' : null,
         ].join(' ')}
       >
         {icon && <span className="Input-Icon">{icon}</span>}

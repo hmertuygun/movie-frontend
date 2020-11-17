@@ -2,6 +2,11 @@
   --default-background: #fff;
 }
 
+input:disabled,
+input {
+  background: transparent;
+}
+
 .Input-wrapper {
   position: relative;
   text-align: left;
@@ -26,6 +31,10 @@
 
 .Input-container--is-Focused {
   border: 1px solid var(--primary-background);
+}
+
+.Input-container--disabled {
+  background: rgba(255,255,255, 0.4);
 }
 
 .Input-Element {
