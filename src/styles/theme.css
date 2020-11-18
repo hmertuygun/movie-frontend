@@ -9,6 +9,9 @@
   --grey: rgb(234, 234, 234);
   --white: #fff;
 
+  --green: #56BD7C;
+  --red-trade: #F84960;
+
 
   --light: #eff2f7;
   --dark: #273444;
@@ -21,6 +24,16 @@
   --danger: var(--red);
   --primary: var(--blue);
 
+  --buy: var(--green);
+  --sell: var(--red-trade);
+
+  
+  --default-color: var(--dark);
+  --warning-color: var(--warning);
+  --error-color: var(--danger);
+  --primary-color: var(--primary);
+  --secondary-color: var(--muted);
+
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
@@ -32,9 +45,16 @@
 }
 
 
+
+/* DARK MODE OVERRIDES */
 @media (prefers-color-scheme: dark) {
   :root {
     --body-background: var(--dark-black);
     --body-color: var(--light);
   }
+}
+
+.dark-mode {
+  --body-background: var(--dark-black);
+  --body-color: var(--light);
 }

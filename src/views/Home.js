@@ -1,15 +1,16 @@
 import React from 'react'
 import logo from './logo.svg'
-import { TabNavigator } from '../components'
+
+import { ButtonNavigator, TabNavigator } from '../components'
 
 export function Home() {
   return (
     <div className="App">
-      <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
+      <ButtonNavigator startIndex={1}>
         {[<div key={0}>hejjejjee</div>, <div key={1}>Bliieee bloo</div>]}
-      </TabNavigator>
+      </ButtonNavigator>
 
-      <TabNavigator buttons labelArray={['Target', 'Stop-loss']} index={1}>
+      <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
         {[<div key={0}>hejjejjee</div>, <div key={1}>Bliieee bloo</div>]}
       </TabNavigator>
 

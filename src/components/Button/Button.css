@@ -1,14 +1,23 @@
-:root {
-  --primary-background: #008aff;
-  --primary-color: #fff;
-  --primary-background-hover: #0075d9;
-  --defualt-border-color: #c1c9d4;
-  --default-color: #273444;
+.Button {
+  --button-primary-background: #008aff;
+  --button-primary-color: #fff;
+  --button-primary-background-hover: #0075d9;
+  --button-defualt-border-color: #c1c9d4;
+  --button-default-color: #273444;
 }
+
+@media (prefers-color-scheme: dark) {
+  .Button {
+    --button-default-border-color: #282D34;
+    --button-default-color: #A1AAB5;
+  }  
+}
+
 
 .Button {
   width: 100%;
   text-align: center;
+  font-family: inherit;
   font-size: 1rem;
   padding: .75rem 1.75rem;
   border: 1px solid;
@@ -17,13 +26,15 @@
   background: transparent;
   border: 2px solid #ccc;
   transition: background 300ms ease-in-out;
-  color: var(--defualt-color);
+  color: var(--button-default-color);
   margin-bottom: 1rem;
+
+
 }
 
 .Button:hover {
-  color: var(--default-color);
-  border: 2px solid var(--primary-background);
+  color: var(--button-default-color);
+  border: 2px solid var(--button-primary-background);
   transition: border-color 100ms ease-out;
 }
 
@@ -33,16 +44,32 @@
   padding: .5rem 1.25rem;
 }
 
-
 .Button-primary {
-  border: 2px solid var(--primary-background);
-  background: var(--primary-background);
-  color: var(--primary-color);
+  border: 2px solid var(--button-primary-background);
+  background: var(--button-primary-background);
+  color: var(--button-primary-color);
 }
 
 .Button-primary:hover {
-  color: var(--primary-color);
-  border: 2px solid var(--primary-background-hover);
-  background: var(--primary-background-hover);
+  color: var(--button-primary-color);
+  border: 2px solid var(--button-primary-background-hover);
+  background: var(--button-primary-background-hover);
   transition: background 100ms ease-out;
+}
+
+.Button-buy {
+  border: 2px solid var(--buy);
+  background: var(--buy);
+  color: var(--button-primary-color);
+}
+
+.Button-sell {
+  border: 2px solid var(--sell);
+  background: var(--sell);
+  color: var(--button-primary-color);
+}
+
+.Button-sell:hover,
+.Button-buy:hover { 
+  color: var(--button-primary-color);
 }

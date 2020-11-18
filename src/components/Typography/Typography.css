@@ -1,12 +1,3 @@
-:root {
-  --default-color: var(--dark);
-  --warning-color: var(--warning);
-  --error-color: var(--danger);
-  --primary-color: var(--primary);
-  --secondary-color: var(--muted);
-}
-
-
 .Typography {
   color: var(--default-color);
 }

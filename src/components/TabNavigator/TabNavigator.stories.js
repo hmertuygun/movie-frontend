@@ -1,5 +1,6 @@
 import React from 'react'
 import TabNavigator from './TabNavigator'
+import ButtonNavigator from './ButtonNavigator'
 
 const story = {
   title: 'Component/TabNavigator',
