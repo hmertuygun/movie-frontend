@@ -1,12 +1,21 @@
 :root {
-  --blue: #008aff;
+  
+  --blue: #0088ff;
+  --light-blue: #78c0ff;
+  --dark-blue: #152c5b;
+
   --red: #f25767;
   --orange: #ffbe3d;
+  --grey: rgb(234, 234, 234);
+  --white: #fff;
+
+
   --light: #eff2f7;
-  --dark: #171347;
+  --dark: #273444;
+  --dark-black: #171317;
   --neutral: #fff;
   --muted: #718096;
-  --grey: #ccc;
+
 
   --warning: var(--orange);
   --danger: var(--red);
@@ -17,4 +26,15 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
+
+  --body-background: var(--white);
+  --body-color: var(--dark);
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --body-background: var(--dark-black);
+    --body-color: var(--light);
+  }
 }
