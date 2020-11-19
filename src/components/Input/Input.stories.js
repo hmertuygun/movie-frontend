@@ -5,9 +5,6 @@ const story = {
   title: 'Component/Input',
   component: Input,
   argTypes: {
-    label: {
-      control: 'name',
-    },
     label: 'label',
     type: 'text',
     icon: 'name',
@@ -23,17 +20,15 @@ export const Text = Template.bind({})
 Text.args = {
   label: 'Email',
   type: 'text',
-  placeholder: 'erik@example.com'
+  placeholder: 'erik@example.com',
 }
-
 
 export const Password = Template.bind({})
 Password.args = {
   label: 'Password',
   type: 'password',
-  placeholder: 'Password'
+  placeholder: 'Password',
 }
-
 
 export const Number = Template.bind({})
 Number.args = {
@@ -41,5 +36,5 @@ Number.args = {
   type: 'number',
   placeholder: 'Price',
   inlineLabel: true,
-  subLabel: 'USDT'
+  subLabel: 'USDT',
 }

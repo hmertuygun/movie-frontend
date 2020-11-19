@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import './Input.css'
+import uniqid from 'uniqid'
+import styles from './Input.module.css'
 
 const Input = ({
   label,
@@ -14,6 +15,7 @@ const Input = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const [isType, setType] = useState(type)
+  const inputId = uniqid()
 
   const toggleTypeText = () => {
     if (isType === 'text') {
@@ -23,33 +25,38 @@ const Input = ({
     }
   }
 
+  let InputContainerStyle = () => {
+    if (isFocused) {
+      return styles['InputContainer--isFocused']
+    }
+
+    if (disabled) {
+      return styles['InputContainer--disabled']
+    }
+
+    return styles['InputContainer']
+  }
+
   return (
-    <div className={['Input-wrapper'].join(' ')}>
-      <label className="Input-label" htmlFor={`${label}${type}`}>
+    <div className={styles['Input-wrapper']}>
+      <label className={styles['Input-label']} htmlFor={inputId}>
         {label}
       </label>
 
       {type === 'password' && (
         <span
-          className="Input-showHide Input-label"
+          className={`${styles['Input-showHide']} ${styles['Input-label']}`}
           onClick={() => toggleTypeText()}
         >
           Show/hide password
         </span>
       )}
 
-      <div
-        className={[
-          'Input-container',
-          icon ? 'Input-container--has-icon' : null,
-          isFocused ? 'Input-container--is-Focused' : null,
-          disabled ? 'Input-container--disabled' : null,
-        ].join(' ')}
-      >
-        {icon && <span className="Input-Icon">{icon}</span>}
+      <div className={InputContainerStyle()}>
+        {icon && <span className={styles['Input-Icon']}>{icon}</span>}
         <input
-          id={`${label}${type}`}
-          className="Input-Element"
+          id={inputId}
+          className={styles['Input-Element']}
           name={`${type}${label}`}
           type={isType}
           onFocus={() => setIsFocused(true)}

@@ -42,9 +42,9 @@
 
   --body-background: var(--white);
   --body-color: var(--dark);
+
+  --trade-background: #14161B;
 }
-
-
 
 /* DARK MODE OVERRIDES */
 @media (prefers-color-scheme: dark) {
