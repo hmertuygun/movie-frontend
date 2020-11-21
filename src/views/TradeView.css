@@ -10,7 +10,8 @@
   min-width: 360px;
   padding: 1rem;
 
-  background: #ccc;
+  background: var(--trade-background);
+  color: var(--trade-color);
 
   min-height: 100vh;
   flex-grow: 0;

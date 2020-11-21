@@ -8,9 +8,9 @@ const InlineInput = ({
   placeholder,
   disabled,
   postLabel,
-  trade,
+  onChange,
+  value,
 }) => {
-  const [value, setValue] = useState()
   const [isFocused, setIsFocused] = useState(false)
   const inputId = uniqid()
 
@@ -35,12 +35,12 @@ const InlineInput = ({
         className={styles.InputElement}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        onChange={onChange}
         disabled={disabled}
         id={inputId}
         placeholder={placeholder}
         type={type}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
       ></input>
       <span className={styles.InputPostLabel}>{postLabel}</span>
     </div>

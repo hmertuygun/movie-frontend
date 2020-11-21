@@ -11,7 +11,7 @@
     --input-default-background: var(--trade-background);
     --input-default-color: #fff;
     --input-default-border: #292D33;
-    --input-default-disabled-background: rgba(50, 50, 50, 0.7);
+    --input-default-disabled-background: rgba(20, 20, 30, 0.6);
     --label-default-color: #93A4B1;
   }
 }

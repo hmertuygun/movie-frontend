@@ -1,25 +1,48 @@
 import React from 'react'
-import './Button.css'
+import { Link } from 'react-router-dom'
+import styles from './Button.module.css'
 
 const Button = ({
   children,
   primary,
-  type = '',
-  size = 'normal',
+  type = 'button',
+  to = false,
+  size = false,
   variant, // 'buy', 'sell'
   className,
+  disabled,
   ...props
 }) => {
+  const ButtonStyle = () => {
+    if (primary) {
+      return styles['Button-primary']
+    }
+
+    if (variant) {
+      return styles[`Button-${variant}`]
+    }
+
+    if (size) {
+      return styles[`Button-${size}`]
+    }
+
+    return styles['Button']
+  }
+
+  if (to) {
+    return (
+      <Link className={ButtonStyle()} type="button" to={to} {...props}>
+        {children}
+      </Link>
+    )
+  }
+
   return (
     <button
-      className={[
-        'Button',
-        primary ? 'Button-primary' : null,
-        variant ? `Button-${variant}` : null,
-        'Button-' + size,
-        className,
-      ].join(' ')}
-      type="button"
+      primary={primary}
+      className={ButtonStyle()}
+      type={type}
+      disabled={disabled}
       {...props}
     >
       {children}

@@ -4,32 +4,36 @@
   --button-primary-background-hover: #0075d9;
   --button-defualt-border-color: #c1c9d4;
   --button-default-color: #273444;
+  --button-default-background: transparent;
+
 }
 
 @media (prefers-color-scheme: dark) {
   .Button {
     --button-default-border-color: #282D34;
     --button-default-color: #A1AAB5;
+    --button-defualt-background: #14161A;
   }  
 }
 
-
 .Button {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  width: 100%;
   font-family: inherit;
   font-size: 1rem;
   padding: .75rem 1.75rem;
-  border: 1px solid;
   cursor: pointer;
   border-radius: .375rem;
-  background: transparent;
-  border: 2px solid #ccc;
-  transition: background 300ms ease-in-out;
   color: var(--button-default-color);
+  background: var(--button-defualt-background);
+  border: 2px solid var(--button-default-border-color);
+  transition: background 300ms ease-in-out;
   margin-bottom: 1rem;
-
-
+  
+  text-decoration: none;
 }
 
 .Button:hover {
@@ -45,6 +49,7 @@
 }
 
 .Button-primary {
+  composes: Button;
   border: 2px solid var(--button-primary-background);
   background: var(--button-primary-background);
   color: var(--button-primary-color);
@@ -58,12 +63,14 @@
 }
 
 .Button-buy {
+  composes: Button;
   border: 2px solid var(--buy);
   background: var(--buy);
   color: var(--button-primary-color);
 }
 
 .Button-sell {
+  composes: Button;
   border: 2px solid var(--sell);
   background: var(--sell);
   color: var(--button-primary-color);
