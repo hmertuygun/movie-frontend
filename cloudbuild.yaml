@@ -14,11 +14,11 @@ steps:
     args: ['container', 'clusters', 'get-credentials', 'cp-dev-cluster', '--region=asia-northeast1', '--project=$PROJECT_ID']
   - name: 'ubuntu'
     id: preDeploy
-    dir: 'server'
+    #dir: 'server'
     args: ['sh', 'deployment-helper/replacer.sh', '$SHORT_SHA', '$PROJECT_ID']
   - name: 'gcr.io/cloud-builders/kubectl'
     id: Deploy
-    dir: 'server'
+    #dir: 'server'
     args:
       - 'apply'
       - '-f'
