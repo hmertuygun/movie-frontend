@@ -6,9 +6,9 @@ steps:
     entrypoint: yarn
     args: ['run', 'build']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ["build", "-t", "gcr.io/$PROJECT_ID/cp-web-server:$REVISION_ID", "."]
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/cp-web-server:$SHORT_SHA", "."]
   - name: 'gcr.io/cloud-builders/docker'
-    args: ["push", "gcr.io/$PROJECT_ID/cp-web-server:$REVISION_ID"]
+    args: ["push", "gcr.io/$PROJECT_ID/cp-web-server:$SHORT_SHA"]
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Setup
     args: ['container', 'clusters', 'get-credentials', 'cp-dev-cluster', '--region=asia-northeast1', '--project=$PROJECT_ID']
