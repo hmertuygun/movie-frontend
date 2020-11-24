@@ -1,0 +1,46 @@
+:root {
+  --default-color: var(--dark);
+  --warning-color: var(--warning);
+  --error-color: var(--danger);
+  --primary-color: var(--primary);
+  --secondary-color: var(--muted);
+}
+
+
+.Typography {
+  color: var(--default-color);
+}
+
+.Typography--warning {
+  color: var(--warning-color);
+}
+.Typography--error {
+  color: var(--error-color);
+}
+.Typography--primary {
+  color: var(--primary-color);
+}
+.Typography--secondary {
+  color: var(--secondary-color);
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+{
+    margin-top: 0;
+    margin-bottom: .66667rem;
+}
+
+
+h1, h2, h3 {}
+h4, h5, h6 {}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
