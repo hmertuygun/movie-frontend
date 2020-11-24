@@ -2,8 +2,9 @@
   --input-default-background: #fff;
   --input-default-color: #222;
   --input-default-border: var(--grey);
-  --input-default-disabled-background: rgba(255,255,255, 0.4);
   --label-default-color: #666;
+  --input-default-disabled-background: rgba(255,255,255, 0.8);
+  --input-default-disabled-color: rgba(255,255,255, 0.8);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -11,8 +12,9 @@
     --input-default-background: var(--trade-background);
     --input-default-color: #fff;
     --input-default-border: #292D33;
-    --input-default-disabled-background: rgba(20, 20, 30, 0.6);
     --label-default-color: #93A4B1;
+    --input-default-disabled-background: rgba(20, 20, 30, 0.6);
+    --input-default-disabled-color: rgba(255,255,255, 0.8);
   }
 }
 

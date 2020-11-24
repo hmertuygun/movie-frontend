@@ -10,7 +10,7 @@ const story = {
 export default story
 
 const Template = (args) => (
-  <ButtonNavigator>
+  <ButtonNavigator {...args}>
     <div>1. Child One</div>
     <div>2. Child Two</div>
   </ButtonNavigator>

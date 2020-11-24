@@ -1,81 +1,110 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Typography, InlineInput, Button } from '../../components'
-// import { useTrade } from '../context/TradeContext'
-import Balance, { useBalance } from '../components/Balance'
+import { TradeContext } from '../context/SimpleTradeContext'
 
-const LimitForm = () => {
-  // get balance from Balance context ()
-  // const [balance] = useBalance()
-  const balance = 30
-  const [price, setPirce] = useState()
-  const [amount, setAmount] = useState()
-  const [amountPercentage, setAmountPercentage] = useState()
-  const [total, setTotal] = useState()
+function LimitForm() {
+  const { addEntry } = useContext(TradeContext)
 
+  const balance = 20000
+  const [price, setPrice] = useState('')
+  const [amount, setAmount] = useState('')
+  const [amountPercentage, setAmountPercentage] = useState('')
+  const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  const calculatePercentageAmount = (inputChanged, value) => {
+    if (!price) {
+      return false
+    }
+
+    if (inputChanged === 'amount') {
+      setAmountPercentage(((value * price) / balance) * 100)
+      setTotal(value * price)
+    }
+
+    if (inputChanged === 'amountPercentage') {
+      // how many BTC can we buy with the percentage?
+      const belowOnePercentage = value / 100
+      const cost = belowOnePercentage * balance
+      const howManyBTC = cost / price
+      setAmount(howManyBTC)
+      setTotal(howManyBTC * price)
+    }
   }
 
-  const onChangeInputs = (value) => {}
+  // CHECKER for isValid ? true : false
+  useEffect(
+    () => {
+      // console.log('Changing the values')
+      if (!price) {
+        return false
+      }
 
-  const handleAmount = (value) => {
-    console.log(value)
-  }
+      const canAfford = total <= balance
+      setIsValid(canAfford)
+    },
+    [total, price],
+    () => {
+      setTotal(0)
+      setPrice(0)
+    }
+  )
 
   return (
     <Fragment>
       <Typography as="h2">1. Entry</Typography>
 
-      <Balance />
+      <div>BALANCE: {balance}</div>
 
       <section>
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleSubmit(e)
+            addEntry({ price, amount })
           }}
         >
           <InlineInput
             label="Price"
-            inlineLabel
             type="number"
-            onChange={(e) => {
-              setAmountPercentage(e.target.value)
-            }}
-            value={amountPercentage}
+            onChange={(value) => setPrice(value)}
+            value={price}
             placeholder="Entry price"
             postLabel="USDT"
           />
 
           <InlineInput
             label="Amount"
-            inlineLabel
             type="number"
+            onChange={(value) => {
+              setAmount(value)
+              calculatePercentageAmount('amount', value)
+            }}
+            value={amount}
             placeholder="Amount"
             postLabel="BTC"
           />
 
           <InlineInput
-            inlineLabelff
             type="number"
+            onChange={(value) => {
+              setAmountPercentage(value)
+              calculatePercentageAmount('amountPercentage', value)
+            }}
             value={amountPercentage}
-            onChange={(value) => handleAmount}
             placeholder="Amount"
             postLabel="%"
           />
 
           <InlineInput
             label="Total"
-            inlineLabel
             type="number"
+            value={total}
             placeholder=""
             postLabel="USDT"
             disabled
           />
 
-          <Button disabled={isValid} type="submit">
+          <Button disabled={isValid ? null : 'disabled'} type="submit">
             Set exits >
           </Button>
         </form>

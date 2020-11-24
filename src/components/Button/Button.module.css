@@ -42,6 +42,11 @@
   transition: border-color 100ms ease-out;
 }
 
+.Button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 .Button-small {
   font-size: .875rem;
   line-height: 1.5;

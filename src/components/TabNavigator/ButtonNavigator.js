@@ -2,8 +2,12 @@ import React, { useState, Fragment } from 'react'
 import Button from '../Button/Button'
 import './ButtonNavigator.css'
 
-const ButtonNavigator = ({ children, startIndex = 0 }) => {
-  const [viewIndex, setViewIndex] = useState(startIndex)
+const ButtonNavigator = ({
+  index = 0,
+  children,
+  labelArray = ['Target', 'Stop-loss'],
+}) => {
+  const [viewIndex, setViewIndex] = useState(index)
 
   return (
     <Fragment>
@@ -12,14 +16,14 @@ const ButtonNavigator = ({ children, startIndex = 0 }) => {
           variant={viewIndex === 0 ? 'buy' : null}
           onClick={() => setViewIndex(0)}
         >
-          Buy
+          {labelArray[0]}
         </Button>
 
         <Button
           variant={viewIndex === 1 ? 'sell' : null}
           onClick={() => setViewIndex(1)}
         >
-          Sell
+          {labelArray[1]}
         </Button>
       </nav>
 
