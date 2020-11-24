@@ -49,6 +49,17 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
+  // const removeExit = (index) => {
+  //   const exits = [...state.exits]
+  //   setState({
+  //     ...state,
+  //     exits: [
+  //       ...exits.splice(0, index),
+  //       ...exits.splice(index + 1, exits.length),
+  //     ],
+  //   })
+  // }
+
   return (
     <TradeContext.Provider
       value={{

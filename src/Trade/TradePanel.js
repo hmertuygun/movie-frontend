@@ -7,7 +7,7 @@ import ExitStoploss from './forms/ExitStoploss'
 import ExitTarget from './forms/ExitTarget'
 
 const TradePanel = () => {
-  const entry = true
+  const [hasEntry, setHasEntry] = useState(false)
 
   return (
     <SimpleTradeContext>
@@ -18,9 +18,9 @@ const TradePanel = () => {
           </div>
 
           <div style={{ marginTop: '4rem' }}>
-            {!entry && (
+            {!hasEntry && (
               <TabNavigator labelArray={['Limit', 'Market', 'Stop Limit']}>
-                <LimitForm />
+                <LimitForm setEntry={() => setHasEntry(true)} />
                 <div style={{ marginTop: '4rem' }}>
                   <Typography as="h3">Not available</Typography>
                 </div>
@@ -30,7 +30,7 @@ const TradePanel = () => {
               </TabNavigator>
             )}
 
-            {entry && (
+            {hasEntry && (
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
