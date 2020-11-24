@@ -1,0 +1,87 @@
+.Button {
+  --button-primary-background: #008aff;
+  --button-primary-color: #fff;
+  --button-primary-background-hover: #0075d9;
+  --button-defualt-border-color: #c1c9d4;
+  --button-default-color: #273444;
+  --button-default-background: transparent;
+
+}
+
+@media (prefers-color-scheme: dark) {
+  .Button {
+    --button-default-border-color: #282D34;
+    --button-default-color: #A1AAB5;
+    --button-defualt-background: #14161A;
+  }  
+}
+
+.Button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: .75rem 1.75rem;
+  cursor: pointer;
+  border-radius: .375rem;
+  color: var(--button-default-color);
+  background: var(--button-defualt-background);
+  border: 2px solid var(--button-default-border-color);
+  transition: background 300ms ease-in-out;
+  margin-bottom: 1rem;
+  
+  text-decoration: none;
+}
+
+.Button:hover {
+  color: var(--button-default-color);
+  border: 2px solid var(--button-primary-background);
+  transition: border-color 100ms ease-out;
+}
+
+.Button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.Button-small {
+  font-size: .875rem;
+  line-height: 1.5;
+  padding: .5rem 1.25rem;
+}
+
+.Button-primary {
+  composes: Button;
+  border: 2px solid var(--button-primary-background);
+  background: var(--button-primary-background);
+  color: var(--button-primary-color);
+}
+
+.Button-primary:hover {
+  color: var(--button-primary-color);
+  border: 2px solid var(--button-primary-background-hover);
+  background: var(--button-primary-background-hover);
+  transition: background 100ms ease-out;
+}
+
+.Button-buy {
+  composes: Button;
+  border: 2px solid var(--buy);
+  background: var(--buy);
+  color: var(--button-primary-color);
+}
+
+.Button-sell {
+  composes: Button;
+  border: 2px solid var(--sell);
+  background: var(--sell);
+  color: var(--button-primary-color);
+}
+
+.Button-sell:hover,
+.Button-buy:hover { 
+  color: var(--button-primary-color);
+}

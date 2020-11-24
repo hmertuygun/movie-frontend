@@ -1,0 +1,23 @@
+.TradeView-Container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  
+  justify-content: stretch;
+}
+
+.TradeView-Panel {
+  min-width: 360px;
+  padding: 1rem;
+
+  background: var(--trade-background);
+  color: var(--trade-color);
+
+  min-height: 100vh;
+  flex-grow: 0;
+}
+
+.TradeView-Chart { 
+  background: #222;
+  min-height: 100vh;
+}

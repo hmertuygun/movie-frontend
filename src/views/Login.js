@@ -1,8 +1,10 @@
-import React from 'react'
-import axios from 'axios'
+import React, { Fragment } from 'react'
+import { Route } from 'react-router-dom'
 import { firebase } from '../firebase/firebase'
+import { Button, Input, Typography, Logo, Link } from '../components'
+import './Login.css'
 
-const Login = () => {
+const LoginView = () => {
   async function register(email, password) {
     const registered = await firebase
       .auth()
@@ -33,64 +35,81 @@ const Login = () => {
     console.log(signedin)
   }
 
-  async function getPositions() {
-    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
 
-    const token = await firebase.auth().currentUser.getIdToken()
-    const positions = await fetch(apiUrl, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Bearer ${token}`,
-        'Access-Control-Allow-Methods':
-          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    }).then((res) => res.json())
+  const LoginTemplate = (
+    <Fragment>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        console.log('submitForm')
+      }}>
+        <Input label="Email adress" type="email" placeholder="name@example.com"  />
 
-    console.log(positions)
-    return positions
-  }
+        <Input label="Password" type="password" placeholder="Password" />
 
-  async function setPositions() {
-    const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
+        <Button primary type="submit">
+          Log in
+        </Button>
+      </form>
 
-    const token = await firebase.auth().currentUser.getIdToken()
-    const positions = await axios(apiUrl, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Bearer ${token}`,
-        'Access-Control-Allow-Methods':
-          'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-      method: 'POST',
-      data: { position: 'is erikp in the house' },
-    })
 
-    console.log(positions)
-    return positions
-  }
+      <div style={{
+        display: 'flex'
+       }}>
+        <Typography color="muted" inline size="small">
+          Not registered? {' '}
+          <Link to="/login/register">Create account</Link>
+        </Typography>  
+      </div>
+    </Fragment>
+  ) 
+
+
+
+  const RegisterTemplate = (
+    <Fragment>
+
+      <Typography as="h2">Email activation</Typography>
+      <Typography>
+        After you register your account, you will be asked to<br />
+        verify your account in action in the email.
+      </Typography>
+
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        console.log('submitForm')
+      }}>
+        <Input label="Email adress" type="email" placeholder="name@example.com"  />
+
+        <Input label="Password" type="password" placeholder="Password" />
+
+        <Button primary type="submit">
+          Create my account
+        </Button>
+      </form>
+
+
+      <div style={{
+        display: 'flex'
+       }}>
+        <Typography color="muted" inline size="small">
+          Already have an account? {' '}
+          <Link to="/login"> Sign in</Link>
+        </Typography>
+        
+      </div>
+    </Fragment>
+  ) 
 
   return (
-    <section>
-      <h1>Login</h1>
-      <p>Login</p>
+    <section className="Login-container">
+      <div style={{ textAlign: 'center' }}>
+        <Logo />
+      </div>
 
-      <button onClick={() => register('erik.pantzar@jayway.com', 'Furia123!')}>
-        Register
-      </button>
-
-      <button onClick={() => login('erik.pantzar@jayway.com', 'Furia123!')}>
-        Login
-      </button>
-
-      <button onClick={() => getPositions()}>Positions log</button>
-
-      <button onClick={() => setPositions()}>Positions POST</button>
+      <Route exact path="/login" render={() => LoginTemplate} />
+      <Route path="/login/register" render={() => RegisterTemplate} />
     </section>
   )
 }
 
-export default Login
+export default LoginView

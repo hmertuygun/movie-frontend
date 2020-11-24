@@ -1,0 +1,48 @@
+.Typography {
+  color: var(--default-color);
+}
+
+.Typography--warning {
+  color: var(--warning-color);
+}
+.Typography--error {
+  color: var(--error-color);
+}
+.Typography--primary {
+  color: var(--primary-color);
+}
+.Typography--secondary {
+  color: var(--secondary-color);
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+{
+    margin-top: 0;
+    margin-bottom: .66667rem;
+}
+
+
+h1, h2, h3 {}
+h4, h5, h6 {}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+h2, .h2 {
+  font-size: calc(1.325rem + .9vw);
+}
+
+.surtitle {
+  font-size: .675rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #718096;
+}

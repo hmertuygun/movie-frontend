@@ -1,0 +1,63 @@
+:root {
+  
+  --blue: #0088ff;
+  --light-blue: #78c0ff;
+  --dark-blue: #152c5b;
+
+  --red: #f25767;
+  --orange: #ffbe3d;
+  --grey: rgb(234, 234, 234);
+  --white: #fff;
+
+  --green: #56BD7C;
+  --red-trade: #F84960;
+
+
+  --light: #eff2f7;
+  --dark: #273444;
+  --dark-black: #171317;
+  --neutral: #fff;
+  --muted: #718096;
+
+
+  --warning: var(--orange);
+  --danger: var(--red);
+  --primary: var(--blue);
+
+  --buy: var(--green);
+  --sell: var(--red-trade);
+
+  
+  --default-color: var(--dark);
+  --warning-color: var(--warning);
+  --error-color: var(--danger);
+  --primary-color: var(--primary);
+  --secondary-color: var(--muted);
+
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+
+  --body-background: var(--white);
+  --body-color: var(--dark);
+
+  --trade-background: #14161B;
+  --trade-color: #939AA4;
+  --trade-borders: #424951;
+}
+
+/* DARK MODE OVERRIDES */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --default-color: var(--light);
+    --body-background: var(--dark-black);
+    --body-color: var(--light);
+  }
+}
+
+.dark-mode {
+  --body-background: var(--dark-black);
+  --body-color: var(--light);
+}
