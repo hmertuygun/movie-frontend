@@ -5,10 +5,10 @@ const story = {
   title: 'Component/Button',
   component: Button,
   argTypes: {
-    children:  'name',
+    children: 'name',
     primary: {
-      control: false
-    }
+      control: false,
+    },
   },
 }
 
@@ -37,11 +37,13 @@ Next.args = {
 export const Buy = Template.bind({})
 Buy.args = {
   children: 'Buy',
+  variant: 'buy',
 }
 
 export const Sell = Template.bind({})
 Sell.args = {
-  children: 'Sell',
+  children: 'Order',
+  variant: 'sell',
 }
 
 export const Order = Template.bind({})

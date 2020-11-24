@@ -1,10 +1,21 @@
 import React, { useState } from 'react'
-import './Input.css'
+import uniqid from 'uniqid'
+import styles from './Input.module.css'
 
-const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, subLabel, ...props }) => {
+const Input = ({
+  label,
+  type = 'text',
+  placeholder,
+  icon,
+  inlineLabel,
+  disabled,
+  postLabel,
+  trade,
+  ...props
+}) => {
   const [isFocused, setIsFocused] = useState(false)
   const [isType, setType] = useState(type)
-
+  const inputId = uniqid()
 
   const toggleTypeText = () => {
     if (isType === 'text') {
@@ -14,28 +25,44 @@ const Input = ({ label, type = 'text', placeholder, icon, inlineLabel, subLabel,
     }
   }
 
+  let InputContainerStyle = () => {
+    if (isFocused) {
+      return styles['InputContainer--isFocused']
+    }
+
+    if (disabled) {
+      return styles['InputContainer--disabled']
+    }
+
+    return styles['InputContainer']
+  }
+
   return (
-    <div className="Input-wrapper">
-      <label className="Input-label" htmlFor={`${label}${type}`}>{label}</label>
+    <div className={styles['Input-wrapper']}>
+      <label className={styles['Input-label']} htmlFor={inputId}>
+        {label}
+      </label>
 
-      {type === 'password' && (<span className="Input-showHide Input-label" onClick={() => toggleTypeText()}>Show/hide password</span>)}
+      {type === 'password' && (
+        <span
+          className={`${styles['Input-showHide']} ${styles['Input-label']}`}
+          onClick={() => toggleTypeText()}
+        >
+          Show/hide password
+        </span>
+      )}
 
-      <div 
-        className={[
-          "Input-container", 
-          icon && "Input-container--has-icon",
-          isFocused  && "Input-container--is-Focused" 
-        ].join(' ')}
-      >
-        {icon && <span className="Input-Icon">{icon}</span>}
+      <div className={InputContainerStyle()}>
+        {icon && <span className={styles['Input-Icon']}>{icon}</span>}
         <input
-          id={`${label}${type}`}
-          className="Input-Element"
+          id={inputId}
+          className={styles['Input-Element']}
           name={`${type}${label}`}
           type={isType}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
+          disabled={disabled}
         />
       </div>
     </div>

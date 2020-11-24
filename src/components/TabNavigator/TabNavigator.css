@@ -1,0 +1,52 @@
+.TabNavigator-container {
+  --border-color: var(--grey);
+  --border-color-active: var(--primary);
+  --color: #777;
+  --color-hover: #4a5568;
+}
+
+/* DARK MODE */
+@media (prefers-color-scheme: dark) {
+  .TabNavigator-container {
+    --border-color-active: var(--warning);
+    --border-color: #2a2a2a;
+    --color: #bbb;
+    --color-hover: #ddd;
+  }
+}
+
+/* DARK MODE */
+.dark-mode .TabNavigator-container {
+  --border-color-active: var(--warning);
+  --border-color: #2a2a2a;
+  --color: #bbb;
+  --color-hover: #ddd;
+}
+
+
+
+.TabNavigator-nav {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+}
+
+.TabNavigator-link {
+  margin-right: 1.5rem;
+  font-size: .875rem;
+  line-height: 1rem;
+  padding: 15px 0;
+  cursor: pointer;
+  color: var(--color);
+} 
+
+.TabNavigator-link:hover {
+  color: var(--color-hover);
+}
+
+.TabNavigator-link--active {
+  border-bottom: 1px solid var(--border-color-active);
+  color: var(--color-hightlighted);
+  font-weight: 700;
+}

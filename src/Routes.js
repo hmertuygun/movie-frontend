@@ -1,19 +1,19 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Home } from './views/Home'
-import { About } from './views/About'
+import TradeView  from './views/TradeView'
 import Login from './views/Login'
 
 const Routes = () => (
   <Switch>
-    <Route path="/about">
-      <About />
+    <Route path="/trade">
+      <TradeView />
     </Route>
     <Route path="/login">
       <Login />
     </Route>
 
-    <Route path="/">
+    <Route exact path="/">
       <Home />
     </Route>
   </Switch>
