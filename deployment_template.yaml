@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-server-deployment
+  namespace: marketdata
 spec:
   selector:
     matchLabels:
@@ -12,6 +13,8 @@ spec:
       labels:
         app: web-server
     spec:
+      nodeSelector: 
+        cloud.google.com/gke-nodepool: market-data-pool
       containers:
       - name: web-server
         image: gcr.io/<GCP_PROJECT>/cp-web-server:<IMAGE_VERSION>
