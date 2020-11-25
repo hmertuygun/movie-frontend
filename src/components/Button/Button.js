@@ -5,6 +5,7 @@ import styles from './Button.module.css'
 const Button = ({
   children,
   primary,
+  plain,
   type = 'button',
   to = false,
   size = false,
@@ -14,6 +15,10 @@ const Button = ({
   ...props
 }) => {
   const ButtonStyle = () => {
+    if (plain) {
+      return styles['Button-plain']
+    }
+
     if (primary) {
       return styles['Button-primary']
     }

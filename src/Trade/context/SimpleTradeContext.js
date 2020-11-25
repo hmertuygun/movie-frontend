@@ -33,6 +33,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         ...state.stoploss,
         {
           price,
+          profit,
           triggerPrice,
           amount,
         },

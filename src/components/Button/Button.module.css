@@ -47,6 +47,22 @@
   opacity: 0.8;
 }
 
+.Button-plain {
+  --size: 35px;
+  composes: Button;
+  background: transparent;
+  border: 0px solid transparent;
+  margin: 0;
+  padding: 0;
+  min-width: var(--size);
+  min-height: var(--size);
+  line-height: var(--size);
+}
+
+.Button-plain:hover {
+  border: 0px solid transparent;
+}
+
 .Button-small {
   font-size: .875rem;
   line-height: 1.5;
