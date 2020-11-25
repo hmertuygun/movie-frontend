@@ -11,7 +11,7 @@ const Table = ({
   ...props
 }) => {
   return (
-    <table>
+    <table className={styles['Table']}>
       <thead>
         <tr className={styles['Table-headings']}>
           {labels.map((label) => (
@@ -37,20 +37,18 @@ const Table = ({
               ...target,
               amount: roundNumber((target.amount / entry.amount) * 100),
             }}
-            index={index}
+            index={index + 1}
           />
         ))}
 
         {stoploss.map((stoploss, index) => {
-          console.log(stoploss)
-
           return (
             <TableStoplossRow
               data={{
                 ...stoploss,
                 amount: roundNumber((stoploss.amount / entry.amount) * 100),
               }}
-              index={index}
+              index={index + 1}
               key={index}
             />
           )
@@ -63,55 +61,62 @@ const Table = ({
 const TableEntryRow = ({ data }) => (
   <TableTradeRow>
     <td>
-      <div>blue</div>
-      Buy
+      <div className={styles['Table-type-container']}>
+        <div className={styles['Table-dot-buy']}></div>
+        Buy
+      </div>
     </td>
 
     <td>{data.price}</td>
 
     <td></td>
 
-    <td>
-      <div>B</div>
-      100%
-    </td>
+    <td>100%</td>
 
-    <Button plain>X</Button>
+    <td>
+      <Button plain>X</Button>
+    </td>
   </TableTradeRow>
 )
 
 const TableTargetRow = ({ data, index }) => {
-  console.log({ target: data })
   return (
     <TableTradeRow>
       <td>
-        <div>Green</div>
-        Target {index}
+        <div className={styles['Table-type-container']}>
+          <div className={styles['Table-dot-target']}></div>
+          Target {index}
+        </div>
       </td>
 
       <td>{data.price}</td>
 
-      <td>{roundNumber(data.profit)}%</td>
+      <td className={styles['Table-Row-target-profit']}>
+        {roundNumber(data.profit)}%
+      </td>
 
       <td>{data.amount}%</td>
 
-      <Button plain>X</Button>
+      <td>
+        <Button plain>X</Button>
+      </td>
     </TableTradeRow>
   )
 }
 
 const TableStoplossRow = ({ data, index }) => {
-  console.log({ los: data })
   return (
     <TableTradeRow>
       <td>
-        <div>Red</div>
-        Stoploss {index}
+        <div className={styles['Table-type-container']}>
+          <div className={styles['Table-dot-stoploss']}></div>
+          Stoploss {index}
+        </div>
       </td>
 
       <td>{data.price}</td>
 
-      <td>{data.profit}%</td>
+      <td className={styles['Table-Row-stoploss-profit']}>{data.profit}%</td>
 
       <td>{data.amount}%</td>
 
