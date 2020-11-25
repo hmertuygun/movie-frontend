@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Typography, InlineInput, Button } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 
-function LimitForm({ setEntry }) {
+function LimitForm() {
   const { addEntry } = useContext(TradeContext)
 
   const balance = 20000
@@ -52,7 +52,9 @@ function LimitForm({ setEntry }) {
 
   return (
     <Fragment>
-      <Typography as="h2">1. Entry</Typography>
+      <div style={{ marginTop: '2rem' }}>
+        <Typography as="h3">1. Entry</Typography>
+      </div>
 
       <div>BALANCE: {balance}</div>
 
@@ -61,7 +63,6 @@ function LimitForm({ setEntry }) {
           onSubmit={(e) => {
             e.preventDefault()
             addEntry({ price, amount })
-            setEntry()
           }}
         >
           <InlineInput

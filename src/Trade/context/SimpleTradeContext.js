@@ -2,20 +2,12 @@ import React, { createContext, useState } from 'react'
 
 export const TradeContext = createContext()
 
-const testState = {
-  entry: {
-    price: 18000,
-    amount: 0.044,
-  },
-  targets: [],
-  exits: [],
-}
-
 const SimpleTradeContextProvider = ({ children }) => {
-  // console.warn('USING TEST STATE')
-  // console.warn({ state: testState })
-
-  const [state, setState] = useState(testState)
+  const [state, setState] = useState({
+    entry: {},
+    targets: [],
+    stoploss: [],
+  })
 
   const addEntry = ({ price, amount }) => {
     setState({
@@ -28,7 +20,6 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addTarget = ({ price, amount }) => {
-    console.log(state)
     setState({
       ...state,
       targets: [...state.targets, { price, amount }],
@@ -38,8 +29,8 @@ const SimpleTradeContextProvider = ({ children }) => {
   const addStoploss = ({ price, triggerPrice, amount }) => {
     setState({
       ...state,
-      exits: [
-        ...state.exits,
+      stoploss: [
+        ...state.stoploss,
         {
           price,
           triggerPrice,
@@ -48,17 +39,6 @@ const SimpleTradeContextProvider = ({ children }) => {
       ],
     })
   }
-
-  // const removeExit = (index) => {
-  //   const exits = [...state.exits]
-  //   setState({
-  //     ...state,
-  //     exits: [
-  //       ...exits.splice(0, index),
-  //       ...exits.splice(index + 1, exits.length),
-  //     ],
-  //   })
-  // }
 
   return (
     <TradeContext.Provider
