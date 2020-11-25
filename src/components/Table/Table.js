@@ -1,48 +1,13 @@
 import React, { useState } from 'react'
 import styles from './Table.module.css'
 
-const labels = [
-  { text: 'Type' },
-  { text: 'Price' },
-  { text: 'Profit' },
-  { text: 'Amount' },
-  { text: '' },
-]
-
-const data = [
-  {
-    type: 'entry',
-    price: '9999,111',
-    profit: '',
-    amount: '0.004',
-  },
-  {
-    type: 'target',
-    price: '10345,2323',
-    profit: '10%',
-    amount: '0.004',
-  },
-  {
-    type: 'target',
-    price: '11445,1212',
-    profit: '20%',
-    amount: '0.002',
-  },
-  {
-    type: 'target',
-    price: '15345,2323',
-    profit: '30%',
-    amount: '0.003',
-  },
-  {
-    type: 'stoploss',
-    price: '9000.22',
-    profit: '-10%',
-    amount: '0.0440',
-  },
-]
-
-const Table = ({ labels = [], data = [], ...props }) => {
+const Table = ({
+  labels = [],
+  entry = {},
+  targets = [],
+  stoploss = [],
+  ...props
+}) => {
   return (
     <table>
       <thead>
@@ -61,23 +26,15 @@ const Table = ({ labels = [], data = [], ...props }) => {
       </thead>
 
       <tbody>
-        {data
-          .filter((entry) => entry.type === 'entry')
-          .map((entry) => (
-            <TableEntryRow data={entry} />
-          ))}
+        {entry && <TableEntryRow data={entry} />}
 
-        {data
-          .filter((entry) => entry.type === 'target')
-          .map((target, index) => (
-            <TableTargetRow key={index} data={target} index={index} />
-          ))}
+        {targets.map((target, index) => (
+          <TableTargetRow key={index} data={target} index={index} />
+        ))}
 
-        {data
-          .filter((entry) => entry.type === 'stoploss')
-          .map((stoploss, index) => (
-            <TableStoplossRow data={stoploss} inedx={index} key={index} />
-          ))}
+        {stoploss.map((stoploss, index) => (
+          <TableStoplossRow data={stoploss} inedx={index} key={index} />
+        ))}
       </tbody>
     </table>
   )
@@ -120,8 +77,8 @@ const TableTargetRow = ({ data, index }) => (
   </TableTradeRow>
 )
 
-const TableStoplossRow = ({ data, index }) => {
-  ;<TableTradeRow>
+const TableStoplossRow = ({ data, index }) => (
+  <TableTradeRow>
     <td>
       <div>Red</div>
       Stoploss {index}
@@ -135,7 +92,7 @@ const TableStoplossRow = ({ data, index }) => {
 
     <td>X</td>
   </TableTradeRow>
-}
+)
 
 const TableTradeRow = ({ children }) => (
   <tr className={styles['Table-row']}>{children}</tr>

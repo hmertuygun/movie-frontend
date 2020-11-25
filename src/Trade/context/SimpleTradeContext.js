@@ -19,14 +19,14 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
-  const addTarget = ({ price, amount }) => {
+  const addTarget = ({ price, amount, profit }) => {
     setState({
       ...state,
-      targets: [...state.targets, { price, amount }],
+      targets: [...state.targets, { price, amount, profit }],
     })
   }
 
-  const addStoploss = ({ price, triggerPrice, amount }) => {
+  const addStoploss = ({ price, triggerPrice, amount, profit }) => {
     setState({
       ...state,
       stoploss: [

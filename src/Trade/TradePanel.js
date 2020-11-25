@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { TabNavigator, ButtonNavigator, Typography } from '../components'
+import TradeTableContainer from './components/TradeTableContainer'
 
 import LimitForm from './forms/LimitForm'
 import ExitStoploss from './forms/ExitStoploss'
@@ -47,6 +48,8 @@ const Trade = () => {
           )}
         </div>
       </TabNavigator>
+
+      <TradeTableContainer />
     </section>
   )
 }

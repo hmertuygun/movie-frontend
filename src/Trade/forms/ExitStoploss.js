@@ -13,7 +13,6 @@ const ExitStoploss = () => {
   const [amountPercentage, setAmountPercentage] = useState('')
   const [isValid, setIsValid] = useState(false)
 
-  // TODO update depending on how many steps are in fulltrade
   useEffect(() => {
     console.log()
     if (triggerPrice && price && amount) {
@@ -67,7 +66,9 @@ const ExitStoploss = () => {
             addStoploss({
               price,
               triggerPrice,
+              profit,
               amount,
+              amountPercentage,
             })
           }}
         >

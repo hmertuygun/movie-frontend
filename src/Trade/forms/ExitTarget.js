@@ -61,6 +61,7 @@ const ExitTarget = () => {
             addTarget({
               price,
               amount,
+              profit,
             })
           }}
         >
