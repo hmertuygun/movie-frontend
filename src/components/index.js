@@ -6,7 +6,6 @@ import Logo from './Logo/Logo'
 import Link from './Link/Link'
 import TabNavigator from './TabNavigator/TabNavigator'
 import ButtonNavigator from './TabNavigator/ButtonNavigator'
-import Table from './Table/Table'
 
 export {
   Button,
@@ -17,5 +16,4 @@ export {
   TabNavigator,
   ButtonNavigator,
   InlineInput,
-  Table,
 }

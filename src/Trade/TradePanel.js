@@ -1,6 +1,11 @@
 import React, { Fragment, useState, useContext } from 'react'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
-import { TabNavigator, ButtonNavigator, Typography } from '../components'
+import {
+  TabNavigator,
+  ButtonNavigator,
+  Typography,
+  Button,
+} from '../components'
 import TradeTableContainer from './components/TradeTableContainer'
 
 import LimitForm from './forms/LimitForm'
@@ -15,7 +20,15 @@ const TradePanel = () => (
 
 const Trade = () => {
   const { state } = useContext(TradeContext)
-  const hasEntry = state.entry.price > 0 ? true : false
+  const hasEntry = state.entry?.price > 0 ? true : false
+
+  function checkAllTypes() {
+    const targets = state && state.targets && state.targets[0].amount > 0
+    const stoploss = state && state.stoploss && state.stoploss[0].amount > 0
+
+    return targets && stoploss && hasEntry
+  }
+  const ableToPostFulltrade = checkAllTypes()
 
   return (
     <section>
@@ -46,10 +59,12 @@ const Trade = () => {
               </ButtonNavigator>
             </Fragment>
           )}
+
+          <TradeTableContainer />
+
+          {ableToPostFulltrade && <Button>Place Fulltrade</Button>}
         </div>
       </TabNavigator>
-
-      <TradeTableContainer />
     </section>
   )
 }

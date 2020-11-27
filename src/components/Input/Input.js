@@ -9,6 +9,8 @@ const Input = ({
   icon,
   inlineLabel,
   disabled,
+  onChange,
+  value,
   postLabel,
   trade,
   ...props
@@ -59,6 +61,8 @@ const Input = ({
           className={styles['Input-Element']}
           name={`${type}${label}`}
           type={isType}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}

@@ -36,12 +36,12 @@ function LimitForm() {
   useEffect(
     () => {
       // console.log('Changing the values')
-      if (!price) {
+      if (!price || !amount) {
         return false
       }
 
       const canAfford = total <= balance
-      setIsValid(canAfford)
+      setIsValid(canAfford && price && amount)
     },
     [total, price],
     () => {

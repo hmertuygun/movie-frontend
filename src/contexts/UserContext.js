@@ -1,33 +1,49 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useState } from 'react'
+// import { firebase } from '../firebase/firebase'
 
-const UserContext = createContext()
-const UserDispatchContext = createContext()
+export const UserContext = createContext()
 
-function UserProvider({ children }) {
-  const [user, setUser] = useState()
+const UserContextProvider = ({ children }) => {
+  const localStorageUser = localStorage.getItem('user')
+  let initialState = {}
+  if (localStorageUser) {
+    initialState = { user: JSON.parse(localStorageUser) }
+  } else {
+    initialState = { user: null }
+  }
+  const [state, setState] = useState(initialState)
+
+  async function login(user) {
+    setState(user)
+
+    localStorage.setItem('user', JSON.stringify(user))
+    return true
+  }
+
+  function logout() {
+    setState(null)
+
+    localStorage.clear('user')
+    return true
+  }
+
+  const isUserLoggedIn = () => {
+    return state && state.user ? true : false
+  }
+
+  const isLoggedIn = isUserLoggedIn()
+
   return (
-    <CountStateContext.Provider value={state}>
-      <CountDispatchContext.Provider value={dispatch}>
-        {children}
-      </CountDispatchContext.Provider>
-    </CountStateContext.Provider>
+    <UserContext.Provider
+      value={{
+        login,
+        logout,
+        isLoggedIn,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
   )
 }
 
-function useCountState() {
-  const context = useContext(CountStateContext)
-  if (context === undefined) {
-    throw new Error('useCountState must be used within a CountProvider')
-  }
-  return context
-}
-
-function useCountDispatch() {
-  const context = useContext(CountDispatchContext)
-  if (context === undefined) {
-    throw new Error('useCountDispatch must be used within a CountProvider')
-  }
-  return context
-}
-
-export { CountProvider, useCountState, useCountDispatch }
+export default UserContextProvider

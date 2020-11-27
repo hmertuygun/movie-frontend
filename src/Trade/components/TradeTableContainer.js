@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { TradeContext } from '../context/SimpleTradeContext'
-import { Table } from '../../components'
+import Table from './Table/Table'
 
 const TradeTableContainer = () => {
   const { state } = useContext(TradeContext)
@@ -14,7 +14,7 @@ const TradeTableContainer = () => {
     { text: '' },
   ]
 
-  if (entry.price > 0) {
+  if (entry && entry.price > 0) {
     return (
       <Table
         labels={labels}
