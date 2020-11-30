@@ -43,7 +43,7 @@
   --body-background: var(--white);
   --body-color: var(--dark);
 
-  --trade-background: #14161B;
+  --trade-background: #eee;
   --trade-color: #939AA4;
   --trade-borders: #424951;
 }
@@ -54,6 +54,8 @@
     --default-color: var(--light);
     --body-background: var(--dark-black);
     --body-color: var(--light);
+    --trade-background: #14161B;
+    ;
   }
 }
 

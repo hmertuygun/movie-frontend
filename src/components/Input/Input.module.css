@@ -19,6 +19,17 @@
   background: transparent;
 }
 
+
+:global input::-webkit-outer-spin-button,
+:global input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Firefox */
+:global input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .Input-wrapper {
   position: relative;
   text-align: left;
