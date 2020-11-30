@@ -73,7 +73,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
             <td>
               <div className={styles['Table-type-container']}>
                 <div className={styles['Table-dot-target']}></div>
-                Target {index}
+                Target {index + 1}
               </div>
             </td>
 
@@ -98,7 +98,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
             <td>
               <div className={styles['Table-type-container']}>
                 <div className={styles['Table-dot-stoploss']}></div>
-                Stoploss {index}
+                Stoploss
               </div>
             </td>
 
