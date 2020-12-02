@@ -2,9 +2,9 @@ import React, { useContext, Fragment } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
-import { Home } from './views/Home'
 import TradeView from './views/TradeView'
 import Login from './views/Login'
+import Settings from './views/Settings'
 
 const Routes = () => {
   const { isLoggedIn } = useContext(UserContext)
@@ -21,7 +21,7 @@ const Routes = () => {
             <TradeView />
           </Route>
 
-          <Redirect to="/trade"></Redirect>
+          <Route path="/settings" component={Settings}></Route>
         </Fragment>
       )}
 

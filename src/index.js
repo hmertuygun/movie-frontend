@@ -5,6 +5,9 @@ import reportWebVitals from './reportWebVitals'
 import './styles/theme.css'
 import './styles/styles.css'
 
+import './styles/quick-website.css'
+// import './styles/quick-website-dark.css'
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
