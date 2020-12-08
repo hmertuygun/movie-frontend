@@ -14,7 +14,7 @@ const UserContextProvider = ({ children }) => {
   const [state, setState] = useState(initialState)
 
   async function login(user) {
-    setState(user)
+    setState({ ...user })
 
     localStorage.setItem('user', JSON.stringify(user))
     return true
@@ -22,7 +22,6 @@ const UserContextProvider = ({ children }) => {
 
   function logout() {
     setState(null)
-
     localStorage.clear('user')
     return true
   }

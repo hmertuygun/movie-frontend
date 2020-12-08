@@ -9,29 +9,32 @@ const ExitStoploss = () => {
   const [triggerPrice, setTriggerPrice] = useState(entry.price)
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
-  const [amount, setAmount] = useState('')
-  const [amountPercentage, setAmountPercentage] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [quantityPercentage, setQuantityPercentage] = useState('')
   const [isValid, setIsValid] = useState(false)
 
-  useEffect(() => {
-    console.log()
-    if (triggerPrice && price && amount) {
-      setIsValid(true)
-    } else {
-      setIsValid(false)
-    }
-  }, [triggerPrice, price, amount])
+  useEffect(
+    () => {
+      if (triggerPrice && price && quantity) {
+        setIsValid(true)
+      } else {
+        setIsValid(false)
+      }
+    },
+    [triggerPrice, price, quantity, entry.quantity],
+    () => {}
+  )
 
   const priceAndProfitSync = (inputChanged, value) => {
     switch (inputChanged) {
       case 'triggerPrice':
-        return false
+        return true
 
       case 'price':
         const diff = entry.price - value
         const percentage = roundNumbers((diff / entry.price) * 100, 2)
         setProfit(-percentage)
-        return false
+        return true
 
       case 'profit':
         // check if negative
@@ -39,15 +42,15 @@ const ExitStoploss = () => {
         setPrice(entry.price - newPrice)
         return false
 
-      case 'amount':
-        if (value <= entry.amount) {
-          setAmountPercentage(roundNumbers((value / entry.amount) * 100, 4))
+      case 'quantity':
+        if (value <= entry.quantity) {
+          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 4))
         }
         return false
 
-      case 'amountPercentage':
-        const theAmount = (entry.amount * value) / 100
-        setAmount(roundNumbers(theAmount, 6))
+      case 'quantityPercentage':
+        const theQuantity = (entry.quantity * value) / 100
+        setQuantity(roundNumbers(theQuantity, 6))
         return false
 
       default: {
@@ -67,8 +70,8 @@ const ExitStoploss = () => {
               price,
               triggerPrice,
               profit,
-              amount,
-              amountPercentage,
+              quantity,
+              quantityPercentage,
             })
           }}
         >
@@ -100,14 +103,6 @@ const ExitStoploss = () => {
             label="Profit"
             type="number"
             placeholder=""
-            onBlur={(event) => {
-              const value = event.target.value
-              if (value < 0) {
-                setProfit(value)
-              } else {
-                setProfit(-value)
-              }
-            }}
             onChange={(value) => {
               if (value < 0) {
                 setProfit(value)
@@ -124,19 +119,19 @@ const ExitStoploss = () => {
             label="Amount"
             type="number"
             onChange={(value) => {
-              setAmount(value)
-              priceAndProfitSync('amount', value)
+              setQuantity(value)
+              priceAndProfitSync('quantity', value)
             }}
-            value={amount}
+            value={quantity}
             postLabel="BTC"
           />
 
           <InlineInput
             label=""
-            value={amountPercentage}
+            value={quantityPercentage}
             onChange={(value) => {
-              setAmountPercentage(value)
-              priceAndProfitSync('amountPercentage', value)
+              setQuantityPercentage(value)
+              priceAndProfitSync('quantityPercentage', value)
             }}
             type="number"
             min={-100}

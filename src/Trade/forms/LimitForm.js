@@ -4,30 +4,31 @@ import { TradeContext } from '../context/SimpleTradeContext'
 
 function LimitForm() {
   const { addEntry } = useContext(TradeContext)
-
   const balance = 20000
   const [price, setPrice] = useState('')
-  const [amount, setAmount] = useState('')
-  const [amountPercentage, setAmountPercentage] = useState('')
+  // @TOOD:
+  // Remove amount, and leave only quantity
+  const [quantity, setQuantity] = useState('')
+  const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
 
-  const calculatePercentageAmount = (inputChanged, value) => {
+  const calculatePercentageQuantity = (inputChanged, value) => {
     if (!price) {
       return false
     }
 
-    if (inputChanged === 'amount') {
-      setAmountPercentage(((value * price) / balance) * 100)
+    if (inputChanged === 'quantity') {
+      setQuantityPercentage(((value * price) / balance) * 100)
       setTotal(value * price)
     }
 
-    if (inputChanged === 'amountPercentage') {
+    if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
       const howManyBTC = cost / price
-      setAmount(howManyBTC)
+      setQuantity(howManyBTC)
       setTotal(howManyBTC * price)
     }
   }
@@ -35,13 +36,12 @@ function LimitForm() {
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
-      // console.log('Changing the values')
-      if (!price || !amount) {
+      if (!price || !quantity) {
         return false
       }
 
       const canAfford = total <= balance
-      setIsValid(canAfford && price && amount)
+      setIsValid(canAfford && price && quantity)
     },
     [total, price],
     () => {
@@ -62,7 +62,7 @@ function LimitForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            addEntry({ price, amount })
+            addEntry({ price, quantity, type: 'limit' })
           }}
         >
           <InlineInput
@@ -78,10 +78,10 @@ function LimitForm() {
             label="Amount"
             type="number"
             onChange={(value) => {
-              setAmount(value)
-              calculatePercentageAmount('amount', value)
+              setQuantity(value)
+              calculatePercentageQuantity('quantity', value)
             }}
-            value={amount}
+            value={quantity}
             placeholder="Amount"
             postLabel="BTC"
           />
@@ -89,10 +89,10 @@ function LimitForm() {
           <InlineInput
             type="number"
             onChange={(value) => {
-              setAmountPercentage(value)
-              calculatePercentageAmount('amountPercentage', value)
+              setQuantityPercentage(value)
+              calculatePercentageQuantity('quantityPercentage', value)
             }}
-            value={amountPercentage}
+            value={quantityPercentage}
             placeholder="Amount"
             postLabel="%"
           />
