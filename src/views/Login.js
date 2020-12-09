@@ -30,10 +30,7 @@ const LoginView = () => {
         setError({ message: errorMessage, code: errorCode })
       })
 
-    console.log(registered)
-
     if (registered !== undefined) {
-      console.log({ registered })
     }
 
     return true

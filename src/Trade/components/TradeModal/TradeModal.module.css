@@ -1,0 +1,33 @@
+.TradeModal-Container {
+  background: var(--trade-background);
+  padding: 15px;
+  width: 90%;
+  width: 390px;
+}
+
+@media (min-width: 420px) {
+  .TradeModal-Container {
+    width: 420px;
+    padding: 25px;
+  }
+}
+
+.TradeModal-Footer {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100%;
+}
+
+
+@media (min-width: 420px) {
+  .TradeModal-Footer {
+    flex-direction: row;
+    justify-content: space-between;    
+  }
+
+  .TradeModal-Footer * {
+    width: 175px;
+  }
+}
+
+

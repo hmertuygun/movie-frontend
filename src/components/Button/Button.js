@@ -44,7 +44,6 @@ const Button = ({
 
   return (
     <button
-      primary={primary}
       className={ButtonStyle()}
       type={type}
       disabled={disabled}

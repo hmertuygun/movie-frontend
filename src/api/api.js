@@ -12,19 +12,56 @@ async function getHeaders(token) {
   }
 }
 
-export async function getPositions() {
-  const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
+export async function placeOrder({ entry, targets, stoploss }) {
+  const newTargets = targets.map((target, index) => {
+    const { side, type, symbol, quantity, price } = target
+    return {
+      targetNumber: index + 1,
+      percentage: (target.quantity / entry.quantity) * 100,
+      quantity,
+      side,
+      type,
+      symbol,
+      price,
+    }
+  })
 
+  const newStoploss = stoploss.map((stoploss) => {
+    const { side, type, symbol, quantity, triggerPrice, price } = stoploss
+    return {
+      side,
+      type,
+      symbol,
+      quantity,
+      trigger: triggerPrice,
+      price,
+      percentage: (stoploss.quantity / entry.quantity) * 100,
+    }
+  })
+
+  const data = {
+    entryOrder: entry,
+    targets: newTargets,
+    stopLoss: { ...newStoploss[0] },
+  }
+
+  console.log({ dataToBeSent: data })
+
+  const apiUrl = process.env.REACT_APP_API + 'createFullTrade'
   const token = await firebase.auth().currentUser.getIdToken()
-  const positions = await fetch(apiUrl, {
+  const fullTrade = await axios(apiUrl, {
     headers: await getHeaders(token),
-  }).then((res) => res.json())
+    method: 'POST',
+    data,
+  })
 
-  return positions
+  return fullTrade
 }
 
-export async function setPositions({ position = { position: 'ErikP in the house' } }) {
-  const apiUrl = process.env.REACT_APP_API + 'v1/usercomp/positions'
+export async function setPositions({
+  position = { position: 'ErikP in the house' },
+}) {
+  const apiUrl = process.env.REACT_APP_API + 'usercomp/positions'
 
   const token = await firebase.auth().currentUser.getIdToken()
   const positions = await axios(apiUrl, {

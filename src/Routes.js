@@ -1,30 +1,35 @@
-import React, { useContext, Fragment } from 'react'
+import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
 import TradeView from './views/TradeView'
+import { About } from './views/About'
 import Login from './views/Login'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 
 const Routes = () => {
-  const { isLoggedIn } = useContext(UserContext)
+  const { isLoggedIn, logout } = useContext(UserContext)
 
   return (
     <Switch>
-      <Route path="/login">
-        <Login />
-      </Route>
+      <Route path="/login" component={Login} />
 
       {isLoggedIn && (
-        <Fragment>
-          <Route path="/trade">
-            <TradeView />
-          </Route>
+        <Switch>
+          <Route path="/trade" component={TradeView} />
+          <Route path="/about" component={About} />
+          <Route
+            path="/logout"
+            render={() => {
+              logout()
+            }}
+          />
 
           <Route path="/settings" component={Settings}></Route>
           <Route path="/positions" component={Position}></Route>
-        </Fragment>
+          <Redirect to="/trade"></Redirect>
+        </Switch>
       )}
 
       {!isLoggedIn && <Redirect to="/login" />}

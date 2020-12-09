@@ -6,8 +6,8 @@ import roundNumbers from '../../helpers/roundNumbers'
 const ExitTarget = () => {
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
-  const [amount, setAmount] = useState('')
-  const [amountPercentage, setAmountPercentage] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [quantityPercentage, setQuantityPercentage] = useState('')
   const [isValid, setIsValid] = useState(false)
 
   const { addTarget, state } = useContext(TradeContext)
@@ -20,12 +20,12 @@ const ExitTarget = () => {
 
   // VALIDATE FORM
   useEffect(() => {
-    if (price !== entry.price && price && amount <= entry.amount) {
+    if (price !== entry.price && price && quantity <= entry.quantity) {
       setIsValid(true)
     } else {
       setIsValid(false)
     }
-  }, [price, amount, entry.amount, entry.price])
+  }, [price, quantity, entry.quantity, entry.price])
 
   // PRICE and PROFIT Sync
   const priceAndProfitSync = (inputChanged, value) => {
@@ -39,13 +39,13 @@ const ExitTarget = () => {
       setPrice(entry.price * (1 + value / 100))
     }
 
-    if (inputChanged === 'amount' && value <= entry.amount) {
-      setAmountPercentage(roundNumbers((value / entry.amount) * 100, 4))
+    if (inputChanged === 'quantity' && value <= entry.quantity) {
+      setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 4))
     }
 
-    if ((inputChanged === 'amountPercentage' && value < 101) || value > 0) {
-      const theAmount = (entry.amount * value) / 100
-      setAmount(roundNumbers(theAmount, 6))
+    if ((inputChanged === 'quantityPercentage' && value < 101) || value > 0) {
+      const theQuantity = (entry.quantity * value) / 100
+      setQuantity(roundNumbers(theQuantity, 6))
     }
 
     return false
@@ -60,7 +60,7 @@ const ExitTarget = () => {
 
             addTarget({
               price,
-              amount,
+              quantity,
               profit,
             })
           }}
@@ -89,13 +89,13 @@ const ExitTarget = () => {
           />
 
           <InlineInput
-            label="Amount"
+            label="Quantity"
             type="number"
             onChange={(value) => {
-              priceAndProfitSync('amount', value)
-              setAmount(value)
+              priceAndProfitSync('quantity', value)
+              setQuantity(value)
             }}
-            value={amount}
+            value={quantity}
             postLabel="BTC"
           />
 
@@ -103,10 +103,10 @@ const ExitTarget = () => {
             label=""
             type="number"
             onChange={(value) => {
-              setAmountPercentage(value)
-              priceAndProfitSync('amountPercentage', value)
+              setQuantityPercentage(value)
+              priceAndProfitSync('quantityPercentage', value)
             }}
-            value={amountPercentage}
+            value={quantityPercentage}
             postLabel="%"
           />
 

@@ -6,6 +6,7 @@ import Logo from './Logo/Logo'
 import Link from './Link/Link'
 import TabNavigator from './TabNavigator/TabNavigator'
 import ButtonNavigator from './TabNavigator/ButtonNavigator'
+import Modal from './Modal/Modal'
 
 export {
   Button,
@@ -16,4 +17,5 @@ export {
   TabNavigator,
   ButtonNavigator,
   InlineInput,
+  Modal,
 }

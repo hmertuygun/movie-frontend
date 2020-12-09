@@ -83,7 +83,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               {roundNumber(target.profit)}%
             </td>
 
-            <td>{roundNumber((target.amount / entry.amount) * 100)}%</td>
+            <td>{roundNumber((target.quantity / entry.quantity) * 100)}%</td>
 
             <td>
               <Button onClick={() => onClick({ type: 'target', index })} plain>
@@ -108,7 +108,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               {stoploss.profit}%
             </td>
 
-            <td>{roundNumber((stoploss.amount / entry.amount) * 100)}%</td>
+            <td>{roundNumber((stoploss.quantity / entry.quantity) * 100)}%</td>
 
             <td>
               <Button

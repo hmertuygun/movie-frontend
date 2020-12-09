@@ -7,26 +7,60 @@ const initialState = {}
 const SimpleTradeContextProvider = ({ children }) => {
   const [state, setState] = useState(initialState)
 
-  const addEntry = ({ price, amount }) => {
+  const addEntry = ({
+    price,
+    quantity,
+    type = 'limit',
+    side = 'buy',
+    symbol = 'BTCUSDT',
+  }) => {
     setState({
       ...state,
       entry: {
         price,
-        amount,
+        quantity,
+        type,
+        symbol,
+        side,
       },
     })
   }
 
-  const addTarget = ({ price, amount, profit }) => {
+  const addTarget = ({
+    price,
+    quantity,
+    profit,
+    symbol = 'BTCUSDT',
+    type = 'limit',
+    side = 'sell',
+  }) => {
     const targets = state.targets || []
 
     setState({
       ...state,
-      targets: [...targets, { price, amount, profit }],
+      targets: [
+        ...targets,
+        {
+          price,
+          quantity,
+          profit,
+          symbol,
+          type,
+          side,
+        },
+      ],
     })
   }
 
-  const addStoploss = ({ price, triggerPrice, amount, profit }) => {
+  const addStoploss = ({
+    price,
+    triggerPrice,
+    quantity,
+    profit,
+    side = 'sell',
+    type = 'limit',
+    symbol = 'BTCUSDT',
+  }) => {
     const stoploss = state.stoploss || []
 
     setState({
@@ -37,7 +71,10 @@ const SimpleTradeContextProvider = ({ children }) => {
           price,
           profit,
           triggerPrice,
-          amount,
+          quantity,
+          side,
+          type,
+          symbol,
         },
       ],
     })

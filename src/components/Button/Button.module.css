@@ -11,7 +11,7 @@
 @media (prefers-color-scheme: dark) {
   .Button {
     --button-default-border-color: #282D34;
-    --button-default-color: #A1AAB5;
+    --button-default-color: #fff;
     --button-defualt-background: #14161A;
   }  
 }
@@ -100,4 +100,18 @@
 .Button-sell:hover,
 .Button-buy:hover { 
   color: var(--button-primary-color);
+}
+
+.Button-confirm {
+  composes: Button;
+  cursor: pointer;
+  background: var(--trade-confirm-background);
+  color: var(--dark);
+  font-weight: bold;
+}
+
+.Button-confirm:hover {
+  cursor: pointer;
+  background: var(--trade-confirm-background);
+  color: var(--dark);
 }
