@@ -5,7 +5,7 @@ import { UserContext } from './contexts/UserContext'
 import TradeView from './views/TradeView'
 import Login from './views/Login'
 import Settings from './views/Settings'
-import Position from './views/Position/PositionView'
+import Position from './views/PositionView'
 
 const Routes = () => {
   const { isLoggedIn } = useContext(UserContext)
@@ -23,7 +23,7 @@ const Routes = () => {
           </Route>
 
           <Route path="/settings" component={Settings}></Route>
-          <Route path="/position" component={Position}></Route>
+          <Route path="/positions" component={Position}></Route>
         </Fragment>
       )}
 

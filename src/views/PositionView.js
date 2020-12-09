@@ -1,6 +1,6 @@
 import React from 'react'
-import AccordionContainer from './components/Accordion/AccordionContainer'
-import { data, cols } from './utils/mock-data'
+import AccordionContainer from '../Position/components/Accordion/AccordionContainer'
+import { data, cols } from '../Position/utils/mock-data'
 
 const Position = () => {
 
