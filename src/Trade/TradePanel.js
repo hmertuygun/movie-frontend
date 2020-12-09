@@ -76,8 +76,6 @@ const Trade = () => {
               </Fragment>
             )}
 
-            <TradeTableContainer />
-
             {ableToPostFulltrade && (
               <Button
                 variant="confirm"
@@ -88,6 +86,8 @@ const Trade = () => {
                 Place Fulltrade
               </Button>
             )}
+
+            <TradeTableContainer />
           </div>
         </TabNavigator>
       </section>
