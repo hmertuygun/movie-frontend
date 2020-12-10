@@ -3,13 +3,11 @@ import AccordionContainer from '../Position/components/Accordion/AccordionContai
 import { data, cols } from '../Position/utils/mock-data'
 
 const Position = () => {
-
-    return (
-        <div className='container'>
-            <AccordionContainer data={data} columns={cols} />
-        </div>
-    )
+  return (
+    <div className="container">
+      <AccordionContainer data={data} columns={cols} />
+    </div>
+  )
 }
 
 export default Position
- 
