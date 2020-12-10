@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
-import { Route, Redirect } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 import { UserContext } from '../contexts/UserContext'
 import { Button, Input, Typography, Logo, Link } from '../components'
 import './Login.css'
@@ -10,7 +10,6 @@ const LoginView = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [redirect, setRedirect] = useState(null)
 
   const doLogin = async () => {
     const loggedin = await login(email, password)
@@ -143,8 +142,6 @@ const LoginView = () => {
 
       <Route exact path="/login" render={() => LoginTemplate} />
       <Route path="/login/register" render={() => RegisterTemplate} />
-
-      {redirect && <Redirect to={redirect} />}
     </section>
   )
 }
