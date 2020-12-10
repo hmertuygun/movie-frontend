@@ -58,17 +58,20 @@ export async function placeOrder({ entry, targets, stoploss }) {
   return fullTrade
 }
 
-export async function setPositions({
-  position = { position: 'ErikP in the house' },
-}) {
-  const apiUrl = process.env.REACT_APP_API + 'usercomp/positions'
+// make sure users can be recognized by user component
+export async function validateUser() {
+  const apiUrl = process.env.REACT_APP_API + 'register'
 
-  const token = await firebase.auth().currentUser.getIdToken()
-  const positions = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'POST',
-    data: { position },
-  })
+  try {
+    const token = await firebase.auth().currentUser.getIdToken()
 
-  return positions
+    const validated = await axios(apiUrl, {
+      headers: await getHeaders(token),
+    })
+
+    return validated
+  } catch (error) {
+    console.error(error)
+    return error
+  }
 }

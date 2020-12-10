@@ -13,8 +13,6 @@ const Routes = () => {
 
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-
       {isLoggedIn && (
         <Switch>
           <Route path="/trade" component={TradeView} />
@@ -22,7 +20,11 @@ const Routes = () => {
           <Route
             path="/logout"
             render={() => {
-              logout()
+              setTimeout(() => {
+                logout()
+              }, 1000)
+
+              return <div>Logging you out..</div>
             }}
           />
 
@@ -32,6 +34,7 @@ const Routes = () => {
         </Switch>
       )}
 
+      <Route path="/login" component={Login} />
       {!isLoggedIn && <Redirect to="/login" />}
     </Switch>
   )

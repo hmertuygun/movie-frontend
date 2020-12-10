@@ -1,69 +1,40 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Route, Redirect } from 'react-router-dom'
-import { firebase } from '../firebase/firebase'
 import { UserContext } from '../contexts/UserContext'
 import { Button, Input, Typography, Logo, Link } from '../components'
 import './Login.css'
 
 const LoginView = () => {
-  const { login } = useContext(UserContext)
+  const { login, register } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [redirect, setRedirect] = useState(null)
 
+  const doLogin = async () => {
+    const loggedin = await login(email, password)
+    if (loggedin.message) {
+      setError({ message: loggedin.message })
+    }
+  }
+
   // clear errors
   useEffect(() => {
     setError('')
   }, [email, password])
-
-  async function register(email, password) {
-    const registered = await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch(function (error) {
-        // Handle Errors here.
-        var errorCode = error.code
-        var errorMessage = error.message
-
-        setError({ message: errorMessage, code: errorCode })
-      })
-
-    if (registered !== undefined) {
-    }
-
-    return true
-  }
-
-  async function doLogin(email, password) {
-    const signedin = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch(function (error) {
-        // Handle Errors here.
-        var errorCode = error.code
-        var errorMessage = error.message
-
-        setError({ message: errorMessage, code: errorCode })
-
-        return false
-      })
-
-    if (signedin) {
-      login(signedin)
-      setRedirect('/trade')
-    }
-
-    return true
-  }
 
   const LoginTemplate = (
     <Fragment>
       <form
         onSubmit={(event) => {
           event.preventDefault()
-          doLogin(email, password)
+
+          if (email && password) {
+            doLogin(email, password)
+          } else {
+            setError({ message: 'You need both email and password to sign in' })
+          }
         }}
       >
         <Input
@@ -109,6 +80,7 @@ const LoginView = () => {
     </Fragment>
   )
 
+  // https://firebase.google.com/docs/auth/web/email-link-auth#send_an_authentication_link_to_the_users_email_address
   const RegisterTemplate = (
     <Fragment>
       <Typography as="h2">Email activation</Typography>
