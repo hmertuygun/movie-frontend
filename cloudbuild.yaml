@@ -24,6 +24,5 @@ steps:
       - '-f'
       - 'deployment.yaml'
     env:
-      - 'CLOUDSDK_COMPUTE_REGION=asia-northeast1'
-      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=cp-dev-cluster'
+      - 'CLOUDSDK_COMPUTE_REGION=europe-north1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cp-dev-cluster-eu'
