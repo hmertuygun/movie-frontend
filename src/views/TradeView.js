@@ -1,6 +1,7 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
 import TradePanel from '../Trade/TradePanel'
+import TradeChart from '../Trade/TradeChart'
 import './TradeView.css'
 
 const TradeView = () => (
@@ -8,7 +9,9 @@ const TradeView = () => (
     <section className="TradeView-Panel">
       <Route path="/trade/" component={TradePanel} />
     </section>
-    <section className="TradeView-Chart"></section>
+    <section className="TradeView-Chart">
+      <Route path="/trade/" component={TradeChart} />
+    </section>
   </main>
 )
 
