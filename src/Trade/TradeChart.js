@@ -6,6 +6,7 @@ const TradeChart = () => (
     symbol="BINANCE:BTCUSDT"
     theme={Themes.DARK}
     hide_side_toolbar={false}
+    autosize={true}
   />
 )
 
