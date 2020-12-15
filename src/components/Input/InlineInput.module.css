@@ -63,6 +63,7 @@
 .InputElement {
   flex-grow: 1;
   padding: .75rem 1rem .75rem 0;
+  height: 100%;
   border: none;
   font-size: inherit;
   color: var(--input-default-color);
@@ -77,6 +78,7 @@
 .InputLabel {
   line-height: 3rem;
   color: var(--label-default-color);
+  margin: 0;
 }
 
 
