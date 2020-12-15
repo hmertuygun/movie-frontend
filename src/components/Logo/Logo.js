@@ -1,13 +1,16 @@
 import React from 'react'
 
-export default ({ withText = true, ...props }) => {
+const Logo = ({ withText = true, ...props }) => {
   return (
-    <div style={{
+    <div
+      style={{
         color: 'blue',
-        width: '360px'
-       }}>
-      <h1 style={{ color: 'blue'}}>
-        CP {withText && (<span>CoinPanel</span>)}
-      </h1>
-    </div>)
+        width: '360px',
+      }}
+    >
+      <h1 style={{ color: 'blue' }}>CP {withText && <span>CoinPanel</span>}</h1>
+    </div>
+  )
 }
+
+export default Logo

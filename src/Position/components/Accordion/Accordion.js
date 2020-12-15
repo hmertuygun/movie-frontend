@@ -15,7 +15,7 @@ const Accordion = (props) => {
 
     const sign = ROE > 0 ? true : ROE === 0 ? 0 : false
     setIsPositionSuccess(sign)
-  })
+  }, [props])
 
   return (
     <>

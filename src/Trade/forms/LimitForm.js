@@ -43,7 +43,7 @@ function LimitForm() {
       const canAfford = total <= balance
       setIsValid(canAfford && price && quantity)
     },
-    [total, price],
+    [total, price, quantity],
     () => {
       setTotal(0)
       setPrice(0)

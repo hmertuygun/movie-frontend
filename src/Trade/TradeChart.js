@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React from 'react'
 import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 
 const TradeChart = () => (
