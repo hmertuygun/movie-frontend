@@ -2,7 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-
+import { Header } from './components'
 import Routes from './Routes'
 import UserContextProvider from './contexts/UserContext'
 
@@ -13,6 +13,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <UserContextProvider>
+          <Header />
           <Routes />
         </UserContextProvider>
       </Router>

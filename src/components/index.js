@@ -7,8 +7,10 @@ import Link from './Link/Link'
 import TabNavigator from './TabNavigator/TabNavigator'
 import ButtonNavigator from './TabNavigator/ButtonNavigator'
 import Modal from './Modal/Modal'
+import Header from './Header/Header'
 
 export {
+  Header,
   Button,
   Input,
   Typography,
