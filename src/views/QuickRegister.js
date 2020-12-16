@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { Logo } from '../components'
 import { UserContext } from '../contexts/UserContext'
@@ -18,7 +18,7 @@ const QuickRegister = () => {
   }, [email])
 
   const doRegister = async () => {
-    const registerResponse = await emailRegister(email)
+    await emailRegister(email)
 
     setTimeout(() => {
       setIsLoading(false)
