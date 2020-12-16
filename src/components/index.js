@@ -8,9 +8,9 @@ import TabNavigator from './TabNavigator/TabNavigator'
 import ButtonNavigator from './TabNavigator/ButtonNavigator'
 import Modal from './Modal/Modal'
 import Header from './Header/Header'
+import Icon from './Icon/Icon'
 
 export {
-  Header,
   Button,
   Input,
   Typography,
@@ -20,4 +20,6 @@ export {
   ButtonNavigator,
   InlineInput,
   Modal,
+  Header,
+  Icon,
 }

@@ -32,8 +32,7 @@ const UserContextProvider = ({ children }) => {
 
     // if we get the sign in
     if (signedin) {
-      const validated = await validateUser()
-      console.log(validated)
+      await validateUser()
       setState({ user: signedin.user })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
@@ -53,6 +52,8 @@ const UserContextProvider = ({ children }) => {
 
   // REGISTER NEW USER
   async function register(email, password) {
+    console.log(email, password)
+
     const registered = await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
@@ -61,11 +62,25 @@ const UserContextProvider = ({ children }) => {
         var errorCode = error.code
         var errorMessage = error.message
         console.error({ message: errorMessage, code: errorCode })
-        // setError({ message: errorMessage, code: errorCode })
+        return { message: errorMessage, code: errorCode }
       })
 
     setState({ user: registered.user })
     localStorage.setItem('user', JSON.stringify(registered.user))
+
+    return registered
+  }
+
+  async function emailRegister(email) {
+    const url = 'http://' + window.location.host + '/register/confirm/recieved'
+    const actionCodeSettings = {
+      url,
+      // This must be true.
+      handleCodeInApp: true,
+    }
+
+    localStorage.setItem('emailForSignIn', email)
+    await firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
 
     return true
   }
@@ -76,6 +91,7 @@ const UserContextProvider = ({ children }) => {
         login,
         logout,
         register,
+        emailRegister,
         isLoggedIn,
       }}
     >

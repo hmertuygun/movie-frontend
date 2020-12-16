@@ -4,7 +4,11 @@ import { UserContext } from './contexts/UserContext'
 
 import TradeView from './views/TradeView'
 import { About } from './views/About'
-import Login from './views/Login'
+// import Login from './views/Login'
+import Login from './views/QuickLogin'
+import Register from './views/QuickRegister'
+import RegisterConfirm from './views/QuickRegisterConfirm'
+import RegisterFinal from './views/QuickFinal'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
@@ -37,6 +41,13 @@ const Routes = () => {
       )}
 
       <Route path="/login" component={Login} />
+      <Route exact path="/register" component={Register} />
+      <Route exact path="/register/confirm" component={RegisterConfirm} />
+      <Route
+        exact
+        path="/register/confirm/recieved"
+        component={RegisterFinal}
+      />
       {!isLoggedIn && <Redirect to="/login" />}
     </Switch>
   )
