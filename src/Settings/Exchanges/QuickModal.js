@@ -16,15 +16,18 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     <div className="modal-open">
       <div
         className="modal fade show"
-        tabindex="-1"
         role="dialog"
         aria-labelledby="exampleModalLabel"
         aria-modal="true"
         style={{ display: 'block' }}
       >
-        <div
+        <form
           className="modal-dialog modal-dialog-centered modal-lg"
           role="document"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSave({ secret, apiKey, exchange })
+          }}
         >
           <div className="modal-content">
             <div className="modal-header">
@@ -43,71 +46,67 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               </button>
             </div>
             <div className="modal-body">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  onSave({ secret, exchange, apiKey })
-                }}
-              >
-                <div className="form-group">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text" id="basic-addon1">
-                        Exchange
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      minLength="3"
-                      required
-                      className="form-control"
-                      value={exchange}
-                      onChange={(event) => setExchange(event.target.value)}
-                      placeholder="Exchange"
-                    />
+              <div className="form-group">
+                <div className="input-group">
+                  <div className="input-group-prepend">
+                    <span className="input-group-text" id="basic-addon1">
+                      Exchange
+                    </span>
                   </div>
+                  <input
+                    type="text"
+                    minLength="3"
+                    required
+                    disabled={isLoading}
+                    className="form-control"
+                    value={exchange}
+                    onChange={(event) => setExchange(event.target.value)}
+                    placeholder="Exchange"
+                  />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text" id="basic-addon1">
-                        Key
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="API Key"
-                      value={apiKey}
-                      minLength="3"
-                      onChange={(event) => setApiKey(event.target.value)}
-                      required
-                      aria-label="apikey"
-                      aria-describedby="basic-addon1"
-                    />
+              <div className="form-group">
+                <div className="input-group">
+                  <div className="input-group-prepend">
+                    <span className="input-group-text" id="basic-addon1">
+                      Key
+                    </span>
                   </div>
+                  <input
+                    type="text"
+                    disabled={isLoading}
+                    className="form-control"
+                    placeholder="API Key"
+                    value={apiKey}
+                    minLength="3"
+                    onChange={(event) => setApiKey(event.target.value)}
+                    required
+                    aria-label="apikey"
+                    aria-describedby="basic-addon1"
+                  />
                 </div>
+              </div>
 
-                <div className="form-group">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text" id="basic-addon1">
-                        Secret
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      className="form-control"
-                      value={secret}
-                      minLength="3"
-                      onChange={(event) => setSecret(event.target.value)}
-                      placeholder="Exchange"
-                    />
+              <div className="form-group">
+                <div className="input-group">
+                  <div className="input-group-prepend">
+                    <span className="input-group-text" id="basic-addon1">
+                      Secret
+                    </span>
                   </div>
+                  <input
+                    type="text"
+                    required
+                    disabled={isLoading}
+                    className="form-control"
+                    value={secret}
+                    minLength="3"
+                    onChange={(event) => setSecret(event.target.value)}
+                    placeholder="Secret"
+                  />
                 </div>
-              </form>
+              </div>
             </div>
             <div className="modal-footer">
               <button
@@ -118,12 +117,17 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary">
-                Save
+
+              <button
+                disabled={!isValid || isLoading}
+                type="submit"
+                className="btn btn-primary"
+              >
+                {!isLoading ? 'Save' : 'Saving...'}
               </button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

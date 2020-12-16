@@ -6,15 +6,14 @@ export const UserContext = createContext()
 
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
-
   let initialState = {}
-  console.log(localStorageUser)
+
   if (localStorageUser !== 'undefined') {
     initialState = { user: JSON.parse(localStorageUser) }
   } else {
-    console.log('There was no localstorage')
     initialState = { user: null }
   }
+
   const [state, setState] = useState(initialState)
 
   // @ TODO

@@ -75,3 +75,63 @@ export async function validateUser() {
     return error
   }
 }
+
+// {
+//   "apiKey": "FriendshipIsMagic",
+//   "signSecret": "Tralalala",
+//   "exchange": "binance"
+// }
+export async function addExchange({ apiKey, secret, exchange }) {
+  const apiUrl = process.env.REACT_APP_API + 'addApiKey'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  try {
+    const added = await axios(apiUrl, {
+      headers: await getHeaders(token),
+      method: 'POST',
+      data: { apiKey, signSecret: secret, exchange },
+    })
+
+    return added
+  } catch (error) {
+    console.error(error)
+    return error
+  }
+}
+
+export async function getExchanges() {
+  const apiUrl = process.env.REACT_APP_API + 'loadApiKeys'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const exchanges = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return exchanges
+}
+
+export async function activateExchange(exchangeName) {
+  const apiUrl = process.env.REACT_APP_API + 'activateApiKey'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const activate = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { apiKeyName: exchangeName },
+  })
+
+  return activate
+}
+
+export async function deleteExchange(apiKeyName) {
+  const apiUrl = process.env.REACT_APP_API + 'deleteApiKey/' + apiKeyName
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const activate = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE',
+  })
+
+  return activate
+}

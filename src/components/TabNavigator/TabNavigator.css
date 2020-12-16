@@ -1,8 +1,10 @@
 .TabNavigator-container {
-  --border-color: var(--grey);
+  --border-color: #ddd;
   --border-color-active: var(--primary);
   --color: #777;
   --color-hover: #4a5568;
+
+  width: 100%;
 }
 
 /* DARK MODE */
