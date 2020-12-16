@@ -17,7 +17,7 @@ export default function App() {
           <Routes />
         </UserContextProvider>
       </Router>
-      <ReactQueryDevtools />
+      {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
     </QueryClientProvider>
   )
 }
