@@ -7,6 +7,8 @@ import { About } from './views/About'
 import Login from './views/Login'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
+import Portfolio from './views/PortfolioView'
+
 
 const Routes = () => {
   const { isLoggedIn, logout } = useContext(UserContext)
@@ -28,9 +30,10 @@ const Routes = () => {
             }}
           />
 
-          <Route path="/settings" component={Settings}></Route>
-          <Route path="/positions" component={Position}></Route>
-          <Redirect to="/trade"></Redirect>
+          <Route path="/settings" component={Settings} />
+          <Route path="/portfolios" component={Portfolio} />
+          <Route path="/positions" component={Position} />
+          <Redirect to="/trade" />
         </Switch>
       )}
 

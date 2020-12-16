@@ -39,7 +39,6 @@ const Trade = () => {
   const doPlaceOrder = async () => {
     try {
       const order = await placeOrder({ ...state })
-      console.log({ message: 'Order was sent', order })
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
     }
