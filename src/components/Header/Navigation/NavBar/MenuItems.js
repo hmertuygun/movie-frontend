@@ -9,7 +9,7 @@ function MenuItens() {
         return (
           <li className="nav-item nav-item-spaced d-none d-lg-block" key={idx}>
             <NavLink
-              activeClassNam="nav-link active"
+              activeClassName="nav-link active"
               className="nav-link"
               to={item.url}
             >
