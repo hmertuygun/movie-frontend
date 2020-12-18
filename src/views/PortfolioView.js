@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import EstimateValue from '../Portfolio/components/EstimateValue'
 import PortfolioDistribution from '../Portfolio/components/PortfolioDistribution'
 import Table from '../components/Table/Table'
-import ChartContext from '../Portfolio/context/ChartContext'
+/* import ChartContext from '../Portfolio/context/ChartContext'
 import { EstimatedProvider } from '../Portfolio/context/EstimatedContext'
-
+ */
 import { mockBalances } from '../Portfolio/components/Table/table-mock'
 import { tableConstants } from '../Portfolio/components/Table/tableConstant'
 
@@ -12,9 +12,11 @@ import Search from '../components/Table/Search/Search'
 import Pagination from '../components/Table/Pagination/Pagination'
 
 const PortfolioView = () => {
-  const [balances, setBalances] = useState(mockBalances)
+  const [balances] = useState(mockBalances)
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+
+  const [refreshBtn, setRefreshBtne] = useState(false)
 
   const ITEMS_PER_PAGE = 5
   const tableData = useMemo(() => {
@@ -46,24 +48,40 @@ const PortfolioView = () => {
               <div className="row align-items-center mb-4">
                 <div className="col">
                   <h1 className="h4 mb-0">Portfolio</h1>
-                </div>
+                </div>{' '}
                 <div className="col-auto">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-neutral btn-icon"
-                  >
-                    <span className="btn-inner--text">Refresh</span>
-                    <span className="btn-inner--icon">
-                      <i data-feather="refresh-ccw"></i>
-                    </span>
-                  </button>
+                  {refreshBtn ? (
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      disabled
+                    >
+                      Refresh{'  '}
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setRefreshBtne(true)
+                        setTimeout(() => {
+                          setRefreshBtne(false)
+                        }, 2000)
+                      }}
+                    >
+                      Refresh
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="row">
                 <div className="col-lg-6">
-                  <EstimatedProvider>
-                    <EstimateValue />
-                  </EstimatedProvider>
+                  <EstimateValue />
                 </div>
                 <div className="col-lg-6">
                   {/*                   <ChartContext>
@@ -93,13 +111,11 @@ const PortfolioView = () => {
                     <div className="card-body">
                       <Table cols={tableConstants()} data={tableData} />
 
-                      <div>
-                        <Pagination
-                          postsPerPage={ITEMS_PER_PAGE}
-                          totalPosts={balances.length}
-                          paginate={paginate}
-                        />
-                      </div>
+                      <Pagination
+                        postsPerPage={ITEMS_PER_PAGE}
+                        totalPosts={balances.length}
+                        paginate={paginate}
+                      />
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,4 @@
-import React, { useEffect, useContext } from 'react'
-import { ChartContext } from '../../context/ChartContext'
+import React, { useEffect } from 'react'
 import c3 from 'c3'
 
 function PieCharts() {

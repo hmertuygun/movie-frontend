@@ -1,5 +1,5 @@
 import React from 'react'
-import ChartDataCtxProvider from '../context/ChartContext'
+/* import ChartDataCtxProvider from '../context/ChartContext' */
 import PieCharts from './Chart/PieCharts'
 
 const PortfolioDistribution = () => {

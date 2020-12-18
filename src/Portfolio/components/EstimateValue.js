@@ -1,9 +1,7 @@
-import React from 'react'
-
-import { useGlobalContext } from '../context/EstimatedContext'
+import React, { useState } from 'react'
 
 const EstimateValue = () => {
-  const { tickers } = useGlobalContext()
+  const [tickers] = useState([])
 
   const EstimatedValues = tickers.map((value, idx) => {
     return <ul key={idx}> {value.price}</ul>
@@ -29,7 +27,7 @@ const EstimateValue = () => {
 
             <div className="pl-2">
               <span className="text-muted text-sm font-weight-bold">
-                {EstimatedValues}
+                {EstimatedValues ? EstimatedValues : 'not data available'}
               </span>
             </div>
           </div>
