@@ -48,7 +48,7 @@ const UserContextProvider = ({ children }) => {
   }
 
   // GET LOGGED IN STATE
-  const isLoggedIn = state && state.user ? true : false
+  const isLoggedIn = state && state.user
 
   // REGISTER NEW USER
   async function register(email, password) {

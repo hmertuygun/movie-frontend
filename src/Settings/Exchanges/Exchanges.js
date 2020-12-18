@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import {
-  getExchanges,
-  addExchange,
-  activateExchange,
-  deleteExchange,
+  getUserExchanges,
+  addUserExchange,
+  activateUserExchange,
+  deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
 
@@ -12,7 +12,7 @@ const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
 
-  const exchangeQuery = useQuery('exchanges', getExchanges)
+  const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
   let exchanges = []
 
@@ -28,7 +28,7 @@ const Exchanges = () => {
       })
   }
 
-  const addExchangeMutation = useMutation(addExchange, {
+  const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
@@ -47,7 +47,7 @@ const Exchanges = () => {
     }
   }
 
-  const deleteExchangeMutation = useMutation(deleteExchange, {
+  const deleteExchangeMutation = useMutation(deleteUserExchange, {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
     },
@@ -57,7 +57,7 @@ const Exchanges = () => {
     await deleteExchangeMutation.mutate(name)
   }
 
-  const setActiveMutation = useMutation(activateExchange, {
+  const setActiveMutation = useMutation(activateUserExchange, {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
     },

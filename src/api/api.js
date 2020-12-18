@@ -76,12 +76,23 @@ export async function validateUser() {
   }
 }
 
+// make sure symbol list can be pulled
+export async function getExchanges() {
+  const apiUrl = process.env.REACT_APP_API + 'exchange'
+  const token = await firebase.auth().currentUser.getIdToken()
+  const exchanges = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return exchanges.data
+}
+
 // {
 //   "apiKey": "FriendshipIsMagic",
 //   "signSecret": "Tralalala",
 //   "exchange": "binance"
 // }
-export async function addExchange({ apiKey, secret, exchange }) {
+export async function addUserExchange({ apiKey, secret, exchange }) {
   const apiUrl = process.env.REACT_APP_API + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
 
@@ -99,7 +110,7 @@ export async function addExchange({ apiKey, secret, exchange }) {
   }
 }
 
-export async function getExchanges() {
+export async function getUserExchanges() {
   const apiUrl = process.env.REACT_APP_API + 'loadApiKeys'
   const token = await firebase.auth().currentUser.getIdToken()
 
@@ -111,7 +122,7 @@ export async function getExchanges() {
   return exchanges
 }
 
-export async function activateExchange(exchangeName) {
+export async function activateUserExchange(exchangeName) {
   const apiUrl = process.env.REACT_APP_API + 'activateApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
 
@@ -124,7 +135,7 @@ export async function activateExchange(exchangeName) {
   return activate
 }
 
-export async function deleteExchange(apiKeyName) {
+export async function deleteUserExchange(apiKeyName) {
   const apiUrl = process.env.REACT_APP_API + 'deleteApiKey/' + apiKeyName
   const token = await firebase.auth().currentUser.getIdToken()
 

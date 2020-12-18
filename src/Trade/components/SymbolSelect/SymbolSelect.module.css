@@ -1,0 +1,43 @@
+.SymbolSelect-Container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (min-width: 960px) {
+  .SymbolSelect-Container {
+     flex-direction: row; 
+     width: 600px;
+     align-items: flex-start;
+     justify-content: space-between;
+  }
+}
+
+.Select-Container {
+  position: relative;
+  width: 100%;
+}
+
+.Select-Label {
+  visibility: hidden;
+}
+
+.Select-Select {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  right: 0;
+  flex-grow: 0;
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
+  line-height: 1rem;
+  height: 2rem;
+  padding: 0.25rem 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.Select-Select:hover {
+  border: 1px solid var(--primary-color);
+  outline: 1px solid var(--primary-color);
+}

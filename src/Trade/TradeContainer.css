@@ -16,8 +16,19 @@
   flex-grow: 0;
 }
 
+.TradeChart-Container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    flex-grow: 2;
+}
+
+.TradeView-Symbol { 
+    background: var(--trade-background);
+    flex-grow: 0;
+  }
+
 .TradeView-Chart { 
-  background: #222;
-  min-height: 100vh;
+  background: var(--trade-background);
   flex-grow: 2;
 }
