@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
+import Security from '../Settings/Security/Security'
 
 const Settings = () => {
   return (
@@ -30,7 +31,7 @@ const Settings = () => {
                   >
                     <Exchanges />
                     <div>Not available</div>
-                    <div>Not available</div>
+                    <Security />
                     <div>Not available</div>
                     <div>Not available</div>
                   </TabNavigator>
