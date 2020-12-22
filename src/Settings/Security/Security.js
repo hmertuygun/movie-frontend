@@ -171,41 +171,7 @@ const Security = () => {
                   </ul>
                 </div>
               </div>
-              <form>
-                <h5 className="mb-4">Change password</h5>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label className="form-control-label">Old password</label>
-                      <input className="form-control" type="password" />
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label className="form-control-label">New password</label>
-                      <input className="form-control" type="password" />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
-                      <label className="form-control-label">
-                        Confirm password
-                      </label>
-                      <input className="form-control" type="password" />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 text-right">
-                  <a href="#" className="btn btn-sm btn-neutral">
-                    I forgot my password
-                  </a>
-                  <button type="button" className="btn btn-sm btn-primary">
-                    Save
-                  </button>
-                </div>
-              </form>
+              {/* CHANGE PASSWORD */}
             </div>
           </div>
         </div>
