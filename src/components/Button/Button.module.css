@@ -96,6 +96,14 @@
   color: var(--button-primary-color);
 }
 
+.Button-sell,
+.Button-buy {
+  font-size: 14px;
+  line-height: 32px;
+  padding: 0;
+}
+
+
 .Button-sell:hover,
 .Button-buy:hover {
   color: var(--button-primary-color);
