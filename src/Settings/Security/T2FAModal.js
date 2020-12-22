@@ -28,27 +28,37 @@ const T2FAModal = ({
               />
             </div>
           </div>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter APP Code"
-            value={verifyCode}
-            onChange={handleUserInput}
-          />
-          <button
-            type="button"
-            className="btn btn-secondary px-3"
-            onClick={handleSubmit}
-          >
-            Verify
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger px-3"
-            onClick={closeModal}
-          >
-            Cancel
-          </button>
+          <div className="card-body">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Enter APP Code"
+              value={verifyCode}
+              onChange={handleUserInput}
+            />
+          </div>
+          <div className="card-footer">
+            <div className="row">
+              <div className="col-6">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleSubmit}
+                >
+                  Verify
+                </button>
+              </div>
+              <div className="col-6 text-right">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </Modal>
     )
