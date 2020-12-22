@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { firebase } from '../../firebase/firebase'
-import { UserContext } from '../../contexts/UserContext'
 
 // https://reactrouter.com/web/example/query-parameters
 function useQuery() {
@@ -20,14 +19,14 @@ const QuickConfirm = () => {
 
   const query = useQuery()
 
-  async function checkEmail() {
+  const checkEmail = useCallback(async () => {
     const actionCode = query.get('oobCode')
     await handleVerifyEmail(actionCode)
-  }
+  }, [query])
 
   useEffect(() => {
     checkEmail()
-  }, [])
+  }, [checkEmail])
 
   const toggleTypeText = () => {
     if (type === 'text') {
@@ -61,7 +60,7 @@ const QuickConfirm = () => {
   }
 
   async function registerPassword() {
-    const res = await firebase.auth().currentUser.updatePassword(password)
+    await firebase.auth().currentUser.updatePassword(password)
 
     setTimeout(() => {
       setDone(true)
