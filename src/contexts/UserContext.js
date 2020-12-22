@@ -54,8 +54,6 @@ const UserContextProvider = ({ children }) => {
 
   // REGISTER NEW USER
   async function register(email, password) {
-    console.log(email, password)
-
     const registered = await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)

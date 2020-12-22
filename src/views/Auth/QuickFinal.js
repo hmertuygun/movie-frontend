@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { firebase } from '../../firebase/firebase'
@@ -19,14 +19,15 @@ const QuickConfirm = () => {
 
   const query = useQuery()
 
-  const checkEmail = useCallback(async () => {
-    const actionCode = query.get('oobCode')
-    await handleVerifyEmail(actionCode)
-  }, [query])
+  const actionCode = query.get('oobCode')
 
   useEffect(() => {
-    checkEmail()
-  }, [checkEmail])
+    const check = async () => {
+      await handleVerifyEmail(actionCode)
+    }
+
+    check()
+  }, [actionCode])
 
   const toggleTypeText = () => {
     if (type === 'text') {
@@ -83,7 +84,7 @@ const QuickConfirm = () => {
             <div>
               <p>We are all done. Now login to start using your account.</p>
               <Link to="/login">
-                <button class="btn btn-primary">Sign in</button>
+                <button className="btn btn-primary">Sign in</button>
               </Link>
             </div>
           </div>
