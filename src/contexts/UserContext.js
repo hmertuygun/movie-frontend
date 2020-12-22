@@ -37,12 +37,15 @@ const UserContextProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
 
+    localStorage.clear('registered')
+
     return signedin
   }
 
   // LOGOUT
   function logout() {
     localStorage.clear('user')
+    localStorage.clear('registered')
     setState({ user: null })
     return true
   }
@@ -65,24 +68,21 @@ const UserContextProvider = ({ children }) => {
         return { message: errorMessage, code: errorCode }
       })
 
-    setState({ user: registered.user })
-    localStorage.setItem('user', JSON.stringify(registered.user))
+    setState({ registered: registered.user })
+    localStorage.setItem('registered', JSON.stringify(registered.user))
 
     return registered
   }
 
-  async function emailRegister(email) {
-    const url = 'http://' + window.location.host + '/register/confirm/recieved'
-    const actionCodeSettings = {
-      url,
-      // This must be true.
-      handleCodeInApp: true,
+  async function isRegistered() {
+    try {
+      return await JSON.parse(localStorage.getItem('registered'))
+    } catch (error) {
+      console.error(error)
+      return {
+        message: 'Not registered',
+      }
     }
-
-    localStorage.setItem('emailForSignIn', email)
-    await firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
-
-    return true
   }
 
   return (
@@ -91,7 +91,7 @@ const UserContextProvider = ({ children }) => {
         login,
         logout,
         register,
-        emailRegister,
+        isRegistered,
         isLoggedIn,
       }}
     >

@@ -4,11 +4,10 @@ import { UserContext } from './contexts/UserContext'
 
 import TradeView from './views/TradeView'
 import { About } from './views/About'
-// import Login from './views/Login'
-import Login from './views/QuickLogin'
-import Register from './views/QuickRegister'
-import RegisterConfirm from './views/QuickRegisterConfirm'
-import RegisterFinal from './views/QuickFinal'
+import Login from './views/Auth/QuickLogin'
+import Register from './views/Auth/QuickRegister'
+import RegisterConfirm from './views/Auth/QuickRegisterConfirm'
+import RegisterFinal from './views/Auth/QuickFinal'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
@@ -25,9 +24,7 @@ const Routes = () => {
           <Route
             path="/logout"
             render={() => {
-              setTimeout(() => {
-                logout()
-              }, 1000)
+              logout()
 
               return <div>Logging you out..</div>
             }}
