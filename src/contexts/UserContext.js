@@ -37,15 +37,14 @@ const UserContextProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
 
-    localStorage.clear('registered')
+    localStorage.removeItem('registered')
 
     return signedin
   }
 
   // LOGOUT
   function logout() {
-    localStorage.clear('user')
-    localStorage.clear('registered')
+    localStorage.clear()
     setState({ user: null })
     return true
   }
