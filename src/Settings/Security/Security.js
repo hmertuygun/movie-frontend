@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
-import { Modal } from '../../components'
-import { T2FARow } from './T2FARow'
+import T2FARow from './T2FARow'
+import T2FAModal from './T2FAModal'
 
 const TWOFA_INIT = [
   {
@@ -20,14 +20,13 @@ const T2FA_TYPES = {
 
 const Security = () => {
   const [t2FAList, set2FAList] = useState(TWOFA_INIT)
-  const [type, setType] = useState(T2FA_TYPES.googleAuth.title)
+  const [type] = useState(T2FA_TYPES.googleAuth.title)
   const [desc, setDesc] = useState('')
   const secretRef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
   const [T2FASecretCode, setT2FASecretCode] = useState('')
-  const [verifyCode, setVerifyCode] = useState('')
 
-  const addNewT2FA = () => {
+  const generate2FASecret = () => {
     const secret = speakeasy.generateSecret()
     secretRef.current = secret
     QRCode.toDataURL(secret.otpauth_url, function (err, data_url) {
@@ -42,13 +41,14 @@ const Security = () => {
   }
 
   const closeModal = () => setToggleModal(false)
-  const verifyAppAuthCode = () => {
+  const verifyAppAuthCode = (userToken) => {
     const verified = speakeasy.totp.verify({
       secret: secretRef.current.base32,
       encoding: 'base32',
-      token: verifyCode,
+      token: userToken,
     })
     if (verified) {
+      //TODO: SEND SECRET TO BE
       set2FAList([
         ...t2FAList,
         {
@@ -64,42 +64,12 @@ const Security = () => {
 
   return (
     <div className="slice slice-sm bg-section-secondary">
-      {toggleModal && (
-        <Modal onClose={closeModal}>
-          <div className="card">
-            <div className="card-header">
-              <h5 className="h6 mb-0">Google Authenticator</h5>
-              <p className="text-sm mb-0">
-                Scan this QRCode with your Google Authenticator APP
-              </p>
-              <div className="row justify-content-center">
-                <img src={T2FASecretCode} />
-              </div>
-            </div>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter APP Code"
-              value={verifyCode}
-              onChange={(e) => setVerifyCode(e.target.value)}
-            />
-            <button
-              type="button"
-              className="btn btn-secondary px-3"
-              onClick={verifyAppAuthCode}
-            >
-              Verify
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger px-3"
-              onClick={closeModal}
-            >
-              Cancel
-            </button>
-          </div>
-        </Modal>
-      )}
+      <T2FAModal
+        visible={toggleModal}
+        closeModal={closeModal}
+        T2FASecretCode={T2FASecretCode}
+        verifyAppAuthCode={verifyAppAuthCode}
+      />
       <div className="slice slice-sm bg-section-secondary">
         <div className="justify-content-center">
           <div className="row">
@@ -135,27 +105,7 @@ const Security = () => {
                           </div>
                         </div>
                         <div className="col-auto px-2">
-                          <button
-                            type="button"
-                            className="btn btn-secondary px-3"
-                            onClick={addNewT2FA}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="1em"
-                              height="1em"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="feather feather-plus"
-                            >
-                              <line x1="12" y1="5" x2="12" y2="19"></line>
-                              <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                          </button>
+                          <AddButton onClick={generate2FASecret} />
                         </div>
                       </div>
                     </li>
@@ -181,3 +131,25 @@ const Security = () => {
 }
 
 export default Security
+
+const AddButton = ({ onClick }) => {
+  return (
+    <button type="button" className="btn btn-secondary px-3" onClick={onClick}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="feather feather-plus"
+      >
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+  )
+}
