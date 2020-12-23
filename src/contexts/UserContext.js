@@ -1,6 +1,9 @@
 import React, { createContext, useState } from 'react'
+import { authenticator } from 'otplib'
 import { firebase } from '../firebase/firebase'
 import { validateUser } from '../api/api'
+
+export const tmpLocalStorageKey2FA = 'Demo2FAEntry'
 
 export const UserContext = createContext()
 
@@ -42,6 +45,25 @@ const UserContextProvider = ({ children }) => {
     return signedin
   }
 
+  // @ TODO
+  // Handle error
+  // Unify responses
+  async function verify2FA(userToken) {
+    // TODO: Secrect needs to be fetched from BE
+    const secret = localStorage.getItem(tmpLocalStorageKey2FA)
+    const verified = authenticator.verify({
+      token: userToken,
+      secret,
+    })
+    if (verified) {
+      const verifiedUser = { ...state.user, t2FAVerified: true }
+      setState({ user: verifiedUser })
+      localStorage.setItem('user', JSON.stringify(verifiedUser))
+    }
+
+    return verified
+  }
+
   // LOGOUT
   function logout() {
     localStorage.clear()
@@ -50,7 +72,10 @@ const UserContextProvider = ({ children }) => {
   }
 
   // GET LOGGED IN STATE
-  const isLoggedIn = state && state.user
+  const is2faOnForUser = localStorage.getItem(tmpLocalStorageKey2FA)
+  const isLoggedIn =
+    state && state.user && (!is2faOnForUser || state.user.t2FAVerified)
+  const isLoggedInWithFirebase = state && state.user
 
   // REGISTER NEW USER
   async function register(email, password) {
@@ -90,6 +115,8 @@ const UserContextProvider = ({ children }) => {
         register,
         isRegistered,
         isLoggedIn,
+        isLoggedInWithFirebase,
+        verify2FA,
       }}
     >
       {children}

@@ -4,14 +4,6 @@ import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
 
-const TWOFA_INIT = [
-  {
-    title: 'Google Auth',
-    description: 'iPhone',
-    date: 1608566497638,
-  },
-]
-
 const T2FA_TYPES = {
   googleAuth: {
     title: 'Google Auth',
@@ -19,7 +11,7 @@ const T2FA_TYPES = {
 }
 
 const Security = () => {
-  const [t2FAList, set2FAList] = useState(TWOFA_INIT)
+  const [t2FAList, set2FAList] = useState([])
   const [desc, setDesc] = useState('')
   const secretRef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
@@ -56,7 +48,7 @@ const Security = () => {
         date: new Date().getTime(),
         secretBase32: secretRef.current,
       }
-      localStorage.setItem('Demo2FAEntry', JSON.stringify(new2FAEntry))
+      localStorage.setItem('Demo2FAEntry', new2FAEntry.secretBase32)
       set2FAList([...t2FAList, new2FAEntry])
       setDesc('')
       closeModal()
