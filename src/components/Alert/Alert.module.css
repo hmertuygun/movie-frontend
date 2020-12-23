@@ -1,7 +1,0 @@
-.topRight {
-  position: fixed !important;
-  top: 50px;
-  right: 50px;
-  min-width: 300px;
-  z-index: 102;
-}

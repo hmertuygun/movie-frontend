@@ -3,7 +3,6 @@ import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
-import { AlertRef } from '../../components/Alert/Alert'
 
 const TWOFA_INIT = [
   {
@@ -60,7 +59,14 @@ const Security = () => {
       setDesc('')
       closeModal()
     } else {
-      AlertRef.trigger(<>Incorrect 2FA token</>, AlertRef.type.danger)
+      /*
+      TODO: ADD Alert ERROR Message
+      ErrorAlertNotificaton({
+        title: '2FA Verification',
+        message: "Provided token doesn't match",
+      })
+
+      */
     }
   }
 
