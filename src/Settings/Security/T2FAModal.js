@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal } from '../../components'
 
 const T2FAModal = ({
@@ -11,6 +11,12 @@ const T2FAModal = ({
 
   const handleUserInput = (e) => setVerifyCode(e.target.value)
   const handleSubmit = () => verifyAppAuthCode(verifyCode)
+
+  useEffect(() => {
+    if (!visible) {
+      setVerifyCode('')
+    }
+  }, [visible])
 
   if (!visible) return null
   return (

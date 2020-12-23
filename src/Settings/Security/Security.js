@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import speakeasy from 'speakeasy'
+import { authenticator } from 'otplib'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
@@ -26,9 +26,12 @@ const Security = () => {
   const [T2FASecretCode, setT2FASecretCode] = useState('')
 
   const generate2FASecret = () => {
-    const secret = speakeasy.generateSecret()
+    const secret = authenticator.generateSecret()
     secretRef.current = secret
-    QRCode.toDataURL(secret.otpauth_url, function (err, data_url) {
+    const user = ''
+    const service = 'CoinPanel 2FA'
+    const otpauth = authenticator.keyuri(user, service, secret)
+    QRCode.toDataURL(otpauth, function (err, data_url) {
       setT2FASecretCode(data_url)
       setToggleModal(true)
     })
@@ -41,21 +44,20 @@ const Security = () => {
 
   const closeModal = () => setToggleModal(false)
   const verifyAppAuthCode = (userToken) => {
-    const verified = speakeasy.totp.verify({
-      secret: secretRef.current.base32,
-      encoding: 'base32',
+    const verified = authenticator.verify({
       token: userToken,
+      secret: secretRef.current,
     })
     if (verified) {
       //TODO: SEND SECRET TO BE
-      set2FAList([
-        ...t2FAList,
-        {
-          title: T2FA_TYPES.googleAuth.title,
-          description: desc,
-          date: new Date().getTime(),
-        },
-      ])
+      const new2FAEntry = {
+        title: T2FA_TYPES.googleAuth.title,
+        description: desc,
+        date: new Date().getTime(),
+        secretBase32: secretRef.current,
+      }
+      localStorage.setItem('Demo2FAEntry', JSON.stringify(new2FAEntry))
+      set2FAList([...t2FAList, new2FAEntry])
       setDesc('')
       closeModal()
     } else {
