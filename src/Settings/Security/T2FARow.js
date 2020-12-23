@@ -1,9 +1,9 @@
 import React from 'react'
 import { formatDate } from './utils'
 
-const RemoveRow = ({ onRemove }) => {
+const RemoveButton = ({ onClick }) => {
   return (
-    <button className="action-item mr-2" onClick={onRemove}>
+    <button className="action-item mr-2" onClick={onClick}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="1em"
@@ -45,7 +45,7 @@ const T2FARow = ({ title, description, date, onRemove }) => (
       </div>
       <div className="col-auto">
         <div className="actions text-right ml-3">
-          <RemoveRow onRemove={onRemove} />
+          <RemoveButton onClick={onRemove} />
         </div>
       </div>
     </div>

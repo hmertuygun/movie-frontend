@@ -20,7 +20,6 @@ const T2FA_TYPES = {
 
 const Security = () => {
   const [t2FAList, set2FAList] = useState(TWOFA_INIT)
-  const [type] = useState(T2FA_TYPES.googleAuth.title)
   const [desc, setDesc] = useState('')
   const secretRef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
@@ -52,7 +51,7 @@ const Security = () => {
       set2FAList([
         ...t2FAList,
         {
-          title: type,
+          title: T2FA_TYPES.googleAuth.title,
           description: desc,
           date: new Date().getTime(),
         },
@@ -84,31 +83,11 @@ const Security = () => {
                     </p>
                   </div>
                   <ul className="list-group list-group-flush">
-                    <li className="list-group-item">
-                      <div className="row mx-n2">
-                        <div className="col-12 col-lg-4 px-2">
-                          <div className="form-group">
-                            <select className="custom-select" disabled>
-                              <option>{T2FA_TYPES.googleAuth.title}</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col col-lg px-2">
-                          <div className="form-group">
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Description"
-                              value={desc}
-                              onChange={(e) => setDesc(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-auto px-2">
-                          <AddButton onClick={generate2FASecret} />
-                        </div>
-                      </div>
-                    </li>
+                    <Select2FAType
+                      desc={desc}
+                      setDesc={setDesc}
+                      onAddNew={generate2FASecret}
+                    />
                     {t2FAList &&
                       t2FAList.length > 0 &&
                       t2FAList.map((entry) => (
@@ -151,5 +130,35 @@ const AddButton = ({ onClick }) => {
         <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
+  )
+}
+
+const Select2FAType = ({ desc, setDesc, onAddNew }) => {
+  return (
+    <li className="list-group-item">
+      <div className="row mx-n2">
+        <div className="col-12 col-lg-4 px-2">
+          <div className="form-group">
+            <select className="custom-select" disabled>
+              <option>{T2FA_TYPES.googleAuth.title}</option>
+            </select>
+          </div>
+        </div>
+        <div className="col col-lg px-2">
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Description"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="col-auto px-2">
+          <AddButton onClick={onAddNew} />
+        </div>
+      </div>
+    </li>
   )
 }
