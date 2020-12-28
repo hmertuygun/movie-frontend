@@ -3,6 +3,7 @@ import { authenticator } from 'otplib'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
+import { tmpLocalStorageKey2FA } from '../../contexts/UserContext'
 
 const T2FA_TYPES = {
   googleAuth: {
@@ -11,7 +12,10 @@ const T2FA_TYPES = {
 }
 
 const Security = () => {
-  const [t2FAList, set2FAList] = useState([])
+  const t2FAEntry = localStorage.getItem(tmpLocalStorageKey2FA)
+  const [t2FAList, set2FAList] = useState(
+    t2FAEntry ? [JSON.parse(t2FAEntry)] : []
+  )
   const [desc, setDesc] = useState('')
   const secretRef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
@@ -20,9 +24,8 @@ const Security = () => {
   const generate2FASecret = () => {
     const secret = authenticator.generateSecret()
     secretRef.current = secret
-    const user = ''
-    const service = 'CoinPanel 2FA'
-    const otpauth = authenticator.keyuri(user, service, secret)
+    const serviceName = 'CoinPanel 2FA'
+    const otpauth = `otpauth://totp/${serviceName}?secret=${secret}`
     QRCode.toDataURL(otpauth, function (err, data_url) {
       setT2FASecretCode(data_url)
       setToggleModal(true)
@@ -41,14 +44,14 @@ const Security = () => {
       secret: secretRef.current,
     })
     if (verified) {
-      //TODO: SEND SECRET TO BE
+      //TODO: SEND ENTRY TO BE for storage and keep secret well safe.
       const new2FAEntry = {
         title: T2FA_TYPES.googleAuth.title,
         description: desc,
         date: new Date().getTime(),
         secretBase32: secretRef.current,
       }
-      localStorage.setItem('Demo2FAEntry', new2FAEntry.secretBase32)
+      localStorage.setItem(tmpLocalStorageKey2FA, JSON.stringify(new2FAEntry))
       set2FAList([...t2FAList, new2FAEntry])
       setDesc('')
       closeModal()

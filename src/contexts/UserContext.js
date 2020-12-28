@@ -50,7 +50,12 @@ const UserContextProvider = ({ children }) => {
   // Unify responses
   async function verify2FA(userToken) {
     // TODO: Secrect needs to be fetched from BE
-    const secret = localStorage.getItem(tmpLocalStorageKey2FA)
+    const t2FAentry = localStorage.getItem(tmpLocalStorageKey2FA)
+    let secret = ''
+    if (t2FAentry) {
+      const parsed2FA = JSON.parse(t2FAentry)
+      secret = parsed2FA.secretBase32
+    }
     const verified = authenticator.verify({
       token: userToken,
       secret,
