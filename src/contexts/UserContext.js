@@ -71,7 +71,10 @@ const UserContextProvider = ({ children }) => {
 
   // LOGOUT
   function logout() {
+    //TODO: Remove this 2FA from localStorage once 2FA is kept on BE.
+    const t2FAentry = localStorage.getItem(tmpLocalStorageKey2FA)
     localStorage.clear()
+    localStorage.setItem(tmpLocalStorageKey2FA, t2FAentry)
     setState({ user: null })
     return true
   }

@@ -34,7 +34,7 @@ const Security = () => {
 
   const handleEntryRemove = (entry) => () => {
     const filtered2FAList = t2FAList.filter((t2fa) => entry !== t2fa)
-    //TODO: REMOVE 2FA entry from BE
+    //TODO 2FA: REMOVE 2FA entry from BE
     localStorage.removeItem(tmpLocalStorageKey2FA)
     set2FAList(filtered2FAList)
   }
@@ -46,7 +46,7 @@ const Security = () => {
       secret: secretRef.current,
     })
     if (verified) {
-      //TODO: SEND ENTRY TO BE for storage and keep secret well safe.
+      //TODO 2FA: SEND ENTRY TO BE for storage and keep secret well safe.
       const new2FAEntry = {
         title: T2FA_TYPES.googleAuth.title,
         description: desc,
@@ -59,7 +59,7 @@ const Security = () => {
       closeModal()
     } else {
       /*
-      TODO: ADD Alert ERROR Message
+      TODO 2FA: ADD Alert ERROR Message
       ErrorAlertNotificaton({
         title: '2FA Verification',
         message: "Provided token doesn't match",
