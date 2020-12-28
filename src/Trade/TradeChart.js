@@ -5,11 +5,11 @@ import { useSymbolContext } from './context/SymbolContext'
 const TradeChart = () => {
   const { selectedSymbol, isLoading } = useSymbolContext()
 
-  // const theme = window.matchMedia('(prefers-color-scheme: light').matches
-  //   ? Themes.LIGHT
-  //   : Themes.DARK
+  const theme = window.matchMedia('(prefers-color-scheme: light').matches
+    ? Themes.LIGHT
+    : Themes.DARK
 
-  const theme = Themes.DARK
+  // const theme = Themes.DARK
 
   if (isLoading) {
     return null

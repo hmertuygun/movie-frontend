@@ -18,14 +18,12 @@
 }
 
 /* DARK MODE */
-.dark-mode .TabNavigator-container {
+.dark .TabNavigator-container {
   --border-color-active: var(--warning);
-  --border-color: #2a2a2a;
-  --color: #bbb;
-  --color-hover: #ddd;
+    --border-color: #2a2a2a;
+    --color: #bbb;
+    --color-hover: #ddd;
 }
-
-
 
 .TabNavigator-nav {
   display: flex;
@@ -50,5 +48,5 @@
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
   color: var(--color-hightlighted);
-  font-weight: 700;
+  font-weight: 500;
 }

@@ -106,7 +106,11 @@ function LimitForm() {
             disabled
           />
 
-          <Button disabled={isValid ? null : 'disabled'} type="submit">
+          <Button
+            variant="exits"
+            disabled={isValid ? null : 'disabled'}
+            type="submit"
+          >
             Set exits >
           </Button>
         </form>

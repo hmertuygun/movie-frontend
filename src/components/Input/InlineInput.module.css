@@ -33,7 +33,7 @@
   display: flex;
   align-items: stretch;
   justify-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 
   font-size: 14px;
   line-height: 32px;
@@ -41,6 +41,8 @@
   
   padding: 0 8px;
   margin-bottom: 1rem;
+
+  overflow: hidden;
 }
 
 .InputContainer--isFocused {

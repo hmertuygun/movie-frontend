@@ -43,7 +43,7 @@
   --body-background: var(--white);
   --body-color: var(--dark);
 
-  --trade-background: #fff;
+  --trade-background: #14151B;
   --trade-color: #939AA4;
   --trade-borders: #424951;
   
@@ -66,7 +66,14 @@
   }
 }
 
-.dark-mode {
+:root .dark  {
+  --default-color: var(--light);
+
   --body-background: var(--dark-black);
   --body-color: var(--light);
+
+  --trade-background: #14151B;
+  --trade-color: #939AA4;
+  --trade-borders: #424951;  
+  --trade-confirm-background: var(--gold);
 }
