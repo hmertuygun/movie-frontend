@@ -2,7 +2,8 @@
   --input-default-background: rgba(43, 47, 54, 0.9);
   --input-default-color: #fff;
   --input-default-border:  rgba(43, 47, 54, 0.8);
-  --label-default-color: #666;
+  
+  --label-default-color: rgb(146, 154, 165);
 
   --input-border-active-color: rgb(240, 185, 11);
   --input-default-disabled-background: rgba(20, 20, 30, 0.6);

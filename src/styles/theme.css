@@ -43,7 +43,7 @@
   --body-background: var(--white);
   --body-color: var(--dark);
 
-  --trade-background: #14151B;
+  --trade-background: rgb(30, 32, 38);
   --trade-color: #939AA4;
   --trade-borders: #424951;
   
@@ -58,7 +58,7 @@
     --body-background: var(--dark-black);
     --body-color: var(--light);
 
-    --trade-background: #14151B;
+    --trade-background: rgb(30, 32, 38);
     --trade-color: #939AA4;
     --trade-borders: #424951;  
     --trade-confirm-background: var(--gold);

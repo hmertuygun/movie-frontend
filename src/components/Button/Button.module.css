@@ -89,11 +89,19 @@
   color: var(--button-primary-color);
 }
 
+.Button-buy:hover {
+  border: 2px solid var(--buy);
+}
+
 .Button-sell {
   composes: Button;
   border: 2px solid var(--sell);
   background: var(--sell);
   color: var(--button-primary-color);
+}
+
+.Button-sell:hover {
+  border: 2px solid var(--sell);
 }
 
 .Button-exits {
@@ -123,6 +131,19 @@
 .Button-buy:hover {
   color: var(--button-primary-color);
 }
+
+.Button-trade-nav {
+  composes: Button;
+  background: #2B2F36;
+  color: rgb(146, 154, 165);
+  border: 2px solid transparent;
+}
+
+.Button-trade-nav:hover {
+  background: #2B2F36;
+  color: rgb(146, 154, 165);
+  border: 2px solid transparent;
+} 
 
 .Button-confirm {
   composes: Button;
