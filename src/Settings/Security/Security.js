@@ -34,6 +34,8 @@ const Security = () => {
 
   const handleEntryRemove = (entry) => () => {
     const filtered2FAList = t2FAList.filter((t2fa) => entry !== t2fa)
+    //TODO: REMOVE 2FA entry from BE
+    localStorage.removeItem(tmpLocalStorageKey2FA)
     set2FAList(filtered2FAList)
   }
 

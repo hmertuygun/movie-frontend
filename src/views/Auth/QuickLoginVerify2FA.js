@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react'
+import { Redirect } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLoginVerify2FA = () => {
-  const { verify2FA } = useContext(UserContext)
+  const { verify2FA, logout, isLoggedInWithFirebase } = useContext(UserContext)
   const [t2faToken, set2faToken] = useState('')
   const [error, setError] = useState('')
 
@@ -12,6 +13,10 @@ const QuickLoginVerify2FA = () => {
     if (!isVerifed) {
       setError({ message: "Provided 2FA Token doesn't match." })
     }
+  }
+
+  if (!isLoggedInWithFirebase) {
+    return <Redirect to="/login" />
   }
 
   return (
@@ -40,6 +45,9 @@ const QuickLoginVerify2FA = () => {
                     })
                   }
                 }}
+                onReset={() => {
+                  logout()
+                }}
               >
                 <div className="form-group">
                   <label className="form-control-label">Generated token</label>
@@ -65,6 +73,11 @@ const QuickLoginVerify2FA = () => {
                 <div className="mt-4">
                   <button type="submit" className="btn btn-block btn-primary">
                     Verify
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <button type="reset" className="btn btn-block btn-danger">
+                    Cancel
                   </button>
                 </div>
               </form>
