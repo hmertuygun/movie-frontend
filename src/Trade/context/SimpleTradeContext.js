@@ -58,7 +58,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     quantity,
     profit,
     side = 'sell',
-    type = 'limit',
+    type = 'stoplimit',
     symbol = 'BTCUSDT',
   }) => {
     const stoploss = state.stoploss || []
