@@ -146,3 +146,46 @@ export async function deleteUserExchange(apiKeyName) {
 
   return activate
 }
+
+export async function createGoogleAuth2FA() {
+  const apiUrl = process.env.REACT_APP_API + 'googleauth/add'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+
+  return response
+}
+
+export async function saveGoogleAuth2FA({ auth_answer, key }) {
+  const apiUrl = process.env.REACT_APP_API + 'googleauth/save'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: {
+      auth_answer,
+      key
+    }
+  })
+
+  return response
+}
+
+export async function verifyGoogleAuth2FA(auth_answer) {
+  const apiUrl = process.env.REACT_APP_API + 'googleauth/verify'
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: {
+      auth_answer
+    }
+  })
+
+  return response
+}

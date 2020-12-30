@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react'
-import { authenticator } from 'otplib'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
-import { tmpLocalStorageKey2FA } from '../../contexts/UserContext'
+import { createGoogleAuth2FA, saveGoogleAuth2FA } from '../../api/api'
+// import { useQuery } from 'react-query'
 
 const T2FA_TYPES = {
   googleAuth: {
@@ -12,20 +12,25 @@ const T2FA_TYPES = {
 }
 
 const Security = () => {
-  const t2FAEntry = localStorage.getItem(tmpLocalStorageKey2FA)
+  // TODO 2FA: GET 2FA ENTRY
+  // const t2FAEntry = localStorage.getItem(tmpLocalStorageKey2FA)
+  const t2FAEntry = null
   const [t2FAList, set2FAList] = useState(
     t2FAEntry ? [JSON.parse(t2FAEntry)] : []
   )
   const [desc, setDesc] = useState('')
-  const secretRef = useRef()
+  const googleAuth2FARef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
   const [T2FASecretCode, setT2FASecretCode] = useState('')
 
-  const generate2FASecret = () => {
-    const secret = authenticator.generateSecret()
-    secretRef.current = secret
-    const serviceName = 'CoinPanel 2FA'
-    const otpauth = `otpauth://totp/${serviceName}?secret=${secret}`
+  // const googleAuth2FAQuery = useQuery('googleAuth2FA', createGoogleAuth2FA)
+
+  const generate2FASecret = async () => {
+    const googleAuth2FA = await createGoogleAuth2FA()
+    // const secret = googleAuth2FA.data.secret
+    googleAuth2FARef.current = googleAuth2FA.data
+    console.log('GoogleAuth2fa', googleAuth2FA.data)
+    const otpauth = `otpauth://totp/${googleAuth2FARef.current.label}?secret=${googleAuth2FARef.current.secret}`
     QRCode.toDataURL(otpauth, function (err, data_url) {
       setT2FASecretCode(data_url)
       setToggleModal(true)
@@ -35,29 +40,23 @@ const Security = () => {
   const handleEntryRemove = (entry) => () => {
     const filtered2FAList = t2FAList.filter((t2fa) => entry !== t2fa)
     //TODO 2FA: REMOVE 2FA entry from BE
-    localStorage.removeItem(tmpLocalStorageKey2FA)
     set2FAList(filtered2FAList)
   }
 
   const closeModal = () => setToggleModal(false)
-  const verifyAppAuthCode = (userToken) => {
-    const verified = authenticator.verify({
-      token: userToken,
-      secret: secretRef.current,
-    })
-    if (verified) {
-      //TODO 2FA: SEND ENTRY TO BE for storage and keep secret well safe.
+  const verifyAppAuthCode = async (userToken) => {
+    try {
+      await saveGoogleAuth2FA({ auth_answer: userToken, key: googleAuth2FARef.current.key })
       const new2FAEntry = {
         title: T2FA_TYPES.googleAuth.title,
         description: desc,
         date: new Date().getTime(),
-        secretBase32: secretRef.current,
+        secretBase32: googleAuth2FARef.current.secret,
       }
-      localStorage.setItem(tmpLocalStorageKey2FA, JSON.stringify(new2FAEntry))
       set2FAList([...t2FAList, new2FAEntry])
       setDesc('')
       closeModal()
-    } else {
+    } catch (error) {
       /*
       TODO 2FA: ADD Alert ERROR Message
       ErrorAlertNotificaton({

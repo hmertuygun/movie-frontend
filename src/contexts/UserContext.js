@@ -1,9 +1,6 @@
 import React, { createContext, useState } from 'react'
-import { authenticator } from 'otplib'
 import { firebase } from '../firebase/firebase'
-import { validateUser } from '../api/api'
-
-export const tmpLocalStorageKey2FA = 'Demo2FAEntry'
+import { validateUser, verifyGoogleAuth2FA } from '../api/api'
 
 export const UserContext = createContext()
 
@@ -14,7 +11,7 @@ const UserContextProvider = ({ children }) => {
   if (localStorageUser !== 'undefined') {
     initialState = { user: JSON.parse(localStorageUser) }
   } else {
-    initialState = { user: null }
+    initialState = { user: null, is2faOnForUser: false, is2FAVerified: false }
   }
 
   const [state, setState] = useState(initialState)
@@ -36,7 +33,11 @@ const UserContextProvider = ({ children }) => {
     // if we get the sign in
     if (signedin) {
       await validateUser()
-      setState({ user: signedin.user })
+      // TODO 2FA: check if user has 2FA enabled
+      // const hasGoogle2FAuser = await firebase.firestore().collection('user_auth')
+      //   .doc(signedin.user.email)
+      //   .get()
+      setState({ user: signedin.user, is2faOnForUser: false })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
 
@@ -45,44 +46,24 @@ const UserContextProvider = ({ children }) => {
     return signedin
   }
 
-  // @ TODO
-  // Handle error
-  // Unify responses
   async function verify2FA(userToken) {
-    // TODO: Secrect needs to be fetched from BE
-    const t2FAentry = localStorage.getItem(tmpLocalStorageKey2FA)
-    let secret = ''
-    if (t2FAentry) {
-      const parsed2FA = JSON.parse(t2FAentry)
-      secret = parsed2FA.secretBase32
-    }
-    const verified = authenticator.verify({
-      token: userToken,
-      secret,
-    })
-    if (verified) {
-      const verifiedUser = { ...state.user, t2FAVerified: true }
-      setState({ user: verifiedUser })
-      localStorage.setItem('user', JSON.stringify(verifiedUser))
+    const response = await verifyGoogleAuth2FA(userToken)
+    if (response.data.passed) {
+      setState({ is2FAVerified: true })
     }
 
-    return verified
+    return response.data.passed
   }
 
   // LOGOUT
   function logout() {
-    //TODO: Remove this 2FA from localStorage once 2FA is kept on BE.
-    const t2FAentry = localStorage.getItem(tmpLocalStorageKey2FA)
     localStorage.clear()
-    localStorage.setItem(tmpLocalStorageKey2FA, t2FAentry)
-    setState({ user: null })
+    setState({ user: null, is2FAVerified: false })
     return true
   }
 
-  // GET LOGGED IN STATE
-  const is2faOnForUser = localStorage.getItem(tmpLocalStorageKey2FA)
   const isLoggedIn =
-    state && state.user && (!is2faOnForUser || state.user.t2FAVerified)
+    state && state.user && (!state.is2faOnForUser || state.t2FAVerified)
   const isLoggedInWithFirebase = state && state.user
 
   // REGISTER NEW USER
