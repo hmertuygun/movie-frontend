@@ -1,33 +1,30 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
 import T2FAModal from './T2FAModal'
 import { createGoogleAuth2FA, saveGoogleAuth2FA } from '../../api/api'
-// import { useQuery } from 'react-query'
+import { UserContext } from '../../contexts/UserContext'
 
 const T2FA_TYPES = {
   googleAuth: {
     title: 'Google Auth',
+    type: 'GOOGLE_AUTH'
   },
 }
 
 const Security = () => {
-  // TODO 2FA: GET 2FA ENTRY
-  // const t2FAEntry = localStorage.getItem(tmpLocalStorageKey2FA)
-  const t2FAEntry = null
-  const [t2FAList, set2FAList] = useState(
-    t2FAEntry ? [JSON.parse(t2FAEntry)] : []
-  )
+  const { delete2FA, get2FADetails } = useContext(UserContext)
+  const [t2FAList, set2FAList] = useState(() => {
+    const t2FAEntry = get2FADetails()
+    return t2FAEntry ? [t2FAEntry] : []
+  })
   const [desc, setDesc] = useState('')
   const googleAuth2FARef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
   const [T2FASecretCode, setT2FASecretCode] = useState('')
 
-  // const googleAuth2FAQuery = useQuery('googleAuth2FA', createGoogleAuth2FA)
-
   const generate2FASecret = async () => {
     const googleAuth2FA = await createGoogleAuth2FA()
-    // const secret = googleAuth2FA.data.secret
     googleAuth2FARef.current = googleAuth2FA.data
     console.log('GoogleAuth2fa', googleAuth2FA.data)
     const otpauth = `otpauth://totp/${googleAuth2FARef.current.label}?secret=${googleAuth2FARef.current.secret}`
@@ -37,24 +34,36 @@ const Security = () => {
     })
   }
 
-  const handleEntryRemove = (entry) => () => {
-    const filtered2FAList = t2FAList.filter((t2fa) => entry !== t2fa)
-    //TODO 2FA: REMOVE 2FA entry from BE
-    set2FAList(filtered2FAList)
+  const handleEntryRemove = (entry) => async () => {
+    setT2FASecretCode(null)
+    setToggleModal(true)
   }
 
   const closeModal = () => setToggleModal(false)
   const verifyAppAuthCode = async (userToken) => {
     try {
-      await saveGoogleAuth2FA({ auth_answer: userToken, key: googleAuth2FARef.current.key })
-      const new2FAEntry = {
-        title: T2FA_TYPES.googleAuth.title,
-        description: desc,
-        date: new Date().getTime(),
-        secretBase32: googleAuth2FARef.current.secret,
+      if (T2FASecretCode) {
+        const new2FAEntry = {
+          title: T2FA_TYPES.googleAuth.title,
+          description: desc,
+          date: new Date().getTime(),
+          type: T2FA_TYPES.googleAuth.type
+        }
+        await saveGoogleAuth2FA({
+          auth_answer: userToken,
+          key: googleAuth2FARef.current.key,
+          title: new2FAEntry.title,
+          description: new2FAEntry.description,
+          date: new2FAEntry.date,
+          type: new2FAEntry.type,
+        })
+        set2FAList([...t2FAList, new2FAEntry])
+        setDesc('')
+      } else {
+        await delete2FA(userToken)
+        // For now it's only one kind of 2FA
+        set2FAList([])
       }
-      set2FAList([...t2FAList, new2FAEntry])
-      setDesc('')
       closeModal()
     } catch (error) {
       /*

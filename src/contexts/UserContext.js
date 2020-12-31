@@ -1,17 +1,19 @@
 import React, { createContext, useState } from 'react'
 import { firebase } from '../firebase/firebase'
-import { validateUser, verifyGoogleAuth2FA } from '../api/api'
+import { checkGoogleAuth2FA, deleteGoogleAuth2FA, validateUser, verifyGoogleAuth2FA } from '../api/api'
 
 export const UserContext = createContext()
 
+const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
+  const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
 
   if (localStorageUser !== 'undefined') {
-    initialState = { user: JSON.parse(localStorageUser) }
+    initialState = { user: JSON.parse(localStorageUser), has2FADetails: JSON.parse(localStorage2faUserDetails) }
   } else {
-    initialState = { user: null, is2faOnForUser: false, is2FAVerified: false }
+    initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
 
   const [state, setState] = useState(initialState)
@@ -33,11 +35,13 @@ const UserContextProvider = ({ children }) => {
     // if we get the sign in
     if (signedin) {
       await validateUser()
-      // TODO 2FA: check if user has 2FA enabled
-      // const hasGoogle2FAuser = await firebase.firestore().collection('user_auth')
-      //   .doc(signedin.user.email)
-      //   .get()
-      setState({ user: signedin.user, is2faOnForUser: false })
+      let has2FADetails = null
+      try {
+        const response = await checkGoogleAuth2FA()
+        has2FADetails = response.data
+        localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify(has2FADetails))
+      } catch (error) { }
+      setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
 
@@ -46,24 +50,34 @@ const UserContextProvider = ({ children }) => {
     return signedin
   }
 
+  function get2FADetails() {
+    return state.has2FADetails
+  }
+
   async function verify2FA(userToken) {
     const response = await verifyGoogleAuth2FA(userToken)
     if (response.data.passed) {
-      setState({ is2FAVerified: true })
+      setState({ ...state, is2FAVerified: true })
     }
 
     return response.data.passed
   }
 
+  async function delete2FA(userToken) {
+    await deleteGoogleAuth2FA(userToken)
+    setState({ ...state, has2FADetails: null, is2FAVerified: true })
+    localStorage.removeItem(T2FA_LOCAL_STORAGE)
+  }
+
   // LOGOUT
   function logout() {
     localStorage.clear()
-    setState({ user: null, is2FAVerified: false })
+    setState({ user: null, has2FADetails: null, is2FAVerified: false })
     return true
   }
 
   const isLoggedIn =
-    state && state.user && (!state.is2faOnForUser || state.t2FAVerified)
+    state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
 
   // REGISTER NEW USER
@@ -106,6 +120,8 @@ const UserContextProvider = ({ children }) => {
         isLoggedIn,
         isLoggedInWithFirebase,
         verify2FA,
+        get2FADetails,
+        delete2FA
       }}
     >
       {children}

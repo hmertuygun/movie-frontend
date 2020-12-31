@@ -22,18 +22,22 @@ const T2FAModal = ({
   return (
     <Modal onClose={closeModal}>
       <div className="card">
-        <div className="card-header">
-          <h5 className="h6 mb-0">Google Authenticator</h5>
-          <p className="text-sm mb-0">
-            Scan QRCode with Google Authenticator APP
+        {
+          T2FASecretCode ? (
+            <div className="card-header">
+              <h5 className="h6 mb-0">Google Authenticator</h5>
+              <p className="text-sm mb-0">
+                Scan QRCode with Google Authenticator APP
           </p>
-          <div className="row justify-content-center">
-            <img
-              src={T2FASecretCode}
-              alt="2FA Secret Code for Google Auth APP"
-            />
-          </div>
-        </div>
+              <div className="row justify-content-center">
+                <img
+                  src={T2FASecretCode}
+                  alt="2FA Secret Code for Google Auth APP"
+                />
+              </div>
+            </div>
+          ) : null
+        }
         <div className="card-body">
           <input
             type="text"
