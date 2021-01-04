@@ -1,9 +1,10 @@
 import React, { useContext, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import T2FARow from './T2FARow'
-import T2FAModal from './T2FAModal'
+import T2FAModal, { BackUpKey, DownloadApp, EnableGoogleAuth, ScanQRCode } from './T2FAModal'
 import { createGoogleAuth2FA, saveGoogleAuth2FA } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
+import { Modal } from '../../components'
 
 const T2FA_TYPES = {
   googleAuth: {
@@ -11,6 +12,8 @@ const T2FA_TYPES = {
     type: 'GOOGLE_AUTH'
   },
 }
+
+const ADD_2FA_FLOW = [DownloadApp, ScanQRCode, EnableGoogleAuth, BackUpKey]
 
 const Security = () => {
   const { delete2FA, get2FADetails } = useContext(UserContext)
@@ -22,6 +25,8 @@ const Security = () => {
   const googleAuth2FARef = useRef()
   const [toggleModal, setToggleModal] = useState(false)
   const [T2FASecretCode, setT2FASecretCode] = useState('')
+  const [add2FAFlowPage, setAdd2FAFlowPage] = useState(0)
+  const nextDataRef = useRef()
 
   const generate2FASecret = async () => {
     const googleAuth2FA = await createGoogleAuth2FA()
@@ -77,14 +82,27 @@ const Security = () => {
     }
   }
 
+  const T2FAContent = ADD_2FA_FLOW[add2FAFlowPage]
+
+
   return (
     <div className="slice slice-sm bg-section-secondary">
-      <T2FAModal
-        visible={toggleModal}
-        closeModal={closeModal}
-        T2FASecretCode={T2FASecretCode}
-        verifyAppAuthCode={verifyAppAuthCode}
-      />
+      {
+        toggleModal ? (
+          <Modal onClose={closeModal}>
+            <T2FAContent next={(data) => {
+              const next = add2FAFlowPage + 1
+              if (next < ADD_2FA_FLOW.length) {
+                nextDataRef.current = data
+                setAdd2FAFlowPage(next)
+              } else {
+                setAdd2FAFlowPage(0)
+                closeModal()
+              }
+            }} onReset={closeModal} {...{ data: nextDataRef.current }} />
+          </Modal>
+        ) : null
+      }
       <div className="slice slice-sm bg-section-secondary">
         <div className="justify-content-center">
           <div className="row">
@@ -102,7 +120,7 @@ const Security = () => {
                     <Select2FAType
                       desc={desc}
                       setDesc={setDesc}
-                      onAddNew={generate2FASecret}
+                      onAddNew={() => setToggleModal(true)}
                     />
                     {t2FAList &&
                       t2FAList.length > 0 &&
