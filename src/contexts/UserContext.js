@@ -11,7 +11,7 @@ const UserContextProvider = ({ children }) => {
   let initialState = {}
 
   if (localStorageUser !== 'undefined') {
-    initialState = { user: JSON.parse(localStorageUser), has2FADetails: JSON.parse(localStorage2faUserDetails) }
+    initialState = { user: JSON.parse(localStorageUser), ...JSON.parse(localStorage2faUserDetails) }
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
@@ -39,7 +39,7 @@ const UserContextProvider = ({ children }) => {
       try {
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
-        localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify(has2FADetails))
+        localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails }))
       } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
@@ -57,6 +57,7 @@ const UserContextProvider = ({ children }) => {
   async function verify2FA(userToken) {
     const response = await verifyGoogleAuth2FA(userToken)
     if (response.data.passed) {
+      localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails: state.has2FADetails, is2FAVerified: true }))
       setState({ ...state, is2FAVerified: true })
     }
 
