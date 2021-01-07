@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useState } from 'react'
 import T2FARow from './T2FARow'
-import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
+import { ADD_2FA_FLOW, DeleteGoogleAuth, ModalsConf } from './T2FAModal'
 import { UserContext } from '../../contexts/UserContext'
 import { Modal } from '../../components'
 
@@ -54,7 +54,7 @@ const Security = () => {
                 const next = add2FAFlowPage + 1
                 if (next < ADD_2FA_FLOW.length) {
                   nextDataRef.current = data
-                  if (next === 2) {
+                  if (next === ModalsConf.BackUpKey.step) {
                     set2FAList([...t2FAList, new2FAEntry])
                     setDesc('')
                   }
@@ -64,6 +64,12 @@ const Security = () => {
                     set2FAList([])
                   }
                   reset2FAFlow()
+                }
+              }}
+              onBack={() => {
+                const prev = add2FAFlowPage - 1
+                if (add2FAFlowPage > 0) {
+                  setAdd2FAFlowPage(prev)
                 }
               }}
               onReset={closeModal}
@@ -90,6 +96,7 @@ const Security = () => {
                       desc={desc}
                       setDesc={setDesc}
                       onAddNew={() => setToggleModal(true)}
+                      disabled={t2FAList.length > 0}
                     />
                     {t2FAList &&
                       t2FAList.length > 0 &&
@@ -114,9 +121,9 @@ const Security = () => {
 
 export default Security
 
-const AddButton = ({ onClick }) => {
+const AddButton = ({ disabled, onClick }) => {
   return (
-    <button type="button" className="btn btn-secondary px-3" onClick={onClick}>
+    <button disabled={disabled} type="button" className="btn btn-secondary px-3" onClick={onClick}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="1em"
@@ -136,7 +143,7 @@ const AddButton = ({ onClick }) => {
   )
 }
 
-const Select2FAType = ({ desc, setDesc, onAddNew }) => {
+const Select2FAType = ({ desc, setDesc, onAddNew, disabled }) => {
   return (
     <li className="list-group-item">
       <div className="row mx-n2">
@@ -159,7 +166,7 @@ const Select2FAType = ({ desc, setDesc, onAddNew }) => {
           </div>
         </div>
         <div className="col-auto px-2">
-          <AddButton onClick={onAddNew} />
+          <AddButton onClick={onAddNew} disabled={disabled} />
         </div>
       </div>
     </li>

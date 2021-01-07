@@ -1,20 +1,47 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
-import { createGoogleAuth2FA, saveGoogleAuth2FA } from '../../api/api'
+import { createGoogleAuth2FA } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 
-const HeaderSteps = [{ title: 'Download App', step: 1 }, { title: 'Scan QR Code', step: 2 }, { title: 'Enabled Google authenticator', step: 3 }, { title: 'Backup Key', step: 4 }]
+export const ModalsConf = {
+  DownloadApp: {
+    title: 'Download App',
+    step: 0,
+    hasBack: false
+  },
+  ScanQRCode: {
+    title: 'Scan QR Code',
+    step: 1,
+    hasBack: true
+  },
+  EnableGoogleAuth: {
+    title: 'Enabled Google authenticator',
+    step: 2,
+    hasBack: true
+  },
+  BackUpKey: {
+    title: 'Backup Key',
+    step: 3,
+    hasBack: false
+  },
+  DeleteGoogleAuth: {
+    step: 4,
+    hasBack: false
+  }
+}
+
+const HeaderSteps = [ModalsConf.DownloadApp, ModalsConf.ScanQRCode, ModalsConf.EnableGoogleAuth, ModalsConf.BackUpKey]
 const HeaderStep = ({ step: active }) => (
   <div className="row justify-content-center">
     {HeaderSteps.map(({ title, step }) => (
       <div key={step} className="mx-2">
-        <span className={`badge rounded-pill ${active + 1 === step ? 'bg-primary text-white' : 'bg-secondary'}`}>{title}</span>
+        <span className={`badge rounded-pill ${active === step ? 'bg-primary text-white' : 'bg-secondary'}`}>{title}</span>
       </div>
     ))}
   </div>
 )
 
-const withCard = (step = 0, ReactNode) => ({ next, ...props }) => {
+const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({ next, onBack, ...props }) => {
   const onNext = useRef()
   const onClickNext = async () => {
     if (typeof onNext.current === 'function') {
@@ -40,13 +67,24 @@ const withCard = (step = 0, ReactNode) => ({ next, ...props }) => {
       <div className="card-footer">
         <div className="row">
           <div className="col-12 d-flex justify-content-center">
+            {
+              hasPrev && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={onBack}
+                >
+                  {'<'} Prev
+                </button>
+              )
+            }
             <button
               type="button"
               className="btn btn-primary"
               onClick={onClickNext}
             >
               Next
-          </button>
+            </button>
           </div>
         </div>
       </div>
@@ -72,7 +110,7 @@ export const DownloadApp = withCard(0, ({ onNext }) => {
       <p className="text-center">Download and install the Google Authenticator app</p>
       <div className="row justify-content-center">
         <a id="enableGA_a_appStore" href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" target="_blank" rel="noreferrer noopener" className="row justify-content-center align-items-center border mx-2 pt-2 pb-2">
-          <img src="img/icons/brands/apple.svg" className="col-3" />
+          <img src="img/icons/brands/apple.svg" className="col-3" alt="Apple Store Logo" />
           <div className="col-6" >
             <div className="text-dark">Download from</div>
             <div className="text-dark">App Store</div>
@@ -80,7 +118,7 @@ export const DownloadApp = withCard(0, ({ onNext }) => {
         </a>
         <div className="mr-4" />
         <a id="enableGA_a_googlePlay" href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noreferrer noopener" className="row justify-content-center border mx-2 pt-2 pb-2">
-          <img src="img/icons/brands/google-play-colors.svg" className="col-3" />
+          <img src="img/icons/brands/google-play-colors.svg" className="col-3" alt="Google Play Store logo" />
           <div >
             <div className="text-dark">Download from</div>
             <div className="text-dark">Google Play</div>
@@ -89,8 +127,9 @@ export const DownloadApp = withCard(0, ({ onNext }) => {
       </div>
     </>
   )
-})
-export const ScanQRCode = withCard(1, ({ onNext, data }) => {
+}, ModalsConf.DownloadApp.hasBack)
+
+export const ScanQRCode = withCard(ModalsConf.ScanQRCode.step, ({ onNext, data }) => {
   const [t2FASecretCode, setT2FASecretCode] = useState('')
 
   useEffect(() => {
@@ -101,7 +140,7 @@ export const ScanQRCode = withCard(1, ({ onNext, data }) => {
       })
     }
     generateSecret()
-  }, [])
+  }, [data.label, data.secret])
   onNext.current = () => data
   return (
     <>
@@ -127,13 +166,14 @@ export const ScanQRCode = withCard(1, ({ onNext, data }) => {
       }
     </>
   )
-})
-export const EnableGoogleAuth = withCard(2, ({ onNext, new2FADetails, data }) => {
+}, ModalsConf.ScanQRCode.hasBack)
+
+export const EnableGoogleAuth = withCard(ModalsConf.EnableGoogleAuth.step, ({ onNext, new2FADetails, data }) => {
+  const { add2FA } = useContext(UserContext)
   const [verifyCode, setVerifyCode] = useState('')
   const handleUserInput = (e) => setVerifyCode(e.target.value)
   const verifyAppAuthCode = async () => {
-    // console.log('new2FADetails', new2FADetails)
-    const response = await saveGoogleAuth2FA({
+    const response = await add2FA({
       auth_answer: verifyCode,
       key: data.key,
       title: new2FADetails.title,
@@ -141,7 +181,7 @@ export const EnableGoogleAuth = withCard(2, ({ onNext, new2FADetails, data }) =>
       date: new2FADetails.date,
       type: new2FADetails.type,
     })
-    return response.data
+    return response
   }
   onNext.current = verifyAppAuthCode
   return (
@@ -159,8 +199,9 @@ export const EnableGoogleAuth = withCard(2, ({ onNext, new2FADetails, data }) =>
       </p>
     </div>
   )
-})
-export const BackUpKey = withCard(3, ({ data }) => {
+}, ModalsConf.EnableGoogleAuth.hasBack)
+
+export const BackUpKey = withCard(ModalsConf.BackUpKey.step, ({ data }) => {
   return (
     <>
       <h4 className="text-center">Please save this keys. They will allow you to recover your 2FA in case of phone loss.</h4>
@@ -175,9 +216,9 @@ export const BackUpKey = withCard(3, ({ data }) => {
       </div>
     </>
   )
-})
+}, ModalsConf.BackUpKey.hasBack)
 
-export const DeleteGoogleAuth = withCard(4, ({ onNext }) => {
+export const DeleteGoogleAuth = withCard(ModalsConf.DeleteGoogleAuth.step, ({ onNext }) => {
   const { delete2FA } = useContext(UserContext)
   const [verifyCode, setVerifyCode] = useState('')
   const handleUserInput = (e) => setVerifyCode(e.target.value)
@@ -186,8 +227,8 @@ export const DeleteGoogleAuth = withCard(4, ({ onNext }) => {
   }
   onNext.current = deleteAppAuthCode
   return (
-    <div className="row col-12">
-      <h5 className="h6 mb-0">Delete Google Authenticator</h5>
+    <div>
+      <h5 className="h6 mb-4">Delete Google Authenticator</h5>
       <input
         type="text"
         className="form-control"
@@ -195,11 +236,11 @@ export const DeleteGoogleAuth = withCard(4, ({ onNext }) => {
         value={verifyCode}
         onChange={handleUserInput}
       />
-      <p className="text-sm mb-0">
+      <p className="text-sm mt-4">
         Enter the 6 digit code from Google Authenticator.
       </p>
     </div>
   )
-})
+}, ModalsConf.DeleteGoogleAuth.hasBack)
 
 export const ADD_2FA_FLOW = [DownloadApp, ScanQRCode, EnableGoogleAuth, BackUpKey]

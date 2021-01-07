@@ -1,6 +1,6 @@
 import React, { createContext, useState } from 'react'
 import { firebase } from '../firebase/firebase'
-import { checkGoogleAuth2FA, deleteGoogleAuth2FA, validateUser, verifyGoogleAuth2FA } from '../api/api'
+import { checkGoogleAuth2FA, deleteGoogleAuth2FA, saveGoogleAuth2FA, validateUser, verifyGoogleAuth2FA } from '../api/api'
 
 export const UserContext = createContext()
 
@@ -48,6 +48,26 @@ const UserContextProvider = ({ children }) => {
     localStorage.removeItem('registered')
 
     return signedin
+  }
+
+  async function add2FA(t2faData) {
+    const response = await saveGoogleAuth2FA({
+      auth_answer: t2faData.auth_answer,
+      key: t2faData.key,
+      title: t2faData.title,
+      description: t2faData.description,
+      date: t2faData.date,
+      type: t2faData.type,
+    })
+    const has2FADetails = {
+      title: t2faData.title,
+      description: t2faData.description,
+      date: t2faData.date,
+      type: t2faData.type
+    }
+    localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails, is2FAVerified: true }))
+    setState({ ...state, has2FADetails, is2FAVerified: true })
+    return response.data
   }
 
   function get2FADetails() {
@@ -120,6 +140,7 @@ const UserContextProvider = ({ children }) => {
         isRegistered,
         isLoggedIn,
         isLoggedInWithFirebase,
+        add2FA,
         verify2FA,
         get2FADetails,
         delete2FA
