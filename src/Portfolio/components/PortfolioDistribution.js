@@ -1,5 +1,4 @@
 import React from 'react'
-/* import ChartDataCtxProvider from '../context/ChartContext' */
 import PieCharts from './Chart/PieCharts'
 
 const PortfolioDistribution = () => {
@@ -11,9 +10,6 @@ const PortfolioDistribution = () => {
             <div>
               <span className="h6">Portfolio Distribution</span>
             </div>
-            {/*          <ChartDataCtxProvider>
-                            <PieCharts />
-                        </ChartDataCtxProvider> */}
             <PieCharts />
           </div>
         </div>

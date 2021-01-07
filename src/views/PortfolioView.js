@@ -2,9 +2,6 @@ import React, { useState, useMemo } from 'react'
 import EstimateValue from '../Portfolio/components/EstimateValue'
 import PortfolioDistribution from '../Portfolio/components/PortfolioDistribution'
 import Table from '../components/Table/Table'
-/* import ChartContext from '../Portfolio/context/ChartContext'
-import { EstimatedProvider } from '../Portfolio/context/EstimatedContext'
- */
 import { mockBalances } from '../Portfolio/components/Table/table-mock'
 import { tableConstants } from '../Portfolio/components/Table/tableConstant'
 
