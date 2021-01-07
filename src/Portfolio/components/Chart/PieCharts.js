@@ -1,10 +1,15 @@
 import React, { useEffect } from 'react'
 import c3 from 'c3'
+import './PieChart.css'
 
 function PieCharts() {
   useEffect(() => {
     c3.generate({
-      bindto: '#data', // default is di="chart" use bindto to reconfig
+      bindto: '#data',
+      size: {
+        height: 200,
+        width: 420,
+      },
       data: {
         columns: [
           ['BTC', 0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.2, 0.2, 0.2, 0.2],
@@ -14,6 +19,11 @@ function PieCharts() {
         onclick: function (d, i) {},
         onmouseover: function (d, i) {},
         onmouseout: function (d, i) {},
+      },
+      legend: {
+        position: 'right',
+        padding: 15,
+        bottom: 20,
       },
     })
   }, [])
