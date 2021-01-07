@@ -36,7 +36,11 @@ const SymbolContextProvider = ({ children }) => {
         data['exchanges'].forEach((exchange) => {
           exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
-            symbolList.push(exchange['exchange'].toUpperCase() + ':' + symbol)
+            symbolList.push(
+                {
+                    "label": symbol['label'],
+                    "value": exchange['exchange'].toUpperCase() + ':' + symbol['value']
+                })
           })
         })
 

@@ -18,7 +18,7 @@ const SymbolSelect = () => {
   })
 
   const symbolList = symbols.map((symbol) => {
-    return { label: symbol, value: symbol }
+    return { label: symbol["label"], value: symbol["value"] }
   })
 
   if (isLoading) {
