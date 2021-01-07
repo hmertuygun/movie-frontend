@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect } from 'react'
+
+import { PortfolioContext } from '../context/PortfolioContext'
 
 const EstimateValue = () => {
-  const [tickers] = useState([])
-
-  const EstimatedValues = tickers.map((value, idx) => {
-    return <ul key={idx}> {value.price}</ul>
-  })
+  const { estimate } = useContext(PortfolioContext)
+  useEffect(() => {}, [estimate])
 
   return (
     <>
@@ -14,21 +13,25 @@ const EstimateValue = () => {
           <div className="d-flex justify-content-between align-items-center">
             <div>
               <span className="h6">Estimated Value</span>
-            </div>
-          </div>
-        </div>
-        <div className="card-body">
-          <div className="d-flex align-items-center mb-2">
-            <div>
-              <span className="icon icon-shape icon-sm bg-soft-info text-primary">
-                <i className="fab fa-bitcoin"></i>
-              </span>
-            </div>
+              {estimate &&
+                estimate.map((item, idx) => {
+                  return (
+                    <div className="d-flex align-items-center mb-2" key={idx}>
+                      <div>
+                        <span className="icon icon-shape icon-md bg-soft-info text-primary">
+                          <i className="fab fa-bitcoin"></i>
+                          {item.symbol}
+                        </span>
+                      </div>
 
-            <div className="pl-2">
-              <span className="text-muted text-sm font-weight-bold">
-                {EstimatedValues ? EstimatedValues : 'not data available'}
-              </span>
+                      <div className="pl-2">
+                        <span className="text-muted text-sm font-weight-bold">
+                          {item.value}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
             </div>
           </div>
         </div>
