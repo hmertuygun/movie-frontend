@@ -13,11 +13,14 @@ const SymbolContext = createContext()
 const SymbolContextProvider = ({ children }) => {
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
+  const [symbolDetails, setSymbolDetails] = useState({})
   const [selectedSymbol, setSelectedSymbol] = useState('')
+  const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
   const [selectedExchange, setSelectedExchange] = useState('')
 
   function setSymbol(symbol) {
     setSelectedSymbol(symbol)
+    setSelectedSymbolDetail(symbolDetails[symbol])
   }
 
   function setExchange(exchange) {
@@ -31,23 +34,33 @@ const SymbolContextProvider = ({ children }) => {
       const data = queryExchanges.data //await getExchanges()
       const exchangeList = []
       const symbolList = []
+      const symbolDetails = {}
 
       if (queryExchanges.status === 'success' && data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
           exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
+            value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
             symbolList.push(
                 {
                     "label": symbol['label'],
-                    "value": exchange['exchange'].toUpperCase() + ':' + symbol['value']
+                    "value": value
                 })
+            symbolDetails[value] = {
+                'base_asset': symbol['base_asset'],
+                'quote_asset': symbol['quote_asset'],
+                'base_asset_precision': symbol['base_asset_precision'],
+                'quote_asset_precision': symbol['quote_asset_precision']
+            }
           })
         })
 
         setExchanges(exchangeList)
         setSymbols(symbolList)
+        setSymbolDetails(symbolDetails)
         setSelectedExchange(exchangeList[0])
         setSelectedSymbol('BINANCE:BTCEUR')
+        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCEUR'])
       } else {
         setExchanges([])
         setSymbols([])
@@ -71,6 +84,8 @@ const SymbolContextProvider = ({ children }) => {
         symbols,
         setSymbol,
         selectedSymbol,
+        symbolDetails,
+        selectedSymbolDetail
       }}
     >
       {children}
