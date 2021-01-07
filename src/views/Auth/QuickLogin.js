@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLogin = () => {
-  const { login } = useContext(UserContext)
+  const { login, isLoggedInWithFirebase } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -29,6 +29,10 @@ const QuickLogin = () => {
     } else {
       setType('text')
     }
+  }
+
+  if (isLoggedInWithFirebase) {
+    return <Redirect to="/login/verify2fa" />
   }
 
   return (
