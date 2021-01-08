@@ -29,7 +29,7 @@ function PortfolioContainer() {
                 <div className="col-auto">
                   {refreshBtn ? (
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-sm btn-neutral btn-icon"
                       type="button"
                       disabled
                     >
@@ -43,7 +43,7 @@ function PortfolioContainer() {
                   ) : (
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-sm btn-neutral btn-icon"
                       onClick={refreshData}
                     >
                       Refresh

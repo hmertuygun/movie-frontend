@@ -19,7 +19,7 @@ const Logo = () => {
             height: '23px',
             width: 'auto',
             marginTop: '-5px',
-            paddingRight: '7px',
+            //paddingRight: '7px',
           }}
         >
           <path
