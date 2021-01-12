@@ -52,9 +52,9 @@ function LimitForm() {
 
   return (
     <Fragment>
-      <div style={{ marginTop: '2rem' }}>
+      {/*       <div style={{ marginTop: '2rem' }}>
         <Typography as="h3">1. Entry</Typography>
-      </div>
+      </div> */}
 
       <div>BALANCE: {balance}</div>
 
@@ -107,7 +107,7 @@ function LimitForm() {
           />
 
           <Button disabled={isValid ? null : 'disabled'} type="submit">
-            Set exits >
+            Next: Exits {'>'}
           </Button>
         </form>
       </section>

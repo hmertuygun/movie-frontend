@@ -47,12 +47,19 @@ const Trade = () => {
   return (
     <Fragment>
       <section>
-        <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
+        {/*         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
           <div style={{ marginTop: '2rem' }}>
             <Typography as="h3">Not available</Typography>
-          </div>
+          </div> */}
 
+        <TabNavigator labelArray={['Full Trade']} index={0}>
           <div style={{ marginTop: '4rem' }}>
+            {!hasEntry && (
+              <div style={{ marginTop: '2rem' }}>
+                <Typography as="h3">1. Entry</Typography>
+              </div>
+            )}
+
             {!hasEntry && (
               <TabNavigator labelArray={['Limit', 'Market', 'Stop Limit']}>
                 <LimitForm />
@@ -87,6 +94,10 @@ const Trade = () => {
             )}
 
             <TradeTableContainer />
+          </div>
+
+          <div style={{ marginTop: '2rem' }}>
+            <Typography as="h3">Not!! available</Typography>
           </div>
         </TabNavigator>
       </section>
