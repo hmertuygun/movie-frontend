@@ -47,6 +47,7 @@ const SymbolContextProvider = ({ children }) => {
                     "value": value
                 })
             symbolDetails[value] = {
+                'symbolpair': symbol['value'],
                 'base_asset': symbol['base_asset'],
                 'quote_asset': symbol['quote_asset'],
                 'base_asset_precision': symbol['base_asset_precision'],
@@ -59,8 +60,8 @@ const SymbolContextProvider = ({ children }) => {
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
         setSelectedExchange(exchangeList[0])
-        setSelectedSymbol('BINANCE:BTCEUR')
-        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCEUR'])
+        setSelectedSymbol('BINANCE:BTCUSDT')
+        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
       } else {
         setExchanges([])
         setSymbols([])

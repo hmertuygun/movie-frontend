@@ -1,8 +1,10 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Typography, InlineInput, Button } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
+import { useSymbolContext } from '../context/SymbolContext'
 
 function LimitForm() {
+  const { isLoading, selectedSymbolDetail } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
   const balance = 20000
   const [price, setPrice] = useState('')
@@ -62,7 +64,7 @@ function LimitForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            addEntry({ price, quantity, type: 'limit' })
+            addEntry({ price, quantity, type: 'limit', symbol: selectedSymbolDetail['value'] })
           }}
         >
           <InlineInput
@@ -71,7 +73,7 @@ function LimitForm() {
             onChange={(value) => setPrice(value)}
             value={price}
             placeholder="Entry price"
-            postLabel="USDT"
+            postLabel={isLoading ? "" : selectedSymbolDetail['quote_asset']}
           />
 
           <InlineInput
@@ -83,7 +85,7 @@ function LimitForm() {
             }}
             value={quantity}
             placeholder="Amount"
-            postLabel="BTC"
+            postLabel={isLoading ? "" : selectedSymbolDetail['base_asset']}
           />
 
           <InlineInput
@@ -102,7 +104,7 @@ function LimitForm() {
             type="number"
             value={total}
             placeholder=""
-            postLabel="USDT"
+            postLabel={isLoading ? "" : selectedSymbolDetail['quote_asset']}
             disabled
           />
 

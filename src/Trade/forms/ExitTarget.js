@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from 'react'
 import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
+import { useSymbolContext } from '../context/SymbolContext'
 
 const ExitTarget = () => {
+  const { isLoading, selectedSymbolDetail } = useSymbolContext()
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -62,6 +64,7 @@ const ExitTarget = () => {
               price,
               quantity,
               profit,
+              symbol: selectedSymbolDetail['value'] 
             })
           }}
         >
@@ -74,7 +77,7 @@ const ExitTarget = () => {
             }}
             value={price}
             placeholder="Target price"
-            postLabel="USDT"
+            postLabel={ selectedSymbolDetail['quote_asset'] } 
           />
 
           <InlineInput
@@ -96,7 +99,7 @@ const ExitTarget = () => {
               setQuantity(value)
             }}
             value={quantity}
-            postLabel="BTC"
+            postLabel={isLoading ? "" : selectedSymbolDetail['base_asset']}
           />
 
           <InlineInput
