@@ -150,6 +150,14 @@ const AddButton = ({ disabled, onClick }) => {
 }
 
 const Select2FAType = ({ desc, setDesc, onAddNew, disabled }) => {
+  const [error, setError] = useState('')
+  const handleAddNew = () => {
+    if (disabled) {
+      setError('You already have Google Authenticator for 2FA.')
+    } else {
+      onAddNew && onAddNew()
+    }
+  }
   return (
     <li className="list-group-item">
       <div className="row mx-n2">
@@ -172,9 +180,10 @@ const Select2FAType = ({ desc, setDesc, onAddNew, disabled }) => {
           </div>
         </div>
         <div className="col-auto px-2">
-          <AddButton onClick={onAddNew} disabled={disabled} />
+          <AddButton onClick={handleAddNew} />
         </div>
       </div>
+      {error && <p className="text-sm text-danger">{error}</p>}
     </li>
   )
 }

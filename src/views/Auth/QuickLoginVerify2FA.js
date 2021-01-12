@@ -11,7 +11,7 @@ const QuickLoginVerify2FA = () => {
   const doVerify2FA = async (t2faToken) => {
     const isVerifed = await verify2FA(t2faToken)
     if (!isVerifed) {
-      setError({ message: "Provided 2FA Token doesn't match." })
+      setError("Provided 2FA Token doesn't match.")
     }
   }
 
@@ -39,10 +39,9 @@ const QuickLoginVerify2FA = () => {
                   if (t2faToken) {
                     doVerify2FA(t2faToken)
                   } else {
-                    setError({
-                      message:
-                        'You need to provide a valid Two Factor Authentication token',
-                    })
+                    setError(
+                      'You need to provide a valid Two Factor Authentication token'
+                    )
                   }
                 }}
                 onReset={() => {
@@ -67,9 +66,7 @@ const QuickLoginVerify2FA = () => {
                     </div>
                   </div>
                 </div>
-                {error && (
-                  <p className="text-sm mt-3 text-danger">{error.message}</p>
-                )}
+                {error && <p className="text-sm mt-3 text-danger">{error}</p>}
                 <div className="mt-4">
                   <button type="submit" className="btn btn-block btn-primary">
                     Verify

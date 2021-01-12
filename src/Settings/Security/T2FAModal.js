@@ -89,7 +89,7 @@ const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({
               className="btn btn-primary"
               onClick={onClickNext}
             >
-              Next
+              {step < ADD_2FA_FLOW.length - 1 ? 'Next' : 'Complete'}
             </button>
           </div>
         </div>
@@ -203,12 +203,47 @@ export const ScanQRCode = withCard(
   ModalsConf.ScanQRCode.hasBack
 )
 
+const CodeForm = ({ title, onVerify, onNext, onChangeCode }) => {
+  const [error, setError] = useState('')
+  const [verifyCode, setVerifyCode] = useState('')
+  const handleUserInput = (e) => {
+    const value = e.target.value
+    setVerifyCode(value)
+    onChangeCode && onChangeCode(value)
+    setError('')
+  }
+  const verify = async () => {
+    try {
+      const response = await onVerify()
+      return response
+    } catch (error) {
+      setError({ message: "Provided 2FA Token doesn't match." })
+      throw error
+    }
+  }
+  onNext.current = verify
+  return (
+    <div>
+      <h5 className="h6 mb-4">{title}</h5>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Enter Google verification code"
+        value={verifyCode}
+        onChange={handleUserInput}
+      />
+      {error && <p className="text-sm mt-1 text-danger">{error.message}</p>}
+      <p className="text-sm mt-4">
+        Enter the 6 digit code from Google Authenticator.
+      </p>
+    </div>
+  )
+}
 export const EnableGoogleAuth = withCard(
   ModalsConf.EnableGoogleAuth.step,
   ({ onNext, new2FADetails, data }) => {
     const { add2FA } = useContext(UserContext)
     const [verifyCode, setVerifyCode] = useState('')
-    const handleUserInput = (e) => setVerifyCode(e.target.value)
     const verifyAppAuthCode = async () => {
       const response = await add2FA({
         auth_answer: verifyCode,
@@ -220,21 +255,13 @@ export const EnableGoogleAuth = withCard(
       })
       return response
     }
-    onNext.current = verifyAppAuthCode
     return (
-      <div>
-        <h5 className="h6 mb-4">Enable Google Authenticator</h5>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Enter Google verification code"
-          value={verifyCode}
-          onChange={handleUserInput}
-        />
-        <p className="text-sm mt-4">
-          Enter the 6 digit code from Google Authenticator.
-        </p>
-      </div>
+      <CodeForm
+        title="Enable Google Authenticator"
+        onVerify={verifyAppAuthCode}
+        onNext={onNext}
+        onChangeCode={setVerifyCode}
+      />
     )
   },
   ModalsConf.EnableGoogleAuth.hasBack
@@ -250,11 +277,12 @@ export const BackUpKey = withCard(
           of phone loss.
         </h4>
         <div className="mt-4">
-          {data.backup_codes.map((code) => (
-            <>
-              <p className="text-center">{code}</p>
-            </>
-          ))}
+          {data.backup_codes &&
+            data.backup_codes.map((code) => (
+              <>
+                <p className="text-center">{code}</p>
+              </>
+            ))}
         </div>
       </>
     )
@@ -267,25 +295,16 @@ export const DeleteGoogleAuth = withCard(
   ({ onNext }) => {
     const { delete2FA } = useContext(UserContext)
     const [verifyCode, setVerifyCode] = useState('')
-    const handleUserInput = (e) => setVerifyCode(e.target.value)
     const deleteAppAuthCode = async () => {
       await delete2FA(verifyCode)
     }
-    onNext.current = deleteAppAuthCode
     return (
-      <div>
-        <h5 className="h6 mb-4">Delete Google Authenticator</h5>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Enter Google verification code"
-          value={verifyCode}
-          onChange={handleUserInput}
-        />
-        <p className="text-sm mt-4">
-          Enter the 6 digit code from Google Authenticator.
-        </p>
-      </div>
+      <CodeForm
+        title="Delete Google Authenticator"
+        onVerify={deleteAppAuthCode}
+        onNext={onNext}
+        onChangeCode={setVerifyCode}
+      />
     )
   },
   ModalsConf.DeleteGoogleAuth.hasBack
