@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [secret, setSecret] = useState('')
   const [apiKey, setApiKey] = useState('')
-  const [exchange, setExchange] = useState('')
+  const [exchange, setExchange] = useState('binance')
   const [isValid, setIsValid] = useState(false)
 
   useEffect(() => {
@@ -60,6 +60,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     disabled={isLoading}
                     className="form-control"
                     value={exchange}
+                    disabled
                     onChange={(event) => setExchange(event.target.value)}
                     placeholder="Exchange"
                   />

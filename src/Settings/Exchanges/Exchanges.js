@@ -20,17 +20,6 @@ const Exchanges = () => {
     console.log('got data')
     console.log(exchangeQuery)
     exchanges = exchangeQuery.data.data.apiKeys
-      .sort()
-      .map((exchange, index) => {
-        return {
-          id: index,
-          exchange: exchange.apiKeyName,
-          apiKeyName: exchange.exchange,
-          isActive:
-            exchange.apiKeyName ===
-            exchangeQuery.data.data.activeApiKeys[index].apiKeyName,
-        }
-      })
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
@@ -137,7 +126,7 @@ const Exchanges = () => {
                           row={row}
                           index={index}
                           onDelete={() => onDelete(row.exchange)}
-                          setActive={() => setActive(row.exchange)}
+                          setActive={() => setActive(row.apiKeyName)}
                           isLast={index === exchanges.length - 1}
                         />
                       ))}
@@ -164,7 +153,7 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
       <div className="row align-items-center">
         <div className="col">
           <h6 className="text-sm mb-0">
-            {row.exchange} ({row.apiKeyName})
+            {row.exchange} - {row.apiKeyName}
           </h6>
         </div>
 
