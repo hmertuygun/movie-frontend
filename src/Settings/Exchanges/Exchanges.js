@@ -17,13 +17,18 @@ const Exchanges = () => {
   let exchanges = []
 
   if (exchangeQuery.data) {
+    console.log('got data')
+    console.log(exchangeQuery)
     exchanges = exchangeQuery.data.data.apiKeys
       .sort()
       .map((exchange, index) => {
         return {
           id: index,
-          exchange,
-          isActive: exchange === exchangeQuery.data.data.activeApiKeys[0],
+          exchange: exchange.apiKeyName,
+          apiKeyName: exchange.exchange,
+          isActive:
+            exchange.apiKeyName ===
+            exchangeQuery.data.data.activeApiKeys[index].apiKeyName,
         }
       })
   }
@@ -158,7 +163,9 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
     <Fragment>
       <div className="row align-items-center">
         <div className="col">
-          <h6 className="text-sm mb-0">{row.exchange}</h6>
+          <h6 className="text-sm mb-0">
+            {row.exchange} ({row.apiKeyName})
+          </h6>
         </div>
 
         {row.isActive && (
