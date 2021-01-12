@@ -19,11 +19,13 @@ const EstimateValue = () => {
         <div className="card-body">
           {estimate &&
             estimate.map((item, idx) => {
+              if (item.symbol === 'USDT') {
+                item.symbol = 'USD'
+              }
               return (
                 <div className="d-flex align-items-center mb-2" key={idx}>
                   <div>
-                    <span className="icon icon-shape icon-sm bg-soft-info text-primary">
-                      <i className="fab fa-bitcoin"></i>
+                    <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm">
                       {item.symbol}
                     </span>
                   </div>
