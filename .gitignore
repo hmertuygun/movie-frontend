@@ -3,3 +3,4 @@ dist
 build
 .idea
 debug.log
+.vscode/settings.json

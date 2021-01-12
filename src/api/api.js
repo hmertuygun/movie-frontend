@@ -87,6 +87,18 @@ export async function getExchanges() {
   return exchanges.data
 }
 
+export async function getBalance(symbol) {
+  const apiUrl = process.env.REACT_APP_API + 'balance/' + symbol
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response
+}
+
 // {
 //   "apiKey": "FriendshipIsMagic",
 //   "signSecret": "Tralalala",

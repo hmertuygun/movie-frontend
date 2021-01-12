@@ -5,7 +5,7 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges } from '../../api/api'
+import { getExchanges, getBalance } from '../../api/api'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
@@ -17,10 +17,28 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbol, setSelectedSymbol] = useState('')
   const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
   const [selectedExchange, setSelectedExchange] = useState('')
+  const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
+
+  async function loadBalance(quote_asset) {
+    try {
+      const response = await getBalance(quote_asset)
+      if ('balance' in response.data) {
+        setSelectedSymbolBalance(response.data["balance"])
+        console.log(response.data["balance"])
+      } else {
+        setSelectedSymbolBalance(0)
+      }
+    } catch (Exception) {
+      setSelectedSymbolBalance(0)
+    }
+  }
 
   function setSymbol(symbol) {
     setSelectedSymbol(symbol)
     setSelectedSymbolDetail(symbolDetails[symbol])
+    setSelectedSymbolBalance('')
+    if (symbol in symbolDetails) {
+      loadBalance(symbolDetails[symbol]['quote_asset']) }
   }
 
   function setExchange(exchange) {
@@ -62,6 +80,8 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedExchange(exchangeList[0])
         setSelectedSymbol('BINANCE:BTCUSDT')
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
+        loadBalance('USDT')
+        
       } else {
         setExchanges([])
         setSymbols([])
@@ -78,7 +98,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: queryExchanges.isLoading,
+        isLoading: queryExchanges.isLoading || !selectedSymbolDetail,
         exchanges,
         setExchange,
         selectedExchange,
@@ -86,7 +106,8 @@ const SymbolContextProvider = ({ children }) => {
         setSymbol,
         selectedSymbol,
         symbolDetails,
-        selectedSymbolDetail
+        selectedSymbolDetail,
+        selectedSymbolBalance
       }}
     >
       {children}
