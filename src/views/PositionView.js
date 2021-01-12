@@ -4,7 +4,7 @@ import { data, cols } from '../Position/utils/mock-data'
 
 const Position = () => {
   return (
-    <div className="container">
+    <div className="container" style={{ paddingTop: '48px' }}>
       <AccordionContainer data={data} columns={cols} />
     </div>
   )
