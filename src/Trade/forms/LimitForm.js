@@ -4,9 +4,9 @@ import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
 
 function LimitForm() {
-  const { isLoading, selectedSymbolDetail } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolBalance } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
-  const balance = 20000
+  const balance = selectedSymbolBalance
   const [price, setPrice] = useState('')
   // @TOOD:
   // Remove amount, and leave only quantity
@@ -45,7 +45,7 @@ function LimitForm() {
       const canAfford = total <= balance
       setIsValid(canAfford && price && quantity)
     },
-    [total, price, quantity],
+    [total, price, quantity, balance],
     () => {
       setTotal(0)
       setPrice(0)
@@ -58,7 +58,7 @@ function LimitForm() {
         <Typography as="h3">1. Entry</Typography>
       </div>
 
-      <div>BALANCE: {balance}</div>
+      <div>BALANCE: {selectedSymbolBalance}</div>
 
       <section>
         <form
