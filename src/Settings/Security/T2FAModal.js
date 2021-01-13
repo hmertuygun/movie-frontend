@@ -41,7 +41,7 @@ const HeaderStep = ({ step: active }) => (
     {HeaderSteps.map(({ title, step }) => (
       <div key={step} className="mx-2">
         <span
-          className={`badge rounded-pill ${
+          className={`badge badge-md ${
             active === step ? 'bg-primary text-white' : 'bg-secondary'
           }`}
         >
@@ -75,7 +75,7 @@ const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({
     }
   }
   return (
-    <div className="card" style={{ width: 800, height: 600 }}>
+    <div className="card container">
       {step < ADD_2FA_FLOW.length ? (
         <div className="card-header">
           <HeaderStep step={step} />

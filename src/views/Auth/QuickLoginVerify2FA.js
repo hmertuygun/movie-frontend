@@ -82,6 +82,7 @@ const QuickLoginVerify2FA = () => {
                   <button
                     type="submit"
                     className="btn btn-block btn-primary d-flex align-items-center justify-content-center"
+                    disabled={isLoading}
                   >
                     Verify
                     {isLoading ? (
