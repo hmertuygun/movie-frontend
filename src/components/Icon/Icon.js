@@ -13,7 +13,6 @@ const Icon = ({
   if (!icon) {
     return 'Provide ICON to show icon'
   }
-  console.log(icon)
 
   return (
     <svg
