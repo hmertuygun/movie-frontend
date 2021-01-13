@@ -6,6 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
+import { faWallet } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 const useStyles = makeStyles({
   root: {
@@ -35,6 +37,13 @@ function LimitForm() {
     50: '',
     75: '',
     100: ''
+  }
+
+  const round = (value, decimals) => {
+    if (value == 0)
+    { return 0 }
+
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
   }
 
   const handleSliderChange = (newValue) => {
@@ -100,7 +109,14 @@ function LimitForm() {
         <Typography as="h3">1. Entry</Typography>
       </div>
 
-      <div>BALANCE: {selectedSymbolBalance}</div>
+      <div>
+        <FontAwesomeIcon icon={ faWallet } />  
+        {'  '} 
+        {round(selectedSymbolBalance, selectedSymbolDetail['quote_asset_precision'])} 
+        {'  '} 
+        {selectedSymbolDetail['quote_asset']}
+
+      </div>
 
       <section>
         <form
