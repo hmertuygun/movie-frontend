@@ -6,7 +6,6 @@ import Select from 'react-dropdown-select';
 const SymbolSelect = () => {
   const {
     exchanges,
-    setExchange,
     symbols,
     selectedSymbol,
     setSymbol,
