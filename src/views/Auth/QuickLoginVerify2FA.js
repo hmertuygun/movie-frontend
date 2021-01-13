@@ -4,14 +4,22 @@ import { Logo, Icon } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLoginVerify2FA = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const { verify2FA, logout, isLoggedInWithFirebase } = useContext(UserContext)
   const [t2faToken, set2faToken] = useState('')
   const [error, setError] = useState('')
 
   const doVerify2FA = async (t2faToken) => {
-    const isVerifed = await verify2FA(t2faToken)
-    if (!isVerifed) {
-      setError("Provided 2FA Token doesn't match.")
+    try {
+      setIsLoading(true)
+      const isVerifed = await verify2FA(t2faToken)
+      if (!isVerifed) {
+        setError("Provided 2FA Token doesn't match.")
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -57,7 +65,10 @@ const QuickLoginVerify2FA = () => {
                       id="input-2fa"
                       placeholder="123456"
                       value={t2faToken}
-                      onChange={(event) => set2faToken(event.target.value)}
+                      onChange={(event) => {
+                        setError('')
+                        set2faToken(event.target.value)
+                      }}
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
@@ -68,8 +79,18 @@ const QuickLoginVerify2FA = () => {
                 </div>
                 {error && <p className="text-sm mt-3 text-danger">{error}</p>}
                 <div className="mt-4">
-                  <button type="submit" className="btn btn-block btn-primary">
+                  <button
+                    type="submit"
+                    className="btn btn-block btn-primary d-flex align-items-center justify-content-center"
+                  >
                     Verify
+                    {isLoading ? (
+                      <span
+                        className="ml-2 spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                    ) : null}
                   </button>
                 </div>
                 <div className="mt-4">
