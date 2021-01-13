@@ -6,13 +6,8 @@ const Logo = () => (
   <Link to="/" className="logo">
     <img
       alt="Part one logo"
-      src="/img/svg/icons/panel.svg"
+      src="/img/svg/icons/Coinpanel_Color.svg"
       className="colorlogo"
-    />
-    <img
-      alt="Part two logo"
-      src="/assets/img/svg/icons/panel.svg"
-      className="whitelogo"
     />
     CoinPanel
   </Link>
