@@ -67,14 +67,14 @@ const ExitStoploss = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-
+            const symbol = selectedSymbolDetail['symbolpair']
             addStoploss({
               price,
               triggerPrice,
               profit,
               quantity,
               quantityPercentage,
-              symbol: selectedSymbolDetail['value'] 
+              symbol,
             })
           }}
         >

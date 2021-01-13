@@ -24,7 +24,6 @@ const SymbolContextProvider = ({ children }) => {
       const response = await getBalance(quote_asset)
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data["balance"])
-        console.log(response.data["balance"])
       } else {
         setSelectedSymbolBalance(0)
       }

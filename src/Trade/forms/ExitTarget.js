@@ -59,12 +59,12 @@ const ExitTarget = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-
+            const symbol = selectedSymbolDetail['symbolpair']
             addTarget({
               price,
               quantity,
               profit,
-              symbol: selectedSymbolDetail['value'] 
+              symbol,
             })
           }}
         >

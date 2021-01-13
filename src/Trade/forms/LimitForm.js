@@ -64,7 +64,8 @@ function LimitForm() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            addEntry({ price, quantity, type: 'limit', symbol: selectedSymbolDetail['value'] })
+            const symbol = selectedSymbolDetail['symbolpair']
+            addEntry({ price, quantity, symbol, type: 'limit'})
           }}
         >
           <InlineInput
