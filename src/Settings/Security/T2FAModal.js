@@ -41,7 +41,7 @@ const HeaderStep = ({ step: active }) => (
     {HeaderSteps.map(({ title, step }) => (
       <div key={step} className="mx-2">
         <span
-          className={`badge rounded-pill ${
+          className={`badge badge-md ${
             active === step ? 'bg-primary text-white' : 'bg-secondary'
           }`}
         >
@@ -57,17 +57,25 @@ const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({
   onBack,
   ...props
 }) => {
+  const [isLoading, setIsLoading] = useState(false)
   const onNext = useRef()
   const onClickNext = async () => {
-    if (typeof onNext.current === 'function') {
-      const data = await onNext.current()
-      next(data)
-    } else {
-      next()
+    try {
+      setIsLoading(true)
+      if (typeof onNext.current === 'function') {
+        const data = await onNext.current()
+        next(data)
+      } else {
+        next()
+      }
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoading(false)
     }
   }
   return (
-    <div className="card" style={{ width: 800, height: 600 }}>
+    <div className="card container">
       {step < ADD_2FA_FLOW.length ? (
         <div className="card-header">
           <HeaderStep step={step} />
@@ -86,10 +94,18 @@ const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({
             )}
             <button
               type="button"
-              className="btn btn-primary"
+              className="d-flex btn btn-primary align-items-center"
               onClick={onClickNext}
+              disabled={isLoading}
             >
               {step < ADD_2FA_FLOW.length - 1 ? 'Next' : 'Complete'}
+              {isLoading ? (
+                <span
+                  className="ml-2 spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              ) : null}
             </button>
           </div>
         </div>
