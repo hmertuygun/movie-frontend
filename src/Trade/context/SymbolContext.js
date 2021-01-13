@@ -33,11 +33,14 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   function setSymbol(symbol) {
+    if (symbol == null) {
+      return
+    }
     setSelectedSymbol(symbol)
-    setSelectedSymbolDetail(symbolDetails[symbol])
+    setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbolBalance('')
     if (symbol in symbolDetails) {
-      loadBalance(symbolDetails[symbol]['quote_asset']) }
+      loadBalance(symbolDetails[symbol.value]['quote_asset']) }
   }
 
   function setExchange(exchange) {
@@ -64,11 +67,12 @@ const SymbolContextProvider = ({ children }) => {
                     "value": value
                 })
             symbolDetails[value] = {
+                // BTCUSD
                 'symbolpair': symbol['value'],
                 'base_asset': symbol['base_asset'],
                 'quote_asset': symbol['quote_asset'],
-                'base_asset_precision': symbol['base_asset_precision'],
-                'quote_asset_precision': symbol['quote_asset_precision']
+                'base_asset_precision': symbol['base_asset_precision'], // BTC
+                'quote_asset_precision': symbol['quote_asset_precision'] // USD
             }
           })
         })
@@ -76,8 +80,8 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(exchangeList)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedExchange(exchangeList[0])
-        setSelectedSymbol('BINANCE:BTCUSDT')
+        setSelectedExchange({label: 'Binance', value: exchangeList[0]})
+        setSelectedSymbol({label: 'BTC-USDT', value: 'BINANCE:BTCUSDT'})
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
         

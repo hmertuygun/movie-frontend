@@ -2,6 +2,19 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Typography, InlineInput, Button } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
+import { makeStyles } from '@material-ui/core/styles';
+import Slider from 'rc-slider'
+import Grid from '@material-ui/core/Grid'
+import 'rc-slider/assets/index.css'
+
+const useStyles = makeStyles({
+  root: {
+    width: 330,
+  },
+  input: {
+    width: 42,
+  },
+});
 
 function LimitForm() {
   const { isLoading, selectedSymbolDetail, selectedSymbolBalance } = useSymbolContext()
@@ -14,6 +27,35 @@ function LimitForm() {
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
+
+  const classes = useStyles()
+  const marks = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: ''
+  }
+
+  const handleSliderChange = (newValue) => {
+    setQuantityPercentage(newValue)
+    calculatePercentageQuantity('quantityPercentage', newValue)
+  }
+
+  const handleInputChange = (value) => {
+    setQuantityPercentage(value === '' ? '' : Number(value));
+    calculatePercentageQuantity('quantityPercentage', value)
+  }
+
+  const handleBlur = () => {
+    if (quantityPercentage < 0) {
+      setQuantityPercentage(0)
+      calculatePercentageQuantity('quantityPercentage', 0)
+    } else if (quantityPercentage > 100) {
+      setQuantityPercentage(100)
+      calculatePercentageQuantity('quantityPercentage', 100)
+    }
+  }
 
   const calculatePercentageQuantity = (inputChanged, value) => {
     if (!price) {
@@ -88,17 +130,31 @@ function LimitForm() {
             placeholder="Amount"
             postLabel={isLoading ? "" : selectedSymbolDetail['base_asset']}
           />
-
-          <InlineInput
-            type="number"
-            onChange={(value) => {
-              setQuantityPercentage(value)
-              calculatePercentageQuantity('quantityPercentage', value)
-            }}
-            value={quantityPercentage}
-            placeholder="Amount"
-            postLabel="%"
-          />
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs>
+                <Slider
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleSliderChange}
+                  value={quantityPercentage}
+                /> 
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={quantityPercentage}
+                  margin="dense"
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  postLabel={ '%' }
+                />
+              </Grid>
+            </Grid>
+          </div>
 
           <InlineInput
             label="Total"

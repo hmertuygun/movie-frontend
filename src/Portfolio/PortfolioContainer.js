@@ -3,6 +3,8 @@ import BalanceTable from './components/BalanceTable'
 import EstimateValue from './components/EstimateValue'
 import PortfolioDistribution from './components/PortfolioDistribution'
 import { PortfolioContext } from './context/PortfolioContext'
+import { faSync } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
@@ -46,7 +48,12 @@ function PortfolioContainer() {
                       className="btn btn-sm btn-neutral btn-icon"
                       onClick={refreshData}
                     >
+                      <span className="btn-inner--text">
                       Refresh
+                      </span>
+                      <span className="btn-inner--icon">
+                      <FontAwesomeIcon icon={ faSync } />
+                    </span>
                     </button>
                   )}
                 </div>
