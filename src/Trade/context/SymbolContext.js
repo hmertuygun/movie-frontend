@@ -37,10 +37,10 @@ const SymbolContextProvider = ({ children }) => {
       return
     }
     setSelectedSymbol(symbol)
-    setSelectedSymbolDetail(symbolDetails[symbol.value])
+    setSelectedSymbolDetail(symbolDetails[symbol['value']])
     setSelectedSymbolBalance('')
-    if (symbol in symbolDetails) {
-      loadBalance(symbolDetails[symbol.value]['quote_asset']) }
+    if (symbol['value'] in symbolDetails) {
+      loadBalance(symbolDetails[symbol['value']]['quote_asset']) }
   }
 
   function setExchange(exchange) {
