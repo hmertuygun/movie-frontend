@@ -7,6 +7,9 @@ import {
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
+// get our fontawesome imports
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
@@ -94,7 +97,7 @@ const Exchanges = () => {
                     }}
                   >
                     <span className="btn-inner--icon">
-                      <i className="fas fa-plus"></i>
+                      <FontAwesomeIcon icon={ faPlus } />
                     </span>
                     <span className="btn-inner--text">
                       Connect New Exchange
