@@ -64,11 +64,12 @@ const SymbolContextProvider = ({ children }) => {
                     "value": value
                 })
             symbolDetails[value] = {
+                // BTCUSD
                 'symbolpair': symbol['value'],
                 'base_asset': symbol['base_asset'],
                 'quote_asset': symbol['quote_asset'],
-                'base_asset_precision': symbol['base_asset_precision'],
-                'quote_asset_precision': symbol['quote_asset_precision']
+                'base_asset_precision': symbol['base_asset_precision'], // BTC
+                'quote_asset_precision': symbol['quote_asset_precision'] // USD
             }
           })
         })
