@@ -9,6 +9,7 @@ const NewPassword = ({ actionCode }) => {
   const [error, setError] = useState('')
   const [type, setType] = useState('password')
   const [isDone, setDone] = useState(false)
+  const [isLoading, setLoading] = useState(false)
 
   // clear errors
   useEffect(() => {
@@ -45,6 +46,7 @@ const NewPassword = ({ actionCode }) => {
 
   // set the new password
   function resetPassword() {
+    setLoading(true)
     // Save the new password.
     auth
       .confirmPasswordReset(actionCode, password)
@@ -53,6 +55,7 @@ const NewPassword = ({ actionCode }) => {
         // TODO: Display a link back to the app, or sign-in the user directly
         // if the page belongs to the same domain as the app:
         setDone(true)
+        setLoading(false)
         // TODO: If a continue URL is available, display a button which on
         // click redirects the user back to the app via continueUrl with
         // additional state determined from that URL's parameters.
@@ -61,6 +64,7 @@ const NewPassword = ({ actionCode }) => {
         // Error occurred during confirmation. The code might have expired or the
         // password is too weak.
         setError(error)
+        setLoading(false)
       })
   }
 
@@ -97,6 +101,7 @@ const NewPassword = ({ actionCode }) => {
                       event.preventDefault()
 
                       if (password) {
+                        setLoading(true)
                         resetPassword(password)
                       } else {
                         setError({
@@ -145,10 +150,19 @@ const NewPassword = ({ actionCode }) => {
 
                     <div className="mt-4">
                       <button
+                        disabled={isLoading}
                         type="submit"
                         className="btn btn-block btn-primary"
                       >
-                        Recover password
+                        {isLoading ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          'Recover password'
+                        )}
                       </button>
                     </div>
                   </form>
