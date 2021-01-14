@@ -6,6 +6,7 @@ import { SymbolContextProvider } from './context/SymbolContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
 import './TradeContainer.css'
+import TradeHistory from './components/TradeHistory/TradeHistory'
 
 const TradeContainer = () => (
   <SymbolContextProvider>
@@ -18,7 +19,12 @@ const TradeContainer = () => (
         <SymbolSelect />
       </section>
       <section className="TradeView-Chart">
-        <TradeChart />
+        <div>
+          <TradeChart />
+        </div>
+        <div>
+          <TradeHistory />
+        </div>
       </section>
     </section>
   </SymbolContextProvider>

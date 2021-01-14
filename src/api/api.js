@@ -239,3 +239,26 @@ export async function verifyGoogleAuth2FA(auth_answer) {
 
   return response
 }
+
+export async function getOpenOrders() {
+  const apiUrl =
+    process.env.REACT_APP_API +
+    'orders?exchange=Binance&limit=50&in_pending=true'
+  const token = await firebase.auth().currentUser.getIdToken()
+  const openOrders = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return openOrders.data
+}
+
+export async function getOrdersHistory() {
+  const apiUrl =
+    process.env.REACT_APP_API + 'orderhistory?exchange=Binance&limit=50'
+  const token = await firebase.auth().currentUser.getIdToken()
+  const openOrders = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return openOrders.data
+}
