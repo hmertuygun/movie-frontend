@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { firebase } from '../../firebase/firebase'
 
-// https://reactrouter.com/web/example/query-parameters
-function useQuery() {
-  return new URLSearchParams(useLocation().search)
-}
-
-const QuickConfirm = () => {
+const QuickConfirm = ({ actionCode }) => {
   const [validEmail, setValidEmail] = useState(false)
   const [error, setError] = useState('')
   const [password, setPassword] = useState('')
@@ -16,10 +11,6 @@ const QuickConfirm = () => {
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
   const [done, setDone] = useState(false)
-
-  const query = useQuery()
-
-  const actionCode = query.get('oobCode')
 
   useEffect(() => {
     const check = async () => {
@@ -37,7 +28,7 @@ const QuickConfirm = () => {
     }
   }
 
-  function handleVerifyEmail(actionCode, continueUrl) {
+  function handleVerifyEmail(actionCode) {
     // Localize the UI to the selected language as determined by the lang
     // parameter.
     // Try to apply the email verification code.

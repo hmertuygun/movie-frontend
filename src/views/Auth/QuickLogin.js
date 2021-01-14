@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, Fragment } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
@@ -10,13 +10,16 @@ const QuickLogin = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [type, setType] = useState('password')
+  const [isLoading, setLoading] = useState(false)
 
   // clear errors
   useEffect(() => {
     setError('')
+    setLoading(false)
   }, [email, password])
 
   const doLogin = async () => {
+    setLoading(true)
     const loggedin = await login(email, password)
     if (loggedin.message) {
       setError({ message: loggedin.message })
@@ -53,11 +56,12 @@ const QuickLogin = () => {
                   event.preventDefault()
 
                   if (email && password) {
-                    doLogin(email, password)
+                    doLogin()
                   } else {
                     setError({
                       message: 'You need both email and password to sign in',
                     })
+                    setLoading(false)
                   }
                 }}
               >
@@ -95,6 +99,7 @@ const QuickLogin = () => {
                   </div>
                   <div className="input-group input-group-merge">
                     <input
+                      autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       type={type}
@@ -109,12 +114,29 @@ const QuickLogin = () => {
                     </div>
                   </div>
                 </div>
+
                 {error && (
                   <p className="text-sm mt-3 text-danger">{error.message}</p>
                 )}
+
                 <div className="mt-4">
-                  <button type="submit" className="btn btn-block btn-primary">
-                    Sign in
+                  <button
+                    type="submit"
+                    className="btn btn-block btn-primary"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Fragment>
+                        {' '}
+                        <span
+                          className="spinner-border spinner-border-sm"
+                          role="status"
+                          aria-hidden="true"
+                        />
+                      </Fragment>
+                    ) : (
+                      'Sign in'
+                    )}
                   </button>
                 </div>
               </form>
@@ -123,6 +145,13 @@ const QuickLogin = () => {
                 <small>Not registered? </small>
                 <Link to="/register" className="small font-weight-bold">
                   Create account
+                </Link>
+              </div>
+
+              <div className="mt-4 text-center">
+                <small>Forgot password? </small>
+                <Link to="/recover-password" className="small font-weight-bold">
+                  Recover password
                 </Link>
               </div>
             </div>
