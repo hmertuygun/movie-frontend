@@ -41,7 +41,7 @@ const NewPassword = ({ actionCode }) => {
         // again.
         setError(error)
       })
-  }, [])
+  })
 
   // set the new password
   function resetPassword() {

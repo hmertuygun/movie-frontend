@@ -8,8 +8,8 @@ import {
 } from '../../api/api'
 import QuickModal from './QuickModal'
 // get our fontawesome imports
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
@@ -20,8 +20,6 @@ const Exchanges = () => {
   let exchanges = []
 
   if (exchangeQuery.data) {
-    console.log('got data')
-    console.log(exchangeQuery)
     exchanges = exchangeQuery.data.data.apiKeys
   }
 
@@ -81,8 +79,8 @@ const Exchanges = () => {
       )}
 
       <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-lg-9">
+        <div className="justify-content-center">
+          <div className="">
             <div>
               <div className="row align-items-center mb-3">
                 <div className="col">
@@ -97,7 +95,7 @@ const Exchanges = () => {
                     }}
                   >
                     <span className="btn-inner--icon">
-                      <FontAwesomeIcon icon={ faPlus } />
+                      <FontAwesomeIcon icon={faPlus} />
                     </span>
                     <span className="btn-inner--text">
                       Connect New Exchange
@@ -128,7 +126,7 @@ const Exchanges = () => {
                           key={index}
                           row={row}
                           index={index}
-                          onDelete={() => onDelete(row.exchange)}
+                          onDelete={() => onDelete(row.apiKeyName)}
                           setActive={() => setActive(row.apiKeyName)}
                           isLast={index === exchanges.length - 1}
                         />
@@ -179,7 +177,7 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
           )}
 
           {!row.isActive && (
-            <button className="btn btn-link" onClick={() => onDelete(index)}>
+            <button className="btn btn-link" onClick={() => onDelete()}>
               <span className="text-sm text-danger">Delete</span>
             </button>
           )}

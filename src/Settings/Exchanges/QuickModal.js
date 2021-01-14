@@ -60,7 +60,6 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     disabled={isLoading}
                     className="form-control"
                     value={exchange}
-                    disabled
                     onChange={(event) => setExchange(event.target.value)}
                     placeholder="Exchange"
                   />

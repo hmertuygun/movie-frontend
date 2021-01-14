@@ -2,12 +2,12 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { Typography, InlineInput, Button } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
-import { faWallet } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faWallet } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const useStyles = makeStyles({
   root: {
@@ -16,10 +16,15 @@ const useStyles = makeStyles({
   input: {
     width: 42,
   },
-});
+})
 
 function LimitForm() {
-  const { isLoading, selectedSymbolDetail, selectedSymbolBalance, isLoadingBalance } = useSymbolContext()
+  const {
+    isLoading,
+    selectedSymbolDetail,
+    selectedSymbolBalance,
+    isLoadingBalance,
+  } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
   const [price, setPrice] = useState('')
@@ -36,14 +41,15 @@ function LimitForm() {
     25: '',
     50: '',
     75: '',
-    100: ''
+    100: '',
   }
 
   const round = (value, decimals) => {
-    if (value == 0)
-    { return 0 }
+    if (value === 0) {
+      return 0
+    }
 
-    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals)
   }
 
   const handleSliderChange = (newValue) => {
@@ -52,7 +58,7 @@ function LimitForm() {
   }
 
   const handleInputChange = (value) => {
-    setQuantityPercentage(value === '' ? '' : Number(value));
+    setQuantityPercentage(value === '' ? '' : Number(value))
     calculatePercentageQuantity('quantityPercentage', value)
   }
 
@@ -110,20 +116,26 @@ function LimitForm() {
       </div>
 
       <div>
-        <FontAwesomeIcon icon={ faWallet } />  
-        {'  '} 
-        {
-        isLoadingBalance ? ' ' :
-        round(selectedSymbolBalance, selectedSymbolDetail['quote_asset_precision'])} 
-        {'  '} 
+        <FontAwesomeIcon icon={faWallet} />
+        {'  '}
+        {isLoadingBalance
+          ? ' '
+          : round(
+              selectedSymbolBalance,
+              selectedSymbolDetail['quote_asset_precision']
+            )}
+        {'  '}
         {selectedSymbolDetail['quote_asset']}
-        {'  '} 
-        {
-        isLoadingBalance ? <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true" /> : ''} 
-
+        {'  '}
+        {isLoadingBalance ? (
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          />
+        ) : (
+          ''
+        )}
       </div>
 
       <section>
@@ -131,7 +143,7 @@ function LimitForm() {
           onSubmit={(e) => {
             e.preventDefault()
             const symbol = selectedSymbolDetail['symbolpair']
-            addEntry({ price, quantity, symbol, type: 'limit'})
+            addEntry({ price, quantity, symbol, type: 'limit' })
           }}
         >
           <InlineInput
@@ -140,7 +152,7 @@ function LimitForm() {
             onChange={(value) => setPrice(value)}
             value={price}
             placeholder="Entry price"
-            postLabel={isLoading ? "" : selectedSymbolDetail['quote_asset']}
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
           />
 
           <InlineInput
@@ -152,7 +164,7 @@ function LimitForm() {
             }}
             value={quantity}
             placeholder="Amount"
-            postLabel={isLoading ? "" : selectedSymbolDetail['base_asset']}
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
@@ -165,7 +177,7 @@ function LimitForm() {
                   max={100}
                   onChange={handleSliderChange}
                   value={quantityPercentage}
-                /> 
+                />
               </Grid>
               <Grid item>
                 <InlineInput
@@ -174,7 +186,7 @@ function LimitForm() {
                   margin="dense"
                   onChange={handleInputChange}
                   onBlur={handleBlur}
-                  postLabel={ '%' }
+                  postLabel={'%'}
                 />
               </Grid>
             </Grid>
@@ -185,7 +197,7 @@ function LimitForm() {
             type="number"
             value={total}
             placeholder=""
-            postLabel={isLoading ? "" : selectedSymbolDetail['quote_asset']}
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             disabled
           />
 
