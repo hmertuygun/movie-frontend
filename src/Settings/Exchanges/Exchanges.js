@@ -19,6 +19,8 @@ const Exchanges = () => {
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data.data.apiKeys
+  } else {
+    exchanges = false
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
@@ -133,7 +135,9 @@ const Exchanges = () => {
 
                     {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
 
-                    {!exchanges && <div>No exchange added yet.</div>}
+                    {!exchanges && !exchangeQuery.isLoading && (
+                      <div>No exchange added yet.</div>
+                    )}
                   </div>
                 </div>
               </div>
