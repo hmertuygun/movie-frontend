@@ -179,6 +179,7 @@ function LimitForm() {
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 postLabel={'%'}
+                small
               />
             </div>
           </div>

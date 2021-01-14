@@ -1,15 +1,14 @@
 :root {
   --input-default-background: rgba(43, 47, 54, 0.9);
   --input-default-color: #fff;
-  --input-default-border:  rgba(43, 47, 54, 0.8);
-  
+  --input-default-border: rgba(43, 47, 54, 0.8);
+
   --label-default-color: rgb(146, 154, 165);
 
   --input-border-active-color: rgb(240, 185, 11);
   --input-default-disabled-background: rgba(20, 20, 30, 0.6);
-  --input-default-disabled-color: rgba(255,255,255, 0.8);
+  --input-default-disabled-color: rgba(255, 255, 255, 0.8);
 }
-
 
 :global input:disabled,
 :global input {
@@ -30,7 +29,8 @@
   border: 1px solid var(--input-default-border);
   border-radius: 0.375rem;
   color: var(--input-default-color);
-  
+
+  width: 100%;
   display: flex;
   align-items: stretch;
   justify-items: center;
@@ -39,7 +39,7 @@
   font-size: 14px;
   line-height: 32px;
   height: 32px;
-  
+
   padding: 0 8px;
   margin-bottom: 1rem;
 
@@ -56,21 +56,25 @@
   background: var(--input-default-disabled-background);
 }
 
+.InputContainerSmall {
+  composes: InputContainer;
+  padding-left: 0;
+}
+
 .InputElement {
   flex-grow: 1;
+  width: 100%;
 
   line-height: 28px;
-  
+
   border: none;
   font-size: inherit;
   color: var(--input-default-color);
-  
 }
 
 .InputElement[type='number'] {
   text-align: right;
 }
-
 
 .InputLabel {
   line-height: 32px;
@@ -79,8 +83,18 @@
   height: 32px;
 }
 
+.InputPostLabelSmall {
+  line-height: 32px;
+  color: var(--label-default-color);
+  margin: 0;
+  height: 32px;
+  padding: 0;
+  right: -8px;
+  position: relative;
+}
+
 .InputPostLabel {
-  padding-left: 8px;
+  padding-left: 4px;
   line-height: 32px;
   color: var(--label-default-color);
 }

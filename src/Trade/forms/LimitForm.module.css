@@ -1,12 +1,17 @@
 .SliderRow {
   width: 100%;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
 }
 
 .SliderSlider {
-  flex-grow: 2;
+  width: 190px;
+  height: 32px;
 }
 
 .SliderInput {
   width: 20%;
+  min-width: 42px;
 }
