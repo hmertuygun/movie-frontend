@@ -104,7 +104,7 @@ export async function getBalance(symbol) {
 //   "signSecret": "Tralalala",
 //   "exchange": "binance"
 // }
-export async function addUserExchange({ apiKey, secret, exchange }) {
+export async function addUserExchange({ name, apiKey, secret, exchange }) {
   const apiUrl = process.env.REACT_APP_API + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
 
@@ -112,7 +112,7 @@ export async function addUserExchange({ apiKey, secret, exchange }) {
     const added = await axios(apiUrl, {
       headers: await getHeaders(token),
       method: 'POST',
-      data: { apiKey, signSecret: secret, exchange },
+      data: { apiKey, apiKeyName: name, signSecret: secret, exchange },
     })
 
     return added
@@ -179,7 +179,7 @@ export async function deleteGoogleAuth2FA(auth_answer) {
     headers: await getHeaders(token),
     method: 'DELETE',
     data: {
-      auth_answer
+      auth_answer,
     },
   })
 
@@ -219,7 +219,7 @@ export async function saveGoogleAuth2FA({
       description,
       date,
       type,
-    }
+    },
   })
 
   return response
@@ -233,8 +233,8 @@ export async function verifyGoogleAuth2FA(auth_answer) {
     headers: await getHeaders(token),
     method: 'POST',
     data: {
-      auth_answer
-    }
+      auth_answer,
+    },
   })
 
   return response

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { Logo, Icon } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
@@ -126,14 +126,11 @@ const QuickLogin = () => {
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <Fragment>
-                        {' '}
-                        <span
-                          className="spinner-border spinner-border-sm"
-                          role="status"
-                          aria-hidden="true"
-                        />
-                      </Fragment>
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
                     ) : (
                       'Sign in'
                     )}

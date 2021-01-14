@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
-  const [secret, setSecret] = useState('')
-  const [apiKey, setApiKey] = useState('')
   const [exchange, setExchange] = useState('binance')
+  const [apiName, setApiName] = useState('')
+  const [apiKey, setApiKey] = useState('')
+
+  const [secret, setSecret] = useState('')
   const [isValid, setIsValid] = useState(false)
 
   useEffect(() => {
@@ -26,7 +28,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
           role="document"
           onSubmit={(event) => {
             event.preventDefault()
-            onSave({ secret, apiKey, exchange })
+            onSave({ secret, apiKey, exchange, name: apiName })
           }}
         >
           <div className="modal-content">
@@ -57,11 +59,31 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     type="text"
                     minLength="3"
                     required
-                    disabled={isLoading}
+                    disabled
                     className="form-control"
                     value={exchange}
                     onChange={(event) => setExchange(event.target.value)}
                     placeholder="Exchange"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <div className="input-group">
+                  <div className="input-group-prepend">
+                    <span className="input-group-text" id="basic-addon1">
+                      Name
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    minLength="3"
+                    required
+                    disabled={isLoading}
+                    className="form-control"
+                    value={apiName}
+                    onChange={(event) => setApiName(event.target.value)}
+                    placeholder="Name"
                   />
                 </div>
               </div>
@@ -123,7 +145,15 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 type="submit"
                 className="btn btn-primary"
               >
-                {!isLoading ? 'Save' : 'Saving...'}
+                {!isLoading ? (
+                  'Save'
+                ) : (
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                )}
               </button>
             </div>
           </div>

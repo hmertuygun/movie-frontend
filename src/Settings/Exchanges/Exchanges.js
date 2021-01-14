@@ -7,9 +7,7 @@ import {
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
-// get our fontawesome imports
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Icon } from '../../components'
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
@@ -30,10 +28,11 @@ const Exchanges = () => {
     },
   })
 
-  const onAddExchange = async ({ apiKey, exchange, secret }) => {
+  const onAddExchange = async ({ name, apiKey, exchange, secret }) => {
     try {
       await addExchangeMutation.mutate({
         apiKey,
+        name,
         secret,
         exchange,
       })
@@ -95,7 +94,7 @@ const Exchanges = () => {
                     }}
                   >
                     <span className="btn-inner--icon">
-                      <FontAwesomeIcon icon={faPlus} />
+                      <Icon icon="plus" />
                     </span>
                     <span className="btn-inner--text">
                       Connect New Exchange
