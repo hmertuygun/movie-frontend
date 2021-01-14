@@ -8,7 +8,9 @@ const TradeOverview = () => {
   const { state } = useContext(TradeContext)
   const { selectedSymbol, selectedExchange } = useSymbolContext()
 
-  console.log({ TradeState: state })
+  if (!state) {
+    return null
+  }
 
   return (
     <div className={styles['TradeOverview-container']}>

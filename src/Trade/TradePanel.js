@@ -87,7 +87,6 @@ const Trade = () => {
               </Button>
             )}
 
-            <TradeOverview />
             <TradeTableContainer />
           </div>
         </TabNavigator>

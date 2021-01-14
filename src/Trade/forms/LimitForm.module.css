@@ -1,0 +1,12 @@
+.SliderRow {
+  width: 100%;
+  display: flex;
+}
+
+.SliderSlider {
+  flex-grow: 2;
+}
+
+.SliderInput {
+  width: 20%;
+}

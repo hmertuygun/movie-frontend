@@ -1,22 +1,17 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
-import { Typography, InlineInput, Button } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
-import { useSymbolContext } from '../context/SymbolContext'
 import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
-import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
+
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const useStyles = makeStyles({
-  root: {
-    width: 330,
-  },
-  input: {
-    width: 42,
-  },
-})
+import { TradeContext } from '../context/SimpleTradeContext'
+import { useSymbolContext } from '../context/SymbolContext'
+
+import { Typography, InlineInput, Button, Icon } from '../../components'
+
+import styles from './LimitForm.module.css'
 
 function LimitForm() {
   const {
@@ -34,8 +29,6 @@ function LimitForm() {
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
-
-  const classes = useStyles()
   const marks = {
     0: '',
     25: '',
@@ -166,30 +159,28 @@ function LimitForm() {
             placeholder="Amount"
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleSliderChange}
-                  value={quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={quantityPercentage}
-                  margin="dense"
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleSliderChange}
+                value={quantityPercentage}
+              />
+            </div>
+
+            <div className={styles['SliderInput']}>
+              <InlineInput
+                value={quantityPercentage}
+                margin="dense"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                postLabel={'%'}
+              />
+            </div>
           </div>
 
           <InlineInput
