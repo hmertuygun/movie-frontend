@@ -10,17 +10,17 @@ const SimpleTradeContextProvider = ({ children }) => {
   const addEntry = ({
     price,
     quantity,
+    symbol,
     type = 'limit',
     side = 'buy',
-    symbol = 'BTCUSDT',
   }) => {
     setState({
       ...state,
       entry: {
         price,
         quantity,
-        type,
         symbol,
+        type,
         side,
       },
     })
@@ -30,7 +30,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     price,
     quantity,
     profit,
-    symbol = 'BTCUSDT',
+    symbol,
     type = 'limit',
     side = 'sell',
   }) => {
@@ -57,9 +57,9 @@ const SimpleTradeContextProvider = ({ children }) => {
     triggerPrice,
     quantity,
     profit,
+    symbol,
     side = 'sell',
-    type = 'limit',
-    symbol = 'BTCUSDT',
+    type = 'stoplimit',
   }) => {
     const stoploss = state.stoploss || []
 

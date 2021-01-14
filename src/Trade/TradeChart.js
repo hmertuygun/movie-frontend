@@ -9,15 +9,13 @@ const TradeChart = () => {
     ? Themes.LIGHT
     : Themes.DARK
 
-  // const theme = Themes.DARK
-
   if (isLoading) {
     return null
   }
 
   return (
     <TradingViewWidget
-      symbol={selectedSymbol}
+      symbol={selectedSymbol['value']}
       theme={theme}
       hide_side_toolbar={false}
       autosize={true}

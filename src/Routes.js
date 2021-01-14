@@ -3,9 +3,13 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
 import Login from './views/Auth/QuickLogin'
+import LoginVerify2FA from './views/Auth/QuickLoginVerify2FA'
 import Register from './views/Auth/QuickRegister'
 import RegisterConfirm from './views/Auth/QuickRegisterConfirm'
 import RegisterFinal from './views/Auth/QuickFinal'
+import RecoverPassword from './views/Auth/RecoverPassword'
+import NewPassword from './views/Auth/NewPassword'
+import HandleEmailActions from './views/Auth/HandleEmailActions'
 
 import TradeView from './views/TradeView'
 import Settings from './views/Settings'
@@ -37,7 +41,11 @@ const Routes = () => {
         </Switch>
       )}
 
+      <Route path="/login/verify2fa" component={LoginVerify2FA} />
       <Route path="/login" component={Login} />
+      <Route path="/recover-password" component={RecoverPassword} />
+      <Route path="/new-password" component={NewPassword} />
+      <Route path="/action" component={HandleEmailActions} />
       <Route exact path="/register" component={Register} />
       <Route exact path="/register/confirm" component={RegisterConfirm} />
       <Route

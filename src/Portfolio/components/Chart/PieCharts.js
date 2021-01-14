@@ -1,22 +1,48 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useContext, useState } from 'react'
 import c3 from 'c3'
+import { PortfolioContext } from '../../context/PortfolioContext'
 
-function PieCharts() {
+import './PieChart.css'
+
+const PieCharts = () => {
+  const [data, setData] = useState([])
+
+  const { chart } = useContext(PortfolioContext)
+
+  useEffect(() => {
+    if (!chart) {
+      setData([])
+    } else {
+      setData(chart)
+    }
+  }, [chart])
+
   useEffect(() => {
     c3.generate({
-      bindto: '#data', // default is di="chart" use bindto to reconfig
+      bindto: '#data',
+      size: {
+        height: 160,
+        width: 400,
+      },
       data: {
-        columns: [
-          ['BTC', 0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.2, 0.2, 0.2, 0.2],
-          ['USDT', 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4],
-        ],
+        columns: data,
         type: 'pie',
-        onclick: function (d, i) {},
-        onmouseover: function (d, i) {},
-        onmouseout: function (d, i) {},
+        onclick: function (d, i) {
+          console.log('onclick', d, i)
+        },
+        onmouseover: function (d, i) {
+          console.log('onmouseover', d, i)
+        },
+        onmouseout: function (d, i) {
+          console.log('onmouseout', d, i)
+        },
+      },
+      legend: {
+        position: 'right',
+        padding: 15,
       },
     })
-  }, [])
+  }, [data])
 
   return <div id="data"></div>
 }

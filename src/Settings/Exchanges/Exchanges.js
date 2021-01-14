@@ -7,6 +7,7 @@ import {
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
+import { Icon } from '../../components'
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
@@ -18,14 +19,8 @@ const Exchanges = () => {
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data.data.apiKeys
-      .sort()
-      .map((exchange, index) => {
-        return {
-          id: index,
-          exchange,
-          isActive: exchange === exchangeQuery.data.data.activeApiKeys[0],
-        }
-      })
+  } else {
+    exchanges = false
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
@@ -35,10 +30,11 @@ const Exchanges = () => {
     },
   })
 
-  const onAddExchange = async ({ apiKey, exchange, secret }) => {
+  const onAddExchange = async ({ name, apiKey, exchange, secret }) => {
     try {
       await addExchangeMutation.mutate({
         apiKey,
+        name,
         secret,
         exchange,
       })
@@ -84,8 +80,8 @@ const Exchanges = () => {
       )}
 
       <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-lg-9">
+        <div className="justify-content-center">
+          <div className="">
             <div>
               <div className="row align-items-center mb-3">
                 <div className="col">
@@ -100,7 +96,7 @@ const Exchanges = () => {
                     }}
                   >
                     <span className="btn-inner--icon">
-                      <i className="fas fa-plus"></i>
+                      <Icon icon="plus" />
                     </span>
                     <span className="btn-inner--text">
                       Connect New Exchange
@@ -131,15 +127,17 @@ const Exchanges = () => {
                           key={index}
                           row={row}
                           index={index}
-                          onDelete={() => onDelete(row.exchange)}
-                          setActive={() => setActive(row.exchange)}
+                          onDelete={() => onDelete(row.apiKeyName)}
+                          setActive={() => setActive(row.apiKeyName)}
                           isLast={index === exchanges.length - 1}
                         />
                       ))}
 
                     {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
 
-                    {!exchanges && <div>No exchange added yet.</div>}
+                    {!exchanges && !exchangeQuery.isLoading && (
+                      <div>No exchange added yet.</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -158,7 +156,9 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
     <Fragment>
       <div className="row align-items-center">
         <div className="col">
-          <h6 className="text-sm mb-0">{row.exchange}</h6>
+          <h6 className="text-sm mb-0">
+            {row.exchange} - {row.apiKeyName}
+          </h6>
         </div>
 
         {row.isActive && (
@@ -180,7 +180,7 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
           )}
 
           {!row.isActive && (
-            <button className="btn btn-link" onClick={() => onDelete(index)}>
+            <button className="btn btn-link" onClick={() => onDelete()}>
               <span className="text-sm text-danger">Delete</span>
             </button>
           )}
