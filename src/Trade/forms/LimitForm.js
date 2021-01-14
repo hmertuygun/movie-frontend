@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 });
 
 function LimitForm() {
-  const { isLoading, selectedSymbolDetail, selectedSymbolBalance } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolBalance, isLoadingBalance } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
   const [price, setPrice] = useState('')
@@ -112,9 +112,17 @@ function LimitForm() {
       <div>
         <FontAwesomeIcon icon={ faWallet } />  
         {'  '} 
-        {round(selectedSymbolBalance, selectedSymbolDetail['quote_asset_precision'])} 
+        {
+        isLoadingBalance ? ' ' :
+        round(selectedSymbolBalance, selectedSymbolDetail['quote_asset_precision'])} 
         {'  '} 
         {selectedSymbolDetail['quote_asset']}
+        {'  '} 
+        {
+        isLoadingBalance ? <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true" /> : ''} 
 
       </div>
 

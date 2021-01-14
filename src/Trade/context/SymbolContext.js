@@ -18,18 +18,23 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
   const [selectedExchange, setSelectedExchange] = useState('')
   const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false)
 
   async function loadBalance(quote_asset) {
     try {
+      setIsLoadingBalance(true)
       const response = await getBalance(quote_asset)
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data["balance"])
       } else {
         setSelectedSymbolBalance(0)
-      }
+        }
+      
+      
     } catch (Exception) {
       setSelectedSymbolBalance(0)
     }
+    setIsLoadingBalance(false)
   }
 
   function setSymbol(symbol) {
@@ -110,7 +115,8 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbol,
         symbolDetails,
         selectedSymbolDetail,
-        selectedSymbolBalance
+        selectedSymbolBalance,
+        isLoadingBalance
       }}
     >
       {children}

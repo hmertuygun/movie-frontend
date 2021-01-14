@@ -11,6 +11,7 @@ const SymbolSelect = () => {
     setSymbol,
     selectedExchange,
     isLoading,
+    isLoadingBalance,
   } = useSymbolContext()
 
   const exchangeList = exchanges.map((exchange) => {
@@ -37,7 +38,7 @@ const SymbolSelect = () => {
         <Select options={symbolList} 
         values={ [selectedSymbol] }
         onChange={(value) => setSymbol(value[0])}
-        backspaceDelete={false} />
+        backspaceDelete={false} disabled={isLoadingBalance} />
       </div>
     </div>
   )
