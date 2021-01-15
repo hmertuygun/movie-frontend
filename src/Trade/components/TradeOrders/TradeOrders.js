@@ -70,11 +70,18 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
         <table className="table">
           <thead>
             <tr>
-              {TableHeaderFields.map((field) => (
-                <th scope="col" key={field}>
-                  {field}
-                </th>
-              ))}
+              <th scope="col"></th>
+              <th scope="col">Pair</th>
+              <th scope="col">Type</th>
+              <th scope="col">Side</th>
+              <th scope="col">Price</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Filled</th>
+              <th scope="col">Total</th>
+              <th scope="col">Trigger Condition</th>
+              <th scope="col">Status</th>
+              <th scope="col">Date</th>
+              <th scope="col">Cancel</th>
             </tr>
           </thead>
           {isOpenOrders ? (

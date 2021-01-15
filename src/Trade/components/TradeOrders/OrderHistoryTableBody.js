@@ -30,7 +30,9 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                 <td></td>
                 <td>{order.symbol}</td>
                 <td>{order.type}</td>
-                <td>{order.side}</td>
+                <td style={{ color: order.side === 'BUY' ? 'green' : 'red' }}>
+                  {order.side}
+                </td>
                 <td>{order.price}</td>
                 <td>{order.amount}</td>
                 <td>{order.filled}</td>

@@ -34,14 +34,26 @@ const Expandable = ({ entry }) => {
             </td>
             <td style={tdStyle}>{order.symbol}</td>
             <td style={tdStyle}>{order.type}</td>
-            <td style={tdStyle}>{order.side}</td>
+            <td
+              style={{
+                ...tdStyle,
+                color: order.side === 'buy' ? 'green' : 'red',
+              }}
+            >
+              {order.side}
+            </td>
             <td style={tdStyle}>{order.price}</td>
             <td style={tdStyle}>{order.amount}</td>
             <td style={tdStyle}>{order.filled}</td>
-            <td style={tdStyle}>{order.total}</td>
+            <td style={tdStyle}>
+              {order.total} {order.quote_asset}
+            </td>
             <td style={tdStyle}>{order.trigger}</td>
             <td style={tdStyle}>{order.status}</td>
-            <td style={tdStyle}>{order.update_time}</td>
+            <td style={tdStyle}>{order.timestamp}</td>
+            {rowIndex === 0 ? (
+              <td style={{ ...tdStyle, color: 'red' }}>Cancel</td>
+            ) : null}
           </tr>
         )
       })}
