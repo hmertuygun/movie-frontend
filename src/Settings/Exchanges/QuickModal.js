@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Icon } from '../../components'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState('binance')
@@ -71,9 +72,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               <div className="form-group">
                 <div className="input-group">
                   <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Name
-                    </span>
+                    <span className="input-group-text">Name</span>
                   </div>
                   <input
                     type="text"
@@ -84,8 +83,13 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     value={apiName}
                     onChange={(event) => setApiName(event.target.value)}
                     placeholder="Name"
+                    pattern="[a-zA-Z0-9_-]+"
                   />
                 </div>
+
+                <p className="text-sm pt-2">
+                  (Accepted characters are A-Z, a-z, 0-9 and underscore.)
+                </p>
               </div>
 
               <div className="form-group">

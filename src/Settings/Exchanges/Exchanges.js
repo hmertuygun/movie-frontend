@@ -71,7 +71,7 @@ const Exchanges = () => {
     <section className="slice slice-sm bg-section-secondary">
       {isModalVisible && (
         <QuickModal
-          isLoading={addExchangeMutation.isLoading || exchangeQuery.isLoading}
+          isLoading={addExchangeMutation.isLoading}
           onClose={() => setIsModalVisible(false)}
           onSave={(formData) => {
             onAddExchange(formData)
