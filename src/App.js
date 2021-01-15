@@ -5,7 +5,11 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { Header } from './components'
 import Routes from './Routes'
 import UserContextProvider from './contexts/UserContext'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 
+library.add(fab, fas)
 const queryClient = new QueryClient()
 
 export default function App() {
