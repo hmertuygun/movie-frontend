@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
+import styles from './tooltip.module.css'
 
 const Expandable = ({ entry }) => {
   const [show, setShow] = useState(false)
@@ -31,6 +32,10 @@ const Expandable = ({ entry }) => {
               Cancel
             </td>
           ) : null
+
+        const PlacedOrderTooltip = 'Order is on the exchange order book.'
+        const PendingOrderTooltip =
+          'Order is waiting to be placed in the order book.'
         return (
           <tr className={rowClass} key={rowIndex} onClick={rowClick}>
             <td style={firstColumnIconStyle}>{firstColumnIcon}</td>
@@ -44,7 +49,16 @@ const Expandable = ({ entry }) => {
               {order.total} {order.quote_asset}
             </td>
             <td style={tdStyle}>{order.trigger}</td>
-            <td style={tdStyle}>{order.status}</td>
+            <td style={tdStyle}>
+              <div className={styles.customTooltip}>
+                {order.status}
+                <span className={styles.tooltiptext}>
+                  {order.status === 'Pending'
+                    ? PendingOrderTooltip
+                    : PlacedOrderTooltip}
+                </span>
+              </div>
+            </td>
             <td style={tdStyle}>{order.timestamp}</td>
             {cancelColumn}
           </tr>
