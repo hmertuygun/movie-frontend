@@ -1,4 +1,5 @@
 import React from 'react'
+import useIntersectionObserver from './useIntersectionObserver'
 
 const OrderHistoryTableBody = ({ infiniteOrders }) => {
   const {
@@ -14,11 +15,11 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
     hasPreviousPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
   return (
     <tbody>
       {history &&

@@ -8,43 +8,6 @@ import OpenOrdersTableBody from './OpenOrdersTableBody'
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
-function useIntersectionObserver({
-  root,
-  target,
-  onIntersect,
-  threshold = 1.0,
-  rootMargin = '0px',
-  enabled = true,
-}) {
-  React.useEffect(() => {
-    if (!enabled) {
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => entry.isIntersecting && onIntersect()),
-      {
-        root: root && root.current,
-        rootMargin,
-        threshold,
-      }
-    )
-
-    const el = target && target.current
-
-    if (!el) {
-      return
-    }
-
-    observer.observe(el)
-
-    return () => {
-      observer.unobserve(el)
-    }
-  }, [target.current, enabled])
-}
-
 const TableHeaderFields = [
   '',
   'Pair',
@@ -73,12 +36,7 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
     hasNextPage,
     hasPreviousPage,
   } = infiniteOrders
-  const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="card-header pb-0">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Icon } from '../../../components'
+import useIntersectionObserver from './useIntersectionObserver'
 
 const TableHeaderFields = [
   '',
@@ -28,7 +29,7 @@ const Expandable = ({ entry }) => {
             key={rowIndex}
             onClick={() => setShow(!show)}
           >
-            <td style={{ border: 0 }}>
+            <td style={rowIndex !== 0 ? { border: 0 } : undefined}>
               {rowIndex === 0 ? <Icon icon="chevron-down" /> : null}
             </td>
             <td style={tdStyle}>{order.symbol}</td>
@@ -62,11 +63,11 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
     hasPreviousPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
   return (
     <tbody>
       {history &&
