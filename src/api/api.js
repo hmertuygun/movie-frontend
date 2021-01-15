@@ -254,6 +254,19 @@ export async function getOpenOrders({ timestamp, trade_id }) {
   return openOrders.data
 }
 
+export async function cancelTradeOrder(trade_id) {
+  const apiUrl = process.env.REACT_APP_API + 'trade/cancel'
+  const token = await firebase.auth().currentUser.getIdToken()
+  const cancelTradeOrderResp = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: {
+      trade_id,
+    },
+  })
+  return cancelTradeOrderResp.data
+}
+
 export async function getOrdersHistory({ updateTime, symbol, orderId }) {
   const apiUrl =
     process.env.REACT_APP_API +

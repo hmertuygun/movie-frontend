@@ -8,35 +8,7 @@ import OpenOrdersTableBody from './OpenOrdersTableBody'
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
-const TableHeaderFields = [
-  '',
-  'Pair',
-  'Type',
-  'Side',
-  'Price',
-  'Amount',
-  'Filled',
-  'Total',
-  'Trigger Condition',
-  'Status',
-  'Date',
-  'Cancel',
-]
-
 const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
-  const {
-    status,
-    data: history,
-    error,
-    isFetching,
-    isFetchingNextPage,
-    isFetchingPreviousPage,
-    fetchNextPage,
-    fetchPreviousPage,
-    hasNextPage,
-    hasPreviousPage,
-  } = infiniteOrders
-
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="card-header pb-0">
@@ -101,7 +73,6 @@ const TradeOrders = () => {
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
-      console.log('OpenOrders pageParam', pageParam)
       const params = pageParam
         ? {
             timestamp: pageParam.timestamp,
@@ -124,7 +95,6 @@ const TradeOrders = () => {
   const infiniteHistory = useInfiniteQuery(
     OrdersHistoryQueryKey,
     async ({ pageParam }) => {
-      console.log('OrdersHistory pageParam', pageParam)
       const params = pageParam
         ? {
             updateTime: pageParam.update_time,
@@ -152,7 +122,6 @@ const TradeOrders = () => {
       .doc('jtest@test.com')
       .onSnapshot(function (doc) {
         queryClient.invalidateQueries(OpenOrdersQueryKey)
-        console.log('order_update Current data: ', doc.data())
       })
     firebase
       .firestore()
@@ -160,9 +129,8 @@ const TradeOrders = () => {
       .doc('jtest@test.com')
       .onSnapshot(function (doc) {
         queryClient.invalidateQueries(OrdersHistoryQueryKey)
-        console.log('order_history_update Current data: ', doc.data())
       })
-  }, [])
+  }, [queryClient])
   return (
     <Table
       isOpenOrders={isOpenOrders}

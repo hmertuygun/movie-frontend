@@ -3,16 +3,10 @@ import useIntersectionObserver from './useIntersectionObserver'
 
 const OrderHistoryTableBody = ({ infiniteOrders }) => {
   const {
-    status,
     data: history,
-    error,
-    isFetching,
     isFetchingNextPage,
-    isFetchingPreviousPage,
     fetchNextPage,
-    fetchPreviousPage,
     hasNextPage,
-    hasPreviousPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
   useIntersectionObserver({
@@ -44,13 +38,15 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
             ))}
           </React.Fragment>
         ))}
-      <button ref={loadMoreButtonRef} onClick={() => fetchNextPage()}>
-        {isFetchingNextPage
-          ? 'Loading more...'
-          : hasNextPage
-          ? 'Load Newer'
-          : 'Nothing more to load'}
-      </button>
+      <tr ref={loadMoreButtonRef}>
+        <td colSpan="12">
+          {isFetchingNextPage
+            ? 'Loading more...'
+            : hasNextPage
+            ? 'Load Newer'
+            : 'Nothing more to load'}
+        </td>
+      </tr>
     </tbody>
   )
 }

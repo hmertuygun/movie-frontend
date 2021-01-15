@@ -34,5 +34,5 @@ export default function useIntersectionObserver({
     return () => {
       observer.unobserve(el)
     }
-  }, [target.current, enabled])
+  }, [enabled, onIntersect, root, rootMargin, target, threshold])
 }
