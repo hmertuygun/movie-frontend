@@ -1,6 +1,8 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
-import { Typography, InlineInput, Button } from '../../components'
+import { InlineInput } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
+
+import validate from '../../components/Validation/Validation'
 
 function LimitForm() {
   const { addEntry } = useContext(TradeContext)
@@ -9,33 +11,97 @@ function LimitForm() {
   // @TOOD:
   // Remove amount, and leave only quantity
   const [quantity, setQuantity] = useState('')
-  const [quantityPercentage, setQuantityPercentage] = useState('')
+  const [quantityPercentage, setQuantityPercentage] = useState()
   const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
 
+  const [fValues, setFValues] = useState({
+    price: '',
+    quantity: '',
+    quantityPercentage: '',
+    total: '',
+  }) // hold form values to submit
+  const [errors, setErrors] = useState({})
+
+  // alfa precise
+  const precise = (num = 2) => {
+    return Number.parseFloat(num).toFixed(8) //toPrecision from backend
+  }
+
+  /*   const addZeros = (decimal = 8, value, check = true) => {
+    if (check && decimal <= value.length) return value
+    if (check && decimal <= value) return value
+    if (decimal <= 0) return value
+    const newValue = value.length <= decimal ? '0' + value : value
+    return addZeros(decimal - 1, newValue, false)
+  } */
+
   const calculatePercentageQuantity = (inputChanged, value) => {
-    if (!price) {
-      return false
+    if (inputChanged === 'price') {
+      setPrice(value)
+
+      if (quantity) {
+        setQuantityPercentage(((value * fValues.quantity) / balance) * 100)
+        setTotal(precise(value * fValues.quantity))
+        setFValues((fValues) => ({
+          ...fValues,
+          total: value * fValues.quantity,
+        }))
+      }
     }
 
+    /*     if (!price) {
+      return false
+    } */
+
     if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * price) / balance) * 100)
-      setTotal(value * price)
+      setQuantity(value)
+
+      if (price) {
+        setQuantityPercentage(((value * fValues.price) / balance) * 100)
+        setTotal(precise(value * fValues.price))
+
+        setFValues((fValues) => ({
+          ...fValues,
+          total: value * fValues.price,
+        }))
+      }
+
+      //setTotal(precise(fValues.value * fValues.price))
+      //setTotal(value * price)
     }
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = cost / price
+      const howManyBTC = cost / fValues.price
+      setQuantityPercentage(value)
       setQuantity(howManyBTC)
-      setTotal(howManyBTC * price)
+      setTotal(precise(howManyBTC * fValues.price))
+    }
+
+    if (inputChanged === 'total') {
+      console.log('totalAmount')
+      //const belowOnePercentage = value / 100
+      //const cost = belowOnePercentage * balance
+      //const howManyBTC = total / price
+      setTotal(precise(value))
+      setQuantity(value * fValues.price)
+      //setQuantityPercentage(howManyBTC / total)
+      setQuantityPercentage(((total * fValues.price) / balance) * 100)
     }
   }
 
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
+      /*       console.log('useEffect price', price)
+      console.log('useEffect quantity', quantity)
+      console.log('useEffect total', total)
+      console.log('useEffect errors ', errors)
+      console.log('useEffect fValues ', fValues)
+ */
       if (!price || !quantity) {
         return false
       }
@@ -43,72 +109,148 @@ function LimitForm() {
       const canAfford = total <= balance
       setIsValid(canAfford && price && quantity)
     },
-    [total, price, quantity],
+    [total, price, quantity, errors],
     () => {
       setTotal(0)
       setPrice(0)
     }
   )
+  // handle errors object
+  useEffect(() => {
+    //console.log('useEffect Errors', errors)
+
+    if (Object.keys(errors).length === 0 && isValid) {
+      //console.log('form ready to submit no errors')
+    }
+  }, [fValues, isValid, errors])
+
+  const handleSubmit = (evt) => {
+    evt.preventDefault()
+
+    setErrors(validate(fValues))
+
+    //const { price, quantity } = fValues
+    const { price, quantity } = fValues
+
+    console.log('handleSubmit values : ', fValues)
+
+    console.log('addEntry :', { price, quantity, type: 'limit' })
+
+    //addEntry({ price, quantity, type: 'limit' })
+  }
+
+  const handleChange = (evt) => {
+    evt.preventDefault()
+
+    const { name, value } = evt.target
+
+    setFValues((fValues) => ({
+      ...fValues,
+      [name]: value,
+    }))
+
+    calculatePercentageQuantity(name, value)
+  }
 
   return (
     <Fragment>
-      {/*       <div style={{ marginTop: '2rem' }}>
-        <Typography as="h3">1. Entry</Typography>
-      </div> */}
-
-      <div>BALANCE: {balance}</div>
+      <div>BALANCE</div>
 
       <section>
         <form
-          onSubmit={(e) => {
+          onSubmit={
+            handleSubmit
+            /*             (e) => {
             e.preventDefault()
             addEntry({ price, quantity, type: 'limit' })
-          }}
+          } */
+          }
         >
-          <InlineInput
+          <input
             label="Price"
             type="number"
-            onChange={(value) => setPrice(value)}
+            /*             onChange={(value) => setPrice(value)} */
+            onChange={handleChange}
+            //value={price}
             value={price}
+            name="price"
             placeholder="Entry price"
-            postLabel="USDT"
+            /* postLabel="USDT" */
           />
+          {errors.price && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.price}
+            </div>
+          )}
 
-          <InlineInput
+          <input
             label="Amount"
             type="number"
-            onChange={(value) => {
+            name="quantity"
+            onChange={handleChange}
+            /*             onChange={(value) => {
               setQuantity(value)
               calculatePercentageQuantity('quantity', value)
-            }}
-            value={quantity}
-            placeholder="Amount"
-            postLabel="BTC"
+            }} */
+            /*             onBlur={validateFields}
+            onFocus={() => setErrors({})} */
+            // value={quantity}
+            value={quantity || ''}
+            placeholder="Amount - (quantity)"
+            //postLabel="BTC"
           />
+          {errors.quantity && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.quantity}
+            </div>
+          )}
 
-          <InlineInput
+          <input
             type="number"
-            onChange={(value) => {
+            name="quantityPercentage"
+            onChange={handleChange}
+            /*             onChange={(value) => {
               setQuantityPercentage(value)
               calculatePercentageQuantity('quantityPercentage', value)
-            }}
-            value={quantityPercentage}
-            placeholder="Amount"
-            postLabel="%"
+            }} */
+            /*             onBlur={validateFields}
+            onFocus={() => setErrors({})} */
+            //value={quantityPercentage}
+            value={quantityPercentage || ''}
+            placeholder="Amount - (quantityPercentage)"
+            //postLabel="%"
           />
 
-          <InlineInput
+          <input
             label="Total"
             type="number"
-            value={total}
-            placeholder=""
-            postLabel="USDT"
-            disabled
+            onChange={handleChange}
+            name="total"
+            /*            onChange={(value) => {
+              setTotal(value)
+              calculatePercentageQuantity('totalAmount', value)
+            }} */
+            //value={total}
+            value={total || ''}
+            placeholder="total amount"
+            //postLabel="USDT"
+            /*             onBlur={validateFields}
+            onFocus={() => setErrors({})} */
+            //min={10}
+            //max={10000}
           />
+          {errors.total && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.total}
+            </div>
+          )}
 
-          <Button disabled={isValid ? null : 'disabled'} type="submit">
-            Next: Exits {'>'}
-          </Button>
+          <button
+            /* disabled={isValid ? null : 'disabled'} */
+            type="submit"
+          >
+            Next: Exits
+          </button>
         </form>
       </section>
     </Fragment>

@@ -1,21 +1,18 @@
 export default function validateFields(values) {
+  console.log('validateFields called --> ', values)
   let errors = {}
 
-  if (values.price >= 0 && values.price < 10 && values.price !== '') {
-    console.log('validate price ', values)
-    errors.price = 'price should be higher 10 US'
+  if (!values.price) {
+    errors.price = 'No price'
   }
-
-  if (values.tempBalance) {
-    errors.balance = 'insufficient balance'
+  if (!values.quantity) {
+    errors.quantity = 'No quantity'
   }
-
-  /*   if (!values.email) {
-      errors.email = 'Email required'
-    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-      errors.email = 'Email address is invalid'
+  if (values.quantity && values.price) {
+    if (values.total < 10) {
+      errors.total = 'Total Amount should be higher 10 US'
     }
-  
-    */
+  }
+
   return errors
 }
