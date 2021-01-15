@@ -252,9 +252,12 @@ export async function getOpenOrders() {
   return openOrders.data
 }
 
-export async function getOrdersHistory() {
+export async function getOrdersHistory(updateTime) {
   const apiUrl =
-    process.env.REACT_APP_API + 'orderhistory?exchange=Binance&limit=50'
+    process.env.REACT_APP_API +
+    `orderhistory?exchange=Binance&limit=50${
+      updateTime ? '&updateTime=' + updateTime : ''
+    }`
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
     headers: await getHeaders(token),

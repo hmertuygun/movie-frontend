@@ -19,12 +19,10 @@ const TradeContainer = () => (
         <SymbolSelect />
       </section>
       <section className="TradeView-Chart">
-        <div>
-          <TradeChart />
-        </div>
-        <div>
-          <TradeHistory />
-        </div>
+        <TradeChart />
+      </section>
+      <section style={{ height: '50vh' }}>
+        <TradeHistory />
       </section>
     </section>
   </SymbolContextProvider>
