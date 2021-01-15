@@ -3,6 +3,8 @@ import { useInfiniteQuery, useQuery } from 'react-query'
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
 import { Icon } from '../../../components'
+import OrderHistoryTableBody from './OrderHistoryTableBody'
+import OpenOrdersTableBody from './OpenOrdersTableBody'
 
 function useIntersectionObserver({
   root,
@@ -55,42 +57,6 @@ const TableHeaderFields = [
   'Date',
   'Cancel',
 ]
-
-const Expandable = ({ entry }) => {
-  const [show, setShow] = useState(false)
-  return (
-    <td
-      colspan="12"
-      className="px-0"
-      style={{ border: 0 }}
-      onClick={() => setShow(!show)}
-    >
-      <table className="table">
-        <tbody>
-          {entry.map((each, rowIndex) => (
-            <tr
-              className={rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''}
-              key={rowIndex}
-            >
-              {each.map((inner, index) => (
-                <td
-                  key={index}
-                  style={
-                    rowIndex === 1 || (index === 0 && rowIndex !== 0)
-                      ? { border: 0 }
-                      : undefined
-                  }
-                >
-                  {inner}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </td>
-  )
-}
 
 const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
   const {
@@ -151,33 +117,11 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
               ))}
             </tr>
           </thead>
-          <tbody>
-            {history &&
-              history.pages.map((page) => (
-                <React.Fragment key={page.nextId}>
-                  {page.map((row, index) => (
-                    <tr key={index}>
-                      {row.map((entry, index) => {
-                        if (typeof entry === 'string') {
-                          return <td key={entry + index}>{entry}</td>
-                        } else {
-                          return (
-                            <Expandable key={entry + index} entry={entry} />
-                          )
-                        }
-                      })}
-                    </tr>
-                  ))}
-                </React.Fragment>
-              ))}
-            <button ref={loadMoreButtonRef} onClick={() => fetchNextPage()}>
-              {isFetchingNextPage
-                ? 'Loading more...'
-                : hasNextPage
-                ? 'Load Newer'
-                : 'Nothing more to load'}
-            </button>
-          </tbody>
+          {isOpenOrders ? (
+            <OpenOrdersTableBody infiniteOrders={infiniteOrders} />
+          ) : (
+            <OrderHistoryTableBody infiniteOrders={infiniteOrders} />
+          )}
         </table>
       </div>
     </div>
@@ -232,12 +176,11 @@ const MapOrdersHistoryToTable = (order) => {
   ]
 }
 
-const TradeHistory = () => {
+const TradeOrders = () => {
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const infiniteOpenOrders = useInfiniteQuery(
     'OpenOrders',
     async ({ pageParam = 0 }) => {
-      console.log('pageParam', pageParam)
       const orders = await getOpenOrders(pageParam)
       const mappedOrders = orders.items.map(MapOpenOrdersToTable)
       return mappedOrders
@@ -255,7 +198,6 @@ const TradeHistory = () => {
   const infiniteHistory = useInfiniteQuery(
     'OrdersHistory',
     async ({ pageParam = 0 }) => {
-      console.log('pageParam', pageParam)
       const orders = await getOrdersHistory(pageParam)
 
       const mappedOrders = orders.items.map(MapOrdersHistoryToTable)
@@ -308,4 +250,4 @@ const TradeHistory = () => {
   )
 }
 
-export default TradeHistory
+export default TradeOrders
