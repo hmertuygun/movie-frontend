@@ -128,12 +128,9 @@ function LimitForm() {
     evt.preventDefault()
 
     setErrors(validate(fValues))
-
-    //const { price, quantity } = fValues
     const { price, quantity } = fValues
 
     console.log('handleSubmit values : ', fValues)
-
     console.log('addEntry :', { price, quantity, type: 'limit' })
 
     //addEntry({ price, quantity, type: 'limit' })
@@ -157,25 +154,15 @@ function LimitForm() {
       <div>BALANCE</div>
 
       <section>
-        <form
-          onSubmit={
-            handleSubmit
-            /*             (e) => {
-            e.preventDefault()
-            addEntry({ price, quantity, type: 'limit' })
-          } */
-          }
-        >
-          <input
+        <form onSubmit={handleSubmit}>
+          <InlineInput
             label="Price"
             type="number"
-            /*             onChange={(value) => setPrice(value)} */
             onChange={handleChange}
-            //value={price}
             value={price}
             name="price"
             placeholder="Entry price"
-            /* postLabel="USDT" */
+            postLabel="USDT"
           />
           {errors.price && (
             <div className="error" style={{ color: 'red' }}>
@@ -183,21 +170,14 @@ function LimitForm() {
             </div>
           )}
 
-          <input
+          <InlineInput
             label="Amount"
             type="number"
             name="quantity"
             onChange={handleChange}
-            /*             onChange={(value) => {
-              setQuantity(value)
-              calculatePercentageQuantity('quantity', value)
-            }} */
-            /*             onBlur={validateFields}
-            onFocus={() => setErrors({})} */
-            // value={quantity}
             value={quantity || ''}
             placeholder="Amount - (quantity)"
-            //postLabel="BTC"
+            postLabel="BTC"
           />
           {errors.quantity && (
             <div className="error" style={{ color: 'red' }}>
@@ -205,39 +185,24 @@ function LimitForm() {
             </div>
           )}
 
-          <input
+          <InlineInput
             type="number"
             name="quantityPercentage"
             onChange={handleChange}
-            /*             onChange={(value) => {
-              setQuantityPercentage(value)
-              calculatePercentageQuantity('quantityPercentage', value)
-            }} */
-            /*             onBlur={validateFields}
-            onFocus={() => setErrors({})} */
-            //value={quantityPercentage}
             value={quantityPercentage || ''}
             placeholder="Amount - (quantityPercentage)"
-            //postLabel="%"
+            postLabel="%"
           />
 
-          <input
+          <InlineInput
             label="Total"
             type="number"
             onChange={handleChange}
             name="total"
-            /*            onChange={(value) => {
-              setTotal(value)
-              calculatePercentageQuantity('totalAmount', value)
-            }} */
-            //value={total}
             value={total || ''}
             placeholder="total amount"
-            //postLabel="USDT"
-            /*             onBlur={validateFields}
-            onFocus={() => setErrors({})} */
+            postLabel="USDT"
             //min={10}
-            //max={10000}
           />
           {errors.total && (
             <div className="error" style={{ color: 'red' }}>

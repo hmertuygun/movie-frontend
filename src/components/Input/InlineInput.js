@@ -37,7 +37,7 @@ const InlineInput = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onChange={(event) => {
-          onChange(event.target.value)
+          onChange(event)
         }}
         disabled={disabled}
         id={inputId}
