@@ -114,7 +114,15 @@ const QuickRegister = () => {
                     className="btn btn-block btn-primary"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Loading...' : 'Continue'}
+                    {isLoading ? (
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      'Continue'
+                    )}
                   </button>
                 </div>
               </form>

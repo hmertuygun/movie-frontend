@@ -5,7 +5,7 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges } from '../../api/api'
+import { getExchanges, getBalance } from '../../api/api'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
@@ -17,10 +17,35 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbol, setSelectedSymbol] = useState('')
   const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
   const [selectedExchange, setSelectedExchange] = useState('')
+  const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+
+  async function loadBalance(quote_asset) {
+    try {
+      setIsLoadingBalance(true)
+      const response = await getBalance(quote_asset)
+      if ('balance' in response.data) {
+        setSelectedSymbolBalance(response.data["balance"])
+      } else {
+        setSelectedSymbolBalance(0)
+        }
+      
+      
+    } catch (Exception) {
+      setSelectedSymbolBalance(0)
+    }
+    setIsLoadingBalance(false)
+  }
 
   function setSymbol(symbol) {
+    if (symbol == null) {
+      return
+    }
     setSelectedSymbol(symbol)
-    setSelectedSymbolDetail(symbolDetails[symbol])
+    setSelectedSymbolDetail(symbolDetails[symbol['value']])
+    setSelectedSymbolBalance('')
+    if (symbol['value'] in symbolDetails) {
+      loadBalance(symbolDetails[symbol['value']]['quote_asset']) }
   }
 
   function setExchange(exchange) {
@@ -47,10 +72,12 @@ const SymbolContextProvider = ({ children }) => {
                     "value": value
                 })
             symbolDetails[value] = {
+                // BTCUSD
+                'symbolpair': symbol['value'],
                 'base_asset': symbol['base_asset'],
                 'quote_asset': symbol['quote_asset'],
-                'base_asset_precision': symbol['base_asset_precision'],
-                'quote_asset_precision': symbol['quote_asset_precision']
+                'base_asset_precision': symbol['base_asset_precision'], // BTC
+                'quote_asset_precision': symbol['quote_asset_precision'] // USD
             }
           })
         })
@@ -58,9 +85,11 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(exchangeList)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedExchange(exchangeList[0])
-        setSelectedSymbol('BINANCE:BTCEUR')
-        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCEUR'])
+        setSelectedExchange({label: 'Binance', value: exchangeList[0]})
+        setSelectedSymbol({label: 'BTC-USDT', value: 'BINANCE:BTCUSDT'})
+        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
+        loadBalance('USDT')
+        
       } else {
         setExchanges([])
         setSymbols([])
@@ -77,7 +106,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: queryExchanges.isLoading,
+        isLoading: queryExchanges.isLoading || !selectedSymbolDetail,
         exchanges,
         setExchange,
         selectedExchange,
@@ -85,7 +114,9 @@ const SymbolContextProvider = ({ children }) => {
         setSymbol,
         selectedSymbol,
         symbolDetails,
-        selectedSymbolDetail
+        selectedSymbolDetail,
+        selectedSymbolBalance,
+        isLoadingBalance
       }}
     >
       {children}

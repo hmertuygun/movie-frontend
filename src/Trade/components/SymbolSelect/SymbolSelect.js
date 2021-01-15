@@ -1,16 +1,17 @@
 import React from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './SymbolSelect.module.css'
+import Select from 'react-dropdown-select';
 
 const SymbolSelect = () => {
   const {
     exchanges,
-    setExchange,
     symbols,
     selectedSymbol,
     setSymbol,
     selectedExchange,
     isLoading,
+    isLoadingBalance,
   } = useSymbolContext()
 
   const exchangeList = exchanges.map((exchange) => {
@@ -28,45 +29,16 @@ const SymbolSelect = () => {
   return (
     <div className={styles['SymbolSelect-Container']}>
       <div className={styles['Select-Container']}>
-        <label className={styles['Select-Label']} htmlFor="exchanges-drop">
-          select exchange
-        </label>
-        <select
-          className={styles['Select-Select']}
-          name="exchanges-drop"
-          id="exchanges-drop"
-          value={selectedExchange}
-          onChange={(event) => {
-            setExchange(event.target.value)
-          }}
-        >
-          {exchangeList.map((exchange, index) => (
-            <option key={index} value={exchange.value}>
-              {exchange.label}
-            </option>
-          ))}
-        </select>
+        <Select options={exchangeList} 
+        values={ [selectedExchange] }
+        backspaceDelete={false} />
       </div>
 
       <div className={styles['Select-Container']}>
-        <label className={styles['Select-Label']} htmlFor="symbols-drop">
-          select symbol
-        </label>
-        <select
-          className={styles['Select-Select']}
-          name="symbols-drop"
-          id="symbols-drop"
-          onChange={(event) => {
-            setSymbol(event.target.value)
-          }}
-          value={selectedSymbol}
-        >
-          {symbolList.map((symbol, index) => (
-            <option key={index} value={symbol.value}>
-              {symbol.label}
-            </option>
-          ))}
-        </select>
+        <Select options={symbolList} 
+        values={ [selectedSymbol] }
+        onChange={(value) => setSymbol(value[0])}
+        backspaceDelete={false} disabled={isLoadingBalance} />
       </div>
     </div>
   )

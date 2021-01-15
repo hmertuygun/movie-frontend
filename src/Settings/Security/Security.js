@@ -7,7 +7,7 @@ import { Modal } from '../../components'
 const T2FA_TYPES = {
   googleAuth: {
     title: 'Google Auth',
-    type: 'GOOGLE_AUTH'
+    type: 'GOOGLE_AUTH',
   },
 }
 
@@ -29,7 +29,10 @@ const Security = () => {
 
   const closeModal = () => setToggleModal(false)
 
-  const T2FAContent = add2FAFlowPage < ADD_2FA_FLOW.length ? ADD_2FA_FLOW[add2FAFlowPage] : DeleteGoogleAuth
+  const T2FAContent =
+    add2FAFlowPage < ADD_2FA_FLOW.length
+      ? ADD_2FA_FLOW[add2FAFlowPage]
+      : DeleteGoogleAuth
 
   const reset2FAFlow = () => {
     setAdd2FAFlowPage(0)
@@ -40,44 +43,42 @@ const Security = () => {
     title: T2FA_TYPES.googleAuth.title,
     description: desc,
     date: new Date().getTime(),
-    type: T2FA_TYPES.googleAuth.type
+    type: T2FA_TYPES.googleAuth.type,
   }
 
   return (
     <div className="slice slice-sm bg-section-secondary">
-      {
-        toggleModal ? (
-          <Modal onClose={reset2FAFlow}>
-            <T2FAContent
-              new2FADetails={new2FAEntry}
-              next={(data) => {
-                const next = add2FAFlowPage + 1
-                if (next < ADD_2FA_FLOW.length) {
-                  nextDataRef.current = data
-                  if (next === ModalsConf.BackUpKey.step) {
-                    set2FAList([...t2FAList, new2FAEntry])
-                    setDesc('')
-                  }
-                  setAdd2FAFlowPage(next)
-                } else {
-                  if (add2FAFlowPage === ADD_2FA_FLOW.length) {
-                    set2FAList([])
-                  }
-                  reset2FAFlow()
+      {toggleModal ? (
+        <Modal onClose={reset2FAFlow}>
+          <T2FAContent
+            new2FADetails={new2FAEntry}
+            next={(data) => {
+              const next = add2FAFlowPage + 1
+              if (next < ADD_2FA_FLOW.length) {
+                nextDataRef.current = data
+                if (next === ModalsConf.BackUpKey.step) {
+                  set2FAList([...t2FAList, new2FAEntry])
+                  setDesc('')
                 }
-              }}
-              onBack={() => {
-                const prev = add2FAFlowPage - 1
-                if (add2FAFlowPage > 0) {
-                  setAdd2FAFlowPage(prev)
+                setAdd2FAFlowPage(next)
+              } else {
+                if (add2FAFlowPage === ADD_2FA_FLOW.length) {
+                  set2FAList([])
                 }
-              }}
-              onReset={closeModal}
-              {...{ data: nextDataRef.current }}
-            />
-          </Modal>
-        ) : null
-      }
+                reset2FAFlow()
+              }
+            }}
+            onBack={() => {
+              const prev = add2FAFlowPage - 1
+              if (add2FAFlowPage > 0) {
+                setAdd2FAFlowPage(prev)
+              }
+            }}
+            onReset={closeModal}
+            {...{ data: nextDataRef.current }}
+          />
+        </Modal>
+      ) : null}
       <div className="slice slice-sm bg-section-secondary">
         <div className="justify-content-center">
           <div className="row">
@@ -123,7 +124,12 @@ export default Security
 
 const AddButton = ({ disabled, onClick }) => {
   return (
-    <button disabled={disabled} type="button" className="btn btn-secondary px-3" onClick={onClick}>
+    <button
+      disabled={disabled}
+      type="button"
+      className="btn btn-secondary px-3"
+      onClick={onClick}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="1em"
@@ -144,6 +150,14 @@ const AddButton = ({ disabled, onClick }) => {
 }
 
 const Select2FAType = ({ desc, setDesc, onAddNew, disabled }) => {
+  const [error, setError] = useState('')
+  const handleAddNew = () => {
+    if (disabled) {
+      setError('You already have Google Authenticator for 2FA.')
+    } else {
+      onAddNew && onAddNew()
+    }
+  }
   return (
     <li className="list-group-item">
       <div className="row mx-n2">
@@ -166,9 +180,10 @@ const Select2FAType = ({ desc, setDesc, onAddNew, disabled }) => {
           </div>
         </div>
         <div className="col-auto px-2">
-          <AddButton onClick={onAddNew} disabled={disabled} />
+          <AddButton onClick={handleAddNew} />
         </div>
       </div>
+      {error && <p className="text-sm text-danger">{error}</p>}
     </li>
   )
 }

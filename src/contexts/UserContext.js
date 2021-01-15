@@ -1,6 +1,12 @@
 import React, { createContext, useState } from 'react'
 import { firebase } from '../firebase/firebase'
-import { checkGoogleAuth2FA, deleteGoogleAuth2FA, saveGoogleAuth2FA, validateUser, verifyGoogleAuth2FA } from '../api/api'
+import {
+  checkGoogleAuth2FA,
+  deleteGoogleAuth2FA,
+  saveGoogleAuth2FA,
+  validateUser,
+  verifyGoogleAuth2FA,
+} from '../api/api'
 
 export const UserContext = createContext()
 
@@ -11,7 +17,10 @@ const UserContextProvider = ({ children }) => {
   let initialState = {}
 
   if (localStorageUser !== 'undefined') {
-    initialState = { user: JSON.parse(localStorageUser), ...JSON.parse(localStorage2faUserDetails) }
+    initialState = {
+      user: JSON.parse(localStorageUser),
+      ...JSON.parse(localStorage2faUserDetails),
+    }
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
@@ -39,8 +48,11 @@ const UserContextProvider = ({ children }) => {
       try {
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
-        localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails }))
-      } catch (error) { }
+        localStorage.setItem(
+          T2FA_LOCAL_STORAGE,
+          JSON.stringify({ has2FADetails })
+        )
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
@@ -63,9 +75,12 @@ const UserContextProvider = ({ children }) => {
       title: t2faData.title,
       description: t2faData.description,
       date: t2faData.date,
-      type: t2faData.type
+      type: t2faData.type,
     }
-    localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails, is2FAVerified: true }))
+    localStorage.setItem(
+      T2FA_LOCAL_STORAGE,
+      JSON.stringify({ has2FADetails, is2FAVerified: true })
+    )
     setState({ ...state, has2FADetails, is2FAVerified: true })
     return response.data
   }
@@ -77,7 +92,13 @@ const UserContextProvider = ({ children }) => {
   async function verify2FA(userToken) {
     const response = await verifyGoogleAuth2FA(userToken)
     if (response.data.passed) {
-      localStorage.setItem(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails: state.has2FADetails, is2FAVerified: true }))
+      localStorage.setItem(
+        T2FA_LOCAL_STORAGE,
+        JSON.stringify({
+          has2FADetails: state.has2FADetails,
+          is2FAVerified: true,
+        })
+      )
       setState({ ...state, is2FAVerified: true })
     }
 
@@ -143,7 +164,7 @@ const UserContextProvider = ({ children }) => {
         add2FA,
         verify2FA,
         get2FADetails,
-        delete2FA
+        delete2FA,
       }}
     >
       {children}
