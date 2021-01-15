@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useInfiniteQuery, useQuery } from 'react-query'
+import { useInfiniteQuery, useQueryClient } from 'react-query'
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
-import { Icon } from '../../../components'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
+
+const OpenOrdersQueryKey = 'OpenOrders'
+const OrdersHistoryQueryKey = 'OrdersHistory'
 
 function useIntersectionObserver({
   root,
@@ -128,87 +130,52 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
   )
 }
 
-const MapOpenOrdersToTable = (order) => {
-  return [
-    [
-      [
-        <Icon icon="chevron-down" />,
-        order.symbol,
-        order.type,
-        order.side,
-        order.price,
-        order.amount,
-        order.filled,
-        order.total,
-        order.trigger,
-        order.status,
-        order.timestamp,
-      ],
-      ...order.orders.map((order) => [
-        '',
-        order.symbol,
-        order.type,
-        order.side,
-        order.price,
-        order.amount,
-        order.filled,
-        order.total,
-        order.trigger,
-        order.status,
-      ]),
-    ],
-  ]
-}
-
-const MapOrdersHistoryToTable = (order) => {
-  return [
-    '',
-    order.symbol,
-    order.type,
-    order.side,
-    order.price,
-    order.amount,
-    order.filled,
-    order.total,
-    order.trigger,
-    order.status,
-    order.update_time,
-  ]
-}
-
 const TradeOrders = () => {
+  const queryClient = useQueryClient()
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const infiniteOpenOrders = useInfiniteQuery(
-    'OpenOrders',
-    async ({ pageParam = 0 }) => {
-      const orders = await getOpenOrders(pageParam)
-      const mappedOrders = orders.items.map(MapOpenOrdersToTable)
-      return mappedOrders
+    OpenOrdersQueryKey,
+    async ({ pageParam }) => {
+      console.log('OpenOrders pageParam', pageParam)
+      const params = pageParam
+        ? {
+            timestamp: pageParam.timestamp,
+            trade_id: pageParam.trade_id,
+          }
+        : {}
+      const orders = await getOpenOrders(params)
+      return orders.items
     },
     {
       getPreviousPageParam: (firstPage) => {
-        return firstPage[0][0][10]
+        return firstPage[0]
       },
       getNextPageParam: (lastPage) => {
-        return lastPage[lastPage.length - 1][0][10]
+        return lastPage[lastPage.length - 1]
       },
     }
   )
 
   const infiniteHistory = useInfiniteQuery(
-    'OrdersHistory',
-    async ({ pageParam = 0 }) => {
-      const orders = await getOrdersHistory(pageParam)
-
-      const mappedOrders = orders.items.map(MapOrdersHistoryToTable)
-      return mappedOrders
+    OrdersHistoryQueryKey,
+    async ({ pageParam }) => {
+      console.log('OrdersHistory pageParam', pageParam)
+      const params = pageParam
+        ? {
+            updateTime: pageParam.update_time,
+            symbol: pageParam.symbol,
+            orderId: pageParam.order_id,
+          }
+        : {}
+      const orders = await getOrdersHistory(params)
+      return orders.items
     },
     {
       getPreviousPageParam: (firstPage) => {
-        return firstPage[0][10]
+        return firstPage[0]
       },
       getNextPageParam: (lastPage) => {
-        return lastPage[lastPage.length - 1][10]
+        return lastPage[lastPage.length - 1]
       },
     }
   )
@@ -216,30 +183,20 @@ const TradeOrders = () => {
   useEffect(() => {
     firebase
       .firestore()
-      .collection('order_history')
-      .doc('BTCRUB-48756762')
+      .collection('order_update')
+      .doc('jtest@test.com')
       .onSnapshot(function (doc) {
-        console.log('order_history Current data: ', doc.data())
+        queryClient.invalidateQueries(OpenOrdersQueryKey)
+        console.log('order_update Current data: ', doc.data())
       })
     firebase
       .firestore()
       .collection('order_history_update')
       .doc('jtest@test.com')
       .onSnapshot(function (doc) {
+        queryClient.invalidateQueries(OrdersHistoryQueryKey)
         console.log('order_history_update Current data: ', doc.data())
       })
-    // .get()
-    // .then(function (doc) {
-    //   if (doc.exists) {
-    //     console.log('Document data:', doc.data())
-    //   } else {
-    //     // doc.data() will be undefined in this case
-    //     console.log('No such document!')
-    //   }
-    // })
-    // .catch(function (error) {
-    //   console.log('Error getting document:', error)
-    // })
   }, [])
   return (
     <Table

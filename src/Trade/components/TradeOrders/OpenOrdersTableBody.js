@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Icon } from '../../../components'
 
 const TableHeaderFields = [
   '',
@@ -19,26 +20,30 @@ const Expandable = ({ entry }) => {
   const [show, setShow] = useState(false)
   return (
     <>
-      {entry.map((each, rowIndex) => (
-        <tr
-          className={rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''}
-          key={rowIndex}
-          onClick={() => setShow(!show)}
-        >
-          {each.map((inner, index) => (
-            <td
-              key={index}
-              style={
-                rowIndex === 1 || (index === 0 && rowIndex !== 0)
-                  ? { border: 0 }
-                  : undefined
-              }
-            >
-              {inner}
+      {entry.map((order, rowIndex) => {
+        const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
+        return (
+          <tr
+            className={rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''}
+            key={rowIndex}
+            onClick={() => setShow(!show)}
+          >
+            <td style={{ border: 0 }}>
+              {rowIndex === 0 ? <Icon icon="chevron-down" /> : null}
             </td>
-          ))}
-        </tr>
-      ))}
+            <td style={tdStyle}>{order.symbol}</td>
+            <td style={tdStyle}>{order.type}</td>
+            <td style={tdStyle}>{order.side}</td>
+            <td style={tdStyle}>{order.price}</td>
+            <td style={tdStyle}>{order.amount}</td>
+            <td style={tdStyle}>{order.filled}</td>
+            <td style={tdStyle}>{order.total}</td>
+            <td style={tdStyle}>{order.trigger}</td>
+            <td style={tdStyle}>{order.status}</td>
+            <td style={tdStyle}>{order.update_time}</td>
+          </tr>
+        )
+      })}
     </>
   )
 }
@@ -65,15 +70,12 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
   return (
     <tbody>
       {history &&
-        history.pages.map((page, index) => (
+        history.pages.map((items, index) => (
           <React.Fragment key={index}>
-            {page.map((row, rowIndex) => (
-              <React.Fragment key={rowIndex}>
-                {row.map((entry) => {
-                  return <Expandable entry={entry} />
-                })}
-              </React.Fragment>
-            ))}
+            {items.map((order, rowIndex) => {
+              const orders = [order, ...order.orders]
+              return <Expandable entry={orders} key={rowIndex} />
+            })}
           </React.Fragment>
         ))}
       <button ref={loadMoreButtonRef} onClick={() => fetchNextPage()}>

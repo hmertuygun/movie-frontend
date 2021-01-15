@@ -240,10 +240,12 @@ export async function verifyGoogleAuth2FA(auth_answer) {
   return response
 }
 
-export async function getOpenOrders() {
+export async function getOpenOrders({ timestamp, trade_id }) {
   const apiUrl =
     process.env.REACT_APP_API +
-    'orders?exchange=Binance&limit=50&in_pending=true'
+    'orders?exchange=Binance&limit=50&in_pending=true' +
+    (timestamp ? '&timestamp=' + timestamp : '') +
+    (trade_id ? '&trade_id=' + trade_id : '')
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -252,12 +254,14 @@ export async function getOpenOrders() {
   return openOrders.data
 }
 
-export async function getOrdersHistory(updateTime) {
+export async function getOrdersHistory({ updateTime, symbol, orderId }) {
   const apiUrl =
     process.env.REACT_APP_API +
-    `orderhistory?exchange=Binance&limit=50${
-      updateTime ? '&updateTime=' + updateTime : ''
-    }`
+    'orderhistory?exchange=Binance&limit=50' +
+    (updateTime ? '&updateTime=' + updateTime : '') +
+    (symbol ? '&symbol=' + symbol : '') +
+    (orderId ? '&orderId=' + orderId : '')
+
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
     headers: await getHeaders(token),

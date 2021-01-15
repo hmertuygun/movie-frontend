@@ -22,15 +22,21 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
   return (
     <tbody>
       {history &&
-        history.pages.map((page) => (
-          <React.Fragment key={page.nextId}>
-            {page.map((row, index) => (
+        history.pages.map((page, pageIndex) => (
+          <React.Fragment key={pageIndex}>
+            {page.map((order, index) => (
               <tr key={index}>
-                {row.map((entry, index) => {
-                  if (typeof entry === 'string') {
-                    return <td key={entry + index}>{entry}</td>
-                  }
-                })}
+                <td></td>
+                <td>{order.symbol}</td>
+                <td>{order.type}</td>
+                <td>{order.side}</td>
+                <td>{order.price}</td>
+                <td>{order.amount}</td>
+                <td>{order.filled}</td>
+                <td>{order.total}</td>
+                <td>{order.trigger}</td>
+                <td>{order.status}</td>
+                <td>{order.update_time}</td>
               </tr>
             ))}
           </React.Fragment>
