@@ -11,6 +11,7 @@ import {
 
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
+import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
 import ExitStoploss from './forms/ExitStoploss'

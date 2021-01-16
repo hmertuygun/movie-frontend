@@ -9,7 +9,8 @@ import './TradeContainer.css'
 
 const TradeContainer = () => (
   <SymbolContextProvider>
-    <section className="TradeView-Panel">
+    {/* Dark class as long as we dont have dark theme for all components  */}
+    <section className="TradeView-Panel dark">
       <Route path="/trade/" component={TradePanel} />
     </section>
 

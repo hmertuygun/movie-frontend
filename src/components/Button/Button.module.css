@@ -89,6 +89,10 @@
   color: var(--button-primary-color);
 }
 
+.Button-buy:hover {
+  border: 2px solid var(--buy);
+}
+
 .Button-sell {
   composes: Button;
   border: 2px solid var(--sell);
@@ -96,10 +100,50 @@
   color: var(--button-primary-color);
 }
 
+.Button-sell:hover {
+  border: 2px solid var(--sell);
+}
+
+.Button-exits {
+  composes: Button;
+  border: 2px solid var(--button-default-border-color);
+  background: #232729;
+  color: #fff;
+}
+
+.Button-exits:hover {
+  border: 2px solid var(--button-default-border-color);
+  background: #232729;
+  color: #fff;
+}
+
+.Button-exits,
+.Button-sell,
+.Button-buy {
+  font-size: 14px;
+  line-height: 40px;
+  padding: 0;
+  height: 40px;
+}
+
+
 .Button-sell:hover,
 .Button-buy:hover {
   color: var(--button-primary-color);
 }
+
+.Button-trade-nav {
+  composes: Button;
+  background: #2B2F36;
+  color: rgb(146, 154, 165);
+  border: 2px solid transparent;
+}
+
+.Button-trade-nav:hover {
+  background: #2B2F36;
+  color: rgb(146, 154, 165);
+  border: 2px solid transparent;
+} 
 
 .Button-confirm {
   composes: Button;
@@ -107,6 +151,8 @@
   background: var(--trade-confirm-background);
   color: var(--dark);
   font-weight: bold;
+  line-height: 40px;
+  height: 40px;
 }
 
 .Button-confirm:hover {

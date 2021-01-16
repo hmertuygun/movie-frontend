@@ -1,0 +1,17 @@
+
+
+.TradeOverview-container {
+  margin: 4rem 0 2rem;
+}
+
+.TradeOverview-heading {
+  --border-color: #2a2a2a;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.TradeOverview-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
