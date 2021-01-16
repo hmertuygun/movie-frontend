@@ -4,24 +4,26 @@ import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
+import { UserContext } from '../../../contexts/UserContext'
 
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
 const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
+  
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="card-header pb-0">
         <div className="d-flex justify-content-between align-items-center">
           <div>
             <span
-              className={isOpenOrders ? 'h6 ' : ''}
+              className={isOpenOrders ? 'h6 action-item' : 'action-item'}
               onClick={() => setIsOpenOrders(true)}
             >
               Open Orders
             </span>
             <span
-              className={`${!isOpenOrders ? 'h6' : ''} pl-4`}
+              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'} pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
               Order History
@@ -70,6 +72,7 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
 const TradeOrders = () => {
   const queryClient = useQueryClient()
   const [isOpenOrders, setIsOpenOrders] = useState(true)
+  const [user, setUser] = useState()
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
@@ -115,22 +118,32 @@ const TradeOrders = () => {
     }
   )
 
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user != null) {
+      setUser(user)
+    } else {
+      setUser(null)
+    }
+  });
+
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('order_update')
-      .doc('jtest@test.com')
-      .onSnapshot(function (doc) {
-        queryClient.invalidateQueries(OpenOrdersQueryKey)
-      })
-    firebase
-      .firestore()
-      .collection('order_history_update')
-      .doc('jtest@test.com')
-      .onSnapshot(function (doc) {
-        queryClient.invalidateQueries(OrdersHistoryQueryKey)
-      })
-  }, [queryClient])
+    if (user != null) {
+      firebase
+        .firestore()
+        .collection('order_update')
+        .doc(user.email)
+        .onSnapshot(function (doc) {
+          queryClient.invalidateQueries(OpenOrdersQueryKey)
+        })
+      firebase
+        .firestore()
+        .collection('order_history_update')
+        .doc(user.email)
+        .onSnapshot(function (doc) {
+          queryClient.invalidateQueries(OrdersHistoryQueryKey)
+        })
+    }
+  }, [queryClient, user])
   return (
     <Table
       isOpenOrders={isOpenOrders}

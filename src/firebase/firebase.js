@@ -31,4 +31,5 @@ if (!firebase.apps.length) {
 firebase.analytics()
 
 const auth = firebase.auth()
+
 export { auth, firebase }

@@ -1,5 +1,6 @@
 import React from 'react'
 import useIntersectionObserver from './useIntersectionObserver'
+import Moment from 'react-moment'
 
 const OrderHistoryTableBody = ({ infiniteOrders }) => {
   const {
@@ -24,7 +25,7 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                 <td></td>
                 <td>{order.symbol}</td>
                 <td>{order.type}</td>
-                <td style={{ color: order.side === 'BUY' ? 'green' : 'red' }}>
+                <td style={{ color: order.side === 'Buy' ? 'green' : 'red' }}>
                   {order.side}
                 </td>
                 <td>{order.price}</td>
@@ -33,7 +34,7 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                 <td>{order.total}</td>
                 <td>{order.trigger}</td>
                 <td>{order.status}</td>
-                <td>{order.update_time}</td>
+                <td><Moment unix format="YYYY-MM-DD hh:mm:ss">{order.update_time/1000}</Moment></td>
               </tr>
             ))}
           </React.Fragment>
@@ -43,7 +44,7 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-            ? 'Load Newer'
+            ? 'Load Older'
             : 'Nothing more to load'}
         </td>
       </tr>

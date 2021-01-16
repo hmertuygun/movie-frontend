@@ -22,24 +22,27 @@ const PortfolioCTXProvider = ({ children }) => {
   const [balance, setBalance] = useState()
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
-
+  const [user, setUser] = useState()
   const fetchData = async () => {
     try {
       setLoading(true)
       const apiUrl = process.env.REACT_APP_API + 'getPortfolioFS'
 
-      const token = await firebase.auth().currentUser.getIdToken()
+      if (user != null) {
+        const currentUser = await firebase.auth().currentUser
+        const token = await currentUser.getIdToken()
 
-      const exchanges = await axios(apiUrl, {
-        headers: await getHeaders(token),
-        method: 'GET',
-      })
-      setTicker(exchanges.data)
-      setBalance(exchanges.data.BottomTable)
-      setChart(exchanges.data.Distribution)
-      setEstimate(exchanges.data.EstValue)
+        const exchanges = await axios(apiUrl, {
+          headers: await getHeaders(token),
+          method: 'GET',
+        })
+        setTicker(exchanges.data)
+        setBalance(exchanges.data.BottomTable)
+        setChart(exchanges.data.Distribution)
+        setEstimate(exchanges.data.EstValue)
 
-      setLoading(false)
+        setLoading(false)
+      }
     } catch (error) {
       console.log(error)
       setLoading(false)
@@ -71,9 +74,17 @@ const PortfolioCTXProvider = ({ children }) => {
     }
   }
 
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user != null) {
+      setUser(user)
+    } else {
+      setUser(null)
+    }
+  });
+
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [user])
 
   return (
     <PortfolioContext.Provider

@@ -4,10 +4,6 @@ export const MenuData = [
     url: '/trade',
   },
   {
-    title: 'Positions',
-    url: '/positions',
-  },
-  {
     title: 'Portfolio',
     url: '/portfolio',
   },

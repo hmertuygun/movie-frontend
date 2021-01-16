@@ -109,6 +109,12 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
+  const clear = () => {
+    setState({
+      state: initialState,
+    })
+  }
+
   return (
     <TradeContext.Provider
       value={{
@@ -119,6 +125,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         removeTarget,
         addStoploss,
         removeStoploss,
+        clear
       }}
     >
       {children}

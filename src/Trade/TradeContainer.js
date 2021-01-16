@@ -21,7 +21,7 @@ const TradeContainer = () => (
       <section className="TradeView-Chart">
         <TradeChart />
       </section>
-      <section style={{ height: '50vh' }}>
+      <section style={{ height: '30vh' }}>
         <TradeOrders />
       </section>
     </section>
