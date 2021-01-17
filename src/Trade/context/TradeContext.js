@@ -10,8 +10,6 @@ const ACTIONS = {
 async function tradeReducer(state, action) {
   switch (action.type) {
     case ACTIONS.ENTRY: {
-      console.log(action)
-
       return {
         ...state,
         entry: action.payload,

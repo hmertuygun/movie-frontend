@@ -1,0 +1,13 @@
+.logo {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.colorlogo,
+.whitelogo {
+  height: 29px;
+  width: auto;
+  margin-top: -5px;
+  margin-right: 7px;
+}

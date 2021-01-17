@@ -1,13 +1,27 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
+import { Header } from './components'
 import Routes from './Routes'
+import UserContextProvider from './contexts/UserContext'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+
+library.add(fab, fas)
+const queryClient = new QueryClient()
 
 export default function App() {
   return (
-    <Router>
-      <Fragment>
-        <Routes />
-      </Fragment>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <UserContextProvider>
+          <Header />
+          <Routes />
+        </UserContextProvider>
+      </Router>
+      {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+    </QueryClientProvider>
   )
 }

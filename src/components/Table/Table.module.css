@@ -1,0 +1,42 @@
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #718096;
+  background-color: transparent;
+}
+
+table thead th {
+  font-size: 0.75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+  border-bottom-width: 1px;
+  background-color: transparent;
+}
+
+.card .table td,
+.card .table th {
+  padding-right: 1.75rem;
+  padding-left: 1.75rem;
+}
+
+.table td,
+.table th {
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+  vertical-align: top;
+  border-top: 1px solid #eff2f7;
+}
+
+@media only screen and (max-width: 990px) {
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+}

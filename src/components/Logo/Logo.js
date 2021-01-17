@@ -1,13 +1,16 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import './Logo.css'
 
-export default ({ withText = true, ...props }) => {
-  return (
-    <div style={{
-        color: 'blue',
-        width: '360px'
-       }}>
-      <h1 style={{ color: 'blue'}}>
-        CP {withText && (<span>CoinPanel</span>)}
-      </h1>
-    </div>)
-}
+const Logo = () => (
+  <Link to="/" className="logo">
+    <img
+      alt="Part one logo"
+      src="/img/svg/icons/Coinpanel_Color.svg"
+      className="colorlogo"
+    />
+    CoinPanel
+  </Link>
+)
+
+export default Logo

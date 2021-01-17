@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-lb
+  namespace: userfront
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: web-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server-deployment
+  namespace: userfront
+spec:
+  selector:
+    matchLabels:
+      app: web-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      nodeSelector: 
+        cloud.google.com/gke-nodepool: user-frontend-pool
+      containers:
+      - name: web-server
+        image: gcr.io/<GCP_PROJECT>/cp-web-server:<IMAGE_VERSION>
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 150m
+            memory: 200Mi
+          requests:
+            cpu: 150m
+            memory: 100Mi
+        ports:
+        - containerPort: 5000

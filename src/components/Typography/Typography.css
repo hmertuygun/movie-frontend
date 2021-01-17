@@ -40,9 +40,16 @@ h2, .h2 {
   font-size: calc(1.325rem + .9vw);
 }
 
+
 .surtitle {
   font-size: .675rem;
   font-weight: 400;
   text-transform: uppercase;
   color: #718096;
+}
+
+
+.Trade h3 {
+  font-size: 16px;
+  font-weight: 700;
 }

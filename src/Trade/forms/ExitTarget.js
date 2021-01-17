@@ -2,17 +2,85 @@ import React, { useState, useEffect, useContext } from 'react'
 import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
+import { useSymbolContext } from '../context/SymbolContext'
+import Slider from 'rc-slider'
+import Grid from '@material-ui/core/Grid'
+import 'rc-slider/assets/index.css'
+import { makeStyles } from '@material-ui/core/styles'
+
+const useStyles = makeStyles({
+  root: {
+    width: 330,
+  },
+  slider: {
+    width: 200,
+    vertiicalAlign: 'middle'
+  },
+  input: {
+    width: 42,
+  },
+});
 
 const ExitTarget = () => {
+  const { isLoading, selectedSymbolDetail } = useSymbolContext()
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
-  const [amount, setAmount] = useState('')
-  const [amountPercentage, setAmountPercentage] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [quantityPercentage, setQuantityPercentage] = useState('')
   const [isValid, setIsValid] = useState(false)
 
   const { addTarget, state } = useContext(TradeContext)
   // ingoing value
   const { entry } = state
+
+  const classes = useStyles()
+  const marks = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: ''
+  }
+
+  const handleSliderChange = (newValue) => {
+    setProfit(newValue)
+    priceAndProfitSync('profit', newValue)
+  }
+
+  const handleInputChange = (value) => {
+    setProfit(value === '' ? '' : Number(value));
+    priceAndProfitSync('profit', value)
+  }
+
+  const handleBlur = () => {
+    if (quantityPercentage < 0) {
+      setProfit(0)
+      priceAndProfitSync('profit', 0)
+    } else if (quantityPercentage > 100) {
+      setProfit(100)
+      priceAndProfitSync('profit', 100)
+    }
+  }
+
+  const handleQPSliderChange = (newValue) => {
+    setQuantityPercentage(newValue)
+    priceAndProfitSync('quantityPercentage', newValue)
+  }
+
+  const handleQPInputChange = (value) => {
+    setQuantityPercentage(value === '' ? '' : Number(value));
+    priceAndProfitSync('quantityPercentage', value)
+  }
+
+  const handleQPBlur = () => {
+    if (quantityPercentage < 0) {
+      setQuantityPercentage(0)
+      priceAndProfitSync('quantityPercentage', 0)
+    } else if (quantityPercentage > 100) {
+      setQuantityPercentage(100)
+      priceAndProfitSync('quantityPercentage', 100)
+    }
+  }
 
   useEffect(() => {
     setPrice(entry.price)
@@ -20,12 +88,12 @@ const ExitTarget = () => {
 
   // VALIDATE FORM
   useEffect(() => {
-    if (price !== entry.price && price && amount <= entry.amount) {
+    if (price !== entry.price && price && quantity <= entry.quantity) {
       setIsValid(true)
     } else {
       setIsValid(false)
     }
-  }, [price, amount, entry.amount, entry.price])
+  }, [price, quantity, entry.quantity, entry.price])
 
   // PRICE and PROFIT Sync
   const priceAndProfitSync = (inputChanged, value) => {
@@ -39,13 +107,14 @@ const ExitTarget = () => {
       setPrice(entry.price * (1 + value / 100))
     }
 
-    if (inputChanged === 'amount' && value <= entry.amount) {
-      setAmountPercentage(roundNumbers((value / entry.amount) * 100, 4))
+    if (inputChanged === 'quantity' && value <= entry.quantity) {
+      setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 4))
     }
 
-    if ((inputChanged === 'amountPercentage' && value < 101) || value > 0) {
-      const theAmount = (entry.amount * value) / 100
-      setAmount(roundNumbers(theAmount, 6))
+    if ((inputChanged === 'quantityPercentage' && value < 101) || 
+        (inputChanged === 'quantityPercentage' && value > 0)) {
+      const theQuantity = (entry.quantity * value) / 100
+      setQuantity(roundNumbers(theQuantity, 6))
     }
 
     return false
@@ -57,10 +126,12 @@ const ExitTarget = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-
+            const symbol = selectedSymbolDetail['symbolpair']
             addTarget({
               price,
-              amount,
+              quantity,
+              profit,
+              symbol,
             })
           }}
         >
@@ -73,41 +144,78 @@ const ExitTarget = () => {
             }}
             value={price}
             placeholder="Target price"
-            postLabel="USDT"
+            postLabel={ selectedSymbolDetail['quote_asset'] } 
           />
 
-          <InlineInput
-            label="Profit"
-            type="number"
-            onChange={(value) => {
-              setProfit(value)
-              priceAndProfitSync('profit', value)
-            }}
-            value={profit}
-            postLabel="%"
-          />
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item>
+                <Typography>
+                Profit
+                </Typography>
+              </Grid>
+              <Grid item xs className={classes.slider}>
+                <Slider
+                
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleSliderChange}
+                  value={profit}
+                /> 
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={profit}
+                  margin="dense"
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  postLabel={ '%' }
+                />
+              </Grid>
+            </Grid>
+          </div>
 
           <InlineInput
-            label="Amount"
+            label="Quantity"
             type="number"
             onChange={(value) => {
-              priceAndProfitSync('amount', value)
-              setAmount(value)
+              priceAndProfitSync('quantity', value)
+              setQuantity(value)
             }}
-            value={amount}
-            postLabel="BTC"
+            value={quantity}
+            postLabel={isLoading ? "" : selectedSymbolDetail['base_asset']}
           />
 
-          <InlineInput
-            label=""
-            type="number"
-            onChange={(value) => {
-              setAmountPercentage(value)
-              priceAndProfitSync('amountPercentage', value)
-            }}
-            value={amountPercentage}
-            postLabel="%"
-          />
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs className={classes.slider}>
+                <Slider
+                
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleQPSliderChange}
+                  value={quantityPercentage}
+                /> 
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={quantityPercentage}
+                  margin="dense"
+                  onChange={handleQPInputChange}
+                  onBlur={handleQPBlur}
+                  postLabel={ '%' }
+                />
+              </Grid>
+            </Grid>
+          </div>
 
           <Button
             disabled={isValid ? false : 'disabled'}

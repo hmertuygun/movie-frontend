@@ -2,50 +2,116 @@ import React, { createContext, useState } from 'react'
 
 export const TradeContext = createContext()
 
-const testState = {
-  entry: {
-    price: 18000,
-    amount: 0.044,
-  },
-  targets: [],
-  exits: [],
-}
+const initialState = {}
 
 const SimpleTradeContextProvider = ({ children }) => {
-  // console.warn('USING TEST STATE')
-  // console.warn({ state: testState })
+  const [state, setState] = useState(initialState)
 
-  const [state, setState] = useState(testState)
-
-  const addEntry = ({ price, amount }) => {
+  const addEntry = ({
+    price,
+    quantity,
+    symbol,
+    type = 'limit',
+    side = 'buy',
+  }) => {
     setState({
       ...state,
       entry: {
         price,
-        amount,
+        quantity,
+        symbol,
+        type,
+        side,
       },
     })
   }
 
-  const addTarget = ({ price, amount }) => {
-    console.log(state)
+  const addTarget = ({
+    price,
+    quantity,
+    profit,
+    symbol,
+    type = 'limit',
+    side = 'sell',
+  }) => {
+    const targets = state.targets || []
+
     setState({
       ...state,
-      targets: [...state.targets, { price, amount }],
+      targets: [
+        ...targets,
+        {
+          price,
+          quantity,
+          profit,
+          symbol,
+          type,
+          side,
+        },
+      ],
     })
   }
 
-  const addStoploss = ({ price, triggerPrice, amount }) => {
+  const addStoploss = ({
+    price,
+    triggerPrice,
+    quantity,
+    profit,
+    symbol,
+    side = 'sell',
+    type = 'stoplimit',
+  }) => {
+    const stoploss = state.stoploss || []
+
     setState({
       ...state,
-      exits: [
-        ...state.exits,
+      stoploss: [
+        ...stoploss,
         {
           price,
+          profit,
           triggerPrice,
-          amount,
+          quantity,
+          side,
+          type,
+          symbol,
         },
       ],
+    })
+  }
+
+  const removeStoploss = (removeIndex) => {
+    setState({
+      ...state,
+      stoploss: [
+        ...state.stoploss.filter(
+          (stoploss, stoplossIndex) => stoplossIndex !== removeIndex
+        ),
+      ],
+    })
+  }
+
+  const removeTarget = (removeIndex) => {
+    setState({
+      ...state,
+      targets: [
+        ...state.targets.filter(
+          // return all the targets where they are not removeIndex
+          (target, targetIndex) => targetIndex !== removeIndex
+        ),
+      ],
+    })
+  }
+
+  const removeEntry = () => {
+    setState({
+      state: initialState,
+    })
+  }
+
+  const clear = () => {
+    setState({
+      state: initialState,
     })
   }
 
@@ -54,8 +120,12 @@ const SimpleTradeContextProvider = ({ children }) => {
       value={{
         state,
         addEntry,
+        removeEntry,
         addTarget,
+        removeTarget,
         addStoploss,
+        removeStoploss,
+        clear
       }}
     >
       {children}
