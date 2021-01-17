@@ -11,7 +11,7 @@ steps:
     args: ["push", "gcr.io/$PROJECT_ID/cp-web-server:$SHORT_SHA"]
   - name: 'gcr.io/cloud-builders/gcloud'
     id: Setup
-    args: ['container', 'clusters', 'get-credentials', 'cp-dev-cluster', '--region=asia-northeast1', '--project=$PROJECT_ID']
+    args: ['container', 'clusters', 'get-credentials', 'cp-${_CLUSTER_TYPE}-cluster-eu', '--region=europe-north1', '--project=$PROJECT_ID']
   - name: 'ubuntu'
     id: preDeploy
     #dir: 'server'
@@ -25,4 +25,9 @@ steps:
       - 'deployment.yaml'
     env:
       - 'CLOUDSDK_COMPUTE_REGION=europe-north1'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=cp-dev-cluster-eu'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cp-${_CLUSTER_TYPE}-cluster-eu'
+substitutions:
+  _CLUSTER_TYPE: ${PROJECT_ID:10}
+options:
+  dynamic_substitutions: true
+
