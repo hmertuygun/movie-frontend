@@ -2,15 +2,22 @@ export default function validateFields(values) {
   console.log('validateFields called --> ', values)
   let errors = {}
 
-  if (!values.price) {
-    errors.price = 'No price'
+  /*   Object.keys(values).forEach(function (el) {
+    values[el] = parseInt(values[el])
+  }) */
+
+  if (!values.price || values.price < 1) {
+    errors.price = 'Price is require'
   }
-  if (!values.quantity) {
-    errors.quantity = 'No quantity'
+  if (!values.quantity || values.quantity < 1) {
+    errors.quantity = 'Quantity is require'
   }
   if (values.quantity && values.price) {
-    if (values.total < 10) {
-      errors.total = 'Total Amount should be higher 10 US'
+    if (values.total < values.minNotional) {
+      errors.total = 'Total needs to meet min-trading-total'
+    }
+    if (values.total > values.balance) {
+      errors.total = 'Total can not exceed your balance.'
     }
   }
 

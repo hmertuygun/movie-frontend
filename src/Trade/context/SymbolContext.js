@@ -25,12 +25,10 @@ const SymbolContextProvider = ({ children }) => {
       setIsLoadingBalance(true)
       const response = await getBalance(quote_asset)
       if ('balance' in response.data) {
-        setSelectedSymbolBalance(response.data["balance"])
+        setSelectedSymbolBalance(response.data['balance'])
       } else {
         setSelectedSymbolBalance(0)
-        }
-      
-      
+      }
     } catch (Exception) {
       setSelectedSymbolBalance(0)
     }
@@ -45,7 +43,8 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbolDetail(symbolDetails[symbol['value']])
     setSelectedSymbolBalance('')
     if (symbol['value'] in symbolDetails) {
-      loadBalance(symbolDetails[symbol['value']]['quote_asset']) }
+      loadBalance(symbolDetails[symbol['value']]['quote_asset'])
+    }
   }
 
   function setExchange(exchange) {
@@ -65,19 +64,24 @@ const SymbolContextProvider = ({ children }) => {
         data['exchanges'].forEach((exchange) => {
           exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
-            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
-            symbolList.push(
-                {
-                    "label": symbol['label'],
-                    "value": value
-                })
+            const value =
+              exchange['exchange'].toUpperCase() + ':' + symbol['value']
+            symbolList.push({
+              label: symbol['label'],
+              value: value,
+            })
             symbolDetails[value] = {
-                // BTCUSD
-                'symbolpair': symbol['value'],
-                'base_asset': symbol['base_asset'],
-                'quote_asset': symbol['quote_asset'],
-                'base_asset_precision': symbol['base_asset_precision'], // BTC
-                'quote_asset_precision': symbol['quote_asset_precision'] // USD
+              // BTCUSD
+              symbolpair: symbol['value'],
+              base_asset: symbol['base_asset'],
+              quote_asset: symbol['quote_asset'],
+              base_asset_precision: symbol['base_asset_precision'], // BTC
+              quote_asset_precision: symbol['quote_asset_precision'], // USD
+              maxPrice: symbol['maxPrice'],
+              maxQty: symbol['maxQty'],
+              minNotional: symbol['minNotional'],
+              minPrice: symbol['minPrice'],
+              minQty: symbol['minQty'],
             }
           })
         })
@@ -85,11 +89,10 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(exchangeList)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedExchange({label: 'Binance', value: exchangeList[0]})
-        setSelectedSymbol({label: 'BTC-USDT', value: 'BINANCE:BTCUSDT'})
+        setSelectedExchange({ label: 'Binance', value: exchangeList[0] })
+        setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
-        
       } else {
         setExchanges([])
         setSymbols([])
@@ -116,7 +119,7 @@ const SymbolContextProvider = ({ children }) => {
         symbolDetails,
         selectedSymbolDetail,
         selectedSymbolBalance,
-        isLoadingBalance
+        isLoadingBalance,
       }}
     >
       {children}
