@@ -30,7 +30,7 @@ const Expandable = ({ entry }) => {
         const cancelColumn =
           rowIndex === 0 && order.type == "Full Trade" ?  (
             <td
-              style={{ ...tdStyle, color: 'red' }}
+              style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
               onClick={() => {
                 cancelTradeOrder(order.trade_id)
               }}
