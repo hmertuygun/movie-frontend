@@ -48,11 +48,15 @@ function LimitForm() {
   })
   const [errors, setErrors] = useState({})
 
-  const precisePrice = (num) => {
-    return Number.parseFloat(num).toFixed(2) //toPrecision from backend
+  const precise = (num) => {
+    return Number.parseFloat(num).toFixed(precisionNumber) //toPrecision from backend
   }
 
-  const precise = (num) => {
+  const precisePrice = (num) => {
+    return Number.parseFloat(num).toFixed(2) //need to confirm price precision from BE
+  }
+
+  const preciseAmount = (num) => {
     return Number.parseFloat(num).toFixed(precisionNumber) //toPrecision from backend
   }
 
@@ -102,6 +106,8 @@ function LimitForm() {
     }
 
     if (name === 'quantity') {
+      setQuantity(preciseAmount(value))
+      console.log('amount field ', quantity)
       if (price) {
         setErrors(validate(validationFields))
       }
@@ -315,8 +321,8 @@ function LimitForm() {
             name="total"
             value={total || ''}
             placeholder=""
+            //disabled
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            disabled
           />
           {errors.total && (
             <div className="error" style={{ color: 'red' }}>

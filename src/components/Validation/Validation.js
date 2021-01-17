@@ -9,7 +9,7 @@ export default function validateFields(values) {
   if (!values.price || values.price < 1) {
     errors.price = 'Price is require'
   }
-  if (!values.quantity || values.quantity < 1) {
+  if (!values.quantity || values.quantity === 0) {
     errors.quantity = 'Quantity is require'
   }
   if (values.quantity && values.price) {
