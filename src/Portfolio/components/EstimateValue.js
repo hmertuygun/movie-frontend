@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 
 import { PortfolioContext } from '../context/PortfolioContext'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const EstimateValue = () => {
   const { estimate } = useContext(PortfolioContext)
@@ -26,13 +27,17 @@ const EstimateValue = () => {
                 <div className="d-flex align-items-center mb-2" key={idx}>
                   <div>
                     <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm">
-                      {item.symbol}
+                      {item.symbol == 'BTC' ? <FontAwesomeIcon icon={['fab', 'bitcoin']}  /> : 
+                       item.symbol == 'USD' ? <FontAwesomeIcon icon={['fas', 'dollar-sign']}  /> : 
+                       item.symbol == 'EUR' ? <FontAwesomeIcon icon={['fas', 'euro-sign']}  /> :
+                       item.symbol == 'GBP' ? <FontAwesomeIcon icon={['fas', 'pound-sign']}  /> :
+                       item.symbol}
                     </span>
                   </div>
 
                   <div className="pl-2">
                     <span className="text-muted text-sm font-weight-bold">
-                      {item.value}
+                      {item.value} {item.symbol}
                     </span>
                   </div>
                 </div>

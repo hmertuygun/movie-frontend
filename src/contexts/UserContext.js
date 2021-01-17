@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react'
-import { firebase } from '../firebase/firebase'
+import { firebase, auth } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,

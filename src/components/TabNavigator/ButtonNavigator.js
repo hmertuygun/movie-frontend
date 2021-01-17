@@ -13,14 +13,14 @@ const ButtonNavigator = ({
     <Fragment>
       <nav className="ButtonNavigator-container">
         <Button
-          variant={viewIndex === 0 ? 'buy' : null}
+          variant={viewIndex === 0 ? 'buy' : 'trade-nav'}
           onClick={() => setViewIndex(0)}
         >
           {labelArray[0]}
         </Button>
 
         <Button
-          variant={viewIndex === 1 ? 'sell' : null}
+          variant={viewIndex === 1 ? 'sell' : 'trade-nav'}
           onClick={() => setViewIndex(1)}
         >
           {labelArray[1]}

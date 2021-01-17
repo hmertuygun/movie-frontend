@@ -6,10 +6,12 @@ import { SymbolContextProvider } from './context/SymbolContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
 import './TradeContainer.css'
+import TradeOrders from './components/TradeOrders/TradeOrders'
 
 const TradeContainer = () => (
   <SymbolContextProvider>
-    <section className="TradeView-Panel">
+    {/* Dark class as long as we dont have dark theme for all components  */}
+    <section className="TradeView-Panel dark">
       <Route path="/trade/" component={TradePanel} />
     </section>
 
@@ -19,6 +21,9 @@ const TradeContainer = () => (
       </section>
       <section className="TradeView-Chart">
         <TradeChart />
+      </section>
+      <section style={{ height: '30vh' }}>
+        <TradeOrders />
       </section>
     </section>
   </SymbolContextProvider>

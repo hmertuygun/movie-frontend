@@ -11,6 +11,7 @@ import {
 
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
+import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
 import ExitStoploss from './forms/ExitStoploss'
@@ -24,7 +25,7 @@ const TradePanel = () => (
 
 const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { state } = useContext(TradeContext)
+  const { state, clear } = useContext(TradeContext)
   const hasEntry = state.entry?.price > 0 ? true : false
 
   function checkAllTypes() {
@@ -39,8 +40,12 @@ const Trade = () => {
   const doPlaceOrder = async () => {
     try {
       await placeOrder({ ...state })
+      setIsModalVisible(false)
+      clear()
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
+      setIsModalVisible(false)
+      clear()
     }
   }
 

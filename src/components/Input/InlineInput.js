@@ -10,7 +10,7 @@ const InlineInput = ({
   postLabel,
   onChange,
   value,
-  ...props
+  small,
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const inputId = uniqid()
@@ -44,9 +44,12 @@ const InlineInput = ({
         placeholder={placeholder}
         type={type}
         value={value}
-        {...props}
       ></input>
-      <span className={styles.InputPostLabel}>{postLabel}</span>
+      <span
+        className={small ? styles.InputPostLabelSmall : styles.InputPostLabel}
+      >
+        {postLabel}
+      </span>
     </div>
   )
 }

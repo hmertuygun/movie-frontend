@@ -1,23 +1,16 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
-import { InlineInput, Button } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
-import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
-import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
+
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import validate from '../../components/Validation/Validation'
 
-const useStyles = makeStyles({
-  root: {
-    width: 330,
-  },
-  input: {
-    width: 42,
-  },
-})
+import { InlineInput, Button } from '../../components'
+
+import styles from './LimitForm.module.css'
 
 function LimitForm() {
   const {
@@ -59,8 +52,6 @@ function LimitForm() {
   const preciseAmount = (num) => {
     return Number.parseFloat(num).toFixed(precisionNumber) //toPrecision from backend
   }
-
-  const classes = useStyles()
   const marks = {
     0: '',
     25: '',
@@ -214,13 +205,16 @@ function LimitForm() {
 
   const handleChange = (evt) => {
     evt.preventDefault()
-
     const { name, value } = evt.target
+
+    console.log('handleChange name & value ', name, value)
 
     setValidationFields((validationFields) => ({
       ...validationFields,
       [name]: value,
     }))
+
+    console.log('validationFields ', validationFields)
 
     calculatePercentageQuantity(name, value)
   }
@@ -287,31 +281,30 @@ function LimitForm() {
               {errors.quantity}
             </div>
           )}
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleSliderChange}
-                  value={quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={quantityPercentage || ''}
-                  name="quantityPercentage"
-                  margin="dense"
-                  onChange={handleInputChange} //onChange={handleChange}
-                  onBlur={handleBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
+
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleSliderChange}
+                value={quantityPercentage}
+              />
+            </div>
+
+            <div className={styles['SliderInput']}>
+              <InlineInput
+                value={quantityPercentage}
+                margin="dense"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                postLabel={'%'}
+                small
+              />
+            </div>
           </div>
 
           <InlineInput
@@ -329,7 +322,11 @@ function LimitForm() {
               {errors.total}
             </div>
           )}
-          <Button /* disabled={isValid ? null : 'disabled'} */ type="submit">
+          <Button
+            variant="exits"
+            /* disabled={isValid ? null : 'disabled'} */
+            type="submit"
+          >
             Set exits >
           </Button>
         </form>

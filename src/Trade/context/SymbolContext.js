@@ -25,8 +25,10 @@ const SymbolContextProvider = ({ children }) => {
       setIsLoadingBalance(true)
       const response = await getBalance(quote_asset)
       if ('balance' in response.data) {
+        console.log('setting balance for ' + quote_asset)
         setSelectedSymbolBalance(response.data['balance'])
       } else {
+        console.log('no balance found for ' + quote_asset)
         setSelectedSymbolBalance(0)
       }
     } catch (Exception) {
@@ -36,9 +38,10 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   function setSymbol(symbol) {
-    if (symbol == null) {
+    if (symbol == null || symbol == selectedSymbol) {
       return
     }
+    console.log('setting symbol')
     setSelectedSymbol(symbol)
     setSelectedSymbolDetail(symbolDetails[symbol['value']])
     setSelectedSymbolBalance('')

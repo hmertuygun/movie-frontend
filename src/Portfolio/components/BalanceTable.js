@@ -14,7 +14,7 @@ const BalanceTable = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-  const ITEMS_PER_PAGE = 2
+  const ITEMS_PER_PAGE = 20
 
   const getTableData = useMemo(() => {
     if (tableData) {
