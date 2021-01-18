@@ -5,9 +5,18 @@ export default function validateFields(values) {
     values[el] = parseInt(values[el])
   })
 
-  if (!values.price || values.price < 1) {
+  if (!values.price || values.price === 0) {
     errors.price = 'Price is require'
   }
+  if (values.price > values.maxPrice) {
+    console.log('price to right')
+    errors.price = 'Price needs to meet max-price-total'
+  }
+  if (values.price < values.minPrice) {
+    console.log('price to low')
+    errors.price = 'Price needs to meet min-price-total'
+  }
+
   if (!values.quantity || values.quantity === 0) {
     errors.quantity = 'Quantity is require'
   }

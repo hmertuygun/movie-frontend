@@ -62,7 +62,9 @@ const ExitStoploss = () => {
     priceAndProfitSync('profit', value)
   }
 
-  const handleBlur = () => {
+  const handleBlur = (evt) => {
+    console.log('handleBlur', evt.target.name)
+
     if (quantityPercentage < 0) {
       setProfit(0)
       priceAndProfitSync('profit', 0)
@@ -215,6 +217,7 @@ const ExitStoploss = () => {
               priceAndProfitSync('triggerPrice', value)
             }} */
             onChange={handleChange}
+            onBlur={handleBlur}
             postLabel={selectedSymbolDetail['quote_asset']}
           />
 
@@ -228,6 +231,7 @@ const ExitStoploss = () => {
               priceAndProfitSync('price', value)
             }} */
             onChange={handleChange}
+            onBlur={handleBlur}
             value={price}
             postLabel={selectedSymbolDetail['quote_asset']}
           />
@@ -256,7 +260,7 @@ const ExitStoploss = () => {
                   margin="dense"
                   onChange={handleInputChange}
                   onBlur={handleBlur}
-                  postLabel={'%aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+                  postLabel={'%'}
                 />
               </Grid>
             </Grid>

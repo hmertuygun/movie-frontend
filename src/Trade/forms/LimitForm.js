@@ -60,13 +60,10 @@ function LimitForm() {
   }
 
   const handleBlur = (evt) => {
-    console.log('handleBlur ', evt)
-
     if (price) {
-      console.log('price field ', quantity)
-      if (!price && !quantity) {
+      /*       if (!price && !quantity) {
         return false
-      }
+      } */
 
       if (quantity) {
         if (!price || !quantity) {
@@ -77,7 +74,6 @@ function LimitForm() {
     }
 
     if (quantity) {
-      console.log('amount field ', quantity)
       if (price) {
         setErrors(validate(validationFields))
       }
@@ -122,6 +118,10 @@ function LimitForm() {
         total: quantity * price,
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
+        maxPrice: selectedSymbolDetail.maxPrice,
+        minPrice: selectedSymbolDetail.minPrice,
+        maxQty: selectedSymbolDetail.maxQty,
+        minQty: selectedSymbolDetail.minQty,
       }))
 
       if (!price || !quantity) {
@@ -223,6 +223,8 @@ function LimitForm() {
             onBlur={handleBlur}
             value={price}
             placeholder="Entry price"
+            //onInput={(value) => restrict(value)}
+            //onInput={restrict}
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
           />
           {errors.price && (
