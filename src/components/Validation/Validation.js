@@ -9,11 +9,9 @@ export default function validateFields(values) {
     errors.price = 'Price is require'
   }
   if (values.price > values.maxPrice) {
-    console.log('price to right')
     errors.price = 'Price needs to meet max-price-total'
   }
   if (values.price < values.minPrice) {
-    console.log('price to low')
     errors.price = 'Price needs to meet min-price-total'
   }
 
@@ -31,23 +29,3 @@ export default function validateFields(values) {
 
   return errors
 }
-
-/*
-
-
-
-  if (values.type === 'stoploss')
-    console.log('validateFields called --> ', values.type)
-  console.log('validateFields called --> ', values.validationFields)
-
-  Object.keys(values.validationFields).forEach(function (el) {
-    values.validationFields[el] = parseInt(values.validationFields[el])
-  })
-  console.log('stoploss validation : ', values.validationFields)
-
-  if (values.total > values.balance) {
-    errors.total = 'Total can not exceed your balance.'
-  }
-
-
-*/

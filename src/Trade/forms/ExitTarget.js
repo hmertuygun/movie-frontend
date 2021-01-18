@@ -112,11 +112,6 @@ const ExitTarget = () => {
 
   // VALIDATE FORM
   useEffect(() => {
-    console.log('balance ', balance)
-    console.log('price ', price)
-    console.log('quantity ', quantity)
-    console.log('total ', total)
-
     setValidationFields((validationFields) => ({
       ...validationFields,
       price: entry.price,
@@ -124,7 +119,6 @@ const ExitTarget = () => {
       total,
       balance: balance,
       minNotional: selectedSymbolDetail.minNotional,
-      type: 'target',
     }))
 
     if (price !== entry.price && price && quantity <= entry.quantity) {
@@ -132,7 +126,15 @@ const ExitTarget = () => {
     } else {
       setIsValid(false)
     }
-  }, [price, quantity, entry.quantity, entry.price])
+  }, [
+    price,
+    quantity,
+    balance,
+    total,
+    entry.quantity,
+    entry.price,
+    selectedSymbolDetail.minNotional,
+  ])
 
   // PRICE and PROFIT Sync
   const priceAndProfitSync = (inputChanged, value) => {

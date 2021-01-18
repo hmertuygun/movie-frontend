@@ -63,8 +63,6 @@ const ExitStoploss = () => {
   }
 
   const handleBlur = (evt) => {
-    console.log('handleBlur', evt.target.name)
-
     if (quantityPercentage < 0) {
       setProfit(0)
       priceAndProfitSync('profit', 0)
@@ -117,11 +115,6 @@ const ExitStoploss = () => {
 
   useEffect(
     () => {
-      console.log('balance ', balance)
-      console.log('price ', price)
-      console.log('quantity ', quantity)
-      console.log('total ', total)
-
       setValidationFields((validationFields) => ({
         ...validationFields,
         price,
@@ -132,15 +125,21 @@ const ExitStoploss = () => {
         type: 'stoploss',
       }))
 
-      console.log('validationFields ', validationFields)
-
       if (triggerPrice && price && quantity) {
         setIsValid(true)
       } else {
         setIsValid(false)
       }
     },
-    [triggerPrice, price, quantity, entry.quantity, balance],
+    [
+      triggerPrice,
+      price,
+      quantity,
+      entry.quantity,
+      balance,
+      total,
+      selectedSymbolDetail.minNotional,
+    ],
     () => {}
   )
 
