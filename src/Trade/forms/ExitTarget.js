@@ -8,6 +8,7 @@ import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
+import styles from './ExitTargetForm.module.css'
 
 const useStyles = makeStyles({
   root: {
@@ -194,11 +195,13 @@ const ExitTarget = () => {
           />
 
           <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Typography>Profit</Typography>
-              </Grid>
-              <Grid item xs className={classes.slider}>
+            <div className={styles['SliderRow']}>
+            <div className={styles['SliderText']}>
+                <Typography>
+                Profit
+                </Typography>
+            </div>
+             <div className={styles['SliderSlider']}>
                 <Slider
                   defaultValue={0}
                   step={1}
@@ -207,19 +210,18 @@ const ExitTarget = () => {
                   max={100}
                   onChange={handleSliderChange}
                   value={profit}
-                />
-              </Grid>
-              <Grid item>
+                /> 
+              </div>
+            <div className={styles['SliderInput']}>
                 <InlineInput
-                  className={classes.input}
                   value={profit}
                   margin="dense"
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   postLabel={'%'}
                 />
-              </Grid>
-            </Grid>
+              </div>
+          </div>
           </div>
 
           <InlineInput

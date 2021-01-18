@@ -2,11 +2,12 @@ export default function validateFields(values) {
   let errors = {}
 
   Object.keys(values).forEach(function (el) {
-    values[el] = parseInt(values[el])
+    values[el] = parseFloat(values[el])
   })
 
   if (!values.price || values.price === 0) {
-    errors.price = 'Price is require'
+    console.log(values.price)
+    errors.price = 'Price is required'
   }
   if (values.price > values.maxPrice) {
     errors.price = 'Price needs to meet max-price-total'
@@ -16,7 +17,7 @@ export default function validateFields(values) {
   }
 
   if (!values.quantity || values.quantity === 0) {
-    errors.quantity = 'Quantity is require'
+    errors.quantity = 'Quantity is required'
   }
   if (values.quantity && values.price) {
     if (values.total < values.minNotional) {

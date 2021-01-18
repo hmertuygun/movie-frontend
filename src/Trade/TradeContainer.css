@@ -9,8 +9,8 @@
   width: 288px;
   padding: 1rem;
 
-  background: var(--trade-background);
-  color: var(--trade-color);
+  background: #FFFFFF;
+  color: #000000;
 
   min-height: 100vh;
   flex-grow: 0;
