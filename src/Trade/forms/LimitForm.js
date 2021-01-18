@@ -1,5 +1,4 @@
 import React, { Fragment, useState, useEffect, useContext } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
@@ -9,7 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
 
-import { Typography, InlineInput, Button, Icon } from '../../components'
+import { Typography, InlineInput, Button } from '../../components'
+
+import validate from '../../components/Validation/Validation'
 
 import styles from './LimitForm.module.css'
 
@@ -29,6 +30,9 @@ function LimitForm() {
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
   const [isValid, setIsValid] = useState(false)
+  const [errors, setErrors] = useState({})
+  const [validationFields, setValidationFields] = useState({})
+
   const marks = {
     0: '',
     25: '',
@@ -55,7 +59,26 @@ function LimitForm() {
     calculatePercentageQuantity('quantityPercentage', value)
   }
 
-  const handleBlur = () => {
+  const handleBlur = (evt) => {
+    if (price) {
+      /*       if (!price && !quantity) {
+        return false
+      } */
+
+      if (quantity) {
+        if (!price || !quantity) {
+          return false
+        }
+        setErrors(validate(validationFields))
+      }
+    }
+
+    if (quantity) {
+      if (price) {
+        setErrors(validate(validationFields))
+      }
+    }
+
     if (quantityPercentage < 0) {
       setQuantityPercentage(0)
       calculatePercentageQuantity('quantityPercentage', 0)
@@ -88,19 +111,78 @@ function LimitForm() {
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
+      setValidationFields((validationFields) => ({
+        ...validationFields,
+        price,
+        quantity,
+        total: quantity * price,
+        balance: balance,
+        minNotional: selectedSymbolDetail.minNotional,
+        maxPrice: selectedSymbolDetail.maxPrice,
+        minPrice: selectedSymbolDetail.minPrice,
+        maxQty: selectedSymbolDetail.maxQty,
+        minQty: selectedSymbolDetail.minQty,
+      }))
+
       if (!price || !quantity) {
         return false
       }
 
-      const canAfford = total <= balance
-      setIsValid(canAfford && price && quantity)
+      /*       const canAfford = total <= balance
+      setIsValid(canAfford && price && quantity) */
     },
-    [total, price, quantity, balance],
+    [
+      total,
+      price,
+      quantity,
+      balance,
+      selectedSymbolDetail.minNotional,
+      setValidationFields,
+    ],
     () => {
       setTotal(0)
       setPrice(0)
     }
   )
+
+  const handleSubmit = (evt) => {
+    evt.preventDefault()
+
+    setErrors(validate(validationFields))
+    const canAfford = total <= balance
+
+    if (canAfford) {
+      setIsValid(true)
+    }
+
+    if (Object.keys(errors).length === 0 && isValid) {
+      const symbol = selectedSymbolDetail['symbolpair']
+      addEntry({ price, quantity, balance, symbol, type: 'limit' })
+    }
+  }
+
+  const handleChange = (evt) => {
+    const { name, value } = evt.target
+
+    if (name === 'price') {
+      setPrice(value)
+    }
+    if (name === 'quantity') {
+      setQuantity(value)
+      calculatePercentageQuantity('quantity', value)
+    }
+    if (name === 'total') {
+      setTotal(value)
+    }
+
+    /*     setValidationFields((validationFields) => ({
+      ...validationFields,
+      [name]: value,
+      total: quantity * price,
+      balance: balance,
+      minNotional: selectedSymbolDetail.minNotional,
+    })) */
+  }
 
   return (
     <Fragment>
@@ -132,33 +214,41 @@ function LimitForm() {
       </div>
 
       <section>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            const symbol = selectedSymbolDetail['symbolpair']
-            addEntry({ price, quantity, symbol, type: 'limit' })
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <InlineInput
             label="Price"
             type="number"
-            onChange={(value) => setPrice(value)}
+            name="price"
+            onChange={handleChange}
+            onBlur={handleBlur}
             value={price}
             placeholder="Entry price"
+            //onInput={(value) => restrict(value)}
+            //onInput={restrict}
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
           />
+          {errors.price && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.price}
+            </div>
+          )}
 
           <InlineInput
             label="Amount"
             type="number"
-            onChange={(value) => {
-              setQuantity(value)
-              calculatePercentageQuantity('quantity', value)
-            }}
+            name="quantity"
+            onChange={handleChange}
+            onBlur={handleBlur}
             value={quantity}
             placeholder="Amount"
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
+          {errors.quantity && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.quantity}
+            </div>
+          )}
+
           <div className={styles['SliderRow']}>
             <div className={styles['SliderSlider']}>
               <Slider
@@ -187,15 +277,22 @@ function LimitForm() {
           <InlineInput
             label="Total"
             type="number"
+            name="total"
             value={total}
+            onChange={handleChange}
             placeholder=""
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            disabled
+            //disabled
           />
+          {errors.total && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.total}
+            </div>
+          )}
 
           <Button
             variant="exits"
-            disabled={isValid ? null : 'disabled'}
+            //disabled={isValid ? null : 'disabled'}
             type="submit"
           >
             Set exits >

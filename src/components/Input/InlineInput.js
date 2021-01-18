@@ -11,6 +11,8 @@ const InlineInput = ({
   onChange,
   value,
   small,
+  name,
+  ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const inputId = uniqid()
@@ -36,14 +38,19 @@ const InlineInput = ({
         className={styles.InputElement}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        /*         onChange={(event) => {
+          onChange(event.target)
+        }} */
         onChange={(event) => {
-          onChange(event.target.value)
+          onChange(event)
         }}
         disabled={disabled}
         id={inputId}
         placeholder={placeholder}
         type={type}
         value={value}
+        name={name}
+        {...props}
       ></input>
       <span
         className={small ? styles.InputPostLabelSmall : styles.InputPostLabel}
