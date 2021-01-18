@@ -2,7 +2,8 @@ export default function validateFields(values) {
   let errors = {}
 
   Object.keys(values).forEach(function (el) {
-    values[el] = parseInt(values[el])
+    //values[el] = parseInt(values[el])
+    return values[el]
   })
 
   if (!values.price || values.price === 0) {
@@ -15,7 +16,7 @@ export default function validateFields(values) {
     errors.price = 'Price needs to meet min-price-total'
   }
 
-  if (!values.quantity || values.quantity === 0) {
+  if (!values.quantity || values.price === 0) {
     errors.quantity = 'Quantity is require'
   }
   if (values.quantity && values.price) {
