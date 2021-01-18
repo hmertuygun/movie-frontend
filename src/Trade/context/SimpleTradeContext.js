@@ -74,7 +74,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     quantity,
     profit,
     symbol,
-    type = 'market',
+    type = 'stopmarket',
     side = 'sell',
   }) => {
     const targets = state.targets || []
