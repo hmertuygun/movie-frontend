@@ -15,7 +15,7 @@ const TradeChart = () => {
 
   return (
     <TradingViewWidget
-      symbol={selectedSymbol['value']}
+      symbol={selectedSymbol['value'] || ''}
       theme={Themes.LIGHT}
       hide_side_toolbar={false}
       autosize={true}
