@@ -3,7 +3,7 @@ import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/Validation'
+import validate from '../../components/Validation/MarketValidation'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -12,14 +12,14 @@ import styles from './ExitTargetForm.module.css'
 
 const useStyles = makeStyles({
   root: {
-    width: 330,
+    width: 255,
   },
   slider: {
-    width: 200,
+    width: 120,
     vertiicalAlign: 'middle',
   },
   input: {
-    width: 42,
+    width: 30,
   },
 })
 
@@ -39,7 +39,7 @@ const ExitTarget = () => {
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
-  const { addTarget, state } = useContext(TradeContext)
+  const { addTarget, addStopMarketTarget, state } = useContext(TradeContext)
   // ingoing value
   const { entry } = state
 
@@ -277,7 +277,117 @@ const ExitTarget = () => {
           </Button>
         </form>
       </section>
-      <Typography as="h3">Not available yet.</Typography>
+      <section style={{ marginTop: '2rem' }}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            setErrors(validate(validationFields))
+            const symbol = selectedSymbolDetail['symbolpair']
+            addStopMarketTarget({
+              price,
+              quantity,
+              profit,
+              symbol,
+            })
+          }}
+        >
+          <InlineInput
+            label="Trigger Price"
+            type="number"
+            name="price"
+            onChange={handleChange}
+            /*             onChange={(value) => {
+              setPrice(value)
+              priceAndProfitSync('price', value)
+            }} */
+            value={price}
+            placeholder="Target price"
+            postLabel={selectedSymbolDetail['quote_asset']}
+          />
+
+          <div className={classes.root}>
+            <div className={styles['SliderRow']}>
+            <div className={styles['SliderText']}>
+                <Typography>
+                Profit
+                </Typography>
+            </div>
+             <div className={styles['SliderSlider']}>
+                <Slider
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleSliderChange}
+                  value={profit}
+                /> 
+              </div>
+            <div className={styles['SliderInput']}>
+                <InlineInput
+                  value={profit}
+                  margin="dense"
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  postLabel={'%'}
+                />
+              </div>
+          </div>
+          </div>
+
+          <InlineInput
+            label="Quantity"
+            type="number"
+            name="quantity"
+            /*             onChange={(value) => {
+              priceAndProfitSync('quantity', value)
+              setQuantity(value)
+            }} */
+            onChange={handleChange}
+            value={quantity}
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs className={classes.slider}>
+                <Slider
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleQPSliderChange}
+                  value={quantityPercentage}
+                />
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={quantityPercentage}
+                  margin="dense"
+                  onChange={handleQPInputChange}
+                  onBlur={handleQPBlur}
+                  postLabel={'%'}
+                />
+              </Grid>
+            </Grid>
+            {errors.total && (
+              <div className="error" style={{ color: 'red' }}>
+                {errors.total}
+              </div>
+            )}
+          </div>
+
+          <Button
+            disabled={isValid ? false : 'disabled'}
+            variant="buy"
+            type="submit"
+          >
+            Add Target
+          </Button>
+        </form>
+      </section>
     </TabNavigator>
   )
 }

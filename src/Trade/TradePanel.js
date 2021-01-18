@@ -14,6 +14,7 @@ import TradeModal from './components/TradeModal/TradeModal'
 import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
+import MarketForm from './forms/MarketForm'
 import ExitStoploss from './forms/ExitStoploss'
 import ExitTarget from './forms/ExitTarget'
 
@@ -26,7 +27,7 @@ const TradePanel = () => (
 const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const hasEntry = state.entry?.price > 0 ? true : false
+  const hasEntry = state.entry?.quantity > 0 ? true : false
 
   function checkAllTypes() {
     const targets = state && state.targets && state.targets[0].quantity > 0
@@ -68,9 +69,7 @@ const Trade = () => {
             {!hasEntry && (
               <TabNavigator labelArray={['Limit', 'Market', 'Stop Limit']}>
                 <LimitForm />
-                <div style={{ marginTop: '4rem' }}>
-                  <Typography as="h3">Not available</Typography>
-                </div>
+                <MarketForm />
                 <div style={{ marginTop: '4rem' }}>
                   <Typography as="h3">Not available</Typography>
                 </div>

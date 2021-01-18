@@ -11,14 +11,14 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
   root: {
-    width: 330,
+    width: 255,
   },
   slider: {
-    width: 200,
+    width: 160,
     vertiicalAlign: 'middle',
   },
   input: {
-    width: 42,
+    width: 30,
   },
 })
 
@@ -29,7 +29,7 @@ const ExitStoploss = () => {
     selectedSymbolBalance,
   } = useSymbolContext()
   const balance = selectedSymbolBalance
-  const { state, addStoploss } = useContext(TradeContext)
+  const { state, addStoploss, addStoplossMarket } = useContext(TradeContext)
   const { entry } = state
   const [triggerPrice, setTriggerPrice] = useState(entry.price)
   const [price, setPrice] = useState('')
@@ -125,7 +125,7 @@ const ExitStoploss = () => {
         type: 'stoploss',
       }))
 
-      if (triggerPrice && price && quantity) {
+      if (triggerPrice && quantity) {
         setIsValid(true)
       } else {
         setIsValid(false)
@@ -319,7 +319,129 @@ const ExitStoploss = () => {
         </form>
       </section>
       <div style={{ marginTop: '2rem' }}>
-        <Typography as="h3">Not available yet</Typography>
+        <section style={{ marginTop: '2rem' }}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+
+            setErrors(validate(validationFields))
+
+            const canAfford = total <= balance
+
+            if (canAfford) {
+              setIsValid(true)
+            }
+
+            if (Object.keys(errors).length === 0) {
+              const symbol = selectedSymbolDetail['symbolpair']
+              addStoplossMarket({
+                triggerPrice,
+                profit,
+                quantity,
+                quantityPercentage,
+                symbol,
+              })
+            }
+          }}
+        >
+          <InlineInput
+            label="Trigger price"
+            type="number"
+            placeholder="Trigger price"
+            value={triggerPrice}
+            name="triggerPrice"
+            /*             onChange={(value) => {
+              setTriggerPrice(value)
+              priceAndProfitSync('triggerPrice', value)
+            }} */
+            onChange={handleChange}
+            onBlur={handleBlur}
+            postLabel={selectedSymbolDetail['quote_asset']}
+          />
+
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item>
+                <Typography>Profit</Typography>
+              </Grid>
+              <Grid item xs className={classes.slider}>
+                <Slider
+                  reverse
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleSliderChange}
+                  value={0 - profit}
+                />
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={profit}
+                  margin="dense"
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  postLabel={'%'}
+                />
+              </Grid>
+            </Grid>
+          </div>
+
+          <InlineInput
+            label="Amount"
+            type="number"
+            name="quantity"
+            /*             onChange={(value) => {
+              setQuantity(value)
+              priceAndProfitSync('quantity', value)
+            }} */
+            onChange={handleChange}
+            value={quantity}
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+
+          <div className={classes.root}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs className={classes.slider}>
+                <Slider
+                  defaultValue={0}
+                  step={1}
+                  marks={marks}
+                  min={0}
+                  max={100}
+                  onChange={handleQPSliderChange}
+                  value={quantityPercentage}
+                />
+              </Grid>
+              <Grid item>
+                <InlineInput
+                  className={classes.input}
+                  value={quantityPercentage}
+                  margin="dense"
+                  onChange={handleQPInputChange}
+                  onBlur={handleQPBlur}
+                  postLabel={'%'}
+                />
+              </Grid>
+            </Grid>
+            {errors.total && (
+              <div className="error" style={{ color: 'red' }}>
+                {errors.total}
+              </div>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isValid ? null : 'disabled'}
+            variant="sell"
+          >
+            Add Stop-loss
+          </Button>
+        </form>
+      </section>
       </div>
     </TabNavigator>
   )
