@@ -1,10 +1,9 @@
 export default function validateFields(values) {
-  console.log('validateFields called --> ', values)
   let errors = {}
 
-  /*   Object.keys(values).forEach(function (el) {
+  Object.keys(values).forEach(function (el) {
     values[el] = parseInt(values[el])
-  }) */
+  })
 
   if (!values.price || values.price < 1) {
     errors.price = 'Price is require'
@@ -23,3 +22,23 @@ export default function validateFields(values) {
 
   return errors
 }
+
+/*
+
+
+
+  if (values.type === 'stoploss')
+    console.log('validateFields called --> ', values.type)
+  console.log('validateFields called --> ', values.validationFields)
+
+  Object.keys(values.validationFields).forEach(function (el) {
+    values.validationFields[el] = parseInt(values.validationFields[el])
+  })
+  console.log('stoploss validation : ', values.validationFields)
+
+  if (values.total > values.balance) {
+    errors.total = 'Total can not exceed your balance.'
+  }
+
+
+*/
