@@ -7,9 +7,11 @@ import Moment from 'react-moment'
 
 const Expandable = ({ entry }) => {
   const [show, setShow] = useState(false)
+  const [loadingOrders, setLoadingOrders] = useState({})
   return (
     <>
       {entry.map((order, rowIndex) => {
+        const isLoading = loadingOrders[rowIndex]
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -34,12 +36,25 @@ const Expandable = ({ entry }) => {
         const cancelColumn =
           rowIndex === 0 && order.type === 'Full Trade' ? (
             <td
+              className="d-flex align-items-center"
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={() => {
-                cancelTradeOrder(order.trade_id)
+              onClick={async () => {
+                setLoadingOrders({ ...loadingOrders, [rowIndex]: true })
+                try {
+                  await cancelTradeOrder(order.trade_id)
+                } finally {
+                  setLoadingOrders({ ...loadingOrders, [rowIndex]: false })
+                }
               }}
             >
               Cancel
+              {isLoading ? (
+                <span
+                  className="ml-2 spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              ) : null}
             </td>
           ) : null
 

@@ -34,7 +34,11 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                 <td>{order.total}</td>
                 <td>{order.trigger}</td>
                 <td>{order.status}</td>
-                <td><Moment unix format="YYYY-MM-DD hh:mm:ss">{order.update_time/1000}</Moment></td>
+                <td>
+                  <Moment unix format="YYYY-MM-DD hh:mm:ss">
+                    {order.update_time / 1000}
+                  </Moment>
+                </td>
               </tr>
             ))}
           </React.Fragment>
