@@ -51,8 +51,18 @@ const SimpleTradeContextProvider = ({ children }) => {
     type = 'limit',
     side = 'sell',
   }) => {
-    const targets = state.targets || []
+    let total_quantity = 0
+    if (state.targets) {
+      for (let i = 0; i < state.targets.length; i++) {
+        total_quantity = total_quantity + state.targets[i]['quantity']
+      }
+      
+      if (total_quantity + quantity >= state.entry.quantity) {
+        return 
+      }
+    }
 
+    const targets = state.targets || []
     setState({
       ...state,
       targets: [
@@ -77,6 +87,15 @@ const SimpleTradeContextProvider = ({ children }) => {
     type = 'stopmarket',
     side = 'sell',
   }) => {
+    let total_quantity = 0
+    if (state.targets) {
+      for (let i = 0; i < state.targets.length; i++) {
+        total_quantity = total_quantity + state.targets[i]['quantity']
+      }
+      
+      if (total_quantity + quantity >= state.entry.quantity) {
+        return 
+      }}
     const targets = state.targets || []
     const triggerPrice = price
     setState({
@@ -136,7 +155,6 @@ const SimpleTradeContextProvider = ({ children }) => {
     setState({
       ...state,
       stoploss: [
-        ...stoploss,
         {
           profit,
           triggerPrice,

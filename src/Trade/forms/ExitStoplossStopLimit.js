@@ -22,16 +22,17 @@ const useStyles = makeStyles({
   },
 })
 
-const ExitStoploss = () => {
+const ExitStoplossStopLimit = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
+    selectedSymbolLastPrice
   } = useSymbolContext()
   const balance = selectedSymbolBalance
-  const { state, addStoploss, addStoplossMarket } = useContext(TradeContext)
+  const { state, addStoploss} = useContext(TradeContext)
   const { entry } = state
-  const [triggerPrice, setTriggerPrice] = useState(entry.price)
+  const [triggerPrice, setTriggerPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -63,10 +64,10 @@ const ExitStoploss = () => {
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage < 0) {
+    if (quantityPercentage > 0) {
       setProfit(0)
       priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage > 100) {
+    } else if (quantityPercentage < -100) {
       setProfit(100)
       priceAndProfitSync('profit', 100)
     }
@@ -144,31 +145,32 @@ const ExitStoploss = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
+    let usePrice = (entry.type == "market" ? selectedSymbolLastPrice : entry.price)
     switch (inputChanged) {
       case 'triggerPrice':
         return true
 
       case 'price':
-        const diff = entry.price - value
+        const diff = usePrice - value
         const percentage = roundNumbers((diff / entry.price) * 100, 2)
         setProfit(-percentage)
         return true
 
       case 'profit':
         // check if negative
-        const newPrice = entry.price * (-value / 100)
-        setPrice(entry.price - newPrice)
+        const newPrice = usePrice * (-value / 100)
+        setPrice(roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize']))
         return false
 
       case 'quantity':
         if (value <= entry.quantity) {
-          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 4))
+          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
         }
         return false
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * value) / 100
-        setQuantity(roundNumbers(theQuantity, 6))
+        setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
         return false
 
       default: {
@@ -178,7 +180,6 @@ const ExitStoploss = () => {
   }
 
   return (
-    <TabNavigator labelArray={['Stop-limit', 'Stop-market']} index={0}>
       <section style={{ marginTop: '2rem' }}>
         <form
           onSubmit={(e) => {
@@ -260,6 +261,7 @@ const ExitStoploss = () => {
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   postLabel={'%'}
+                  name="profit"
                 />
               </Grid>
             </Grid>
@@ -318,133 +320,7 @@ const ExitStoploss = () => {
           </Button>
         </form>
       </section>
-      <div style={{ marginTop: '2rem' }}>
-        <section style={{ marginTop: '2rem' }}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-
-            setErrors(validate(validationFields))
-
-            const canAfford = total <= balance
-
-            if (canAfford) {
-              setIsValid(true)
-            }
-
-            if (Object.keys(errors).length === 0) {
-              const symbol = selectedSymbolDetail['symbolpair']
-              addStoplossMarket({
-                triggerPrice,
-                profit,
-                quantity,
-                quantityPercentage,
-                symbol,
-              })
-            }
-          }}
-        >
-          <InlineInput
-            label="Trigger price"
-            type="number"
-            placeholder="Trigger price"
-            value={triggerPrice}
-            name="triggerPrice"
-            /*             onChange={(value) => {
-              setTriggerPrice(value)
-              priceAndProfitSync('triggerPrice', value)
-            }} */
-            onChange={handleChange}
-            onBlur={handleBlur}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
-
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Typography>Profit</Typography>
-              </Grid>
-              <Grid item xs className={classes.slider}>
-                <Slider
-                  reverse
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleSliderChange}
-                  value={0 - profit}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={profit}
-                  margin="dense"
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
-          </div>
-
-          <InlineInput
-            label="Amount"
-            type="number"
-            name="quantity"
-            /*             onChange={(value) => {
-              setQuantity(value)
-              priceAndProfitSync('quantity', value)
-            }} */
-            onChange={handleChange}
-            value={quantity}
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
-
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs className={classes.slider}>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={quantityPercentage}
-                  margin="dense"
-                  onChange={handleQPInputChange}
-                  onBlur={handleQPBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
-            {errors.total && (
-              <div className="error" style={{ color: 'red' }}>
-                {errors.total}
-              </div>
-            )}
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isValid ? null : 'disabled'}
-            variant="sell"
-          >
-            Add Stop-loss
-          </Button>
-        </form>
-      </section>
-      </div>
-    </TabNavigator>
   )
 }
 
-export default ExitStoploss
+export default ExitStoplossStopLimit

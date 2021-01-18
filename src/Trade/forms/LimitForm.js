@@ -2,6 +2,8 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
+import roundNumbers from '../../helpers/roundNumbers'
+
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -20,10 +22,11 @@ function LimitForm() {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    selectedSymbolLastPrice
   } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState(roundNumbers(selectedSymbolLastPrice,selectedSymbolDetail['tickSize']))
   // @TOOD:
   // Remove amount, and leave only quantity
   const [quantity, setQuantity] = useState('')
@@ -102,9 +105,12 @@ function LimitForm() {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = cost / price
+      const howManyBTC = roundNumbers(cost / price, selectedSymbolDetail['lotSize'])
+
       setQuantity(howManyBTC)
-      setTotal(howManyBTC * price)
+      setTotal(
+        roundNumbers(howManyBTC * price, selectedSymbolDetail['tickSize'])
+        )
     }
   }
 
@@ -147,15 +153,15 @@ function LimitForm() {
 
   const handleSubmit = (evt) => {
     evt.preventDefault()
-
-    setErrors(validate(validationFields))
+    const x = validate(validationFields)
+    setErrors(x)
     const canAfford = total <= balance
 
     if (canAfford) {
       setIsValid(true)
     }
 
-    if (Object.keys(errors).length === 0 && canAfford) {
+    if (Object.keys(x).length === 0 && canAfford) {
       const symbol = selectedSymbolDetail['symbolpair']
       addEntry({ price, quantity, balance, symbol, type: 'limit' })
     }
@@ -187,18 +193,13 @@ function LimitForm() {
   return (
     <Fragment>
       <div style={{ marginTop: '2rem' }}>
-        <Typography as="h3">1. Entry</Typography>
-      </div>
-
-      <div>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
         {isLoadingBalance
           ? ' '
-          : round(
-              selectedSymbolBalance,
-              selectedSymbolDetail['quote_asset_precision']
-            )}
+          : 
+              selectedSymbolBalance
+            }
         {'  '}
         {selectedSymbolDetail['quote_asset']}
         {'  '}

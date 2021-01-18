@@ -100,6 +100,20 @@ export async function getBalance(symbol) {
   return response
 }
 
+
+export async function getLastPrice(symbol) {
+  const apiUrl = process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response
+}
+
+
 // {
 //   "apiKey": "FriendshipIsMagic",
 //   "signSecret": "Tralalala",

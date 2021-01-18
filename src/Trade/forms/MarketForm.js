@@ -2,6 +2,8 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
+import roundNumbers from '../../helpers/roundNumbers'
+
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -20,10 +22,11 @@ function MarketForm() {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
+    selectedSymbolLastPrice
   } = useSymbolContext()
   const { addMarketEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
-  const [price, setPrice] = useState('')
   // @TOOD:
   // Remove amount, and leave only quantity
   const [quantity, setQuantity] = useState('')
@@ -60,39 +63,45 @@ function MarketForm() {
   }
 
   const handleBlur = (evt) => {
+    console.log("blurrring")
     if (quantity) {
         setErrors(validate(validationFields))
+        console.log("SETTING ERRRORS")
     }
   }
 
   const calculatePercentageQuantity = (inputChanged, value) => {
-    if (!price) {
+    if (!selectedSymbolLastPrice) {
       return false
     }
 
     if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * price) / balance) * 100)
-      setTotal(value * price)
+      setQuantityPercentage(((value * selectedSymbolLastPrice) / balance) * 100)
+      setTotal(
+        roundNumbers(value * selectedSymbolLastPrice, selectedSymbolDetail['tickSize']))
     }
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = cost / price
+      const howManyBTC = roundNumbers(cost / selectedSymbolLastPrice, selectedSymbolDetail['lotSize'])
       setQuantity(howManyBTC)
-      setTotal(howManyBTC * price)
+      setTotal(
+        roundNumbers(howManyBTC * selectedSymbolLastPrice, selectedSymbolDetail['tickSize'])
+      )
     }
   }
 
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
+      
       setValidationFields((validationFields) => ({
         ...validationFields,
-        price,
+        selectedSymbolLastPrice,
         quantity,
-        total: quantity * price,
+        total: quantity * selectedSymbolLastPrice,
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         maxPrice: selectedSymbolDetail.maxPrice,
@@ -105,8 +114,10 @@ function MarketForm() {
         return false
       }
 
-      /*       const canAfford = total <= balance
-      setIsValid(canAfford && price && quantity) */
+      let checkTotal = quantity * selectedSymbolLastPrice
+
+      const canAfford = checkTotal <= balance
+      setIsValid(canAfford && quantity)
     },
     [
       total,
@@ -114,27 +125,25 @@ function MarketForm() {
       balance,
       selectedSymbolDetail.minNotional,
       setValidationFields,
+      selectedSymbolLastPrice
     ],
     () => {
       setTotal(0)
-      setPrice(0)
-    }
+    } 
   )
 
   const handleSubmit = (evt) => {
     evt.preventDefault()
-
-    setErrors(validate(validationFields))
-    /*
+    const x = validate(validationFields)
+    setErrors(x)
     const canAfford = total <= balance
 
     if (canAfford) {
       setIsValid(true)
     }
-    */
-    setIsValid(true)
 
-    if (Object.keys(errors).length === 0) {
+    if (Object.keys(x).length === 0 && canAfford) {
+      console.log(Object.keys(errors).length)
       const symbol = selectedSymbolDetail['symbolpair']
       addMarketEntry({ quantity, balance, symbol, type: 'market' })
     }
@@ -142,12 +151,10 @@ function MarketForm() {
 
   const handleChange = (evt) => {
     const { name, value } = evt.target
-
-    if (name === 'price') {
-      setPrice(value)
-    }
+    console.log(name)
     if (name === 'quantity') {
       setQuantity(value)
+      console.log('setting quantity')
       calculatePercentageQuantity('quantity', value)
     }
     if (name === 'total') {
@@ -166,18 +173,11 @@ function MarketForm() {
   return (
     <Fragment>
       <div style={{ marginTop: '2rem' }}>
-        <Typography as="h3">1. Entry</Typography>
-      </div>
-
-      <div>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
         {isLoadingBalance
           ? ' '
-          : round(
-              selectedSymbolBalance,
-              selectedSymbolDetail['quote_asset_precision']
-            )}
+          : selectedSymbolBalance}
         {'  '}
         {selectedSymbolDetail['quote_asset']}
         {'  '}
@@ -236,7 +236,7 @@ function MarketForm() {
                 max={100}
                 onChange={handleSliderChange}
                 value={quantityPercentage}
-                disabled
+                
               />
             </div>
 
@@ -248,11 +248,24 @@ function MarketForm() {
                 onBlur={handleBlur}
                 postLabel={'%'}
                 small
-                disabled
+                
               />
             </div>
           </div>
-
+          <InlineInput
+            label="Total"
+            type="number"
+            name="total"
+            value={total}
+            placeholder=""
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            disabled
+          />
+          {errors.total && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.total}
+            </div>
+          )}
           <Button
             variant="exits"
             //disabled={isValid ? null : 'disabled'}

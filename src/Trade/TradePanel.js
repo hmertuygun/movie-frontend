@@ -1,6 +1,7 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
+import { SymbolContext } from './context/SymbolContext'
 import {
   TabNavigator,
   ButtonNavigator,
@@ -15,8 +16,10 @@ import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
 import MarketForm from './forms/MarketForm'
-import ExitStoploss from './forms/ExitStoploss'
+import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
+import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
 import ExitTarget from './forms/ExitTarget'
+import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -27,11 +30,12 @@ const TradePanel = () => (
 const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
+  const { selectedSymbol } = useContext(SymbolContext)
   const hasEntry = state.entry?.quantity > 0 ? true : false
 
   function checkAllTypes() {
-    const targets = state && state.targets && state.targets[0].quantity > 0
-    const stoploss = state && state.stoploss && state.stoploss[0].quantity > 0
+    const targets = state && state.targets && state.targets.length > 0 && state.targets[0].quantity > 0
+    const stoploss = state && state.stoploss && state.stoploss.length > 0 && state.stoploss[0].quantity > 0
 
     return targets && stoploss && hasEntry
   }
@@ -50,6 +54,10 @@ const Trade = () => {
     }
   }
 
+  useEffect(() => {
+    clear()
+  }, [selectedSymbol])
+
   return (
     <Fragment>
       <section>
@@ -67,12 +75,9 @@ const Trade = () => {
             )}
 
             {!hasEntry && (
-              <TabNavigator labelArray={['Limit', 'Market', 'Stop Limit']}>
+              <TabNavigator labelArray={['Limit', 'Market']}>
                 <LimitForm />
                 <MarketForm />
-                <div style={{ marginTop: '4rem' }}>
-                  <Typography as="h3">Not available</Typography>
-                </div>
               </TabNavigator>
             )}
 
@@ -80,8 +85,14 @@ const Trade = () => {
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
-                  <ExitTarget />
-                  <ExitStoploss />
+                  <TabNavigator labelArray={['Limit', 'Stop-market']}>
+                    <ExitTarget />
+                    <ExitTargetStopMarket />
+                  </TabNavigator>
+                  <TabNavigator labelArray={['Stop-limit', 'Stop-market']} index={0}>
+                    <ExitStoplossStopLimit />
+                    <ExitStoplossStopMarket />
+                  </TabNavigator>
                 </ButtonNavigator>
               </Fragment>
             )}
