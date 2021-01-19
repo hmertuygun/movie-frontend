@@ -3,7 +3,7 @@ import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/Validation'
+import validate from '../../components/Validation/LimitValidation'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -27,13 +27,29 @@ const ExitStoplossStopLimit = () => {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
-    selectedSymbolLastPrice
+    selectedSymbolLastPrice,
   } = useSymbolContext()
   const balance = selectedSymbolBalance
-  const { state, addStoploss} = useContext(TradeContext)
+  const { state, addStoploss } = useContext(TradeContext)
   const { entry } = state
-  const [triggerPrice, setTriggerPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
-  const [price, setPrice] = useState('')
+  const [triggerPrice, setTriggerPrice] = useState(
+    roundNumbers(
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
+  const [entryPrice, setEntryPrice] = useState(
+    roundNumbers(
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
+  const [price, setPrice] = useState(
+    roundNumbers(
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
   const [profit, setProfit] = useState('')
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
@@ -44,6 +60,7 @@ const ExitStoplossStopLimit = () => {
 
   const classes = useStyles()
   const marks = {
+    100: '100',
     '-100': '',
     '-75': '',
     '-50': '',
@@ -74,6 +91,7 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleQPSliderChange = (newValue) => {
+    console.log('handleQPSliderChange func ', newValue)
     setQuantityPercentage(newValue)
     priceAndProfitSync('quantityPercentage', newValue)
   }
@@ -116,8 +134,11 @@ const ExitStoplossStopLimit = () => {
 
   useEffect(
     () => {
+      setQuantityPercentage(100)
       setValidationFields((validationFields) => ({
         ...validationFields,
+        entryPrice,
+        triggerPrice,
         price,
         quantity,
         total,
@@ -133,6 +154,7 @@ const ExitStoplossStopLimit = () => {
       }
     },
     [
+      setQuantityPercentage,
       triggerPrice,
       price,
       quantity,
@@ -145,7 +167,8 @@ const ExitStoplossStopLimit = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
-    let usePrice = (entry.type == "market" ? selectedSymbolLastPrice : entry.price)
+    let usePrice =
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
     switch (inputChanged) {
       case 'triggerPrice':
         return true
@@ -153,14 +176,16 @@ const ExitStoplossStopLimit = () => {
       case 'price':
         const diff = usePrice - value
         const percentage = roundNumbers((diff / usePrice) * 100, 2)
-        console.log("settiing profit " + percentage)
-        setProfit(0-percentage)
+        console.log('settiing profit ' + percentage)
+        setProfit(0 - percentage)
         return true
 
       case 'profit':
         // check if negative
         const newPrice = usePrice * (-value / 100)
-        setPrice(roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize']))
+        setPrice(
+          roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize'])
+        )
         return false
 
       case 'quantity':
@@ -181,146 +206,169 @@ const ExitStoplossStopLimit = () => {
   }
 
   return (
-      <section style={{ marginTop: '2rem' }}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
+    <section style={{ marginTop: '2rem' }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
 
-            setErrors(validate(validationFields))
+          /*           setErrors(validate(validationFields))
 
-            const canAfford = total <= balance
+          const canAfford = total <= balance
 
-            if (canAfford) {
-              setIsValid(true)
-            }
+          if (canAfford) {
+            setIsValid(true)
+          } */
 
-            if (Object.keys(errors).length === 0 && isValid) {
-              const symbol = selectedSymbolDetail['symbolpair']
-              addStoploss({
-                price,
-                triggerPrice,
-                profit,
-                quantity,
-                quantityPercentage,
-                symbol,
-              })
-            }
-          }}
-        >
-          <InlineInput
-            label="Trigger price"
-            type="number"
-            placeholder="Trigger price"
-            value={triggerPrice}
-            name="triggerPrice"
-            /*             onChange={(value) => {
-              setTriggerPrice(value)
-              priceAndProfitSync('triggerPrice', value)
-            }} */
-            onChange={handleChange}
-            onBlur={handleBlur}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
+          console.log('handleSubmit ExitStopLimit')
 
-          <InlineInput
-            label="Price"
-            type="number"
-            placeholder="price"
-            name="price"
-            /*             onChange={(value) => {
+          const x = validate(validationFields)
+          setErrors(x)
+
+          console.log('errors submit ', x)
+
+          console.log('isValid submit ', isValid)
+
+          const canAfford = total <= balance
+
+          if (canAfford) {
+            setIsValid(true)
+          }
+
+          console.log('errors length submit ', Object.keys(x).length)
+
+          if (Object.keys(x).length === 0 && isValid) {
+            const symbol = selectedSymbolDetail['symbolpair']
+            addStoploss({
+              price,
+              triggerPrice,
+              profit,
+              quantity,
+              quantityPercentage,
+              symbol,
+            })
+          }
+        }}
+      >
+        <InlineInput
+          label="Trigger price"
+          type="number"
+          placeholder="Trigger price"
+          value={triggerPrice}
+          name="triggerPrice"
+          onChange={handleChange}
+          onBlur={handleBlur}
+          postLabel={selectedSymbolDetail['quote_asset']}
+        />
+        {errors.triggerPrice && (
+          <div className="error" style={{ color: 'red' }}>
+            {errors.triggerPrice}
+          </div>
+        )}
+
+        <InlineInput
+          label="Price"
+          type="number"
+          placeholder="price"
+          name="price"
+          /*             onChange={(value) => {
               setPrice(value)
               priceAndProfitSync('price', value)
             }} */
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={price}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
-
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Typography>Profit</Typography>
-              </Grid>
-              <Grid item xs className={classes.slider}>
-                <Slider
-                  reverse
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleSliderChange}
-                  value={0 - profit}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={profit}
-                  margin="dense"
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  postLabel={'%'}
-                  name="profit"
-                />
-              </Grid>
-            </Grid>
+          onChange={handleChange}
+          onBlur={handleBlur}
+          value={price}
+          postLabel={selectedSymbolDetail['quote_asset']}
+        />
+        {errors.price && (
+          <div className="error" style={{ color: 'red' }}>
+            {errors.price}
           </div>
+        )}
 
-          <InlineInput
-            label="Amount"
-            type="number"
-            name="quantity"
-            /*             onChange={(value) => {
+        <div className={classes.root}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <Typography>Profit</Typography>
+            </Grid>
+            <Grid item xs className={classes.slider}>
+              <Slider
+                reverse
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleSliderChange}
+                value={0 - profit}
+              />
+            </Grid>
+            <Grid item>
+              <InlineInput
+                className={classes.input}
+                value={profit}
+                margin="dense"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                postLabel={'%'}
+                name="profit"
+              />
+            </Grid>
+          </Grid>
+        </div>
+
+        <InlineInput
+          label="Amount"
+          type="number"
+          name="quantity"
+          /*             onChange={(value) => {
               setQuantity(value)
               priceAndProfitSync('quantity', value)
             }} */
-            onChange={handleChange}
-            value={quantity}
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
+          onChange={handleChange}
+          value={quantity}
+          postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+        />
 
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs className={classes.slider}>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={quantityPercentage}
-                  margin="dense"
-                  onChange={handleQPInputChange}
-                  onBlur={handleQPBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
+        <div className={classes.root}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs className={classes.slider}>
+              <Slider
+                defaultValue={1}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleQPSliderChange}
+                value={quantityPercentage}
+              />
             </Grid>
-            {errors.total && (
-              <div className="error" style={{ color: 'red' }}>
-                {errors.total}
-              </div>
-            )}
-          </div>
+            <Grid item>
+              <InlineInput
+                className={classes.input}
+                value={quantityPercentage}
+                margin="dense"
+                onChange={handleQPInputChange}
+                onBlur={handleQPBlur}
+                postLabel={'%'}
+              />
+            </Grid>
+          </Grid>
+          {errors.total && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.total}
+            </div>
+          )}
+        </div>
 
-          <Button
-            type="submit"
-            disabled={isValid ? null : 'disabled'}
-            variant="sell"
-          >
-            Add Stop-loss
-          </Button>
-        </form>
-      </section>
+        <Button
+          type="submit"
+          disabled={isValid ? null : 'disabled'}
+          variant="sell"
+        >
+          Add Stop-loss
+        </Button>
+      </form>
+    </section>
   )
 }
 

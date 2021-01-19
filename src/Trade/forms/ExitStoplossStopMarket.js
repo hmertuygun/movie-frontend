@@ -27,12 +27,17 @@ const ExitStoplossStopMarket = () => {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
-    selectedSymbolLastPrice
+    selectedSymbolLastPrice,
   } = useSymbolContext()
   const balance = selectedSymbolBalance
   const { state, addStoploss, addStoplossMarket } = useContext(TradeContext)
   const { entry } = state
-  const [triggerPrice, setTriggerPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
+  const [triggerPrice, setTriggerPrice] = useState(
+    roundNumbers(
+      entry.type == 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -141,8 +146,9 @@ const ExitStoplossStopMarket = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
-    let usePrice = (entry.type == "market" ? selectedSymbolLastPrice : entry.price)
-    
+    let usePrice =
+      entry.type == 'market' ? selectedSymbolLastPrice : entry.price
+
     switch (inputChanged) {
       case 'triggerPrice':
         return true
@@ -156,7 +162,9 @@ const ExitStoplossStopMarket = () => {
       case 'profit':
         // check if negative
         const newPrice = usePrice * (-value / 100)
-        setTriggerPrice(roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize']))
+        setTriggerPrice(
+          roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize'])
+        )
         return false
 
       case 'quantity':
@@ -177,8 +185,8 @@ const ExitStoplossStopMarket = () => {
   }
 
   return (
-      <div style={{ marginTop: '2rem' }}>
-        <section style={{ marginTop: '2rem' }}>
+    <div style={{ marginTop: '2rem' }}>
+      <section style={{ marginTop: '2rem' }}>
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -301,7 +309,7 @@ const ExitStoplossStopMarket = () => {
           </Button>
         </form>
       </section>
-      </div>
+    </div>
   )
 }
 

@@ -33,7 +33,7 @@ export default function validateFields(values) {
       errors.total = 'Total needs to meet min-trading-total'
     }
     if (values.total > values.balance) {
-      errors.total = 'Total can not exceed your balance.'
+      errors.total = 'Total cannot not exceed your balance.'
     }
   }
 

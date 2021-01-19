@@ -28,7 +28,7 @@ const ExitTargetStopMarket = () => {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
-    selectedSymbolLastPrice
+    selectedSymbolLastPrice,
   } = useSymbolContext()
   const balance = selectedSymbolBalance
 
@@ -43,7 +43,12 @@ const ExitTargetStopMarket = () => {
   const { addTarget, addStopMarketTarget, state } = useContext(TradeContext)
   // ingoing value
   const { entry } = state
-  const [price, setPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
+  const [price, setPrice] = useState(
+    roundNumbers(
+      entry.type == 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
 
   const classes = useStyles()
   const marks = {
@@ -141,7 +146,8 @@ const ExitTargetStopMarket = () => {
 
   // PRICE and PROFIT Sync
   const priceAndProfitSync = (inputChanged, value) => {
-    let usePrice = (entry.type == "market" ? selectedSymbolLastPrice : entry.price)
+    let usePrice =
+      entry.type == 'market' ? selectedSymbolLastPrice : entry.price
 
     if (inputChanged === 'price' && value > usePrice) {
       // set profit %
@@ -150,11 +156,21 @@ const ExitTargetStopMarket = () => {
     }
 
     if (inputChanged === 'profit') {
-      setPrice(roundNumbers(usePrice * (1 + value / 100), selectedSymbolDetail['tickSize']))
+      setPrice(
+        roundNumbers(
+          usePrice * (1 + value / 100),
+          selectedSymbolDetail['tickSize']
+        )
+      )
     }
 
     if (inputChanged === 'quantity' && value <= entry.quantity) {
-      setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, selectedSymbolDetail['lotSize']))
+      setQuantityPercentage(
+        roundNumbers(
+          (value / entry.quantity) * 100,
+          selectedSymbolDetail['lotSize']
+        )
+      )
     }
 
     if (
@@ -169,117 +185,115 @@ const ExitTargetStopMarket = () => {
   }
 
   return (
-      <section style={{ marginTop: '2rem' }}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            setErrors(validate(validationFields))
-            const symbol = selectedSymbolDetail['symbolpair']
-            addStopMarketTarget({
-              price,
-              quantity,
-              profit,
-              symbol,
-            })
-          }}
-        >
-          <InlineInput
-            label="Trigger Price"
-            type="number"
-            name="price"
-            onChange={handleChange}
-            /*             onChange={(value) => {
+    <section style={{ marginTop: '2rem' }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          setErrors(validate(validationFields))
+          const symbol = selectedSymbolDetail['symbolpair']
+          addStopMarketTarget({
+            price,
+            quantity,
+            profit,
+            symbol,
+          })
+        }}
+      >
+        <InlineInput
+          label="Trigger Price"
+          type="number"
+          name="price"
+          onChange={handleChange}
+          /*             onChange={(value) => {
               setPrice(value)
               priceAndProfitSync('price', value)
             }} */
-            value={price}
-            placeholder="Target price"
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
+          value={price}
+          placeholder="Target price"
+          postLabel={selectedSymbolDetail['quote_asset']}
+        />
 
-          <div className={classes.root}>
-            <div className={styles['SliderRow']}>
+        <div className={classes.root}>
+          <div className={styles['SliderRow']}>
             <div className={styles['SliderText']}>
-                <Typography>
-                Profit
-                </Typography>
+              <Typography>Profit</Typography>
             </div>
-             <div className={styles['SliderSlider']}>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleSliderChange}
-                  value={profit}
-                /> 
-              </div>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleSliderChange}
+                value={profit}
+              />
+            </div>
             <div className={styles['SliderInput']}>
-                <InlineInput
-                  value={profit}
-                  margin="dense"
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  postLabel={'%'}
-                />
-              </div>
+              <InlineInput
+                value={profit}
+                margin="dense"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                postLabel={'%'}
+              />
+            </div>
           </div>
-          </div>
+        </div>
 
-          <InlineInput
-            label="Quantity"
-            type="number"
-            name="quantity"
-            /*             onChange={(value) => {
+        <InlineInput
+          label="Quantity"
+          type="number"
+          name="quantity"
+          /*             onChange={(value) => {
               priceAndProfitSync('quantity', value)
               setQuantity(value)
             }} */
-            onChange={handleChange}
-            value={quantity}
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
+          onChange={handleChange}
+          value={quantity}
+          postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+        />
 
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs className={classes.slider}>
-                <Slider
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={quantityPercentage}
-                  margin="dense"
-                  onChange={handleQPInputChange}
-                  onBlur={handleQPBlur}
-                  postLabel={'%'}
-                />
-              </Grid>
+        <div className={classes.root}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs className={classes.slider}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleQPSliderChange}
+                value={quantityPercentage}
+              />
             </Grid>
-            {errors.total && (
-              <div className="error" style={{ color: 'red' }}>
-                {errors.total}
-              </div>
-            )}
-          </div>
+            <Grid item>
+              <InlineInput
+                className={classes.input}
+                value={quantityPercentage}
+                margin="dense"
+                onChange={handleQPInputChange}
+                onBlur={handleQPBlur}
+                postLabel={'%'}
+              />
+            </Grid>
+          </Grid>
+          {errors.total && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.total}
+            </div>
+          )}
+        </div>
 
-          <Button
-            disabled={isValid ? false : 'disabled'}
-            variant="buy"
-            type="submit"
-          >
-            Add Target
-          </Button>
-        </form>
-      </section>
+        <Button
+          disabled={isValid ? false : 'disabled'}
+          variant="buy"
+          type="submit"
+        >
+          Add Target
+        </Button>
+      </form>
+    </section>
   )
 }
 
