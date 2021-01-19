@@ -1,8 +1,29 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../../components'
+import { UserContext } from '../../contexts/UserContext'
 
 const QuickConfirm = () => {
+  const { sendEmailAgain } = useContext(UserContext)
+  const [ isLoading, setIsLoading ] = useState(false)
+  const [ status, setStatus ] = useState('')
+
+  function timeout(delay: number) {
+    return new Promise( res => setTimeout(res, delay) );
+  }
+  const sendAgain = async () => {
+    setIsLoading(true)
+    try {
+      const response = await sendEmailAgain()
+    } catch(e) {
+      setStatus('Please wait before trying again.')
+    }
+    
+    await timeout(1000)
+    setStatus('Email resent')
+    setIsLoading(false)
+  }
+
   return (
     <section>
       <div className="container d-flex flex-column">
@@ -21,10 +42,28 @@ const QuickConfirm = () => {
                   email in your inbox, check your spam folder.
                 </p>
 
-                <p className="text-muted mb-0">
-                  Haven't received the email?{' '}
-                  <Link to="/register">Try again</Link>
-                </p>
+                
+                  <div className="mt-4">
+                  <button
+                    onClick={() => sendAgain()}
+                    className="btn btn-block btn-primary"
+                    disabled={isLoading}
+                   > {isLoading ? (
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      'Resend email'
+                    )}
+                  </button>
+
+                  {status ?
+                  <p className="text-sm mt-3 text-danger">{status.message}</p>
+                : <p />}
+
+                </div>
               </div>
             </div>
           </div>

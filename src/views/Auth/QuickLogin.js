@@ -9,6 +9,7 @@ const QuickLogin = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [redirect, setRedirect] = useState('')
   const [type, setType] = useState('password')
   const [isLoading, setLoading] = useState(false)
 
@@ -20,10 +21,17 @@ const QuickLogin = () => {
 
   const doLogin = async () => {
     setLoading(true)
+    console.log("checking login")
     const loggedin = await login(email, password)
+    if (loggedin.code == 'EVNEED') {
+      console.log("redirecting")
+      setRedirect("/register/confirm")
+    }
+
     if (loggedin.message) {
       setError({ message: loggedin.message })
     }
+    setLoading(false)
   }
 
   const toggleTypeText = () => {
@@ -34,9 +42,15 @@ const QuickLogin = () => {
     }
   }
 
+  if (redirect) {
+    return <Redirect to={redirect} />
+  }
+
   if (isLoggedInWithFirebase) {
     return <Redirect to="/login/verify2fa" />
   }
+
+  
 
   return (
     <section>
