@@ -24,7 +24,7 @@ const Expandable = ({ entry }) => {
           ) : null
         const sideColumnStyle = {
           ...tdStyle,
-          color: order.side === 'Buy' ? 'green' : 'red',
+          color: order.side?.toLowerCase() === 'buy' ? 'green' : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -79,7 +79,7 @@ const Expandable = ({ entry }) => {
               <div className={tooltipStyles.customTooltip}>
                 {order.status}
                 <span className={tooltipStyles.tooltiptext}>
-                  {order.status === 'Pending'
+                  {order.status?.toLowerCase() === 'pending'
                     ? PendingOrderTooltip
                     : PlacedOrderTooltip}
                 </span>
