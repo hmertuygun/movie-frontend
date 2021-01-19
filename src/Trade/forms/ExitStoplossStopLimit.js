@@ -64,10 +64,10 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage > 0) {
+    if (quantityPercentage > 100) {
       setProfit(0)
       priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage < -100) {
+    } else if (quantityPercentage < 0) {
       setProfit(100)
       priceAndProfitSync('profit', 100)
     }
@@ -152,8 +152,9 @@ const ExitStoplossStopLimit = () => {
 
       case 'price':
         const diff = usePrice - value
-        const percentage = roundNumbers((diff / entry.price) * 100, 2)
-        setProfit(-percentage)
+        const percentage = roundNumbers((diff / usePrice) * 100, 2)
+        console.log("settiing profit " + percentage)
+        setProfit(0-percentage)
         return true
 
       case 'profit':

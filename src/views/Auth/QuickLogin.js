@@ -22,15 +22,19 @@ const QuickLogin = () => {
   const doLogin = async () => {
     setLoading(true)
     console.log("checking login")
-    const loggedin = await login(email, password)
-    if (loggedin.code == 'EVNEED') {
-      console.log("redirecting")
-      setRedirect("/register/confirm")
-    }
-
-    if (loggedin.message) {
-      setError({ message: loggedin.message })
-    }
+    try {
+      const loggedin = await login(email, password)
+      if (loggedin.code == 'EVNEED') {
+        console.log("redirecting")
+        setRedirect("/register/confirm")
+      } else if (loggedin.code == "auth/wrong-password") {
+        setError({ message: "Incorrect password" })
+      } else {
+        if (loggedin.message) {
+          setError({ message: loggedin.message })
+        }
+      }
+    } catch (e) {}
     setLoading(false)
   }
 
