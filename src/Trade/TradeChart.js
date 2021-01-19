@@ -7,7 +7,7 @@ const TradeChart = () => {
 
   const theme = window.matchMedia('(prefers-color-scheme: light').matches
     ? Themes.LIGHT
-    : Themes.DARK
+    : Themes.LIGHT
 
   if (isLoading) {
     return null

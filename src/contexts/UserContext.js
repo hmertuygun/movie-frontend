@@ -41,6 +41,24 @@ const UserContextProvider = ({ children }) => {
         return { message: errorMessage, code: errorCode }
       })
 
+    if (signedin) {
+      console.log("signed in but checking if email verified")
+      console.log(signedin)
+      if (!firebase.auth().currentUser.emailVerified) {
+        setState('registered', firebase.auth().currentUser)
+
+        const actionCodeSettings = {
+          url:
+            window.location.origin +
+            '?email=' +
+            firebase.auth().currentUser.email,
+          handleCodeInApp: true,
+        }
+        await firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
+        return { code: "EVNEED"}
+      }
+    }
+
     // if we get the sign in
     if (signedin) {
       await validateUser()
@@ -141,6 +159,22 @@ const UserContextProvider = ({ children }) => {
     return registered
   }
 
+  async function sendEmailAgain() {
+    if (state.registered) {
+      const actionCodeSettings = {
+          url:
+            window.location.origin +
+            '?email=' +
+            firebase.auth().currentUser.email,
+          handleCodeInApp: true,
+        }
+
+      firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
+    } else {
+      console.log("no registered")
+    }
+  }
+
   async function isRegistered() {
     try {
       return await JSON.parse(localStorage.getItem('registered'))
@@ -165,6 +199,7 @@ const UserContextProvider = ({ children }) => {
         verify2FA,
         get2FADetails,
         delete2FA,
+        sendEmailAgain
       }}
     >
       {children}

@@ -345,6 +345,7 @@ function LimitForm() {
 
             <div className={styles['SliderInput']}>
               <InlineInput
+                type="number"
                 value={quantityPercentage}
                 margin="dense"
                 onChange={handleInputChange}
