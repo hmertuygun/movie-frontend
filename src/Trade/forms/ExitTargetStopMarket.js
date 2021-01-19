@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   },
 })
 
-const ExitTarget = () => {
+const ExitTargetStopMarket = () => {
   const {
     isLoading,
     selectedSymbolDetail,
@@ -145,7 +145,7 @@ const ExitTarget = () => {
 
     if (inputChanged === 'price' && value > usePrice) {
       // set profit %
-      const diff = value - usePrice
+      const diff = value - entry.price
       setProfit(roundNumbers((diff / usePrice) * 100, 2))
     }
 
@@ -154,7 +154,7 @@ const ExitTarget = () => {
     }
 
     if (inputChanged === 'quantity' && value <= entry.quantity) {
-      setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
+      setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, selectedSymbolDetail['lotSize']))
     }
 
     if (
@@ -175,7 +175,7 @@ const ExitTarget = () => {
             e.preventDefault()
             setErrors(validate(validationFields))
             const symbol = selectedSymbolDetail['symbolpair']
-            addTarget({
+            addStopMarketTarget({
               price,
               quantity,
               profit,
@@ -184,7 +184,7 @@ const ExitTarget = () => {
           }}
         >
           <InlineInput
-            label="Price"
+            label="Trigger Price"
             type="number"
             name="price"
             onChange={handleChange}
@@ -283,4 +283,4 @@ const ExitTarget = () => {
   )
 }
 
-export default ExitTarget
+export default ExitTargetStopMarket

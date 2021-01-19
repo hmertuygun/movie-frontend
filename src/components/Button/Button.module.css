@@ -151,7 +151,7 @@
   background: var(--trade-confirm-background);
   color: var(--dark);
   font-weight: bold;
-  line-height: 40px;
+  line-height: 20px;
   height: 40px;
 }
 
@@ -160,3 +160,21 @@
   background: var(--trade-confirm-background);
   color: var(--dark);
 }
+
+
+.Button-cancel {
+  composes: Button;
+  cursor: pointer;
+  background: var(--trade-cancel-background);
+  color: var(--dark);
+  font-weight: bold;
+  line-height: 20px;
+  height: 40px;
+}
+
+.Button-cancel:hover {
+  cursor: pointer;
+  background: var(--trade-cancel-background);
+  color: var(--dark);
+}
+

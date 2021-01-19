@@ -1,12 +1,12 @@
 :root {
-  --input-default-background: rgba(43, 47, 54, 0.9);
-  --input-default-color: #fff;
+  --input-default-background: rgba(255, 255, 255, 0.9);
+  --input-default-color: #000000;
   --input-default-border: rgba(43, 47, 54, 0.8);
 
-  --label-default-color: rgb(146, 154, 165);
+  --label-default-color: rgb(60, 60, 60);
 
   --input-border-active-color: rgb(240, 185, 11);
-  --input-default-disabled-background: rgba(20, 20, 30, 0.6);
+  --input-default-disabled-background: rgba(189, 189, 189, 1);
   --input-default-disabled-color: rgba(255, 255, 255, 0.8);
 }
 

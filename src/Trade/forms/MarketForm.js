@@ -12,21 +12,21 @@ import { useSymbolContext } from '../context/SymbolContext'
 
 import { Typography, InlineInput, Button } from '../../components'
 
-import validate from '../../components/Validation/Validation'
+import validate from '../../components/Validation/MarketValidation'
 
-import styles from './LimitForm.module.css'
+import styles from './MarketForm.module.css'
 
-function LimitForm() {
+function MarketForm() {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
     selectedSymbolLastPrice
   } = useSymbolContext()
-  const { addEntry } = useContext(TradeContext)
+  const { addMarketEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
-  const [price, setPrice] = useState(roundNumbers(selectedSymbolLastPrice,selectedSymbolDetail['tickSize']))
   // @TOOD:
   // Remove amount, and leave only quantity
   const [quantity, setQuantity] = useState('')
@@ -63,65 +63,45 @@ function LimitForm() {
   }
 
   const handleBlur = (evt) => {
-    if (price) {
-      /*       if (!price && !quantity) {
-        return false
-      } */
-
-      if (quantity) {
-        if (!price || !quantity) {
-          return false
-        }
-        setErrors(validate(validationFields))
-      }
-    }
-
+    console.log("blurrring")
     if (quantity) {
-      if (price) {
         setErrors(validate(validationFields))
-      }
-    }
-
-    if (quantityPercentage < 0) {
-      setQuantityPercentage(0)
-      calculatePercentageQuantity('quantityPercentage', 0)
-    } else if (quantityPercentage > 100) {
-      setQuantityPercentage(100)
-      calculatePercentageQuantity('quantityPercentage', 100)
+        console.log("SETTING ERRRORS")
     }
   }
 
   const calculatePercentageQuantity = (inputChanged, value) => {
-    if (!price) {
+    if (!selectedSymbolLastPrice) {
       return false
     }
 
     if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * price) / balance) * 100)
-      setTotal(value * price)
+      setQuantityPercentage(((value * selectedSymbolLastPrice) / balance) * 100)
+      setTotal(
+        roundNumbers(value * selectedSymbolLastPrice, selectedSymbolDetail['tickSize']))
     }
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(cost / price, selectedSymbolDetail['lotSize'])
-
+      const howManyBTC = roundNumbers(cost / selectedSymbolLastPrice, selectedSymbolDetail['lotSize'])
       setQuantity(howManyBTC)
       setTotal(
-        roundNumbers(howManyBTC * price, selectedSymbolDetail['tickSize'])
-        )
+        roundNumbers(howManyBTC * selectedSymbolLastPrice, selectedSymbolDetail['tickSize'])
+      )
     }
   }
 
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
+      
       setValidationFields((validationFields) => ({
         ...validationFields,
-        price,
+        selectedSymbolLastPrice,
         quantity,
-        total: quantity * price,
+        total: quantity * selectedSymbolLastPrice,
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         maxPrice: selectedSymbolDetail.maxPrice,
@@ -130,25 +110,26 @@ function LimitForm() {
         minQty: selectedSymbolDetail.minQty,
       }))
 
-      if (!price || !quantity) {
+      if (!quantity) {
         return false
       }
 
-      /*       const canAfford = total <= balance
-      setIsValid(canAfford && price && quantity) */
+      let checkTotal = quantity * selectedSymbolLastPrice
+
+      const canAfford = checkTotal <= balance
+      setIsValid(canAfford && quantity)
     },
     [
       total,
-      price,
       quantity,
       balance,
       selectedSymbolDetail.minNotional,
       setValidationFields,
+      selectedSymbolLastPrice
     ],
     () => {
       setTotal(0)
-      setPrice(0)
-    }
+    } 
   )
 
   const handleSubmit = (evt) => {
@@ -162,19 +143,18 @@ function LimitForm() {
     }
 
     if (Object.keys(x).length === 0 && canAfford) {
+      console.log(Object.keys(errors).length)
       const symbol = selectedSymbolDetail['symbolpair']
-      addEntry({ price, quantity, balance, symbol, type: 'limit' })
+      addMarketEntry({ quantity, balance, symbol, type: 'market' })
     }
   }
 
   const handleChange = (evt) => {
     const { name, value } = evt.target
-
-    if (name === 'price') {
-      setPrice(value)
-    }
+    console.log(name)
     if (name === 'quantity') {
       setQuantity(value)
+      console.log('setting quantity')
       calculatePercentageQuantity('quantity', value)
     }
     if (name === 'total') {
@@ -197,9 +177,7 @@ function LimitForm() {
         {'  '}
         {isLoadingBalance
           ? ' '
-          : 
-              selectedSymbolBalance
-            }
+          : selectedSymbolBalance}
         {'  '}
         {selectedSymbolDetail['quote_asset']}
         {'  '}
@@ -220,10 +198,8 @@ function LimitForm() {
             label="Price"
             type="number"
             name="price"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={price}
-            placeholder="Entry price"
+            placeholder="Market"
+            disabled
             //onInput={(value) => restrict(value)}
             //onInput={restrict}
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
@@ -260,6 +236,7 @@ function LimitForm() {
                 max={100}
                 onChange={handleSliderChange}
                 value={quantityPercentage}
+                
               />
             </div>
 
@@ -271,26 +248,24 @@ function LimitForm() {
                 onBlur={handleBlur}
                 postLabel={'%'}
                 small
+                
               />
             </div>
           </div>
-
           <InlineInput
             label="Total"
             type="number"
             name="total"
             value={total}
-            onChange={handleChange}
             placeholder=""
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            //disabled
+            disabled
           />
           {errors.total && (
             <div className="error" style={{ color: 'red' }}>
               {errors.total}
             </div>
           )}
-
           <Button
             variant="exits"
             //disabled={isValid ? null : 'disabled'}
@@ -304,4 +279,4 @@ function LimitForm() {
   )
 }
 
-export default LimitForm
+export default MarketForm

@@ -59,7 +59,7 @@ const TradeModal = ({ onClose, placeOrder }) => {
       </main>
 
       <footer className={styles['TradeModal-Footer']}>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} variant="cancel">Cancel</Button>
         <Button variant="confirm" onClick={placeOrder}>
           Confirm
         </Button>

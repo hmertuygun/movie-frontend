@@ -23,17 +23,12 @@ const Settings = () => {
                   <TabNavigator
                     labelArray={[
                       'Exchanges',
-                      'Subscription & Billing',
-                      'Security',
-                      'Notifcations',
+                      'Security'
                     ]}
                     tabIndex={1}
                   >
                     <Exchanges />
-                    <div>Not available</div>
                     <Security />
-                    <div>Not available</div>
-                    <div>Not available</div>
                   </TabNavigator>
                 </div>
               </div>
