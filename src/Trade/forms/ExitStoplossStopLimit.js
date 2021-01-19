@@ -124,6 +124,7 @@ const ExitStoplossStopLimit = () => {
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         type: 'stoploss',
+        entryQuantity: entry.quantity
       }))
 
       if (triggerPrice && quantity) {

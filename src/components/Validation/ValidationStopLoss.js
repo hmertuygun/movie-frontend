@@ -5,17 +5,18 @@ export default function validateFields(values) {
     values[el] = parseFloat(values[el])
   })
 
+  if (!values.price) {
+    errors.price = 'Price is required'
+  }
+
   if (!values.quantity || values.quantity === 0) {
     errors.quantity = 'Quantity is required'
   }
-
-  if (values.quantity) {
-    if (values.total < values.minNotional) {
-      errors.total = 'Total needs to meet min-trading-total'
-    }
-    if (values.total > values.balance) {
-      errors.total = 'Total can not exceed your balance.'
+  if (values.quantity && values.entryQuantity) {
+    if (values.quantity > values.entryQuantity) {
+      errors.total = 'Quantity cannot exceed entry quantity'
     }
   }
+
   return errors
 }

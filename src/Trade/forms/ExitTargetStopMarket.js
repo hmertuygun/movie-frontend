@@ -3,7 +3,7 @@ import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/MarketValidation'
+import validate from '../../components/Validation/MarketValidationTarget'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -122,6 +122,7 @@ const ExitTargetStopMarket = () => {
       total,
       balance: balance,
       minNotional: selectedSymbolDetail.minNotional,
+      entryQuantity: entry.quantity
     }))
 
     if (price !== entry.price && price && quantity <= entry.quantity) {
@@ -239,7 +240,11 @@ const ExitTargetStopMarket = () => {
             value={quantity}
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
-
+          {errors.quantity && (
+              <div className="error" style={{ color: 'red' }}>
+                {errors.quantity}
+              </div>
+            )}
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs className={classes.slider}>
