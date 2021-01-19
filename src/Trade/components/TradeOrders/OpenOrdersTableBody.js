@@ -12,10 +12,12 @@ const Expandable = ({ entry }) => {
       {entry.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
-        const rowClick = () => { if (order.type == "Full Trade") setShow(!show) }
+        const rowClick = () => {
+          if (order.type === 'Full Trade') setShow(!show)
+        }
         const firstColumnIconStyle = rowIndex !== 0 ? { border: 0 } : undefined
         const firstColumnIcon =
-          rowIndex === 0 && order.type == "Full Trade" ? (
+          rowIndex === 0 && order.type === 'Full Trade' ? (
             <Icon icon={`chevron-${show ? 'down' : 'right'}`} />
           ) : null
         const sideColumnStyle = {
@@ -24,11 +26,13 @@ const Expandable = ({ entry }) => {
         }
         const hideFirst = {
           ...tdStyle,
-          color: rowIndex === 0 && order.type == "Full Trade" && show ? 
-          'transparent' : undefined
+          color:
+            rowIndex === 0 && order.type === 'Full Trade' && show
+              ? 'transparent'
+              : undefined,
         }
         const cancelColumn =
-          rowIndex === 0 && order.type == "Full Trade" ?  (
+          rowIndex === 0 && order.type === 'Full Trade' ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
               onClick={() => {
@@ -44,7 +48,9 @@ const Expandable = ({ entry }) => {
           'Order is waiting to be placed in the order book.'
         return (
           <tr className={rowClass} key={rowIndex}>
-            <td style={firstColumnIconStyle}  onClick={rowClick}>{firstColumnIcon}</td>
+            <td style={firstColumnIconStyle} onClick={rowClick}>
+              {firstColumnIcon}
+            </td>
             <td style={tdStyle}>{order.symbol}</td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
@@ -65,7 +71,13 @@ const Expandable = ({ entry }) => {
                 </span>
               </div>
             </td>
-            <td style={tdStyle}>{ order.timestamp == 0 ? null : <Moment unix format="YYYY-MM-DD hh:mm:ss">{order.timestamp/1000}</Moment>}</td>
+            <td style={tdStyle}>
+              {order.timestamp === 0 ? null : (
+                <Moment unix format="YYYY-MM-DD hh:mm:ss">
+                  {order.timestamp / 1000}
+                </Moment>
+              )}
+            </td>
             {cancelColumn}
           </tr>
         )

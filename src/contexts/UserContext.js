@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react'
-import { firebase, auth } from '../firebase/firebase'
+import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
@@ -42,7 +42,7 @@ const UserContextProvider = ({ children }) => {
       })
 
     if (signedin) {
-      console.log("signed in but checking if email verified")
+      console.log('signed in but checking if email verified')
       console.log(signedin)
       if (!firebase.auth().currentUser.emailVerified) {
         setState('registered', firebase.auth().currentUser)
@@ -54,8 +54,10 @@ const UserContextProvider = ({ children }) => {
             firebase.auth().currentUser.email,
           handleCodeInApp: true,
         }
-        await firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
-        return { code: "EVNEED"}
+        await firebase
+          .auth()
+          .currentUser.sendEmailVerification(actionCodeSettings)
+        return { code: 'EVNEED' }
       }
     }
 
@@ -162,16 +164,16 @@ const UserContextProvider = ({ children }) => {
   async function sendEmailAgain() {
     if (state.registered) {
       const actionCodeSettings = {
-          url:
-            window.location.origin +
-            '?email=' +
-            firebase.auth().currentUser.email,
-          handleCodeInApp: true,
-        }
+        url:
+          window.location.origin +
+          '?email=' +
+          firebase.auth().currentUser.email,
+        handleCodeInApp: true,
+      }
 
       firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
     } else {
-      console.log("no registered")
+      console.log('no registered')
     }
   }
 
@@ -199,7 +201,7 @@ const UserContextProvider = ({ children }) => {
         verify2FA,
         get2FADetails,
         delete2FA,
-        sendEmailAgain
+        sendEmailAgain,
       }}
     >
       {children}

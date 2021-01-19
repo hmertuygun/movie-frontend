@@ -63,25 +63,24 @@ const QuickConfirm = ({ actionCode }) => {
     setValidForm(password && tos)
   }, [password, tos])
 
+  return (
+    <div className="container d-flex flex-column">
+      <div className="row align-items-center justify-content-center min-vh-100">
+        <div className="col-md-6 col-lg-5 col-xl-4 py-6 py-md-0">
+          <div className="mb-4">
+            <Logo />
+          </div>
 
-    return (
-      <div className="container d-flex flex-column">
-        <div className="row align-items-center justify-content-center min-vh-100">
-          <div className="col-md-6 col-lg-5 col-xl-4 py-6 py-md-0">
-            <div className="mb-4">
-              <Logo />
-            </div>
-
-            <div>
-              <p>We are all done. Now login to start using your account.</p>
-              <Link to="/login">
-                <button className="btn btn-primary">Sign in</button>
-              </Link>
-            </div>
+          <div>
+            <p>We are all done. Now login to start using your account.</p>
+            <Link to="/login">
+              <button className="btn btn-primary">Sign in</button>
+            </Link>
           </div>
         </div>
       </div>
-    )
+    </div>
+  )
 }
 
 export default QuickConfirm
