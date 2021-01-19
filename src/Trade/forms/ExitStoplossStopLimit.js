@@ -34,7 +34,7 @@ const ExitStoplossStopLimit = () => {
   const { entry } = state
   const [triggerPrice, setTriggerPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
   const [price, setPrice] = useState('')
-  const [profit, setProfit] = useState('')
+  const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
@@ -124,6 +124,7 @@ const ExitStoplossStopLimit = () => {
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         type: 'stoploss',
+        entryQuantity: entry.quantity
       }))
 
       if (triggerPrice && quantity) {
