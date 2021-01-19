@@ -10,7 +10,6 @@ const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
 const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
-  
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="card-header pb-0">
@@ -23,7 +22,9 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
               Open Orders
             </span>
             <span
-              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'} pl-4`}
+              className={`${
+                !isOpenOrders ? 'h6 action-item' : 'action-item'
+              } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
               Order History
@@ -118,13 +119,13 @@ const TradeOrders = () => {
     }
   )
 
-  firebase.auth().onAuthStateChanged(function(user) {
+  firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
       setUser(user)
     } else {
       setUser(null)
     }
-  });
+  })
 
   useEffect(() => {
     if (user != null) {
