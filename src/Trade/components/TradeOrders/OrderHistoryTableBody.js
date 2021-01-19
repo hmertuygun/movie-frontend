@@ -22,7 +22,7 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
         history.pages.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
             {page.map((order, index) => {
-              const isCanceled = order.status === 'CANCELED'
+              const isCanceled = order.status?.toLowerCase() === 'canceled'
               const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
               return (
                 <tr key={index} className={rowClass}>
@@ -32,7 +32,12 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                   <td
                     style={
                       !isCanceled
-                        ? { color: order.side === 'Buy' ? 'green' : 'red' }
+                        ? {
+                            color:
+                              order.side?.toLowerCase() === 'buy'
+                                ? 'green'
+                                : 'red',
+                          }
                         : undefined
                     }
                   >
