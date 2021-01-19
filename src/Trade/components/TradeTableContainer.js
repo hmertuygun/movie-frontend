@@ -14,7 +14,7 @@ const TradeTableContainer = () => {
     { text: '' },
   ]
 
-  if (entry && entry.price > 0) {
+  if (entry && entry.quantity > 0) {
     return (
       <Table
         labels={labels}

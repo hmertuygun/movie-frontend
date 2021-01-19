@@ -6,17 +6,12 @@
   height: 35px;
 }
 
-.SliderText {
-  width: 35px;
-  height: 35px;
-}
-
 .SliderSlider {
-  width: 120px;
-  height: 20px;
+  width: 180px;
+  height: 32px;
 }
 
 .SliderInput {
   width: 25%;
-  min-width: 70px;
+  min-width: 50px;
 }

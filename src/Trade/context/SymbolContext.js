@@ -5,7 +5,7 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges, getBalance } from '../../api/api'
+import { getExchanges, getBalance, getLastPrice } from '../../api/api'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
@@ -19,13 +19,14 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedExchange, setSelectedExchange] = useState('')
   const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+  const [selectedSymbolLastPrice, setSelectedSymbolLastPrice] = useState('')
+  const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
 
   async function loadBalance(quote_asset) {
     try {
       setIsLoadingBalance(true)
       const response = await getBalance(quote_asset)
       if ('balance' in response.data) {
-        console.log('setting balance for ' + quote_asset)
         setSelectedSymbolBalance(response.data['balance'])
       } else {
         console.log('no balance found for ' + quote_asset)
@@ -35,6 +36,23 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolBalance(0)
     }
     setIsLoadingBalance(false)
+  }
+
+  async function loadLastPrice(symbolpair) {
+    try {
+      setIsLoadingLastPrice(true)
+      const response = await getLastPrice(symbolpair)
+      if ('last_price' in response.data && response.data['last_price'] != 'NA') {
+        console.log('setting last price for ' + symbolpair)
+        setSelectedSymbolLastPrice(response.data['last_price'])
+      } else {
+        console.log('no balance found for ' + symbolpair)
+        setSelectedSymbolLastPrice(0)
+      }
+    } catch (Exception) {
+      setSelectedSymbolLastPrice(0)
+    }
+    setIsLoadingLastPrice(false)
   }
 
   function setSymbol(symbol) {
@@ -47,6 +65,7 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbolBalance('')
     if (symbol['value'] in symbolDetails) {
       loadBalance(symbolDetails[symbol['value']]['quote_asset'])
+      loadLastPrice(symbolDetails[symbol['value']]['symbolpair'])
     }
   }
 
@@ -73,6 +92,23 @@ const SymbolContextProvider = ({ children }) => {
               label: symbol['label'],
               value: value,
             })
+            let tickSize = symbol['tickSize']
+            for (let i = 1; i < 10; i++) {
+              tickSize = tickSize * 10
+              if (tickSize == 1) {
+                tickSize = i
+                break
+              }
+            }
+
+            let lotSize = symbol['stepSize']
+            for (let i = 1; i < 10; i++) {
+              lotSize = lotSize * 10
+              if (lotSize == 1) {
+                lotSize = i
+                break
+              }
+            }
             symbolDetails[value] = {
               // BTCUSD
               symbolpair: symbol['value'],
@@ -85,6 +121,8 @@ const SymbolContextProvider = ({ children }) => {
               minNotional: symbol['minNotional'],
               minPrice: symbol['minPrice'],
               minQty: symbol['minQty'],
+              tickSize: tickSize,
+              lotSize: lotSize
             }
           })
         })
@@ -96,6 +134,8 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
+        loadLastPrice('BTCUSDT')
+
       } else {
         setExchanges([])
         setSymbols([])
@@ -123,6 +163,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolDetail,
         selectedSymbolBalance,
         isLoadingBalance,
+        selectedSymbolLastPrice
       }}
     >
       {children}

@@ -11,27 +11,28 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
   root: {
-    width: 330,
+    width: 255,
   },
   slider: {
-    width: 200,
+    width: 160,
     vertiicalAlign: 'middle',
   },
   input: {
-    width: 42,
+    width: 30,
   },
 })
 
-const ExitStoploss = () => {
+const ExitStoplossStopLimit = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
+    selectedSymbolLastPrice
   } = useSymbolContext()
   const balance = selectedSymbolBalance
-  const { state, addStoploss } = useContext(TradeContext)
+  const { state, addStoploss} = useContext(TradeContext)
   const { entry } = state
-  const [triggerPrice, setTriggerPrice] = useState(entry.price)
+  const [triggerPrice, setTriggerPrice] = useState(roundNumbers(entry.type == "market" ? selectedSymbolLastPrice : entry.price, selectedSymbolDetail['tickSize']))
   const [price, setPrice] = useState('')
   const [profit, setProfit] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -63,10 +64,10 @@ const ExitStoploss = () => {
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage < 0) {
+    if (quantityPercentage > 0) {
       setProfit(0)
       priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage > 100) {
+    } else if (quantityPercentage < -100) {
       setProfit(100)
       priceAndProfitSync('profit', 100)
     }
@@ -125,7 +126,7 @@ const ExitStoploss = () => {
         type: 'stoploss',
       }))
 
-      if (triggerPrice && price && quantity) {
+      if (triggerPrice && quantity) {
         setIsValid(true)
       } else {
         setIsValid(false)
@@ -144,31 +145,32 @@ const ExitStoploss = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
+    let usePrice = (entry.type == "market" ? selectedSymbolLastPrice : entry.price)
     switch (inputChanged) {
       case 'triggerPrice':
         return true
 
       case 'price':
-        const diff = entry.price - value
+        const diff = usePrice - value
         const percentage = roundNumbers((diff / entry.price) * 100, 2)
         setProfit(-percentage)
         return true
 
       case 'profit':
         // check if negative
-        const newPrice = entry.price * (-value / 100)
-        setPrice(entry.price - newPrice)
+        const newPrice = usePrice * (-value / 100)
+        setPrice(roundNumbers(usePrice - newPrice, selectedSymbolDetail['tickSize']))
         return false
 
       case 'quantity':
         if (value <= entry.quantity) {
-          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 4))
+          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
         }
         return false
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * value) / 100
-        setQuantity(roundNumbers(theQuantity, 6))
+        setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
         return false
 
       default: {
@@ -178,7 +180,6 @@ const ExitStoploss = () => {
   }
 
   return (
-    <TabNavigator labelArray={['Stop-limit', 'Stop-market']} index={0}>
       <section style={{ marginTop: '2rem' }}>
         <form
           onSubmit={(e) => {
@@ -260,6 +261,7 @@ const ExitStoploss = () => {
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   postLabel={'%'}
+                  name="profit"
                 />
               </Grid>
             </Grid>
@@ -318,11 +320,7 @@ const ExitStoploss = () => {
           </Button>
         </form>
       </section>
-      <div style={{ marginTop: '2rem' }}>
-        <Typography as="h3">Not available yet</Typography>
-      </div>
-    </TabNavigator>
   )
 }
 
-export default ExitStoploss
+export default ExitStoplossStopLimit

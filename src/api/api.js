@@ -14,7 +14,7 @@ async function getHeaders(token) {
 
 export async function placeOrder({ entry, targets, stoploss }) {
   const newTargets = targets.map((target, index) => {
-    const { side, type, symbol, quantity, price } = target
+    const { side, type, symbol, quantity, price, triggerPrice } = target
     return {
       targetNumber: index + 1,
       percentage: (target.quantity / entry.quantity) * 100,
@@ -22,6 +22,7 @@ export async function placeOrder({ entry, targets, stoploss }) {
       side,
       type,
       symbol,
+      trigger: triggerPrice,
       price,
     }
   })
@@ -98,6 +99,20 @@ export async function getBalance(symbol) {
 
   return response
 }
+
+
+export async function getLastPrice(symbol) {
+  const apiUrl = process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response
+}
+
 
 // {
 //   "apiKey": "FriendshipIsMagic",

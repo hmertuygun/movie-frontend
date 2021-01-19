@@ -26,6 +26,23 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
+  const addMarketEntry = ({
+    quantity,
+    symbol,
+    type = 'market',
+    side = 'buy',
+  }) => {
+    setState({
+      ...state,
+      entry: {
+        quantity,
+        symbol,
+        type,
+        side,
+      },
+    })
+  }
+
   const addTarget = ({
     price,
     quantity,
@@ -34,14 +51,59 @@ const SimpleTradeContextProvider = ({ children }) => {
     type = 'limit',
     side = 'sell',
   }) => {
-    const targets = state.targets || []
+    let total_quantity = 0
+    if (state.targets) {
+      for (let i = 0; i < state.targets.length; i++) {
+        total_quantity = total_quantity + state.targets[i]['quantity']
+      }
+      
+      if (total_quantity + quantity >= state.entry.quantity) {
+        return 
+      }
+    }
 
+    const targets = state.targets || []
     setState({
       ...state,
       targets: [
         ...targets,
         {
           price,
+          quantity,
+          profit,
+          symbol,
+          type,
+          side,
+        },
+      ],
+    })
+  }
+
+  const addStopMarketTarget = ({
+    price,
+    quantity,
+    profit,
+    symbol,
+    type = 'stopmarket',
+    side = 'sell',
+  }) => {
+    let total_quantity = 0
+    if (state.targets) {
+      for (let i = 0; i < state.targets.length; i++) {
+        total_quantity = total_quantity + state.targets[i]['quantity']
+      }
+      
+      if (total_quantity + quantity >= state.entry.quantity) {
+        return 
+      }}
+    const targets = state.targets || []
+    const triggerPrice = price
+    setState({
+      ...state,
+      targets: [
+        ...targets,
+        {
+          triggerPrice,
           quantity,
           profit,
           symbol,
@@ -69,6 +131,31 @@ const SimpleTradeContextProvider = ({ children }) => {
         ...stoploss,
         {
           price,
+          profit,
+          triggerPrice,
+          quantity,
+          side,
+          type,
+          symbol,
+        },
+      ],
+    })
+  }
+
+  const addStoplossMarket = ({
+    triggerPrice,
+    quantity,
+    profit,
+    symbol,
+    side = 'sell',
+    type = 'stopmarket',
+  }) => {
+    const stoploss = state.stoploss || []
+
+    setState({
+      ...state,
+      stoploss: [
+        {
           profit,
           triggerPrice,
           quantity,
@@ -120,10 +207,13 @@ const SimpleTradeContextProvider = ({ children }) => {
       value={{
         state,
         addEntry,
+        addMarketEntry,
         removeEntry,
         addTarget,
+        addStopMarketTarget,
         removeTarget,
         addStoploss,
+        addStoplossMarket,
         removeStoploss,
         clear
       }}

@@ -48,6 +48,7 @@
   --trade-borders: #424951;
   
   --trade-confirm-background: var(--gold);
+  --trade-cancel-background: var(--red);
 }
 
 /* DARK MODE OVERRIDES */

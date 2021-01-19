@@ -1,4 +1,6 @@
 steps:
+  - name: 'ubuntu'
+    args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
   - name: node:12.10.0
     entrypoint: yarn
     args: ['install']
