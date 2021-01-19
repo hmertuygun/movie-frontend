@@ -128,7 +128,6 @@ const SimpleTradeContextProvider = ({ children }) => {
     setState({
       ...state,
       stoploss: [
-        ...stoploss,
         {
           price,
           profit,

@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
 
-import { Typography, InlineInput, Button } from '../../components'
+import { InlineInput, Button } from '../../components'
 
 import validate from '../../components/Validation/Validation'
 
@@ -22,11 +22,13 @@ function LimitForm() {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    selectedSymbolLastPrice
+    selectedSymbolLastPrice,
   } = useSymbolContext()
   const { addEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
-  const [price, setPrice] = useState(roundNumbers(selectedSymbolLastPrice,selectedSymbolDetail['tickSize']))
+  const [price, setPrice] = useState(
+    roundNumbers(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'])
+  )
   // @TOOD:
   // Remove amount, and leave only quantity
   const [quantity, setQuantity] = useState('')
@@ -44,14 +46,6 @@ function LimitForm() {
     100: '',
   }
 
-  const round = (value, decimals) => {
-    if (value === 0) {
-      return 0
-    }
-
-    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals)
-  }
-
   const handleSliderChange = (newValue) => {
     setQuantityPercentage(newValue)
     calculatePercentageQuantity('quantityPercentage', newValue)
@@ -67,18 +61,17 @@ function LimitForm() {
       /*       if (!price && !quantity) {
         return false
       } */
-
-      if (quantity) {
+      /*       if (quantity) {
         if (!price || !quantity) {
           return false
         }
         setErrors(validate(validationFields))
-      }
+      } */
     }
 
     if (quantity) {
       if (price) {
-        setErrors(validate(validationFields))
+        //setErrors(validate(validationFields))
       }
     }
 
@@ -92,25 +85,76 @@ function LimitForm() {
   }
 
   const calculatePercentageQuantity = (inputChanged, value) => {
-    if (!price) {
-      return false
+    if (inputChanged === 'price') {
+      if (!quantity) {
+        return false
+      }
+      setTotal(
+        value *
+          quantity
+            .toString()
+            .split('.')
+            .map((el, i) =>
+              i
+                ? el
+                    .split('')
+                    .slice(0, selectedSymbolDetail['base_asset_precision'])
+                    .join('')
+                : el
+            )
+            .join('.')
+      )
     }
 
     if (inputChanged === 'quantity') {
       setQuantityPercentage(((value * price) / balance) * 100)
-      setTotal(value * price)
+      setTotal(
+        value *
+          price
+            .toString()
+            .split('.')
+            .map((el, i) =>
+              i
+                ? el
+                    .split('')
+                    .slice(0, selectedSymbolDetail['base_asset_precision'])
+                    .join('')
+                : el
+            )
+            .join('.')
+      )
     }
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(cost / price, selectedSymbolDetail['lotSize'])
+      const howManyBTC = roundNumbers(
+        cost / price,
+        selectedSymbolDetail['lotSize']
+      )
 
       setQuantity(howManyBTC)
       setTotal(
         roundNumbers(howManyBTC * price, selectedSymbolDetail['tickSize'])
+      )
+    }
+
+    if (inputChanged === 'amount') {
+      const quantityformat = (value / price)
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el
+                .split('')
+                .slice(0, selectedSymbolDetail['base_asset_precision'])
+                .join('')
+            : el
         )
+        .join('.')
+
+      setQuantity(quantityformat)
     }
   }
 
@@ -143,6 +187,10 @@ function LimitForm() {
       quantity,
       balance,
       selectedSymbolDetail.minNotional,
+      selectedSymbolDetail.maxPrice,
+      selectedSymbolDetail.minPrice,
+      selectedSymbolDetail.maxQty,
+      selectedSymbolDetail.minQty,
       setValidationFields,
     ],
     () => {
@@ -163,6 +211,14 @@ function LimitForm() {
 
     if (Object.keys(x).length === 0 && canAfford) {
       const symbol = selectedSymbolDetail['symbolpair']
+
+      console.log('add entry ', {
+        price,
+        quantity,
+        balance,
+        symbol,
+        type: 'limit',
+      })
       addEntry({ price, quantity, balance, symbol, type: 'limit' })
     }
   }
@@ -171,23 +227,51 @@ function LimitForm() {
     const { name, value } = evt.target
 
     if (name === 'price') {
-      setPrice(value)
+      setPrice(
+        value
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
+              : el
+          )
+          .join('.')
+      )
+      calculatePercentageQuantity('price', value)
     }
     if (name === 'quantity') {
-      setQuantity(value)
+      setQuantity(
+        value
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+              : el
+          )
+          .join('.')
+      )
       calculatePercentageQuantity('quantity', value)
     }
-    if (name === 'total') {
-      setTotal(value)
-    }
 
-    /*     setValidationFields((validationFields) => ({
-      ...validationFields,
-      [name]: value,
-      total: quantity * price,
-      balance: balance,
-      minNotional: selectedSymbolDetail.minNotional,
-    })) */
+    if (name === 'total') {
+      setTotal(
+        value
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el
+                  .split('')
+                  .slice(0, selectedSymbolDetail['base_asset_precision'])
+                  .join('')
+              : el
+          )
+          .join('.')
+      )
+      calculatePercentageQuantity('amount', value)
+    }
   }
 
   return (
@@ -195,11 +279,7 @@ function LimitForm() {
       <div style={{ marginTop: '2rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
-        {isLoadingBalance
-          ? ' '
-          : 
-              selectedSymbolBalance
-            }
+        {isLoadingBalance ? ' ' : selectedSymbolBalance}
         {'  '}
         {selectedSymbolDetail['quote_asset']}
         {'  '}
@@ -265,6 +345,7 @@ function LimitForm() {
 
             <div className={styles['SliderInput']}>
               <InlineInput
+                type="number"
                 value={quantityPercentage}
                 margin="dense"
                 onChange={handleInputChange}

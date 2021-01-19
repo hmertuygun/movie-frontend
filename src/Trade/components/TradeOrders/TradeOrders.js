@@ -36,7 +36,7 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
               value=""
               id="flexCheckDefault"
             />
-            <span className="pr-4">Hide Other Pairs</span>X
+            
           </div>
         </div>
       </div>

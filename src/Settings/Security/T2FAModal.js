@@ -289,8 +289,8 @@ export const BackUpKey = withCard(
     return (
       <>
         <h4 className="text-center">
-          Please save this keys. They will allow you to recover your 2FA in case
-          of phone loss.
+          Please save these keys. They will allow you to recover your 2FA in the event
+          of device loss.
         </h4>
         <div className="mt-4">
           {data.backup_codes &&

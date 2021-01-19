@@ -7,13 +7,14 @@
   --button-default-background: transparent;
 }
 
+/*
 @media (prefers-color-scheme: dark) {
   .Button {
     --button-default-border-color: #282d34;
     --button-default-color: #fff;
     --button-defualt-background: #14161a;
   }
-}
+}*/
 
 .Button {
   display: flex;
