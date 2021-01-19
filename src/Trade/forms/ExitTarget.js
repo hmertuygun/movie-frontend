@@ -3,7 +3,7 @@ import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/MarketValidation'
+import validate from '../../components/Validation/ValidationTarget'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -32,7 +32,7 @@ const ExitTarget = () => {
   } = useSymbolContext()
   const balance = selectedSymbolBalance
 
-  const [profit, setProfit] = useState('')
+  const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
@@ -122,6 +122,11 @@ const ExitTarget = () => {
       total,
       balance: balance,
       minNotional: selectedSymbolDetail.minNotional,
+      entryQuantity: entry.quantity,
+      maxPrice: selectedSymbolDetail.maxPrice,
+      minPrice: selectedSymbolDetail.minPrice,
+      maxQty: selectedSymbolDetail.maxQty,
+      minQty: selectedSymbolDetail.minQty,
     }))
 
     if (price !== entry.price && price && quantity <= entry.quantity) {

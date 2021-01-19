@@ -44,13 +44,8 @@ const ExitStoplossStopLimit = () => {
       selectedSymbolDetail['tickSize']
     )
   )
-  const [price, setPrice] = useState(
-    roundNumbers(
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
-      selectedSymbolDetail['tickSize']
-    )
-  )
-  const [profit, setProfit] = useState('')
+  const [price, setPrice] = useState('')
+  const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
@@ -91,7 +86,6 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleQPSliderChange = (newValue) => {
-    console.log('handleQPSliderChange func ', newValue)
     setQuantityPercentage(newValue)
     priceAndProfitSync('quantityPercentage', newValue)
   }
@@ -145,6 +139,7 @@ const ExitStoplossStopLimit = () => {
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         type: 'stoploss',
+        entryQuantity: entry.quantity,
       }))
 
       if (triggerPrice && quantity) {
@@ -155,6 +150,7 @@ const ExitStoplossStopLimit = () => {
     },
     [
       setQuantityPercentage,
+      entryPrice,
       triggerPrice,
       price,
       quantity,

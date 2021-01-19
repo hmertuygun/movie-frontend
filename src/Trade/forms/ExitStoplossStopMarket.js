@@ -3,7 +3,7 @@ import { InlineInput, Button, TabNavigator, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/MarketValidation'
+import validate from '../../components/Validation/MarketValidationStopLoss'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -39,7 +39,7 @@ const ExitStoplossStopMarket = () => {
     )
   )
   const [price, setPrice] = useState('')
-  const [profit, setProfit] = useState('')
+  const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
@@ -123,7 +123,7 @@ const ExitStoplossStopMarket = () => {
         total,
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
-        selectedSymbolLastPrice: selectedSymbolLastPrice,
+        entryQuantity: entry.quantity,
         type: 'stoploss',
       }))
 
