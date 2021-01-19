@@ -1,0 +1,19 @@
+.table tr {
+  text-align: center;
+}
+.table td {
+  font-size: 12px !important;
+  padding: 2px !important;
+  vertical-align: middle !important;
+}
+
+.table th {
+  font-size: 12px !important;
+  padding: 2px !important;
+  vertical-align: middle !important;
+  color: rgb(174, 180, 188);
+}
+
+.canceled {
+  color: rgb(174, 180, 188);
+}
