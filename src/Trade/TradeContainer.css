@@ -1,7 +1,7 @@
 .TradeView-Container {
   display: flex;
   flex-direction: row;
-  min-height: 100vh;  
+  min-height: 110vh;  
   justify-content: stretch;
 }
 
@@ -31,4 +31,8 @@
 .TradeView-Chart { 
   background: var(--trade-background);
   flex-grow: 2;
+}
+
+.TradeOrders {
+  height: 40vh;
 }

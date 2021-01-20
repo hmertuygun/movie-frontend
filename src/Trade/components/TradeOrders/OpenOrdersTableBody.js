@@ -5,13 +5,14 @@ import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
 
-const Expandable = ({ entry }) => {
+const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
-  const [loadingOrders, setLoadingOrders] = useState({})
   return (
     <>
       {entry.map((order, rowIndex) => {
-        const isLoading = loadingOrders[rowIndex]
+        const isLoading = cancelingOrders.find(
+          (cancelingOrder) => cancelingOrder === order.trade_id
+        )
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -38,11 +39,15 @@ const Expandable = ({ entry }) => {
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
               onClick={async () => {
-                setLoadingOrders({ ...loadingOrders, [rowIndex]: true })
+                setCancelingOrders([...cancelingOrders, order.trade_id])
                 try {
                   await cancelTradeOrder(order.trade_id)
-                } finally {
-                  setLoadingOrders({ ...loadingOrders, [rowIndex]: false })
+                } catch (error) {
+                  const restOfCancelOrders = cancelingOrders.filter(
+                    (cancelingOrder) => cancelingOrder !== order.trade_id
+                  )
+                  setCancelingOrders(restOfCancelOrders)
+                  throw error
                 }
               }}
             >
@@ -113,6 +118,7 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
     onIntersect: fetchNextPage,
     enabled: hasNextPage,
   })
+  const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>
       {history &&
@@ -120,7 +126,14 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
           <React.Fragment key={index}>
             {items.map((order, rowIndex) => {
               const orders = [order, ...order.orders]
-              return <Expandable entry={orders} key={rowIndex} />
+              return (
+                <Expandable
+                  entry={orders}
+                  key={rowIndex}
+                  cancelingOrders={cancelingOrders}
+                  setCancelingOrders={setCancelingOrders}
+                />
+              )
             })}
           </React.Fragment>
         ))}
