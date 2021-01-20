@@ -22,7 +22,7 @@ const TradeContainer = () => (
       <section className="TradeView-Chart">
         <TradeChart />
       </section>
-      <section style={{ height: '30vh' }}>
+      <section className="TradeOrders">
         <TradeOrders />
       </section>
     </section>
