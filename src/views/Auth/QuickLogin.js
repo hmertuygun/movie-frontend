@@ -12,6 +12,7 @@ const QuickLogin = () => {
   const [redirect, setRedirect] = useState('')
   const [type, setType] = useState('password')
   const [isLoading, setLoading] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   // clear errors
   useEffect(() => {
@@ -34,8 +35,11 @@ const QuickLogin = () => {
     } else if (loggedin.code === 'auth/wrong-password') {
       setError({ message: 'Incorrect password' })
     } else if (loggedin.code == 'WAIT_RETRY') {
+      setIsDisabled(true)
+      setLoading(false)
       setError({message: 'Email unverified with too many resend tries, please wait 1 minute before trying again'})
       await timeout(60000)
+      setIsDisabled(false)
     } 
     else {
       if (loggedin.message) {
@@ -146,7 +150,7 @@ const QuickLogin = () => {
                   <button
                     type="submit"
                     className="btn btn-block btn-primary"
-                    disabled={isLoading}
+                    disabled={isLoading || isDisabled}
                   >
                     {isLoading ? (
                       <span
