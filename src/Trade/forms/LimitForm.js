@@ -35,7 +35,7 @@ function LimitForm() {
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
-  const [isValid, setIsValid] = useState(false)
+  //const [isValid, setIsValid] = useState(false)
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
@@ -343,7 +343,7 @@ function LimitForm() {
             name="price"
             onChange={handleChange}
             onBlur={handleBlur}
-            value={price}
+            value={price || ''}
             placeholder="Entry price"
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
           />

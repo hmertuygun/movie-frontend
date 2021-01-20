@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TradeContext } from '../context/SimpleTradeContext'
 import { useSymbolContext } from '../context/SymbolContext'
 
-import { Typography, InlineInput, Button } from '../../components'
+import { InlineInput, Button } from '../../components'
 
 import validate from '../../components/Validation/MarketValidation'
 
@@ -22,8 +22,8 @@ function MarketForm() {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    isLoadingLastPrice,
-    selectedSymbolLastPrice
+    //isLoadingLastPrice,
+    selectedSymbolLastPrice,
   } = useSymbolContext()
   const { addMarketEntry } = useContext(TradeContext)
   const balance = selectedSymbolBalance
@@ -32,7 +32,7 @@ function MarketForm() {
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
-  const [isValid, setIsValid] = useState(false)
+  const [setIsValid] = useState(false) //isValid
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
@@ -42,14 +42,6 @@ function MarketForm() {
     50: '',
     75: '',
     100: '',
-  }
-
-  const round = (value, decimals) => {
-    if (value === 0) {
-      return 0
-    }
-
-    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals)
   }
 
   const handleSliderChange = (newValue) => {
@@ -63,10 +55,10 @@ function MarketForm() {
   }
 
   const handleBlur = (evt) => {
-    console.log("blurrring")
+    console.log('blurrring')
     if (quantity) {
-        setErrors(validate(validationFields))
-        console.log("SETTING ERRRORS")
+      setErrors(validate(validationFields))
+      console.log('SETTING ERRRORS')
     }
   }
 
@@ -78,17 +70,27 @@ function MarketForm() {
     if (inputChanged === 'quantity') {
       setQuantityPercentage(((value * selectedSymbolLastPrice) / balance) * 100)
       setTotal(
-        roundNumbers(value * selectedSymbolLastPrice, selectedSymbolDetail['tickSize']))
+        roundNumbers(
+          value * selectedSymbolLastPrice,
+          selectedSymbolDetail['tickSize']
+        )
+      )
     }
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(cost / selectedSymbolLastPrice, selectedSymbolDetail['lotSize'])
+      const howManyBTC = roundNumbers(
+        cost / selectedSymbolLastPrice,
+        selectedSymbolDetail['lotSize']
+      )
       setQuantity(howManyBTC)
       setTotal(
-        roundNumbers(howManyBTC * selectedSymbolLastPrice, selectedSymbolDetail['tickSize'])
+        roundNumbers(
+          howManyBTC * selectedSymbolLastPrice,
+          selectedSymbolDetail['tickSize']
+        )
       )
     }
   }
@@ -96,7 +98,6 @@ function MarketForm() {
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
-      
       setValidationFields((validationFields) => ({
         ...validationFields,
         selectedSymbolLastPrice,
@@ -123,13 +124,18 @@ function MarketForm() {
       total,
       quantity,
       balance,
-      selectedSymbolDetail.minNotional,
       setValidationFields,
-      selectedSymbolLastPrice
+      setIsValid,
+      selectedSymbolDetail.minNotional,
+      selectedSymbolLastPrice,
+      selectedSymbolDetail.maxPrice,
+      selectedSymbolDetail.minPrice,
+      selectedSymbolDetail.maxQty,
+      selectedSymbolDetail.minQty,
     ],
     () => {
       setTotal(0)
-    } 
+    }
   )
 
   const handleSubmit = (evt) => {
@@ -175,9 +181,7 @@ function MarketForm() {
       <div style={{ marginTop: '2rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
-        {isLoadingBalance
-          ? ' '
-          : selectedSymbolBalance}
+        {isLoadingBalance ? ' ' : selectedSymbolBalance}
         {'  '}
         {selectedSymbolDetail['quote_asset']}
         {'  '}
@@ -236,7 +240,6 @@ function MarketForm() {
                 max={100}
                 onChange={handleSliderChange}
                 value={quantityPercentage}
-                
               />
             </div>
 
@@ -248,7 +251,6 @@ function MarketForm() {
                 onBlur={handleBlur}
                 postLabel={'%'}
                 small
-                
               />
             </div>
           </div>
