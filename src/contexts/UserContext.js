@@ -40,13 +40,13 @@ const UserContextProvider = ({ children }) => {
         var errorMessage = error.message
         return { message: errorMessage, code: errorCode }
       })
+    if (signedin.code) {
+      return signedin
+    }
 
     if (signedin) {
-      console.log('signed in but checking if email verified')
-      console.log(signedin)
       if (!firebase.auth().currentUser.emailVerified) {
         setState('registered', firebase.auth().currentUser)
-
         const actionCodeSettings = {
           url:
             window.location.origin +
@@ -54,9 +54,21 @@ const UserContextProvider = ({ children }) => {
             firebase.auth().currentUser.email,
           handleCodeInApp: true,
         }
-        await firebase
+        const result = await firebase
           .auth()
-          .currentUser.sendEmailVerification(actionCodeSettings)
+          .currentUser
+          .sendEmailVerification(actionCodeSettings)
+          .catch(function (error) {
+            // Handle Errors here.
+            var errorCode = error.code
+            var errorMessage = error.message
+            return { message: errorMessage, code: errorCode }
+          })
+
+        if (result && result.code == 'auth/too-many-requests') {
+          return {code: 'WAIT_RETRY'}
+        }
+
         return { code: 'EVNEED' }
       }
     }
