@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { InlineInput, Button, TabNavigator, Typography } from '../../components'
+import { InlineInput, Button, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
@@ -38,7 +38,8 @@ const ExitStoplossStopLimit = () => {
       selectedSymbolDetail['tickSize']
     )
   )
-  const [entryPrice, setEntryPrice] = useState(
+  //setEntryPrice
+  const [entryPrice] = useState(
     roundNumbers(
       entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
       selectedSymbolDetail['tickSize']

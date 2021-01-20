@@ -51,7 +51,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               </div>
             </td>
 
-            <td>{entry.type == "market" ? "Market" : entry.price}</td>
+            <td>{entry.type === 'market' ? 'Market' : entry.price}</td>
 
             <td></td>
 

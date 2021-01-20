@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { InlineInput, Button, TabNavigator, Typography } from '../../components'
+import { InlineInput, Button, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
@@ -40,12 +40,12 @@ const ExitTargetStopMarket = () => {
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
-  const { addTarget, addStopMarketTarget, state } = useContext(TradeContext)
+  const { addStopMarketTarget, state } = useContext(TradeContext) // addTarget
   // ingoing value
   const { entry } = state
   const [price, setPrice] = useState(
     roundNumbers(
-      entry.type == 'market' ? selectedSymbolLastPrice : entry.price,
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
       selectedSymbolDetail['tickSize']
     )
   )
@@ -148,7 +148,7 @@ const ExitTargetStopMarket = () => {
   // PRICE and PROFIT Sync
   const priceAndProfitSync = (inputChanged, value) => {
     let usePrice =
-      entry.type == 'market' ? selectedSymbolLastPrice : entry.price
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
 
     if (inputChanged === 'price' && value > usePrice) {
       // set profit %

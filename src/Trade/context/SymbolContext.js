@@ -42,7 +42,10 @@ const SymbolContextProvider = ({ children }) => {
     try {
       setIsLoadingLastPrice(true)
       const response = await getLastPrice(symbolpair)
-      if ('last_price' in response.data && response.data['last_price'] != 'NA') {
+      if (
+        'last_price' in response.data &&
+        response.data['last_price'] !== 'NA'
+      ) {
         console.log('setting last price for ' + symbolpair)
         setSelectedSymbolLastPrice(response.data['last_price'])
       } else {
@@ -93,18 +96,18 @@ const SymbolContextProvider = ({ children }) => {
               value: value,
             })
             let tickSize = symbol['tickSize']
-            for (let i = 1; i < 10; i++) {
+            for (let i = 1; i < 10; i++) {
               tickSize = tickSize * 10
-              if (tickSize == 1) {
+              if (tickSize === 1) {
                 tickSize = i
                 break
               }
             }
 
             let lotSize = symbol['stepSize']
-            for (let i = 1; i < 10; i++) {
+            for (let i = 1; i < 10; i++) {
               lotSize = lotSize * 10
-              if (lotSize == 1) {
+              if (lotSize === 1) {
                 lotSize = i
                 break
               }
@@ -122,7 +125,7 @@ const SymbolContextProvider = ({ children }) => {
               minPrice: symbol['minPrice'],
               minQty: symbol['minQty'],
               tickSize: tickSize,
-              lotSize: lotSize
+              lotSize: lotSize,
             }
           })
         })
@@ -135,7 +138,6 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
         loadLastPrice('BTCUSDT')
-
       } else {
         setExchanges([])
         setSymbols([])
@@ -163,7 +165,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolDetail,
         selectedSymbolBalance,
         isLoadingBalance,
-        selectedSymbolLastPrice
+        selectedSymbolLastPrice,
       }}
     >
       {children}
