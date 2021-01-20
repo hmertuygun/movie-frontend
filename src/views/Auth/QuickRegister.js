@@ -167,11 +167,11 @@ const QuickRegister = () => {
                           htmlFor="check-terms"
                         >
                           I agree to the{' '}
-                          <a href="https://coinpanel.com/terms">
+                          <a href="https://coinpanel.com/terms" target="_blank">
                             Terms of Service
                           </a>{' '}
                           and the{' '}
-                          <a href="https://coinpanel.com/privacy">
+                          <a href="https://coinpanel.com/privacy" target="_blank">
                             Privacy Policy
                           </a>
                         </label>
