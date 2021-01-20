@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
-import styles from './tooltip.module.css'
+import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
 
 const Expandable = ({ entry }) => {
@@ -24,7 +24,7 @@ const Expandable = ({ entry }) => {
           ) : null
         const sideColumnStyle = {
           ...tdStyle,
-          color: order.side === 'Buy' ? 'green' : 'red',
+          color: order.side?.toLowerCase() === 'buy' ? 'green' : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -36,7 +36,6 @@ const Expandable = ({ entry }) => {
         const cancelColumn =
           rowIndex === 0 && order.type === 'Full Trade' ? (
             <td
-              className="d-flex align-items-center"
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
               onClick={async () => {
                 setLoadingOrders({ ...loadingOrders, [rowIndex]: true })
@@ -77,10 +76,10 @@ const Expandable = ({ entry }) => {
             </td>
             <td style={hideFirst}>{order.trigger}</td>
             <td style={hideFirst}>
-              <div className={styles.customTooltip}>
+              <div className={tooltipStyles.customTooltip}>
                 {order.status}
-                <span className={styles.tooltiptext}>
-                  {order.status === 'Pending'
+                <span className={tooltipStyles.tooltiptext}>
+                  {order.status?.toLowerCase() === 'pending'
                     ? PendingOrderTooltip
                     : PlacedOrderTooltip}
                 </span>
