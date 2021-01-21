@@ -17,7 +17,7 @@ import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 
 const Routes = () => {
-  const { isLoggedIn, logout } = useContext(UserContext)
+  const { isLoggedIn, logout, loadApiKeys } = useContext(UserContext)
 
   return (
     <Switch>
@@ -53,6 +53,17 @@ const Routes = () => {
         path="/register/confirm/recieved"
         component={RegisterFinal}
       />
+      {/* user is isLoggedIn but does not have API Key  */}
+      {isLoggedIn && !loadApiKeys && (
+        <Switch>
+          <Route path="/settings" component={Settings} />
+          <Route path="/trade" component={TradeView} />
+          <Route path="/portfolio" component={Portfolio} />
+          <Route path="/positions" component={Position} />
+          <Redirect to="/settings" />
+        </Switch>
+      )}
+
       {!isLoggedIn && <Redirect to="/login" />}
     </Switch>
   )

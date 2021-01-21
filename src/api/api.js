@@ -100,9 +100,9 @@ export async function getBalance(symbol) {
   return response
 }
 
-
 export async function getLastPrice(symbol) {
-  const apiUrl = process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
+  const apiUrl =
+    process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -112,7 +112,6 @@ export async function getLastPrice(symbol) {
 
   return response
 }
-
 
 // {
 //   "apiKey": "FriendshipIsMagic",
@@ -138,15 +137,18 @@ export async function addUserExchange({ name, apiKey, secret, exchange }) {
 }
 
 export async function getUserExchanges() {
-  const apiUrl = process.env.REACT_APP_API + 'loadApiKeys'
-  const token = await firebase.auth().currentUser.getIdToken()
+  try {
+    const apiUrl = process.env.REACT_APP_API + 'loadApiKeys'
+    const token = await firebase.auth().currentUser.getIdToken()
 
-  const exchanges = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-
-  return exchanges
+    const exchanges = await axios(apiUrl, {
+      headers: await getHeaders(token),
+      method: 'GET',
+    })
+    return exchanges
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export async function activateUserExchange(exchangeName) {

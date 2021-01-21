@@ -6,6 +6,7 @@ import {
   saveGoogleAuth2FA,
   validateUser,
   verifyGoogleAuth2FA,
+  getUserExchanges,
 } from '../api/api'
 
 export const UserContext = createContext()
@@ -26,6 +27,7 @@ const UserContextProvider = ({ children }) => {
   }
 
   const [state, setState] = useState(initialState)
+  const [loadApiKeys, setLoadApiKeys] = useState(false)
 
   // @ TODO
   // Handle error
@@ -56,8 +58,7 @@ const UserContextProvider = ({ children }) => {
         }
         const result = await firebase
           .auth()
-          .currentUser
-          .sendEmailVerification(actionCodeSettings)
+          .currentUser.sendEmailVerification(actionCodeSettings)
           .catch(function (error) {
             // Handle Errors here.
             var errorCode = error.code
@@ -65,8 +66,8 @@ const UserContextProvider = ({ children }) => {
             return { message: errorMessage, code: errorCode }
           })
 
-        if (result && result.code == 'auth/too-many-requests') {
-          return {code: 'WAIT_RETRY'}
+        if (result && result.code === 'auth/too-many-requests') {
+          return { code: 'WAIT_RETRY' }
         }
 
         return { code: 'EVNEED' }
@@ -78,6 +79,11 @@ const UserContextProvider = ({ children }) => {
       await validateUser()
       let has2FADetails = null
       try {
+        const hasloadApiKeys = await getUserExchanges()
+        if (hasloadApiKeys) {
+          setLoadApiKeys('true')
+        }
+
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(
@@ -214,6 +220,7 @@ const UserContextProvider = ({ children }) => {
         get2FADetails,
         delete2FA,
         sendEmailAgain,
+        loadApiKeys,
       }}
     >
       {children}

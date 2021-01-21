@@ -21,27 +21,27 @@ const QuickLogin = () => {
   }, [email, password])
 
   const doLogin = async () => {
-
-    function timeout(delay: number) {
-      return new Promise( res => setTimeout(res, delay) );
+    function timeout(delay) {
+      return new Promise((res) => setTimeout(res, delay))
     }
 
     setLoading(true)
     const loggedin = await login(email, password)
-  
+
     if (loggedin.code === 'EVNEED') {
-      console.log('redirecting')
       setRedirect('/register/confirm')
     } else if (loggedin.code === 'auth/wrong-password') {
       setError({ message: 'Incorrect password' })
-    } else if (loggedin.code == 'WAIT_RETRY') {
+    } else if (loggedin.code === 'WAIT_RETRY') {
       setIsDisabled(true)
       setLoading(false)
-      setError({message: 'Email unverified with too many resend tries, please wait 1 minute before trying again'})
+      setError({
+        message:
+          'Email unverified with too many resend tries, please wait 1 minute before trying again',
+      })
       await timeout(60000)
       setIsDisabled(false)
-    } 
-    else {
+    } else {
       if (loggedin.message) {
         setError({ message: loggedin.message })
       }
