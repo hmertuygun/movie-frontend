@@ -70,7 +70,8 @@ const ExitStoplossStopLimit = () => {
     priceAndProfitSync('profit', newValue)
   }
 
-  const handleInputChange = (value) => {
+  const handleInputChange = (evt) => {
+    let { value } = evt.target
     value = 0 - value
     setProfit(value === '' ? '' : Number(value))
     priceAndProfitSync('profit', value)

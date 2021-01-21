@@ -66,7 +66,8 @@ function LimitForm() {
     }
 
     if (name === 'price') {
-      if (total) {
+      if (total && quantity) {
+        // set precision to Total value
         const newValue =
           value *
           quantity
@@ -87,9 +88,23 @@ function LimitForm() {
           selectedSymbolDetail['base_asset_precision']
         )
         setTotal(valueFormatedTotal)
+
+        // set precision to quantity value
+        const newValueQtd = (total / value)
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+              : el
+          )
+          .join('.')
+
+        const valueFormatedQtd = precisionRound(newValueQtd, 6)
+        setQuantity(valueFormatedQtd)
       }
 
-      if (quantity) {
+      if (!quantity && total) {
         const newValue = (total / value)
           .toString()
           .split('.')
@@ -410,7 +425,8 @@ function LimitForm() {
 
   return (
     <Fragment>
-      <div style={{ marginTop: '2rem' }}>
+      {/* <div style={{ margin: '1rem 0', textAlign: 'center' }}></div> */}
+      <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
         {isLoadingBalance ? ' ' : selectedSymbolBalance}

@@ -50,7 +50,7 @@ function MarketForm() {
   }
 
   const handleInputChange = (evt) => {
-    const { value } = evt.target
+    let { value } = evt.target
     setQuantityPercentage(value === '' ? '' : Number(value))
     calculatePercentageQuantity('quantityPercentage', value)
   }

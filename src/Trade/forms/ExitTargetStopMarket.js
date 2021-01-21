@@ -64,7 +64,8 @@ const ExitTargetStopMarket = () => {
     priceAndProfitSync('profit', newValue)
   }
 
-  const handleInputChange = (value) => {
+  const handleInputChange = (evt) => {
+    let { value } = evt.target
     setProfit(value === '' ? '' : Number(value))
     priceAndProfitSync('profit', value)
   }
@@ -84,7 +85,8 @@ const ExitTargetStopMarket = () => {
     priceAndProfitSync('quantityPercentage', newValue)
   }
 
-  const handleQPInputChange = (value) => {
+  const handleQPInputChange = (evt) => {
+    let { value } = evt.target
     setQuantityPercentage(value === '' ? '' : Number(value))
     priceAndProfitSync('quantityPercentage', value)
   }
