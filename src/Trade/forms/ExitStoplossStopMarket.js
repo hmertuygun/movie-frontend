@@ -30,7 +30,7 @@ const ExitStoplossStopMarket = () => {
     selectedSymbolLastPrice,
   } = useSymbolContext()
   const balance = selectedSymbolBalance
-  const { state, addStoploss, addStoplossMarket } = useContext(TradeContext)
+  const { state, addStoplossMarket } = useContext(TradeContext) //addStoploss
   const { entry } = state
   const [triggerPrice, setTriggerPrice] = useState(
     roundNumbers(
@@ -38,7 +38,7 @@ const ExitStoplossStopMarket = () => {
       selectedSymbolDetail['tickSize']
     )
   )
-  const [price, setPrice] = useState('')
+  const [price] = useState('') //setPrice
   const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
@@ -219,10 +219,6 @@ const ExitStoplossStopMarket = () => {
             placeholder="Trigger price"
             value={triggerPrice}
             name="triggerPrice"
-            /*             onChange={(value) => {
-              setTriggerPrice(value)
-              priceAndProfitSync('triggerPrice', value)
-            }} */
             onChange={handleChange}
             onBlur={handleBlur}
             postLabel={selectedSymbolDetail['quote_asset']}
@@ -262,11 +258,8 @@ const ExitStoplossStopMarket = () => {
             label="Amount"
             type="number"
             name="quantity"
-            /*             onChange={(value) => {
-              setQuantity(value)
-              priceAndProfitSync('quantity', value)
-            }} */
             onChange={handleChange}
+            onBlur={handleBlur}
             value={quantity}
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />

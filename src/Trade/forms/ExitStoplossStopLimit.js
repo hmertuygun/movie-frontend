@@ -98,7 +98,7 @@ const ExitStoplossStopLimit = () => {
     priceAndProfitSync('quantityPercentage', value)
   }
 
-  const handleQPBlur = () => {
+  const handleQPBlur = (evt) => {
     if (quantityPercentage < 0) {
       setQuantityPercentage(0)
       priceAndProfitSync('quantityPercentage', 0)
@@ -167,8 +167,6 @@ const ExitStoplossStopLimit = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
-    console.log('priceAndProfitSync ', inputChanged, value)
-
     let usePrice =
       entry.type === 'market' ? selectedSymbolLastPrice : entry.price
 
@@ -179,7 +177,6 @@ const ExitStoplossStopLimit = () => {
       case 'price':
         const diff = usePrice - value
         const percentage = roundNumbers((diff / usePrice) * 100, 2)
-        console.log('settiing profit ' + percentage)
         setProfit(0 - percentage)
         return true
 
@@ -198,12 +195,7 @@ const ExitStoplossStopLimit = () => {
         return false
 
       case 'quantityPercentage':
-        console.log('resultado theQuantity entry.quantity ', entry.quantity)
-
         const theQuantity = (entry.quantity * value) / 100
-
-        console.log('resultado theQuantity ', theQuantity)
-
         setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
         return false
 
@@ -219,31 +211,13 @@ const ExitStoplossStopLimit = () => {
         onSubmit={(e) => {
           e.preventDefault()
 
-          /*           setErrors(validate(validationFields))
-
-          const canAfford = total <= balance
-
-          if (canAfford) {
-            setIsValid(true)
-          } */
-
-          console.log('handleSubmit ExitStopLimit')
-
           const x = validate(validationFields)
           setErrors(x)
-
-          console.log('errors submit ', x)
-
-          console.log('isValid submit ', isValid)
-
           const canAfford = total <= balance
 
           if (canAfford) {
             setIsValid(true)
           }
-
-          console.log('errors length submit ', Object.keys(x).length)
-
           if (Object.keys(x).length === 0 && isValid) {
             const symbol = selectedSymbolDetail['symbolpair']
             addStoploss({
@@ -278,10 +252,6 @@ const ExitStoplossStopLimit = () => {
           type="number"
           placeholder="price"
           name="price"
-          /*             onChange={(value) => {
-              setPrice(value)
-              priceAndProfitSync('price', value)
-            }} */
           onChange={handleChange}
           onBlur={handleBlur}
           value={price}
@@ -328,10 +298,7 @@ const ExitStoplossStopLimit = () => {
           label="Amount"
           type="number"
           name="quantity"
-          /*             onChange={(value) => {
-              setQuantity(value)
-              priceAndProfitSync('quantity', value)
-            }} */
+          onBlur={handleBlur}
           onChange={handleChange}
           value={quantity}
           postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}

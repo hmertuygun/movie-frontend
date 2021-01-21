@@ -210,10 +210,7 @@ const ExitTarget = () => {
           type="number"
           name="price"
           onChange={handleChange}
-          /*             onChange={(value) => {
-              setPrice(value)
-              priceAndProfitSync('price', value)
-            }} */
+          onBlur={handleBlur}
           value={price}
           placeholder="Target price"
           postLabel={selectedSymbolDetail['quote_asset']}
@@ -251,10 +248,7 @@ const ExitTarget = () => {
           label="Quantity"
           type="number"
           name="quantity"
-          /*             onChange={(value) => {
-              priceAndProfitSync('quantity', value)
-              setQuantity(value)
-            }} */
+          onBlur={handleBlur}
           onChange={handleChange}
           value={quantity}
           postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
