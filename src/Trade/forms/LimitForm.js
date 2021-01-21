@@ -52,7 +52,8 @@ function LimitForm() {
     calculatePercentageQuantity('quantityPercentage', newValue)
   }
 
-  const handleInputChange = (value) => {
+  const handleInputChange = (evt) => {
+    const { value } = evt.target
     setQuantityPercentage(value === '' ? '' : Number(value))
     calculatePercentageQuantity('quantityPercentage', value)
   }
@@ -60,11 +61,54 @@ function LimitForm() {
   const handleBlur = (evt) => {
     const { value, name } = evt.target
 
-    if (name === 'quantity') {
-      /*       if (price) {
-        setErrors(validate(validationFields))
-      } */
+    if (!price) {
+      return false
+    }
 
+    if (name === 'price') {
+      if (total) {
+        const newValue =
+          value *
+          quantity
+            .toString()
+            .split('.')
+            .map((el, i) =>
+              i
+                ? el
+                    .split('')
+                    .slice(0, selectedSymbolDetail['base_asset_precision'])
+                    .join('')
+                : el
+            )
+            .join('.')
+
+        const valueFormatedTotal = precisionRound(
+          newValue,
+          selectedSymbolDetail['base_asset_precision']
+        )
+        setTotal(valueFormatedTotal)
+      }
+
+      if (quantity) {
+        const newValue = (total / value)
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+              : el
+          )
+          .join('.')
+
+        const valueFormated = precisionRound(newValue, 6)
+        setQuantity(valueFormated)
+      }
+    }
+    // onBlur on quantity
+    if (name === 'quantity') {
+      if (!quantity || quantity === '0') {
+        return false
+      }
       const newValue =
         value *
         price
@@ -80,16 +124,24 @@ function LimitForm() {
           )
           .join('.')
 
-      const valueFormated = precisionRound(newValue, 8)
-      setTotal(valueFormated)
+      const valueFormatedTotal = precisionRound(
+        newValue,
+        selectedSymbolDetail['base_asset_precision']
+      )
+      setTotal(valueFormatedTotal)
 
-      if (quantity) {
-        const valueFormated = precisionRound(quantity, 6)
-        setQuantity(valueFormated)
-      }
+      const valueFormatedQuantity = precisionRound(
+        quantity,
+        selectedSymbolDetail['lotSize']
+      )
+      setQuantity(valueFormatedQuantity)
     }
 
     if (name === 'total') {
+      if (!total || total === '0') {
+        return false
+      }
+
       const newValue = (value / price)
         .toString()
         .split('.')
@@ -103,11 +155,17 @@ function LimitForm() {
         )
         .join('.')
 
-      const valueFormated = precisionRound(newValue, 6)
+      const valueFormated = precisionRound(
+        newValue,
+        selectedSymbolDetail['lotSize']
+      )
       setQuantity(valueFormated)
 
       if (total) {
-        const valueFormated = precisionRound(total, 8)
+        const valueFormated = precisionRound(
+          total,
+          selectedSymbolDetail['base_asset_precision']
+        )
         setTotal(valueFormated)
       }
     }
@@ -117,35 +175,53 @@ function LimitForm() {
       calculatePercentageQuantity('quantityPercentage', 0)
     } else if (quantityPercentage > 100) {
       setQuantityPercentage(100)
-      calculatePercentageQuantity('quantityPercentage', 100)
+      //calculatePercentageQuantity('quantityPercentage', 100)
     }
   }
 
   const calculatePercentageQuantity = (inputChanged, value) => {
     if (inputChanged === 'price') {
-      if (!quantity) {
-        return false
+      if (quantity === 'Infinity') {
+        setQuantity(
+          total /
+            value
+              .toString()
+              .split('.')
+              .map((el, i) =>
+                i
+                  ? el
+                      .split('')
+                      .slice(0, selectedSymbolDetail['base_asset_precision'])
+                      .join('')
+                  : el
+              )
+              .join('.')
+        )
       }
-      setTotal(
-        value *
-          quantity
-            .toString()
-            .split('.')
-            .map((el, i) =>
-              i
-                ? el
-                    .split('')
-                    .slice(0, selectedSymbolDetail['base_asset_precision'])
-                    .join('')
-                : el
-            )
-            .join('.')
-      )
+
+      if (!total) {
+        setTotal(
+          value *
+            quantity
+              .toString()
+              .split('.')
+              .map((el, i) =>
+                i
+                  ? el
+                      .split('')
+                      .slice(0, selectedSymbolDetail['base_asset_precision'])
+                      .join('')
+                  : el
+              )
+              .join('.')
+        )
+      }
     }
 
     if (inputChanged === 'quantity') {
       setQuantityPercentage(((value * price) / balance) * 100)
-      /*       setTotal(
+
+      setTotal(
         value *
           price
             .toString()
@@ -159,28 +235,45 @@ function LimitForm() {
                 : el
             )
             .join('.')
-      ) */
-
-      setTotal(
-        roundNumbers(
-          value * price,
-          selectedSymbolDetail['base_asset_precision']
-        )
       )
     }
+
+    /*     const theQuantity = (entry.quantity * value) / 100
+    setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+    return false */
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
       const belowOnePercentage = value / 100
       const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(
+
+      const howManyBTC = precisionRound(
         cost / price,
         selectedSymbolDetail['lotSize']
       )
+
       setQuantity(howManyBTC)
-      setTotal(
-        roundNumbers(howManyBTC * price, selectedSymbolDetail['tickSize'])
+
+      const newValue =
+        howManyBTC *
+        price
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el
+                  .split('')
+                  .slice(0, selectedSymbolDetail['base_asset_precision'])
+                  .join('')
+              : el
+          )
+          .join('.')
+
+      const valueFormatedTotal = precisionRound(
+        newValue,
+        selectedSymbolDetail['base_asset_precision']
       )
+      setTotal(valueFormatedTotal)
     }
 
     if (inputChanged === 'amount') {
@@ -293,7 +386,7 @@ function LimitForm() {
           )
           .join('.')
       )
-      //calculatePercentageQuantity('quantity', value)
+      calculatePercentageQuantity('quantity', value)
     }
 
     if (name === 'total') {
@@ -379,6 +472,7 @@ function LimitForm() {
                 max={100}
                 onChange={handleSliderChange}
                 value={quantityPercentage}
+                disabled={!price}
               />
             </div>
 
@@ -390,6 +484,7 @@ function LimitForm() {
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 postLabel={'%'}
+                disabled={!price}
                 small
               />
             </div>

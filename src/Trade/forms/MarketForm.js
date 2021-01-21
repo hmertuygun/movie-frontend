@@ -49,7 +49,8 @@ function MarketForm() {
     calculatePercentageQuantity('quantityPercentage', newValue)
   }
 
-  const handleInputChange = (value) => {
+  const handleInputChange = (evt) => {
+    const { value } = evt.target
     setQuantityPercentage(value === '' ? '' : Number(value))
     calculatePercentageQuantity('quantityPercentage', value)
   }
@@ -117,8 +118,8 @@ function MarketForm() {
 
       let checkTotal = quantity * selectedSymbolLastPrice
 
-      const canAfford = checkTotal <= balance
-      setIsValid(canAfford && quantity)
+      /*       const canAfford = checkTotal <= balance
+      setIsValid(canAfford && quantity) */
     },
     [
       total,
@@ -204,8 +205,6 @@ function MarketForm() {
             name="price"
             placeholder="Market"
             disabled
-            //onInput={(value) => restrict(value)}
-            //onInput={restrict}
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
           />
           {errors.price && (
@@ -220,7 +219,7 @@ function MarketForm() {
             name="quantity"
             onChange={handleChange}
             onBlur={handleBlur}
-            value={quantity}
+            value={quantity || ''}
             placeholder="Amount"
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
@@ -258,7 +257,7 @@ function MarketForm() {
             label="Total"
             type="number"
             name="total"
-            value={total}
+            value={total || ''}
             placeholder=""
             postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             disabled

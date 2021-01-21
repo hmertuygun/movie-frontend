@@ -75,7 +75,7 @@ const Header = () => {
                   rel="noreferrer"
                 >
                   {' '}
-                  <span class="btn-inner--text">Report a problem</span>
+                  <span className="btn-inner--text">Report a problem</span>
                 </a>
               </li>
               <li className="nav-item dropdown dropdown-animate">

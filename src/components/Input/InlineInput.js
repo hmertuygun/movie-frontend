@@ -9,6 +9,7 @@ const InlineInput = ({
   disabled,
   postLabel,
   onChange,
+  onBlur,
   value,
   small,
   name,
@@ -37,10 +38,10 @@ const InlineInput = ({
       <input
         className={styles.InputElement}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        /*         onChange={(event) => {
-          onChange(event.target)
-        }} */
+        onBlur={(event) => {
+          onBlur(event)
+          setIsFocused(false)
+        }}
         onChange={(event) => {
           onChange(event)
         }}

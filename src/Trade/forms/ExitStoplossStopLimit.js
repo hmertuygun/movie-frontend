@@ -91,7 +91,8 @@ const ExitStoplossStopLimit = () => {
     priceAndProfitSync('quantityPercentage', newValue)
   }
 
-  const handleQPInputChange = (value) => {
+  const handleQPInputChange = (evt) => {
+    const { value } = evt.target
     setQuantityPercentage(value === '' ? '' : Number(value))
     priceAndProfitSync('quantityPercentage', value)
   }
@@ -126,10 +127,12 @@ const ExitStoplossStopLimit = () => {
       setTotal(value * price) // setting total value for ExitStopLoss
     }
   }
+  useEffect(() => {
+    setQuantityPercentage(100)
+  }, [])
 
   useEffect(
     () => {
-      setQuantityPercentage(100)
       setValidationFields((validationFields) => ({
         ...validationFields,
         entryPrice,
@@ -150,7 +153,6 @@ const ExitStoplossStopLimit = () => {
       }
     },
     [
-      setQuantityPercentage,
       entryPrice,
       triggerPrice,
       price,
@@ -164,8 +166,11 @@ const ExitStoplossStopLimit = () => {
   )
 
   const priceAndProfitSync = (inputChanged, value) => {
+    console.log('priceAndProfitSync ', inputChanged, value)
+
     let usePrice =
       entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+
     switch (inputChanged) {
       case 'triggerPrice':
         return true
@@ -192,7 +197,12 @@ const ExitStoplossStopLimit = () => {
         return false
 
       case 'quantityPercentage':
+        console.log('resultado theQuantity entry.quantity ', entry.quantity)
+
         const theQuantity = (entry.quantity * value) / 100
+
+        console.log('resultado theQuantity ', theQuantity)
+
         setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
         return false
 
