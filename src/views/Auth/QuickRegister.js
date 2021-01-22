@@ -121,62 +121,70 @@ const QuickRegister = () => {
                   </div>
                 )}
                 <div className="form-group mb-0">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div>
-                          <label className="form-control-label">Password</label>
-                        </div>
-                        <div className="mb-2">
-                          <div
-                            className="small text-muted text-underline--dashed border-primary"
-                            onClick={() => toggleTypeText()}
-                          >
-                            Show password
-                          </div>
-                        </div>
-                      </div>
-                      <div className="input-group input-group-merge">
-                        <input
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          type={type || 'password'}
-                          className="form-control form-control-prepend"
-                          id="input-password"
-                          placeholder="Password"
-                        />
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
-                            <Icon icon="key" />
-                          </span>
-                        </div>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div>
+                      <label className="form-control-label">Password</label>
+                    </div>
+                    <div className="mb-2">
+                      <div
+                        className="small text-muted text-underline--dashed border-primary"
+                        onClick={() => toggleTypeText()}
+                      >
+                        Show password
                       </div>
                     </div>
+                  </div>
+                  <div className="input-group input-group-merge">
+                    <input
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      type={type || 'password'}
+                      className="form-control form-control-prepend"
+                      id="input-password"
+                      placeholder="Password"
+                    />
+                    <div className="input-group-prepend">
+                      <span className="input-group-text">
+                        <Icon icon="key" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-                    <div className="my-4">
-                      <div className="custom-control custom-checkbox mb-3">
-                        <input
-                          type="checkbox"
-                          className="custom-control-input"
-                          id="check-terms"
-                          checked={tos}
-                          onChange={(event) => {
-                            setTos(event.target.checked)
-                          }}
-                        />
-                        <label
-                          className="custom-control-label"
-                          htmlFor="check-terms"
-                        >
-                          I agree to the{' '}
-                          <a href="https://coinpanel.com/terms" target="_blank">
-                            Terms of Service
-                          </a>{' '}
-                          and the{' '}
-                          <a href="https://coinpanel.com/privacy" target="_blank">
-                            Privacy Policy
-                          </a>
-                        </label>
-                      </div>
-                    </div>
+                <div className="my-4">
+                  <div className="custom-control custom-checkbox mb-3">
+                    <input
+                      type="checkbox"
+                      className="custom-control-input"
+                      id="check-terms"
+                      checked={tos}
+                      onChange={(event) => {
+                        setTos(event.target.checked)
+                      }}
+                    />
+                    <label
+                      className="custom-control-label"
+                      htmlFor="check-terms"
+                    >
+                      I agree to the{' '}
+                      <a
+                        href="https://coinpanel.com/terms"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Terms of Service
+                      </a>{' '}
+                      and the{' '}
+                      <a
+                        href="https://coinpanel.com/privacy"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Privacy Policy
+                      </a>
+                    </label>
+                  </div>
+                </div>
 
                 <div className="mt-4">
                   <button
