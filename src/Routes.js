@@ -21,6 +21,24 @@ const Routes = () => {
 
   return (
     <Switch>
+      {/* user is isLoggedIn but does not have API Key  */}
+      {isLoggedIn && !loadApiKeys && (
+        <Switch>
+          <Route path="/settings" component={Settings} />
+          <Route
+            path="/logout"
+            render={() => {
+              logout()
+
+              return <div>Logging you out..</div>
+            }}
+          />
+          <Route path="/trade" component={TradeView} />
+          <Route path="/portfolio" component={Portfolio} />
+          <Route path="/positions" component={Position} />
+          <Redirect to="/settings" />
+        </Switch>
+      )}
       {isLoggedIn && (
         <Switch>
           <Route path="/trade" component={TradeView} />
@@ -53,17 +71,6 @@ const Routes = () => {
         path="/register/confirm/recieved"
         component={RegisterFinal}
       />
-      {/* user is isLoggedIn but does not have API Key  */}
-      {isLoggedIn && !loadApiKeys && (
-        <Switch>
-          <Route path="/settings" component={Settings} />
-          <Route path="/trade" component={TradeView} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/positions" component={Position} />
-          <Redirect to="/settings" />
-        </Switch>
-      )}
-
       {!isLoggedIn && <Redirect to="/login" />}
     </Switch>
   )
