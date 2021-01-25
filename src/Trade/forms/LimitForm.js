@@ -59,16 +59,40 @@ function LimitForm() {
   }
 
   const handleBlur = (evt) => {
-    const { value, name } = evt.target
-
-    if (!price) {
-      return false
+    if (quantityPercentage < 0) {
+      setQuantityPercentage(0)
+      calculatePercentageQuantity('quantityPercentage', 0)
+    } else if (quantityPercentage > 100) {
+      setQuantityPercentage(100)
+      calculatePercentageQuantity('quantityPercentage', 100)
     }
+  }
 
-    if (name === 'price') {
-      if (total && quantity) {
-        // set precision to Total value
-        const newValue =
+  const calculatePercentageQuantity = (inputChanged, value) => {
+    if (inputChanged === 'price') {
+      if (price) {
+        setTotal(0)
+      }
+      if (!quantity) {
+        setQuantity(0)
+        setTotal(0)
+      } else {
+        const newValueQtd = quantity
+          .toString()
+          .split('.')
+          .map((el, i) =>
+            i
+              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+              : el
+          )
+          .join('.')
+
+        const valueFormatedQtd = precisionRound(
+          newValueQtd,
+          selectedSymbolDetail['lotSize']
+        )
+        setQuantity(valueFormatedQtd)
+        const newValueTotal =
           value *
           quantity
             .toString()
@@ -84,47 +108,20 @@ function LimitForm() {
             .join('.')
 
         const valueFormatedTotal = precisionRound(
-          newValue,
+          newValueTotal,
           selectedSymbolDetail['base_asset_precision']
         )
         setTotal(valueFormatedTotal)
-
-        // set precision to quantity value
-        const newValueQtd = (total / value)
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
-              : el
-          )
-          .join('.')
-
-        const valueFormatedQtd = precisionRound(newValueQtd, 6)
-        setQuantity(valueFormatedQtd)
-      }
-
-      if (!quantity && total) {
-        const newValue = (total / value)
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
-              : el
-          )
-          .join('.')
-
-        const valueFormated = precisionRound(newValue, 6)
-        setQuantity(valueFormated)
       }
     }
-    // onBlur on quantity
-    if (name === 'quantity') {
-      if (!quantity || quantity === '0') {
+
+    if (inputChanged === 'quantity') {
+      setQuantityPercentage(((value * price) / balance) * 100)
+
+      if (!price) {
         return false
       }
-      const newValue =
+      const newTotalValue =
         value *
         price
           .toString()
@@ -139,123 +136,12 @@ function LimitForm() {
           )
           .join('.')
 
-      const valueFormatedTotal = precisionRound(
-        newValue,
+      const valueFormatedQtd = precisionRound(
+        newTotalValue,
         selectedSymbolDetail['base_asset_precision']
       )
-      setTotal(valueFormatedTotal)
-
-      const valueFormatedQuantity = precisionRound(
-        quantity,
-        selectedSymbolDetail['lotSize']
-      )
-      setQuantity(valueFormatedQuantity)
+      setTotal(valueFormatedQtd)
     }
-
-    if (name === 'total') {
-      if (!total || total === '0') {
-        return false
-      }
-
-      const newValue = (value / price)
-        .toString()
-        .split('.')
-        .map((el, i) =>
-          i
-            ? el
-                .split('')
-                .slice(0, selectedSymbolDetail['base_asset_precision'])
-                .join('')
-            : el
-        )
-        .join('.')
-
-      const valueFormated = precisionRound(
-        newValue,
-        selectedSymbolDetail['lotSize']
-      )
-      setQuantity(valueFormated)
-
-      if (total) {
-        const valueFormated = precisionRound(
-          total,
-          selectedSymbolDetail['base_asset_precision']
-        )
-        setTotal(valueFormated)
-      }
-    }
-
-    if (quantityPercentage < 0) {
-      setQuantityPercentage(0)
-      calculatePercentageQuantity('quantityPercentage', 0)
-    } else if (quantityPercentage > 100) {
-      setQuantityPercentage(100)
-      //calculatePercentageQuantity('quantityPercentage', 100)
-    }
-  }
-
-  const calculatePercentageQuantity = (inputChanged, value) => {
-    if (inputChanged === 'price') {
-      if (quantity === 'Infinity') {
-        setQuantity(
-          total /
-            value
-              .toString()
-              .split('.')
-              .map((el, i) =>
-                i
-                  ? el
-                      .split('')
-                      .slice(0, selectedSymbolDetail['base_asset_precision'])
-                      .join('')
-                  : el
-              )
-              .join('.')
-        )
-      }
-
-      if (!total) {
-        setTotal(
-          value *
-            quantity
-              .toString()
-              .split('.')
-              .map((el, i) =>
-                i
-                  ? el
-                      .split('')
-                      .slice(0, selectedSymbolDetail['base_asset_precision'])
-                      .join('')
-                  : el
-              )
-              .join('.')
-        )
-      }
-    }
-
-    if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * price) / balance) * 100)
-
-      setTotal(
-        value *
-          price
-            .toString()
-            .split('.')
-            .map((el, i) =>
-              i
-                ? el
-                    .split('')
-                    .slice(0, selectedSymbolDetail['base_asset_precision'])
-                    .join('')
-                : el
-            )
-            .join('.')
-      )
-    }
-
-    /*     const theQuantity = (entry.quantity * value) / 100
-    setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
-    return false */
 
     if (inputChanged === 'quantityPercentage') {
       // how many BTC can we buy with the percentage?
@@ -269,7 +155,7 @@ function LimitForm() {
 
       setQuantity(howManyBTC)
 
-      const newValue =
+      /*   const newValue =
         howManyBTC *
         price
           .toString()
@@ -282,12 +168,13 @@ function LimitForm() {
                   .join('')
               : el
           )
-          .join('.')
+          .join('.') */
 
       const valueFormatedTotal = precisionRound(
-        newValue,
+        cost,
         selectedSymbolDetail['base_asset_precision']
       )
+
       setTotal(valueFormatedTotal)
     }
 
@@ -305,6 +192,25 @@ function LimitForm() {
         )
         .join('.')
       setQuantity(quantityformat)
+    }
+
+    if (inputChanged === 'amount') {
+      const newValueQtd = (value / price)
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueToPrecision = precisionRound(
+        newValueQtd,
+        selectedSymbolDetail['lotSize']
+      )
+
+      setQuantity(valueToPrecision)
     }
   }
 
@@ -376,35 +282,48 @@ function LimitForm() {
     const { name, value } = evt.target
 
     if (name === 'price') {
-      setPrice(
-        value
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
-              : el
-          )
-          .join('.')
+      const newValuePrice = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedPrice = roundNumbers(
+        newValuePrice,
+        selectedSymbolDetail['tickSize']
       )
-      calculatePercentageQuantity('price', value)
+      setPrice(valueFormatedPrice)
+      calculatePercentageQuantity('price', newValuePrice)
     }
     if (name === 'quantity') {
-      setQuantity(
-        value
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
-              : el
-          )
-          .join('.')
+      const newValueQtd = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedQtd = roundNumbers(
+        newValueQtd,
+        selectedSymbolDetail['lotSize']
       )
-      calculatePercentageQuantity('quantity', value)
+
+      setQuantity(valueFormatedQtd)
+
+      calculatePercentageQuantity('quantity', valueFormatedQtd)
     }
 
     if (name === 'total') {
+      if (!price) {
+        setTotal(0)
+      }
       setTotal(
         value
           .toString()
