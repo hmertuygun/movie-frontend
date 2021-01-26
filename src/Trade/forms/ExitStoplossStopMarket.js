@@ -130,9 +130,15 @@ const ExitStoplossStopMarket = () => {
       }))
 
       if (triggerPrice && quantity) {
-        setIsValid(true)
-      } else {
-        setIsValid(false)
+        if (state.stoploss) {
+          if (!state.stoploss.length) {
+            setIsValid(true)
+          } else if (Object.keys(state.stoploss).length) {
+            setIsValid(false)
+          }
+        } else {
+          setIsValid(true)
+        }
       }
     },
     [
@@ -143,6 +149,7 @@ const ExitStoplossStopMarket = () => {
       balance,
       total,
       selectedSymbolDetail.minNotional,
+      state,
     ],
     () => {}
   )
