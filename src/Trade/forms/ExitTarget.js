@@ -203,6 +203,10 @@ const ExitTarget = () => {
             profit,
             symbol,
           })
+
+          setProfit(0)
+          setQuantity('')
+          setQuantityPercentage('')
         }}
       >
         <InlineInput

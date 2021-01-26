@@ -200,6 +200,10 @@ const ExitTargetStopMarket = () => {
             profit,
             symbol,
           })
+
+          setProfit(0)
+          setQuantity('')
+          setQuantityPercentage('')
         }}
       >
         <InlineInput
