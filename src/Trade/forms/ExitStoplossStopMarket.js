@@ -64,7 +64,7 @@ const ExitStoplossStopMarket = () => {
 
   const handleInputChange = (evt) => {
     let { value } = evt.target
-    value = 0 - value
+    value = -Math.abs(value)
     setProfit(value === '' ? '' : Number(value))
     priceAndProfitSync('profit', value)
   }
