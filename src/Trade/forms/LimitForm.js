@@ -222,7 +222,7 @@ function LimitForm() {
         ...validationFields,
         price,
         quantity,
-        total: quantity * price,
+        total,
         balance: balance,
         minNotional: selectedSymbolDetail.minNotional,
         maxPrice: selectedSymbolDetail.maxPrice,
@@ -262,10 +262,6 @@ function LimitForm() {
 
     const canAfford = parseFloat(total) <= parseFloat(balance)
 
-    /*     if (canAfford) {
-      setIsValid(true)
-    } */
-
     if (Object.keys(x).length === 0 && canAfford) {
       const symbol = selectedSymbolDetail['symbolpair']
 
@@ -274,6 +270,7 @@ function LimitForm() {
         quantity,
         balance,
         symbol,
+        total,
         type: 'limit',
       })
       addEntry({ price, quantity, balance, symbol, type: 'limit' })
@@ -282,6 +279,17 @@ function LimitForm() {
 
   const handleChange = (evt) => {
     const { name, value } = evt.target
+
+    setValidationFields({
+      ...validationFields,
+      balance: balance,
+      minNotional: selectedSymbolDetail.minNotional,
+      maxPrice: selectedSymbolDetail.maxPrice,
+      minPrice: selectedSymbolDetail.minPrice,
+      maxQty: selectedSymbolDetail.maxQty,
+      minQty: selectedSymbolDetail.minQty,
+      [name]: value,
+    })
 
     if (name === 'price') {
       const newValuePrice = value
