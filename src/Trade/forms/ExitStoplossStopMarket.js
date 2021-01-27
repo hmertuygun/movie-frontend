@@ -70,12 +70,15 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage < 0) {
-      setProfit(0)
-      priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage > 100) {
-      setProfit(100)
-      priceAndProfitSync('profit', 100)
+    let { name, value } = evt.target
+    if (name === 'profit') {
+      if (value < -Math.abs(100)) {
+        setProfit(-Math.abs(100))
+        priceAndProfitSync('profit', 100)
+      } else if (value > 0) {
+        setProfit(-Math.abs(100))
+        priceAndProfitSync('profit', 100)
+      }
     }
   }
 
@@ -256,6 +259,7 @@ const ExitStoplossStopMarket = () => {
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   postLabel={'%'}
+                  name="profit"
                 />
               </Grid>
             </Grid>

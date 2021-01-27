@@ -26,3 +26,4 @@ export default function validateFields(values) {
   }
   return errors
 }
+
