@@ -179,6 +179,8 @@ function LimitForm() {
     }
 
     if (inputChanged === 'amount') {
+      setQuantityPercentage((100 * value) / balance)
+
       const quantityformat = (value / price)
         .toString()
         .split('.')

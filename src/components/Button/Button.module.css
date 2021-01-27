@@ -5,6 +5,7 @@
   --button-defualt-border-color: #c1c9d4;
   --button-default-color: #273444;
   --button-default-background: transparent;
+  --button-default-disabled: #a4a6a8;
 }
 
 /*
@@ -44,7 +45,12 @@
 
 .Button:disabled {
   cursor: not-allowed;
+  background: var(--button-default-disabled);
+  border: 2px solid var(--button-default-disabled);
   opacity: 0.8;
+}
+.Button:hover:disabled {
+  border: 2px solid var(--button-default-disabled);
 }
 
 .Button-plain {
@@ -127,7 +133,6 @@
   height: 40px;
 }
 
-
 .Button-sell:hover,
 .Button-buy:hover {
   color: var(--button-primary-color);
@@ -135,16 +140,16 @@
 
 .Button-trade-nav {
   composes: Button;
-  background: #2B2F36;
+  background: #2b2f36;
   color: rgb(146, 154, 165);
   border: 2px solid transparent;
 }
 
 .Button-trade-nav:hover {
-  background: #2B2F36;
+  background: #2b2f36;
   color: rgb(146, 154, 165);
   border: 2px solid transparent;
-} 
+}
 
 .Button-confirm {
   composes: Button;
@@ -162,7 +167,6 @@
   color: var(--dark);
 }
 
-
 .Button-cancel {
   composes: Button;
   cursor: pointer;
@@ -178,4 +182,3 @@
   background: var(--trade-cancel-background);
   color: var(--dark);
 }
-
