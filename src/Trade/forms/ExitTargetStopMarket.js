@@ -105,13 +105,47 @@ const ExitTargetStopMarket = () => {
     let { name, value } = evt.target
 
     if (name === 'price') {
-      setPrice(value)
-      priceAndProfitSync('price', value)
+      const newValuePrice = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedPrice = roundNumbers(
+        newValuePrice,
+        selectedSymbolDetail['tickSize']
+      )
+      setPrice(valueFormatedPrice)
+      //setPrice(value)
+      priceAndProfitSync('price', valueFormatedPrice)
+      //priceAndProfitSync('price', value)
     }
 
     if (name === 'quantity') {
-      setQuantity(value)
-      priceAndProfitSync('quantity', value)
+      const newValueQtd = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedQtd = roundNumbers(
+        newValueQtd,
+        selectedSymbolDetail['lotSize']
+      )
+
+      setQuantity(valueFormatedQtd)
+      //setQuantity(value)
+      priceAndProfitSync('quantity', valueFormatedQtd)
+      //priceAndProfitSync('quantity', value)
+
       setTotal(value * price)
     }
   }

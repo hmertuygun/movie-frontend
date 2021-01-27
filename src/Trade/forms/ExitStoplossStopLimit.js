@@ -112,19 +112,69 @@ const ExitStoplossStopLimit = () => {
     let { name, value } = evt.target
 
     if (name === 'triggerPrice') {
-      setTriggerPrice(value)
-      priceAndProfitSync('triggerPrice', value)
+      const newValueTrgPrice = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedTrgPrice = roundNumbers(
+        newValueTrgPrice,
+        selectedSymbolDetail['tickSize']
+      )
+      //setTriggerPrice(value)
+      setTriggerPrice(valueFormatedTrgPrice)
+      //priceAndProfitSync('triggerPrice', value)
+      priceAndProfitSync('triggerPrice', valueFormatedTrgPrice)
     }
 
     if (name === 'price') {
-      setPrice(value)
-      priceAndProfitSync('price', value)
+      //setPrice(value)
+      const newValuePrice = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedPrice = roundNumbers(
+        newValuePrice,
+        selectedSymbolDetail['tickSize']
+      )
+      setPrice(valueFormatedPrice)
+      priceAndProfitSync('price', valueFormatedPrice)
+      //priceAndProfitSync('price', value)
       setTotal(value * quantity)
     }
 
     if (name === 'quantity') {
-      setQuantity(value)
-      priceAndProfitSync('quantity', value)
+      const newValueQtd = value
+        .toString()
+        .split('.')
+        .map((el, i) =>
+          i
+            ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
+            : el
+        )
+        .join('.')
+
+      const valueFormatedQtd = roundNumbers(
+        newValueQtd,
+        selectedSymbolDetail['lotSize']
+      )
+
+      setQuantity(valueFormatedQtd)
+      //setQuantity(value)
+      priceAndProfitSync('quantity', valueFormatedQtd)
+      //priceAndProfitSync('quantity', value)
+
       setTotal(value * price) // setting total value for ExitStopLoss
     }
   }
