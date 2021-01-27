@@ -56,7 +56,6 @@ const ExitStoplossStopLimit = () => {
 
   const classes = useStyles()
   const marks = {
-    100: '100',
     '-100': '',
     '-75': '',
     '-50': '',
@@ -72,18 +71,22 @@ const ExitStoplossStopLimit = () => {
 
   const handleInputChange = (evt) => {
     let { value } = evt.target
-    value = 0 - value
+    value = -Math.abs(value)
     setProfit(value === '' ? '' : Number(value))
     priceAndProfitSync('profit', value)
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage > 100) {
-      setProfit(0)
-      priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage < 0) {
-      setProfit(100)
-      priceAndProfitSync('profit', 100)
+    let { name, value } = evt.target
+
+    if (name === 'profit') {
+      if (value < -Math.abs(100)) {
+        setProfit(-Math.abs(100))
+        priceAndProfitSync('profit', 100)
+      } else if (value > 0) {
+        setProfit(-Math.abs(100))
+        priceAndProfitSync('profit', 100)
+      }
     }
   }
 

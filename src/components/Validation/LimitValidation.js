@@ -9,7 +9,7 @@ export default function validateFields(values) {
     errors.triggerPrice = 'Trigger Price cannot be higher than Entry Price'
   }
 
-  if (values.price >= values.triggerPrice) {
+  if (values.price > values.triggerPrice) {
     errors.price = 'Price cannot be higher than Trigger Price'
   }
 

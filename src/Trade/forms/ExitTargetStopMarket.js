@@ -66,17 +66,24 @@ const ExitTargetStopMarket = () => {
 
   const handleInputChange = (evt) => {
     let { value } = evt.target
+
+    value = Math.abs(value)
+
     setProfit(value === '' ? '' : Number(value))
     priceAndProfitSync('profit', value)
   }
 
-  const handleBlur = () => {
-    if (quantityPercentage < 0) {
-      setProfit(0)
-      priceAndProfitSync('profit', 0)
-    } else if (quantityPercentage > 100) {
-      setProfit(100)
-      priceAndProfitSync('profit', 100)
+  const handleBlur = (evt) => {
+    let { name } = evt.target
+
+    if (name === 'profit') {
+      if (profit < 0) {
+        setProfit(0)
+        priceAndProfitSync('profit', 0)
+      } else if (profit > 100) {
+        setProfit(100)
+        priceAndProfitSync('profit', 100)
+      }
     }
   }
 
@@ -240,6 +247,7 @@ const ExitTargetStopMarket = () => {
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 postLabel={'%'}
+                name="profit"
               />
             </div>
           </div>
