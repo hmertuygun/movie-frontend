@@ -40,6 +40,12 @@ const ExitTarget = () => {
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
+  /*   const [quantityValue, setQuantityValue] = useState([])
+  const totalQuantity = quantityValue.reduce(
+    (total, value) => parseFloat(total) + parseFloat(value),
+    0
+  ) */
+
   const { addTarget, state } = useContext(TradeContext) //addStopMarketTarget
   // ingoing value
   const { entry } = state
@@ -122,6 +128,12 @@ const ExitTarget = () => {
 
   // VALIDATE FORM
   useEffect(() => {
+    const sumQuantity = state.targets?.map((item) => item.quantity)
+    const totalQuantity = sumQuantity?.reduce(
+      (total, value) => parseFloat(total) + parseFloat(value),
+      0
+    )
+
     setValidationFields((validationFields) => ({
       ...validationFields,
       price: entry.price,
@@ -134,6 +146,7 @@ const ExitTarget = () => {
       minPrice: selectedSymbolDetail.minPrice,
       maxQty: selectedSymbolDetail.maxQty,
       minQty: selectedSymbolDetail.minQty,
+      totalQuantity,
     }))
 
     if (price !== entry.price && price && quantity <= entry.quantity) {
@@ -153,6 +166,7 @@ const ExitTarget = () => {
     selectedSymbolDetail.minPrice,
     selectedSymbolDetail.maxQty,
     selectedSymbolDetail.minQty,
+    state,
   ])
 
   // PRICE and PROFIT Sync
@@ -195,18 +209,23 @@ const ExitTarget = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          setErrors(validate(validationFields))
-          const symbol = selectedSymbolDetail['symbolpair']
-          addTarget({
-            price,
-            quantity,
-            profit,
-            symbol,
-          })
 
-          setProfit(0)
-          setQuantity('')
-          setQuantityPercentage('')
+          const x = validate(validationFields)
+          setErrors(x)
+
+          if (Object.keys(x).length === 0) {
+            const symbol = selectedSymbolDetail['symbolpair']
+            addTarget({
+              price,
+              quantity,
+              profit,
+              symbol,
+            })
+
+            setProfit(0)
+            setQuantity('')
+            setQuantityPercentage('')
+          }
         }}
       >
         <InlineInput
@@ -257,7 +276,11 @@ const ExitTarget = () => {
           value={quantity}
           postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
         />
-
+        {errors.quantity && (
+          <div className="error" style={{ color: 'red' }}>
+            {errors.quantity}
+          </div>
+        )}
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs className={classes.slider}>
