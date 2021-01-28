@@ -32,7 +32,8 @@ function MarketForm() {
   const [quantity, setQuantity] = useState('')
   const [quantityPercentage, setQuantityPercentage] = useState('')
   const [total, setTotal] = useState('')
-  const [setIsValid] = useState(false) //isValid
+  const [isValid, setIsValid] = useState(false)
+
   const [errors, setErrors] = useState({})
   const [validationFields, setValidationFields] = useState({})
 
@@ -99,6 +100,11 @@ function MarketForm() {
   // CHECKER for isValid ? true : false
   useEffect(
     () => {
+      const canAfford = total <= balance
+      if (canAfford) {
+        setIsValid(true)
+      }
+
       setValidationFields((validationFields) => ({
         ...validationFields,
         selectedSymbolLastPrice,
@@ -115,11 +121,6 @@ function MarketForm() {
       if (!quantity) {
         return false
       }
-
-      let checkTotal = quantity * selectedSymbolLastPrice
-
-      /*       const canAfford = checkTotal <= balance
-      setIsValid(canAfford && quantity) */
     },
     [
       total,
@@ -143,13 +144,8 @@ function MarketForm() {
     evt.preventDefault()
     const x = validate(validationFields)
     setErrors(x)
-    const canAfford = total <= balance
 
-    if (canAfford) {
-      setIsValid(true)
-    }
-
-    if (Object.keys(x).length === 0 && canAfford) {
+    if (Object.keys(x).length === 0 && isValid) {
       console.log(Object.keys(errors).length)
       const symbol = selectedSymbolDetail['symbolpair']
       addMarketEntry({ quantity, balance, symbol, type: 'market' })
