@@ -299,7 +299,9 @@ const ExitStoplossStopLimit = () => {
                 onBlur={handleBlur}
                 postLabel={'%'}
                 name="profit"
-                max={0}
+                /*               min="-100.00"
+                max="0.00"
+                step="0.01" */
               />
             </Grid>
           </Grid>
