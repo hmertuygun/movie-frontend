@@ -13,6 +13,7 @@ import styles from './ExitTargetForm.module.css'
 const useStyles = makeStyles({
   root: {
     width: 255,
+    marginBottom: '1rem',
   },
   slider: {
     width: 120,
@@ -245,7 +246,6 @@ const ExitTargetStopMarket = () => {
           setErrors(x)
 
           if (Object.keys(x).length === 0) {
-            setErrors(validate(validationFields))
             const symbol = selectedSymbolDetail['symbolpair']
             addStopMarketTarget({
               price,
@@ -253,24 +253,24 @@ const ExitTargetStopMarket = () => {
               profit,
               symbol,
             })
+            setProfit(0)
+            setQuantity('')
+            setQuantityPercentage('')
           }
-
-          setProfit(0)
-          setQuantity('')
-          setQuantityPercentage('')
         }}
       >
-        <InlineInput
-          label="Trigger Price"
-          type="number"
-          name="price"
-          onChange={handleChange}
-          onBlur={handleBlur}
-          value={price}
-          placeholder="Target price"
-          postLabel={selectedSymbolDetail['quote_asset']}
-        />
-
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Trigger Price"
+            type="number"
+            name="price"
+            onChange={handleChange}
+            onBlur={handleBlur}
+            value={price}
+            placeholder="Target price"
+            postLabel={selectedSymbolDetail['quote_asset']}
+          />
+        </div>
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
             <div className={styles['SliderText']}>
@@ -299,21 +299,20 @@ const ExitTargetStopMarket = () => {
             </div>
           </div>
         </div>
-
-        <InlineInput
-          label="Quantity"
-          type="number"
-          name="quantity"
-          onBlur={handleBlur}
-          onChange={handleChange}
-          value={quantity}
-          postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-        />
-        {errors.quantity && (
-          <div className="error" style={{ color: 'red' }}>
-            {errors.quantity}
-          </div>
-        )}
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Quantity"
+            type="number"
+            name="quantity"
+            onBlur={handleBlur}
+            onChange={handleChange}
+            value={quantity}
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+          {errors.quantity && (
+            <div className={styles['Error']}>{errors.quantity}</div>
+          )}
+        </div>
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs className={classes.slider}>
@@ -339,9 +338,7 @@ const ExitTargetStopMarket = () => {
             </Grid>
           </Grid>
           {errors.total && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.total}
-            </div>
+            <div className={styles['Error']}>{errors.total}</div>
           )}
         </div>
 

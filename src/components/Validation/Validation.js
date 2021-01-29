@@ -15,25 +15,24 @@ export default function validateFields(values) {
     if (values.price > values.maxPrice) {
       errors.price = 'Price needs to meet max-price-total'
     }
-  }
-
-  if (values.quantity < values.minQty) {
-    errors.quantity = 'Amount needs to meet min-amount-total'
-  }
-
-  if (values.quantity > values.maxQty) {
-    errors.quantity = 'Amount needs to meet min-amount-total'
-  }
-
-  if (!values.quantity || values.quantity === 0) {
-    errors.quantity = 'Quantity is required'
-  }
-  if (values.quantity && values.price) {
-    if (values.total < values.minNotional) {
-      errors.total = 'Total needs to meet min-trading-total'
+    if (values.quantity < values.minQty) {
+      errors.quantity = 'Amount needs to meet min-amount-total'
     }
-    if (values.total > values.balance) {
-      errors.total = 'Total cannot not exceed your balance.'
+
+    if (values.quantity > values.maxQty) {
+      errors.quantity = 'Amount needs to meet min-amount-total'
+    }
+
+    if (!values.quantity) {
+      errors.quantity = 'Quantity is required'
+    }
+    if (values.quantity && values.price) {
+      if (values.total < values.minNotional) {
+        errors.total = 'Total needs to meet min-trading-total'
+      }
+      if (values.total > values.balance) {
+        errors.total = 'Total cannot not exceed your balance.'
+      }
     }
   }
 

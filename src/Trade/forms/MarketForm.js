@@ -175,7 +175,7 @@ function MarketForm() {
 
   return (
     <Fragment>
-      <div style={{ marginTop: '2rem' }}>
+      <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
         {isLoadingBalance ? ' ' : selectedSymbolBalance}
@@ -195,35 +195,37 @@ function MarketForm() {
 
       <section>
         <form onSubmit={handleSubmit}>
-          <InlineInput
-            label="Price"
-            type="number"
-            name="price"
-            placeholder="Market"
-            disabled
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-          />
-          {errors.price && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.price}
-            </div>
-          )}
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Price"
+              type="number"
+              name="price"
+              placeholder="Market"
+              disabled
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {errors.price && (
+              <div className="error" style={{ color: 'red' }}>
+                {errors.price}
+              </div>
+            )}
+          </div>
 
-          <InlineInput
-            label="Amount"
-            type="number"
-            name="quantity"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={quantity || ''}
-            placeholder="Amount"
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
-          {errors.quantity && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.quantity}
-            </div>
-          )}
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Amount"
+              type="number"
+              name="quantity"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={quantity || ''}
+              placeholder="Amount"
+              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+            />
+            {errors.quantity && (
+              <div className={styles['Error']}>{errors.quantity}</div>
+            )}
+          </div>
 
           <div className={styles['SliderRow']}>
             <div className={styles['SliderSlider']}>
@@ -249,20 +251,21 @@ function MarketForm() {
               />
             </div>
           </div>
-          <InlineInput
-            label="Total"
-            type="number"
-            name="total"
-            value={total || ''}
-            placeholder=""
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            disabled
-          />
-          {errors.total && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.total}
-            </div>
-          )}
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Total"
+              type="number"
+              name="total"
+              value={total}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder=""
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {errors.total && (
+              <div className={styles['Error']}>{errors.total}</div>
+            )}
+          </div>
           <Button
             variant="exits"
             //disabled={isValid ? null : 'disabled'}
