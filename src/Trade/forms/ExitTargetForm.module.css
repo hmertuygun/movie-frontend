@@ -20,3 +20,16 @@
   width: 25%;
   min-width: 70px;
 }
+
+.Input {
+  margin-bottom: 1rem;
+}
+
+.Error {
+  background-color: #fff0f1;
+  border: 1px solid #e35b66;
+  color: #cc3340;
+  margin-top: 5px;
+  font-size: 12px;
+  text-align: center;
+}

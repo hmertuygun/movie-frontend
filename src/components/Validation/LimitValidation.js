@@ -14,12 +14,10 @@ export default function validateFields(values) {
     errors.price = 'Please input Price'
   } else if (values.price > values.triggerPrice) {
     errors.price = 'Price cannot be higher than Trigger Price'
-  }
-
-  if (values.total <= values.minNotional) {
+  } // ends here
+  else if (values.total <= values.minNotional) {
     errors.total = 'Total needs to meet min-trading-total'
-  }
-  if (values.total > values.balance) {
+  } else if (values.total > values.balance) {
     errors.total = 'Total can not exceed your balance.'
   }
 

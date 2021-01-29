@@ -375,37 +375,36 @@ function LimitForm() {
 
       <section>
         <form onSubmit={handleSubmit}>
-          <InlineInput
-            label="Price"
-            type="number"
-            name="price"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={price || ''}
-            placeholder="Entry price"
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-          />
-          {errors.price && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.price}
-            </div>
-          )}
-
-          <InlineInput
-            label="Amount"
-            type="number"
-            name="quantity"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={quantity}
-            placeholder="Amount"
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
-          {errors.quantity && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.quantity}
-            </div>
-          )}
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Price"
+              type="number"
+              name="price"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={price || ''}
+              placeholder="Entry price"
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {errors.price && (
+              <div className={styles['Error']}>{errors.price}</div>
+            )}
+          </div>
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Amount"
+              type="number"
+              name="quantity"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={quantity}
+              placeholder="Amount"
+              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+            />
+            {errors.quantity && (
+              <div className={styles['Error']}>{errors.quantity}</div>
+            )}
+          </div>
 
           <div className={styles['SliderRow']}>
             <div className={styles['SliderSlider']}>
@@ -434,23 +433,21 @@ function LimitForm() {
               />
             </div>
           </div>
-
-          <InlineInput
-            label="Total"
-            type="number"
-            name="total"
-            value={total}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder=""
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-          />
-          {errors.total && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.total}
-            </div>
-          )}
-
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Total"
+              type="number"
+              name="total"
+              value={total}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder=""
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {errors.total && (
+              <div className={styles['Error']}>{errors.total}</div>
+            )}
+          </div>
           <Button
             variant="exits"
             //disabled={isValid ? null : 'disabled'}
