@@ -9,11 +9,13 @@ export default function validateFields(values) {
     errors.quantity = 'Quantity is required'
   }
 
-  if (values.quantity && values.entryQuantity) {
-
-    if (values.quantity > values.entryQuantity) {
-      errors.total = 'Quantity can not exceed your entry order.'
-    }
+  if (values.quantity > values.entryQuantity) {
+    errors.total = 'Quantity can not exceed your entry order.'
   }
+
+  if (values.totalQuantity + values.quantity >= values.entryQuantity) {
+    errors.total = 'Target orders cannot exceed 100% of entry'
+  }
+
   return errors
 }

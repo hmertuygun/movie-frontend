@@ -163,6 +163,12 @@ const ExitTargetStopMarket = () => {
 
   // VALIDATE FORM
   useEffect(() => {
+    const sumQuantity = state.targets?.map((item) => item.quantity)
+    const totalQuantity = sumQuantity?.reduce(
+      (total, value) => parseFloat(total) + parseFloat(value),
+      0
+    )
+
     setValidationFields((validationFields) => ({
       ...validationFields,
       price: entry.price,
@@ -171,6 +177,7 @@ const ExitTargetStopMarket = () => {
       balance: balance,
       minNotional: selectedSymbolDetail.minNotional,
       entryQuantity: entry.quantity,
+      totalQuantity,
     }))
 
     if (price !== entry.price && price && quantity <= entry.quantity) {
@@ -233,14 +240,20 @@ const ExitTargetStopMarket = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          setErrors(validate(validationFields))
-          const symbol = selectedSymbolDetail['symbolpair']
-          addStopMarketTarget({
-            price,
-            quantity,
-            profit,
-            symbol,
-          })
+
+          const x = validate(validationFields)
+          setErrors(x)
+
+          if (Object.keys(x).length === 0) {
+            setErrors(validate(validationFields))
+            const symbol = selectedSymbolDetail['symbolpair']
+            addStopMarketTarget({
+              price,
+              quantity,
+              profit,
+              symbol,
+            })
+          }
 
           setProfit(0)
           setQuantity('')
