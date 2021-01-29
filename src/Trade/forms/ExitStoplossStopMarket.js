@@ -38,6 +38,13 @@ const ExitStoplossStopMarket = () => {
       selectedSymbolDetail['tickSize']
     )
   )
+  //setEntryPrice
+  const [entryPrice] = useState(
+    roundNumbers(
+      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
+      selectedSymbolDetail['tickSize']
+    )
+  )
   const [price] = useState('') //setPrice
   const [profit, setProfit] = useState(0)
   const [quantity, setQuantity] = useState('')
@@ -71,11 +78,11 @@ const ExitStoplossStopMarket = () => {
 
   const handleBlur = (evt) => {
     let { name, value } = evt.target
-    if (name === 'profit') {
-      if (value < -Math.abs(100)) {
+    if (name === 'profit' || name === 'triggerPrice') {
+      if (profit < -Math.abs(100)) {
         setProfit(-Math.abs(100))
         priceAndProfitSync('profit', 100)
-      } else if (value > 0) {
+      } else if (profit > 0) {
         setProfit(-Math.abs(100))
         priceAndProfitSync('profit', 100)
       }
@@ -158,7 +165,8 @@ const ExitStoplossStopMarket = () => {
     () => {
       setValidationFields((validationFields) => ({
         ...validationFields,
-        price,
+        entryPrice,
+        triggerPrice,
         quantity,
         total,
         balance: balance,
@@ -181,6 +189,7 @@ const ExitStoplossStopMarket = () => {
     },
     [
       triggerPrice,
+      entryPrice,
       price,
       quantity,
       entry.quantity,
@@ -198,12 +207,12 @@ const ExitStoplossStopMarket = () => {
 
     switch (inputChanged) {
       case 'triggerPrice':
-        return true
-
-      case 'price':
         const diff = usePrice - value
         const percentage = roundNumbers((diff / usePrice) * 100, 2)
         setProfit(-percentage)
+        return true
+
+      case 'price':
         return true
 
       case 'profit':
@@ -268,6 +277,11 @@ const ExitStoplossStopMarket = () => {
             onBlur={handleBlur}
             postLabel={selectedSymbolDetail['quote_asset']}
           />
+          {errors.triggerPrice && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.triggerPrice}
+            </div>
+          )}
 
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
@@ -295,6 +309,9 @@ const ExitStoplossStopMarket = () => {
                   onBlur={handleBlur}
                   postLabel={'%'}
                   name="profit"
+                  min="-100.00"
+                  max="0.00"
+                  step="0.01"
                 />
               </Grid>
             </Grid>
@@ -309,6 +326,11 @@ const ExitStoplossStopMarket = () => {
             value={quantity}
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
+          {errors.quantity && (
+            <div className="error" style={{ color: 'red' }}>
+              {errors.quantity}
+            </div>
+          )}
 
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
