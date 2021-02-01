@@ -168,7 +168,7 @@ const ExitTarget = () => {
 
     setValidationFields((validationFields) => ({
       ...validationFields,
-      price: entry.price,
+      price,
       quantity,
       total,
       balance: balance,
@@ -181,7 +181,8 @@ const ExitTarget = () => {
       totalQuantity,
     }))
 
-    if (price !== entry.price && price && quantity <= entry.quantity) {
+    //if (price !== entry.price && price && quantity <= entry.quantity) {
+    if (price !== entry.price) {
       setIsValid(true)
     } else {
       setIsValid(false)
@@ -221,7 +222,8 @@ const ExitTarget = () => {
       )
     }
 
-    if (inputChanged === 'quantity' && value <= entry.quantity) {
+    //if (inputChanged === 'quantity' && value <= entry.quantity) {
+    if (inputChanged === 'quantity') {
       setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
     }
 
@@ -230,7 +232,10 @@ const ExitTarget = () => {
       (inputChanged === 'quantityPercentage' && value > 0)
     ) {
       const theQuantity = (entry.quantity * value) / 100
-      setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+      // setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+      setQuantity(
+        roundNumbers(theQuantity, selectedSymbolDetail['base_asset_precision'])
+      )
     }
 
     return false
@@ -271,6 +276,9 @@ const ExitTarget = () => {
             placeholder="Target price"
             postLabel={selectedSymbolDetail['quote_asset']}
           />
+          {errors.price && (
+            <div className={styles['Error']}>{errors.price}</div>
+          )}
         </div>
         <div className={classes.root}>
           <div className={styles['SliderRow']}>

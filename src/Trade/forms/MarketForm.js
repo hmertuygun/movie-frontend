@@ -163,14 +163,6 @@ function MarketForm() {
     if (name === 'total') {
       setTotal(value)
     }
-
-    /*     setValidationFields((validationFields) => ({
-      ...validationFields,
-      [name]: value,
-      total: quantity * price,
-      balance: balance,
-      minNotional: selectedSymbolDetail.minNotional,
-    })) */
   }
 
   return (

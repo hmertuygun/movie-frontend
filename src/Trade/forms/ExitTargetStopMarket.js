@@ -172,16 +172,21 @@ const ExitTargetStopMarket = () => {
 
     setValidationFields((validationFields) => ({
       ...validationFields,
-      price: entry.price,
+      price,
       quantity,
       total,
       balance: balance,
       minNotional: selectedSymbolDetail.minNotional,
       entryQuantity: entry.quantity,
+      maxPrice: selectedSymbolDetail.maxPrice,
+      minPrice: selectedSymbolDetail.minPrice,
+      maxQty: selectedSymbolDetail.maxQty,
+      minQty: selectedSymbolDetail.minQty,
       totalQuantity,
     }))
 
-    if (price !== entry.price && price && quantity <= entry.quantity) {
+    //if (price !== entry.price && price && quantity <= entry.quantity) {
+    if (price !== entry.price) {
       setIsValid(true)
     } else {
       setIsValid(false)
@@ -194,6 +199,11 @@ const ExitTargetStopMarket = () => {
     entry.quantity,
     entry.price,
     selectedSymbolDetail.minNotional,
+    selectedSymbolDetail.maxPrice,
+    selectedSymbolDetail.minPrice,
+    selectedSymbolDetail.maxQty,
+    selectedSymbolDetail.minQty,
+    state.targets,
   ])
 
   // PRICE and PROFIT Sync
@@ -230,7 +240,9 @@ const ExitTargetStopMarket = () => {
       (inputChanged === 'quantityPercentage' && value > 0)
     ) {
       const theQuantity = (entry.quantity * value) / 100
-      setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+      setQuantity(
+        roundNumbers(theQuantity, selectedSymbolDetail['base_asset_precision'])
+      )
     }
 
     return false
@@ -270,6 +282,9 @@ const ExitTargetStopMarket = () => {
             placeholder="Target price"
             postLabel={selectedSymbolDetail['quote_asset']}
           />
+          {errors.price && (
+            <div className={styles['Error']}>{errors.price}</div>
+          )}
         </div>
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
