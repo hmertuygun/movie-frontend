@@ -80,7 +80,7 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleBlur = (evt) => {
-    let { name, value } = evt.target
+    let { name } = evt.target
     if (name === 'profit' || name === 'triggerPrice') {
       if (profit < -Math.abs(100)) {
         setProfit(-Math.abs(100))
@@ -227,9 +227,7 @@ const ExitStoplossStopMarket = () => {
         return false
 
       case 'quantity':
-        if (value <= entry.quantity) {
-          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
-        }
+        setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
         return false
 
       case 'quantityPercentage':
@@ -312,9 +310,6 @@ const ExitStoplossStopMarket = () => {
                   onBlur={handleBlur}
                   postLabel={'%'}
                   name="profit"
-                  min="-100.00"
-                  max="0.00"
-                  step="0.01"
                 />
               </Grid>
             </Grid>

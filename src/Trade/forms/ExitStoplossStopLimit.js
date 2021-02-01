@@ -252,9 +252,7 @@ const ExitStoplossStopLimit = () => {
         return false
 
       case 'quantity':
-        if (value <= entry.quantity) {
-          setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
-        }
+        setQuantityPercentage(roundNumbers((value / entry.quantity) * 100, 2))
         return false
 
       case 'quantityPercentage':

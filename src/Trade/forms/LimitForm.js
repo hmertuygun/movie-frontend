@@ -59,12 +59,15 @@ function LimitForm() {
   }
 
   const handleBlur = (evt) => {
-    if (quantityPercentage < 0) {
-      setQuantityPercentage(0)
-      calculatePercentageQuantity('quantityPercentage', 0)
-    } else if (quantityPercentage > 100) {
-      setQuantityPercentage(100)
-      calculatePercentageQuantity('quantityPercentage', 100)
+    const { name } = evt.target
+    if (name === 'quantityPercentage') {
+      if (quantityPercentage < 0) {
+        setQuantityPercentage(0)
+        calculatePercentageQuantity('quantityPercentage', 0)
+      } else if (quantityPercentage > 100) {
+        setQuantityPercentage(100)
+        calculatePercentageQuantity('quantityPercentage', 100)
+      }
     }
   }
 
@@ -354,7 +357,6 @@ function LimitForm() {
 
   return (
     <Fragment>
-      {/* <div style={{ margin: '1rem 0', textAlign: 'center' }}></div> */}
       <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
@@ -430,6 +432,7 @@ function LimitForm() {
                 postLabel={'%'}
                 disabled={!price}
                 small
+                name="quantityPercentage"
               />
             </div>
           </div>
