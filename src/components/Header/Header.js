@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from './Logo/Logo'
 import MenuItems from './Navigation/NavBar/MenuItems'
-// import Notifications from './Navigation/NavMenu/Notifications/Notifications'
 
 import { UserContext } from '../../contexts/UserContext'
 
@@ -26,26 +25,6 @@ const Header = () => {
       >
         <div className="container">
           <Logo />
-          {/* 
-          <button
-            className="navbar-toggler order-lg-2 ml-n3 ml-lg-0"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbar-main-collapse"
-            aria-controls="navbar-main-collapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span
-              className="navbar-toggler-icon"
-              onClick={() => {
-                console.log('hamburger menu')
-              }}
-            >
-              - - - -
-            </span>
-          </button> */}
-
           <div
             className="collapse navbar-collapse navbar-collapse-overlay order-lg-3"
             id="navbar-main-collapse"
