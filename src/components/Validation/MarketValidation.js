@@ -8,9 +8,9 @@ export default function validateFields(values) {
   if (!values.quantity) {
     errors.quantity = 'Quantity is required'
   } else if (values.quantity > values.maxQty) {
-    errors.quantity = `Amount needs to meet max-amount-total: ${values.maxQty}.000000`
+    errors.quantity = `Amount needs to meet max-amount-total: ${values.maxQty}`
   } else if (values.total < values.minNotional) {
-    errors.total = `Total needs to meet min-trading-total: ${values.minNotional}.000000`
+    errors.total = `Total needs to meet min-trading-total: ${values.minNotional}`
   } else if (values.total > values.balance) {
     errors.total = 'Total cannot not exceed your balance.'
   }

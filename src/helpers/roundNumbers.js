@@ -1,5 +1,5 @@
 const roundNumbers = (input, precision = 2) => {
-  if (precision > 5) {
+  if (precision > 2) {
     return Math.floor((Number(input) + Number.EPSILON) * 1000000) / 1000000
   }
 

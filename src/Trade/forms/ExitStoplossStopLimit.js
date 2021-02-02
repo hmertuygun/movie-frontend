@@ -180,8 +180,7 @@ const ExitStoplossStopLimit = () => {
       //setQuantity(value)
       priceAndProfitSync('quantity', valueFormatedQtd)
       //priceAndProfitSync('quantity', value)
-
-      setTotal(value * price) // setting total value for ExitStopLoss
+      setTotal(value * price)
     }
   }
   useEffect(() => {
@@ -258,6 +257,7 @@ const ExitStoplossStopLimit = () => {
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * value) / 100
         setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+        setTotal(quantity * triggerPrice)
         return false
 
       default: {
