@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useInfiniteQuery, useQueryClient } from 'react-query'
-import { getOpenOrders, getOrdersHistory } from '../../../api/api'
+import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
+import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
@@ -16,14 +16,20 @@ const Table = ({
   setIsOpenOrders,
   infiniteOrders,
   refreshOpenOrders,
+  refreshExchanges,
 }) => {
   const [loadingBtn, setLoadingBtn] = useState(false)
 
+  const rfshExchange = useQuery('exchangeSymbols', getExchanges)
+
   const refreshOpenOrder = async () => {
     setLoadingBtn(true)
-    const refresh = await refreshOpenOrders.refetch()
+    const rfshOpenOrders = await refreshOpenOrders.refetch()
 
-    if (refresh.isSuccess) {
+    if (rfshExchange.isSuccess || rfshOpenOrders.isSuccess) {
+      setLoadingBtn(false)
+    } else {
+      console.log('error refreshing')
       setLoadingBtn(false)
     }
   }
@@ -190,6 +196,7 @@ const TradeOrders = () => {
       setIsOpenOrders={setIsOpenOrders}
       infiniteOrders={isOpenOrders ? infiniteOpenOrders : infiniteHistory}
       refreshOpenOrders={infiniteOpenOrders}
+      refreshExchanges={getExchanges}
     />
   )
 }
