@@ -25,6 +25,11 @@ const SymbolSelect = () => {
         .toLowerCase()
         .includes(state.search.toLowerCase())
     )
+    if (!filteredData.length) {
+      return Object.values(symbols).filter((search) =>
+        search.label.toLowerCase().includes(state.search.toLowerCase())
+      )
+    }
     return filteredData
   }
 
