@@ -2,12 +2,25 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { MenuData } from './MenuData'
 
-function MenuItens() {
-  return (
-    <ul className="navbar-nav ml-lg-auto mr-3">
-      {MenuData.map((item, idx) => {
-        return (
-          <li className="nav-item nav-item-spaced d-none d-lg-block" key={idx}>
+const MenuItems = () => (
+  <ul className="navbar-nav ml-lg-auto mr-3">
+    {MenuData.map((item) => {
+      return (
+        <li
+          className="nav-item nav-item-spaced d-none d-lg-block"
+          key={item.title}
+        >
+          {item.externalLink ? (
+            <a
+              activeClassName="nav-link active"
+              className="nav-link"
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {item.title}
+            </a>
+          ) : (
             <NavLink
               activeClassName="nav-link active"
               className="nav-link"
@@ -15,11 +28,11 @@ function MenuItens() {
             >
               {item.title}
             </NavLink>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
+          )}
+        </li>
+      )
+    })}
+  </ul>
+)
 
-export default MenuItens
+export default MenuItems
