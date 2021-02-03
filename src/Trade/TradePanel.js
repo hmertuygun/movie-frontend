@@ -34,8 +34,16 @@ const Trade = () => {
   const hasEntry = state.entry?.quantity > 0 ? true : false
 
   function checkAllTypes() {
-    const targets = state && state.targets && state.targets.length > 0 && state.targets[0].quantity > 0
-    const stoploss = state && state.stoploss && state.stoploss.length > 0 && state.stoploss[0].quantity > 0
+    const targets =
+      state &&
+      state.targets &&
+      state.targets.length > 0 &&
+      state.targets[0].quantity > 0
+    const stoploss =
+      state &&
+      state.stoploss &&
+      state.stoploss.length > 0 &&
+      state.stoploss[0].quantity > 0
 
     return targets && stoploss && hasEntry
   }
@@ -70,7 +78,7 @@ const Trade = () => {
           <div style={{ marginTop: '4rem' }}>
             {!hasEntry && (
               <div style={{ marginTop: '2rem' }}>
-                <Typography as="h3">1. Entry</Typography>
+                <Typography as="h3">1. Entry Order</Typography>
               </div>
             )}
 
@@ -89,7 +97,10 @@ const Trade = () => {
                     <ExitTarget />
                     <ExitTargetStopMarket />
                   </TabNavigator>
-                  <TabNavigator labelArray={['Stop-limit', 'Stop-market']} index={0}>
+                  <TabNavigator
+                    labelArray={['Stop-limit', 'Stop-market']}
+                    index={0}
+                  >
                     <ExitStoplossStopLimit />
                     <ExitStoplossStopMarket />
                   </TabNavigator>
