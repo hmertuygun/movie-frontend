@@ -1,15 +1,39 @@
 import React, { useEffect, useState } from 'react'
-import { useInfiniteQuery, useQueryClient } from 'react-query'
-import { getOpenOrders, getOrdersHistory } from '../../../api/api'
+import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
+import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
+import { faSync } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
-const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
+const Table = ({
+  isOpenOrders,
+  setIsOpenOrders,
+  infiniteOrders,
+  refreshOpenOrders,
+  refreshExchanges,
+}) => {
+  const [loadingBtn, setLoadingBtn] = useState(false)
+
+  const rfshExchange = useQuery('exchangeSymbols', getExchanges)
+
+  const refreshOpenOrder = async () => {
+    setLoadingBtn(true)
+    const rfshOpenOrders = await refreshOpenOrders.refetch()
+
+    if (rfshExchange.isSuccess || rfshOpenOrders.isSuccess) {
+      setLoadingBtn(false)
+    } else {
+      console.log('error refreshing')
+      setLoadingBtn(false)
+    }
+  }
+
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="pb-0">
@@ -32,8 +56,36 @@ const Table = ({ isOpenOrders, setIsOpenOrders, infiniteOrders }) => {
               Order History
             </span>
           </div>
+          <div className="col-auto">
+            {loadingBtn ? (
+              <button
+                className="btn btn-sm btn-neutral btn-icon"
+                type="button"
+                disabled
+              >
+                Refresh{'  '}
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-sm btn-neutral btn-icon"
+                onClick={refreshOpenOrder}
+              >
+                <span className="btn-inner--text">Refresh</span>
+                <span className="btn-inner--icon">
+                  <FontAwesomeIcon icon={faSync} />
+                </span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
       <div style={{ overflowY: 'scroll' }}>
         <table className={['table', styles.table].join(' ')}>
           <thead>
@@ -143,6 +195,8 @@ const TradeOrders = () => {
       isOpenOrders={isOpenOrders}
       setIsOpenOrders={setIsOpenOrders}
       infiniteOrders={isOpenOrders ? infiniteOpenOrders : infiniteHistory}
+      refreshOpenOrders={infiniteOpenOrders}
+      refreshExchanges={getExchanges}
     />
   )
 }
