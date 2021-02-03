@@ -182,3 +182,14 @@
   background: var(--trade-cancel-background);
   color: var(--dark);
 }
+
+.Button-remove {
+  composes: Button-plain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.Button-remove:hover {
+  cursor: pointer;
+}
