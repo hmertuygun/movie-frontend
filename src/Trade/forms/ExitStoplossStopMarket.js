@@ -136,7 +136,7 @@ const ExitStoplossStopMarket = () => {
       //priceAndProfitSync('triggerPrice', value)
       priceAndProfitSync('triggerPrice', valueFormatedTrgPrice)
 
-      setTotal(value * triggerPrice)
+      setTotal(value * quantity)
     }
 
     if (name === 'quantity') {
@@ -160,7 +160,7 @@ const ExitStoplossStopMarket = () => {
       //priceAndProfitSync('quantity', valueFormatedQtd)
       priceAndProfitSync('quantity', value)
 
-      setTotal(value * triggerPrice) // setting total value for ExitStopLoss
+      setTotal(value * triggerPrice)
     }
   }
 
@@ -233,6 +233,7 @@ const ExitStoplossStopMarket = () => {
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * value) / 100
         setQuantity(roundNumbers(theQuantity, selectedSymbolDetail['lotSize']))
+        setTotal(quantity * triggerPrice)
         return false
 
       default: {
