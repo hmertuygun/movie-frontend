@@ -1,12 +1,12 @@
 .Table {
   --table-row-border: #444;
-  --table-left-spacer: .5rem;
+  --table-left-spacer: 0.5rem;
 
   --table-buy-color: var(--primary);
   --table-target-color: var(--green);
   --table-stoploss-color: var(--red);
 
-  --table-dot-size: .5rem;
+  --table-dot-size: 0.5rem;
 
   border-collapse: collapse;
   display: table;
@@ -21,7 +21,7 @@
   cursor: pointer;
 }
 
-.Table-row  {
+.Table-row {
   padding: 0.2rem;
   margin: 0 0 2rem;
 }
@@ -48,7 +48,6 @@
   color: var(--table-target-color);
 }
 
-
 .Table-type-container {
   display: flex;
   align-items: center;
@@ -63,7 +62,6 @@
   margin-right: var(--table-left-spacer);
 }
 
-
 .Table-dot-buy {
   composes: Table-dot;
   background: var(--table-buy-color);
@@ -73,7 +71,6 @@
   composes: Table-dot;
   background: var(--table-target-color);
 }
-
 
 .Table-dot-stoploss {
   composes: Table-dot;
