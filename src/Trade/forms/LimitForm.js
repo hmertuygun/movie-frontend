@@ -12,8 +12,6 @@ import { useSymbolContext } from '../context/SymbolContext'
 
 import { InlineInput, Button } from '../../components'
 
-import validate from '../../components/Validation/Validation'
-
 import * as yup from 'yup'
 
 import styles from './LimitForm.module.css'
@@ -24,7 +22,6 @@ const LimitForm = () => {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    selectedSymbolLastPrice,
   } = useSymbolContext()
 
   const { addEntry } = useContext(TradeContext)
@@ -228,6 +225,12 @@ const LimitForm = () => {
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+      total: '',
+    }))
   }
 
   const handleSliderInputChange = ({ target }) => {
@@ -241,6 +244,12 @@ const LimitForm = () => {
       [target.name]: target.value,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
+    }))
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+      total: '',
     }))
   }
 
@@ -315,7 +324,6 @@ const LimitForm = () => {
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
               value={values.price}
-              min={0}
               placeholder="Entry price"
               postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             />
@@ -329,7 +337,6 @@ const LimitForm = () => {
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, quantityPrecision)}
               value={values.quantity}
-              min={0}
               placeholder="Amount"
               postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
             />
@@ -357,8 +364,6 @@ const LimitForm = () => {
                 margin="dense"
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
-                min={0}
-                max={100}
                 disabled={!values.price}
                 small
                 name="quantityPercentage"
@@ -374,7 +379,6 @@ const LimitForm = () => {
               value={values.total}
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, totalPrecision)}
-              placeholder=""
               postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             />
             {renderInputValidationError('total')}

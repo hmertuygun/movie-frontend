@@ -32,6 +32,7 @@ const ExitTarget = () => {
     selectedSymbolBalance,
     selectedSymbolLastPrice,
   } = useSymbolContext()
+  
   const balance = selectedSymbolBalance
 
   const [profit, setProfit] = useState(0)
