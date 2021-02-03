@@ -37,14 +37,8 @@ const InlineInput = ({
       </label>
       <input
         className={styles.InputElement}
-        onFocus={() => setIsFocused(true)}
-        onBlur={(event) => {
-          onBlur(event)
-          setIsFocused(false)
-        }}
-        onChange={(event) => {
-          onChange(event)
-        }}
+        onBlur={onBlur}
+        onChange={onChange}
         disabled={disabled}
         id={inputId}
         placeholder={placeholder}

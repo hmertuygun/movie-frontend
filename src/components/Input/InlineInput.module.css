@@ -89,7 +89,7 @@
   margin: 0;
   height: 32px;
   padding: 0;
-  right: -8px;
+  position: relative;
 }
 
 .InputPostLabel {
