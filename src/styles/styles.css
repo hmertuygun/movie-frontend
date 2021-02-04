@@ -47,3 +47,8 @@ hr {
   box-sizing: content-box;
   height: 0;
 }
+
+/*slider*/
+.rc-slider-disabled {
+  background: none;
+}

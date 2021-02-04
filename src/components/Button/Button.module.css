@@ -190,6 +190,14 @@
   margin-right: auto;
 }
 
+.Button-exit {
+  composes: Button-plain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  color: #fff;
+}
+
 .Button-remove:hover {
   cursor: pointer;
 }

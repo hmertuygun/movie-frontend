@@ -16,8 +16,9 @@ const useStyles = makeStyles({
     marginBottom: '1rem',
   },
   slider: {
-    width: 120,
+    width: 165,
     vertiicalAlign: 'middle',
+    marginLeft: '8px',
   },
   input: {
     width: 30,
@@ -330,8 +331,9 @@ const ExitTargetStopMarket = () => {
         </div>
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs className={classes.slider}>
+            <Grid item xs>
               <Slider
+                className={classes.slider}
                 defaultValue={0}
                 step={1}
                 marks={marks}

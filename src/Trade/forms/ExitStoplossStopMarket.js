@@ -19,9 +19,10 @@ const useStyles = makeStyles({
   slider: {
     width: 160,
     vertiicalAlign: 'middle',
+    marginLeft: '8px',
   },
   input: {
-    width: 30,
+    width: 35,
   },
 })
 
@@ -286,11 +287,11 @@ const ExitStoplossStopMarket = () => {
           </div>
 
           <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Typography>Profit</Typography>
-              </Grid>
-              <Grid item xs className={classes.slider}>
+            <div className={styles['SliderRow']}>
+              <div className={styles['SliderText']}>
+                <Typography className="Slider-Text">Profit</Typography>
+              </div>
+              <div className={styles['SliderSlider']}>
                 <Slider
                   reverse
                   defaultValue={0}
@@ -301,8 +302,8 @@ const ExitStoplossStopMarket = () => {
                   onChange={handleSliderChange}
                   value={0 - profit}
                 />
-              </Grid>
-              <Grid item>
+              </div>
+              <div className={styles['SliderInput']}>
                 <InlineInput
                   className={classes.input}
                   value={profit}
@@ -312,8 +313,8 @@ const ExitStoplossStopMarket = () => {
                   postLabel={'%'}
                   name="profit"
                 />
-              </Grid>
-            </Grid>
+              </div>
+            </div>
           </div>
           <div className={styles['Input']}>
             <InlineInput
@@ -332,8 +333,9 @@ const ExitStoplossStopMarket = () => {
 
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs className={classes.slider}>
+              <Grid item xs>
                 <Slider
+                  className={classes.slider}
                   defaultValue={0}
                   step={1}
                   marks={marks}
