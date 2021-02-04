@@ -48,7 +48,6 @@ const ExitTargetStopMarket = () => {
   const pricePrecision = selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
 
-  const minPrice = Number(selectedSymbolDetail.minPrice)
   const maxPrice = Number(selectedSymbolDetail.maxPrice)
   const minQty = Number(selectedSymbolDetail.minQty)
 
@@ -188,20 +187,13 @@ const ExitTargetStopMarket = () => {
     }))
   }
 
-  const handleQPBlur = (evt) => {
-    if (values.quantityPercentage < 0) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 0,
-      }))
-      priceAndProfitSync('quantityPercentage', 0)
-    } else if (values.quantityPercentage > 100) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 100,
-      }))
-      priceAndProfitSync('quantityPercentage', 100)
-    }
+  const handleQPBlur = ({ target }) => {
+    const value = target.value > 100 ? 100 : target.value
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: value,
+    }))
+    priceAndProfitSync('quantityPercentage', value)
   }
 
   const handleChange = ({ target }) => {
@@ -274,8 +266,10 @@ const ExitTargetStopMarket = () => {
     }
   }
 
-  const validateForm = () => {
-    return formSchema.validate(values, { abortEarly: false }).catch((error) => {
+  const validateForm = async () => {
+    try {
+      return formSchema.validate(values, { abortEarly: false })
+    } catch (error) {
       if (error.name === 'ValidationError') {
         error.inner.forEach((fieldError) => {
           setErrors((errors) => ({
@@ -284,7 +278,7 @@ const ExitTargetStopMarket = () => {
           }))
         })
       }
-    })
+    }
   }
 
   useEffect(() => {
@@ -299,7 +293,7 @@ const ExitTargetStopMarket = () => {
         total: '',
       }))
     }
-  }, [totalQuantity, values.quantity])
+  }, [totalQuantity, values.quantity, values.quantityPercentage])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -418,6 +412,7 @@ const ExitTargetStopMarket = () => {
                 className={classes.input}
                 value={values.quantityPercentage}
                 margin="dense"
+                name="quantityPercentage"
                 onChange={handleQPInputChange}
                 onBlur={handleQPBlur}
                 postLabel={'%'}
