@@ -16,12 +16,12 @@ const useStyles = makeStyles({
     marginBottom: '1rem',
   },
   slider: {
-    width: 165,
+    width: 160,
     vertiicalAlign: 'middle',
     marginLeft: '8px',
   },
   input: {
-    width: 30,
+    width: 35,
   },
 })
 
