@@ -7,7 +7,7 @@ import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 
 import * as yup from 'yup'
-import { addPrecisionToNumber } from '../../helpers/precisionRound'
+import { addPrecisionToNumber, removeTrailingZeroFromInput } from '../../helpers/precisionRound'
 
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
@@ -134,13 +134,13 @@ const ExitTarget = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
-    const { name, value } = target
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
     setValues((values) => ({
       ...values,
-      profit: Math.abs(value) > 100 ? 100 : Number(value),
+      profit: value > 100 ? 100 : value,
     }))
 
-    priceAndProfitSync(name, value)
+    priceAndProfitSync(target.name, value)
 
     setErrors((errors) => ({
       ...errors,
@@ -175,11 +175,12 @@ const ExitTarget = () => {
   }
 
   const handleQPInputChange = ({ target }) => {
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
     setValues((values) => ({
       ...values,
-      quantityPercentage: target.value > 100 ? 100 : Number(target.value),
+      quantityPercentage: value > 100 ? 100 : value,
     }))
-    priceAndProfitSync(target.name, target.value)
+    priceAndProfitSync(target.name, value)
 
     setErrors((errors) => ({
       ...errors,
@@ -188,7 +189,7 @@ const ExitTarget = () => {
   }
 
   const handleQPBlur = ({ target }) => {
-    const value = target.value > 100 ? 100 : target.value;
+    const value = target.value > 100 ? 100 : target.value
     setValues((values) => ({
       ...values,
       quantityPercentage: value,
@@ -266,10 +267,8 @@ const ExitTarget = () => {
     }
   }
 
-  const validateForm = async () => {
-    try {
-      return formSchema.validate(values, { abortEarly: false })
-    } catch (error) {
+  const validateForm = () => {
+    return formSchema.validate(values, { abortEarly: false }).catch((error) => {
       if (error.name === 'ValidationError') {
         error.inner.forEach((fieldError) => {
           setErrors((errors) => ({
@@ -278,7 +277,7 @@ const ExitTarget = () => {
           }))
         })
       }
-    }
+    })
   }
 
   useEffect(() => {
@@ -423,7 +422,11 @@ const ExitTarget = () => {
           {renderInputValidationError('total')}
         </div>
 
-        <Button disabled={errors.total} variant="buy" type="submit">
+        <Button
+          disabled={errors.total || values.profit === 0 || values.profit === ''}
+          variant="buy"
+          type="submit"
+        >
           Add Target
         </Button>
       </form>

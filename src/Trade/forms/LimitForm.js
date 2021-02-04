@@ -2,7 +2,10 @@ import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
-import { addPrecisionToNumber } from '../../helpers/precisionRound'
+import {
+  addPrecisionToNumber,
+  removeTrailingZeroFromInput,
+} from '../../helpers/precisionRound'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -48,6 +51,14 @@ const LimitForm = () => {
   const pricePrecision = selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
   const totalPrecision = selectedSymbolDetail['quote_asset_precision']
+
+  const sliderMarks = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
+  }
 
   // @TODO
   // Move schema to a different folder
@@ -104,14 +115,6 @@ const LimitForm = () => {
       )
       .max(selectedSymbolBalance, 'Total cannot not exceed your balance.'),
   })
-
-  const sliderMarks = {
-    0: '',
-    25: '',
-    50: '',
-    75: '',
-    100: '',
-  }
 
   const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
     const price = Number(values.price)
@@ -236,14 +239,15 @@ const LimitForm = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const {
       quantityWithPrecision,
       totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(target.value)
+    } = calculateTotalAndQuantityFromSliderPercentage(value)
 
     setValues((values) => ({
       ...values,
-      [target.name]: target.value > 100 ? 100 : target.value,
+      [target.name]: value > 100 ? 100 : value,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))

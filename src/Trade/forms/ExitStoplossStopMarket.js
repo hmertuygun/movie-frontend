@@ -10,7 +10,7 @@ import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
 
 import styles from './ExitForm.module.css'
-import { addPrecisionToNumber } from '../../helpers/precisionRound'
+import { addPrecisionToNumber, removeTrailingZeroFromInput } from '../../helpers/precisionRound'
 
 import 'rc-slider/assets/index.css'
 
@@ -115,12 +115,12 @@ const ExitStoplossStopMarket = () => {
 
     setErrors((errors) => ({
       ...errors,
-      price: '',
+      triggerPrice: '',
     }))
   }
 
   const handleSliderInputChange = ({ target }) => {
-    const value = -Math.abs(target.value)
+    const value = -Math.abs(removeTrailingZeroFromInput(target.value))
     setValues((values) => ({
       ...values,
       profit: Math.abs(value) > 100 ? -100 : Number(value),
@@ -130,6 +130,7 @@ const ExitStoplossStopMarket = () => {
     setErrors((errors) => ({
       ...errors,
       profit: '',
+      triggerPrice: '',
     }))
   }
 
@@ -160,11 +161,12 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleQPInputChange = ({ target }) => {
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
     setValues((values) => ({
       ...values,
-      quantityPercentage: target.value > 100 ? 100 : Number(target.value),
+      quantityPercentage: value > 100 ? 100 : value,
     }))
-    priceAndProfitSync(target.name, target.value)
+    priceAndProfitSync(target.name, value)
 
     setErrors((errors) => ({
       ...errors,
@@ -172,20 +174,13 @@ const ExitStoplossStopMarket = () => {
     }))
   }
 
-  const handleQPBlur = (evt) => {
-    if (values.quantityPercentage < 0) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 0,
-      }))
-      priceAndProfitSync('quantityPercentage', 0)
-    } else if (values.quantityPercentage > 100) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 100,
-      }))
-      priceAndProfitSync('quantityPercentage', 100)
-    }
+  const handleQPBlur = ({ target }) => {
+    const value = target.value > 100 ? 100 : target.value
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: value,
+    }))
+    priceAndProfitSync('quantityPercentage', value)
   }
 
   const handleChange = ({ target }) => {
@@ -216,9 +211,6 @@ const ExitStoplossStopMarket = () => {
   }
 
   const priceAndProfitSync = (inputName, inputValue) => {
-    // let usePrice =
-    //   entry.type === 'market' ? selectedSymbolLastPrice : entry.price
-
     switch (inputName) {
       case 'triggerPrice':
         const diff = entryPrice - inputValue
@@ -234,7 +226,7 @@ const ExitStoplossStopMarket = () => {
 
         setValues((values) => ({
           ...values,
-          price: addPrecisionToNumber(entryPrice - newPrice, pricePrecision),
+          triggerPrice: addPrecisionToNumber(entryPrice - newPrice, pricePrecision),
         }))
 
         return false

@@ -7,7 +7,10 @@ import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
-import { addPrecisionToNumber } from '../../helpers/precisionRound'
+import {
+  addPrecisionToNumber,
+  removeTrailingZeroFromInput,
+} from '../../helpers/precisionRound'
 import * as yup from 'yup'
 
 import styles from './ExitForm.module.css'
@@ -135,7 +138,7 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
-    const value = -Math.abs(target.value)
+    const value = -Math.abs(removeTrailingZeroFromInput(target.value))
     setValues((values) => ({
       ...values,
       profit: Math.abs(value) > 100 ? -100 : Number(value),
@@ -175,11 +178,12 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleQPInputChange = ({ target }) => {
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
     setValues((values) => ({
       ...values,
-      quantityPercentage: target.value > 100 ? 100 : Number(target.value),
+      quantityPercentage: value > 100 ? 100 : value,
     }))
-    priceAndProfitSync(target.name, target.value)
+    priceAndProfitSync(target.name, value)
 
     setErrors((errors) => ({
       ...errors,
@@ -187,20 +191,13 @@ const ExitStoplossStopLimit = () => {
     }))
   }
 
-  const handleQPBlur = (evt) => {
-    if (values.quantityPercentage < 0) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 0,
-      }))
-      priceAndProfitSync('quantityPercentage', 0)
-    } else if (values.quantityPercentage > 100) {
-      setValues((values) => ({
-        ...values,
-        quantityPercentage: 100,
-      }))
-      priceAndProfitSync('quantityPercentage', 100)
-    }
+  const handleQPBlur = ({ target }) => {
+    const value = target.value > 100 ? 100 : target.value
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: parseInt(value, 10),
+    }))
+    priceAndProfitSync('quantityPercentage', parseInt(value, 10))
   }
 
   const handleChange = ({ target }) => {

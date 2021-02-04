@@ -16,3 +16,5 @@ export const addPrecisionToNumber = (value, precisionCount) => {
   }
   return ''
 }
+
+export const removeTrailingZeroFromInput = (value) => Number(value).toString()
