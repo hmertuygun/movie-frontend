@@ -12,7 +12,6 @@ const MenuItems = () => (
         >
           {item.externalLink ? (
             <a
-              activeClassName="nav-link active"
               className="nav-link"
               href={item.url}
               target="_blank"
