@@ -52,11 +52,11 @@ const ExitStoplossStopLimit = () => {
   const minPrice = Number(selectedSymbolDetail.minPrice)
   const minQty = Number(selectedSymbolDetail.minQty)
 
+  const entryPrice =
+    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+
   const [values, setValues] = useState({
-    triggerPrice: addPrecisionToNumber(
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
-      pricePrecision
-    ),
+    triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
     price: '',
     profit: '',
     quantity: '',
@@ -86,10 +86,10 @@ const ExitStoplossStopLimit = () => {
       .test(
         'Trigger price',
         `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
-          entry.price,
+          entryPrice,
           pricePrecision
         )}`,
-        (value) => value < entry.price
+        (value) => value < entryPrice
       ),
     price: yup
       .number()
@@ -138,7 +138,7 @@ const ExitStoplossStopLimit = () => {
     const value = -Math.abs(target.value)
     setValues((values) => ({
       ...values,
-      profit: value === '' ? '' : Number(value),
+      profit: Math.abs(value) > 100 ? -100 : Number(value),
     }))
     priceAndProfitSync(target.name, value)
 
@@ -177,7 +177,7 @@ const ExitStoplossStopLimit = () => {
   const handleQPInputChange = ({ target }) => {
     setValues((values) => ({
       ...values,
-      quantityPercentage: Number(target.value),
+      quantityPercentage: target.value > 100 ? 100 : Number(target.value),
     }))
     priceAndProfitSync(target.name, target.value)
 
