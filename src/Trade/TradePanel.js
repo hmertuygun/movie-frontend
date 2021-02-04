@@ -69,11 +69,6 @@ const Trade = () => {
   return (
     <Fragment>
       <section>
-        {/*         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
-          <div style={{ marginTop: '2rem' }}>
-            <Typography as="h3">Not available</Typography>
-          </div> */}
-
         <TabNavigator labelArray={['Full Trade']} index={0}>
           <div style={{ marginTop: '4rem' }}>
             {!hasEntry && (
