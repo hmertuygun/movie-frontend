@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { InlineInput, Button, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-import validate from '../../components/Validation/MarketValidationTarget'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
+
+import * as yup from 'yup'
+import { addPrecisionToNumber } from '../../helpers/precisionRound'
+
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
+
 import styles from './ExitTargetForm.module.css'
 
 const useStyles = makeStyles({
@@ -25,34 +29,49 @@ const useStyles = makeStyles({
   },
 })
 
+const errorInitialValues = {
+  price: '',
+  quantity: '',
+  total: '',
+}
+
 const ExitTargetStopMarket = () => {
   const {
     isLoading,
     selectedSymbolDetail,
-    selectedSymbolBalance,
     selectedSymbolLastPrice,
   } = useSymbolContext()
-  const balance = selectedSymbolBalance
 
-  const [profit, setProfit] = useState(0)
-  const [quantity, setQuantity] = useState('')
-  const [quantityPercentage, setQuantityPercentage] = useState('')
-  const [total, setTotal] = useState('')
-  const [isValid, setIsValid] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [validationFields, setValidationFields] = useState({})
-
-  const { addStopMarketTarget, state } = useContext(TradeContext) // addTarget
-  // ingoing value
+  const { addStopMarketTarget, state } = useContext(TradeContext)
   const { entry } = state
-  const [price, setPrice] = useState(
-    roundNumbers(
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price,
-      selectedSymbolDetail['tickSize']
-    )
+
+  const pricePrecision = selectedSymbolDetail['tickSize']
+  const quantityPrecision = selectedSymbolDetail['lotSize']
+
+  const minPrice = Number(selectedSymbolDetail.minPrice)
+  const maxPrice = Number(selectedSymbolDetail.maxPrice)
+  const minQty = Number(selectedSymbolDetail.minQty)
+
+  const sumQuantity = state.targets?.map((item) => item.quantity)
+  const totalQuantity = sumQuantity?.reduce(
+    (total, value) => parseFloat(total) + parseFloat(value),
+    0
   )
 
+  const entryPrice =
+    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+
+  const [values, setValues] = useState({
+    price: addPrecisionToNumber(entryPrice, pricePrecision),
+    profit: '',
+    quantity: '',
+    quantityPercentage: '',
+  })
+
+  const [errors, setErrors] = useState(errorInitialValues)
+
   const classes = useStyles()
+
   const marks = {
     0: '',
     25: '',
@@ -61,231 +80,285 @@ const ExitTargetStopMarket = () => {
     100: '',
   }
 
+  // @TODO
+  // Move schema to a different folder
+  const formSchema = yup.object().shape({
+    price: yup
+      .number()
+      .required('Price is required')
+      .typeError('Price is required')
+      .positive()
+      .test(
+        'Price',
+        `Price must be higher than the Entry Price: ${addPrecisionToNumber(
+          entryPrice,
+          pricePrecision
+        )}`,
+        (value) => value > entryPrice
+      )
+      .max(
+        maxPrice,
+        `Price needs to meet max-price: ${addPrecisionToNumber(
+          maxPrice,
+          pricePrecision
+        )}`
+      ),
+    quantity: yup
+      .number()
+      .required('Amount is required')
+      .typeError('Amount is required')
+      .min(
+        minQty,
+        `Amount needs to meet min-amount: ${addPrecisionToNumber(
+          minQty,
+          quantityPrecision
+        )}`
+      )
+      .max(
+        entry.quantity,
+        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+      ),
+  })
+
   const handleSliderChange = (newValue) => {
-    setProfit(newValue)
+    setValues((values) => ({
+      ...values,
+      profit: newValue,
+    }))
+
     priceAndProfitSync('profit', newValue)
+
+    setErrors((errors) => ({
+      ...errors,
+      price: '',
+    }))
   }
 
-  const handleInputChange = (evt) => {
-    let { value } = evt.target
+  const handleSliderInputChange = ({ target }) => {
+    const { name, value } = target
+    setValues((values) => ({
+      ...values,
+      profit: Math.abs(value) > 100 ? 100 : Number(value),
+    }))
 
-    value = Math.abs(value)
+    priceAndProfitSync(name, value)
 
-    setProfit(value === '' ? '' : Number(value))
-    priceAndProfitSync('profit', value)
+    setErrors((errors) => ({
+      ...errors,
+      profit: '',
+    }))
   }
 
-  const handleBlur = (evt) => {
-    let { name } = evt.target
-
-    if (name === 'profit') {
-      if (profit < 0) {
-        setProfit(0)
-        priceAndProfitSync('profit', 0)
-      } else if (profit > 100) {
-        setProfit(100)
-        priceAndProfitSync('profit', 100)
-      }
-    }
+  const handleBlur = ({ target }, precision) => {
+    formSchema.fields[target.name].validate(target.value).catch((error) => {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: error.message,
+      }))
+    })
+    setValues((values) => ({
+      ...values,
+      [target.name]: addPrecisionToNumber(target.value, precision),
+    }))
   }
 
   const handleQPSliderChange = (newValue) => {
-    setQuantityPercentage(newValue)
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: newValue,
+    }))
     priceAndProfitSync('quantityPercentage', newValue)
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+    }))
   }
 
-  const handleQPInputChange = (evt) => {
-    let { value } = evt.target
-    setQuantityPercentage(value === '' ? '' : Number(value))
-    priceAndProfitSync('quantityPercentage', value)
+  const handleQPInputChange = ({ target }) => {
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: target.value > 100 ? 100 : Number(target.value),
+    }))
+    priceAndProfitSync(target.name, target.value)
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+    }))
   }
 
-  const handleQPBlur = () => {
-    if (quantityPercentage < 0) {
-      setQuantityPercentage(0)
+  const handleQPBlur = (evt) => {
+    if (values.quantityPercentage < 0) {
+      setValues((values) => ({
+        ...values,
+        quantityPercentage: 0,
+      }))
       priceAndProfitSync('quantityPercentage', 0)
-    } else if (quantityPercentage > 100) {
-      setQuantityPercentage(100)
+    } else if (values.quantityPercentage > 100) {
+      setValues((values) => ({
+        ...values,
+        quantityPercentage: 100,
+      }))
       priceAndProfitSync('quantityPercentage', 100)
     }
   }
 
-  const handleChange = (evt) => {
-    let { name, value } = evt.target
+  const handleChange = ({ target }) => {
+    const { name, value } = target
+
+    setErrors((errors) => ({
+      ...errors,
+      [name]: '',
+    }))
 
     if (name === 'price') {
-      const newValuePrice = value
-        .toString()
-        .split('.')
-        .map((el, i) =>
-          i
-            ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
-            : el
-        )
-        .join('.')
+      setValues((values) => ({
+        ...values,
+        [name]: value,
+      }))
 
-      const valueFormatedPrice = roundNumbers(
-        newValuePrice,
-        selectedSymbolDetail['tickSize']
-      )
-      setPrice(valueFormatedPrice)
-      //setPrice(value)
-      priceAndProfitSync('price', valueFormatedPrice)
-      //priceAndProfitSync('price', value)
+      priceAndProfitSync(name, value)
     }
 
     if (name === 'quantity') {
-      const newValueQtd = value
-        .toString()
-        .split('.')
-        .map((el, i) =>
-          i
-            ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
-            : el
-        )
-        .join('.')
+      setValues((values) => ({
+        ...values,
+        quantity: value,
+        total: Number(value) * Number(values.price),
+      }))
 
-      const valueFormatedQtd = roundNumbers(
-        newValueQtd,
-        selectedSymbolDetail['lotSize']
-      )
-
-      setQuantity(valueFormatedQtd)
-      //setQuantity(value)
-      priceAndProfitSync('quantity', valueFormatedQtd)
-      //priceAndProfitSync('quantity', value)
-
-      setTotal(value * price)
+      priceAndProfitSync(name, value)
     }
   }
 
+  const priceAndProfitSync = (inputName, inputValue) => {
+    if (inputName === 'price' && inputValue > entryPrice) {
+      const diff = inputValue - entryPrice
+      const percentage = roundNumbers((diff / entryPrice) * 100, 2)
+      setValues((values) => ({
+        ...values,
+        profit: percentage,
+      }))
+    }
+
+    if (inputName === 'profit') {
+      setValues((values) => ({
+        ...values,
+        price: roundNumbers(
+          entryPrice * (1 + inputValue / 100),
+          pricePrecision
+        ),
+      }))
+    }
+
+    if (inputName === 'quantity' && inputValue <= entry.quantity) {
+      setValues((values) => ({
+        ...values,
+        quantityPercentage: roundNumbers(
+          (inputValue / entry.quantity) * 100,
+          quantityPrecision
+        ),
+      }))
+    }
+
+    if (inputName === 'quantityPercentage') {
+      const theQuantity = (entry.quantity * inputValue) / 100
+      setValues((values) => ({
+        ...values,
+        quantity: roundNumbers(
+          theQuantity,
+          selectedSymbolDetail['base_asset_precision']
+        ),
+      }))
+    }
+  }
+
+  const validateForm = () => {
+    return formSchema.validate(values, { abortEarly: false }).catch((error) => {
+      if (error.name === 'ValidationError') {
+        error.inner.forEach((fieldError) => {
+          setErrors((errors) => ({
+            ...errors,
+            [fieldError.path]: fieldError.message,
+          }))
+        })
+      }
+    })
+  }
+
   useEffect(() => {
-    setPrice(entry.price)
-  }, [entry])
-
-  // VALIDATE FORM
-  useEffect(() => {
-    const sumQuantity = state.targets?.map((item) => item.quantity)
-    const totalQuantity = sumQuantity?.reduce(
-      (total, value) => parseFloat(total) + parseFloat(value),
-      0
-    )
-
-    setValidationFields((validationFields) => ({
-      ...validationFields,
-      price,
-      quantity,
-      total,
-      balance: balance,
-      minNotional: selectedSymbolDetail.minNotional,
-      entryQuantity: entry.quantity,
-      maxPrice: selectedSymbolDetail.maxPrice,
-      minPrice: selectedSymbolDetail.minPrice,
-      maxQty: selectedSymbolDetail.maxQty,
-      minQty: selectedSymbolDetail.minQty,
-      totalQuantity,
-    }))
-
-    //if (price !== entry.price && price && quantity <= entry.quantity) {
-    if (price !== entry.price) {
-      setIsValid(true)
+    if (Number(values.quantity) + totalQuantity >= entry.quantity) {
+      setErrors((errors) => ({
+        ...errors,
+        total: 'Target orders cannot exceed 100% of entry',
+      }))
     } else {
-      setIsValid(false)
+      setErrors((errors) => ({
+        ...errors,
+        total: '',
+      }))
     }
-  }, [
-    price,
-    quantity,
-    balance,
-    total,
-    entry.quantity,
-    entry.price,
-    selectedSymbolDetail.minNotional,
-    selectedSymbolDetail.maxPrice,
-    selectedSymbolDetail.minPrice,
-    selectedSymbolDetail.maxQty,
-    selectedSymbolDetail.minQty,
-    state.targets,
-  ])
+  }, [totalQuantity, values.quantity])
 
-  // PRICE and PROFIT Sync
-  const priceAndProfitSync = (inputChanged, value) => {
-    let usePrice =
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
-    if (inputChanged === 'price' && value > usePrice) {
-      // set profit %
-      const diff = value - entry.price
-      setProfit(roundNumbers((diff / usePrice) * 100, 2))
+    const isFormValid = await validateForm()
+
+    const isLimit = Number(values.quantity) + totalQuantity >= entry.quantity
+
+    if (isFormValid && !isLimit) {
+      addStopMarketTarget({
+        price: values.price,
+        quantity: values.quantity,
+        profit: values.profit,
+        symbol: selectedSymbolDetail['symbolpair'],
+      })
+
+      setValues((values) => ({
+        ...values,
+        quantityPercentage: '',
+        profit: '',
+      }))
+
+      setErrors((errors) => ({
+        ...errors,
+        total: '',
+      }))
+    } else {
+      if (isLimit) {
+        setErrors((errors) => ({
+          ...errors,
+          total: 'Target orders cannot exceed 100% of entry',
+        }))
+      }
     }
-
-    if (inputChanged === 'profit') {
-      setPrice(
-        roundNumbers(
-          usePrice * (1 + value / 100),
-          selectedSymbolDetail['tickSize']
-        )
-      )
-    }
-
-    if (inputChanged === 'quantity' && value <= entry.quantity) {
-      setQuantityPercentage(
-        roundNumbers(
-          (value / entry.quantity) * 100,
-          selectedSymbolDetail['lotSize']
-        )
-      )
-    }
-
-    if (
-      (inputChanged === 'quantityPercentage' && value < 101) ||
-      (inputChanged === 'quantityPercentage' && value > 0)
-    ) {
-      const theQuantity = (entry.quantity * value) / 100
-      setQuantity(
-        roundNumbers(theQuantity, selectedSymbolDetail['base_asset_precision'])
-      )
-    }
-
-    return false
   }
+
+  const renderInputValidationError = (errorKey) => (
+    <>
+      {errors[errorKey] && (
+        <div className={styles['Error']}>{errors[errorKey]}</div>
+      )}
+    </>
+  )
 
   return (
     <section style={{ marginTop: '2rem' }}>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-
-          const x = validate(validationFields)
-          setErrors(x)
-
-          if (Object.keys(x).length === 0) {
-            const symbol = selectedSymbolDetail['symbolpair']
-            addStopMarketTarget({
-              price,
-              quantity,
-              profit,
-              symbol,
-            })
-            setProfit(0)
-            setQuantity('')
-            setQuantityPercentage('')
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
           <InlineInput
             label="Trigger Price"
             type="number"
+            placeholder="Trigger price"
+            value={values.price}
             name="price"
             onChange={handleChange}
-            onBlur={handleBlur}
-            value={price}
-            placeholder="Target price"
+            onBlur={(e) => handleBlur(e, pricePrecision)}
             postLabel={selectedSymbolDetail['quote_asset']}
           />
-          {errors.price && (
-            <div className={styles['Error']}>{errors.price}</div>
-          )}
+          {renderInputValidationError('price')}
         </div>
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
@@ -300,15 +373,14 @@ const ExitTargetStopMarket = () => {
                 min={0}
                 max={100}
                 onChange={handleSliderChange}
-                value={profit}
+                value={values.profit}
               />
             </div>
             <div className={styles['SliderInput']}>
               <InlineInput
-                value={profit}
+                value={values.profit}
                 margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
               />
@@ -320,14 +392,12 @@ const ExitTargetStopMarket = () => {
             label="Quantity"
             type="number"
             name="quantity"
-            onBlur={handleBlur}
             onChange={handleChange}
-            value={quantity}
+            onBlur={(e) => handleBlur(e, quantityPrecision)}
+            value={values.quantity}
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
-          {errors.quantity && (
-            <div className={styles['Error']}>{errors.quantity}</div>
-          )}
+          {renderInputValidationError('quantity')}
         </div>
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
@@ -340,13 +410,13 @@ const ExitTargetStopMarket = () => {
                 min={0}
                 max={100}
                 onChange={handleQPSliderChange}
-                value={quantityPercentage}
+                value={values.quantityPercentage}
               />
             </Grid>
             <Grid item>
               <InlineInput
                 className={classes.input}
-                value={quantityPercentage}
+                value={values.quantityPercentage}
                 margin="dense"
                 onChange={handleQPInputChange}
                 onBlur={handleQPBlur}
@@ -354,16 +424,10 @@ const ExitTargetStopMarket = () => {
               />
             </Grid>
           </Grid>
-          {errors.total && (
-            <div className={styles['Error']}>{errors.total}</div>
-          )}
+          {renderInputValidationError('total')}
         </div>
 
-        <Button
-          disabled={isValid ? false : 'disabled'}
-          variant="buy"
-          type="submit"
-        >
+        <Button disabled={errors.total} variant="buy" type="submit">
           Add Target
         </Button>
       </form>

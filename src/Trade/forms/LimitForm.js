@@ -124,7 +124,8 @@ const LimitForm = () => {
 
     const balance = selectedSymbolBalance
     const pq = (total * 100) / balance
-    const percentageQuantityWithPrecision = parseFloat(pq.toFixed(0))
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
 
     return { quantityWithPrecision, percentageQuantityWithPrecision }
   }
@@ -137,7 +138,8 @@ const LimitForm = () => {
       total === 0 ? '' : addPrecisionToNumber(total, totalPrecision)
 
     const pq = (totalWithPrecision * 100) / balance
-    const percentageQuantityWithPrecision = parseFloat(pq.toFixed(0))
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
     return { totalWithPrecision, percentageQuantityWithPrecision }
   }
 
@@ -241,7 +243,7 @@ const LimitForm = () => {
 
     setValues((values) => ({
       ...values,
-      [target.name]: target.value,
+      [target.name]: target.value > 100 ? 100 : target.value,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))

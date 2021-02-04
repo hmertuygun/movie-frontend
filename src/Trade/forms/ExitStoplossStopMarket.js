@@ -5,8 +5,10 @@ import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 import { InlineInput, Button, Typography } from '../../components'
 import { TradeContext } from '../context/SimpleTradeContext'
+
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
+
 import styles from './ExitForm.module.css'
 import { addPrecisionToNumber } from '../../helpers/precisionRound'
 
@@ -52,7 +54,6 @@ const ExitStoplossStopMarket = () => {
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
-    price: '',
     profit: '',
     quantity: '',
     quantityPercentage: '',
@@ -110,7 +111,6 @@ const ExitStoplossStopMarket = () => {
       profit: newValue,
     }))
 
-    // setProfit(newValue)
     priceAndProfitSync('profit', newValue)
 
     setErrors((errors) => ({
@@ -216,13 +216,13 @@ const ExitStoplossStopMarket = () => {
   }
 
   const priceAndProfitSync = (inputName, inputValue) => {
-    let usePrice =
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+    // let usePrice =
+    //   entry.type === 'market' ? selectedSymbolLastPrice : entry.price
 
     switch (inputName) {
       case 'triggerPrice':
-        const diff = usePrice - inputValue
-        const percentage = roundNumbers((diff / usePrice) * 100, 2)
+        const diff = entryPrice - inputValue
+        const percentage = roundNumbers((diff / entryPrice) * 100, 2)
         setValues((values) => ({
           ...values,
           profit: -percentage,
@@ -230,11 +230,11 @@ const ExitStoplossStopMarket = () => {
         return true
 
       case 'profit':
-        const newPrice = usePrice * (-inputValue / 100)
+        const newPrice = entryPrice * (-inputValue / 100)
 
         setValues((values) => ({
           ...values,
-          price: addPrecisionToNumber(usePrice - newPrice, pricePrecision),
+          price: addPrecisionToNumber(entryPrice - newPrice, pricePrecision),
         }))
 
         return false
