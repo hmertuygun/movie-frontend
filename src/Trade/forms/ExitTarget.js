@@ -16,8 +16,9 @@ const useStyles = makeStyles({
     marginBottom: '1rem',
   },
   slider: {
-    width: 120,
+    width: 165,
     vertiicalAlign: 'middle',
+    marginLeft: '8px',
   },
   input: {
     width: 30,
@@ -283,7 +284,7 @@ const ExitTarget = () => {
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
             <div className={styles['SliderText']}>
-              <Typography>Profit</Typography>
+              <Typography className="Slider">Profit</Typography>
             </div>
             <div className={styles['SliderSlider']}>
               <Slider
@@ -324,8 +325,9 @@ const ExitTarget = () => {
         </div>
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs className={classes.slider}>
+            <Grid item xs>
               <Slider
+                className={classes.slider}
                 defaultValue={0}
                 step={1}
                 marks={marks}

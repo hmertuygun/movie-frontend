@@ -17,11 +17,12 @@ const useStyles = makeStyles({
     marginBottom: '1rem',
   },
   slider: {
-    width: 160,
+    width: 170,
+    marginLeft: '5px',
     vertiicalAlign: 'middle',
   },
   input: {
-    width: 30,
+    width: 35,
   },
 })
 
@@ -327,18 +328,13 @@ const ExitStoplossStopLimit = () => {
           {errors.price && (
             <div className={styles['Error']}>{errors.price}</div>
           )}
-          {/*         {errors.price && (
-          <div className="error" style={{ color: 'red' }}>
-            {errors.price}
-          </div>
-        )} */}
         </div>
         <div className={classes.root}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
-              <Typography>Profit</Typography>
-            </Grid>
-            <Grid item xs className={classes.slider}>
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderText']}>
+              <Typography className="Slider-Text">Profit</Typography>
+            </div>
+            <div className={styles['SliderSlider']}>
               <Slider
                 reverse
                 defaultValue={0}
@@ -349,8 +345,8 @@ const ExitStoplossStopLimit = () => {
                 onChange={handleSliderChange}
                 value={0 - profit}
               />
-            </Grid>
-            <Grid item>
+            </div>
+            <div className={styles['SliderInput']}>
               <InlineInput
                 className={classes.input}
                 value={profit}
@@ -359,12 +355,9 @@ const ExitStoplossStopLimit = () => {
                 onBlur={handleBlur}
                 postLabel={'%'}
                 name="profit"
-                /*               min="-100.00"
-                max="0.00"
-                step="0.01" */
               />
-            </Grid>
-          </Grid>
+            </div>
+          </div>
         </div>
         <div className={styles['Input']}>
           <InlineInput
@@ -382,9 +375,10 @@ const ExitStoplossStopLimit = () => {
         </div>
 
         <div className={classes.root}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs className={classes.slider}>
+          <Grid container spacing={0} alignItems="center">
+            <Grid item xs>
               <Slider
+                className={classes.slider}
                 defaultValue={1}
                 step={1}
                 marks={marks}
