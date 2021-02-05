@@ -389,10 +389,7 @@ const LimitForm = () => {
             />
             {renderInputValidationError('total')}
           </div>
-          <Button
-            type="submit"
-            variant="exits"
-          >
+          <Button type="submit" variant="exits">
             <span>
               Set exits
               <svg
