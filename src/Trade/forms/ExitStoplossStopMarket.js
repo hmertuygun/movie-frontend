@@ -8,9 +8,11 @@ import { TradeContext } from '../context/SimpleTradeContext'
 
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
-
 import styles from './ExitForm.module.css'
-import { addPrecisionToNumber, removeTrailingZeroFromInput } from '../../helpers/precisionRound'
+import {
+  addPrecisionToNumber,
+  removeTrailingZeroFromInput,
+} from '../../helpers/precisionRound'
 
 import 'rc-slider/assets/index.css'
 
@@ -226,7 +228,10 @@ const ExitStoplossStopMarket = () => {
 
         setValues((values) => ({
           ...values,
-          triggerPrice: addPrecisionToNumber(entryPrice - newPrice, pricePrecision),
+          triggerPrice: addPrecisionToNumber(
+            entryPrice - newPrice,
+            pricePrecision
+          ),
         }))
 
         return false
@@ -313,7 +318,6 @@ const ExitStoplossStopMarket = () => {
 
             {renderInputValidationError('triggerPrice')}
           </div>
-
           <div className={classes.root}>
             <div className={styles['SliderRow']}>
               <div className={styles['SliderText']}>
@@ -355,7 +359,6 @@ const ExitStoplossStopMarket = () => {
             />
             {renderInputValidationError('quantity')}
           </div>
-
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs>

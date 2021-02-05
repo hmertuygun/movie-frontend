@@ -357,7 +357,7 @@ const ExitTarget = () => {
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
             <div className={styles['SliderText']}>
-              <Typography className="Slider">Profit</Typography>
+              <Typography className="Slider-Text">Profit</Typography>
             </div>
             <div className={styles['SliderSlider']}>
               <Slider
