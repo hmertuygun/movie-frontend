@@ -290,7 +290,7 @@ const ExitTargetStopMarket = () => {
         <div className={classes.root}>
           <div className={styles['SliderRow']}>
             <div className={styles['SliderText']}>
-              <Typography>Profit</Typography>
+              <Typography className="Slider-Text">Profit</Typography>
             </div>
             <div className={styles['SliderSlider']}>
               <Slider

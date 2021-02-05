@@ -8,7 +8,6 @@ import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
-
 import styles from './ExitForm.module.css'
 
 const useStyles = makeStyles({
@@ -285,7 +284,6 @@ const ExitStoplossStopMarket = () => {
               <div className={styles['Error']}>{errors.triggerPrice}</div>
             )}
           </div>
-
           <div className={classes.root}>
             <div className={styles['SliderRow']}>
               <div className={styles['SliderText']}>
@@ -330,7 +328,6 @@ const ExitStoplossStopMarket = () => {
               <div className={styles['Error']}>{errors.quantity}</div>
             )}
           </div>
-
           <div className={classes.root}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs>
