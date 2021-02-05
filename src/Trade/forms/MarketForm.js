@@ -2,7 +2,10 @@ import React, { Fragment, useState, useEffect, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
-import roundNumbers from '../../helpers/roundNumbers'
+import {
+  addPrecisionToNumber,
+  removeTrailingZeroFromInput,
+} from '../../helpers/precisionRound'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,30 +15,40 @@ import { useSymbolContext } from '../context/SymbolContext'
 
 import { InlineInput, Button } from '../../components'
 
-import validate from '../../components/Validation/MarketValidation'
+import * as yup from 'yup'
 
 import styles from './MarketForm.module.css'
 
-function MarketForm() {
+const MarketForm = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    //isLoadingLastPrice,
     selectedSymbolLastPrice,
   } = useSymbolContext()
-  const { addMarketEntry } = useContext(TradeContext)
-  const balance = selectedSymbolBalance
-  // @TOOD:
-  // Remove amount, and leave only quantity
-  const [quantity, setQuantity] = useState('')
-  const [quantityPercentage, setQuantityPercentage] = useState('')
-  const [total, setTotal] = useState('')
-  const [isValid, setIsValid] = useState(false)
 
-  const [errors, setErrors] = useState({})
-  const [validationFields, setValidationFields] = useState({})
+  const { addMarketEntry } = useContext(TradeContext)
+
+  const [values, setValues] = useState({
+    price: '',
+    quantity: '',
+    total: '',
+    quantityPercentage: '',
+  })
+
+  const [errors, setErrors] = useState({
+    price: '',
+    quantity: '',
+    total: '',
+  })
+
+  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const maxQty = Number(selectedSymbolDetail.maxQty)
+  const minQty = Number(selectedSymbolDetail.minQty)
+
+  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
 
   const marks = {
     0: '',
@@ -45,125 +58,216 @@ function MarketForm() {
     100: '',
   }
 
-  const handleSliderChange = (newValue) => {
-    setQuantityPercentage(newValue)
-    calculatePercentageQuantity('quantityPercentage', newValue)
-  }
-
-  const handleInputChange = (evt) => {
-    let { value } = evt.target
-    setQuantityPercentage(value === '' ? '' : Number(value))
-    calculatePercentageQuantity('quantityPercentage', value)
-  }
-
-  const handleBlur = (evt) => {
-    console.log('blurrring')
-    if (quantity) {
-      setErrors(validate(validationFields))
-      console.log('SETTING ERRRORS')
-    }
-  }
-
-  const calculatePercentageQuantity = (inputChanged, value) => {
-    if (!selectedSymbolLastPrice) {
-      return false
-    }
-
-    if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * selectedSymbolLastPrice) / balance) * 100)
-      setTotal(
-        roundNumbers(
-          value * selectedSymbolLastPrice,
-          selectedSymbolDetail['tickSize']
-        )
+  // @TODO
+  // Move schema to a different folder
+  const formSchema = yup.object().shape({
+    quantity: yup
+      .number()
+      .required('Amount is required')
+      .typeError('Amount is required')
+      .positive()
+      .min(
+        minQty,
+        `Amount needs to meet min-price: ${addPrecisionToNumber(
+          minQty,
+          quantityPrecision
+        )}`
       )
-    }
+      .max(
+        maxQty,
+        `Amount needs to meet max-price: ${addPrecisionToNumber(
+          maxQty,
+          quantityPrecision
+        )}`
+      ),
+    total: yup
+      .number()
+      .required('Total is required')
+      .typeError('Total is required')
+      .positive()
+      .min(
+        minNotional,
+        `Total needs to meet min-trading: ${addPrecisionToNumber(
+          minNotional,
+          totalPrecision
+        )}`
+      )
+      .max(selectedSymbolBalance, 'Total cannot not exceed your balance.'),
+  })
 
-    if (inputChanged === 'quantityPercentage') {
-      // how many BTC can we buy with the percentage?
-      const belowOnePercentage = value / 100
-      const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(
-        cost / selectedSymbolLastPrice,
-        selectedSymbolDetail['lotSize']
-      )
-      setQuantity(howManyBTC)
-      setTotal(
-        roundNumbers(
-          howManyBTC * selectedSymbolLastPrice,
-          selectedSymbolDetail['tickSize']
-        )
-      )
-    }
+  const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
+    const price = Number(values.price)
+    const total = Number(value)
+
+    const quantity = total / price
+
+    const quantityWithPrecision =
+      quantity === 0 ? '' : addPrecisionToNumber(quantity, quantityPrecision)
+
+    const balance = selectedSymbolBalance
+    const pq = (total * 100) / balance
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
+
+    return { quantityWithPrecision, percentageQuantityWithPrecision }
   }
 
-  // CHECKER for isValid ? true : false
-  useEffect(
-    () => {
-      const canAfford = total <= balance
-      if (canAfford) {
-        setIsValid(true)
-      }
+  const calculateTotalAndPercentageQuantity = (value, key) => {
+    const total = Number(value) * Number(values[key])
+    const balance = selectedSymbolBalance
 
-      setValidationFields((validationFields) => ({
-        ...validationFields,
-        selectedSymbolLastPrice,
-        quantity,
-        total: quantity * selectedSymbolLastPrice,
-        balance: balance,
-        minNotional: selectedSymbolDetail.minNotional,
-        maxPrice: selectedSymbolDetail.maxPrice,
-        minPrice: selectedSymbolDetail.minPrice,
-        maxQty: selectedSymbolDetail.maxQty,
-        minQty: selectedSymbolDetail.minQty,
+    const totalWithPrecision =
+      total === 0 ? '' : addPrecisionToNumber(total, totalPrecision)
+
+    const pq = (totalWithPrecision * 100) / balance
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
+    return { totalWithPrecision, percentageQuantityWithPrecision }
+  }
+
+  const handleChange = ({ target }) => {
+    setErrors((errors) => ({
+      ...errors,
+      [target.name]: '',
+    }))
+
+    if (target.name === 'total') {
+      const {
+        quantityWithPrecision,
+        percentageQuantityWithPrecision,
+      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+
+      setValues((values) => ({
+        ...values,
+        quantity: quantityWithPrecision,
+        quantityPercentage: percentageQuantityWithPrecision,
+        [target.name]: target.value,
       }))
+    } else if (target.name === 'quantity') {
+      const {
+        totalWithPrecision,
+        percentageQuantityWithPrecision,
+      } = calculateTotalAndPercentageQuantity(target.value, 'price')
 
-      if (!quantity) {
-        return false
+      setValues((values) => ({
+        ...values,
+        [target.name]: target.value,
+        total: totalWithPrecision,
+        quantityPercentage: percentageQuantityWithPrecision,
+      }))
+    }
+  }
+
+  const handleBlur = ({ target }, precision) => {
+    formSchema.fields[target.name].validate(target.value).catch((error) => {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: error.message,
+      }))
+    })
+    setValues((values) => ({
+      ...values,
+      [target.name]: addPrecisionToNumber(target.value, precision),
+    }))
+  }
+
+  const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
+    const balance = selectedSymbolBalance
+    const belowOnePercentage = sliderValue / 100
+    const cost = belowOnePercentage * balance
+    const quantityWithPrecision = addPrecisionToNumber(
+      cost / selectedSymbolLastPrice,
+      quantityPrecision
+    )
+
+    const totalWithPrecision = addPrecisionToNumber(
+      quantityWithPrecision * selectedSymbolLastPrice,
+      totalPrecision
+    )
+
+    return { totalWithPrecision, quantityWithPrecision }
+  }
+
+  const handleSlider = (newValue) => {
+    const {
+      quantityWithPrecision,
+      totalWithPrecision,
+    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: newValue,
+      quantity: quantityWithPrecision,
+      total: totalWithPrecision,
+    }))
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+      total: '',
+    }))
+  }
+
+  const handleSliderInputChange = ({ target }) => {
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const {
+      quantityWithPrecision,
+      totalWithPrecision,
+    } = calculateTotalAndQuantityFromSliderPercentage(value)
+
+    setValues((values) => ({
+      ...values,
+      [target.name]: value > 100 ? 100 : value,
+      quantity: quantityWithPrecision,
+      total: totalWithPrecision,
+    }))
+
+    setErrors((errors) => ({
+      ...errors,
+      quantity: '',
+      total: '',
+    }))
+  }
+
+  const validateForm = () => {
+    return formSchema.validate(values, { abortEarly: false }).catch((error) => {
+      if (error.name === 'ValidationError') {
+        error.inner.forEach((fieldError) => {
+          setErrors((errors) => ({
+            ...errors,
+            [fieldError.path]: fieldError.message,
+          }))
+        })
       }
-    },
-    [
-      total,
-      quantity,
-      balance,
-      setValidationFields,
-      setIsValid,
-      selectedSymbolDetail.minNotional,
-      selectedSymbolLastPrice,
-      selectedSymbolDetail.maxPrice,
-      selectedSymbolDetail.minPrice,
-      selectedSymbolDetail.maxQty,
-      selectedSymbolDetail.minQty,
-    ],
-    () => {
-      setTotal(0)
-    }
-  )
+    })
+  }
 
-  const handleSubmit = (evt) => {
+  const handleSubmit = async (evt) => {
     evt.preventDefault()
-    const x = validate(validationFields)
-    setErrors(x)
 
-    if (Object.keys(x).length === 0 && isValid) {
-      console.log(Object.keys(errors).length)
+    const isFormValid = await validateForm()
+
+    if (isFormValid) {
+      setErrors({ price: '', quantity: '', total: '' })
       const symbol = selectedSymbolDetail['symbolpair']
-      addMarketEntry({ quantity, balance, symbol, type: 'market' })
+
+      const payload = {
+        quantity: values.quantity,
+        balance: selectedSymbolBalance,
+        symbol,
+        type: 'market',
+      }
+      addMarketEntry(payload)
     }
   }
 
-  const handleChange = (evt) => {
-    const { name, value } = evt.target
-    console.log(name)
-    if (name === 'quantity') {
-      setQuantity(value)
-      console.log('setting quantity')
-      calculatePercentageQuantity('quantity', value)
-    }
-    if (name === 'total') {
-      setTotal(value)
-    }
-  }
+  const renderInputValidationError = (errorKey) => (
+    <>
+      {errors[errorKey] && (
+        <div className={styles['Error']}>{errors[errorKey]}</div>
+      )}
+    </>
+  )
 
   return (
     <Fragment>
@@ -196,11 +300,6 @@ function MarketForm() {
               disabled
               postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             />
-            {errors.price && (
-              <div className="error" style={{ color: 'red' }}>
-                {errors.price}
-              </div>
-            )}
           </div>
 
           <div className={styles['Input']}>
@@ -209,14 +308,12 @@ function MarketForm() {
               type="number"
               name="quantity"
               onChange={handleChange}
-              onBlur={handleBlur}
-              value={quantity || ''}
+              onBlur={(e) => handleBlur(e, quantityPrecision)}
+              value={values.quantity}
               placeholder="Amount"
               postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
             />
-            {errors.quantity && (
-              <div className={styles['Error']}>{errors.quantity}</div>
-            )}
+            {renderInputValidationError('quantity')}
           </div>
 
           <div className={styles['SliderRow']}>
@@ -227,18 +324,18 @@ function MarketForm() {
                 marks={marks}
                 min={0}
                 max={100}
-                onChange={handleSliderChange}
-                value={quantityPercentage}
+                onChange={handleSlider}
+                value={values.quantityPercentage}
               />
             </div>
 
             <div className={styles['SliderInput']}>
               <InlineInput
-                value={quantityPercentage}
+                value={values.quantityPercentage}
                 margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                onChange={handleSliderInputChange}
                 postLabel={'%'}
+                name="quantityPercentage"
                 small
               />
             </div>
@@ -248,22 +345,32 @@ function MarketForm() {
               label="Total"
               type="number"
               name="total"
-              value={total}
+              value={values.total}
               onChange={handleChange}
-              onBlur={handleBlur}
+              onBlur={(e) => handleBlur(e, totalPrecision)}
               placeholder=""
               postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
             />
-            {errors.total && (
-              <div className={styles['Error']}>{errors.total}</div>
-            )}
+            {renderInputValidationError('total')}
           </div>
-          <Button
-            variant="exits"
-            //disabled={isValid ? null : 'disabled'}
-            type="submit"
-          >
-            Set exits >
+          <Button variant="exits" type="submit">
+            <span>
+              Set exits
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-chevron-right"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </span>
           </Button>
         </form>
       </section>

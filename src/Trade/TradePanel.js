@@ -20,6 +20,7 @@ import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
 import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
 import ExitTarget from './forms/ExitTarget'
 import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
+import { addPrecisionToNumber } from '../helpers/precisionRound'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -66,14 +67,13 @@ const Trade = () => {
     clear()
   }, [selectedSymbol])
 
+  const selectTab = (state) => {
+    return state?.stoploss?.length && !state.hasOwnProperty('targets') ? 0 : 1
+  }
+
   return (
     <Fragment>
       <section>
-        {/*         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
-          <div style={{ marginTop: '2rem' }}>
-            <Typography as="h3">Not available</Typography>
-          </div> */}
-
         <TabNavigator labelArray={['Full Trade']} index={0}>
           <div style={{ marginTop: '4rem' }}>
             {!hasEntry && (
@@ -92,7 +92,10 @@ const Trade = () => {
             {hasEntry && (
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
-                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
+                <ButtonNavigator
+                  labelArray={['Target', 'Stop-loss']}
+                  index={selectTab(state)}
+                >
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />
                     <ExitTargetStopMarket />
