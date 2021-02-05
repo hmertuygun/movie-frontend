@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import Button from '../Button/Button'
 import './ButtonNavigator.css'
 
@@ -8,6 +8,10 @@ const ButtonNavigator = ({
   labelArray = ['Target', 'Stop-loss'],
 }) => {
   const [viewIndex, setViewIndex] = useState(index)
+
+  useEffect(() => {
+    setViewIndex(index)
+  }, [index])
 
   return (
     <Fragment>

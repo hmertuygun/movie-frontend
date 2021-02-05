@@ -134,7 +134,7 @@ const ExitTarget = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
-    const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const value = Math.abs(target.value)
     setValues((values) => ({
       ...values,
       profit: value > 100 ? 100 : value,
