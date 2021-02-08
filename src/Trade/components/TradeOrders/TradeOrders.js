@@ -94,6 +94,7 @@ const Table = ({
               <th scope="col">Pair</th>
               <th scope="col">Type</th>
               <th scope="col">Side</th>
+              {!isOpenOrders ? <th scope="col">Average</th> : null}
               <th scope="col">Price</th>
               <th scope="col">Amount</th>
               <th scope="col">Filled</th>
