@@ -320,7 +320,12 @@ const ExitTargetStopMarket = () => {
         total: '',
       }))
     }
-  }, [totalQuantity, values.quantity, values.quantityPercentage])
+  }, [
+    totalQuantity,
+    values.quantity,
+    values.quantityPercentage,
+    entry.quantity,
+  ])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
