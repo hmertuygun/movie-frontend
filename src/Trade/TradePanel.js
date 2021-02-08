@@ -67,10 +67,6 @@ const Trade = () => {
     clear()
   }, [selectedSymbol])
 
-  const selectTab = (state) => {
-    return state?.stoploss?.length && !state.hasOwnProperty('targets') ? 0 : 1
-  }
-
   return (
     <Fragment>
       <section>
@@ -94,7 +90,7 @@ const Trade = () => {
                 <Typography as="h3">2. Exits</Typography>
                 <ButtonNavigator
                   labelArray={['Target', 'Stop-loss']}
-                  index={selectTab(state)}
+                  index={0}
                 >
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />

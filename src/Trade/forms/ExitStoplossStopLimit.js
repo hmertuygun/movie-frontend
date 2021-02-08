@@ -92,6 +92,13 @@ const ExitStoplossStopLimit = () => {
       .number()
       .required('Trigger price is required')
       .typeError('Trigger price is required')
+      .min(
+        minPrice,
+        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
       .test(
         'Trigger price',
         `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(

@@ -94,7 +94,6 @@ const ExitTarget = () => {
       .number()
       .required('Price is required')
       .typeError('Price is required')
-      .positive()
       .test(
         'Price',
         `Price must be higher than the Entry Price: ${addPrecisionToNumber(

@@ -54,6 +54,7 @@ const ExitStoplossStopMarket = () => {
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
+  const minPrice = Number(selectedSymbolDetail.minPrice)
   const minQty = Number(selectedSymbolDetail.minQty)
 
   const entryPrice =
@@ -86,6 +87,13 @@ const ExitStoplossStopMarket = () => {
       .number()
       .required('Trigger price is required')
       .typeError('Trigger price is required')
+      .min(
+        minPrice,
+        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
       .test(
         'Trigger price',
         `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
