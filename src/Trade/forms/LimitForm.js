@@ -53,6 +53,7 @@ const LimitForm = () => {
   const pricePrecision = selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
   const totalPrecision = selectedSymbolDetail['quote_asset_precision']
+  const amountPercentagePrecision = 1
 
   const sliderMarks = {
     0: '',
@@ -169,7 +170,7 @@ const LimitForm = () => {
   const handleChange = ({ target }) => {
     if (target.name === 'total') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       const {
@@ -185,7 +186,7 @@ const LimitForm = () => {
       }))
     } else if (target.name === 'price') {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       const { totalWithPrecision } = calculateTotalAndPercentageQuantity(
@@ -200,7 +201,7 @@ const LimitForm = () => {
       }))
     } else {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
       const {
         totalWithPrecision,
@@ -263,6 +264,10 @@ const LimitForm = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
+    const maxLength = getMaxInputLength(target.value, amountPercentagePrecision)
+    const inputLength = getInputLength(target.value)
+    if (inputLength > maxLength) return
+
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const {
       quantityWithPrecision,

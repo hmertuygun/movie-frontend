@@ -51,6 +51,7 @@ const MarketForm = () => {
 
   const quantityPrecision = selectedSymbolDetail['lotSize']
   const totalPrecision = selectedSymbolDetail['quote_asset_precision']
+  const amountPercentagePrecision = 1
 
   const marks = {
     0: '',
@@ -190,12 +191,6 @@ const MarketForm = () => {
 
   const handleBlur = ({ target }, precision) => {
     validateInput(target)
-    // formSchema.fields[target.name].validate(target.value).catch((error) => {
-    //   setErrors((errors) => ({
-    //     ...errors,
-    //     [target.name]: error.message,
-    //   }))
-    // })
     setValues((values) => ({
       ...values,
       [target.name]: addPrecisionToNumber(target.value, precision),
@@ -240,6 +235,10 @@ const MarketForm = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
+    const maxLength = getMaxInputLength(target.value, amountPercentagePrecision)
+    const inputLength = getInputLength(target.value)
+    if (inputLength > maxLength) return
+
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const {
       quantityWithPrecision,

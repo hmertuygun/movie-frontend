@@ -53,6 +53,8 @@ const ExitTargetStopMarket = () => {
 
   const pricePrecision = selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
+  const profitPercentagePrecision = 2
+  const amountPercentagePrecision = 1
 
   const maxPrice = Number(selectedSymbolDetail.maxPrice)
   const minQty = Number(selectedSymbolDetail.minQty)
@@ -140,7 +142,12 @@ const ExitTargetStopMarket = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
-    const value = Math.abs(target.value)
+    const maxLength = getMaxInputLength(target.value, profitPercentagePrecision)
+    const inputLength = getInputLength(target.value)
+    if (inputLength > maxLength) return
+
+    const value = !target.value ? '' : Math.abs(target.value)
+
     setValues((values) => ({
       ...values,
       profit: value > 100 ? 100 : value,
@@ -176,7 +183,14 @@ const ExitTargetStopMarket = () => {
   }
 
   const handleQPInputChange = ({ target }) => {
-    const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const maxLength = getMaxInputLength(target.value, amountPercentagePrecision)
+    const inputLength = getInputLength(target.value)
+    if (inputLength > maxLength) return
+
+    const value = !target.value
+      ? ''
+      : removeTrailingZeroFromInput(Math.abs(target.value))
+
     setValues((values) => ({
       ...values,
       quantityPercentage: value > 100 ? 100 : value,
@@ -187,15 +201,6 @@ const ExitTargetStopMarket = () => {
       ...errors,
       quantity: '',
     }))
-  }
-
-  const handleQPBlur = ({ target }) => {
-    const value = target.value > 100 ? 100 : target.value
-    setValues((values) => ({
-      ...values,
-      quantityPercentage: value,
-    }))
-    priceAndProfitSync('quantityPercentage', value)
   }
 
   const validateInput = (target) => {
@@ -221,7 +226,7 @@ const ExitTargetStopMarket = () => {
 
     if (name === 'price') {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       setValues((values) => ({
@@ -234,7 +239,7 @@ const ExitTargetStopMarket = () => {
 
     if (name === 'quantity') {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       setValues((values) => ({
@@ -437,7 +442,6 @@ const ExitTargetStopMarket = () => {
                 margin="dense"
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
-                onBlur={handleQPBlur}
                 postLabel={'%'}
               />
             </Grid>
