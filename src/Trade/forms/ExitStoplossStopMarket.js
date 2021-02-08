@@ -9,10 +9,13 @@ import { TradeContext } from '../context/SimpleTradeContext'
 import roundNumbers from '../../helpers/roundNumbers'
 import { useSymbolContext } from '../context/SymbolContext'
 import styles from './ExitForm.module.css'
+
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
-} from '../../helpers/precisionRound'
+  getMaxInputLength,
+  getInputLength,
+} from '../../helpers/tradeForm'
 
 import 'rc-slider/assets/index.css'
 
@@ -137,12 +140,7 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleBlur = ({ target }, precision) => {
-    formSchema.fields[target.name].validate(target.value).catch((error) => {
-      setErrors((errors) => ({
-        ...errors,
-        [target.name]: error.message,
-      }))
-    })
+    validateInput(target)
     setValues((values) => ({
       ...values,
       [target.name]: addPrecisionToNumber(target.value, precision),
@@ -185,15 +183,32 @@ const ExitStoplossStopMarket = () => {
     priceAndProfitSync('quantityPercentage', value)
   }
 
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
+
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
+    }
+  }
+
   const handleChange = ({ target }) => {
     const { name, value } = target
 
-    setErrors((errors) => ({
-      ...errors,
-      [name]: '',
-    }))
-
     if (name === 'triggerPrice') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       setValues((values) => ({
         ...values,
         triggerPrice: value,
@@ -202,6 +217,10 @@ const ExitStoplossStopMarket = () => {
     }
 
     if (name === 'quantity') {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       setValues((values) => ({
         ...values,
         quantity: value,
@@ -210,6 +229,8 @@ const ExitStoplossStopMarket = () => {
 
       priceAndProfitSync(name, value)
     }
+
+    validateInput(target)
   }
 
   const priceAndProfitSync = (inputName, inputValue) => {

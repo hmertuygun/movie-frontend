@@ -1,11 +1,13 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react'
+import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
-} from '../../helpers/precisionRound'
+  getMaxInputLength,
+  getInputLength,
+} from '../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -125,6 +127,24 @@ const MarketForm = () => {
     return { totalWithPrecision, percentageQuantityWithPrecision }
   }
 
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
+
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
+    }
+  }
+
   const handleChange = ({ target }) => {
     setErrors((errors) => ({
       ...errors,
@@ -132,6 +152,10 @@ const MarketForm = () => {
     }))
 
     if (target.name === 'total') {
+      const maxLength = getMaxInputLength(target.value, totalPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       const {
         quantityWithPrecision,
         percentageQuantityWithPrecision,
@@ -144,6 +168,10 @@ const MarketForm = () => {
         [target.name]: target.value,
       }))
     } else if (target.name === 'quantity') {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       const {
         totalWithPrecision,
         percentageQuantityWithPrecision,
@@ -156,15 +184,18 @@ const MarketForm = () => {
         quantityPercentage: percentageQuantityWithPrecision,
       }))
     }
+
+    validateInput(target)
   }
 
   const handleBlur = ({ target }, precision) => {
-    formSchema.fields[target.name].validate(target.value).catch((error) => {
-      setErrors((errors) => ({
-        ...errors,
-        [target.name]: error.message,
-      }))
-    })
+    validateInput(target)
+    // formSchema.fields[target.name].validate(target.value).catch((error) => {
+    //   setErrors((errors) => ({
+    //     ...errors,
+    //     [target.name]: error.message,
+    //   }))
+    // })
     setValues((values) => ({
       ...values,
       [target.name]: addPrecisionToNumber(target.value, precision),

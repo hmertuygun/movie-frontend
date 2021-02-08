@@ -5,7 +5,9 @@ import 'rc-slider/assets/index.css'
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
-} from '../../helpers/precisionRound'
+  getMaxInputLength,
+  getInputLength,
+} from '../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -146,13 +148,30 @@ const LimitForm = () => {
     return { totalWithPrecision, percentageQuantityWithPrecision }
   }
 
-  const handleChange = ({ target }) => {
-    setErrors((errors) => ({
-      ...errors,
-      [target.name]: '',
-    }))
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
 
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
+    }
+  }
+
+  const handleChange = ({ target }) => {
     if (target.name === 'total') {
+      const maxLength = getMaxInputLength(target.value, totalPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       const {
         quantityWithPrecision,
         percentageQuantityWithPrecision,
@@ -165,6 +184,10 @@ const LimitForm = () => {
         [target.name]: target.value,
       }))
     } else if (target.name === 'price') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       const { totalWithPrecision } = calculateTotalAndPercentageQuantity(
         target.value,
         'quantity'
@@ -176,6 +199,9 @@ const LimitForm = () => {
         total: totalWithPrecision,
       }))
     } else {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
       const {
         totalWithPrecision,
         percentageQuantityWithPrecision,
@@ -188,15 +214,13 @@ const LimitForm = () => {
         quantityPercentage: percentageQuantityWithPrecision,
       }))
     }
+
+    validateInput(target)
   }
 
   const handleBlur = ({ target }, precision) => {
-    formSchema.fields[target.name].validate(target.value).catch((error) => {
-      setErrors((errors) => ({
-        ...errors,
-        [target.name]: error.message,
-      }))
-    })
+    validateInput(target)
+
     setValues((values) => ({
       ...values,
       [target.name]: addPrecisionToNumber(target.value, precision),

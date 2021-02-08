@@ -7,10 +7,14 @@ import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
+
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
-} from '../../helpers/precisionRound'
+  getMaxInputLength,
+  getInputLength,
+} from '../../helpers/tradeForm'
+
 import * as yup from 'yup'
 
 import styles from './ExitForm.module.css'
@@ -152,12 +156,7 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleBlur = ({ target }, precision) => {
-    formSchema.fields[target.name].validate(target.value).catch((error) => {
-      setErrors((errors) => ({
-        ...errors,
-        [target.name]: error.message,
-      }))
-    })
+    validateInput(target)
     setValues((values) => ({
       ...values,
       [target.name]: addPrecisionToNumber(target.value, precision),
@@ -200,15 +199,32 @@ const ExitStoplossStopLimit = () => {
     priceAndProfitSync('quantityPercentage', parseInt(value, 10))
   }
 
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
+
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
+    }
+  }
+
   const handleChange = ({ target }) => {
     const { name, value } = target
 
-    setErrors((errors) => ({
-      ...errors,
-      [name]: '',
-    }))
-
     if (name === 'triggerPrice') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       setValues((values) => ({
         ...values,
         triggerPrice: value,
@@ -217,6 +233,10 @@ const ExitStoplossStopLimit = () => {
     }
 
     if (name === 'price') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       setValues((values) => ({
         ...values,
         price: value,
@@ -226,6 +246,10 @@ const ExitStoplossStopLimit = () => {
     }
 
     if (name === 'quantity') {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value);
+      if (inputLength > maxLength) return
+
       setValues((values) => ({
         ...values,
         quantity: value,
@@ -234,6 +258,8 @@ const ExitStoplossStopLimit = () => {
 
       priceAndProfitSync(name, value)
     }
+
+    validateInput(target)
   }
 
   const priceAndProfitSync = (inputName, inputValue) => {
