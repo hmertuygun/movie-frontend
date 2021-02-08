@@ -55,7 +55,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
 
             <td></td>
 
-            <td>100%</td>
+            <td>{entry.quantity}</td>
 
             <td>
               <Button
@@ -121,47 +121,64 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
           </TableTradeRow>
         ))}
 
-        {stoploss.map((stoploss, index) => (
-          <TableTradeRow key={index}>
-            <td>
-              <div className={styles['Table-type-container']}>
-                <div className={styles['Table-dot-stoploss']}></div>
-                Stoploss
-              </div>
-            </td>
+        {stoploss.map((stoploss, index) => {
+          console.log('stoploss ', stoploss)
+          console.log('stoploss triggerPrice ', stoploss.triggerPrice)
 
-            <td>{stoploss.price}</td>
+          const { type, price, triggerPrice, profit, quantity } = stoploss
 
-            <td className={styles['Table-Row-stoploss-profit']}>
-              {stoploss.profit}%
-            </td>
+          /*           console.log('stoploss type ', type, typeof type)
+          console.log('stoploss type value ', type === 'stop-limit')
 
-            <td>{roundNumber((stoploss.quantity / entry.quantity) * 100)}%</td>
+          if (type === 'stop-limit') {
+            console.log('stop-limit')
+          } else {
+            console.log('stop-market')
+          } */
+          return (
+            <TableTradeRow key={index}>
+              <td>
+                <div className={styles['Table-type-container']}>
+                  <div className={styles['Table-dot-stoploss']}></div>
+                  Stoploss
+                </div>
+              </td>
+              {type === 'stop-limit' ? (
+                <td>{price}</td>
+              ) : (
+                <td>{triggerPrice}</td>
+              )}
+              {/* {type ? <th scope="col">Average</th> : null} */}
 
-            <td>
-              <Button
-                onClick={() => onClick({ type: 'stoploss', index })}
-                remove
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="1em"
-                  height="1em"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="feather feather-x"
+              <td className={styles['Table-Row-stoploss-profit']}>{profit}%</td>
+
+              <td>{roundNumber((quantity / entry.quantity) * 100)}%</td>
+
+              <td>
+                <Button
+                  onClick={() => onClick({ type: 'stoploss', index })}
+                  remove
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </Button>
-            </td>
-          </TableTradeRow>
-        ))}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="feather feather-x"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </Button>
+              </td>
+            </TableTradeRow>
+          )
+        })}
       </tbody>
     </table>
   )

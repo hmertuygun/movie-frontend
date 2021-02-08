@@ -50,7 +50,7 @@ const ExitStoplossStopLimit = () => {
     selectedSymbolLastPrice,
   } = useSymbolContext()
 
-  const { state, addStoploss } = useContext(TradeContext)
+  const { state, addStoplossLimit } = useContext(TradeContext)
   const { entry } = state
 
   const pricePrecision = selectedSymbolDetail['tickSize']
@@ -200,7 +200,7 @@ const ExitStoplossStopLimit = () => {
     const value = !target.value
       ? ''
       : removeTrailingZeroFromInput(Math.abs(target.value))
-      
+
     setValues((values) => ({
       ...values,
       quantityPercentage: value > 100 ? 100 : value,
@@ -348,7 +348,7 @@ const ExitStoplossStopLimit = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoploss({
+      addStoplossLimit({
         price: values.price,
         triggerPrice: values.triggerPrice,
         profit: values.profit,

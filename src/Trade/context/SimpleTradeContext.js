@@ -115,7 +115,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
-  const addStoploss = ({
+  const addStoplossLimit = ({
     price,
     triggerPrice,
     quantity,
@@ -208,7 +208,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         addTarget,
         addStopMarketTarget,
         removeTarget,
-        addStoploss,
+        addStoplossLimit,
         addStoplossMarket,
         removeStoploss,
         clear,
