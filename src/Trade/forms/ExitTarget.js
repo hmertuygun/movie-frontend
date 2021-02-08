@@ -309,7 +309,7 @@ const ExitTarget = () => {
   }
 
   useEffect(() => {
-    if (Number(values.quantity) + totalQuantity >= entry.quantity) {
+    if (Number(values.quantity) + totalQuantity > entry.quantity) {
       setErrors((errors) => ({
         ...errors,
         total: 'Target orders cannot exceed 100% of entry',
@@ -327,7 +327,7 @@ const ExitTarget = () => {
 
     const isFormValid = await validateForm()
 
-    const isLimit = Number(values.quantity) + totalQuantity >= entry.quantity
+    const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
 
     if (isFormValid && !isLimit) {
       addTarget({

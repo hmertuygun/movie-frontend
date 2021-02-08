@@ -57,7 +57,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         total_quantity = total_quantity + state.targets[i]['quantity']
       }
 
-      if (total_quantity + quantity >= state.entry.quantity) {
+      if (total_quantity + quantity > state.entry.quantity) {
         return
       }
     }
