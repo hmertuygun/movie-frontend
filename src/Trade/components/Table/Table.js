@@ -94,10 +94,12 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
             <td>{target.price}</td>
 
             <td className={styles['Table-Row-target-profit']}>
-              {roundNumber(target.profit)}%
+              {target.profit}%
             </td>
 
-            <td>{roundNumber((target.quantity / entry.quantity) * 100)}%</td>
+            <td>
+              {Number((target.quantity / entry.quantity) * 100).toFixed(2)}%
+            </td>
 
             <td>
               <Button onClick={() => onClick({ type: 'target', index })} remove>

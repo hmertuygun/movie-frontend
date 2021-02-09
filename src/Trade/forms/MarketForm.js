@@ -154,7 +154,7 @@ const MarketForm = () => {
 
     if (target.name === 'total') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       const {
@@ -170,7 +170,7 @@ const MarketForm = () => {
       }))
     } else if (target.name === 'quantity') {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
-      const inputLength = getInputLength(target.value);
+      const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
       const {
@@ -184,6 +184,11 @@ const MarketForm = () => {
         total: totalWithPrecision,
         quantityPercentage: percentageQuantityWithPrecision,
       }))
+
+      validateInput({
+        name: 'total',
+        value: totalWithPrecision,
+      })
     }
 
     validateInput(target)
@@ -227,11 +232,15 @@ const MarketForm = () => {
       total: totalWithPrecision,
     }))
 
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-      total: '',
-    }))
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
   }
 
   const handleSliderInputChange = ({ target }) => {
@@ -240,23 +249,30 @@ const MarketForm = () => {
     if (inputLength > maxLength) return
 
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
+
+    const validatedValue = value > 100 ? 100 : value
+
     const {
       quantityWithPrecision,
       totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(value)
+    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,
-      [target.name]: value > 100 ? 100 : value,
+      [target.name]: validatedValue,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))
 
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-      total: '',
-    }))
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
   }
 
   const validateForm = () => {
