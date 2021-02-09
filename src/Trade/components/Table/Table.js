@@ -122,19 +122,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
         ))}
 
         {stoploss.map((stoploss, index) => {
-          console.log('stoploss ', stoploss)
-          console.log('stoploss triggerPrice ', stoploss.triggerPrice)
-
           const { type, price, triggerPrice, profit, quantity } = stoploss
-
-          /*           console.log('stoploss type ', type, typeof type)
-          console.log('stoploss type value ', type === 'stop-limit')
-
-          if (type === 'stop-limit') {
-            console.log('stop-limit')
-          } else {
-            console.log('stop-market')
-          } */
           return (
             <TableTradeRow key={index}>
               <td>
@@ -148,7 +136,6 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               ) : (
                 <td>{triggerPrice}</td>
               )}
-              {/* {type ? <th scope="col">Average</th> : null} */}
 
               <td className={styles['Table-Row-stoploss-profit']}>{profit}%</td>
 
