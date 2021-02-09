@@ -1,17 +1,16 @@
 :root {
-  
   --blue: #0088ff;
   --light-blue: #78c0ff;
   --dark-blue: #152c5b;
 
   --red: #f25767;
   --orange: #ffbe3d;
-  --gold: #E6BA41;
+  --gold: #e6ba41;
   --grey: rgb(234, 234, 234);
   --white: #fff;
 
-  --green: #56BD7C;
-  --red-trade: #F84960;
+  --green: #56bd7c;
+  --red-trade: #f84960;
 
   --light: #eff2f7;
   --dark: #273444;
@@ -19,14 +18,12 @@
   --neutral: #fff;
   --muted: #718096;
 
-
   --warning: var(--orange);
   --danger: var(--red);
   --primary: var(--blue);
 
   --buy: var(--green);
   --sell: var(--red-trade);
-
 
   --default-color: var(--light);
   --warning-color: var(--warning);
@@ -44,9 +41,9 @@
   --body-color: var(--light);
 
   --trade-background: rgb(255, 255, 255);
-  --trade-color: #939AA4;
+  --trade-color: #939aa4;
   --trade-borders: #424951;
-  
+
   --trade-confirm-background: var(--gold);
   --trade-cancel-background: var(--red);
 }
@@ -60,21 +57,24 @@
     --body-color: var(--light);
 
     --trade-background: rgb(255, 255, 255);
-    --trade-color: #939AA4;
-    --trade-borders: #424951;  
+    --trade-color: #939aa4;
+    --trade-borders: #424951;
     --trade-confirm-background: var(--gold);
-    ;
+    --trade-modal-background: #424951;
+    --trade-box-background: #424951;
   }
 }
 
-:root .dark  {
+:root .dark {
   --default-color: var(--light);
 
   --body-background: var(--light);
   --body-color: var(--light);
 
   --trade-background: #e9eaec;
-  --trade-color: #939AA4;
-  --trade-borders: #424951;  
+  --trade-color: #939aa4;
+  --trade-borders: #424951;
   --trade-confirm-background: var(--gold);
+  --trade-modal-background: white;
+  --trade-box-background: var(--light);
 }
