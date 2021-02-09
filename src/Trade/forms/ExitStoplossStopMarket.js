@@ -46,7 +46,7 @@ const ExitStoplossStopMarket = () => {
     selectedSymbolLastPrice,
   } = useSymbolContext()
 
-  const { state, addStoploss } = useContext(TradeContext)
+  const { state, addStoplossMarket } = useContext(TradeContext)
   const { entry } = state
 
   const pricePrecision = selectedSymbolDetail['tickSize']
@@ -147,7 +147,7 @@ const ExitStoplossStopMarket = () => {
       ...values,
       profit: value > 100 ? -100 : value,
     }))
-    
+
     priceAndProfitSync(target.name, value)
 
     setErrors((errors) => ({
@@ -317,7 +317,7 @@ const ExitStoplossStopMarket = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoploss({
+      addStoplossMarket({
         triggerPrice: values.triggerPrice,
         profit: values.profit,
         quantity: values.quantity,
