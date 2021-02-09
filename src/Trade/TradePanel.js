@@ -90,7 +90,7 @@ const Trade = () => {
                 <Typography as="h3">2. Exits</Typography>
                 <ButtonNavigator
                   labelArray={['Target', 'Stop-loss']}
-                  index={0}
+                  index={1}
                 >
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />

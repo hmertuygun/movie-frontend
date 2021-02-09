@@ -50,7 +50,8 @@ const LimitForm = () => {
   const maxQty = Number(selectedSymbolDetail.maxQty)
   const minQty = Number(selectedSymbolDetail.minQty)
 
-  const pricePrecision = selectedSymbolDetail['tickSize']
+  const pricePrecision =
+    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
   const totalPrecision = selectedSymbolDetail['quote_asset_precision']
   const amountPercentagePrecision = 1
@@ -184,6 +185,11 @@ const LimitForm = () => {
         quantityPercentage: percentageQuantityWithPrecision,
         [target.name]: target.value,
       }))
+
+      validateInput({
+        name: 'quantity',
+        value: quantityWithPrecision,
+      })
     } else if (target.name === 'price') {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
       const inputLength = getInputLength(target.value)
@@ -199,6 +205,13 @@ const LimitForm = () => {
         [target.name]: target.value,
         total: totalWithPrecision,
       }))
+
+      if (values.price && values.quantity) {
+        validateInput({
+          name: 'total',
+          value: totalWithPrecision,
+        })
+      }
     } else {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
       const inputLength = getInputLength(target.value)
@@ -214,6 +227,11 @@ const LimitForm = () => {
         total: totalWithPrecision,
         quantityPercentage: percentageQuantityWithPrecision,
       }))
+
+      validateInput({
+        name: 'total',
+        value: totalWithPrecision,
+      })
     }
 
     validateInput(target)
@@ -256,11 +274,15 @@ const LimitForm = () => {
       total: totalWithPrecision,
     }))
 
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-      total: '',
-    }))
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
   }
 
   const handleSliderInputChange = ({ target }) => {
@@ -269,23 +291,29 @@ const LimitForm = () => {
     if (inputLength > maxLength) return
 
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const validatedValue = value > 100 ? 100 : value
+
     const {
       quantityWithPrecision,
       totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(value)
+    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,
-      [target.name]: value > 100 ? 100 : value,
+      [target.name]: validatedValue,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))
 
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-      total: '',
-    }))
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
   }
 
   const validateForm = () => {

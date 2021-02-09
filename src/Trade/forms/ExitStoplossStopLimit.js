@@ -53,13 +53,17 @@ const ExitStoplossStopLimit = () => {
   const { state, addStoplossLimit } = useContext(TradeContext)
   const { entry } = state
 
-  const pricePrecision = selectedSymbolDetail['tickSize']
+  const pricePrecision =
+    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
   const quantityPrecision = selectedSymbolDetail['lotSize']
+  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
+
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
   const minPrice = Number(selectedSymbolDetail.minPrice)
   const minQty = Number(selectedSymbolDetail.minQty)
+  const minNotional = Number(selectedSymbolDetail.minNotional)
 
   const entryPrice =
     entry.type === 'market' ? selectedSymbolLastPrice : entry.price
@@ -134,6 +138,17 @@ const ExitStoplossStopLimit = () => {
         entry.quantity,
         `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
       ),
+    total: yup
+      .number()
+      .required('Total is required')
+      .typeError('Total is required')
+      .min(
+        minNotional,
+        `Total needs to meet min-trading: ${addPrecisionToNumber(
+          minNotional,
+          totalPrecision
+        )}`
+      ),
   })
 
   const handleSliderChange = (newValue) => {
@@ -143,11 +158,6 @@ const ExitStoplossStopLimit = () => {
       profit: newValue,
     }))
     priceAndProfitSync('profit', newValue)
-
-    setErrors((errors) => ({
-      ...errors,
-      price: '',
-    }))
   }
 
   const handleSliderInputChange = ({ target }) => {
@@ -159,16 +169,14 @@ const ExitStoplossStopLimit = () => {
       ? ''
       : -Math.abs(removeTrailingZeroFromInput(target.value))
 
+    const validatedValue = Math.abs(value) > 99 ? -99 : value
+
     setValues((values) => ({
       ...values,
-      profit: value > 100 ? -100 : value,
+      profit: validatedValue,
     }))
-    priceAndProfitSync(target.name, value)
 
-    setErrors((errors) => ({
-      ...errors,
-      profit: '',
-    }))
+    priceAndProfitSync(target.name, validatedValue)
   }
 
   const handleBlur = ({ target }, precision) => {
@@ -185,11 +193,6 @@ const ExitStoplossStopLimit = () => {
       quantityPercentage: newValue,
     }))
     priceAndProfitSync('quantityPercentage', newValue)
-
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-    }))
   }
 
   const handleQPInputChange = ({ target }) => {
@@ -201,16 +204,13 @@ const ExitStoplossStopLimit = () => {
       ? ''
       : removeTrailingZeroFromInput(Math.abs(target.value))
 
+    const validatedValue = value > 100 ? 100 : value
+
     setValues((values) => ({
       ...values,
-      quantityPercentage: value > 100 ? 100 : value,
+      quantityPercentage: validatedValue,
     }))
-    priceAndProfitSync(target.name, value)
-
-    setErrors((errors) => ({
-      ...errors,
-      quantity: '',
-    }))
+    priceAndProfitSync(target.name, validatedValue)
   }
 
   const validateInput = (target) => {
@@ -250,7 +250,6 @@ const ExitStoplossStopLimit = () => {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
-
       setValues((values) => ({
         ...values,
         price: value,
@@ -281,9 +280,6 @@ const ExitStoplossStopLimit = () => {
       entry.type === 'market' ? selectedSymbolLastPrice : entry.price
 
     switch (inputName) {
-      case 'triggerPrice':
-        return true
-
       case 'price':
         const diff = usePrice - inputValue
         const percentage = roundNumbers((diff / usePrice) * 100, 2)
@@ -295,11 +291,27 @@ const ExitStoplossStopLimit = () => {
 
       case 'profit':
         const newPrice = usePrice * (-inputValue / 100)
-
+        const derivedPrice = addPrecisionToNumber(
+          usePrice - newPrice,
+          pricePrecision
+        )
         setValues((values) => ({
           ...values,
-          price: addPrecisionToNumber(usePrice - newPrice, pricePrecision),
+          price: derivedPrice,
+          total: derivedPrice * Number(values.quantity),
         }))
+
+        validateInput({
+          name: 'price',
+          value: derivedPrice,
+        })
+
+        if (values.price && values.quantity) {
+          validateInput({
+            name: 'total',
+            value: derivedPrice * Number(values.quantity),
+          })
+        }
 
         return false
 
@@ -316,10 +328,28 @@ const ExitStoplossStopLimit = () => {
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
 
+        const derivedQuantity = addPrecisionToNumber(
+          theQuantity,
+          quantityPrecision
+        )
+
         setValues((values) => ({
           ...values,
-          quantity: addPrecisionToNumber(theQuantity, quantityPrecision),
+          quantity: derivedQuantity,
+          total: derivedQuantity * Number(values.price),
         }))
+
+        validateInput({
+          name: 'quantity',
+          value: derivedQuantity,
+        })
+
+        if (values.price && values.quantity) {
+          validateInput({
+            name: 'total',
+            value: derivedQuantity * Number(values.price),
+          })
+        }
 
         return false
 
@@ -408,7 +438,7 @@ const ExitStoplossStopLimit = () => {
                 step={1}
                 marks={marks}
                 min={0}
-                max={100}
+                max={99}
                 onChange={handleSliderChange}
                 value={0 - values.profit}
               />
@@ -463,11 +493,14 @@ const ExitStoplossStopLimit = () => {
               />
             </Grid>
           </Grid>
+          {renderInputValidationError('total')}
         </div>
 
         <Button
           type="submit"
-          disabled={state?.stoploss?.length || !values.quantity}
+          disabled={
+            state?.stoploss?.length || !values.quantity || values.profit === 0
+          }
           variant="sell"
         >
           Add Stop-loss
