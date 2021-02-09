@@ -1,9 +1,8 @@
 export const addPrecisionToNumber = (value, precisionCount) => {
   if (value) {
-    if (value === '0') return Number(Math.floor(value))
-
-    if (precisionCount > 8) return Number(Math.floor(value)).toFixed(0)
-    return Number(Math.floor(value)).toFixed(precisionCount)
+    if (value === '0') return Number(value)
+    if (precisionCount > 8) return Number(value).toFixed(0)
+    return Number(value).toFixed(precisionCount)
   }
   return ''
 }
