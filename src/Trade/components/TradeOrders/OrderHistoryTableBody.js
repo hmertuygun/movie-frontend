@@ -43,6 +43,7 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                   >
                     {order.side}
                   </td>
+                  <td>{order.average}</td>
                   <td>{order.price}</td>
                   <td>{order.amount}</td>
                   <td>{order.filled}</td>
