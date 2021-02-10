@@ -63,13 +63,16 @@
   flex-direction: column-reverse;
   width: 100%;
 }
+.TradeModal-Footer button {
+  height:40px;
+  padding: 0 !important;
+}
 
 @media (min-width: 420px) {
   .TradeModal-Footer {
     flex-direction: row;
     justify-content: space-between;
   }
-
   .TradeModal-Footer * {
     width: 175px;
   }

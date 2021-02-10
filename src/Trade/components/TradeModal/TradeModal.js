@@ -5,7 +5,7 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeModal.module.css'
 import { addPrecisionToNumber } from '../../../helpers/tradeForm'
 
-const TradeModal = ({ onClose, placeOrder }) => {
+const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
   const { state } = useContext(TradeContext)
   const orderType = {
     limit: 'Limit',
@@ -114,12 +114,35 @@ const TradeModal = ({ onClose, placeOrder }) => {
       </main>
 
       <footer className={styles['TradeModal-Footer']}>
-        <button onClick={onClose} className="btn btn-danger">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onClose}
+        >
           Cancel
         </button>
-        <button onClick={placeOrder} className="btn btn-success">
-          Confirm Order
+        <button
+          disabled={btnDisabled}
+          onClick={placeOrder}
+          className="btn btn-primary"
+        >
+          {!btnDisabled ? (
+            'Confirm'
+          ) : (
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              />
+            )}
         </button>
+        {/* <Button onClick={onClose} variant="cancel">Cancel</Button> */}
+        {/* <Button variant="confirm" onClick={placeOrder} disabled={btnDisabled}>
+          { btnDisabled ? (<span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"/>) : 'Confirm'}
+        </Button> */}
       </footer>
     </article>
   )

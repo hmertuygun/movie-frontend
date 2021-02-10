@@ -55,7 +55,7 @@ const LimitForm = () => {
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
 
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  
+
   const totalPrecision =
     selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
       ? 7
@@ -378,8 +378,8 @@ const LimitForm = () => {
             aria-hidden="true"
           />
         ) : (
-          ''
-        )}
+            ''
+          )}
       </div>
 
       <section>

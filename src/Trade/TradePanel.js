@@ -27,11 +27,11 @@ const TradePanel = () => (
 )
 
 const Trade = () => {
+  const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
   const { selectedSymbol } = useContext(SymbolContext)
   const hasEntry = state.entry?.quantity > 0 ? true : false
-
   function checkAllTypes() {
     const targets =
       state &&
@@ -51,6 +51,8 @@ const Trade = () => {
 
   const doPlaceOrder = async () => {
     try {
+      if (isBtnDisabled) return
+      setBtnVisibility(true)
       await placeOrder({ ...state })
       setIsModalVisible(false)
       clear()
@@ -58,6 +60,9 @@ const Trade = () => {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
       clear()
+    }
+    finally {
+      setBtnVisibility(false)
     }
   }
 
@@ -129,6 +134,7 @@ const Trade = () => {
         <Modal onClose={() => setIsModalVisible(false)}>
           <TradeModal
             onClose={() => setIsModalVisible(false)}
+            btnDisabled={isBtnDisabled}
             placeOrder={doPlaceOrder}
           />
         </Modal>
