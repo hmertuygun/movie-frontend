@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { ExternalLink } from 'react-feather'
 import {
   getUserExchanges,
   addUserExchange,
@@ -105,8 +106,14 @@ const Exchanges = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-0 mb-2 ml-3">
-              <i data-feather="external-link" className="mr-1"></i>
+            <a
+              className="mt-0 mb-2 ml-3"
+              href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#718096' }}
+            >
+              <ExternalLink size={16} className="mr-1" />
               <label
                 className="text-sm"
                 htmlFor="billing_notification"
@@ -114,7 +121,7 @@ const Exchanges = () => {
               >
                 How to connect your exchange?
               </label>
-            </div>
+            </a>
 
             <div className="row">
               <div className="col-xl-12">
@@ -122,16 +129,26 @@ const Exchanges = () => {
                   <div className="card-body">
                     {!exchangeQuery.isLoading &&
                       exchanges &&
-                      exchanges.map((row, index) => (
-                        <ExhangeRow
-                          key={index}
-                          row={row}
-                          index={index}
-                          onDelete={() => onDelete(row.apiKeyName)}
-                          setActive={() => setActive(row.apiKeyName)}
-                          isLast={index === exchanges.length - 1}
-                        />
-                      ))}
+                      exchanges
+                        .sort((a, b) => {
+                          if (a.apiKeyName < b.apiKeyName) {
+                            return -1
+                          }
+                          if (a.apiKeyName > b.apiKeyName) {
+                            return 1
+                          }
+                          return 0
+                        })
+                        .map((row, index) => (
+                          <ExhangeRow
+                            key={index}
+                            row={row}
+                            index={index}
+                            onDelete={() => onDelete(row.apiKeyName)}
+                            setActive={() => setActive(row.apiKeyName)}
+                            isLast={index === exchanges.length - 1}
+                          />
+                        ))}
 
                     {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
 
@@ -155,35 +172,28 @@ const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
   return (
     <Fragment>
       <div className="row align-items-center">
-        <div className="col">
-          <h6 className="text-sm mb-0">
+        <div className="col-md-4">
+          <h6 className="text-sm mb-0" style={{ textTransform: 'capitalize' }}>
             {row.exchange} - {row.apiKeyName}
           </h6>
         </div>
 
-        {row.isActive && (
-          <div className="col-auto">
-            <span className="text-sm">Active</span>
-          </div>
-        )}
+        <div className="col-md-4 text-center">
+          <img
+            src="img/svg/exchange/binance.svg"
+            height="20px"
+            alt="biance"
+          ></img>
+        </div>
 
-        <div className="col-auto">
-          {!row.isActive && (
-            <button
-              className="btn btn-link text-sm text-warning"
-              onClick={() => {
-                setActive(index)
-              }}
-            >
-              Activate
-            </button>
-          )}
-
-          {!row.isActive && (
-            <button className="btn btn-link" onClick={() => onDelete()}>
-              <span className="text-sm text-danger">Delete</span>
-            </button>
-          )}
+        <div className="col-md-4 text-right">
+          <a
+            href="#"
+            className="text-sm text-danger"
+            onClick={() => onDelete()}
+          >
+            Delete
+          </a>
         </div>
       </div>
 
