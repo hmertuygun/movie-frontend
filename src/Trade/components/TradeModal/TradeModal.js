@@ -1,9 +1,9 @@
-import React, { Fragment, useContext } from 'react'
+import React, { useContext } from 'react'
 import { Typography, Button } from '../../../components'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
-import roundNumbers from '../../../helpers/roundNumbers'
 import styles from './TradeModal.module.css'
+import { addPrecisionToNumber } from '../../../helpers/tradeForm'
 
 const TradeModal = ({ onClose, placeOrder }) => {
   const { state } = useContext(TradeContext)
@@ -72,12 +72,21 @@ const TradeModal = ({ onClose, placeOrder }) => {
                   </td>
                   <td>
                     (
-                    {roundNumbers(target.quantity / state.entry.quantity) * 100}
+                    {addPrecisionToNumber(
+                      (target.quantity / state.entry.quantity) * 100,
+                      2
+                    )}
                     %) {target.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
-                  <td>
-                    {target.price} {selectedSymbolDetail['quote_asset']}
-                  </td>
+                  {target.type === 'stop-market' ? (
+                    <td>
+                      {target.triggerPrice} {selectedSymbolDetail['quote_asset']}
+                    </td>
+                  ) : (
+                    <td>
+                      {target.price} {selectedSymbolDetail['quote_asset']}
+                    </td>
+                  )}
                 </tr>
               ))}
               {state.stoploss.map((stoploss, index) => (
@@ -85,8 +94,10 @@ const TradeModal = ({ onClose, placeOrder }) => {
                   <td>Stop Loss ({orderType[stoploss.type]})</td>
                   <td>
                     (
-                    {roundNumbers(stoploss.quantity / state.entry.quantity) *
-                      100}
+                    {addPrecisionToNumber(
+                      (stoploss.quantity / state.entry.quantity) * 100,
+                      2
+                    )}
                     %) {stoploss.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
                   <td>

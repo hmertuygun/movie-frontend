@@ -50,11 +50,16 @@ const LimitForm = () => {
   const maxQty = Number(selectedSymbolDetail.maxQty)
   const minQty = Number(selectedSymbolDetail.minQty)
 
+  const amountPercentagePrecision = 1
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
-  const amountPercentagePrecision = 1
+  
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
 
   const sliderMarks = {
     0: '',

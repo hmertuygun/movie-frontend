@@ -52,8 +52,11 @@ const ExitStoplossStopMarket = () => {
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 

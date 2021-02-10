@@ -69,7 +69,7 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addStopMarketTarget = ({
-    price,
+    triggerPrice,
     quantity,
     profit,
     symbol,
@@ -77,13 +77,12 @@ const SimpleTradeContextProvider = ({ children }) => {
     side = 'sell',
   }) => {
     const targets = state.targets || []
-    const triggerPrice = price
     setState({
       ...state,
       targets: [
         ...targets,
         {
-          price: triggerPrice,
+          triggerPrice,
           quantity,
           profit,
           symbol,

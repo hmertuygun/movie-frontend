@@ -12,7 +12,6 @@ import {
 
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
-import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
 import MarketForm from './forms/MarketForm'
@@ -20,7 +19,6 @@ import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
 import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
 import ExitTarget from './forms/ExitTarget'
 import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
-import { addPrecisionToNumber } from '../helpers/precisionRound'
 
 const TradePanel = () => (
   <SimpleTradeContext>
