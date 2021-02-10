@@ -53,8 +53,11 @@ const ExitTargetStopMarket = () => {
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
@@ -89,6 +92,14 @@ const ExitTargetStopMarket = () => {
     50: '',
     75: '',
     100: '',
+  }
+
+  const targetSliderMarks = {
+    0: '',
+    250: '',
+    500: '',
+    750: '',
+    1000: '',
   }
 
   // @TODO
@@ -227,9 +238,15 @@ const ExitTargetStopMarket = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.quantity),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         [name]: value,
+        total,
       }))
 
       priceAndProfitSync(name, value)
@@ -240,10 +257,15 @@ const ExitTargetStopMarket = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.price),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         quantity: value,
-        total: Number(value) * Number(values.price),
+        total,
       }))
 
       priceAndProfitSync(name, value)
@@ -268,10 +290,15 @@ const ExitTargetStopMarket = () => {
         pricePrecision
       )
 
+      const total = addPrecisionToNumber(
+        derivedPrice * Number(values.quantity),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         price: derivedPrice,
-        total: derivedPrice * Number(values.quantity),
+        total,
       }))
 
       validateInput({
@@ -282,7 +309,7 @@ const ExitTargetStopMarket = () => {
       if (values.price && values.quantity) {
         validateInput({
           name: 'total',
-          value: derivedPrice * Number(values.quantity),
+          value: total,
         })
       }
     }
@@ -305,10 +332,15 @@ const ExitTargetStopMarket = () => {
         quantityPrecision
       )
 
+      const total = addPrecisionToNumber(
+        derivedQuantity * Number(values.price),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         quantity: derivedQuantity,
-        total: derivedQuantity * Number(values.price),
+        total,
       }))
 
       validateInput({
@@ -319,7 +351,7 @@ const ExitTargetStopMarket = () => {
       if (values.price && values.quantity) {
         validateInput({
           name: 'total',
-          value: derivedQuantity * Number(values.price),
+          value: total,
         })
       }
     }
@@ -339,7 +371,7 @@ const ExitTargetStopMarket = () => {
   }
 
   useEffect(() => {
-    if (values.price && values.quantity) {
+    if (values.quantity) {
       if (Number(values.quantity) + totalQuantity > entry.quantity) {
         setErrors((errors) => ({
           ...errors,
@@ -355,7 +387,6 @@ const ExitTargetStopMarket = () => {
   }, [
     totalQuantity,
     values.quantity,
-    values.price,
     values.quantityPercentage,
     entry.quantity,
   ])
@@ -369,7 +400,7 @@ const ExitTargetStopMarket = () => {
 
     if (isFormValid && !isLimit) {
       addStopMarketTarget({
-        price: values.price,
+        triggerPrice: values.price,
         quantity: values.quantity,
         profit: values.profit,
         symbol: selectedSymbolDetail['symbolpair'],
@@ -428,7 +459,7 @@ const ExitTargetStopMarket = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={targetSliderMarks}
                 min={0}
                 max={1000}
                 onChange={handleSliderChange}

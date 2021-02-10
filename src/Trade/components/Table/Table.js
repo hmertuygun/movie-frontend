@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Button } from '../../../components'
-import roundNumber from '../../../helpers/roundNumbers'
+import { addPrecisionToNumber } from '../../../helpers/tradeForm'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import styles from './Table.module.css'
 
@@ -91,14 +91,22 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               </div>
             </td>
 
-            <td>{target.price}</td>
+            {target.type === 'stop-market' ? (
+              <td>{target.triggerPrice}</td>
+            ) : (
+              <td>{target.price}</td>
+            )}
 
             <td className={styles['Table-Row-target-profit']}>
               {target.profit}%
             </td>
 
             <td>
-              {Number((target.quantity / entry.quantity) * 100).toFixed(2)}%
+              {addPrecisionToNumber(
+                (target.quantity / entry.quantity) * 100,
+                2
+              )}
+              %
             </td>
 
             <td>
@@ -141,7 +149,9 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
 
               <td className={styles['Table-Row-stoploss-profit']}>{profit}%</td>
 
-              <td>{roundNumber((quantity / entry.quantity) * 100)}%</td>
+              <td>
+                {addPrecisionToNumber((quantity / entry.quantity) * 100, 2)}%
+              </td>
 
               <td>
                 <Button

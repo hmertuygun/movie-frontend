@@ -50,8 +50,11 @@ const MarketForm = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
 
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
   const amountPercentagePrecision = 1
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
 
   const marks = {
     0: '',
@@ -205,7 +208,11 @@ const MarketForm = () => {
   const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
     const balance = selectedSymbolBalance
     const belowOnePercentage = sliderValue / 100
-    const cost = belowOnePercentage * balance
+    const cost = addPrecisionToNumber(
+      belowOnePercentage * balance,
+      totalPrecision
+    )
+
     const quantityWithPrecision = addPrecisionToNumber(
       cost / selectedSymbolLastPrice,
       quantityPrecision

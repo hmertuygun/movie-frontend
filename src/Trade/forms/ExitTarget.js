@@ -53,8 +53,11 @@ const ExitTarget = () => {
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
   const quantityPrecision = selectedSymbolDetail['lotSize']
-  const totalPrecision = selectedSymbolDetail['quote_asset_precision']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
@@ -89,6 +92,14 @@ const ExitTarget = () => {
     50: '',
     75: '',
     100: '',
+  }
+
+  const targetSliderMarks = {
+    0: '',
+    250: '',
+    500: '',
+    750: '',
+    1000: '',
   }
 
   // @TODO
@@ -227,10 +238,15 @@ const ExitTarget = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.quantity),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         price: value,
-        total: Number(value) * Number(values.quantity),
+        total,
       }))
 
       priceAndProfitSync(name, value)
@@ -241,10 +257,15 @@ const ExitTarget = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.price),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         quantity: value,
-        total: Number(value) * Number(values.price),
+        total,
       }))
 
       priceAndProfitSync(name, value)
@@ -269,10 +290,15 @@ const ExitTarget = () => {
         pricePrecision
       )
 
+      const total = addPrecisionToNumber(
+        derivedPrice * Number(values.quantity),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         price: derivedPrice,
-        total: derivedPrice * Number(values.quantity),
+        total,
       }))
 
       validateInput({
@@ -283,7 +309,7 @@ const ExitTarget = () => {
       if (values.price && values.quantity) {
         validateInput({
           name: 'total',
-          value: derivedPrice * Number(values.quantity),
+          value: total,
         })
       }
     }
@@ -306,10 +332,15 @@ const ExitTarget = () => {
         quantityPrecision
       )
 
+      const total = addPrecisionToNumber(
+        derivedQuantity * Number(values.price),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         quantity: derivedQuantity,
-        total: derivedQuantity * Number(values.price),
+        total,
       }))
 
       validateInput({
@@ -320,7 +351,7 @@ const ExitTarget = () => {
       if (values.price && values.quantity) {
         validateInput({
           name: 'total',
-          value: derivedQuantity * Number(values.price),
+          value: total,
         })
       }
     }
@@ -340,7 +371,7 @@ const ExitTarget = () => {
   }
 
   useEffect(() => {
-    if (values.price && values.quantity) {
+    if (values.quantity) {
       if (Number(values.quantity) + totalQuantity > entry.quantity) {
         setErrors((errors) => ({
           ...errors,
@@ -353,7 +384,7 @@ const ExitTarget = () => {
         }))
       }
     }
-  }, [totalQuantity, values.quantity, values.quantityPercentage, values.price])
+  }, [totalQuantity, values.quantity, values.quantityPercentage])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -423,7 +454,7 @@ const ExitTarget = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={targetSliderMarks}
                 min={0}
                 max={1000}
                 onChange={handleSliderChange}
