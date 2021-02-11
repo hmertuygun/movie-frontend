@@ -62,19 +62,23 @@ hr {
   margin-top: -5px;
   cursor: grab;
   border-radius: 50%;
-  border: solid 2px #848e9c;
+  border: solid 2px #848e9c !important;
   background-color: #fff;
   touch-action: pan-x;
 }
 
 .rc-slider-handle:active {
-  border-color: #848e9c;
-  box-shadow: #848e9c !important;
+  border-color: #848e9c !important;
+  box-shadow: 0 0 5px #848e9c !important;
   cursor: grabbing;
 }
 
 .rc-slider-handle:hover {
-  border-color: #848e9c;
+  border-color: #848e9c !important;
+}
+
+.rc-slider-handle-click-focused:focus {
+  border-color: #848e9c !important;
 }
 
 .rc-slider-dot-active {
@@ -86,7 +90,7 @@ hr {
   left: 0;
   height: 4px;
   border-radius: 6px;
-  background-color: #848e9c;
+  background-color: #848e9c !important;
 }
 
 .rc-slider-dot {
