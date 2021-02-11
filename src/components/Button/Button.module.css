@@ -5,6 +5,7 @@
   --button-defualt-border-color: #c1c9d4;
   --button-default-color: #273444;
   --button-default-background: transparent;
+  --button-default-disabled: #a4a6a8;
 }
 
 /*
@@ -32,7 +33,6 @@
   border: 2px solid var(--button-default-border-color);
   transition: background 300ms ease-in-out;
   margin-bottom: 1rem;
-
   text-decoration: none;
 }
 
@@ -44,7 +44,12 @@
 
 .Button:disabled {
   cursor: not-allowed;
+  background: var(--button-default-disabled);
+  border: 2px solid var(--button-default-disabled);
   opacity: 0.8;
+}
+.Button:hover:disabled {
+  border: 2px solid var(--button-default-disabled);
 }
 
 .Button-plain {
@@ -127,7 +132,6 @@
   height: 40px;
 }
 
-
 .Button-sell:hover,
 .Button-buy:hover {
   color: var(--button-primary-color);
@@ -135,16 +139,16 @@
 
 .Button-trade-nav {
   composes: Button;
-  background: #2B2F36;
+  background: #2b2f36;
   color: rgb(146, 154, 165);
   border: 2px solid transparent;
 }
 
 .Button-trade-nav:hover {
-  background: #2B2F36;
+  background: #2b2f36;
   color: rgb(146, 154, 165);
   border: 2px solid transparent;
-} 
+}
 
 .Button-confirm {
   composes: Button;
@@ -162,7 +166,6 @@
   color: var(--dark);
 }
 
-
 .Button-cancel {
   composes: Button;
   cursor: pointer;
@@ -179,3 +182,21 @@
   color: var(--dark);
 }
 
+.Button-remove {
+  composes: Button-plain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.Button-exit {
+  composes: Button-plain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  color: #fff;
+}
+
+.Button-remove:hover {
+  cursor: pointer;
+}

@@ -12,7 +12,6 @@ import {
 
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
-import TradeOverview from './components/TradeOverview/TradeOverview'
 
 import LimitForm from './forms/LimitForm'
 import MarketForm from './forms/MarketForm'
@@ -28,14 +27,22 @@ const TradePanel = () => (
 )
 
 const Trade = () => {
+  const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
   const { selectedSymbol } = useContext(SymbolContext)
   const hasEntry = state.entry?.quantity > 0 ? true : false
-
   function checkAllTypes() {
-    const targets = state && state.targets && state.targets.length > 0 && state.targets[0].quantity > 0
-    const stoploss = state && state.stoploss && state.stoploss.length > 0 && state.stoploss[0].quantity > 0
+    const targets =
+      state &&
+      state.targets &&
+      state.targets.length > 0 &&
+      state.targets[0].quantity > 0
+    const stoploss =
+      state &&
+      state.stoploss &&
+      state.stoploss.length > 0 &&
+      state.stoploss[0].quantity > 0
 
     return targets && stoploss && hasEntry
   }
@@ -44,6 +51,8 @@ const Trade = () => {
 
   const doPlaceOrder = async () => {
     try {
+      if (isBtnDisabled) return
+      setBtnVisibility(true)
       await placeOrder({ ...state })
       setIsModalVisible(false)
       clear()
@@ -51,6 +60,9 @@ const Trade = () => {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
       clear()
+    }
+    finally {
+      setBtnVisibility(false)
     }
   }
 
@@ -61,16 +73,11 @@ const Trade = () => {
   return (
     <Fragment>
       <section>
-        {/*         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={1}>
-          <div style={{ marginTop: '2rem' }}>
-            <Typography as="h3">Not available</Typography>
-          </div> */}
-
         <TabNavigator labelArray={['Full Trade']} index={0}>
           <div style={{ marginTop: '4rem' }}>
             {!hasEntry && (
               <div style={{ marginTop: '2rem' }}>
-                <Typography as="h3">1. Entry</Typography>
+                <Typography as="h3">1. Entry Order</Typography>
               </div>
             )}
 
@@ -84,12 +91,18 @@ const Trade = () => {
             {hasEntry && (
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
-                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
+                <ButtonNavigator
+                  labelArray={['Target', 'Stop-loss']}
+                  index={1}
+                >
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />
                     <ExitTargetStopMarket />
                   </TabNavigator>
-                  <TabNavigator labelArray={['Stop-limit', 'Stop-market']} index={0}>
+                  <TabNavigator
+                    labelArray={['Stop-limit', 'Stop-market']}
+                    index={0}
+                  >
                     <ExitStoplossStopLimit />
                     <ExitStoplossStopMarket />
                   </TabNavigator>
@@ -121,6 +134,7 @@ const Trade = () => {
         <Modal onClose={() => setIsModalVisible(false)}>
           <TradeModal
             onClose={() => setIsModalVisible(false)}
+            btnDisabled={isBtnDisabled}
             placeOrder={doPlaceOrder}
           />
         </Modal>

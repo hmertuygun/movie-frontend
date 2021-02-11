@@ -19,7 +19,7 @@ const QuickConfirm = () => {
       setStatus('Please wait before trying again.')
     }
     
-    await timeout(1000)
+    await timeout(60000)
     setStatus('Email resent')
     setIsLoading(false)
   }

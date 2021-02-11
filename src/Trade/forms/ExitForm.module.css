@@ -8,17 +8,17 @@
 
 .SliderText {
   width: 35px;
-  height: 30px;
+  height: 25px;
 }
 
 .SliderSlider {
-  width: 120px;
-  height: 20px;
+  width: 130px;
+  height: 15px;
 }
 
 .SliderInput {
-  width: 25%;
-  min-width: 70px;
+  width: 26%;
+  min-width: 50px;
 }
 
 .Input {

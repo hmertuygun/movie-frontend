@@ -51,17 +51,6 @@ const SimpleTradeContextProvider = ({ children }) => {
     type = 'limit',
     side = 'sell',
   }) => {
-    let total_quantity = 0
-    if (state.targets) {
-      for (let i = 0; i < state.targets.length; i++) {
-        total_quantity = total_quantity + state.targets[i]['quantity']
-      }
-      
-      if (total_quantity + quantity >= state.entry.quantity) {
-        return 
-      }
-    }
-
     const targets = state.targets || []
     setState({
       ...state,
@@ -80,24 +69,14 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addStopMarketTarget = ({
-    price,
+    triggerPrice,
     quantity,
     profit,
     symbol,
-    type = 'stopmarket',
+    type = 'stop-market',
     side = 'sell',
   }) => {
-    let total_quantity = 0
-    if (state.targets) {
-      for (let i = 0; i < state.targets.length; i++) {
-        total_quantity = total_quantity + state.targets[i]['quantity']
-      }
-      
-      if (total_quantity + quantity >= state.entry.quantity) {
-        return 
-      }}
     const targets = state.targets || []
-    const triggerPrice = price
     setState({
       ...state,
       targets: [
@@ -114,17 +93,15 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
-  const addStoploss = ({
+  const addStoplossLimit = ({
     price,
     triggerPrice,
     quantity,
     profit,
     symbol,
     side = 'sell',
-    type = 'stoplimit',
+    type = 'stop-limit',
   }) => {
-    const stoploss = state.stoploss || []
-
     setState({
       ...state,
       stoploss: [
@@ -147,10 +124,8 @@ const SimpleTradeContextProvider = ({ children }) => {
     profit,
     symbol,
     side = 'sell',
-    type = 'stopmarket',
+    type = 'stop-market',
   }) => {
-    const stoploss = state.stoploss || []
-
     setState({
       ...state,
       stoploss: [
@@ -211,10 +186,10 @@ const SimpleTradeContextProvider = ({ children }) => {
         addTarget,
         addStopMarketTarget,
         removeTarget,
-        addStoploss,
+        addStoplossLimit,
         addStoplossMarket,
         removeStoploss,
-        clear
+        clear,
       }}
     >
       {children}

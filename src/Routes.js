@@ -17,10 +17,28 @@ import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 
 const Routes = () => {
-  const { isLoggedIn, logout } = useContext(UserContext)
+  const { isLoggedIn, logout } = useContext(UserContext) // loadApiKeys
 
   return (
     <Switch>
+      {/* user is isLoggedIn but does not have API Key (isLoggedIn && !loadApiKeys)   */}
+      {/*       {isLoggedIn && !loadApiKeys && (
+        <Switch>
+          <Route path="/settings" component={Settings} />
+          <Route
+            path="/logout"
+            render={() => {
+              logout()
+
+              return <div>Logging you out..</div>
+            }}
+          />
+          <Route path="/trade" component={TradeView} />
+          <Route path="/portfolio" component={Portfolio} />
+          <Route path="/positions" component={Position} />
+          <Redirect to="/settings" />
+        </Switch>
+      )} */}
       {isLoggedIn && (
         <Switch>
           <Route path="/trade" component={TradeView} />

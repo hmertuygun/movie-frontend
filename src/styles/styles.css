@@ -47,3 +47,61 @@ hr {
   box-sizing: content-box;
   height: 0;
 }
+
+/*slider*/
+.rc-slider-disabled {
+  background: none;
+}
+
+.rc-slider-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  cursor: -webkit-grab;
+  margin-top: -5px;
+  cursor: grab;
+  border-radius: 50%;
+  border: solid 2px #848e9c !important;
+  background-color: #fff;
+  touch-action: pan-x;
+}
+
+.rc-slider-handle:active {
+  border-color: #848e9c !important;
+  box-shadow: 0 0 5px #848e9c !important;
+  cursor: grabbing;
+}
+
+.rc-slider-handle:hover {
+  border-color: #848e9c !important;
+}
+
+.rc-slider-handle-click-focused:focus {
+  border-color: #848e9c !important;
+}
+
+.rc-slider-dot-active {
+  border-color: #848e9c !important;
+}
+
+.rc-slider-track {
+  position: absolute;
+  left: 0;
+  height: 4px;
+  border-radius: 6px;
+  background-color: #848e9c !important;
+}
+
+.rc-slider-dot {
+  position: absolute;
+  bottom: -2px;
+  margin-left: -4px;
+  width: 8px;
+  height: 8px;
+  border: 4px solid #848e9c;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  vertical-align: middle;
+}

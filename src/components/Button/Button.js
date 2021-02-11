@@ -12,6 +12,7 @@ const Button = ({
   variant, // 'buy', 'sell'
   className,
   disabled,
+  remove,
   ...props
 }) => {
   const ButtonStyle = () => {
@@ -29,6 +30,10 @@ const Button = ({
 
     if (size) {
       return styles[`Button-${size}`]
+    }
+
+    if (remove) {
+      return styles[`Button-remove`]
     }
 
     return styles['Button']

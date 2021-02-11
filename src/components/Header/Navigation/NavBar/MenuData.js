@@ -7,14 +7,9 @@ export const MenuData = [
     title: 'Portfolio',
     url: '/portfolio',
   },
-  // {
-  //   title: 'Alerts',
-  //   url: '/alerts',
-  //   cName: 'nav-link',
-  // },
-  // {
-  //   title: 'Guides',
-  //   url: '/guides',
-  //   cName: 'nav-link',
-  // },
+  {
+    title: 'Guides',
+    url: 'https://support.coinpanel.com/hc/en-us',
+    externalLink: true,
+  },
 ]

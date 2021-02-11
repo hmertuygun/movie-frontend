@@ -6,7 +6,7 @@ const Typography = ({
   color = 'default',
   size,
   children,
-  className,
+  className, 
 }) => {
   const TextElement = React.createElement(
     as,

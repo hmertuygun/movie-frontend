@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from 'react'
+import React, { useState, useEffect, createContext, useCallback } from 'react'
 import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
 
@@ -23,7 +23,8 @@ const PortfolioCTXProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
-  const fetchData = async () => {
+
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       const apiUrl = process.env.REACT_APP_API + 'getPortfolioFS'
@@ -48,7 +49,7 @@ const PortfolioCTXProvider = ({ children }) => {
       setLoading(false)
       setErrorLoading(true)
     }
-  }
+  }, [user])
 
   const refreshData = async () => {
     try {
@@ -74,17 +75,17 @@ const PortfolioCTXProvider = ({ children }) => {
     }
   }
 
-  firebase.auth().onAuthStateChanged(function(user) {
+  firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
       setUser(user)
     } else {
       setUser(null)
     }
-  });
+  })
 
   useEffect(() => {
     fetchData()
-  }, [user])
+  }, [user, fetchData])
 
   return (
     <PortfolioContext.Provider

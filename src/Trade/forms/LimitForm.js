@@ -1,9 +1,13 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react'
+import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
-import roundNumbers from '../../helpers/roundNumbers'
-import precisionRound from '../../helpers/precisionRound'
+import {
+  addPrecisionToNumber,
+  removeTrailingZeroFromInput,
+  getMaxInputLength,
+  getInputLength,
+} from '../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,33 +17,51 @@ import { useSymbolContext } from '../context/SymbolContext'
 
 import { InlineInput, Button } from '../../components'
 
-import validate from '../../components/Validation/Validation'
+import * as yup from 'yup'
 
 import styles from './LimitForm.module.css'
 
-function LimitForm() {
+const LimitForm = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    selectedSymbolLastPrice,
   } = useSymbolContext()
-  const { addEntry } = useContext(TradeContext)
-  const balance = selectedSymbolBalance
-  const [price, setPrice] = useState(
-    roundNumbers(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'])
-  )
-  // @TOOD:
-  // Remove amount, and leave only quantity
-  const [quantity, setQuantity] = useState('')
-  const [quantityPercentage, setQuantityPercentage] = useState('')
-  const [total, setTotal] = useState('')
-  const [isValid, setIsValid] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [validationFields, setValidationFields] = useState({})
 
-  const marks = {
+  const { addEntry } = useContext(TradeContext)
+
+  const [values, setValues] = useState({
+    price: '',
+    quantity: '',
+    total: '',
+    quantityPercentage: '',
+  })
+
+  const [errors, setErrors] = useState({
+    price: '',
+    quantity: '',
+    total: '',
+  })
+
+  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const maxPrice = Number(selectedSymbolDetail.maxPrice)
+  const minPrice = Number(selectedSymbolDetail.minPrice)
+  const maxQty = Number(selectedSymbolDetail.maxQty)
+  const minQty = Number(selectedSymbolDetail.minQty)
+
+  const amountPercentagePrecision = 1
+  const pricePrecision =
+    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+
+  const quantityPrecision = selectedSymbolDetail['lotSize']
+
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
+
+  const sliderMarks = {
     0: '',
     25: '',
     50: '',
@@ -47,277 +69,307 @@ function LimitForm() {
     100: '',
   }
 
-  const handleSliderChange = (newValue) => {
-    setQuantityPercentage(newValue)
-    calculatePercentageQuantity('quantityPercentage', newValue)
+  // @TODO
+  // Move schema to a different folder
+  const formSchema = yup.object().shape({
+    price: yup
+      .number()
+      .required('Price is required')
+      .typeError('Price is required')
+      .positive()
+      .min(
+        minPrice,
+        `Price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
+      .max(
+        maxPrice,
+        `Price needs to meet max-price: ${addPrecisionToNumber(
+          maxPrice,
+          pricePrecision
+        )}`
+      ),
+    quantity: yup
+      .number()
+      .required('Amount is required')
+      .typeError('Amount is required')
+      .positive()
+      .min(
+        minQty,
+        `Amount needs to meet min-price: ${addPrecisionToNumber(
+          minQty,
+          quantityPrecision
+        )}`
+      )
+      .max(
+        maxQty,
+        `Amount needs to meet max-price: ${addPrecisionToNumber(
+          maxQty,
+          quantityPrecision
+        )}`
+      ),
+    total: yup
+      .number()
+      .required('Total is required')
+      .typeError('Total is required')
+      .positive()
+      .min(
+        minNotional,
+        `Total needs to meet min-trading: ${addPrecisionToNumber(
+          minNotional,
+          totalPrecision
+        )}`
+      )
+      .max(selectedSymbolBalance, 'Total cannot not exceed your balance.'),
+  })
+
+  const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
+    const price = Number(values.price)
+    const total = Number(value)
+
+    const quantity = total / price
+
+    const quantityWithPrecision =
+      quantity === 0 ? '' : addPrecisionToNumber(quantity, quantityPrecision)
+
+    const balance = selectedSymbolBalance
+    const pq = (total * 100) / balance
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
+
+    return { quantityWithPrecision, percentageQuantityWithPrecision }
   }
 
-  const handleInputChange = (value) => {
-    setQuantityPercentage(value === '' ? '' : Number(value))
-    calculatePercentageQuantity('quantityPercentage', value)
+  const calculateTotalAndPercentageQuantity = (value, key) => {
+    const total = Number(value) * Number(values[key])
+    const balance = selectedSymbolBalance
+
+    const totalWithPrecision =
+      total === 0 ? '' : addPrecisionToNumber(total, totalPrecision)
+
+    const pq = (totalWithPrecision * 100) / balance
+    const percentageQuantityWithPrecision =
+      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
+    return { totalWithPrecision, percentageQuantityWithPrecision }
   }
 
-  const handleBlur = (evt) => {
-    const { value, name } = evt.target
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
 
-    if (name === 'quantity') {
-      /*       if (price) {
-        setErrors(validate(validationFields))
-      } */
-
-      const newValue =
-        value *
-        price
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el
-                  .split('')
-                  .slice(0, selectedSymbolDetail['base_asset_precision'])
-                  .join('')
-              : el
-          )
-          .join('.')
-
-      const valueFormated = precisionRound(newValue, 8)
-      setTotal(valueFormated)
-
-      if (quantity) {
-        const valueFormated = precisionRound(quantity, 6)
-        setQuantity(valueFormated)
-      }
-    }
-
-    if (name === 'total') {
-      const newValue = (value / price)
-        .toString()
-        .split('.')
-        .map((el, i) =>
-          i
-            ? el
-                .split('')
-                .slice(0, selectedSymbolDetail['base_asset_precision'])
-                .join('')
-            : el
-        )
-        .join('.')
-
-      const valueFormated = precisionRound(newValue, 6)
-      setQuantity(valueFormated)
-
-      if (total) {
-        const valueFormated = precisionRound(total, 8)
-        setTotal(valueFormated)
-      }
-    }
-
-    if (quantityPercentage < 0) {
-      setQuantityPercentage(0)
-      calculatePercentageQuantity('quantityPercentage', 0)
-    } else if (quantityPercentage > 100) {
-      setQuantityPercentage(100)
-      calculatePercentageQuantity('quantityPercentage', 100)
-    }
-  }
-
-  const calculatePercentageQuantity = (inputChanged, value) => {
-    if (inputChanged === 'price') {
-      if (!quantity) {
-        return false
-      }
-      setTotal(
-        value *
-          quantity
-            .toString()
-            .split('.')
-            .map((el, i) =>
-              i
-                ? el
-                    .split('')
-                    .slice(0, selectedSymbolDetail['base_asset_precision'])
-                    .join('')
-                : el
-            )
-            .join('.')
-      )
-    }
-
-    if (inputChanged === 'quantity') {
-      setQuantityPercentage(((value * price) / balance) * 100)
-      /*       setTotal(
-        value *
-          price
-            .toString()
-            .split('.')
-            .map((el, i) =>
-              i
-                ? el
-                    .split('')
-                    .slice(0, selectedSymbolDetail['base_asset_precision'])
-                    .join('')
-                : el
-            )
-            .join('.')
-      ) */
-
-      setTotal(
-        roundNumbers(
-          value * price,
-          selectedSymbolDetail['base_asset_precision']
-        )
-      )
-    }
-
-    if (inputChanged === 'quantityPercentage') {
-      // how many BTC can we buy with the percentage?
-      const belowOnePercentage = value / 100
-      const cost = belowOnePercentage * balance
-      const howManyBTC = roundNumbers(
-        cost / price,
-        selectedSymbolDetail['lotSize']
-      )
-      setQuantity(howManyBTC)
-      setTotal(
-        roundNumbers(howManyBTC * price, selectedSymbolDetail['tickSize'])
-      )
-    }
-
-    if (inputChanged === 'amount') {
-      const quantityformat = (value / price)
-        .toString()
-        .split('.')
-        .map((el, i) =>
-          i
-            ? el
-                .split('')
-                .slice(0, selectedSymbolDetail['base_asset_precision'])
-                .join('')
-            : el
-        )
-        .join('.')
-      setQuantity(quantityformat)
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
     }
   }
 
-  useEffect(
-    () => {
-      setValidationFields((validationFields) => ({
-        ...validationFields,
-        price,
-        quantity,
-        total: quantity * price,
-        balance: balance,
-        minNotional: selectedSymbolDetail.minNotional,
-        maxPrice: selectedSymbolDetail.maxPrice,
-        minPrice: selectedSymbolDetail.minPrice,
-        maxQty: selectedSymbolDetail.maxQty,
-        minQty: selectedSymbolDetail.minQty,
+  const handleChange = ({ target }) => {
+    if (target.name === 'total') {
+      const maxLength = getMaxInputLength(target.value, totalPrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+
+      const {
+        quantityWithPrecision,
+        percentageQuantityWithPrecision,
+      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+
+      setValues((values) => ({
+        ...values,
+        quantity: quantityWithPrecision,
+        quantityPercentage: percentageQuantityWithPrecision,
+        [target.name]: target.value,
       }))
 
-      if (!price || !quantity) {
-        return false
-      }
-    },
-    [
-      total,
-      price,
-      quantity,
-      balance,
-      selectedSymbolDetail.minNotional,
-      selectedSymbolDetail.maxPrice,
-      selectedSymbolDetail.minPrice,
-      selectedSymbolDetail.maxQty,
-      selectedSymbolDetail.minQty,
-      setValidationFields,
-      selectedSymbolDetail,
-    ],
-    () => {
-      setTotal(0)
-      setPrice(0)
-    }
-  )
+      validateInput({
+        name: 'quantity',
+        value: quantityWithPrecision,
+      })
+    } else if (target.name === 'price') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
 
-  const handleSubmit = (evt) => {
+      const { totalWithPrecision } = calculateTotalAndPercentageQuantity(
+        target.value,
+        'quantity'
+      )
+
+      setValues((values) => ({
+        ...values,
+        [target.name]: target.value,
+        total: totalWithPrecision,
+      }))
+
+      if (values.price && values.quantity) {
+        validateInput({
+          name: 'total',
+          value: totalWithPrecision,
+        })
+      }
+    } else {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+      const {
+        totalWithPrecision,
+        percentageQuantityWithPrecision,
+      } = calculateTotalAndPercentageQuantity(target.value, 'price')
+
+      setValues((values) => ({
+        ...values,
+        [target.name]: target.value,
+        total: totalWithPrecision,
+        quantityPercentage: percentageQuantityWithPrecision,
+      }))
+
+      validateInput({
+        name: 'total',
+        value: totalWithPrecision,
+      })
+    }
+
+    validateInput(target)
+  }
+
+  const handleBlur = ({ target }, precision) => {
+    validateInput(target)
+
+    setValues((values) => ({
+      ...values,
+      [target.name]: addPrecisionToNumber(target.value, precision),
+    }))
+  }
+
+  const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
+    const balance = selectedSymbolBalance
+    const sliderPercentage = Number(sliderValue) / 100
+    const cost = sliderPercentage * balance
+
+    const costPrecise = addPrecisionToNumber(cost, totalPrecision)
+
+    const quantity = costPrecise / parseFloat(values.price)
+    const quantityWithPrecision = quantity.toString().includes('e')
+      ? ''
+      : addPrecisionToNumber(quantity, quantityPrecision)
+
+    const totalWithPrecision = addPrecisionToNumber(
+      Number(values.price * quantityWithPrecision),
+      totalPrecision
+    )
+
+    return { totalWithPrecision, quantityWithPrecision }
+  }
+
+  const handleSlider = (newValue) => {
+    const {
+      quantityWithPrecision,
+      totalWithPrecision,
+    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+
+    setValues((values) => ({
+      ...values,
+      quantityPercentage: newValue,
+      quantity: quantityWithPrecision,
+      total: totalWithPrecision,
+    }))
+
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
+  }
+
+  const handleSliderInputChange = ({ target }) => {
+    const maxLength = getMaxInputLength(target.value, amountPercentagePrecision)
+    const inputLength = getInputLength(target.value)
+    if (inputLength > maxLength) return
+
+    const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const validatedValue = value > 100 ? 100 : value
+
+    const {
+      quantityWithPrecision,
+      totalWithPrecision,
+    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+
+    setValues((values) => ({
+      ...values,
+      [target.name]: validatedValue,
+      quantity: quantityWithPrecision,
+      total: totalWithPrecision,
+    }))
+
+    validateInput({
+      name: 'quantity',
+      value: quantityWithPrecision,
+    })
+
+    validateInput({
+      name: 'total',
+      value: totalWithPrecision,
+    })
+  }
+
+  const validateForm = () => {
+    return formSchema.validate(values, { abortEarly: false }).catch((error) => {
+      if (error.name === 'ValidationError') {
+        error.inner.forEach((fieldError) => {
+          setErrors((errors) => ({
+            ...errors,
+            [fieldError.path]: fieldError.message,
+          }))
+        })
+      }
+    })
+  }
+
+  const handleSubmit = async (evt) => {
     evt.preventDefault()
 
-    const x = validate(validationFields)
-    setErrors(x)
+    const isFormValid = await validateForm()
 
-    const canAfford = parseFloat(total) <= parseFloat(balance)
-
-    /*     if (canAfford) {
-      setIsValid(true)
-    } */
-
-    if (Object.keys(x).length === 0 && canAfford) {
+    if (isFormValid) {
+      setErrors({ price: '', quantity: '', total: '' })
       const symbol = selectedSymbolDetail['symbolpair']
 
-      console.log('add entry ', {
-        price,
-        quantity,
-        balance,
+      const payload = {
+        price: values.price,
+        quantity: values.quantity,
+        balance: selectedSymbolBalance,
         symbol,
         type: 'limit',
-      })
-      addEntry({ price, quantity, balance, symbol, type: 'limit' })
+      }
+      addEntry(payload)
     }
   }
 
-  const handleChange = (evt) => {
-    const { name, value } = evt.target
-
-    if (name === 'price') {
-      setPrice(
-        value
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['tickSize']).join('')
-              : el
-          )
-          .join('.')
-      )
-      calculatePercentageQuantity('price', value)
-    }
-    if (name === 'quantity') {
-      setQuantity(
-        value
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el.split('').slice(0, selectedSymbolDetail['lotSize']).join('')
-              : el
-          )
-          .join('.')
-      )
-      //calculatePercentageQuantity('quantity', value)
-    }
-
-    if (name === 'total') {
-      setTotal(
-        value
-          .toString()
-          .split('.')
-          .map((el, i) =>
-            i
-              ? el
-                  .split('')
-                  .slice(0, selectedSymbolDetail['base_asset_precision'])
-                  .join('')
-              : el
-          )
-          .join('.')
-      )
-      calculatePercentageQuantity('amount', value)
-    }
-  }
+  const renderInputValidationError = (errorKey) => (
+    <>
+      {errors[errorKey] && (
+        <div className={styles['Error']}>{errors[errorKey]}</div>
+      )}
+    </>
+  )
 
   return (
     <Fragment>
-      <div style={{ marginTop: '2rem' }}>
+      <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
         <FontAwesomeIcon icon={faWallet} />
         {'  '}
         {isLoadingBalance ? ' ' : selectedSymbolBalance}
@@ -337,86 +389,91 @@ function LimitForm() {
 
       <section>
         <form onSubmit={handleSubmit}>
-          <InlineInput
-            label="Price"
-            type="number"
-            name="price"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={price}
-            placeholder="Entry price"
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-          />
-          {errors.price && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.price}
-            </div>
-          )}
-
-          <InlineInput
-            label="Amount"
-            type="number"
-            name="quantity"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={quantity}
-            placeholder="Amount"
-            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-          />
-          {errors.quantity && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.quantity}
-            </div>
-          )}
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Price"
+              type="number"
+              name="price"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              value={values.price}
+              placeholder="Entry price"
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {renderInputValidationError('price')}
+          </div>
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Amount"
+              type="number"
+              name="quantity"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, quantityPrecision)}
+              value={values.quantity}
+              placeholder="Amount"
+              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+            />
+            {renderInputValidationError('quantity')}
+          </div>
 
           <div className={styles['SliderRow']}>
             <div className={styles['SliderSlider']}>
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={sliderMarks}
                 min={0}
                 max={100}
-                onChange={handleSliderChange}
-                value={quantityPercentage}
+                value={values.quantityPercentage}
+                onChange={handleSlider}
+                disabled={!values.price}
               />
             </div>
 
             <div className={styles['SliderInput']}>
               <InlineInput
                 type="number"
-                value={quantityPercentage}
+                value={values.quantityPercentage}
                 margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                onChange={handleSliderInputChange}
                 postLabel={'%'}
+                disabled={!values.price}
                 small
+                name="quantityPercentage"
               />
             </div>
           </div>
 
-          <InlineInput
-            label="Total"
-            type="number"
-            name="total"
-            value={total}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder=""
-            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-          />
-          {errors.total && (
-            <div className="error" style={{ color: 'red' }}>
-              {errors.total}
-            </div>
-          )}
-
-          <Button
-            variant="exits"
-            //disabled={isValid ? null : 'disabled'}
-            type="submit"
-          >
-            Set exits >
+          <div className={styles['Input']}>
+            <InlineInput
+              label="Total"
+              type="number"
+              name="total"
+              value={values.total}
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, totalPrecision)}
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {renderInputValidationError('total')}
+          </div>
+          <Button type="submit" variant="exits">
+            <span>
+              Set exits
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-chevron-right"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </span>
           </Button>
         </form>
       </section>
