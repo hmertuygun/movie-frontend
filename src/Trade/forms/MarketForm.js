@@ -207,14 +207,14 @@ const MarketForm = () => {
 
   const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
     const balance = selectedSymbolBalance
-    const belowOnePercentage = sliderValue / 100
+    const sliderPercentage = Number(sliderValue) / 100
     const cost = addPrecisionToNumber(
-      belowOnePercentage * balance,
+      sliderPercentage * balance,
       totalPrecision
     )
 
     const quantityWithPrecision = addPrecisionToNumber(
-      cost / selectedSymbolLastPrice,
+      cost / parseFloat(selectedSymbolLastPrice),
       quantityPrecision
     )
 

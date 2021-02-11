@@ -254,14 +254,19 @@ const LimitForm = () => {
   const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
     const balance = selectedSymbolBalance
     const sliderPercentage = Number(sliderValue) / 100
-    const total = sliderPercentage * balance
+    const cost = sliderPercentage * balance
 
-    const totalWithPrecision = addPrecisionToNumber(total, totalPrecision)
+    const costPrecise = addPrecisionToNumber(cost, totalPrecision)
 
-    const quantity = totalWithPrecision / parseFloat(values.price)
+    const quantity = costPrecise / parseFloat(values.price)
     const quantityWithPrecision = quantity.toString().includes('e')
       ? ''
       : addPrecisionToNumber(quantity, quantityPrecision)
+
+    const totalWithPrecision = addPrecisionToNumber(
+      Number(values.price * quantityWithPrecision),
+      totalPrecision
+    )
 
     return { totalWithPrecision, quantityWithPrecision }
   }
@@ -378,8 +383,8 @@ const LimitForm = () => {
             aria-hidden="true"
           />
         ) : (
-            ''
-          )}
+          ''
+        )}
       </div>
 
       <section>
