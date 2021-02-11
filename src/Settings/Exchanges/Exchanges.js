@@ -1,6 +1,7 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { ExternalLink } from 'react-feather'
+import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
   addUserExchange,
@@ -8,11 +9,14 @@ import {
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
+import DeletionModal from './DeletionModal'
 import { Icon } from '../../components'
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
+  const [selectedExchange, setSelectedExchange] = useState(null)
 
   const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
@@ -47,6 +51,8 @@ const Exchanges = () => {
   const deleteExchangeMutation = useMutation(deleteUserExchange, {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
+      setSelectedExchange(null)
+      setIsDeletionModalVisible(false)
     },
   })
 
@@ -77,6 +83,16 @@ const Exchanges = () => {
           onSave={(formData) => {
             onAddExchange(formData)
           }}
+        />
+      )}
+      {isDeletionModalVisible && (
+        <DeletionModal
+          isLoading={deleteExchangeMutation.isLoading}
+          onClose={() => {
+            setSelectedExchange(null)
+            setIsDeletionModalVisible(false)
+          }}
+          onDelete={() => onDelete(selectedExchange.apiKeyName)}
         />
       )}
 
@@ -140,11 +156,14 @@ const Exchanges = () => {
                           return 0
                         })
                         .map((row, index) => (
-                          <ExhangeRow
+                          <ExchangeRow
                             key={index}
                             row={row}
                             index={index}
-                            onDelete={() => onDelete(row.apiKeyName)}
+                            onDeleteClick={() => {
+                              setSelectedExchange(row)
+                              setIsDeletionModalVisible(true)
+                            }}
                             setActive={() => setActive(row.apiKeyName)}
                             isLast={index === exchanges.length - 1}
                           />
@@ -167,37 +186,3 @@ const Exchanges = () => {
 }
 
 export default Exchanges
-
-const ExhangeRow = ({ row, onDelete, setActive, index, isLast }) => {
-  return (
-    <Fragment>
-      <div className="row align-items-center">
-        <div className="col-md-4">
-          <h6 className="text-sm mb-0" style={{ textTransform: 'capitalize' }}>
-            {row.exchange} - {row.apiKeyName}
-          </h6>
-        </div>
-
-        <div className="col-md-4 text-center">
-          <img
-            src="img/svg/exchange/binance.svg"
-            height="20px"
-            alt="biance"
-          ></img>
-        </div>
-
-        <div className="col-md-4 text-right">
-          <a
-            href="#"
-            className="text-sm text-danger"
-            onClick={() => onDelete()}
-          >
-            Delete
-          </a>
-        </div>
-      </div>
-
-      {!isLast && <hr className="my-3" />}
-    </Fragment>
-  )
-}
