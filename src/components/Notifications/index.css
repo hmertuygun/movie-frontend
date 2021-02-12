@@ -119,11 +119,10 @@
   position: absolute;
   top: 16px;
   right: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  color: #fff !important;
   outline: none;
 }
 .ant-notification-notice-close:hover {
-  color: rgba(0, 0, 0, 0.67);
 }
 .ant-notification-notice-btn {
   float: right;

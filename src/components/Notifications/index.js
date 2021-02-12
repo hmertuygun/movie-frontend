@@ -4,13 +4,13 @@ import './index.css'
 notification.config({
   placement: 'bottomRight',
   bottom: 50,
-  duration: 0,
+  duration: 5,
 })
 
-const defaultErrorConfig = { message: 'Error', className: "notification-danger", icon: <FontAwesomeIcon icon={["fas", "exclamation-triangle"]} /> }
-const defaultWarningConfig = { message: 'Warning', className: "notification-warning", icon: <FontAwesomeIcon icon={["fas", "exclamation-triangle"]} /> }
-const defaultInfoConfig = { message: 'Info', className: "notification-info", icon: <FontAwesomeIcon icon={["fas", "info-circle"]} /> }
-const defaultSuccessConfig = { message: 'Success', className: "notification-success", icon: <FontAwesomeIcon icon={["fas", "check"]} /> }
+const defaultErrorConfig = { message: 'Error', description: '', className: "notification-danger", icon: <FontAwesomeIcon icon={["fas", "exclamation-triangle"]} color="#fff" /> }
+const defaultWarningConfig = { message: 'Warning', description: '', className: "notification-warning", icon: <FontAwesomeIcon icon={["fas", "exclamation-triangle"]} color="#fff" /> }
+const defaultInfoConfig = { message: 'Info', description: '', className: "notification-info", icon: <FontAwesomeIcon icon={["fas", "info-circle"]} color="#fff" /> }
+const defaultSuccessConfig = { message: 'Success', description: '', className: "notification-success", icon: <FontAwesomeIcon icon={["fas", "check"]} color="#fff" /> }
 
 export const errorNotification = {
   open: (config) => {

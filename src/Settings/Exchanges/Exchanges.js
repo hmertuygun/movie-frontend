@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { ExternalLink } from 'react-feather'
+import { errorNotification, successNotification } from '../../components/Notifications'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
@@ -33,7 +34,11 @@ const Exchanges = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
+      successNotification.open({ description: `API key added!` })
     },
+    onError: () => {
+      errorNotification.open({ description: `Couldn't add API key. Please try again later!` })
+    }
   })
 
   const onAddExchange = async ({ name, apiKey, exchange, secret }) => {
@@ -54,7 +59,11 @@ const Exchanges = () => {
       queryClient.invalidateQueries('exchanges')
       setSelectedExchange(null)
       setIsDeletionModalVisible(false)
+      successNotification.open({ description: `API key deleted!` })
     },
+    onError: () => {
+      errorNotification.open({ description: `Couldn't delete API key. Please try again later!` })
+    }
   })
 
   const onDelete = async (name) => {
