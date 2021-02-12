@@ -49,10 +49,10 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
           {state.entry.type === 'market' ? (
             <Typography>Market Price</Typography>
           ) : (
-            <Typography>
-              {state.entry.price} {selectedSymbolDetail['quote_asset']}
-            </Typography>
-          )}
+              <Typography>
+                {state.entry.price} {selectedSymbolDetail['quote_asset']}
+              </Typography>
+            )}
         </div>
         <div className={styles['TradeModal-Main__entry']}>
           <Typography>Order Qty</Typography>
@@ -73,9 +73,9 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   <td>
                     (
                     {addPrecisionToNumber(
-                      (target.quantity / state.entry.quantity) * 100,
-                      2
-                    )}
+                    (target.quantity / state.entry.quantity) * 100,
+                    2
+                  )}
                     %) {target.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
                   {target.type === 'stop-market' ? (
@@ -83,10 +83,10 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                       {target.triggerPrice} {selectedSymbolDetail['quote_asset']}
                     </td>
                   ) : (
-                    <td>
-                      {target.price} {selectedSymbolDetail['quote_asset']}
-                    </td>
-                  )}
+                      <td>
+                        {target.price} {selectedSymbolDetail['quote_asset']}
+                      </td>
+                    )}
                 </tr>
               ))}
               {state.stoploss.map((stoploss, index) => (
@@ -95,9 +95,9 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   <td>
                     (
                     {addPrecisionToNumber(
-                      (stoploss.quantity / state.entry.quantity) * 100,
-                      2
-                    )}
+                    (stoploss.quantity / state.entry.quantity) * 100,
+                    2
+                  )}
                     %) {stoploss.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
                   <td>

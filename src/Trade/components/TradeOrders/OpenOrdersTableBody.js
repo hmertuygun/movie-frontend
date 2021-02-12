@@ -4,7 +4,7 @@ import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
-
+import { errorNotification, successNotification } from '../../../components/Notifications'
 const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
   return (
@@ -42,10 +42,12 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
                 setCancelingOrders([...cancelingOrders, order.trade_id])
                 try {
                   await cancelTradeOrder(order.trade_id)
+                  successNotification.open({ description: `Order Cancelled!` })
                 } catch (error) {
                   const restOfCancelOrders = cancelingOrders.filter(
                     (cancelingOrder) => cancelingOrder !== order.trade_id
                   )
+                  errorNotification.open({ description: `Order couldn't be cancelled. Please try again later` })
                   setCancelingOrders(restOfCancelOrders)
                   throw error
                 }
@@ -142,8 +144,8 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-            ? 'Load Older'
-            : 'No open orders'}
+              ? 'Load Older'
+              : 'No open orders'}
         </td>
       </tr>
     </tbody>

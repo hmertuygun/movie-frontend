@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
+import { errorNotification, successNotification } from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
 import {
   TabNavigator,
@@ -55,10 +56,12 @@ const Trade = () => {
       setBtnVisibility(true)
       await placeOrder({ ...state })
       setIsModalVisible(false)
+      successNotification.open({ description: `Order Created!` })
       clear()
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
+      errorNotification.open({ description: `Order couldn't be created. Please try again later!` })
       clear()
     }
     finally {
