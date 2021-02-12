@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-
+import { getLastPrice } from '../../api/api'
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
@@ -28,8 +28,8 @@ const MarketForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     selectedSymbolLastPrice,
+    selectedSymbol
   } = useSymbolContext()
-
   const { addMarketEntry } = useContext(TradeContext)
 
   const [values, setValues] = useState({
@@ -44,6 +44,8 @@ const MarketForm = () => {
     quantity: '',
     total: '',
   })
+
+  const [btnProc, setBtnProc] = useState(false)
 
   const minNotional = Number(selectedSymbolDetail.minNotional)
   const maxQty = Number(selectedSymbolDetail.maxQty)
@@ -205,7 +207,7 @@ const MarketForm = () => {
     }))
   }
 
-  const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
+  const calculateTotalAndQuantityFromSliderPercentage = (sliderValue, symbolBalance) => {
     const balance = selectedSymbolBalance
     const sliderPercentage = Number(sliderValue) / 100
     const cost = addPrecisionToNumber(
@@ -214,7 +216,7 @@ const MarketForm = () => {
     )
 
     const quantityWithPrecision = addPrecisionToNumber(
-      cost / parseFloat(selectedSymbolLastPrice),
+      cost / parseFloat(symbolBalance || selectedSymbolLastPrice),
       quantityPrecision
     )
 
@@ -297,15 +299,16 @@ const MarketForm = () => {
 
   const handleSubmit = async (evt) => {
     evt.preventDefault()
-
     const isFormValid = await validateForm()
-
     if (isFormValid) {
+      setBtnProc(true)
       setErrors({ price: '', quantity: '', total: '' })
       const symbol = selectedSymbolDetail['symbolpair']
-
+      const response = await getLastPrice(symbol)
+      setBtnProc(false)
+      const { quantityWithPrecision } = calculateTotalAndQuantityFromSliderPercentage(values.quantityPercentage, response?.data?.last_price)
       const payload = {
-        quantity: values.quantity,
+        quantity: quantityWithPrecision,
         balance: selectedSymbolBalance,
         symbol,
         type: 'market',
@@ -338,8 +341,8 @@ const MarketForm = () => {
             aria-hidden="true"
           />
         ) : (
-          ''
-        )}
+            ''
+          )}
       </div>
 
       <section>
@@ -406,24 +409,34 @@ const MarketForm = () => {
             />
             {renderInputValidationError('total')}
           </div>
-          <Button variant="exits" type="submit">
-            <span>
-              Set exits
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="feather feather-chevron-right"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </span>
+          <Button variant="exits" type="submit" disabled={btnProc}>
+            {
+              btnProc ? (
+                <span
+                  style={{ marginTop: '8px' }}
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                />) : (
+                  <span>
+                    Set exits
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="1em"
+                      height="1em"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="feather feather-chevron-right"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </span>
+                )
+            }
           </Button>
         </form>
       </section>
