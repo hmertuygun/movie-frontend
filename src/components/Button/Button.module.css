@@ -8,15 +8,6 @@
   --button-default-disabled: #a4a6a8;
 }
 
-/*
-@media (prefers-color-scheme: dark) {
-  .Button {
-    --button-default-border-color: #282d34;
-    --button-default-color: #fff;
-    --button-defualt-background: #14161a;
-  }
-}*/
-
 .Button {
   display: flex;
   flex-direction: column;
