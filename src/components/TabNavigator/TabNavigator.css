@@ -7,24 +7,6 @@
   width: 100%;
 }
 
-/* DARK MODE */
-@media (prefers-color-scheme: dark) {
-  .TabNavigator-container {
-    --border-color-active: var(--primary);
-    --border-color: #e2e8f0;
-    --color: #c0ccda;
-    --color-hover: #ddd;
-  }
-}
-
-/* DARK MODE */
-.dark .TabNavigator-container {
-  --border-color: #2c4056;
-  --border-color-active: var(--primary);
-  --color: #777;
-  --color-hover: #4a5568;
-}
-
 .TabNavigator-nav {
   display: flex;
   flex-direction: row;

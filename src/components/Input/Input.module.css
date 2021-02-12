@@ -5,15 +5,6 @@
   --input-default-disabled-background: rgba(255, 255, 255, 0.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --input-default-background: #222;
-    --input-default-color: #fff;
-    --input-default-border: #979ea8;
-    --input-default-disabled-background: rgba(50, 50, 50, 0.7);
-  }
-}
-
 :global input:disabled,
 :global input {
   background: transparent;
