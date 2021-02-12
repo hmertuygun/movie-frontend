@@ -10,7 +10,8 @@ import {
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
-import { Icon } from '../../components'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const Exchanges = () => {
   const queryClient = useQueryClient()
@@ -96,86 +97,82 @@ const Exchanges = () => {
         />
       )}
 
-      <div className="container">
-        <div className="justify-content-center">
-          <div className="">
-            <div>
-              <div className="row align-items-center mb-3">
-                <div className="col">
-                  <h6 className="mb-0">Exchange Integrations</h6>
-                </div>
-                <div className="col-auto">
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-primary btn-icon rounded-pill"
-                    onClick={() => {
-                      setIsModalVisible(true)
-                    }}
-                  >
-                    <span className="btn-inner--icon">
-                      <Icon icon="plus" />
-                    </span>
-                    <span className="btn-inner--text">
-                      Connect New Exchange
-                    </span>
-                  </button>
-                </div>
-              </div>
+      <div className="">
+        <div>
+          <div className="row align-items-center mb-3">
+            <div className="col">
+              <h6 className="mb-0">Exchange Integrations</h6>
             </div>
-            <a
-              className="mt-0 mb-2 ml-3"
-              href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: '#718096' }}
-            >
-              <ExternalLink size={16} className="mr-1" />
-              <label
-                className="text-sm"
-                htmlFor="billing_notification"
-                style={{ textDecoration: 'underline' }}
+            <div className="col-auto">
+              <button
+                type="button"
+                className="btn btn-xs btn-primary btn-icon rounded-pill"
+                onClick={() => {
+                  setIsModalVisible(true)
+                }}
               >
-                How to connect your exchange?
-              </label>
-            </a>
+                <span className="btn-inner--icon">
+                  <FontAwesomeIcon icon={faPlus} />
+                </span>
+                <span className="btn-inner--text">Connect New Exchange</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p className="mb-2">
+          <a
+            className="mt-0 ml-3"
+            href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: '#718096' }}
+          >
+            <ExternalLink size={16} className="mr-1" />
+            <label
+              className="text-sm"
+              htmlFor="billing_notification"
+              style={{ textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              How to connect your exchange?
+            </label>
+          </a>
+        </p>
 
-            <div className="row">
-              <div className="col-xl-12">
-                <div className="card card-fluid">
-                  <div className="card-body">
-                    {!exchangeQuery.isLoading &&
-                      exchanges &&
-                      exchanges
-                        .sort((a, b) => {
-                          if (a.apiKeyName < b.apiKeyName) {
-                            return -1
-                          }
-                          if (a.apiKeyName > b.apiKeyName) {
-                            return 1
-                          }
-                          return 0
-                        })
-                        .map((row, index) => (
-                          <ExchangeRow
-                            key={index}
-                            row={row}
-                            index={index}
-                            onDeleteClick={() => {
-                              setSelectedExchange(row)
-                              setIsDeletionModalVisible(true)
-                            }}
-                            setActive={() => setActive(row.apiKeyName)}
-                            isLast={index === exchanges.length - 1}
-                          />
-                        ))}
+        <div className="row">
+          <div className="col-xl-12">
+            <div className="card card-fluid">
+              <div className="card-body">
+                {!exchangeQuery.isLoading &&
+                  exchanges &&
+                  exchanges
+                    .sort((a, b) => {
+                      if (a.apiKeyName < b.apiKeyName) {
+                        return -1
+                      }
+                      if (a.apiKeyName > b.apiKeyName) {
+                        return 1
+                      }
+                      return 0
+                    })
+                    .map((row, index) => (
+                      <ExchangeRow
+                        key={index}
+                        row={row}
+                        index={index}
+                        onDeleteClick={() => {
+                          setSelectedExchange(row)
+                          setIsDeletionModalVisible(true)
+                        }}
+                        setActive={() => setActive(row.apiKeyName)}
+                        isLast={index === exchanges.length - 1}
+                      />
+                    ))}
 
-                    {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
+                {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
 
-                    {!exchanges && !exchangeQuery.isLoading && (
-                      <div>No exchange added yet.</div>
-                    )}
-                  </div>
-                </div>
+                {!exchanges && !exchangeQuery.isLoading && (
+                  <div>No exchange added yet.</div>
+                )}
               </div>
             </div>
           </div>
