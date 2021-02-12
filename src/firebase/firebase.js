@@ -28,8 +28,8 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
 }
-firebase.analytics()
+const analytics = firebase.analytics()
 
 const auth = firebase.auth()
 
-export { auth, firebase }
+export { auth, analytics, firebase }
