@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { ExternalLink } from 'react-feather'
+import { analytics } from '../../firebase/firebase'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
@@ -33,6 +34,7 @@ const Exchanges = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
+      analytics.logEvent('api_keys_added')
     },
   })
 
