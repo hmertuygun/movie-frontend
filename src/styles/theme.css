@@ -21,6 +21,7 @@
   --warning: var(--orange);
   --danger: var(--red);
   --primary: var(--blue);
+  --success: var(--green);
 
   --buy: var(--green);
   --sell: var(--red-trade);
