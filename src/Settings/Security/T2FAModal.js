@@ -15,7 +15,7 @@ export const ModalsConf = {
     hasBack: true,
   },
   EnableGoogleAuth: {
-    title: 'Enabled Google authenticator',
+    title: 'Enable Google authenticator',
     step: 2,
     hasBack: true,
   },

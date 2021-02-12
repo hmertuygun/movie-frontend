@@ -11,7 +11,7 @@ import TradeOrders from './components/TradeOrders/TradeOrders'
 const TradeContainer = () => (
   <SymbolContextProvider>
     {/* Dark class as long as we dont have dark theme for all components  */}
-    <section className="TradeView-Panel dark">
+    <section className="TradeView-Panel">
       <Route path="/trade/" component={TradePanel} />
     </section>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { ExternalLink } from 'react-feather'
 import { errorNotification, successNotification } from '../../components/Notifications'
+import { analytics } from '../../firebase/firebase'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
@@ -35,6 +36,7 @@ const Exchanges = () => {
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
       successNotification.open({ description: `API key added!` })
+      analytics.logEvent('api_keys_added')
     },
     onError: () => {
       errorNotification.open({ description: `Couldn't add API key. Please try again later!` })

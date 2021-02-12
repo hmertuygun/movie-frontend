@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { User, Key } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
+import { analytics } from '../../firebase/firebase'
 import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
@@ -48,6 +49,7 @@ const QuickLogin = () => {
       }
     }
     setLoading(false)
+    analytics.logEvent('login')
   }
 
   const toggleTypeText = () => {
