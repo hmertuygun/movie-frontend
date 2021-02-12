@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { User } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { auth } from '../../firebase/firebase'
-import { Logo, Icon } from '../../components'
+import { Logo } from '../../components'
 
 const RecoverPassword = () => {
   const [email, setEmail] = useState('')
@@ -109,7 +110,7 @@ const RecoverPassword = () => {
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
-                        <Icon icon="user" />
+                        <User size="16" strokeWidth="3" />
                       </span>
                     </div>
                   </div>

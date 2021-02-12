@@ -10,8 +10,8 @@
 /* DARK MODE */
 @media (prefers-color-scheme: dark) {
   .TabNavigator-container {
-    --border-color-active: var(--warning);
-    --border-color: #2a2a2a;
+    --border-color-active: var(--primary);
+    --border-color: #e2e8f0;
     --color: #bbb;
     --color-hover: #ddd;
   }
@@ -19,7 +19,7 @@
 
 /* DARK MODE */
 .dark .TabNavigator-container {
-  --border-color: #ddd;
+  --border-color: #2c4056;
   --border-color-active: var(--primary);
   --color: #777;
   --color-hover: #4a5568;
@@ -34,12 +34,11 @@
 
 .TabNavigator-link {
   margin-right: 1.5rem;
-  font-size: .875rem;
-  line-height: 1rem;
+  font-size: 0.875rem;
   padding: 15px 0;
   cursor: pointer;
   color: var(--color);
-} 
+}
 
 .TabNavigator-link:hover {
   color: var(--color-hover);
@@ -48,5 +47,5 @@
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
   color: var(--color-hightlighted);
-  font-weight: 500;
+  font-weight: 600;
 }

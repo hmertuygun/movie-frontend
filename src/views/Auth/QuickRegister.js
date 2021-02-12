@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react'
+import { Key, AtSign } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
-import { Icon, Logo } from '../../components'
+import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
 import uniqid from 'uniqid'
 
@@ -109,7 +110,7 @@ const QuickRegister = () => {
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
-                        <Icon icon="at-sign" />
+                        <AtSign size="16" strokeWidth="3" />
                       </span>
                     </div>
                   </div>
@@ -145,7 +146,7 @@ const QuickRegister = () => {
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
-                        <Icon icon="key" />
+                        <Key size="16" strokeWidth="3" />
                       </span>
                     </div>
                   </div>

@@ -143,7 +143,7 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
             ? 'Loading more...'
             : hasNextPage
             ? 'Load Older'
-            : 'Nothing more to load'}
+            : 'No open orders'}
         </td>
       </tr>
     </tbody>

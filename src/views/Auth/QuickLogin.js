@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
+import { User, Key } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
-import { Logo, Icon } from '../../components'
+import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLogin = () => {
@@ -105,7 +106,7 @@ const QuickLogin = () => {
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
-                        <Icon icon="user" />
+                        <User size="16" strokeWidth="3" />
                       </span>
                     </div>
                   </div>
@@ -136,7 +137,7 @@ const QuickLogin = () => {
                     />
                     <div className="input-group-prepend">
                       <span className="input-group-text">
-                        <Icon icon="key" />
+                        <Key size="16" strokeWidth="3" />
                       </span>
                     </div>
                   </div>
