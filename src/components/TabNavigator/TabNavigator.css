@@ -1,7 +1,7 @@
 .TabNavigator-container {
   --border-color: #ddd;
   --border-color-active: var(--primary);
-  --color: #777;
+  --color: #718096;
   --color-hover: #4a5568;
 
   width: 100%;
@@ -12,7 +12,7 @@
   .TabNavigator-container {
     --border-color-active: var(--primary);
     --border-color: #e2e8f0;
-    --color: #bbb;
+    --color: #c0ccda;
     --color-hover: #ddd;
   }
 }
@@ -46,6 +46,10 @@
 
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
-  color: var(--color-hightlighted);
+  color: var(--color);
   font-weight: 600;
+}
+
+.TabNavigator-link--active:hover {
+  color: var(--color);
 }
