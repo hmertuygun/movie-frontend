@@ -47,4 +47,7 @@
 
   --trade-confirm-background: var(--gold);
   --trade-cancel-background: var(--red);
+
+  --trade-modal-background: white;
+  --trade-box-background: var(--light);
 }
