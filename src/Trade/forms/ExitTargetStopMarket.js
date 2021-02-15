@@ -441,7 +441,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Trigger Price"
-            type="number"
+            type="text"
             placeholder="Trigger price"
             value={values.price}
             name="price"
@@ -474,6 +474,7 @@ const ExitTargetStopMarket = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
+                type="text"
               />
             </div>
           </div>
@@ -481,7 +482,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Quantity"
-            type="number"
+            type="text"
             name="quantity"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, quantityPrecision)}

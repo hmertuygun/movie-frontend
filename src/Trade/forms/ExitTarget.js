@@ -436,7 +436,7 @@ const ExitTarget = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Price"
-            type="number"
+            type="text"
             name="price"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, pricePrecision)}
@@ -476,7 +476,7 @@ const ExitTarget = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Quantity"
-            type="number"
+            type="text"
             name="quantity"
             value={values.quantity}
             onChange={handleChange}
@@ -507,6 +507,7 @@ const ExitTarget = () => {
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
                 postLabel={'%'}
+                type="text"
               />
             </Grid>
           </Grid>

@@ -264,7 +264,6 @@ const MarketForm = () => {
       quantityWithPrecision,
       totalWithPrecision,
     } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
-
     setValues((values) => ({
       ...values,
       [target.name]: validatedValue,
@@ -306,7 +305,7 @@ const MarketForm = () => {
       const symbol = selectedSymbolDetail['symbolpair']
 
       const payload = {
-        quantity: convertCommaNumberToDot(values.quantity),
+        quantity: values.quantity,
         balance: selectedSymbolBalance,
         symbol,
         type: 'market',
@@ -359,7 +358,7 @@ const MarketForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Amount"
-              type="number"
+              type="text"
               name="quantity"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, quantityPrecision)}
@@ -391,13 +390,14 @@ const MarketForm = () => {
                 postLabel={'%'}
                 name="quantityPercentage"
                 small
+                type="text"
               />
             </div>
           </div>
           <div className={styles['Input']}>
             <InlineInput
               label="Total"
-              type="number"
+              type="text"
               name="total"
               value={values.total}
               onChange={handleChange}
