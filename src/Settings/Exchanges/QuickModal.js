@@ -4,7 +4,10 @@ import Select from 'react-select'
 import * as yup from 'yup'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
-  const [exchange, setExchange] = useState('')
+  const [exchange, setExchange] = useState({
+    value: 'binance',
+    label: 'Binance',
+  })
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [secret, setSecret] = useState('')
