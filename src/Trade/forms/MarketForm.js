@@ -304,6 +304,7 @@ const MarketForm = () => {
   const handleSubmit = async (evt) => {
     evt.preventDefault()
     const isFormValid = await validateForm()
+    console.log('Here')
     if (isFormValid) {
       setBtnProc(true)
       setErrors({ price: '', quantity: '', total: '' })
@@ -317,7 +318,7 @@ const MarketForm = () => {
         response?.data?.last_price
       )
       const payload = {
-        quantity: convertCommaNumberToDot(values.quantity),
+        quantity: convertCommaNumberToDot(quantityWithPrecision),
         balance: selectedSymbolBalance,
         symbol,
         type: 'market',
