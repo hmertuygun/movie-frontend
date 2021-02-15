@@ -31,7 +31,8 @@ steps:
 substitutions:
   _CLUSTER_TYPE: ${PROJECT_ID:10}
   _IMAGE_NAME_MIXCASE: ${BRANCH_NAME//\//-}
-  _IMAGE_NAME: ${_IMAGE_NAME_MIXCASE,,}
+  _IMAGE_NAME_NONDERSCORE: ${_IMAGE_NAME_MIXCASE//_/-}
+  _IMAGE_NAME: ${_IMAGE_NAME_NONDERSCORE,,}
 timeout: 900s
 options:
   dynamic_substitutions: true

@@ -8,13 +8,13 @@ metadata:
   namespace: userfront
 spec:
   rules:
-  - host: dev.coinpanel.com/pr/<IMAGE_NAME>
+  - host: dev.coinpanel.com
     http:
       paths:
       - backend:
           serviceName: web-server-<IMAGE_NAME>
           servicePort: 80
-        path: /
+        path: /pr/<IMAGE_NAME>/
 ---
 apiVersion: v1
 kind: Service
