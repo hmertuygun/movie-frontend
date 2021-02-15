@@ -9,6 +9,7 @@ const SymbolSelect = () => {
     symbols,
     selectedSymbol,
     setSymbol,
+    setExchange,
     selectedExchange,
     isLoading,
     isLoadingBalance,
@@ -38,6 +39,9 @@ const SymbolSelect = () => {
       <div className={styles['Select-Container']}>
         <Select
           options={exchanges}
+          style={{ textTransform: 'capitalize' }}
+          searchable={false}
+          onChange={(value) => setExchange(value[0])}
           values={[selectedExchange]}
           backspaceDelete={false}
         />
