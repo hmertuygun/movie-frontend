@@ -1,4 +1,9 @@
-export const convertCommaNumberToDot = (value) => value.replace(/,/g, '.')
+export const convertCommaNumberToDot = (value) => {
+  if (value) {
+    return value.toString().replace(/,/g, '.')
+  }
+  return ''
+}
 
 export const addPrecisionToNumber = (value, precisionCount) => {
   if (value) {
