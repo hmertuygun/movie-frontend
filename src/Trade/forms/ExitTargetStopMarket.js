@@ -13,6 +13,7 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
+  convertCommaNumberToDot,
 } from '../../helpers/tradeForm'
 
 import 'rc-slider/assets/index.css'
@@ -400,9 +401,9 @@ const ExitTargetStopMarket = () => {
 
     if (isFormValid && !isLimit) {
       addStopMarketTarget({
-        triggerPrice: values.price,
-        quantity: values.quantity,
-        profit: values.profit,
+        triggerPrice: convertCommaNumberToDot(values.price),
+        quantity: convertCommaNumberToDot(values.quantity),
+        profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
       })
 

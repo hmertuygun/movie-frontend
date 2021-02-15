@@ -13,6 +13,7 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
+  convertCommaNumberToDot,
 } from '../../helpers/tradeForm'
 
 import * as yup from 'yup'
@@ -382,11 +383,11 @@ const ExitStoplossStopLimit = () => {
 
     if (isFormValid) {
       addStoplossLimit({
-        price: values.price,
-        triggerPrice: values.triggerPrice,
-        profit: values.profit,
-        quantity: values.quantity,
-        quantityPercentage: values.quantityPercentage,
+        price: convertCommaNumberToDot(values.price),
+        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
+        profit: convertCommaNumberToDot(values.profit),
+        quantity: convertCommaNumberToDot(values.quantity),
+        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail['symbolpair'],
       })
     }

@@ -7,6 +7,7 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
+  convertCommaNumberToDot,
 } from '../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
@@ -305,7 +306,7 @@ const MarketForm = () => {
       const symbol = selectedSymbolDetail['symbolpair']
 
       const payload = {
-        quantity: values.quantity,
+        quantity: convertCommaNumberToDot(values.quantity),
         balance: selectedSymbolBalance,
         symbol,
         type: 'market',
