@@ -30,7 +30,8 @@ steps:
       - 'CLOUDSDK_CONTAINER_CLUSTER=cp-${_CLUSTER_TYPE}-cluster-eu'
 substitutions:
   _CLUSTER_TYPE: ${PROJECT_ID:10}
-  _IMAGE_NAME: ${BRANCH_NAME//\//-}
+  _IMAGE_NAME_MIXCASE: ${BRANCH_NAME//\//-}
+  _IMAGE_NAME: ${_IMAGE_NAME_MIXCASE,,}
 timeout: 900s
 options:
   dynamic_substitutions: true
