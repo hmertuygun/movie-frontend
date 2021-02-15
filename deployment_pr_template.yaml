@@ -8,7 +8,7 @@ metadata:
   namespace: userfront
 spec:
   rules:
-  - host: dev.coinpanel.com/pr/<IMAGE_NAME>/
+  - host: dev.coinpanel.com/pr/<IMAGE_NAME>
     http:
       paths:
       - backend:
