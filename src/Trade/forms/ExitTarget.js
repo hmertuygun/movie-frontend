@@ -13,6 +13,7 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
+  convertCommaNumberToDot,
 } from '../../helpers/tradeForm'
 
 import 'rc-slider/assets/index.css'
@@ -395,9 +396,9 @@ const ExitTarget = () => {
 
     if (isFormValid && !isLimit) {
       addTarget({
-        price: values.price,
-        quantity: values.quantity,
-        profit: values.profit,
+        price: convertCommaNumberToDot(values.price),
+        quantity: convertCommaNumberToDot(values.quantity),
+        profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
       })
 
