@@ -77,7 +77,7 @@ const Trade = () => {
     <Fragment>
       <section>
         <TabNavigator labelArray={['Full Trade']} index={0}>
-          <div style={{ marginTop: '4rem' }}>
+          <div style={{ marginTop: '2.4rem' }}>
             {!hasEntry && (
               <div style={{ marginTop: '2rem' }}>
                 <Typography as="h3">1. Entry Order</Typography>
