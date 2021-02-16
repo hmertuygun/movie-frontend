@@ -61,8 +61,7 @@ export async function placeOrder({ entry, targets, stoploss }) {
 
 // make sure users can be recognized by user component
 export async function validateUser() {
-  const apiUrl = process.env.REACT_APP_API + 'register'
-
+  const apiUrl = process.env.REACT_APP_API_V2 + 'register'
   try {
     const token = await firebase.auth().currentUser.getIdToken()
 
@@ -119,7 +118,7 @@ export async function getLastPrice(symbol) {
 //   "exchange": "binance"
 // }
 export async function addUserExchange({ name, apiKey, secret, exchange }) {
-  const apiUrl = process.env.REACT_APP_API + 'addApiKey'
+  const apiUrl = process.env.REACT_APP_API_V2 + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
 
   try {
@@ -164,8 +163,8 @@ export async function activateUserExchange(exchangeName) {
   return activate
 }
 
-export async function deleteUserExchange(apiKeyName) {
-  const apiUrl = process.env.REACT_APP_API + 'deleteApiKey/' + apiKeyName
+export async function deleteUserExchange({ name, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}deleteApiKey/api=${name}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const activate = await axios(apiUrl, {

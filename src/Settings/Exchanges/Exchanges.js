@@ -68,8 +68,8 @@ const Exchanges = () => {
     }
   })
 
-  const onDelete = async (name) => {
-    await deleteExchangeMutation.mutate(name)
+  const onDelete = async (name, exchange) => {
+    await deleteExchangeMutation.mutate({ name, exchange })
   }
 
   const setActiveMutation = useMutation(activateUserExchange, {
@@ -104,7 +104,7 @@ const Exchanges = () => {
             setSelectedExchange(null)
             setIsDeletionModalVisible(false)
           }}
-          onDelete={() => onDelete(selectedExchange.apiKeyName)}
+          onDelete={() => onDelete(selectedExchange.apiKeyName, selectedExchange.exchange)}
         />
       )}
 
