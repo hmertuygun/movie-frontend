@@ -1,9 +1,9 @@
 steps:
   - name: 'ubuntu'
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
-  - name: 'ubuntu'
-    id: prepare
-    args: ['sh', 'deployment-helper/preplacer_pr.sh', '${_IMAGE_NAME}']
+  #- name: 'ubuntu'
+  #  id: prepare
+  #  args: ['sh', 'deployment-helper/preplacer_pr.sh', '${_IMAGE_NAME}']
   - name: node:12.10.0
     entrypoint: yarn
     args: ['install']

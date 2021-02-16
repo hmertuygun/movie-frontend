@@ -13,7 +13,7 @@ spec:
       paths:
       - backend:
           serviceName: web-server-<IMAGE_NAME>
-          servicePort: 80
+          servicePort: 8080
         path: /pr/<IMAGE_NAME>/
 ---
 apiVersion: v1
@@ -24,7 +24,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
+  - port: 8080
     targetPort: 5000
   selector:
     app: <IMAGE_NAME> #here
