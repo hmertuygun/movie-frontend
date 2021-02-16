@@ -28,17 +28,24 @@ const UserContextProvider = ({ children }) => {
 
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
-
+  const [hasToken, setHasToken] = useState(false)
+  const [userContextLoaded, setUserContextLoaded] = useState(false)
+  const [totalExchanges, setTotalExchanges] = useState([])
+  const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
   // @ TODO
   // Handle error
   // Unify responses
 
   async function getExchanges() {
     const hasKeys = await getUserExchanges()
-    if (hasKeys) {
+    if (!hasKeys?.data?.apiKeys?.length) return
+    const { apiKeys } = hasKeys.data
+    let activeKey = apiKeys.find(item => item.isLastSelected === true)
+    if (activeKey) {
       setLoadApiKeys(true)
+      setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
     }
-    else setLoadApiKeys(false)
+    setUserContextLoaded(true)
   }
 
   useEffect(() => {
@@ -243,6 +250,9 @@ const UserContextProvider = ({ children }) => {
         delete2FA,
         sendEmailAgain,
         loadApiKeys,
+        activeExchange,
+        setActiveExchange,
+        userContextLoaded
       }}
     >
       {children}

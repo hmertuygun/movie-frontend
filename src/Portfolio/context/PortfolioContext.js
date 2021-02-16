@@ -1,7 +1,7 @@
-import React, { useState, useEffect, createContext, useCallback } from 'react'
+import React, { useState, useEffect, useContext, createContext, useCallback } from 'react'
 import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
-
+import { UserContext } from '../../contexts/UserContext'
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -23,11 +23,12 @@ const PortfolioCTXProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
+  const { activeExchange, setActiveExchange } = useContext(UserContext)
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API_V2 + 'getPortfolioFS'
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolioFS?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
 
       if (user != null) {
         const currentUser = await firebase.auth().currentUser
@@ -54,7 +55,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API_V2 + 'getPortfolio'
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
       const token = await firebase.auth().currentUser.getIdToken()
 
       const exchanges = await axios(apiUrl, {
@@ -85,7 +86,7 @@ const PortfolioCTXProvider = ({ children }) => {
 
   useEffect(() => {
     fetchData()
-  }, [user, fetchData])
+  }, [user, activeExchange, fetchData])
 
   return (
     <PortfolioContext.Provider
