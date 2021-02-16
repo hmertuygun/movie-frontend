@@ -20,12 +20,14 @@ import {
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
 
-import LimitForm from './forms/LimitForm'
-import MarketForm from './forms/MarketForm'
-import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
-import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
-import ExitTarget from './forms/ExitTarget'
-import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
+import LimitForm from './forms/LimitForm/LimitForm'
+import MarketForm from './forms/MarketForm/MarketForm'
+import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit/ExitStoplossStopLimit'
+import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket/ExitStoplossStopMarket'
+import ExitTarget from './forms/ExitTarget/ExitTarget'
+import ExitTargetStopMarket from './forms/ExitTargetStopMarket/ExitTargetStopMarket'
+import EntryStopLimitForm from './forms/EntryStopLimitForm/EntryStopLimitForm'
+import EntryStopMarketForm from './forms/EntryStopMarketForm/EntryStopMarketForm'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -101,9 +103,11 @@ const Trade = () => {
             )}
 
             {!hasEntry && (
-              <TabNavigator labelArray={['Limit', 'Market']}>
+              <TabNavigator labelArray={['Limit', 'Market', 'custom-tab']}>
                 <LimitForm />
                 <MarketForm />
+                <EntryStopLimitForm />
+                <EntryStopMarketForm />
               </TabNavigator>
             )}
 
