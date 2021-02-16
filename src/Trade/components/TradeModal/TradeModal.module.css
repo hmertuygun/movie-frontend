@@ -7,10 +7,10 @@
   border-radius: 6px;
 }
 
-@media (min-width: 420px) {
+@media (max-width: 575.98px) {
   .TradeModal-Container {
-    min-width: 420px;
-    padding: 25px;
+    min-width: unset;
+    width: 320px;
   }
 }
 
@@ -43,11 +43,13 @@
   margin-bottom: 25px;
   padding: 20px 5px;
   background-color: var(--trade-box-background);
+  overflow-x: auto;
 }
 
 .TradeModal-Main-Table td {
   padding: 5px 15px;
   color: #666666;
+  white-space: nowrap;
 }
 
 .TradeModal-Main-Table td:nth-child(2) {
@@ -64,11 +66,13 @@
   width: 100%;
 }
 .TradeModal-Footer button {
-  height:40px;
+  height: 40px;
   padding: 0 !important;
+  margin-left: unset !important;
+  margin-bottom: 5px;
 }
 
-@media (min-width: 420px) {
+@media (min-width: 575.98px) {
   .TradeModal-Footer {
     flex-direction: row;
     justify-content: space-between;

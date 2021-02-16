@@ -1,7 +1,7 @@
 .TradeView-Container {
   display: flex;
   flex-direction: row;
-  min-height: 110vh;  
+  min-height: 110vh;
   justify-content: stretch;
 }
 
@@ -9,7 +9,7 @@
   width: 288px;
   padding: 1rem;
 
-  background: #FFFFFF;
+  background: #ffffff;
   color: #000000;
 
   min-height: 100vh;
@@ -17,22 +17,35 @@
 }
 
 .TradeChart-Container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex-grow: 2;
 }
 
-.TradeView-Symbol { 
-    background: var(--trade-background);
-    flex-grow: 0;
-  }
+.TradeView-Symbol {
+  background: var(--trade-background);
+  flex-grow: 0;
+}
 
-.TradeView-Chart { 
+.TradeView-Chart {
   background: var(--trade-background);
   flex-grow: 2;
 }
 
 .TradeOrders {
   height: 40vh;
+}
+
+.TradeView-Panel-Mobile {
+  width: 100%;
+}
+
+.TradeChart-Container-Mobile {
+  padding: 15px;
+  width: 100%;
+}
+
+.TradeView-Container-Mobile {
+  margin-bottom: 100px;
 }

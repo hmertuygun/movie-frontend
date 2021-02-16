@@ -1,28 +1,26 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
-import 'rc-slider/assets/index.css'
 
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-  convertCommaNumberToDot,
-} from '../../helpers/tradeForm'
+} from '../../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { TradeContext } from '../context/SimpleTradeContext'
-import { useSymbolContext } from '../context/SymbolContext'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import { useSymbolContext } from '../../context/SymbolContext'
 
-import { InlineInput, Button } from '../../components'
+import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from './LimitForm.module.css'
+import styles from './EntryStopLimitForm.module.css'
 
-const LimitForm = () => {
+const EntryStopLimitForm = () => {
   const {
     isLoading,
     selectedSymbolDetail,
@@ -30,9 +28,10 @@ const LimitForm = () => {
     isLoadingBalance,
   } = useSymbolContext()
 
-  const { addEntry } = useContext(TradeContext)
+  const { addEntryStopLimit } = useContext(TradeContext)
 
   const [values, setValues] = useState({
+    triggerPrice: '',
     price: '',
     quantity: '',
     total: '',
@@ -40,6 +39,7 @@ const LimitForm = () => {
   })
 
   const [errors, setErrors] = useState({
+    triggerPrice: '',
     price: '',
     quantity: '',
     total: '',
@@ -73,11 +73,28 @@ const LimitForm = () => {
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
+    triggerPrice: yup
+      .number()
+      .required('Trigger price is required')
+      .typeError('Trigger price is required')
+      .min(
+        minPrice,
+        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
+      .max(
+        maxPrice,
+        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      ),
     price: yup
       .number()
       .required('Price is required')
       .typeError('Price is required')
-      .positive()
       .min(
         minPrice,
         `Price needs to meet min-price: ${addPrecisionToNumber(
@@ -87,7 +104,7 @@ const LimitForm = () => {
       )
       .max(
         maxPrice,
-        `Price needs to meet max-price: ${addPrecisionToNumber(
+        `Price needs to meet min-price: ${addPrecisionToNumber(
           maxPrice,
           pricePrecision
         )}`
@@ -175,26 +192,13 @@ const LimitForm = () => {
   }
 
   const handleChange = ({ target }) => {
-    if (target.name === 'total') {
+    if (target.name === 'triggerPrice') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
-
-      setValues((values) => ({
-        ...values,
-        quantity: quantityWithPrecision,
-        quantityPercentage: percentageQuantityWithPrecision,
+      setValues({
         [target.name]: target.value,
-      }))
-
-      validateInput({
-        name: 'quantity',
-        value: quantityWithPrecision,
       })
     } else if (target.name === 'price') {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
@@ -218,7 +222,7 @@ const LimitForm = () => {
           value: totalWithPrecision,
         })
       }
-    } else {
+    } else if (target.name === 'quantity') {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
@@ -237,6 +241,27 @@ const LimitForm = () => {
       validateInput({
         name: 'total',
         value: totalWithPrecision,
+      })
+    } else if (target.name === 'total') {
+      const maxLength = getMaxInputLength(target.value, totalPrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+
+      const {
+        quantityWithPrecision,
+        percentageQuantityWithPrecision,
+      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+
+      setValues((values) => ({
+        ...values,
+        quantity: quantityWithPrecision,
+        quantityPercentage: percentageQuantityWithPrecision,
+        [target.name]: target.value,
+      }))
+
+      validateInput({
+        name: 'quantity',
+        value: quantityWithPrecision,
       })
     }
 
@@ -350,13 +375,15 @@ const LimitForm = () => {
       const symbol = selectedSymbolDetail['symbolpair']
 
       const payload = {
-        price: convertCommaNumberToDot(values.price),
-        quantity: convertCommaNumberToDot(values.quantity),
+        triggerPrice: values.triggerPrice,
+        price: values.price,
+        quantity: values.quantity,
         balance: selectedSymbolBalance,
         symbol,
-        type: 'limit',
+        type: 'stop-limit',
+        side: 'sell',
       }
-      addEntry(payload)
+      addEntryStopLimit(payload)
     }
   }
 
@@ -392,8 +419,21 @@ const LimitForm = () => {
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
             <InlineInput
+              label="Trigger price"
+              type="number"
+              name="triggerPrice"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              value={values.triggerPrice}
+              placeholder=""
+              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+            />
+            {renderInputValidationError('triggerPrice')}
+          </div>
+          <div className={styles['Input']}>
+            <InlineInput
               label="Price"
-              type="text"
+              type="number"
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
@@ -406,7 +446,7 @@ const LimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Amount"
-              type="text"
+              type="number"
               name="quantity"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, quantityPrecision)}
@@ -441,7 +481,6 @@ const LimitForm = () => {
                 disabled={!values.price}
                 small
                 name="quantityPercentage"
-                type="text"
               />
             </div>
           </div>
@@ -449,7 +488,7 @@ const LimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Total"
-              type="text"
+              type="number"
               name="total"
               value={values.total}
               onChange={handleChange}
@@ -483,4 +522,4 @@ const LimitForm = () => {
   )
 }
 
-export default LimitForm
+export default EntryStopLimitForm
