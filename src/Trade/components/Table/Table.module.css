@@ -1,5 +1,5 @@
 .Table {
-  --table-row-border: #e2e2e2;
+  --table-row-border: #444;
   --table-left-spacer: 0.5rem;
 
   --table-buy-color: var(--primary);
@@ -24,20 +24,20 @@
 .Table-row {
   padding: 0.2rem;
   margin: 0 0 2rem;
-  border-bottom: 1px solid var(--table-row-border);
 }
 
 .Table-row td {
   margin: 0;
-  border-top: none;
+  border-top: 1px solid var(--table-row-border);
+  border-bottom: 1px solid var(--table-row-border);
 }
 
 .Table-row td:first-child {
-  border-left: none;
+  border-left: 1px solid var(--table-row-border);
 }
 
 .Table-row td:last-child {
-  border-right: none;
+  border-right: 1px solid var(--table-row-border);
 }
 
 .Table-Row-stoploss-profit {

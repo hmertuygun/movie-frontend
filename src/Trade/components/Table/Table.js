@@ -23,21 +23,6 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
     return false
   }
 
-  const entryOrderType = (entry) => {
-    switch (entry.type) {
-      case 'limit':
-        return entry.price
-      case 'market':
-        return 'Market'
-      case 'stop-limit':
-        return entry.price
-      case 'stop-market':
-        return entry.triggerPrice
-      default:
-        break
-    }
-  }
-
   return (
     <table className={styles['Table']}>
       <thead>
@@ -66,7 +51,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               </div>
             </td>
 
-            <td>{entryOrderType(entry)}</td>
+            <td>{entry.type === 'market' ? 'Market' : entry.price}</td>
 
             <td></td>
 

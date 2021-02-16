@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react'
-import { InlineInput, Button, Typography } from '../../../components'
-import { TradeContext } from '../../context/SimpleTradeContext'
-import roundNumbers from '../../../helpers/roundNumbers'
-import { useSymbolContext } from '../../context/SymbolContext'
+import { InlineInput, Button, Typography } from '../../components'
+import { TradeContext } from '../context/SimpleTradeContext'
+import roundNumbers from '../../helpers/roundNumbers'
+import { useSymbolContext } from '../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -14,8 +14,7 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
-  detectEntryPrice,
-} from '../../../helpers/tradeForm'
+} from '../../helpers/tradeForm'
 
 import * as yup from 'yup'
 
@@ -70,7 +69,8 @@ const ExitStoplossStopLimit = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
-  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
+  const entryPrice =
+    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
