@@ -1,6 +1,9 @@
 steps:
   - name: 'ubuntu'
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
+  - name: 'ubuntu'
+    id: prepare
+    args: ['sh', 'deployment-helper/preplacer_pr.sh', '${_IMAGE_NAME}']
   - name: node:12.10.0
     entrypoint: yarn
     args: ['install']
@@ -33,7 +36,7 @@ substitutions:
   _IMAGE_NAME_MIXCASE: ${BRANCH_NAME//\//-}
   _IMAGE_NAME_NONDERSCORE: ${_IMAGE_NAME_MIXCASE//_/-}
   _IMAGE_NAME: ${_IMAGE_NAME_NONDERSCORE,,}
-timeout: 900s
+timeout: 1200s
 options:
   dynamic_substitutions: true
 
