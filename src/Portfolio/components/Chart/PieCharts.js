@@ -9,7 +9,6 @@ const PieCharts = () => {
   const [data, setData] = useState([])
   const [extData, setExtData] = useState(null)
   const { chart } = useContext(PortfolioContext)
-  let extractedItem = null
   let colorArray = ['', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
     '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
     '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
@@ -39,10 +38,10 @@ const PieCharts = () => {
     let copyData = [...data]
     if (extData) {
       copyData = [...copyData, extData.item]
-      if (extData.item[0] === id) { // if same element was clicked, return it back
+      if (extData.item[0] === id) {
         setExtData(null)
       }
-      else { // if diff elem was clicked , put old back, take new as extracted
+      else {
         let index = copyData.findIndex(item => item[0] === id)
         let item = copyData.splice(index, 1)
         setExtData({ item: item[0], index })
