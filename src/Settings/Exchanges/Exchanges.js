@@ -20,7 +20,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { loadApiKeys, setLoadApiKeys } = useContext(UserContext)
+  const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   let exchanges = []
@@ -31,7 +31,8 @@ const Exchanges = () => {
   }, [loadApiKeys])
 
   if (exchangeQuery.data) {
-    exchanges = exchangeQuery.data.data.apiKeys // apiKeys is an array {apiKeyName: "ASD", exchange: "binance", isActive: false}
+    exchanges = exchangeQuery.data.data.apiKeys
+    setTotalExchanges(exchanges)
   } else {
     exchanges = false
   }

@@ -5,7 +5,7 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges, getBalance, getLastPrice, getUserExchanges } from '../../api/api'
+import { getExchanges, getBalance, getLastPrice, getUserExchanges, updateLastSelectedAPIKey } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { useQuery } from 'react-query'
 
@@ -74,8 +74,9 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  function setExchange(exchange) {
+  async function setExchange(exchange) {
     setSelectedExchange(exchange)
+    await updateLastSelectedAPIKey({ ...exchange })
     sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
   }
 

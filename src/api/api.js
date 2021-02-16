@@ -155,6 +155,21 @@ export async function getUserExchanges() {
   }
 }
 
+export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {
+
+  const apiUrl = `${process.env.REACT_APP_API_V2}updateLastSelectedApiKey`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const added = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { apiKeyName, exchange },
+  })
+    .catch(error => {
+      return error?.response
+    })
+  return added
+}
+
 export async function activateUserExchange(exchangeName) {
   const apiUrl = process.env.REACT_APP_API + 'activateApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
