@@ -43,7 +43,7 @@ export const detectEntryPrice = (entry, selectedSymbolLastPrice) => {
     case 'market':
       return selectedSymbolLastPrice
     case 'stop-market':
-      return entry.triggerPrice
+      return entry.trigger
     default:
       break
   }

@@ -348,12 +348,12 @@ const EntryStopMarketForm = () => {
       const symbol = selectedSymbolDetail['symbolpair']
 
       const payload = {
-        triggerPrice: values.triggerPrice,
+        trigger: values.triggerPrice,
         quantity: values.quantity,
         balance: selectedSymbolBalance,
         symbol,
         type: 'stop-market',
-        side: 'sell',
+        side: 'buy',
       }
       addEntryStopMarket(payload)
     }

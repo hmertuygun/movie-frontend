@@ -280,8 +280,9 @@ const ExitStoplossStopLimit = () => {
   }
 
   const priceAndProfitSync = (inputName, inputValue) => {
+    // todo
     let usePrice =
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+      entry.type === 'market' || entry.type === 'stop-market' ? selectedSymbolLastPrice : entry.price
 
     switch (inputName) {
       case 'price':

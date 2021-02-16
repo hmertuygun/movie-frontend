@@ -375,13 +375,13 @@ const EntryStopLimitForm = () => {
       const symbol = selectedSymbolDetail['symbolpair']
 
       const payload = {
-        triggerPrice: values.triggerPrice,
+        trigger: values.triggerPrice,
         price: values.price,
         quantity: values.quantity,
         balance: selectedSymbolBalance,
         symbol,
         type: 'stop-limit',
-        side: 'sell',
+        side: 'buy',
       }
       addEntryStopLimit(payload)
     }

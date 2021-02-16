@@ -22,6 +22,7 @@
 .TabNavigator-link {
   margin-right: 1.5rem;
   font-size: 0.875rem;
+  line-height: 1rem;
   padding: 15px 0;
   cursor: pointer;
   color: var(--color);
@@ -34,7 +35,7 @@
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
   color: var(--color);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .TabNavigator-link--active:hover {
@@ -105,7 +106,7 @@
 
 .market-items > .btn-active {
   color: var(--color-hover);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .chevron-wrapper:hover .market-items {

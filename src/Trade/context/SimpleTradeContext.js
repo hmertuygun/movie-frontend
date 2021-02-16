@@ -44,7 +44,7 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addEntryStopLimit = ({
-    triggerPrice,
+    trigger,
     price,
     quantity,
     symbol,
@@ -54,7 +54,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     setState({
       ...state,
       entry: {
-        triggerPrice,
+        trigger,
         price,
         quantity,
         symbol,
@@ -65,7 +65,7 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addEntryStopMarket = ({
-    triggerPrice,
+    trigger,
     quantity,
     symbol,
     type = 'stop-market',
@@ -74,7 +74,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     setState({
       ...state,
       entry: {
-        triggerPrice,
+        trigger,
         quantity,
         symbol,
         type,
@@ -85,6 +85,7 @@ const SimpleTradeContextProvider = ({ children }) => {
 
   const addTarget = ({
     price,
+    triggerPrice,
     quantity,
     profit,
     symbol,
@@ -98,6 +99,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         ...targets,
         {
           price,
+          triggerPrice,
           quantity,
           profit,
           symbol,

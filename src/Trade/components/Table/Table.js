@@ -32,7 +32,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
       case 'stop-limit':
         return entry.price
       case 'stop-market':
-        return entry.triggerPrice
+        return entry.trigger
       default:
         break
     }

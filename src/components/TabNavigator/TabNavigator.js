@@ -1,11 +1,8 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useContext } from 'react'
 import { ChevronDown } from 'react-feather'
-import { useLocation } from 'react-router-dom'
 import './TabNavigator.css'
 
 const TabNavigator = ({ index, labelArray = [], children }) => {
-  const location = useLocation()
-  
   const [contentIndex, setContentIndex] = useState(index | 0)
   const [selectedDropDownOption, setSelectedDropdownOption] = useState(
     'Stop-limit'
@@ -24,11 +21,11 @@ const TabNavigator = ({ index, labelArray = [], children }) => {
     <>
       <div className="TabNavigator-container">
         <nav
-          className={
-            location.pathname === '/trade'
-              ? 'TabNavigator-nav TradeTabNav'
-              : 'TabNavigator-nav'
-          }
+        className={
+          labelArray[2] === 'custom-tab'
+            ? 'TabNavigator-nav TradeTabNav'
+            : 'TabNavigator-nav'
+        }
         >
           {labelArray.map((label, labelIndex) => (
             <Fragment key={labelIndex}>
