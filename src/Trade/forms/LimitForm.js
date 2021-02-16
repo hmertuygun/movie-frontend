@@ -393,7 +393,7 @@ const LimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Price"
-              type="number"
+              type="text"
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
@@ -406,7 +406,7 @@ const LimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Amount"
-              type="number"
+              type="text"
               name="quantity"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, quantityPrecision)}
@@ -441,6 +441,7 @@ const LimitForm = () => {
                 disabled={!values.price}
                 small
                 name="quantityPercentage"
+                type="text"
               />
             </div>
           </div>
@@ -448,7 +449,7 @@ const LimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Total"
-              type="number"
+              type="text"
               name="total"
               value={values.total}
               onChange={handleChange}

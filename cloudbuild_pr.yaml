@@ -1,6 +1,9 @@
 steps:
   - name: 'ubuntu'
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
+  #- name: 'ubuntu'
+  #  id: prepare
+  #  args: ['sh', 'deployment-helper/preplacer_pr.sh', '${_IMAGE_NAME}']
   - name: node:12.10.0
     entrypoint: yarn
     args: ['install']
@@ -30,8 +33,10 @@ steps:
       - 'CLOUDSDK_CONTAINER_CLUSTER=cp-${_CLUSTER_TYPE}-cluster-eu'
 substitutions:
   _CLUSTER_TYPE: ${PROJECT_ID:10}
-  _IMAGE_NAME: ${BRANCH_NAME//\//-}
-timeout: 900s
+  _IMAGE_NAME_MIXCASE: ${BRANCH_NAME//\//-}
+  _IMAGE_NAME_NONDERSCORE: ${_IMAGE_NAME_MIXCASE//_/-}
+  _IMAGE_NAME: ${_IMAGE_NAME_NONDERSCORE,,}
+timeout: 1200s
 options:
   dynamic_substitutions: true
 

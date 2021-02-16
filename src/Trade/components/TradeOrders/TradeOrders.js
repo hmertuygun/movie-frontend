@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
+import { isMobile } from 'react-device-detect'
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
@@ -76,7 +77,7 @@ const Table = ({
                 className="btn btn-sm btn-neutral btn-icon"
                 onClick={refreshOpenOrder}
               >
-                <span className="btn-inner--text">Refresh</span>
+                {!isMobile && <span className="btn-inner--text">Refresh</span>}
                 <span className="btn-inner--icon">
                   <FontAwesomeIcon icon={faSync} />
                 </span>

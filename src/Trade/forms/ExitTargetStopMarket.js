@@ -95,14 +95,6 @@ const ExitTargetStopMarket = () => {
     100: '',
   }
 
-  const targetSliderMarks = {
-    0: '',
-    250: '',
-    500: '',
-    750: '',
-    1000: '',
-  }
-
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
@@ -441,7 +433,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Trigger Price"
-            type="number"
+            type="text"
             placeholder="Trigger price"
             value={values.price}
             name="price"
@@ -460,9 +452,9 @@ const ExitTargetStopMarket = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={targetSliderMarks}
+                marks={marks}
                 min={0}
-                max={1000}
+                max={100}
                 onChange={handleSliderChange}
                 value={values.profit}
               />
@@ -474,6 +466,7 @@ const ExitTargetStopMarket = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
+                type="text"
               />
             </div>
           </div>
@@ -481,7 +474,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Quantity"
-            type="number"
+            type="text"
             name="quantity"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, quantityPrecision)}
