@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
@@ -15,64 +15,48 @@ import TradeView from './views/TradeView'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
-
+import OnboardingModal from './Trade/OnboardingModal'
 const Routes = () => {
-  const { isLoggedIn, logout } = useContext(UserContext) // loadApiKeys
-
+  const { isLoggedIn, logout, loadApiKeys, setLoadApiKeys } = useContext(UserContext) // loadApiKeys
+  const [compKey, setCompKey] = useState(0)
   return (
-    <Switch>
-      {/* user is isLoggedIn but does not have API Key (isLoggedIn && !loadApiKeys)   */}
-      {/*       {isLoggedIn && !loadApiKeys && (
-        <Switch>
-          <Route path="/settings" component={Settings} />
-          <Route
-            path="/logout"
-            render={() => {
-              logout()
+    <>
+      {isLoggedIn && !loadApiKeys && <OnboardingModal />}
+      <Switch>
+        {isLoggedIn && (
+          <Switch>
+            <Route path="/trade" component={TradeView} />
 
-              return <div>Logging you out..</div>
-            }}
-          />
-          <Route path="/trade" component={TradeView} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/positions" component={Position} />
-          <Redirect to="/settings" />
-        </Switch>
-      )} */}
-      {isLoggedIn && (
-        <Switch>
-          <Route path="/trade" component={TradeView} />
+            <Route
+              path="/logout"
+              render={() => {
+                logout()
 
-          <Route
-            path="/logout"
-            render={() => {
-              logout()
+                return <div>Logging you out..</div>
+              }}
+            />
 
-              return <div>Logging you out..</div>
-            }}
-          />
-
-          <Route path="/settings" component={Settings} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/positions" component={Position} />
-          <Redirect to="/trade" />
-        </Switch>
-      )}
-
-      <Route path="/login/verify2fa" component={LoginVerify2FA} />
-      <Route path="/login" component={Login} />
-      <Route path="/recover-password" component={RecoverPassword} />
-      <Route path="/new-password" component={NewPassword} />
-      <Route path="/action" component={HandleEmailActions} />
-      <Route exact path="/register" component={Register} />
-      <Route exact path="/register/confirm" component={RegisterConfirm} />
-      <Route
-        exact
-        path="/register/confirm/recieved"
-        component={RegisterFinal}
-      />
-      {!isLoggedIn && <Redirect to="/login" />}
-    </Switch>
+            <Route path="/settings" component={Settings} />
+            <Route path="/portfolio" component={Portfolio} />
+            <Route path="/positions" component={Position} />
+            <Redirect to="/trade" />
+          </Switch>
+        )}
+        <Route path="/login/verify2fa" component={LoginVerify2FA} />
+        <Route path="/login" component={Login} />
+        <Route path="/recover-password" component={RecoverPassword} />
+        <Route path="/new-password" component={NewPassword} />
+        <Route path="/action" component={HandleEmailActions} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/register/confirm" component={RegisterConfirm} />
+        <Route
+          exact
+          path="/register/confirm/recieved"
+          component={RegisterFinal}
+        />
+        {!isLoggedIn && <Redirect to="/login" />}
+      </Switch>
+    </>
   )
 }
 

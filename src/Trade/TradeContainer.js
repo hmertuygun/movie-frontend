@@ -1,11 +1,13 @@
-import React, { useContext } from 'react'
+import React, { useEffect, useContext } from 'react'
 import { Route } from 'react-router-dom'
 import { isMobile } from 'react-device-detect'
+import { useHistory } from 'react-router-dom'
 
 import TradePanel from './TradePanel'
 import TradeChart from './TradeChart'
 import { SymbolContextProvider } from './context/SymbolContext'
 import { TabContext } from '../contexts/TabContext'
+import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
 import './TradeContainer.css'
@@ -13,6 +15,14 @@ import TradeOrders from './components/TradeOrders/TradeOrders'
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
+  const { loadApiKeys } = useContext(UserContext)
+  const history = useHistory()
+
+  useEffect(() => {
+    if (!loadApiKeys) {
+      history.push('/settings')
+    }
+  }, [loadApiKeys, history])
 
   return (
     <SymbolContextProvider>

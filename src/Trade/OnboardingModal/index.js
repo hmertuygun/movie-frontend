@@ -1,10 +1,26 @@
-import React, { useState, useEffect } from 'react'
-import { Key } from 'react-feather'
+import React, { useContext, useEffect, useState } from 'react'
 import Select from 'react-select'
 import * as yup from 'yup'
-import { options } from './ExchangeOptions'
 
-const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
+import { UserContext } from '../../contexts/UserContext'
+import { successNotification } from '../../components/Notifications'
+import {
+  addUserExchange,
+} from '../../api/api'
+import { options } from '../../Settings/Exchanges/ExchangeOptions'
+
+const OnboardingModal = ({ updateComp }) => {
+  const { loadApiKeys, setLoadApiKeys, isLoggedIn } = useContext(UserContext)
+  let formData = {
+    apiKey: '',
+    secret: '',
+    exchange: 'binance',
+    name: ''
+  }
+  const [step, setStepNo] = useState(1)
+  const [apiProc, setIsApiProc] = useState(false)
+  const [hasError, setError] = useState(false)
+  const [startExp, setStartExp] = useState(false)
   const [exchange, setExchange] = useState({
     value: 'binance',
     label: 'Binance',
@@ -21,6 +37,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   }
 
   const [errors, setErrors] = useState(errorInitialValues)
+
 
   const customStyles = {
     control: (styles, {}) => ({
@@ -95,13 +112,75 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
       })
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    const isFormValid = await validateForm()
+  let btnText = {
+    1: { primaryBtn: 'Continue with existing Binance account', secBtn: 'Setup a new Binance account', heading: 'Welcome to CoinPanel!' },
+    2: { primaryBtn: 'Continue', secBtn: 'Go Back', heading: 'Connect your exchange account' },
+    3: { primaryBtn: 'Start the CoinPanel experience', secBtn: 'Checkout the tutorials', heading: 'Exchange integration complete!' }
+  }
 
-    if (isFormValid) {
-      onSave({ secret, apiKey, exchange: exchange.value, name: apiName })
+  const onPrimaryBtnClick = async () => {
+    if (step === 1) {
+      setStepNo(step + 1)
     }
+    else if (step === 2) {
+      const isFormValid = await validateForm()
+
+      if (isFormValid) {
+        addExchange()
+      }
+    }
+    else if (step === 3) {
+      setLoadApiKeys(true)
+    }
+  }
+
+  const onSecondaryBtnClick = () => {
+    if (step === 1) {
+      window.open("https://accounts.binance.com/en/register")
+    }
+    else if (step === 2) {
+      setError(false)
+      setStepNo(step - 1)
+    }
+    else if (step === 3) {
+      window.open("https://support.coinpanel.com/hc/en-us")
+    }
+  }
+
+  const addExchange = async () => {
+    setIsApiProc(true)
+    setError(false)
+    if (apiProc) return
+
+    let result = await addUserExchange({
+      secret,
+      apiKey,
+      exchange: exchange.value,
+      name: apiName,
+    })
+
+    if (result.status !== 200) {
+      setError(true)
+    } else {
+      setStepNo(step + 1)
+      successNotification.open({ description: 'API key added!' })
+    }
+    setIsApiProc(false)
+  }
+
+  const modalVisibility = () => {
+    if (isLoggedIn) {
+      if (loadApiKeys) return 'none'
+      else return 'block'
+    }
+    else {
+      return 'none'
+    }
+  }
+
+  const modalStyle = {
+    background: 'rgba(0,0,0,.5)',
+    display: modalVisibility()
   }
 
   const renderInputValidationError = (errorKey) => (
@@ -115,46 +194,33 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   )
 
   return (
-    <div className="modal-open">
-      <div
-        className="modal fade show"
-        role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-modal="true"
-        style={{ display: 'block' }}
-      >
-        <form
-          className="modal-dialog modal-dialog-centered modal-lg"
-          role="document"
-          onSubmit={handleSubmit}
-        >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                <Key className="mr-3" size="20" strokeWidth="3" />
-                Connect new exchange
-              </h5>
-              <button
-                onClick={onClose}
-                type="button"
-                className="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+    <div className={`modal docs-example-modal-lg fade show`} style={modalStyle}>
+      <div className="modal-dialog modal-lg modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Exchange Setup</h5>
+          </div>
+          <div className="modal-body">
+            <div className="row">
+              {Object.entries(btnText).map((item, index) => (
+                <div className="col-4 px-1" key={`progressbar-${item}`}>
+                  <div className="progress">
+                    <div className={`progress-bar ${step === index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <a
-                  href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: 'underline', color: '#718096' }}
-                >
+            <h4 className="mt-3 mb-2">{btnText[step].heading}</h4>
+            <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
+              <p>You need a Binance Exchange account to use CoinPanel.</p>
+              <p>Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
+            </div>
+            <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
+              <p>
+                <a className="text-muted text-underline pb-2" href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel" target="_blank" rel="noreferrer notarget">
                   How to find my API keys?
                 </a>
-              </div>
+              </p>
 
               <div className="row mb-3">
                 <div className="col-md-4">
@@ -182,7 +248,6 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                   </div>
                   <input
                     type="text"
-                    disabled={isLoading}
                     className="form-control"
                     name="apiName"
                     value={apiName}
@@ -198,17 +263,15 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 </div>
                 {renderInputValidationError('apiName')}
               </div>
-
               <div className="form-group">
                 <div className="input-group">
                   <div className="input-group-prepend">
                     <span className="input-group-text" id="basic-addon1">
                       Key
-                    </span>
+                </span>
                   </div>
                   <input
                     type="text"
-                    disabled={isLoading}
                     className="form-control"
                     placeholder="API Key"
                     name="apiKey"
@@ -226,17 +289,15 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 </div>
                 {renderInputValidationError('apiKey')}
               </div>
-
               <div className="form-group">
                 <div className="input-group">
                   <div className="input-group-prepend">
                     <span className="input-group-text" id="basic-addon1">
                       Secret
-                    </span>
+                </span>
                   </div>
                   <input
                     type="text"
-                    disabled={isLoading}
                     className="form-control"
                     name="secret"
                     value={secret}
@@ -252,39 +313,31 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 </div>
                 {renderInputValidationError('secret')}
               </div>
+              <div className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'}`} role="alert">
+                <p>
+                  &#10005; Error connecting exchange!
+            </p>
+              </div>
             </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-dismiss="modal"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-
-              <button
-                disabled={isLoading}
-                type="submit"
-                className="btn btn-primary"
-              >
-                {!isLoading ? (
-                  'Save'
-                ) : (
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
+            <div className={`step3 ${step === 3 ? 'd-show' : 'd-none'}`}>
+              <p>Your account is good to go.</p>
             </div>
           </div>
-        </form>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onSecondaryBtnClick} disabled={apiProc}>
+              {btnText[step].secBtn}
+            </button>
+            <button type="button" className="btn btn-primary" onClick={onPrimaryBtnClick} disabled={step === 2 && (apiProc)}>
+              {!apiProc ? btnText[step].primaryBtn : (<span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              />)}
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="modal-backdrop fade show"></div>
-    </div>
-  )
+    </div>)
 }
 
-export default QuickModal
+export default OnboardingModal;

@@ -10,7 +10,7 @@
   -webkit-font-feature-settings: 'tnum';
   font-feature-settings: 'tnum', 'tnum';
   position: fixed;
-  z-index: 1010;
+  z-index: 1060 !important;
   margin: 0 24px 0 0;
 }
 .ant-notification-bottomLeft,

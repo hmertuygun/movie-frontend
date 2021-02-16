@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -8,9 +8,7 @@ import {
   verifyGoogleAuth2FA,
   getUserExchanges,
 } from '../api/api'
-
 export const UserContext = createContext()
-
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
@@ -25,13 +23,34 @@ const UserContextProvider = ({ children }) => {
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
-
   const [state, setState] = useState(initialState)
-  const [loadApiKeys, setLoadApiKeys] = useState(false)
-
+  const [loadApiKeys, setLoadApiKeys] = useState(true)
+  const [hasToken, setHasToken] = useState(false)
   // @ TODO
   // Handle error
   // Unify responses
+
+  async function getExchanges() {
+    const hasKeys = await getUserExchanges()
+    if (hasKeys) setLoadApiKeys(true)
+    else setLoadApiKeys(false)
+  }
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setHasToken(true)
+        getExchanges()
+      }
+      else {
+        // User is signed out.
+      }
+    })
+  }, [])
+
+
+
   async function login(email, password) {
     const signedin = await firebase
       .auth()
@@ -81,16 +100,15 @@ const UserContextProvider = ({ children }) => {
       try {
         const hasloadApiKeys = await getUserExchanges()
         if (hasloadApiKeys) {
-          setLoadApiKeys('true')
+          setLoadApiKeys(true)
         }
-
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
@@ -156,10 +174,8 @@ const UserContextProvider = ({ children }) => {
     return true
   }
 
-  const isLoggedIn =
-    state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
-
   // REGISTER NEW USER
   async function register(email, password) {
     const registered = await firebase
@@ -220,7 +236,10 @@ const UserContextProvider = ({ children }) => {
         get2FADetails,
         delete2FA,
         sendEmailAgain,
+        setLoadApiKeys,
         loadApiKeys,
+        hasToken,
+        setHasToken
       }}
     >
       {children}
