@@ -1,6 +1,12 @@
 import React, { Fragment } from 'react'
 
 const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
+  const isActive = () => {
+    let getSavedKey = sessionStorage.getItem('exchangeKey')
+    if (!getSavedKey) return false
+    getSavedKey = JSON.parse(getSavedKey)
+    return getSavedKey.exchange === row.exchange && getSavedKey.apiKeyName === row.apiKeyName
+  }
   return (
     <Fragment>
       <div className="row align-items-center">
@@ -21,10 +27,10 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
         <div className="col-md-4 text-right">
           <a
             href="#"
-            className="text-sm text-danger"
-            onClick={() => onDeleteClick()}
+            className={`text-sm ${isActive() ? 'text-success' : 'text-danger'}`}
+            onClick={!isActive() ? onDeleteClick : null}
           >
-            Delete
+            {isActive() ? 'Active' : 'Delete'}
           </a>
         </div>
       </div>

@@ -75,9 +75,14 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   async function setExchange(exchange) {
-    setSelectedExchange(exchange)
-    await updateLastSelectedAPIKey({ ...exchange })
-    sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+    try {
+      setSelectedExchange(exchange)
+      await updateLastSelectedAPIKey({ ...exchange })
+      sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+    }
+    catch (e) {
+
+    }
   }
 
   const queryExchanges = useQuery('exchangeSymbols', getExchanges)
