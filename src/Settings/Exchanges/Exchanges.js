@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
+import { UserContext } from '../../contexts/UserContext'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { errorNotification, successNotification } from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
 import ExchangeRow from './ExchangeRow'
@@ -9,6 +10,7 @@ import {
   addUserExchange,
   activateUserExchange,
   deleteUserExchange,
+  validateUser
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
@@ -18,15 +20,18 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const { loadApiKeys, setLoadApiKeys } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
-
+  let exchanges = []
   const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
-  let exchanges = []
+  useEffect(() => {
+    exchangeQuery.refetch()
+  }, [loadApiKeys])
 
   if (exchangeQuery.data) {
-    exchanges = exchangeQuery.data.data.apiKeys
+    exchanges = exchangeQuery.data.data.apiKeys // apiKeys is an array {apiKeyName: "ASD", exchange: "binance", isActive: false}
   } else {
     exchanges = false
   }
@@ -57,8 +62,14 @@ const Exchanges = () => {
   }
 
   const deleteExchangeMutation = useMutation(deleteUserExchange, {
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries('exchanges')
+      // check exchanges var here, its not the updated one tho
+      if (exchanges && exchanges.length) {
+        if (exchanges.length - 1 === 0) {
+          setLoadApiKeys(false)
+        }
+      }
       setSelectedExchange(null)
       setIsDeletionModalVisible(false)
       successNotification.open({ description: `API key deleted!` })

@@ -2,6 +2,13 @@ import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
 
+function getLocalUserData() {
+  let userData = localStorage.getItem('user')
+  if (!userData) return ''
+  userData = JSON.parse(userData)
+  return userData?.stsTokenManager?.accessToken || ''
+}
+
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -122,25 +129,21 @@ export async function getLastPrice(symbol) {
 export async function addUserExchange({ name, apiKey, secret, exchange }) {
   const apiUrl = process.env.REACT_APP_API_V2 + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
-
-  try {
-    const added = await axios(apiUrl, {
-      headers: await getHeaders(token),
-      method: 'POST',
-      data: { apiKey, apiKeyName: name, signSecret: secret, exchange },
+  const added = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { apiKey, apiKeyName: name, signSecret: secret, exchange },
+  })
+    .catch(error => {
+      return error?.response
     })
-
-    return added
-  } catch (error) {
-    console.error(error)
-    return error
-  }
+  return added
 }
 
 export async function getUserExchanges() {
   try {
     const apiUrl = process.env.REACT_APP_API + 'loadApiKeys'
-    const token = await firebase.auth().currentUser.getIdToken()
+    const token = await firebase.auth().currentUser?.getIdToken()
 
     const exchanges = await axios(apiUrl, {
       headers: await getHeaders(token),

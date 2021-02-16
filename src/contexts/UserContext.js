@@ -8,9 +8,7 @@ import {
   verifyGoogleAuth2FA,
   getUserExchanges,
 } from '../api/api'
-
 export const UserContext = createContext()
-
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
@@ -25,7 +23,6 @@ const UserContextProvider = ({ children }) => {
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
-
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
   const [hasToken, setHasToken] = useState(false)
@@ -121,9 +118,8 @@ const UserContextProvider = ({ children }) => {
       try {
         const hasloadApiKeys = await getUserExchanges()
         if (hasloadApiKeys) {
-          setLoadApiKeys('true')
+          setLoadApiKeys(true)
         }
-
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(
@@ -196,10 +192,8 @@ const UserContextProvider = ({ children }) => {
     return true
   }
 
-  const isLoggedIn =
-    state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
-
   // REGISTER NEW USER
   async function register(email, password) {
     const registered = await firebase
@@ -260,6 +254,7 @@ const UserContextProvider = ({ children }) => {
         get2FADetails,
         delete2FA,
         sendEmailAgain,
+        setLoadApiKeys,
         loadApiKeys,
         activeExchange,
         setActiveExchange,

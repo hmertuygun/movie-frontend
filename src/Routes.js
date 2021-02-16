@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
@@ -15,30 +15,12 @@ import TradeView from './views/TradeView'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
-
+import OnboardingModal from './Trade/OnboardingModal'
 const Routes = () => {
-  const { isLoggedIn, logout, userContextLoaded } = useContext(UserContext) // loadApiKeys
-
+  const { isLoggedIn, logout, userContextLoaded, loadApiKeys } = useContext(UserContext)
   return (
     <Switch>
-      {/* user is isLoggedIn but does not have API Key (isLoggedIn && !loadApiKeys)   */}
-      {/*       {isLoggedIn && !loadApiKeys && (
-        <Switch>
-          <Route path="/settings" component={Settings} />
-          <Route
-            path="/logout"
-            render={() => {
-              logout()
-
-              return <div>Logging you out..</div>
-            }}
-          />
-          <Route path="/trade" component={TradeView} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/positions" component={Position} />
-          <Redirect to="/settings" />
-        </Switch>
-      )} */}
+      {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
       {isLoggedIn && userContextLoaded && (
         <Switch>
           <Route path="/trade" component={TradeView} />
