@@ -17,7 +17,7 @@ import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 
 const Routes = () => {
-  const { isLoggedIn, logout } = useContext(UserContext) // loadApiKeys
+  const { isLoggedIn, logout, userContextLoaded } = useContext(UserContext) // loadApiKeys
 
   return (
     <Switch>
@@ -39,7 +39,7 @@ const Routes = () => {
           <Redirect to="/settings" />
         </Switch>
       )} */}
-      {isLoggedIn && (
+      {isLoggedIn && userContextLoaded && (
         <Switch>
           <Route path="/trade" component={TradeView} />
 

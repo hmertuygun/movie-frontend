@@ -6,11 +6,13 @@ import React, {
   useContext,
 } from 'react'
 import { getExchanges, getBalance, getLastPrice, getUserExchanges } from '../../api/api'
+import { UserContext } from '../../contexts/UserContext'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
+  const { activeExchange, setActiveExchange, totalExchanges, setTotalExchanges } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -25,7 +27,7 @@ const SymbolContextProvider = ({ children }) => {
   async function loadBalance(quote_asset) {
     try {
       setIsLoadingBalance(true)
-      const response = await getBalance(quote_asset)
+      const response = await getBalance({ symbol: quote_asset, ...activeExchange })
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data['balance'])
       } else {
@@ -82,11 +84,8 @@ const SymbolContextProvider = ({ children }) => {
   const loadExchanges = useCallback(async () => {
     try {
       const data = queryExchanges.data //await getExchanges()
-      const exchangeList = []
       const symbolList = []
       const symbolDetails = {}
-      // Use the one in UserContext.js , maintain global state for it, eventually use Redux as a single source of data
-      const hasKeys = await getUserExchanges()
       if (queryExchanges.status === 'success' && data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
           // exchangeList.push(exchange['exchange'])
@@ -131,27 +130,25 @@ const SymbolContextProvider = ({ children }) => {
             }
           })
         })
-        if (hasKeys) {
-          let apiKeys = hasKeys?.data?.apiKeys
-          if (apiKeys && apiKeys.length) {
-            let mapExchanges = apiKeys.map(item => ({ label: `${item.exchange} - ${item.apiKeyName}`, value: item.apiKeyName, exchange: item.exchange }))
-            setExchanges(mapExchanges)
-            // what if no api key is active, the first one added should become active by default in backend
-            // use first in array by default
-            let activeKey = apiKeys.find(item => item.status === 'Active') || apiKeys[0]
-            let getSavedKey = sessionStorage.getItem('exchangeKey')
-            if (!getSavedKey) {
-              setExchange({ label: `${activeKey.exchange} - ${activeKey.apiKeyName}`, value: activeKey.apiKeyName, exchange: activeKey.exchange })
-            }
-            else {
-              setExchange(JSON.parse(getSavedKey))
-            }
-          }
+        // Set total user added exchanges in dropdown
+        let mapExchanges = totalExchanges.map((item) => ({ ...item, label: `${item.exchange} - ${item.apiKeyName}`, value: `${item.exchange} - ${item.apiKeyName}` }))
+        setExchanges(mapExchanges)
+        // Check if session storage is set, if so set that as active exchange
+        let getSavedKey = sessionStorage.getItem('exchangeKey')
+        if (getSavedKey) {
+          const { label, value, apiKeyName, exchange } = JSON.parse(getSavedKey)
+          setActiveExchange({ apiKeyName, exchange })
+          setSelectedExchange({ label, value, apiKeyName, exchange })
         }
-        // setExchanges(exchangeList)
+        else {
+          setSelectedExchange({
+            ...activeExchange,
+            label: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`,
+            value: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`
+          })
+        }
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        // setSelectedExchange({ label: 'Binance', value: exchangeList[0] })
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')

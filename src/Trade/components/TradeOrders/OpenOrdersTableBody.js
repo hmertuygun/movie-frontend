@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
+import { UserContext } from '../../../contexts/UserContext'
 import { errorNotification, successNotification } from '../../../components/Notifications'
 const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
+  const { activeExchange } = useContext(UserContext)
   return (
     <>
       {entry.map((order, rowIndex) => {
@@ -41,7 +43,7 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
               onClick={async () => {
                 setCancelingOrders([...cancelingOrders, order.trade_id])
                 try {
-                  await cancelTradeOrder(order.trade_id)
+                  await cancelTradeOrder({ trade_id: order.trade_id, ...activeExchange })
                   successNotification.open({ description: `Order Cancelled!` })
                 } catch (error) {
                   const restOfCancelOrders = cancelingOrders.filter(

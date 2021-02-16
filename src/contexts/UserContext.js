@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -28,10 +28,50 @@ const UserContextProvider = ({ children }) => {
 
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
-
+  const [hasToken, setHasToken] = useState(false)
+  const [userContextLoaded, setUserContextLoaded] = useState(false)
+  const [totalExchanges, setTotalExchanges] = useState([])
+  const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
   // @ TODO
   // Handle error
   // Unify responses
+
+  async function getExchanges() {
+    try {
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys?.length) {
+        setUserContextLoaded(true)
+        return
+      }
+      const { apiKeys } = hasKeys.data
+      setTotalExchanges(apiKeys)
+      let activeKey = apiKeys.find(item => item.isLastSelected === true)
+      if (activeKey) {
+        setLoadApiKeys(true) // Only check active api exchange eventually
+        setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
+      }
+    }
+    catch (e) {
+
+    }
+    finally {
+      setUserContextLoaded(true)
+    }
+  }
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setHasToken(true)
+        getExchanges()
+      }
+      else {
+        // User is signed out.
+      }
+    })
+  }, [])
+
   async function login(email, password) {
     const signedin = await firebase
       .auth()
@@ -90,7 +130,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
@@ -221,6 +261,11 @@ const UserContextProvider = ({ children }) => {
         delete2FA,
         sendEmailAgain,
         loadApiKeys,
+        activeExchange,
+        setActiveExchange,
+        userContextLoaded,
+        totalExchanges,
+        setTotalExchanges
       }}
     >
       {children}
