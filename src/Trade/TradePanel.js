@@ -3,6 +3,7 @@ import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { errorNotification, successNotification } from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
+import { UserContext } from '../contexts/UserContext'
 import {
   TabNavigator,
   ButtonNavigator,
@@ -32,7 +33,9 @@ const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
   const { selectedSymbol } = useContext(SymbolContext)
+  const { activeExchange } = useContext(UserContext)
   const hasEntry = state.entry?.quantity > 0 ? true : false
+
   function checkAllTypes() {
     const targets =
       state &&
@@ -54,7 +57,7 @@ const Trade = () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
-      await placeOrder({ ...state })
+      await placeOrder({ ...state, ...activeExchange })
       setIsModalVisible(false)
       successNotification.open({ description: `Order Created!` })
       clear()

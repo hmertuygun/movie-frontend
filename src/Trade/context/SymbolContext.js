@@ -6,11 +6,13 @@ import React, {
   useContext,
 } from 'react'
 import { getExchanges, getBalance, getLastPrice } from '../../api/api'
+import { UserContext } from '../../contexts/UserContext'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
+  const { activeExchange, setActiveExchange } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})

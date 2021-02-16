@@ -37,15 +37,25 @@ const UserContextProvider = ({ children }) => {
   // Unify responses
 
   async function getExchanges() {
-    const hasKeys = await getUserExchanges()
-    if (!hasKeys?.data?.apiKeys?.length) return
-    const { apiKeys } = hasKeys.data
-    let activeKey = apiKeys.find(item => item.isLastSelected === true)
-    if (activeKey) {
-      setLoadApiKeys(true)
-      setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
+    try {
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys?.length) {
+        setUserContextLoaded(true)
+        return
+      }
+      const { apiKeys } = hasKeys.data
+      let activeKey = apiKeys.find(item => item.isLastSelected === true)
+      if (activeKey) {
+        setLoadApiKeys(true) // Only check active api exchange eventually
+        setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
+      }
     }
-    setUserContextLoaded(true)
+    catch (e) {
+
+    }
+    finally {
+      setUserContextLoaded(true)
+    }
   }
 
   useEffect(() => {
