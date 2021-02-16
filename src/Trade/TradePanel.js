@@ -1,7 +1,13 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
+import { X } from 'react-feather'
+import { isMobile } from 'react-device-detect'
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
-import { errorNotification, successNotification } from '../components/Notifications'
+import { TabContext } from '../contexts/TabContext'
+import {
+  errorNotification,
+  successNotification,
+} from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
 import {
   TabNavigator,
@@ -32,6 +38,8 @@ const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
   const { selectedSymbol } = useContext(SymbolContext)
+  const { setIsTradePanelOpen } = useContext(TabContext)
+
   const hasEntry = state.entry?.quantity > 0 ? true : false
   function checkAllTypes() {
     const targets =
@@ -57,14 +65,16 @@ const Trade = () => {
       await placeOrder({ ...state })
       setIsModalVisible(false)
       successNotification.open({ description: `Order Created!` })
+      setIsTradePanelOpen(false)
       clear()
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
-      errorNotification.open({ description: `Order couldn't be created. Please try again later!` })
+      errorNotification.open({
+        description: `Order couldn't be created. Please try again later!`,
+      })
       clear()
-    }
-    finally {
+    } finally {
       setBtnVisibility(false)
     }
   }
@@ -76,6 +86,12 @@ const Trade = () => {
   return (
     <Fragment>
       <section>
+        <div
+          style={{ position: 'absolute', top: '25px', right: '25px' }}
+          onClick={() => setIsTradePanelOpen(false)}
+        >
+          {isMobile && <X />}
+        </div>
         <TabNavigator labelArray={['Full Trade']} index={0}>
           <div style={{ marginTop: '2.4rem' }}>
             {!hasEntry && (
@@ -94,10 +110,7 @@ const Trade = () => {
             {hasEntry && (
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
-                <ButtonNavigator
-                  labelArray={['Target', 'Stop-loss']}
-                  index={1}
-                >
+                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />
                     <ExitTargetStopMarket />

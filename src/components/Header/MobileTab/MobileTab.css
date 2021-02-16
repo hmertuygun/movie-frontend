@@ -1,0 +1,83 @@
+.mobile-tab {
+  display: flex;
+  position: fixed;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  bottom: 0;
+}
+.tab-bar {
+  width: 100%;
+  height: 80px;
+  background-color: white;
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 0 1.25rem rgba(31, 45, 61, 0.05) !important;
+}
+.tab-bar .expandable {
+  position: absolute;
+  bottom: 35px;
+  background-color: #ff7576;
+  width: 70px;
+  height: 70px;
+  border-radius: 40px;
+  border: 5px solid #ffe5e6;
+  transition: 0.5s;
+}
+.tab-bar .expandable svg {
+  width: 90px;
+}
+.tab-bar .expandable.expanded {
+  animation: expand-button 0.5s forwards;
+  transform: rotate(90deg);
+}
+.tab-bar .expandable.compressed {
+  animation: compress-button 0.5s forwards;
+}
+.tab-bar .expandable.compressed:hover {
+  transform: rotate(90deg);
+}
+
+.svg-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.svg-icon.expandable svg {
+  width: 50px;
+  height: 50px;
+}
+.svg-icon.expandable svg path {
+  fill: white;
+}
+.svg-icon svg {
+  width: 40px;
+  height: 40px;
+}
+.svg-icon path {
+  fill: #ffc9cb;
+}
+@keyframes expand-button {
+  0% {
+    width: 70px;
+    bottom: 35px;
+  }
+  100% {
+    width: 160px;
+    bottom: 80px;
+  }
+}
+@keyframes compress-button {
+  0% {
+    width: 160px;
+    bottom: 80px;
+  }
+  100% {
+    width: 70px;
+    bottom: 35px;
+  }
+}
