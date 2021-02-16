@@ -95,14 +95,6 @@ const ExitTargetStopMarket = () => {
     100: '',
   }
 
-  const targetSliderMarks = {
-    0: '',
-    250: '',
-    500: '',
-    750: '',
-    1000: '',
-  }
-
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
@@ -460,9 +452,9 @@ const ExitTargetStopMarket = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={targetSliderMarks}
+                marks={marks}
                 min={0}
-                max={1000}
+                max={100}
                 onChange={handleSliderChange}
                 value={values.profit}
               />
