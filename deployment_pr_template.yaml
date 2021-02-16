@@ -14,7 +14,7 @@ spec:
       - backend:
           serviceName: web-server-<IMAGE_NAME>
           servicePort: 8080
-        path: /pr/<IMAGE_NAME>/
+        path: /
 ---
 apiVersion: v1
 kind: Service
