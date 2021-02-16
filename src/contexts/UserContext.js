@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -32,6 +32,28 @@ const UserContextProvider = ({ children }) => {
   // @ TODO
   // Handle error
   // Unify responses
+
+  async function getExchanges() {
+    const hasKeys = await getUserExchanges()
+    if (hasKeys) {
+      setLoadApiKeys(true)
+    }
+    else setLoadApiKeys(false)
+  }
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setHasToken(true)
+        getExchanges()
+      }
+      else {
+        // User is signed out.
+      }
+    })
+  }, [])
+
   async function login(email, password) {
     const signedin = await firebase
       .auth()
@@ -90,7 +112,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }

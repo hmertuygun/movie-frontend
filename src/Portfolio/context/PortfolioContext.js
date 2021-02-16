@@ -27,7 +27,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API + 'getPortfolioFS'
+      const apiUrl = process.env.REACT_APP_API_V2 + 'getPortfolioFS'
 
       if (user != null) {
         const currentUser = await firebase.auth().currentUser
@@ -54,7 +54,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API + 'getPortfolio'
+      const apiUrl = process.env.REACT_APP_API_V2 + 'getPortfolio'
       const token = await firebase.auth().currentUser.getIdToken()
 
       const exchanges = await axios(apiUrl, {
