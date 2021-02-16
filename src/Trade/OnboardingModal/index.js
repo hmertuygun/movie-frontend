@@ -6,11 +6,12 @@ import { UserContext } from '../../contexts/UserContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
+  getUserExchanges
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 
-const OnboardingModal = ({ updateComp }) => {
-  const { loadApiKeys, setLoadApiKeys, isLoggedIn } = useContext(UserContext)
+const OnboardingModal = () => {
+  const { loadApiKeys, setLoadApiKeys, isLoggedIn, setTotalExchanges } = useContext(UserContext)
   let formData = {
     apiKey: '',
     secret: '',
@@ -40,7 +41,7 @@ const OnboardingModal = ({ updateComp }) => {
 
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -131,6 +132,10 @@ const OnboardingModal = ({ updateComp }) => {
     }
     else if (step === 3) {
       setLoadApiKeys(true)
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys) {
+        setTotalExchanges(hasKeys.data.apiKeys)
+      }
     }
   }
 
