@@ -15,6 +15,7 @@ import {
   getInputLength,
   convertCommaNumberToDot,
   detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -72,7 +73,7 @@ const ExitTarget = () => {
     0
   )
 
-  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice);
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -223,6 +224,8 @@ const ExitTarget = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'price') {

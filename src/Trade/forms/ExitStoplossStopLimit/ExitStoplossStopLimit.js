@@ -15,6 +15,7 @@ import {
   getInputLength,
   convertCommaNumberToDot,
   detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import * as yup from 'yup'
@@ -236,6 +237,8 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'triggerPrice') {

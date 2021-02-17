@@ -15,6 +15,7 @@ import {
   getInputLength,
   convertCommaNumberToDot,
   detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -223,6 +224,8 @@ const ExitTargetStopMarket = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'price') {
@@ -465,7 +468,6 @@ const ExitTargetStopMarket = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
-                type="text"
               />
             </div>
           </div>

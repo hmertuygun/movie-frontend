@@ -17,6 +17,7 @@ import {
   getInputLength,
   convertCommaNumberToDot,
   detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 const useStyles = makeStyles({
@@ -218,6 +219,8 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'triggerPrice') {

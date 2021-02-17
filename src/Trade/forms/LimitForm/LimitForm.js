@@ -8,6 +8,7 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
@@ -175,6 +176,8 @@ const LimitForm = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     if (target.name === 'total') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
       const inputLength = getInputLength(target.value)
@@ -280,7 +283,7 @@ const LimitForm = () => {
 
     setValues((values) => ({
       ...values,
-      quantityPercentage: newValue,
+      quantityPercentage: parseInt(newValue) || 0,
       quantity: quantityWithPrecision,
       total: totalWithPrecision,
     }))
@@ -297,6 +300,8 @@ const LimitForm = () => {
   }
 
   const handleSliderInputChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const maxLength = getMaxInputLength(target.value, amountPercentagePrecision)
     const inputLength = getInputLength(target.value)
     if (inputLength > maxLength) return

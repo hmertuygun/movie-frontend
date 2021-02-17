@@ -6,6 +6,7 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
@@ -192,8 +193,10 @@ const EntryStopLimitForm = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     if (target.name === 'triggerPrice') {
-      const maxLength = getMaxInputLength(target.value, totalPrecision)
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
@@ -420,7 +423,7 @@ const EntryStopLimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Trigger price"
-              type="number"
+              type="text"
               name="triggerPrice"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
@@ -433,7 +436,7 @@ const EntryStopLimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Price"
-              type="number"
+              type="text"
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
@@ -446,7 +449,7 @@ const EntryStopLimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Amount"
-              type="number"
+              type="text"
               name="quantity"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, quantityPrecision)}
@@ -473,7 +476,7 @@ const EntryStopLimitForm = () => {
 
             <div className={styles['SliderInput']}>
               <InlineInput
-                type="number"
+                type="text"
                 value={values.quantityPercentage}
                 margin="dense"
                 onChange={handleSliderInputChange}
@@ -488,7 +491,7 @@ const EntryStopLimitForm = () => {
           <div className={styles['Input']}>
             <InlineInput
               label="Total"
-              type="number"
+              type="text"
               name="total"
               value={values.total}
               onChange={handleChange}

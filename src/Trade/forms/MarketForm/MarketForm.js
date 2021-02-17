@@ -7,6 +7,7 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
+  allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
@@ -150,6 +151,7 @@ const MarketForm = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
     setErrors((errors) => ({
       ...errors,
       [target.name]: '',

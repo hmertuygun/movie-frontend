@@ -48,3 +48,8 @@ export const detectEntryPrice = (entry, selectedSymbolLastPrice) => {
       break
   }
 }
+
+export const allowOnlyNumberDecimalAndComma = (value) => {
+  const regex = /^[+-]?\d*(?:[.,]\d*)?$/
+  return regex.test(value)
+}
