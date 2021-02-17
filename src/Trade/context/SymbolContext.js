@@ -5,12 +5,14 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges, getBalance, getLastPrice } from '../../api/api'
+import { getExchanges, getBalance, getLastPrice, getUserExchanges, updateLastSelectedAPIKey } from '../../api/api'
+import { UserContext } from '../../contexts/UserContext'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
+  const { activeExchange, setActiveExchange, totalExchanges, setTotalExchanges } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -25,7 +27,7 @@ const SymbolContextProvider = ({ children }) => {
   async function loadBalance(quote_asset) {
     try {
       setIsLoadingBalance(true)
-      const response = await getBalance(quote_asset)
+      const response = await getBalance({ symbol: quote_asset, ...activeExchange })
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data['balance'])
       } else {
@@ -72,8 +74,15 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  function setExchange(exchange) {
-    setSelectedExchange(exchange)
+  async function setExchange(exchange) {
+    try {
+      setSelectedExchange(exchange)
+      await updateLastSelectedAPIKey({ ...exchange })
+      sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+    }
+    catch (e) {
+
+    }
   }
 
   const queryExchanges = useQuery('exchangeSymbols', getExchanges)
@@ -81,13 +90,11 @@ const SymbolContextProvider = ({ children }) => {
   const loadExchanges = useCallback(async () => {
     try {
       const data = queryExchanges.data //await getExchanges()
-      const exchangeList = []
       const symbolList = []
       const symbolDetails = {}
-
       if (queryExchanges.status === 'success' && data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
-          exchangeList.push(exchange['exchange'])
+          // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
             const value =
               exchange['exchange'].toUpperCase() + ':' + symbol['value']
@@ -129,11 +136,27 @@ const SymbolContextProvider = ({ children }) => {
             }
           })
         })
-
-        setExchanges(exchangeList)
+        // Set total user added exchanges in dropdown
+        let mapExchanges = totalExchanges.map((item) => ({ ...item, label: `${item.exchange} - ${item.apiKeyName}`, value: `${item.exchange} - ${item.apiKeyName}` }))
+        setExchanges(mapExchanges)
+        // Check if session storage is set, if so set that as active exchange
+        let getSavedKey = sessionStorage.getItem('exchangeKey')
+        if (getSavedKey) {
+          const { label, value, apiKeyName, exchange } = JSON.parse(getSavedKey)
+          setActiveExchange({ apiKeyName, exchange })
+          setSelectedExchange({ label, value, apiKeyName, exchange })
+        }
+        else {
+          if (activeExchange.exchange && activeExchange.apiKeyName) {
+            setSelectedExchange({
+              ...activeExchange,
+              label: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`,
+              value: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`
+            })
+          }
+        }
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedExchange({ label: 'Binance', value: exchangeList[0] })
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
@@ -149,7 +172,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.status, loadExchanges])
+  }, [queryExchanges.status, loadExchanges, totalExchanges])
 
   return (
     <SymbolContext.Provider

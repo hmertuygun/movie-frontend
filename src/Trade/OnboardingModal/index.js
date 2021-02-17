@@ -6,11 +6,12 @@ import { UserContext } from '../../contexts/UserContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
+  getUserExchanges
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 
-const OnboardingModal = ({ updateComp }) => {
-  const { loadApiKeys, setLoadApiKeys, isLoggedIn } = useContext(UserContext)
+const OnboardingModal = () => {
+  const { loadApiKeys, setLoadApiKeys, isLoggedIn, setTotalExchanges, setActiveExchange } = useContext(UserContext)
   let formData = {
     apiKey: '',
     secret: '',
@@ -40,7 +41,7 @@ const OnboardingModal = ({ updateComp }) => {
 
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -131,6 +132,13 @@ const OnboardingModal = ({ updateComp }) => {
     }
     else if (step === 3) {
       setLoadApiKeys(true)
+      sessionStorage.clear()
+      setActiveExchange({ apiKeyName: apiName, exchange: exchange.value })
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys) {
+        const { apiKeys } = hasKeys.data
+        setTotalExchanges(apiKeys)
+      }
     }
   }
 
@@ -204,7 +212,7 @@ const OnboardingModal = ({ updateComp }) => {
             <div className="row ml-0 text-center mb-3">
               {Object.entries(btnText).map((item, index) => (
                 <div className="col-4 pl-0" key={`progressbar-${item}`}>
-                  <div className="rounded-sm progress" style={{height: "12px"}}>
+                  <div className="rounded-sm progress" style={{ height: "12px" }}>
                     <div className={`progress-bar ${step === index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
                   </div>
                 </div>

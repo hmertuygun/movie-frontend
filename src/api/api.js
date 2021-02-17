@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
+import capitalize from '../helpers/capitalizeFirstLetter'
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -19,7 +20,7 @@ async function getHeaders(token) {
   }
 }
 
-export async function placeOrder({ entry, targets, stoploss }) {
+export async function placeOrder({ entry, targets, stoploss, apiKeyName, exchange }) {
   const newTargets = targets.map((target, index) => {
     const { side, type, symbol, quantity, price, triggerPrice } = target
     return {
@@ -51,11 +52,12 @@ export async function placeOrder({ entry, targets, stoploss }) {
     entryOrder: entry,
     targets: newTargets,
     stopLoss: { ...newStoploss[0] },
+    exchange: exchange,
+    apiKeyName: apiKeyName
   }
 
   console.log({ dataToBeSent: data })
-
-  const apiUrl = process.env.REACT_APP_API + 'createFullTrade'
+  const apiUrl = process.env.REACT_APP_API_V2 + 'createFullTrade'
   const token = await firebase.auth().currentUser.getIdToken()
   const fullTrade = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -68,8 +70,7 @@ export async function placeOrder({ entry, targets, stoploss }) {
 
 // make sure users can be recognized by user component
 export async function validateUser() {
-  const apiUrl = process.env.REACT_APP_API + 'register'
-
+  const apiUrl = process.env.REACT_APP_API_V2 + 'register'
   try {
     const token = await firebase.auth().currentUser.getIdToken()
 
@@ -95,8 +96,8 @@ export async function getExchanges() {
   return exchanges.data
 }
 
-export async function getBalance(symbol) {
-  const apiUrl = process.env.REACT_APP_API + 'balance/' + symbol
+export async function getBalance({ symbol, apiKeyName, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -126,7 +127,7 @@ export async function getLastPrice(symbol) {
 //   "exchange": "binance"
 // }
 export async function addUserExchange({ name, apiKey, secret, exchange }) {
-  const apiUrl = process.env.REACT_APP_API + 'addApiKey'
+  const apiUrl = process.env.REACT_APP_API_V2 + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -154,6 +155,21 @@ export async function getUserExchanges() {
   }
 }
 
+export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {
+
+  const apiUrl = `${process.env.REACT_APP_API}updateLastSelectedApiKey?apiKeyName=${apiKeyName}&exchange=${exchange}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const added = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    // data: { apiKeyName, exchange },
+  })
+    .catch(error => {
+      return error?.response
+    })
+  return added
+}
+
 export async function activateUserExchange(exchangeName) {
   const apiUrl = process.env.REACT_APP_API + 'activateApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
@@ -167,8 +183,8 @@ export async function activateUserExchange(exchangeName) {
   return activate
 }
 
-export async function deleteUserExchange(apiKeyName) {
-  const apiUrl = process.env.REACT_APP_API + 'deleteApiKey/' + apiKeyName
+export async function deleteUserExchange({ name, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}deleteApiKey/api=${name}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const activate = await axios(apiUrl, {
@@ -260,10 +276,12 @@ export async function verifyGoogleAuth2FA(auth_answer) {
   return response
 }
 
-export async function getOpenOrders({ timestamp, trade_id }) {
+export async function getOpenOrders({ timestamp, trade_id, apiKeyName, exchange }) {
   const apiUrl =
-    process.env.REACT_APP_API +
-    'orders?exchange=Binance&limit=50&in_pending=true' +
+    process.env.REACT_APP_API_V2 +
+    'orders?limit=50&in_pending=true' +
+    '&apiKeyName=' + apiKeyName +
+    '&exchange=' + capitalize(exchange) +
     (timestamp ? '&timestamp=' + timestamp : '') +
     (trade_id ? '&trade_id=' + trade_id : '')
   const token = await firebase.auth().currentUser.getIdToken()
@@ -274,8 +292,8 @@ export async function getOpenOrders({ timestamp, trade_id }) {
   return openOrders.data
 }
 
-export async function cancelTradeOrder(trade_id) {
-  const apiUrl = process.env.REACT_APP_API + 'trade/cancel'
+export async function cancelTradeOrder({ trade_id, apiKeyName, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}trade/cancel?exchange=${exchange}&apiKeyName=${apiKeyName}`
   const token = await firebase.auth().currentUser.getIdToken()
   const cancelTradeOrderResp = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -287,10 +305,12 @@ export async function cancelTradeOrder(trade_id) {
   return cancelTradeOrderResp.data
 }
 
-export async function getOrdersHistory({ updateTime, symbol, orderId }) {
+export async function getOrdersHistory({ updateTime, symbol, orderId, apiKeyName, exchange }) {
   const apiUrl =
-    process.env.REACT_APP_API +
-    'orderhistory?exchange=Binance&limit=50' +
+    process.env.REACT_APP_API_V2 +
+    'orderhistory?limit=50' +
+    '&apiKeyName=' + apiKeyName +
+    '&exchange=' + capitalize(exchange) +
     (updateTime ? '&updateTime=' + updateTime : '') +
     (symbol ? '&symbol=' + symbol : '') +
     (orderId ? '&orderId=' + orderId : '')

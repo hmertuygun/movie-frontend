@@ -21,8 +21,8 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
         <div className="col-md-4 text-right">
           <a
             href="#"
-            className="text-sm text-danger"
-            onClick={() => onDeleteClick()}
+            className={`text-sm text-danger`}
+            onClick={onDeleteClick}
           >
             Delete
           </a>
