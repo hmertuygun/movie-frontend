@@ -141,17 +141,19 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         // Check if session storage is set, if so set that as active exchange
         let getSavedKey = sessionStorage.getItem('exchangeKey')
-        if (getSavedKey && getSavedKey) {
+        if (getSavedKey) {
           const { label, value, apiKeyName, exchange } = JSON.parse(getSavedKey)
           setActiveExchange({ apiKeyName, exchange })
           setSelectedExchange({ label, value, apiKeyName, exchange })
         }
         else {
-          setSelectedExchange({
-            ...activeExchange,
-            label: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`,
-            value: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`
-          })
+          if (activeExchange.exchange && activeExchange.apiKeyName) {
+            setSelectedExchange({
+              ...activeExchange,
+              label: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`,
+              value: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`
+            })
+          }
         }
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)

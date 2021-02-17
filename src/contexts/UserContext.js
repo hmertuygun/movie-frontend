@@ -51,20 +51,22 @@ const UserContextProvider = ({ children }) => {
       else {
         // find the first one that is 'Active'
         let active = apiKeys.find(item => item.status === "Active")
-        await updateLastSelectedAPIKey({ ...active[0] })
-        setActiveExchange({ ...active[0] })
-        setLoadApiKeys(true)
+        if (active) {
+          await updateLastSelectedAPIKey({ ...active })
+          setActiveExchange({ ...active })
+          setLoadApiKeys(true)
+        }
       }
     }
     catch (e) {
-
+      console.log(e)
     }
     finally {
       setUserContextLoaded(true)
     }
   }
 
-  useEffect(() => {
+  const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
@@ -75,6 +77,10 @@ const UserContextProvider = ({ children }) => {
         // User is signed out.
       }
     })
+  }
+
+  useEffect(() => {
+    getUserExchangesAfterFBInit()
   }, [])
 
   async function login(email, password) {
@@ -124,10 +130,7 @@ const UserContextProvider = ({ children }) => {
       await validateUser()
       let has2FADetails = null
       try {
-        const hasloadApiKeys = await getUserExchanges()
-        if (hasloadApiKeys) {
-          setLoadApiKeys(true)
-        }
+        getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(

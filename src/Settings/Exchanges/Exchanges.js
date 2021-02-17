@@ -39,7 +39,11 @@ const Exchanges = () => {
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
-    onSuccess: () => {
+    onSuccess: async (res, param) => {
+      if (res.status === 400) {
+        errorNotification.open({ description: res.data.detail })
+        return
+      }
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
       successNotification.open({ description: `API key added!` })
@@ -74,9 +78,6 @@ const Exchanges = () => {
         else {
           // What if we just deleted an active exchange key, set first one as active by default
           if (selectedExchange.apiKeyName === activeExchange.apiKeyName && selectedExchange.exchange === activeExchange.exchange) {
-            console.log(selectedExchange)
-            console.log(activeExchange)
-            console.log(exchanges)
             sessionStorage.clear()
             // ignore the element that we just deleted
             let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
