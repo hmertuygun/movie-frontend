@@ -279,10 +279,19 @@ const ExitStoplossStopLimit = () => {
     validateInput(target)
   }
 
+  const detectUsePrice = (entry) => {
+    switch (entry.type) {
+      case 'market':
+        return selectedSymbolLastPrice
+      case 'stop-market':
+        return entry.trigger
+      default:
+        return entry.price
+    }
+  }
+
   const priceAndProfitSync = (inputName, inputValue) => {
-    // todo
-    let usePrice =
-      entry.type === 'market' || entry.type === 'stop-market' ? selectedSymbolLastPrice : entry.price
+    const usePrice = detectUsePrice(entry)
 
     switch (inputName) {
       case 'price':
