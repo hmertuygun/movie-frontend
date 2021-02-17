@@ -60,8 +60,8 @@ const PieCharts = () => {
     c3.generate({
       bindto: '#data',
       size: {
-        height: 180,
-        width: 180,
+        height: 160,
+        width: 160,
       },
       data: {
         columns: data || [],
