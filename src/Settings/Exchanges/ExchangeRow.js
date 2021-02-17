@@ -1,12 +1,6 @@
 import React, { Fragment } from 'react'
 
 const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
-  // const isActive = () => {
-  //   let getSavedKey = sessionStorage.getItem('exchangeKey')
-  //   if (!getSavedKey) return false
-  //   getSavedKey = JSON.parse(getSavedKey)
-  //   return getSavedKey.exchange === row.exchange && getSavedKey.apiKeyName === row.apiKeyName
-  // }
   return (
     <Fragment>
       <div className="row align-items-center">
