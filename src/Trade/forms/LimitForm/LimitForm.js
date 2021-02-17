@@ -8,15 +8,15 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
-} from '../../helpers/tradeForm'
+} from '../../../helpers/tradeForm'
 
 import { faWallet } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { TradeContext } from '../context/SimpleTradeContext'
-import { useSymbolContext } from '../context/SymbolContext'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import { useSymbolContext } from '../../context/SymbolContext'
 
-import { InlineInput, Button } from '../../components'
+import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 

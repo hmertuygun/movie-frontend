@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { InlineInput, Button, Typography } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
-import roundNumbers from '../../helpers/roundNumbers'
-import { useSymbolContext } from '../context/SymbolContext'
+import { InlineInput, Button, Typography } from '../../../components'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import roundNumbers from '../../../helpers/roundNumbers'
+import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 
@@ -14,12 +14,12 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
-} from '../../helpers/tradeForm'
+  detectEntryPrice,
+} from '../../../helpers/tradeForm'
 
-import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
 
-import styles from './ExitTargetForm.module.css'
+import styles from '../ExitTargetStopMarket/ExitTargetForm.module.css'
 
 const useStyles = makeStyles({
   root: {
@@ -72,8 +72,7 @@ const ExitTarget = () => {
     0
   )
 
-  const entryPrice =
-    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice);
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
