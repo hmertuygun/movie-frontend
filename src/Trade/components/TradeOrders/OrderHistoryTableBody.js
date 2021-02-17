@@ -2,6 +2,7 @@ import React from 'react'
 import useIntersectionObserver from './useIntersectionObserver'
 import Moment from 'react-moment'
 import TradeOrdersStyle from './TradeOrders.module.css'
+import tooltipStyles from '../TradeOrders/tooltip.module.css'
 
 const OrderHistoryTableBody = ({ infiniteOrders }) => {
   const {
@@ -49,7 +50,21 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                   <td>{order.filled}</td>
                   <td>{order.total}</td>
                   <td>{order.trigger}</td>
-                  <td>{order.status}</td>
+                  <td
+                    style={{
+                      color: order.error ? 'red' : '',
+                    }}
+                  >
+                    <div
+                      className={order.error ? tooltipStyles.customTooltip : ''}
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      {order.status}
+                      <span className={tooltipStyles.tooltiptext}>
+                        {order.error}
+                      </span>
+                    </div>
+                  </td>
                   <td>
                     <Moment unix format="YYYY-MM-DD hh:mm:ss">
                       {order.update_time / 1000}
