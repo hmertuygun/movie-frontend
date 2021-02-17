@@ -7,6 +7,7 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
+  updateLastSelectedAPIKey
 } from '../api/api'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
@@ -42,10 +43,17 @@ const UserContextProvider = ({ children }) => {
       }
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
-      let activeKey = apiKeys.find(item => item.isLastSelected === true)
+      let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
       if (activeKey) {
         setLoadApiKeys(true) // Only check active api exchange eventually
         setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
+      }
+      else {
+        // find the first one that is 'Active'
+        let active = apiKeys.find(item => item.status === "Active")
+        await updateLastSelectedAPIKey({ ...active[0] })
+        setActiveExchange({ ...active[0] })
+        setLoadApiKeys(true)
       }
     }
     catch (e) {

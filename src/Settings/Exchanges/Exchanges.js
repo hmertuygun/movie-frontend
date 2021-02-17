@@ -2,13 +2,14 @@ import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
 import { UserContext } from '../../contexts/UserContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { errorNotification, successNotification } from '../../components/Notifications'
+import { errorNotification, successNotification, infoNotification } from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
   addUserExchange,
   activateUserExchange,
+  updateLastSelectedAPIKey,
   deleteUserExchange,
   validateUser
 } from '../../api/api'
@@ -20,7 +21,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges } = useContext(UserContext)
+  const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges, activeExchange, setActiveExchange } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   let exchanges = []
@@ -63,12 +64,27 @@ const Exchanges = () => {
   }
 
   const deleteExchangeMutation = useMutation(deleteUserExchange, {
-    onSuccess: async () => {
+    onSuccess: async (response, param) => {
       queryClient.invalidateQueries('exchanges')
       // check exchanges var here, its not the updated one tho
       if (exchanges && exchanges.length) {
         if (exchanges.length - 1 === 0) {
           setLoadApiKeys(false)
+        }
+        else {
+          // What if we just deleted an active exchange key, set first one as active by default
+          if (selectedExchange.apiKeyName === activeExchange.apiKeyName && selectedExchange.exchange === activeExchange.exchange) {
+            console.log(selectedExchange)
+            console.log(activeExchange)
+            console.log(exchanges)
+            sessionStorage.clear()
+            // ignore the element that we just deleted
+            let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
+            if (newActiveKey) {
+              await updateLastSelectedAPIKey({ ...newActiveKey })
+              setActiveExchange({ ...newActiveKey })
+            }
+          }
         }
       }
       setSelectedExchange(null)
