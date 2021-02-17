@@ -50,7 +50,7 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
             <Typography>Market Price</Typography>
           ) : (
               <Typography>
-                {state.entry.price} {selectedSymbolDetail['quote_asset']}
+                {state.entry.price || state.entry.trigger} {selectedSymbolDetail['quote_asset']}
               </Typography>
             )}
         </div>
