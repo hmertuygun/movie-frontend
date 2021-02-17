@@ -157,12 +157,12 @@ export async function getUserExchanges() {
 
 export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {
 
-  const apiUrl = `${process.env.REACT_APP_API_V2}updateLastSelectedApiKey`
+  const apiUrl = `${process.env.REACT_APP_API}updateLastSelectedApiKey?apiKeyName=${apiKeyName}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { apiKeyName, exchange },
+    // data: { apiKeyName, exchange },
   })
     .catch(error => {
       return error?.response

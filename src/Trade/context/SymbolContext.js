@@ -170,7 +170,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.status, loadExchanges])
+  }, [queryExchanges.status, loadExchanges, totalExchanges])
 
   return (
     <SymbolContext.Provider
