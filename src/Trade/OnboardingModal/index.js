@@ -131,14 +131,19 @@ const OnboardingModal = () => {
       }
     }
     else if (step === 3) {
-      setLoadApiKeys(true)
       sessionStorage.clear()
-      setActiveExchange({ apiKeyName: apiName, exchange: exchange.value })
       const hasKeys = await getUserExchanges()
-      if (!hasKeys?.data?.apiKeys) {
+      if (hasKeys?.data?.apiKeys) {
         const { apiKeys } = hasKeys.data
         setTotalExchanges(apiKeys)
+        setActiveExchange({
+          label: `${exchange.value} - ${apiName}`,
+          value: `${exchange.value} - ${apiName}`,
+          apiKeyName: apiName,
+          exchange: exchange.value
+        })
       }
+      setLoadApiKeys(true)
     }
   }
 
