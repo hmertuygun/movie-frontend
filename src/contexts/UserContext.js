@@ -30,6 +30,7 @@ const UserContextProvider = ({ children }) => {
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
+  const [showLoader, setShowLoader] = useState(false)
   // @ TODO
   // Handle error
   // Unify responses

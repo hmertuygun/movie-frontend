@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { getExchanges, getBalance, getLastPrice, getUserExchanges, updateLastSelectedAPIKey } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
+import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
@@ -76,12 +77,13 @@ const SymbolContextProvider = ({ children }) => {
 
   async function setExchange(exchange) {
     try {
-      setSelectedExchange(exchange)
       await updateLastSelectedAPIKey({ ...exchange })
+      setSelectedExchange(exchange)
+      setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
     }
     catch (e) {
-
+      errorNotification.open({ description: `Error activating this exchange key!` })
     }
   }
 
@@ -169,6 +171,10 @@ const SymbolContextProvider = ({ children }) => {
       console.error(error)
     }
   }, [queryExchanges.data, queryExchanges.status])
+
+  useEffect(() => {
+    loadBalance('USDT')
+  }, [activeExchange])
 
   useEffect(() => {
     loadExchanges()
