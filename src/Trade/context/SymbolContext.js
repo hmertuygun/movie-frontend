@@ -39,6 +39,7 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolBalance(0)
     }
     setIsLoadingBalance(false)
+    setLoaderVisibility(false)
   }
 
   async function loadLastPrice(symbolpair) {
@@ -77,8 +78,12 @@ const SymbolContextProvider = ({ children }) => {
 
   async function setExchange(exchange) {
     try {
+      if (activeExchange.apiKeyName === exchange.apiKeyName && activeExchange.exchange === exchange.exchange) {
+        return
+      }
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
+      // if user selects the selected option again in the dropdown
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
     }
@@ -86,7 +91,6 @@ const SymbolContextProvider = ({ children }) => {
       errorNotification.open({ description: `Error activating this exchange key!` })
     }
     finally {
-      setLoaderVisibility(false)
     }
   }
 

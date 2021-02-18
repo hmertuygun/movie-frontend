@@ -29,7 +29,7 @@ const UserContextProvider = ({ children }) => {
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
-  const [loaderText, setLoaderText] = useState('Loading App ...')
+  const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
 
   // @ TODO
@@ -54,23 +54,27 @@ const UserContextProvider = ({ children }) => {
       else {
         let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
         if (activeKey) {
-          setLoadApiKeys(true) // Only check active api exchange eventually
-          setActiveExchange({
+          const data = {
             ...activeKey,
             label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
             value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
-          })
+          }
+          setLoadApiKeys(true) // Only check active api exchange eventually
+          setActiveExchange(data)
+          sessionStorage.setItem('exchangeKey', JSON.stringify(data))
         }
         else {
           // find the first one that is 'Active'
           let active = apiKeys.find(item => item.status === "Active")
           if (active) {
             await updateLastSelectedAPIKey({ ...active })
-            setActiveExchange({
-              ...active,
-              label: `${active.exchange} - ${active.apiKeyName}`,
-              value: `${active.exchange} - ${active.apiKeyName}`
-            })
+            const data = {
+              ...activeKey,
+              label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+              value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+            }
+            setActiveExchange(data)
+            sessionStorage.setItem('exchangeKey', JSON.stringify(data))
             setLoadApiKeys(true)
           }
         }
@@ -81,7 +85,6 @@ const UserContextProvider = ({ children }) => {
     }
     finally {
       setUserContextLoaded(true)
-      // setLoaderVisibility(false)
     }
   }
 
@@ -292,7 +295,9 @@ const UserContextProvider = ({ children }) => {
         totalExchanges,
         setTotalExchanges,
         loaderVisible,
-        setLoaderVisibility
+        setLoaderVisibility,
+        loaderText,
+        setLoaderText
       }}
     >
       {children}

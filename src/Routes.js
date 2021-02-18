@@ -22,7 +22,7 @@ const Routes = () => {
   const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
   return (
     <div>
-      <FullScreenLoader show={loaderVisible} />
+      <FullScreenLoader />
       <Switch>
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
         {isLoggedIn && userContextLoaded && (
