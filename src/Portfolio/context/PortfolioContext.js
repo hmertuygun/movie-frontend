@@ -37,7 +37,11 @@ const PortfolioCTXProvider = ({ children }) => {
         const exchanges = await axios(apiUrl, {
           headers: await getHeaders(token),
           method: 'GET',
-        })
+        }).catch(err => err?.response)
+        if (exchanges.status === 404) {
+          refreshData()
+          return
+        }
         setTicker(exchanges.data)
         setBalance(exchanges.data.BottomTable)
         setChart(exchanges.data.Distribution)

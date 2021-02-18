@@ -218,7 +218,7 @@ const OnboardingModal = () => {
               {Object.entries(btnText).map((item, index) => (
                 <div className="col-4 pl-0" key={`progressbar-${item}`}>
                   <div className="rounded-sm progress" style={{ height: "12px" }}>
-                    <div className={`progress-bar ${step === index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
+                    <div className={`progress-bar ${step >= index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
                   </div>
                 </div>
               ))}
