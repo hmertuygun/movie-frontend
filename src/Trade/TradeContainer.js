@@ -49,18 +49,18 @@ const TradeContainer = () => {
           <Route path="/trade/" component={TradePanel} />
         </section>
       ) : (
-        <section className="TradeChart-Container TradeChart-Container-Mobile">
-          <section className="TradeView-Symbol">
-            <SymbolSelect />
-          </section>
-          <section className="TradeView-Chart TradeView-Chart-Mobile">
-            <TradeChart />
-          </section>
-          <section className="TradeOrders">
-            <TradeOrders />
-          </section>
-        </section>
-      )}
+            <section className="TradeChart-Container TradeChart-Container-Mobile">
+              <section className="TradeView-Symbol">
+                <SymbolSelect />
+              </section>
+              <section className="TradeView-Chart TradeView-Chart-Mobile">
+                <TradeChart />
+              </section>
+              <section className="TradeOrders">
+                <TradeOrders />
+              </section>
+            </section>
+          )}
     </SymbolContextProvider>
   )
 }

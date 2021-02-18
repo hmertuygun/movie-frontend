@@ -16,45 +16,46 @@ import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 import OnboardingModal from './Trade/OnboardingModal'
+import FullScreenLoader from './components/FullScreenLoader'
+
 const Routes = () => {
-  const { isLoggedIn, logout, userContextLoaded, loadApiKeys } = useContext(UserContext)
+  const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
   return (
-    <Switch>
-      {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
-      {isLoggedIn && userContextLoaded && (
-        <Switch>
-          <Route path="/trade" component={TradeView} />
-
-          <Route
-            path="/logout"
-            render={() => {
-              logout()
-
-              return <div>Logging you out..</div>
-            }}
-          />
-
-          <Route path="/settings" component={Settings} />
-          <Route path="/portfolio" component={Portfolio} />
-          <Route path="/positions" component={Position} />
-          <Redirect to="/trade" />
-        </Switch>
-      )}
-
-      <Route path="/login/verify2fa" component={LoginVerify2FA} />
-      <Route path="/login" component={Login} />
-      <Route path="/recover-password" component={RecoverPassword} />
-      <Route path="/new-password" component={NewPassword} />
-      <Route path="/action" component={HandleEmailActions} />
-      <Route exact path="/register" component={Register} />
-      <Route exact path="/register/confirm" component={RegisterConfirm} />
-      <Route
-        exact
-        path="/register/confirm/recieved"
-        component={RegisterFinal}
-      />
-      {!isLoggedIn && <Redirect to="/login" />}
-    </Switch>
+    <div>
+      <FullScreenLoader show={loaderVisible} />
+      <Switch>
+        {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
+        {isLoggedIn && userContextLoaded && (
+          <Switch>
+            <Route path="/trade" component={TradeView} />
+            <Route
+              path="/logout"
+              render={() => {
+                logout()
+                return <div>Logging you out..</div>
+              }}
+            />
+            <Route path="/settings" component={Settings} />
+            <Route path="/portfolio" component={Portfolio} />
+            <Route path="/positions" component={Position} />
+            <Redirect to="/trade" />
+          </Switch>
+        )}
+        <Route path="/login/verify2fa" component={LoginVerify2FA} />
+        <Route path="/login" component={Login} />
+        <Route path="/recover-password" component={RecoverPassword} />
+        <Route path="/new-password" component={NewPassword} />
+        <Route path="/action" component={HandleEmailActions} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/register/confirm" component={RegisterConfirm} />
+        <Route
+          exact
+          path="/register/confirm/recieved"
+          component={RegisterFinal}
+        />
+        {!isLoggedIn && <Redirect to="/login" />}
+      </Switch>
+    </div>
   )
 }
 

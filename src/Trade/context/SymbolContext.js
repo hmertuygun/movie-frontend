@@ -13,7 +13,7 @@ import { useQuery } from 'react-query'
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
-  const { activeExchange, setActiveExchange, totalExchanges, setTotalExchanges } = useContext(UserContext)
+  const { activeExchange, setActiveExchange, totalExchanges, loaderVisible, setLoaderVisibility } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -77,13 +77,16 @@ const SymbolContextProvider = ({ children }) => {
 
   async function setExchange(exchange) {
     try {
+      setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
-      setSelectedExchange(exchange)
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
     }
     catch (e) {
       errorNotification.open({ description: `Error activating this exchange key!` })
+    }
+    finally {
+      setLoaderVisibility(false)
     }
   }
 
@@ -141,22 +144,6 @@ const SymbolContextProvider = ({ children }) => {
         // Set total user added exchanges in dropdown
         let mapExchanges = totalExchanges.map((item) => ({ ...item, label: `${item.exchange} - ${item.apiKeyName}`, value: `${item.exchange} - ${item.apiKeyName}` }))
         setExchanges(mapExchanges)
-        // Check if session storage is set, if so set that as active exchange
-        let getSavedKey = sessionStorage.getItem('exchangeKey')
-        if (getSavedKey) {
-          const { label, value, apiKeyName, exchange } = JSON.parse(getSavedKey)
-          setActiveExchange({ apiKeyName, exchange })
-          setSelectedExchange({ label, value, apiKeyName, exchange })
-        }
-        else {
-          if (activeExchange.exchange && activeExchange.apiKeyName) {
-            setSelectedExchange({
-              ...activeExchange,
-              label: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`,
-              value: `${activeExchange.exchange} - ${activeExchange.apiKeyName}`
-            })
-          }
-        }
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
@@ -173,7 +160,9 @@ const SymbolContextProvider = ({ children }) => {
   }, [queryExchanges.data, queryExchanges.status])
 
   useEffect(() => {
-    loadBalance('USDT')
+    if (selectedSymbolDetail?.quote_asset) {
+      loadBalance(selectedSymbolDetail.quote_asset)
+    }
   }, [activeExchange])
 
   useEffect(() => {
