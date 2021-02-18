@@ -257,7 +257,7 @@
   /* justify-content: center; */
 }
 .custom-legend {
-  margin-left: 75px;
+  margin-left: 50px !important;
 }
 .custom-legend .legend-item {
   display: flex;

@@ -87,16 +87,34 @@ const PieCharts = () => {
     })
   }, [data])
 
+  let rows = 5
+  let pieKeys = []
+  let legendArr = Object.entries(legend)
+  for (let i = 0; i < legendArr.length; i++) {
+    let item = legendArr[i]
+    if (i % rows === 0) pieKeys.push([])
+    let fIndex = Math.floor(i / rows)
+    let sIndex = i % rows
+    pieKeys[fIndex][sIndex] = { symbol: item[0], color: item[1] }
+  }
   return (
     <div className="chart-container">
       <div id="data"></div>
-      <div className="custom-legend">
-        {Object.entries(legend).map((item, index) => (
-          <div className="legend-item" key={`${item[0]}-${item[1]}`} onClick={() => onLegendItemClick(item[0])}>
-            <div className="color-block" style={{ background: item[1] }}>&nbsp;</div>
-            <span style={{ textDecoration: extData && extData.item[0] === item[0] ? 'line-through' : 'none' }}>{item[0]}</span>
-          </div>
-        ))}
+      <div className="custom-legend row">
+        {
+          pieKeys.map((item, index) => (
+            <div className='col-auto pr-0' key={`col-${index}`}>
+              {
+                item.map(item1 => (
+                  <div className="legend-item" onClick={() => onLegendItemClick(item1.symbol)} key={`${item1.symbol}-${item1.color}`}>
+                    <div className="color-block" style={{ background: item1.color }}>&nbsp;</div>
+                    <span style={{ textDecoration: extData && extData.symbol === item1.symbol ? 'line-through' : 'none' }}>{item1.symbol}</span>
+                  </div>
+                ))
+              }
+            </div>
+          ))
+        }
       </div>
     </div>
   )
