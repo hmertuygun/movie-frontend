@@ -162,11 +162,7 @@ export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    // data: { apiKeyName, exchange },
   })
-    .catch(error => {
-      return error?.response
-    })
   return added
 }
 

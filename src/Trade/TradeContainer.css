@@ -1,7 +1,7 @@
 .TradeView-Container {
   display: flex;
   flex-direction: row;
-  min-height: 110vh;
+  /* min-height: 110vh; */
   justify-content: stretch;
 }
 

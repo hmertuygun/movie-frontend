@@ -15,7 +15,6 @@ const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
-
   if (localStorageUser !== 'undefined') {
     initialState = {
       user: JSON.parse(localStorageUser),
@@ -30,6 +29,9 @@ const UserContextProvider = ({ children }) => {
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
+  const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
+  const [loaderVisible, setLoaderVisibility] = useState(false)
+
   // @ TODO
   // Handle error
   // Unify responses
@@ -43,18 +45,38 @@ const UserContextProvider = ({ children }) => {
       }
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
-      let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
-      if (activeKey) {
-        setLoadApiKeys(true) // Only check active api exchange eventually
-        setActiveExchange({ apiKeyName: activeKey.apiKeyName, exchange: activeKey.exchange })
+      let getSavedKey = sessionStorage.getItem('exchangeKey')
+      if (getSavedKey) {
+        const ssData = JSON.parse(getSavedKey)
+        setActiveExchange({ ...ssData })
+        setLoadApiKeys(true)
       }
       else {
-        // find the first one that is 'Active'
-        let active = apiKeys.find(item => item.status === "Active")
-        if (active) {
-          await updateLastSelectedAPIKey({ ...active })
-          setActiveExchange({ ...active })
-          setLoadApiKeys(true)
+        let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
+        if (activeKey) {
+          const data = {
+            ...activeKey,
+            label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+          }
+          setLoadApiKeys(true) // Only check active api exchange eventually
+          setActiveExchange(data)
+          sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+        }
+        else {
+          // find the first one that is 'Active'
+          let active = apiKeys.find(item => item.status === "Active")
+          if (active) {
+            await updateLastSelectedAPIKey({ ...active })
+            const data = {
+              ...activeKey,
+              label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+              value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+            }
+            setActiveExchange(data)
+            sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+            setLoadApiKeys(true)
+          }
         }
       }
     }
@@ -271,7 +293,11 @@ const UserContextProvider = ({ children }) => {
         setActiveExchange,
         userContextLoaded,
         totalExchanges,
-        setTotalExchanges
+        setTotalExchanges,
+        loaderVisible,
+        setLoaderVisibility,
+        loaderText,
+        setLoaderText
       }}
     >
       {children}

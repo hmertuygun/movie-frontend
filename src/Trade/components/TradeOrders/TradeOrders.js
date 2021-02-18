@@ -122,6 +122,7 @@ const TradeOrders = () => {
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const { activeExchange } = useContext(UserContext)
   const [user, setUser] = useState()
+
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
@@ -176,6 +177,11 @@ const TradeOrders = () => {
       setUser(null)
     }
   })
+
+  useEffect(() => {
+    infiniteOpenOrders.refetch()
+    infiniteHistory.refetch()
+  }, [activeExchange])
 
   useEffect(() => {
     if (user != null) {
