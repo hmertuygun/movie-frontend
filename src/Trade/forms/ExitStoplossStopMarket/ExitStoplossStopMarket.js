@@ -3,12 +3,12 @@ import * as yup from 'yup'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
-import { InlineInput, Button, Typography } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
+import { InlineInput, Button, Typography } from '../../../components'
+import { TradeContext } from '../../context/SimpleTradeContext'
 
-import roundNumbers from '../../helpers/roundNumbers'
-import { useSymbolContext } from '../context/SymbolContext'
-import styles from './ExitForm.module.css'
+import roundNumbers from '../../../helpers/roundNumbers'
+import { useSymbolContext } from '../../context/SymbolContext'
+import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
 import {
   addPrecisionToNumber,
@@ -16,9 +16,9 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
-} from '../../helpers/tradeForm'
-
-import 'rc-slider/assets/index.css'
+  detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
+} from '../../../helpers/tradeForm'
 
 const useStyles = makeStyles({
   root: {
@@ -65,8 +65,7 @@ const ExitStoplossStopMarket = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
-  const entryPrice =
-    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice);
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -220,6 +219,8 @@ const ExitStoplossStopMarket = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'triggerPrice') {

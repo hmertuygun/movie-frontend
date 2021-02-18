@@ -9,7 +9,7 @@ import TabContextProvider from './contexts/TabContext'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
-import OnboardingModal from './Trade/OnboardingModal'
+import FullScreenLoader from './components/FullScreenLoader'
 
 library.add(fab, fas)
 const queryClient = new QueryClient()

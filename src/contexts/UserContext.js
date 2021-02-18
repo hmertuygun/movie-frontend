@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -7,6 +7,7 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
+  updateLastSelectedAPIKey
 } from '../api/api'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
@@ -14,7 +15,6 @@ const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
-
   if (localStorageUser !== 'undefined') {
     initialState = {
       user: JSON.parse(localStorageUser),
@@ -24,19 +24,71 @@ const UserContextProvider = ({ children }) => {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
   const [state, setState] = useState(initialState)
-  const [loadApiKeys, setLoadApiKeys] = useState(true)
+  const [loadApiKeys, setLoadApiKeys] = useState(false)
   const [hasToken, setHasToken] = useState(false)
+  const [userContextLoaded, setUserContextLoaded] = useState(false)
+  const [totalExchanges, setTotalExchanges] = useState([])
+  const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
+  const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
+  const [loaderVisible, setLoaderVisibility] = useState(false)
+
   // @ TODO
   // Handle error
   // Unify responses
 
   async function getExchanges() {
-    const hasKeys = await getUserExchanges()
-    if (hasKeys) setLoadApiKeys(true)
-    else setLoadApiKeys(false)
+    try {
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys?.length) {
+        setUserContextLoaded(true)
+        return
+      }
+      const { apiKeys } = hasKeys.data
+      setTotalExchanges(apiKeys)
+      let getSavedKey = sessionStorage.getItem('exchangeKey')
+      if (getSavedKey) {
+        const ssData = JSON.parse(getSavedKey)
+        setActiveExchange({ ...ssData })
+        setLoadApiKeys(true)
+      }
+      else {
+        let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
+        if (activeKey) {
+          const data = {
+            ...activeKey,
+            label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+          }
+          setLoadApiKeys(true) // Only check active api exchange eventually
+          setActiveExchange(data)
+          sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+        }
+        else {
+          // find the first one that is 'Active'
+          let active = apiKeys.find(item => item.status === "Active")
+          if (active) {
+            await updateLastSelectedAPIKey({ ...active })
+            const data = {
+              ...activeKey,
+              label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+              value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+            }
+            setActiveExchange(data)
+            sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+            setLoadApiKeys(true)
+          }
+        }
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+    finally {
+      setUserContextLoaded(true)
+    }
   }
 
-  useEffect(() => {
+  const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
@@ -47,9 +99,11 @@ const UserContextProvider = ({ children }) => {
         // User is signed out.
       }
     })
+  }
+
+  useEffect(() => {
+    getUserExchangesAfterFBInit()
   }, [])
-
-
 
   async function login(email, password) {
     const signedin = await firebase
@@ -98,10 +152,7 @@ const UserContextProvider = ({ children }) => {
       await validateUser()
       let has2FADetails = null
       try {
-        const hasloadApiKeys = await getUserExchanges()
-        if (hasloadApiKeys) {
-          setLoadApiKeys(true)
-        }
+        getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(
@@ -238,8 +289,15 @@ const UserContextProvider = ({ children }) => {
         sendEmailAgain,
         setLoadApiKeys,
         loadApiKeys,
-        hasToken,
-        setHasToken
+        activeExchange,
+        setActiveExchange,
+        userContextLoaded,
+        totalExchanges,
+        setTotalExchanges,
+        loaderVisible,
+        setLoaderVisibility,
+        loaderText,
+        setLoaderText
       }}
     >
       {children}

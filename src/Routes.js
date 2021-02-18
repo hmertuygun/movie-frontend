@@ -16,26 +16,25 @@ import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 import OnboardingModal from './Trade/OnboardingModal'
+import FullScreenLoader from './components/FullScreenLoader'
+
 const Routes = () => {
-  const { isLoggedIn, logout, loadApiKeys, setLoadApiKeys } = useContext(UserContext) // loadApiKeys
-  const [compKey, setCompKey] = useState(0)
+  const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
   return (
-    <>
-      {isLoggedIn && !loadApiKeys && <OnboardingModal />}
+    <div>
+      <FullScreenLoader />
       <Switch>
-        {isLoggedIn && (
+        {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
+        {isLoggedIn && userContextLoaded && (
           <Switch>
             <Route path="/trade" component={TradeView} />
-
             <Route
               path="/logout"
               render={() => {
                 logout()
-
                 return <div>Logging you out..</div>
               }}
             />
-
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/positions" component={Position} />
@@ -56,7 +55,7 @@ const Routes = () => {
         />
         {!isLoggedIn && <Redirect to="/login" />}
       </Switch>
-    </>
+    </div>
   )
 }
 

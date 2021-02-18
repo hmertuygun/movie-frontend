@@ -3,20 +3,27 @@
   --border-color-active: var(--primary);
   --color: #718096;
   --color-hover: #4a5568;
+  --color-highlighted: #000000;
 
   width: 100%;
 }
 
-.TabNavigator-nav {
+.TabNavigator-nav,
+.TradeTabNav {
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid var(--border-color);
   font-weight: 500;
 }
 
+.TradeTabNav {
+  justify-content: space-between;
+}
+
 .TabNavigator-link {
   margin-right: 1.5rem;
   font-size: 0.875rem;
+  line-height: 1rem;
   padding: 15px 0;
   cursor: pointer;
   color: var(--color);
@@ -28,10 +35,81 @@
 
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
-  color: var(--color);
-  font-weight: 600;
+  color: var(--color-highlighted);
+  font-weight: 500;
 }
 
 .TabNavigator-link--active:hover {
   color: var(--color);
+}
+
+.custom-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.custom-dropdown-wrapper > button {
+  outline: none;
+  border: none;
+  font-size: 14px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  background: none;
+  color: var(--color);
+  height: 100%;
+}
+
+.custom-dropdown-wrapper > button:hover {
+  color: var(--color-hover);
+}
+
+.custom-dropdown-wrapper > button.btn-active {
+  border-bottom: 1px solid var(--border-color-active);
+  color: var(--color-highlighted);
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+.chevron-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.market-items {
+  display: none;
+  position: absolute;
+  top: 35px;
+  left: -20px;
+  z-index: 999999;
+  flex-direction: column;
+  width: max-content;
+  border-radius: 3px;
+}
+
+.market-items > .dropdown-btn,
+.market-items > .btn-active {
+  border: none;
+  font-size: 14px;
+  color: var(--color);
+  padding: 3px 10px;
+}
+
+.market-items > .dropdown-btn:hover,
+.market-items > .btn-active:hover {
+  background: #1552f1;
+  color: #ffffff;
+  transition: all 0.3s ease-in-out;
+  border-radius: 2px;
+}
+
+.market-items > .btn-active {
+  color: var(--color-highlighted);
+  font-weight: 500;
+}
+
+.chevron-wrapper:hover .market-items {
+  display: flex;
 }

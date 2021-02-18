@@ -6,11 +6,12 @@ import { UserContext } from '../../contexts/UserContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
+  getUserExchanges
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 
-const OnboardingModal = ({ updateComp }) => {
-  const { loadApiKeys, setLoadApiKeys, isLoggedIn } = useContext(UserContext)
+const OnboardingModal = () => {
+  const { loadApiKeys, setLoadApiKeys, isLoggedIn, setTotalExchanges, setActiveExchange } = useContext(UserContext)
   let formData = {
     apiKey: '',
     secret: '',
@@ -40,7 +41,7 @@ const OnboardingModal = ({ updateComp }) => {
 
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -113,7 +114,7 @@ const OnboardingModal = ({ updateComp }) => {
   }
 
   let btnText = {
-    1: { primaryBtn: 'Continue with existing Binance account', secBtn: 'Setup a new Binance account', heading: 'Welcome to CoinPanel!' },
+    1: { primaryBtn: 'Continue with existing Binance account', secBtn: 'Set up a new Binance account', heading: 'Welcome to CoinPanel!' },
     2: { primaryBtn: 'Continue', secBtn: 'Go Back', heading: 'Connect your exchange account' },
     3: { primaryBtn: 'Start the CoinPanel experience', secBtn: 'Checkout the tutorials', heading: 'Exchange integration complete!' }
   }
@@ -131,6 +132,13 @@ const OnboardingModal = ({ updateComp }) => {
     }
     else if (step === 3) {
       setLoadApiKeys(true)
+      sessionStorage.clear()
+      setActiveExchange({ apiKeyName: apiName, exchange: exchange.value })
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys) {
+        const { apiKeys } = hasKeys.data
+        setTotalExchanges(apiKeys)
+      }
     }
   }
 
@@ -194,26 +202,26 @@ const OnboardingModal = ({ updateComp }) => {
   )
 
   return (
-    <div className={`modal docs-example-modal-lg fade show`} style={modalStyle}>
-      <div className="modal-dialog modal-lg modal-dialog-centered">
+    <div className={`modal fade docs-example-modal-lg pt-5 show`} style={modalStyle}>
+      <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Exchange Setup</h5>
+            <h5 className="modal-title h6">Exchange Setup</h5>
           </div>
           <div className="modal-body">
-            <div className="row">
+            <div className="row ml-0 text-center mb-3">
               {Object.entries(btnText).map((item, index) => (
-                <div className="col-4 px-1" key={`progressbar-${item}`}>
-                  <div className="progress">
+                <div className="col-4 pl-0" key={`progressbar-${item}`}>
+                  <div className="rounded-sm progress" style={{ height: "12px" }}>
                     <div className={`progress-bar ${step === index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
                   </div>
                 </div>
               ))}
             </div>
-            <h4 className="mt-3 mb-2">{btnText[step].heading}</h4>
+            <h4>{btnText[step].heading}</h4>
             <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
-              <p>You need a Binance Exchange account to use CoinPanel.</p>
-              <p>Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
+              <p className="lead">You need a Binance Exchange account to use CoinPanel.</p>
+              <p className="lead mb-0">Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
               <p>

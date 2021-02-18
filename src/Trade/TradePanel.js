@@ -9,6 +9,7 @@ import {
   successNotification,
 } from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
+import { UserContext } from '../contexts/UserContext'
 import {
   TabNavigator,
   ButtonNavigator,
@@ -20,12 +21,14 @@ import {
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
 
-import LimitForm from './forms/LimitForm'
-import MarketForm from './forms/MarketForm'
-import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
-import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
-import ExitTarget from './forms/ExitTarget'
-import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
+import LimitForm from './forms/LimitForm/LimitForm'
+import MarketForm from './forms/MarketForm/MarketForm'
+import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit/ExitStoplossStopLimit'
+import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket/ExitStoplossStopMarket'
+import ExitTarget from './forms/ExitTarget/ExitTarget'
+import ExitTargetStopMarket from './forms/ExitTargetStopMarket/ExitTargetStopMarket'
+import EntryStopLimitForm from './forms/EntryStopLimitForm/EntryStopLimitForm'
+import EntryStopMarketForm from './forms/EntryStopMarketForm/EntryStopMarketForm'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -38,9 +41,11 @@ const Trade = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
   const { selectedSymbol } = useContext(SymbolContext)
+  const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
   const hasEntry = state.entry?.quantity > 0 ? true : false
+
   function checkAllTypes() {
     const targets =
       state &&
@@ -62,7 +67,7 @@ const Trade = () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
-      await placeOrder({ ...state })
+      await placeOrder({ ...state, ...activeExchange })
       setIsModalVisible(false)
       successNotification.open({ description: `Order Created!` })
       setIsTradePanelOpen(false)
@@ -101,9 +106,11 @@ const Trade = () => {
             )}
 
             {!hasEntry && (
-              <TabNavigator labelArray={['Limit', 'Market']}>
+              <TabNavigator labelArray={['Limit', 'Market', 'custom-tab']}>
                 <LimitForm />
                 <MarketForm />
+                <EntryStopLimitForm />
+                <EntryStopMarketForm />
               </TabNavigator>
             )}
 
