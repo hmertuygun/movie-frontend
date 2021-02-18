@@ -132,7 +132,7 @@ export async function addUserExchange({ name, apiKey, secret, exchange }) {
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { apiKey, apiKeyName: name, signSecret: secret, exchange },
+    data: { apiKey, apiKeyName: name.toLowerCase(), signSecret: secret, exchange },
   })
     .catch(error => {
       return error?.response

@@ -69,9 +69,9 @@ const UserContextProvider = ({ children }) => {
           if (active) {
             await updateLastSelectedAPIKey({ ...active })
             const data = {
-              ...activeKey,
-              label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-              value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+              ...active,
+              label: `${active.exchange} - ${active.apiKeyName}`,
+              value: `${active.exchange} - ${active.apiKeyName}`
             }
             setActiveExchange(data)
             sessionStorage.setItem('exchangeKey', JSON.stringify(data))
