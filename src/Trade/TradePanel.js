@@ -134,14 +134,15 @@ const Trade = () => {
             )}
 
             {ableToPostFulltrade && (
-              <Button
-                variant="confirm"
+              <button
+                type="button"
+                className="btn btn-primary btn-sm w-100"
                 onClick={() => {
                   setIsModalVisible(true)
                 }}
               >
                 Place Fulltrade
-              </Button>
+              </button>
             )}
 
             <TradeTableContainer />
