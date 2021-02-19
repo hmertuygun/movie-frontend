@@ -50,7 +50,7 @@ hr {
 
 /*slider*/
 .rc-slider-disabled {
-  background: none;
+  background: none !important;
 }
 
 .rc-slider-handle {
