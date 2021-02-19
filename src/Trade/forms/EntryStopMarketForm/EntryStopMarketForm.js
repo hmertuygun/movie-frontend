@@ -387,13 +387,15 @@ const EntryStopMarketForm = () => {
             className="spinner-border spinner-border-sm"
             role="status"
             aria-hidden="true"
-            style={{ marginRight: '10px' }}
+            style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
           <FontAwesomeIcon
             icon={faSync}
             onClick={refreshBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
           />
         )}
       </div>
