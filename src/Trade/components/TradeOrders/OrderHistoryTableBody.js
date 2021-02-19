@@ -12,11 +12,11 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
     hasNextPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  useIntersectionObserver({
-    target: loadMoreButtonRef,
-    onIntersect: fetchNextPage,
-    enabled: hasNextPage,
-  })
+  // useIntersectionObserver({
+  //   target: loadMoreButtonRef,
+  //   onIntersect: fetchNextPage,
+  //   enabled: hasNextPage,
+  // })
   return (
     <tbody>
       {history &&
@@ -34,11 +34,11 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
                     style={
                       !isCanceled
                         ? {
-                            color:
-                              order.side?.toLowerCase() === 'buy'
-                                ? 'green'
-                                : 'red',
-                          }
+                          color:
+                            order.side?.toLowerCase() === 'buy'
+                              ? 'green'
+                              : 'red',
+                        }
                         : undefined
                     }
                   >
@@ -80,8 +80,8 @@ const OrderHistoryTableBody = ({ infiniteOrders }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-            ? 'Load Older'
-            : 'Nothing more to load'}
+              ? 'Load Older'
+              : 'Nothing more to load'}
         </td>
       </tr>
     </tbody>
