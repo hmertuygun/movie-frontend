@@ -108,7 +108,7 @@ const PieCharts = () => {
                 item.map(item1 => (
                   <div className="legend-item" onClick={() => onLegendItemClick(item1.symbol)} key={`${item1.symbol}-${item1.color}`}>
                     <div className="color-block" style={{ background: item1.color }}>&nbsp;</div>
-                    <span style={{ textDecoration: extData && extData.symbol === item1.symbol ? 'line-through' : 'none' }}>{item1.symbol}</span>
+                    <span style={{ textDecoration: extData && extData.item[0] === item1.symbol ? 'line-through' : 'none' }}>{item1.symbol}</span>
                   </div>
                 ))
               }
