@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { firebase } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -7,16 +7,14 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
+  updateLastSelectedAPIKey
 } from '../api/api'
-
 export const UserContext = createContext()
-
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
-
   if (localStorageUser !== 'undefined') {
     initialState = {
       user: JSON.parse(localStorageUser),
@@ -25,13 +23,88 @@ const UserContextProvider = ({ children }) => {
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
   }
-
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
+  const [hasToken, setHasToken] = useState(false)
+  const [userContextLoaded, setUserContextLoaded] = useState(false)
+  const [totalExchanges, setTotalExchanges] = useState([])
+  const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
+  const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
+  const [loaderVisible, setLoaderVisibility] = useState(false)
 
   // @ TODO
   // Handle error
   // Unify responses
+
+  async function getExchanges() {
+    try {
+      const hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys?.length) {
+        setUserContextLoaded(true)
+        return
+      }
+      const { apiKeys } = hasKeys.data
+      setTotalExchanges(apiKeys)
+      let getSavedKey = sessionStorage.getItem('exchangeKey')
+      if (getSavedKey) {
+        const ssData = JSON.parse(getSavedKey)
+        setActiveExchange({ ...ssData })
+        setLoadApiKeys(true)
+      }
+      else {
+        let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
+        if (activeKey) {
+          const data = {
+            ...activeKey,
+            label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+          }
+          setLoadApiKeys(true) // Only check active api exchange eventually
+          setActiveExchange(data)
+          sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+        }
+        else {
+          // find the first one that is 'Active'
+          let active = apiKeys.find(item => item.status === "Active")
+          if (active) {
+            await updateLastSelectedAPIKey({ ...active })
+            const data = {
+              ...active,
+              label: `${active.exchange} - ${active.apiKeyName}`,
+              value: `${active.exchange} - ${active.apiKeyName}`
+            }
+            setActiveExchange(data)
+            sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+            setLoadApiKeys(true)
+          }
+        }
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+    finally {
+      setUserContextLoaded(true)
+    }
+  }
+
+  const getUserExchangesAfterFBInit = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        setHasToken(true)
+        getExchanges()
+      }
+      else {
+        // User is signed out.
+      }
+    })
+  }
+
+  useEffect(() => {
+    getUserExchangesAfterFBInit()
+  }, [])
+
   async function login(email, password) {
     const signedin = await firebase
       .auth()
@@ -79,18 +152,14 @@ const UserContextProvider = ({ children }) => {
       await validateUser()
       let has2FADetails = null
       try {
-        const hasloadApiKeys = await getUserExchanges()
-        if (hasloadApiKeys) {
-          setLoadApiKeys('true')
-        }
-
+        getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
         localStorage.setItem(
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
     }
@@ -156,10 +225,8 @@ const UserContextProvider = ({ children }) => {
     return true
   }
 
-  const isLoggedIn =
-    state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
-
   // REGISTER NEW USER
   async function register(email, password) {
     const registered = await firebase
@@ -220,7 +287,17 @@ const UserContextProvider = ({ children }) => {
         get2FADetails,
         delete2FA,
         sendEmailAgain,
+        setLoadApiKeys,
         loadApiKeys,
+        activeExchange,
+        setActiveExchange,
+        userContextLoaded,
+        totalExchanges,
+        setTotalExchanges,
+        loaderVisible,
+        setLoaderVisibility,
+        loaderText,
+        setLoaderText
       }}
     >
       {children}

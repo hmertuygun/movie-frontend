@@ -5,7 +5,7 @@
   font-weight: 
 }
 
-@media (min-width: 960px) {
+@media (min-width: 767.98px) {
   .SymbolSelect-Container {
      flex-direction: row; 
      width: 600px;

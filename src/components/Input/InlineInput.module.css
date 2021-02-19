@@ -76,6 +76,10 @@
   text-align: right;
 }
 
+.InputElement[type='text'] {
+  text-align: right;
+}
+
 .InputLabel {
   line-height: 32px;
   color: var(--label-default-color);

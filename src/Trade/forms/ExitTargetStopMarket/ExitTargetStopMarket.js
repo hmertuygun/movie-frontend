@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { InlineInput, Button, Typography } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
-import roundNumbers from '../../helpers/roundNumbers'
-import { useSymbolContext } from '../context/SymbolContext'
+import { InlineInput, Button, Typography } from '../../../components'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import roundNumbers from '../../../helpers/roundNumbers'
+import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 
@@ -13,9 +13,11 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-} from '../../helpers/tradeForm'
+  convertCommaNumberToDot,
+  detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
+} from '../../../helpers/tradeForm'
 
-import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
 
 import styles from './ExitTargetForm.module.css'
@@ -71,8 +73,7 @@ const ExitTargetStopMarket = () => {
     0
   )
 
-  const entryPrice =
-    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -92,14 +93,6 @@ const ExitTargetStopMarket = () => {
     50: '',
     75: '',
     100: '',
-  }
-
-  const targetSliderMarks = {
-    0: '',
-    250: '',
-    500: '',
-    750: '',
-    1000: '',
   }
 
   // @TODO
@@ -231,6 +224,8 @@ const ExitTargetStopMarket = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'price') {
@@ -400,9 +395,9 @@ const ExitTargetStopMarket = () => {
 
     if (isFormValid && !isLimit) {
       addStopMarketTarget({
-        triggerPrice: values.price,
-        quantity: values.quantity,
-        profit: values.profit,
+        triggerPrice: convertCommaNumberToDot(values.price),
+        quantity: convertCommaNumberToDot(values.quantity),
+        profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
       })
 
@@ -440,7 +435,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Trigger Price"
-            type="number"
+            type="text"
             placeholder="Trigger price"
             value={values.price}
             name="price"
@@ -459,9 +454,9 @@ const ExitTargetStopMarket = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={targetSliderMarks}
+                marks={marks}
                 min={0}
-                max={1000}
+                max={100}
                 onChange={handleSliderChange}
                 value={values.profit}
               />
@@ -480,7 +475,7 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Quantity"
-            type="number"
+            type="text"
             name="quantity"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, quantityPrecision)}

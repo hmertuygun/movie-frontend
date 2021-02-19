@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react'
-import { InlineInput, Button, Typography } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
-import roundNumbers from '../../helpers/roundNumbers'
-import { useSymbolContext } from '../context/SymbolContext'
+import { InlineInput, Button, Typography } from '../../../components'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import roundNumbers from '../../../helpers/roundNumbers'
+import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import 'rc-slider/assets/index.css'
@@ -13,7 +13,10 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-} from '../../helpers/tradeForm'
+  convertCommaNumberToDot,
+  detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
+} from '../../../helpers/tradeForm'
 
 import * as yup from 'yup'
 
@@ -68,8 +71,7 @@ const ExitStoplossStopLimit = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
-  const entryPrice =
-    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -235,6 +237,8 @@ const ExitStoplossStopLimit = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'triggerPrice') {
@@ -278,9 +282,19 @@ const ExitStoplossStopLimit = () => {
     validateInput(target)
   }
 
+  const detectUsePrice = (entry) => {
+    switch (entry.type) {
+      case 'market':
+        return selectedSymbolLastPrice
+      case 'stop-market':
+        return entry.trigger
+      default:
+        return entry.price
+    }
+  }
+
   const priceAndProfitSync = (inputName, inputValue) => {
-    let usePrice =
-      entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+    const usePrice = detectUsePrice(entry)
 
     switch (inputName) {
       case 'price':
@@ -382,11 +396,11 @@ const ExitStoplossStopLimit = () => {
 
     if (isFormValid) {
       addStoplossLimit({
-        price: values.price,
-        triggerPrice: values.triggerPrice,
-        profit: values.profit,
-        quantity: values.quantity,
-        quantityPercentage: values.quantityPercentage,
+        price: convertCommaNumberToDot(values.price),
+        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
+        profit: convertCommaNumberToDot(values.profit),
+        quantity: convertCommaNumberToDot(values.quantity),
+        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail['symbolpair'],
       })
     }
@@ -406,7 +420,7 @@ const ExitStoplossStopLimit = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Trigger price"
-            type="number"
+            type="text"
             placeholder="Trigger price"
             value={values.triggerPrice}
             name="triggerPrice"
@@ -419,7 +433,7 @@ const ExitStoplossStopLimit = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Price"
-            type="number"
+            type="text"
             placeholder="price"
             name="price"
             onChange={handleChange}
@@ -454,6 +468,7 @@ const ExitStoplossStopLimit = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
+                type="text"
               />
             </div>
           </div>
@@ -461,7 +476,7 @@ const ExitStoplossStopLimit = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Amount"
-            type="number"
+            type="text"
             name="quantity"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, quantityPrecision)}

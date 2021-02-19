@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import uniqid from 'uniqid'
+import { convertCommaNumberToDot } from '../../helpers/tradeForm'
 import styles from './InlineInput.module.css'
 
 const InlineInput = ({

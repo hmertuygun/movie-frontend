@@ -1,3 +1,10 @@
+export const convertCommaNumberToDot = (value) => {
+  if (value) {
+    return value.toString().replace(/,/g, '.')
+  }
+  return ''
+}
+
 export const addPrecisionToNumber = (value, precisionCount) => {
   if (value) {
     if (value === '0') return Number(value)
@@ -27,3 +34,22 @@ export const getMaxInputLength = (value, precision) => {
 }
 
 export const getInputLength = (value) => value.split('.').join('').length
+
+export const detectEntryPrice = (entry, selectedSymbolLastPrice) => {
+  switch (entry.type) {
+    case 'limit':
+    case 'stop-limit':
+      return entry.price
+    case 'market':
+      return selectedSymbolLastPrice
+    case 'stop-market':
+      return entry.trigger
+    default:
+      break
+  }
+}
+
+export const allowOnlyNumberDecimalAndComma = (value) => {
+  const regex = /^[+-]?\d*(?:[.,]\d*)?$/
+  return regex.test(value)
+}

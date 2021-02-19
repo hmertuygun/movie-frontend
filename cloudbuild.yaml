@@ -30,6 +30,7 @@ steps:
       - 'CLOUDSDK_CONTAINER_CLUSTER=cp-${_CLUSTER_TYPE}-cluster-eu'
 substitutions:
   _CLUSTER_TYPE: ${PROJECT_ID:10}
+timeout: 900s
 options:
   dynamic_substitutions: true
 

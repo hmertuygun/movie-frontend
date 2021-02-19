@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
+// import Notifications from '../Settings/Notifications' @Todo
 
 const Settings = () => {
   return (
@@ -21,10 +22,7 @@ const Settings = () => {
               <div className="row align-items-center mt-4">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={[
-                      'Exchanges',
-                      'Security'
-                    ]}
+                    labelArray={['Exchanges', 'Security']}
                     tabIndex={1}
                   >
                     <Exchanges />

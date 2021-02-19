@@ -21,6 +21,7 @@
   --warning: var(--orange);
   --danger: var(--red);
   --primary: var(--blue);
+  --success: var(--green);
 
   --buy: var(--green);
   --sell: var(--red-trade);
@@ -46,35 +47,7 @@
 
   --trade-confirm-background: var(--gold);
   --trade-cancel-background: var(--red);
-}
 
-/* DARK MODE OVERRIDES */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --default-color: var(--light);
-
-    --body-background: var(--light);
-    --body-color: var(--light);
-
-    --trade-background: rgb(255, 255, 255);
-    --trade-color: #939aa4;
-    --trade-borders: #424951;
-    --trade-confirm-background: var(--gold);
-    --trade-modal-background: #424951;
-    --trade-box-background: #424951;
-  }
-}
-
-:root .dark {
-  --default-color: var(--light);
-
-  --body-background: var(--light);
-  --body-color: var(--light);
-
-  --trade-background: #e9eaec;
-  --trade-color: #939aa4;
-  --trade-borders: #424951;
-  --trade-confirm-background: var(--gold);
   --trade-modal-background: white;
   --trade-box-background: var(--light);
 }

@@ -1,19 +1,118 @@
 import React, { useState, useEffect } from 'react'
-import { Icon } from '../../components'
+import { Key } from 'react-feather'
+import Select from 'react-select'
+import * as yup from 'yup'
+import { options } from './ExchangeOptions'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
-  const [exchange, setExchange] = useState('binance')
+  const [exchange, setExchange] = useState({
+    value: 'binance',
+    label: 'Binance',
+  })
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
-
   const [secret, setSecret] = useState('')
-  const [isValid, setIsValid] = useState(false)
 
-  useEffect(() => {
-    const isValid =
-      secret.length > 1 && apiKey.length > 1 && exchange.length > 1
-    setIsValid(isValid)
-  }, [secret, apiKey, exchange])
+  const errorInitialValues = {
+    exchange: '',
+    apiName: '',
+    apiKey: '',
+    secret: '',
+  }
+
+  const [errors, setErrors] = useState(errorInitialValues)
+
+  const customStyles = {
+    control: (styles, {}) => ({
+      ...styles,
+      backgroundColor: '#eff2f7',
+      padding: '5px 5px',
+      border: 0,
+      boxShadow: 'none',
+
+      '&:hover': {
+        backgroundColor: '#d6ddea',
+        cursor: 'pointer',
+      },
+    }),
+
+    placeholder: (styles) => ({
+      ...styles,
+      color: '#273444',
+      fontWeight: 'bold',
+    }),
+  }
+
+  const formSchema = yup.object().shape({
+    exchange: yup.string().required('Exchange is required'),
+    apiName: yup
+      .string()
+      .required('API Name is required')
+      .min(3, 'Must be at least 3 characters')
+      .matches(/^\w+$/, {
+        message: 'Accepted characters are A-Z, a-z, 0-9 and underscore.',
+        excludeEmptyString: true,
+      }),
+    apiKey: yup
+      .string()
+      .required('API Key is required')
+      .min(3, 'Must be at least 3 characters'),
+    secret: yup.string().required('API Secret is required'),
+  })
+
+  const validateInput = (target) => {
+    const isValid = formSchema.fields[target.name]
+      .validate(target.value)
+      .catch((error) => {
+        setErrors((errors) => ({
+          ...errors,
+          [target.name]: error.message,
+        }))
+      })
+    if (isValid) {
+      setErrors((errors) => ({
+        ...errors,
+        [target.name]: '',
+      }))
+    }
+  }
+
+  const validateForm = () => {
+    return formSchema
+      .validate(
+        { exchange: exchange.value, apiName, apiKey, secret },
+        { abortEarly: false }
+      )
+      .catch((error) => {
+        if (error.name === 'ValidationError') {
+          error.inner.forEach((fieldError) => {
+            setErrors((errors) => ({
+              ...errors,
+              [fieldError.path]: fieldError.message,
+            }))
+          })
+        }
+      })
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const isFormValid = await validateForm()
+
+    if (isFormValid) {
+      onSave({ secret, apiKey, exchange: exchange.value, name: apiName })
+    }
+  }
+
+  const renderInputValidationError = (errorKey) => (
+    <>
+      {errors[errorKey] && (
+        <div className="d-flex align-items-center text-danger">
+          {errors[errorKey]}
+        </div>
+      )}
+    </>
+  )
 
   return (
     <div className="modal-open">
@@ -27,15 +126,12 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
         <form
           className="modal-dialog modal-dialog-centered modal-lg"
           role="document"
-          onSubmit={(event) => {
-            event.preventDefault()
-            onSave({ secret, apiKey, exchange, name: apiName })
-          }}
+          onSubmit={handleSubmit}
         >
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
-                <i data-feather="key" style={{ marginRight: '15px' }}></i>
+                <Key className="mr-3" size="20" strokeWidth="3" />
                 Connect new exchange
               </h5>
               <button
@@ -49,24 +145,34 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               </button>
             </div>
             <div className="modal-body">
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Exchange
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    minLength="3"
-                    required
-                    disabled
-                    className="form-control"
+              <div className="mb-3">
+                <a
+                  href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ textDecoration: 'underline', color: '#718096' }}
+                >
+                  How to find my API keys?
+                </a>
+              </div>
+
+              <div className="row mb-3">
+                <div className="col-md-4">
+                  <Select
+                    placeholder="Choose Exchange"
                     value={exchange}
-                    onChange={(event) => setExchange(event.target.value)}
-                    placeholder="Exchange"
+                    components={{
+                      IndicatorSeparator: () => null,
+                    }}
+                    onChange={(exchange) => {
+                      setExchange(exchange)
+                      validateInput({ name: 'exchange', value: exchange.value })
+                    }}
+                    styles={customStyles}
+                    options={options}
                   />
                 </div>
+                {renderInputValidationError('exchange')}
               </div>
 
               <div className="form-group">
@@ -76,20 +182,21 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                   </div>
                   <input
                     type="text"
-                    minLength="3"
-                    required
                     disabled={isLoading}
                     className="form-control"
+                    name="apiName"
                     value={apiName}
-                    onChange={(event) => setApiName(event.target.value)}
-                    placeholder="Name"
-                    pattern="[a-zA-Z0-9_-]+"
+                    onChange={(event) => {
+                      validateInput({
+                        name: event.target.name,
+                        value: event.target.value,
+                      })
+                      setApiName(event.target.value)
+                    }}
+                    placeholder="Binance1"
                   />
                 </div>
-
-                <p className="text-sm pt-2">
-                  (Accepted characters are A-Z, a-z, 0-9 and underscore.)
-                </p>
+                {renderInputValidationError('apiName')}
               </div>
 
               <div className="form-group">
@@ -104,14 +211,20 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     disabled={isLoading}
                     className="form-control"
                     placeholder="API Key"
+                    name="apiKey"
                     value={apiKey}
-                    minLength="3"
-                    onChange={(event) => setApiKey(event.target.value)}
-                    required
+                    onChange={(event) => {
+                      validateInput({
+                        name: event.target.name,
+                        value: event.target.value,
+                      })
+                      setApiKey(event.target.value)
+                    }}
                     aria-label="apikey"
                     aria-describedby="basic-addon1"
                   />
                 </div>
+                {renderInputValidationError('apiKey')}
               </div>
 
               <div className="form-group">
@@ -123,15 +236,21 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                   </div>
                   <input
                     type="text"
-                    required
                     disabled={isLoading}
                     className="form-control"
+                    name="secret"
                     value={secret}
-                    minLength="3"
-                    onChange={(event) => setSecret(event.target.value)}
+                    onChange={(event) => {
+                      validateInput({
+                        name: event.target.name,
+                        value: event.target.value,
+                      })
+                      setSecret(event.target.value)
+                    }}
                     placeholder="Secret"
                   />
                 </div>
+                {renderInputValidationError('secret')}
               </div>
             </div>
             <div className="modal-footer">
@@ -145,7 +264,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               </button>
 
               <button
-                disabled={!isValid || isLoading}
+                disabled={isLoading}
                 type="submit"
                 className="btn btn-primary"
               >
@@ -163,6 +282,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
           </div>
         </form>
       </div>
+      <div className="modal-backdrop fade show"></div>
     </div>
   )
 }

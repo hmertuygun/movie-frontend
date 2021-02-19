@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
+import { isMobile } from 'react-device-detect'
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
+import { UserContext } from '../../../contexts/UserContext'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
@@ -48,9 +50,8 @@ const Table = ({
               Open Orders
             </span>
             <span
-              className={`${
-                !isOpenOrders ? 'h6 action-item' : 'action-item'
-              } pl-4`}
+              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
+                } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
               Order History
@@ -71,17 +72,17 @@ const Table = ({
                 ></span>
               </button>
             ) : (
-              <button
-                type="button"
-                className="btn btn-sm btn-neutral btn-icon"
-                onClick={refreshOpenOrder}
-              >
-                <span className="btn-inner--text">Refresh</span>
-                <span className="btn-inner--icon">
-                  <FontAwesomeIcon icon={faSync} />
-                </span>
-              </button>
-            )}
+                <button
+                  type="button"
+                  className="btn btn-sm btn-neutral btn-icon"
+                  onClick={refreshOpenOrder}
+                >
+                  {!isMobile && <span className="btn-inner--text">Refresh</span>}
+                  <span className="btn-inner--icon">
+                    <FontAwesomeIcon icon={faSync} />
+                  </span>
+                </button>
+              )}
           </div>
         </div>
       </div>
@@ -108,8 +109,8 @@ const Table = ({
           {isOpenOrders ? (
             <OpenOrdersTableBody infiniteOrders={infiniteOrders} />
           ) : (
-            <OrderHistoryTableBody infiniteOrders={infiniteOrders} />
-          )}
+              <OrderHistoryTableBody infiniteOrders={infiniteOrders} />
+            )}
         </table>
       </div>
     </div>
@@ -119,16 +120,19 @@ const Table = ({
 const TradeOrders = () => {
   const queryClient = useQueryClient()
   const [isOpenOrders, setIsOpenOrders] = useState(true)
+  const { activeExchange } = useContext(UserContext)
   const [user, setUser] = useState()
+
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            timestamp: pageParam.timestamp,
-            trade_id: pageParam.trade_id,
-          }
-        : {}
+          timestamp: pageParam.timestamp,
+          trade_id: pageParam.trade_id,
+          ...activeExchange
+        }
+        : { ...activeExchange }
       const orders = await getOpenOrders(params)
       return orders.items
     },
@@ -147,11 +151,12 @@ const TradeOrders = () => {
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            updateTime: pageParam.update_time,
-            symbol: pageParam.symbol,
-            orderId: pageParam.order_id,
-          }
-        : {}
+          updateTime: pageParam.update_time,
+          symbol: pageParam.symbol,
+          orderId: pageParam.order_id,
+          ...activeExchange
+        }
+        : { ...activeExchange }
       const orders = await getOrdersHistory(params)
       return orders.items
     },
@@ -174,6 +179,11 @@ const TradeOrders = () => {
   })
 
   useEffect(() => {
+    infiniteOpenOrders.refetch()
+    infiniteHistory.refetch()
+  }, [activeExchange])
+
+  useEffect(() => {
     if (user != null) {
       firebase
         .firestore()
@@ -191,6 +201,7 @@ const TradeOrders = () => {
         })
     }
   }, [queryClient, user])
+
   return (
     <Table
       isOpenOrders={isOpenOrders}

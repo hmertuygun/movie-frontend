@@ -1,8 +1,10 @@
 import React, { useContext, useRef, useState } from 'react'
+import { X } from 'react-feather'
 import T2FARow from './T2FARow'
 import { ADD_2FA_FLOW, DeleteGoogleAuth, ModalsConf } from './T2FAModal'
 import { UserContext } from '../../contexts/UserContext'
 import { Modal } from '../../components'
+import Button from '../../components/Button/Button'
 
 const T2FA_TYPES = {
   googleAuth: {
@@ -50,33 +52,47 @@ const Security = () => {
     <div className="slice slice-sm bg-section-secondary">
       {toggleModal ? (
         <Modal onClose={reset2FAFlow}>
-          <T2FAContent
-            new2FADetails={new2FAEntry}
-            next={(data) => {
-              const next = add2FAFlowPage + 1
-              if (next < ADD_2FA_FLOW.length) {
-                nextDataRef.current = data
-                if (next === ModalsConf.BackUpKey.step) {
-                  set2FAList([...t2FAList, new2FAEntry])
-                  setDesc('')
+          <div style={{ position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                zIndex: '1',
+              }}
+            >
+              <Button onClick={reset2FAFlow} remove>
+                <X size="20" />
+              </Button>
+            </div>
+            <T2FAContent
+              new2FADetails={new2FAEntry}
+              next={(data) => {
+                const next = add2FAFlowPage + 1
+                if (next < ADD_2FA_FLOW.length) {
+                  nextDataRef.current = data
+                  if (next === ModalsConf.BackUpKey.step) {
+                    set2FAList([...t2FAList, new2FAEntry])
+                    setDesc('')
+                  }
+                  setAdd2FAFlowPage(next)
+                } else {
+                  if (add2FAFlowPage === ADD_2FA_FLOW.length) {
+                    set2FAList([])
+                  }
+                  reset2FAFlow()
                 }
-                setAdd2FAFlowPage(next)
-              } else {
-                if (add2FAFlowPage === ADD_2FA_FLOW.length) {
-                  set2FAList([])
+              }}
+              onBack={() => {
+                const prev = add2FAFlowPage - 1
+                if (add2FAFlowPage > 0) {
+                  setAdd2FAFlowPage(prev)
                 }
-                reset2FAFlow()
-              }
-            }}
-            onBack={() => {
-              const prev = add2FAFlowPage - 1
-              if (add2FAFlowPage > 0) {
-                setAdd2FAFlowPage(prev)
-              }
-            }}
-            onReset={closeModal}
-            {...{ data: nextDataRef.current }}
-          />
+              }}
+              onReset={closeModal}
+              {...{ data: nextDataRef.current }}
+            />
+          </div>
         </Modal>
       ) : null}
       <div className="slice slice-sm bg-section-secondary">

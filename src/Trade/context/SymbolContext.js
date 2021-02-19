@@ -5,12 +5,15 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges, getBalance, getLastPrice } from '../../api/api'
+import { getExchanges, getBalance, getLastPrice, getUserExchanges, updateLastSelectedAPIKey } from '../../api/api'
+import { UserContext } from '../../contexts/UserContext'
+import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
 
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
+  const { activeExchange, setActiveExchange, totalExchanges, loaderVisible, setLoaderVisibility } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -22,12 +25,29 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbolLastPrice, setSelectedSymbolLastPrice] = useState('')
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
 
-  async function loadBalance(quote_asset) {
+  async function loadBalance(quote_asset, refresh = false) {
+    setIsLoadingBalance(true)
+    const cacheBalance = localStorage.getItem(
+      `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
+    if (cacheBalance) {
+      setSelectedSymbolBalance(cacheBalance)
+      if (!refresh) {
+        setIsLoadingBalance(false)
+      }
+      setLoaderVisibility(false)
+    }
     try {
-      setIsLoadingBalance(true)
-      const response = await getBalance(quote_asset)
+      const response = await getBalance({
+        symbol: quote_asset,
+        ...activeExchange,
+      })
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data['balance'])
+        localStorage.setItem(
+          `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+          response.data['balance']
+        )
       } else {
         console.log('no balance found for ' + quote_asset)
         setSelectedSymbolBalance(0)
@@ -36,11 +56,17 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolBalance(0)
     }
     setIsLoadingBalance(false)
+    setLoaderVisibility(false)
   }
 
   async function loadLastPrice(symbolpair) {
+    setIsLoadingLastPrice(true)
+    const cacheLastPrice = localStorage.getItem(`last_price_${symbolpair}`)
+    if (cacheLastPrice) {
+      setSelectedSymbolLastPrice(cacheLastPrice)
+      setIsLoadingLastPrice(false)
+    }
     try {
-      setIsLoadingLastPrice(true)
       const response = await getLastPrice(symbolpair)
       if (
         'last_price' in response.data &&
@@ -48,6 +74,10 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         console.log('setting last price for ' + symbolpair)
         setSelectedSymbolLastPrice(response.data['last_price'])
+        localStorage.setItem(
+          `last_price_${symbolpair}`,
+          response.data['last_price']
+        )
       } else {
         console.log('no balance found for ' + symbolpair)
         setSelectedSymbolLastPrice(0)
@@ -72,8 +102,22 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  function setExchange(exchange) {
-    setSelectedExchange(exchange)
+  async function setExchange(exchange) {
+    try {
+      if (activeExchange.apiKeyName === exchange.apiKeyName && activeExchange.exchange === exchange.exchange) {
+        return
+      }
+      setLoaderVisibility(true)
+      await updateLastSelectedAPIKey({ ...exchange })
+      // if user selects the selected option again in the dropdown
+      setActiveExchange(exchange)
+      sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+    }
+    catch (e) {
+      errorNotification.open({ description: `Error activating this exchange key!` })
+    }
+    finally {
+    }
   }
 
   const queryExchanges = useQuery('exchangeSymbols', getExchanges)
@@ -81,13 +125,11 @@ const SymbolContextProvider = ({ children }) => {
   const loadExchanges = useCallback(async () => {
     try {
       const data = queryExchanges.data //await getExchanges()
-      const exchangeList = []
       const symbolList = []
       const symbolDetails = {}
-
       if (queryExchanges.status === 'success' && data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
-          exchangeList.push(exchange['exchange'])
+          // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
             const value =
               exchange['exchange'].toUpperCase() + ':' + symbol['value']
@@ -129,11 +171,11 @@ const SymbolContextProvider = ({ children }) => {
             }
           })
         })
-
-        setExchanges(exchangeList)
+        // Set total user added exchanges in dropdown
+        let mapExchanges = totalExchanges.map((item) => ({ ...item, label: `${item.exchange} - ${item.apiKeyName}`, value: `${item.exchange} - ${item.apiKeyName}` }))
+        setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedExchange({ label: 'Binance', value: exchangeList[0] })
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
         loadBalance('USDT')
@@ -148,8 +190,18 @@ const SymbolContextProvider = ({ children }) => {
   }, [queryExchanges.data, queryExchanges.status])
 
   useEffect(() => {
+    refreshBalance()
+  }, [activeExchange])
+
+  useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.status, loadExchanges])
+  }, [queryExchanges.status, loadExchanges, totalExchanges])
+
+  const refreshBalance = () => {
+    if (selectedSymbolDetail?.quote_asset) {
+      loadBalance(selectedSymbolDetail.quote_asset, true)
+    }
+  }
 
   return (
     <SymbolContext.Provider
@@ -166,6 +218,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolBalance,
         isLoadingBalance,
         selectedSymbolLastPrice,
+        refreshBalance
       }}
     >
       {children}

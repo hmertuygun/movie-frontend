@@ -15,7 +15,7 @@ export const ModalsConf = {
     hasBack: true,
   },
   EnableGoogleAuth: {
-    title: 'Enabled Google authenticator',
+    title: 'Enable Google authenticator',
     step: 2,
     hasBack: true,
   },
@@ -37,7 +37,7 @@ const HeaderSteps = [
   ModalsConf.BackUpKey,
 ]
 const HeaderStep = ({ step: active }) => (
-  <div className="row justify-content-center">
+  <div className="row justify-content-center px-3 mt-3">
     {HeaderSteps.map(({ title, step }) => (
       <div key={step} className="mx-2">
         <span
@@ -289,8 +289,8 @@ export const BackUpKey = withCard(
     return (
       <>
         <h4 className="text-center">
-          Please save these keys. They will allow you to recover your 2FA in the event
-          of device loss.
+          Please save these keys. They will allow you to recover your 2FA in the
+          event of device loss.
         </h4>
         <div className="mt-4">
           {data.backup_codes &&
