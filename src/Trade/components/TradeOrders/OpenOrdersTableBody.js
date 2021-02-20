@@ -117,11 +117,11 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
     hasNextPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
   const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>

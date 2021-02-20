@@ -10,6 +10,7 @@ import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
+import { errorNotification } from '../../../components/Notifications'
 
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
@@ -20,25 +21,16 @@ const Table = ({
   infiniteOrders,
   refreshOpenOrders,
   orderHistoryProgress,
-  refreshExchanges,
-  setFullRefresh
+  loadingBtn
 }) => {
-  const [loadingBtn, setLoadingBtn] = useState(false)
+  // const [loadingBtn, setLoadingBtn] = useState(false)
+  const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
+    onError: () => {
+      console.log(`Couldn't fetch exchanges`)
+    },
+    refetchOnWindowFocus: false
+  })
 
-  const rfshExchange = useQuery('exchangeSymbols', getExchanges)
-
-  const refreshOpenOrder = async () => {
-    setLoadingBtn(true)
-    refreshOpenOrders()
-    // const rfshOpenOrders = await refreshOpenOrders.refetch()
-
-    if (rfshExchange.isSuccess) {
-      setLoadingBtn(false)
-    } else {
-      console.log('error refreshing')
-      setLoadingBtn(false)
-    }
-  }
   const ProgressBar = (
     <div className="progress-wrapper m-5">
       <span className="progress-label text-muted">Processing Order History..</span>
@@ -87,7 +79,7 @@ const Table = ({
                 <button
                   type="button"
                   className="btn btn-sm btn-neutral btn-icon"
-                  onClick={refreshOpenOrder}
+                  onClick={refreshOpenOrders}
                 >
                   {!isMobile && <span className="btn-inner--text">Refresh</span>}
                   <span className="btn-inner--icon">
@@ -137,6 +129,8 @@ const TradeOrders = () => {
   const [user, setUser] = useState()
   const [orderHistoryProgress, setOrderHistoryProgress] = useState(0)
   const [fullRefresh, setFullRefresh] = useState(0)
+  const [loadBtn, setLoadBtn] = useState(false)
+  const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
@@ -159,6 +153,10 @@ const TradeOrders = () => {
       getNextPageParam: (lastPage) => {
         return lastPage[lastPage.length - 1]
       },
+      onError: () => {
+        errorNotification.open({ description: 'Error fetching open orders!' })
+      },
+      refetchOnWindowFocus: false
     }
   )
 
@@ -183,15 +181,12 @@ const TradeOrders = () => {
       getNextPageParam: (lastPage) => {
         return lastPage[lastPage.length - 1]
       },
-    }
+      onError: () => {
+        errorNotification.open({ description: 'Error fetching order history' })
+      },
+      refetchOnWindowFocus: false
+    },
   )
-
-  useEffect(async () => {
-    if (fullRefresh === 1) {
-      await infiniteOpenOrders.refetch()
-    }
-    setFullRefresh(0)
-  }, [fullRefresh])
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
@@ -201,10 +196,21 @@ const TradeOrders = () => {
     }
   })
 
+  useEffect(async () => {
+    if (fullRefresh === 1 || orderUpdateCount === 2) {
+      setLoadBtn(true)
+      await infiniteOpenOrders.refetch()
+      setFullRefresh(0)
+      setLoadBtn(false)
+    }
+  }, [fullRefresh, orderUpdateCount])
+
   useEffect(() => {
     infiniteOpenOrders.refetch()
     infiniteHistory.refetch()
   }, [activeExchange])
+
+  console.log(orderUpdateCount)
 
   useEffect(() => {
     if (user != null) {
@@ -233,7 +239,7 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(function (doc) {
-          console.log(doc.data())
+          setOrderUpdateCount(orderUpdateCount + 1)
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
@@ -251,9 +257,10 @@ const TradeOrders = () => {
       isOpenOrders={isOpenOrders}
       setIsOpenOrders={setIsOpenOrders}
       infiniteOrders={isOpenOrders ? infiniteOpenOrders : infiniteHistory}
-      refreshOpenOrders={() => { setFullRefresh(1) }}
       refreshExchanges={getExchanges}
       orderHistoryProgress={orderHistoryProgress}
+      refreshOpenOrders={() => setFullRefresh(1)}
+      loadingBtn={loadBtn}
     />
   )
 
