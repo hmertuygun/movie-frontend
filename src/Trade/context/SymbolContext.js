@@ -25,12 +25,29 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbolLastPrice, setSelectedSymbolLastPrice] = useState('')
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
 
-  async function loadBalance(quote_asset) {
+  async function loadBalance(quote_asset, refresh = false) {
+    setIsLoadingBalance(true)
+    const cacheBalance = localStorage.getItem(
+      `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
+    if (cacheBalance) {
+      setSelectedSymbolBalance(cacheBalance)
+      if (!refresh) {
+        setIsLoadingBalance(false)
+      }
+      setLoaderVisibility(false)
+    }
     try {
-      setIsLoadingBalance(true)
-      const response = await getBalance({ symbol: quote_asset, ...activeExchange })
+      const response = await getBalance({
+        symbol: quote_asset,
+        ...activeExchange,
+      })
       if ('balance' in response.data) {
         setSelectedSymbolBalance(response.data['balance'])
+        localStorage.setItem(
+          `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+          response.data['balance']
+        )
       } else {
         console.log('no balance found for ' + quote_asset)
         setSelectedSymbolBalance(0)
@@ -43,8 +60,13 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   async function loadLastPrice(symbolpair) {
+    setIsLoadingLastPrice(true)
+    const cacheLastPrice = localStorage.getItem(`last_price_${symbolpair}`)
+    if (cacheLastPrice) {
+      setSelectedSymbolLastPrice(cacheLastPrice)
+      setIsLoadingLastPrice(false)
+    }
     try {
-      setIsLoadingLastPrice(true)
       const response = await getLastPrice(symbolpair)
       if (
         'last_price' in response.data &&
@@ -52,6 +74,10 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         console.log('setting last price for ' + symbolpair)
         setSelectedSymbolLastPrice(response.data['last_price'])
+        localStorage.setItem(
+          `last_price_${symbolpair}`,
+          response.data['last_price']
+        )
       } else {
         console.log('no balance found for ' + symbolpair)
         setSelectedSymbolLastPrice(0)
@@ -164,14 +190,18 @@ const SymbolContextProvider = ({ children }) => {
   }, [queryExchanges.data, queryExchanges.status])
 
   useEffect(() => {
-    if (selectedSymbolDetail?.quote_asset) {
-      loadBalance(selectedSymbolDetail.quote_asset)
-    }
+    refreshBalance()
   }, [activeExchange])
 
   useEffect(() => {
     loadExchanges()
   }, [queryExchanges.status, loadExchanges, totalExchanges])
+
+  const refreshBalance = () => {
+    if (selectedSymbolDetail?.quote_asset) {
+      loadBalance(selectedSymbolDetail.quote_asset, true)
+    }
+  }
 
   return (
     <SymbolContext.Provider
@@ -188,6 +218,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolBalance,
         isLoadingBalance,
         selectedSymbolLastPrice,
+        refreshBalance
       }}
     >
       {children}

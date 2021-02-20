@@ -319,3 +319,14 @@ export async function getOrdersHistory({ updateTime, symbol, orderId, apiKeyName
   })
   return openOrders.data
 }
+
+export async function getPortfolioFS(activeExchange) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolioFS?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const exchanges = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return exchanges.data
+}

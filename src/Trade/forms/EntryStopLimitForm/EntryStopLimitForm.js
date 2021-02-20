@@ -9,7 +9,7 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
-import { faWallet } from '@fortawesome/free-solid-svg-icons'
+import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { TradeContext } from '../../context/SimpleTradeContext'
@@ -27,6 +27,7 @@ const EntryStopLimitForm = () => {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    refreshBalance,
   } = useSymbolContext()
 
   const { addEntryStopLimit } = useContext(TradeContext)
@@ -400,21 +401,30 @@ const EntryStopLimitForm = () => {
 
   return (
     <Fragment>
-      <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
-        <FontAwesomeIcon icon={faWallet} />
-        {'  '}
-        {isLoadingBalance ? ' ' : selectedSymbolBalance}
-        {'  '}
-        {selectedSymbolDetail['quote_asset']}
-        {'  '}
+      <div className="d-flex align-items-center justify-content-between">
+        <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
+          <FontAwesomeIcon icon={faWallet} />
+          {'  '}
+          {isLoadingBalance ? ' ' : selectedSymbolBalance}
+          {'  '}
+          {selectedSymbolDetail['quote_asset']}
+          {'  '}
+        </div>
         {isLoadingBalance ? (
           <span
             className="spinner-border spinner-border-sm"
             role="status"
             aria-hidden="true"
-          />
+            style={{ marginRight: '10px', color: '#5A6677' }}
+          ></span>
         ) : (
-          ''
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
         )}
       </div>
 
@@ -502,7 +512,7 @@ const EntryStopLimitForm = () => {
           </div>
           <Button type="submit" variant="exits">
             <span>
-              Set exits
+              Next: Exits
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1em"
