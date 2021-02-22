@@ -273,8 +273,6 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
-          console.log(doc?.data())
-          await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
