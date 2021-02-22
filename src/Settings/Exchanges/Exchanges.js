@@ -40,7 +40,7 @@ const Exchanges = () => {
 
   const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: async (res, param) => {
-      if (res.status === 400) {
+      if (res.status !== 200) {
         errorNotification.open({ description: res.data.detail })
         return
       }
