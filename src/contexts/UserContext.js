@@ -221,6 +221,7 @@ const UserContextProvider = ({ children }) => {
   // LOGOUT
   function logout() {
     localStorage.clear()
+    sessionStorage.clear()
     setState({ user: null, has2FADetails: null, is2FAVerified: false })
     return true
   }
