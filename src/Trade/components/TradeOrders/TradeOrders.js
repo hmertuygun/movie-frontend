@@ -169,7 +169,7 @@ const TradeOrders = () => {
   const [loadBtn, setLoadBtn] = useState(false)
   const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
-  const infiniteOpenOrders = useInfiniteQuery(
+  let infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
@@ -192,8 +192,7 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching open orders!' })
-      },
-      refetchOnWindowFocus: false
+      }
     }
   )
 
@@ -220,8 +219,7 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching order history' })
-      },
-      refetchOnWindowFocus: false
+      }
     },
   )
 
@@ -234,6 +232,7 @@ const TradeOrders = () => {
   })
 
   useEffect(async () => {
+    console.log(fullRefresh)
     if (fullRefresh === 1) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
@@ -242,9 +241,17 @@ const TradeOrders = () => {
     }
   }, [fullRefresh])
 
-  useEffect(() => {
-    infiniteOpenOrders.refetch()
-    infiniteHistory.refetch()
+  useEffect(async () => {
+    if (orderUpdateCount === 1) {
+      const orders = await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
+      infiniteOpenOrders = orders.items
+    }
+  }, [orderUpdateCount])
+
+  useEffect(async () => {
+    await infiniteOpenOrders.refetch()
+    await infiniteHistory.refetch()
+    // await Promise.all([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
   }, [activeExchange])
 
   useEffect(() => {
@@ -286,6 +293,7 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
+          setOrderUpdateCount(orderUpdateCount + 1)
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
@@ -296,7 +304,7 @@ const TradeOrders = () => {
           queryClient.invalidateQueries(OrdersHistoryQueryKey)
         })
     }
-  }, [queryClient, user, activeExchange])
+  }, [queryClient, user])
 
   return (
     <Table
