@@ -164,7 +164,7 @@ const TradeOrders = () => {
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const { activeExchange } = useContext(UserContext)
   const [user, setUser] = useState()
-  const [orderHistoryProgress, setOrderHistoryProgress] = useState(0)
+  const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [fullRefresh, setFullRefresh] = useState(0)
   const [loadBtn, setLoadBtn] = useState(false)
   const [orderUpdateCount, setOrderUpdateCount] = useState(0)
@@ -254,11 +254,15 @@ const TradeOrders = () => {
         .collection('order_history_load')
         .doc(user.email)
         .onSnapshot(
-          { includeMetadataChanges: true },
           function (doc) {
+            // If the api key name and exchange name coming from firestore is the currently selected one, only then show progress bar
+            let getKeys = Object.keys(doc.data())
+            let [apiName, exchange] = getKeys[0].split("__")
+            exchange = exchange.split("_")[0]
+            let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
             let fsData = doc.data()
             let total, loaded
-            Object.keys(fsData).forEach((item) => {
+            getKeys.forEach((item) => {
               if (item.includes('loaded')) {
                 loaded = fsData[item]
               } else if (item.includes('total')) {
@@ -266,10 +270,15 @@ const TradeOrders = () => {
               }
             })
             let progress = precisionRound((loaded / total) * 100)
-            setOrderHistoryProgress(progress)
+            if (isActiveExchangeSelected) {
+              setOrderHistoryProgress(progress)
+            }
+            else {
+              setOrderHistoryProgress("100.00")
+            }
           },
           (err) => {
-            console.info(err)
+            console.error(err)
           }
         )
       firebase
@@ -287,7 +296,7 @@ const TradeOrders = () => {
           queryClient.invalidateQueries(OrdersHistoryQueryKey)
         })
     }
-  }, [queryClient, user])
+  }, [queryClient, user, activeExchange])
 
   return (
     <Table
