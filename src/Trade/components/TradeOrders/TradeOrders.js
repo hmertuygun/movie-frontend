@@ -60,9 +60,8 @@ const Table = ({
               Open Orders
             </span>
             <span
-              className={`${
-                !isOpenOrders ? 'h6 action-item' : 'action-item'
-              } pl-4`}
+              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
+                } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
               Order History
@@ -102,19 +101,19 @@ const Table = ({
                   ></span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  className="btn btn-sm btn-neutral btn-icon"
-                  onClick={refreshOpenOrders}
-                >
-                  {!isMobile && (
-                    <span className="btn-inner--text">Refresh</span>
-                  )}
-                  <span className="btn-inner--icon">
-                    <FontAwesomeIcon icon={faSync} />
-                  </span>
-                </button>
-              )}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-neutral btn-icon"
+                    onClick={refreshOpenOrders}
+                  >
+                    {!isMobile && (
+                      <span className="btn-inner--text">Refresh</span>
+                    )}
+                    <span className="btn-inner--icon">
+                      <FontAwesomeIcon icon={faSync} />
+                    </span>
+                  </button>
+                )}
             </div>
           </div>
         </div>
@@ -122,39 +121,39 @@ const Table = ({
       {!isOpenOrders && orderHistoryProgress !== '100.00' ? (
         ProgressBar
       ) : (
-        <div style={{ overflowY: 'scroll' }}>
-          <table className={['table', styles.table].join(' ')}>
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col">Pair</th>
-                <th scope="col">Type</th>
-                <th scope="col">Side</th>
-                {!isOpenOrders ? <th scope="col">Average</th> : null}
-                <th scope="col">Price</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Filled</th>
-                <th scope="col">Total</th>
-                <th scope="col">Trigger Condition</th>
-                <th scope="col">Status</th>
-                <th scope="col">Date</th>
-                {isOpenOrders ? <th scope="col">Cancel</th> : null}
-              </tr>
-            </thead>
-            {isOpenOrders ? (
-              <OpenOrdersTableBody
-                infiniteOrders={infiniteOrders}
-                isHideOtherPairs={isHideOtherPairs}
-              />
-            ) : (
-              <OrderHistoryTableBody
-                infiniteOrders={infiniteOrders}
-                isHideOtherPairs={isHideOtherPairs}
-              />
-            )}
-          </table>
-        </div>
-      )}
+          <div style={{ overflowY: 'scroll' }}>
+            <table className={['table', styles.table].join(' ')}>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Pair</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Side</th>
+                  {!isOpenOrders ? <th scope="col">Average</th> : null}
+                  <th scope="col">Price</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Filled</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Trigger Condition</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Date</th>
+                  {isOpenOrders ? <th scope="col">Cancel</th> : null}
+                </tr>
+              </thead>
+              {isOpenOrders ? (
+                <OpenOrdersTableBody
+                  infiniteOrders={infiniteOrders}
+                  isHideOtherPairs={isHideOtherPairs}
+                />
+              ) : (
+                  <OrderHistoryTableBody
+                    infiniteOrders={infiniteOrders}
+                    isHideOtherPairs={isHideOtherPairs}
+                  />
+                )}
+            </table>
+          </div>
+        )}
     </div>
   )
 }
@@ -169,16 +168,16 @@ const TradeOrders = () => {
   const [loadBtn, setLoadBtn] = useState(false)
   const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
-  const infiniteOpenOrders = useInfiniteQuery(
+  let infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            timestamp: pageParam.timestamp,
-            trade_id: pageParam.trade_id,
-            fullRefresh,
-            ...activeExchange,
-          }
+          timestamp: pageParam.timestamp,
+          trade_id: pageParam.trade_id,
+          fullRefresh,
+          ...activeExchange,
+        }
         : { ...activeExchange, fullRefresh }
       const orders = await getOpenOrders(params)
       return orders.items
@@ -192,8 +191,7 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching open orders!' })
-      },
-      refetchOnWindowFocus: false,
+      }
     }
   )
 
@@ -202,11 +200,11 @@ const TradeOrders = () => {
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            updateTime: pageParam.update_time,
-            symbol: pageParam.symbol,
-            orderId: pageParam.order_id,
-            ...activeExchange,
-          }
+          updateTime: pageParam.update_time,
+          symbol: pageParam.symbol,
+          orderId: pageParam.order_id,
+          ...activeExchange,
+        }
         : { ...activeExchange }
       const orders = await getOrdersHistory(params)
       return orders.items
@@ -220,9 +218,8 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching order history' })
-      },
-      refetchOnWindowFocus: false,
-    }
+      }
+    },
   )
 
   firebase.auth().onAuthStateChanged(function (user) {
@@ -234,6 +231,7 @@ const TradeOrders = () => {
   })
 
   useEffect(async () => {
+    console.log(fullRefresh)
     if (fullRefresh === 1) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
@@ -242,9 +240,17 @@ const TradeOrders = () => {
     }
   }, [fullRefresh])
 
-  useEffect(() => {
-    infiniteOpenOrders.refetch()
-    infiniteHistory.refetch()
+  useEffect(async () => {
+    if (orderUpdateCount === 1) {
+      const orders = await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
+      infiniteOpenOrders = orders.items
+    }
+  }, [orderUpdateCount])
+
+  useEffect(async () => {
+    await infiniteOpenOrders.refetch()
+    await infiniteHistory.refetch()
+    // await Promise.all([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
   }, [activeExchange])
 
   useEffect(() => {
@@ -286,6 +292,7 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
+          setOrderUpdateCount(orderUpdateCount + 1)
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
@@ -296,7 +303,7 @@ const TradeOrders = () => {
           queryClient.invalidateQueries(OrdersHistoryQueryKey)
         })
     }
-  }, [queryClient, user, activeExchange])
+  }, [queryClient, user])
 
   return (
     <Table
