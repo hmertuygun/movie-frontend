@@ -146,7 +146,7 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                 if (!isHideOtherPairs) {
                   return true
                 }
-                return order.symbol === selectedPair
+                return order.symbol.replace('-', '') === selectedPair
               })
               .map((order, rowIndex) => {
                 const orders = [order, ...order.orders]
@@ -166,8 +166,8 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-              ? 'Load Older'
-              : 'No open orders'}
+            ? 'Load Older'
+            : 'No open orders'}
         </td>
       </tr>
     </tbody>
