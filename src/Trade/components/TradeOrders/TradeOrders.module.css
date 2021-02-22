@@ -17,3 +17,7 @@
 .canceled {
   color: rgb(174, 180, 188);
 }
+
+.customControlLabel::before {
+  left: -1.5rem;
+}
