@@ -87,7 +87,11 @@ const Table = ({
                   checked={isHideOtherPairs}
                   onChange={(e) => setIsHideOtherPairs(e.target.checked)}
                 />
-                <label className="custom-control-label" htmlFor="check-terms">
+                <label
+                  className={`custom-control-label ${styles['customControlLabel']}`}
+                  htmlFor="check-terms"
+                  style={{ fontSize: '14px', verticalAlign: 'middle' }}
+                >
                   Hide Other Pairs
                 </label>
               </div>
