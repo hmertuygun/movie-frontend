@@ -5,7 +5,12 @@ import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
 import { UserContext } from '../../../contexts/UserContext'
-import { errorNotification, successNotification } from '../../../components/Notifications'
+import {
+  errorNotification,
+  successNotification,
+} from '../../../components/Notifications'
+import { useSymbolContext } from '../../context/SymbolContext'
+
 const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
@@ -43,13 +48,18 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
               onClick={async () => {
                 setCancelingOrders([...cancelingOrders, order.trade_id])
                 try {
-                  await cancelTradeOrder({ trade_id: order.trade_id, ...activeExchange })
+                  await cancelTradeOrder({
+                    trade_id: order.trade_id,
+                    ...activeExchange,
+                  })
                   successNotification.open({ description: `Order Cancelled!` })
                 } catch (error) {
                   const restOfCancelOrders = cancelingOrders.filter(
                     (cancelingOrder) => cancelingOrder !== order.trade_id
                   )
-                  errorNotification.open({ description: `Order couldn't be cancelled. Please try again later` })
+                  errorNotification.open({
+                    description: `Order couldn't be cancelled. Please try again later`,
+                  })
                   setCancelingOrders(restOfCancelOrders)
                   throw error
                 }
@@ -109,7 +119,7 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ infiniteOrders }) => {
+const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
   const {
     data: history,
     isFetchingNextPage,
@@ -122,23 +132,33 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
     onIntersect: fetchNextPage,
     enabled: hasNextPage,
   })
+  const { selectedSymbolDetail } = useSymbolContext()
+  const selectedPair = selectedSymbolDetail['symbolpair']
+
   const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>
       {history &&
         history.pages.map((items, index) => (
           <React.Fragment key={index}>
-            {items.map((order, rowIndex) => {
-              const orders = [order, ...order.orders]
-              return (
-                <Expandable
-                  entry={orders}
-                  key={rowIndex}
-                  cancelingOrders={cancelingOrders}
-                  setCancelingOrders={setCancelingOrders}
-                />
-              )
-            })}
+            {items
+              .filter((order) => {
+                if (!isHideOtherPairs) {
+                  return true
+                }
+                return order.symbol === selectedPair
+              })
+              .map((order, rowIndex) => {
+                const orders = [order, ...order.orders]
+                return (
+                  <Expandable
+                    entry={orders}
+                    key={rowIndex}
+                    cancelingOrders={cancelingOrders}
+                    setCancelingOrders={setCancelingOrders}
+                  />
+                )
+              })}
           </React.Fragment>
         ))}
       <tr ref={loadMoreButtonRef}>

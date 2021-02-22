@@ -23,7 +23,8 @@ const Table = ({
   orderHistoryProgress,
   loadingBtn
 }) => {
-  // const [loadingBtn, setLoadingBtn] = useState(false)
+
+  const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
     onError: () => {
       console.log(`Couldn't fetch exchanges`)
@@ -33,17 +34,23 @@ const Table = ({
 
   const ProgressBar = (
     <div className="progress-wrapper m-5">
-      <span className="progress-label text-muted">Processing Order History..</span>
+      <span className="progress-label text-muted">
+        Processing Order History..
+      </span>
       <span className="progress-percentage text-muted">{`${orderHistoryProgress}%`}</span>
       <div className="progress mt-2" style={{ height: `8px` }}>
-        <div className="progress-bar bg-primary" role="progressbar" style={{ width: `${orderHistoryProgress}%` }}></div>
+        <div
+          className="progress-bar bg-primary"
+          role="progressbar"
+          style={{ width: `${orderHistoryProgress}%` }}
+        ></div>
       </div>
     </div>
   )
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="pb-0">
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="flex-wrap d-flex justify-content-between align-items-center">
           <div>
             <span
               className={
@@ -62,62 +69,88 @@ const Table = ({
             </span>
           </div>
           <div className="col-auto">
-            {loadingBtn ? (
-              <button
-                className="btn btn-sm btn-neutral btn-icon"
-                type="button"
-                disabled
-              >
-                Refresh{'  '}
-                <span
-                  className="spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-              </button>
-            ) : (
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="mr-3 custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  className="custom-control-input"
+                  id="check-terms"
+                  checked={isHideOtherPairs}
+                  onChange={(e) => setIsHideOtherPairs(e.target.checked)}
+                />
+                <label className="custom-control-label" htmlFor="check-terms">
+                  Hide Other Pairs
+                </label>
+              </div>
+              {loadingBtn ? (
                 <button
-                  type="button"
                   className="btn btn-sm btn-neutral btn-icon"
-                  onClick={refreshOpenOrders}
+                  type="button"
+                  disabled
                 >
-                  {!isMobile && <span className="btn-inner--text">Refresh</span>}
-                  <span className="btn-inner--icon">
-                    <FontAwesomeIcon icon={faSync} />
-                  </span>
+                  {!isMobile && (
+                    <span className="btn-inner--text">Refresh</span>
+                  )}
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                 </button>
-              )}
+              ) : (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-neutral btn-icon"
+                    onClick={refreshOpenOrders}
+                  >
+                    {!isMobile && (
+                      <span className="btn-inner--text">Refresh</span>
+                    )}
+                    <span className="btn-inner--icon">
+                      <FontAwesomeIcon icon={faSync} />
+                    </span>
+                  </button>
+                )}
+            </div>
           </div>
         </div>
       </div>
-      { !isOpenOrders && orderHistoryProgress !== "100.00" ? ProgressBar :
-        <div style={{ overflowY: 'scroll' }}>
-          <table className={['table', styles.table].join(' ')}>
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col">Pair</th>
-                <th scope="col">Type</th>
-                <th scope="col">Side</th>
-                {!isOpenOrders ? <th scope="col">Average</th> : null}
-                <th scope="col">Price</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Filled</th>
-                <th scope="col">Total</th>
-                <th scope="col">Trigger Condition</th>
-                <th scope="col">Status</th>
-                <th scope="col">Date</th>
-                {isOpenOrders ? <th scope="col">Cancel</th> : null}
-              </tr>
-            </thead>
-            {isOpenOrders ? (
-              <OpenOrdersTableBody infiniteOrders={infiniteOrders} />
-            ) : (
-                <OrderHistoryTableBody infiniteOrders={infiniteOrders} />
-              )}
-          </table>
-        </div>
-      }
+      {!isOpenOrders && orderHistoryProgress !== '100.00' ? (
+        ProgressBar
+      ) : (
+          <div style={{ overflowY: 'scroll' }}>
+            <table className={['table', styles.table].join(' ')}>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Pair</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Side</th>
+                  {!isOpenOrders ? <th scope="col">Average</th> : null}
+                  <th scope="col">Price</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Filled</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Trigger Condition</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Date</th>
+                  {isOpenOrders ? <th scope="col">Cancel</th> : null}
+                </tr>
+              </thead>
+              {isOpenOrders ? (
+                <OpenOrdersTableBody
+                  infiniteOrders={infiniteOrders}
+                  isHideOtherPairs={isHideOtherPairs}
+                />
+              ) : (
+                  <OrderHistoryTableBody
+                    infiniteOrders={infiniteOrders}
+                    isHideOtherPairs={isHideOtherPairs}
+                  />
+                )}
+            </table>
+          </div>
+        )}
     </div>
   )
 }
@@ -140,7 +173,7 @@ const TradeOrders = () => {
           timestamp: pageParam.timestamp,
           trade_id: pageParam.trade_id,
           fullRefresh,
-          ...activeExchange
+          ...activeExchange,
         }
         : { ...activeExchange, fullRefresh }
       const orders = await getOpenOrders(params)
@@ -168,7 +201,7 @@ const TradeOrders = () => {
           updateTime: pageParam.update_time,
           symbol: pageParam.symbol,
           orderId: pageParam.order_id,
-          ...activeExchange
+          ...activeExchange,
         }
         : { ...activeExchange }
       const orders = await getOrdersHistory(params)
@@ -216,22 +249,25 @@ const TradeOrders = () => {
         .firestore()
         .collection('order_history_load')
         .doc(user.email)
-        .onSnapshot({ includeMetadataChanges: true }, function (doc) {
-          let fsData = doc.data()
-          let total, loaded
-          Object.keys(fsData).forEach((item) => {
-            if (item.includes('loaded')) {
-              loaded = fsData[item]
-            }
-            else if (item.includes('total')) {
-              total = fsData[item]
-            }
-          })
-          let progress = precisionRound(((loaded / total) * 100))
-          setOrderHistoryProgress(progress)
-        }, (err) => {
-          console.info(err)
-        })
+        .onSnapshot(
+          { includeMetadataChanges: true },
+          function (doc) {
+            let fsData = doc.data()
+            let total, loaded
+            Object.keys(fsData).forEach((item) => {
+              if (item.includes('loaded')) {
+                loaded = fsData[item]
+              } else if (item.includes('total')) {
+                total = fsData[item]
+              }
+            })
+            let progress = precisionRound((loaded / total) * 100)
+            setOrderHistoryProgress(progress)
+          },
+          (err) => {
+            console.info(err)
+          }
+        )
       firebase
         .firestore()
         .collection('order_update')
@@ -262,7 +298,6 @@ const TradeOrders = () => {
       loadingBtn={loadBtn}
     />
   )
-
 }
 
 export default TradeOrders
