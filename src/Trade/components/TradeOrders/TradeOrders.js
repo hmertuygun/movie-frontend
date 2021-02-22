@@ -197,13 +197,13 @@ const TradeOrders = () => {
   })
 
   useEffect(async () => {
-    if (fullRefresh === 1 || orderUpdateCount >= 2) {
+    if (fullRefresh === 1) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
       setFullRefresh(0)
       setLoadBtn(false)
     }
-  }, [fullRefresh, orderUpdateCount])
+  }, [fullRefresh])
 
   useEffect(() => {
     infiniteOpenOrders.refetch()
@@ -236,8 +236,9 @@ const TradeOrders = () => {
         .firestore()
         .collection('order_update')
         .doc(user.email)
-        .onSnapshot(function (doc) {
-          setOrderUpdateCount(orderUpdateCount + 1)
+        .onSnapshot(async function (doc) {
+          console.log(doc?.data())
+          await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
