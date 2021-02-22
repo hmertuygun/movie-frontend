@@ -147,9 +147,15 @@ const Table = ({
               </tr>
             </thead>
             {isOpenOrders ? (
-              <OpenOrdersTableBody infiniteOrders={infiniteOrders} />
+              <OpenOrdersTableBody
+                infiniteOrders={infiniteOrders}
+                isHideOtherPairs={isHideOtherPairs}
+              />
             ) : (
-              <OrderHistoryTableBody infiniteOrders={infiniteOrders} />
+              <OrderHistoryTableBody
+                infiniteOrders={infiniteOrders}
+                isHideOtherPairs={isHideOtherPairs}
+              />
             )}
           </table>
         </div>
