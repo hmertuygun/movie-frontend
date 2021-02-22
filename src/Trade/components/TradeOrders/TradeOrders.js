@@ -21,24 +21,23 @@ const Table = ({
   infiniteOrders,
   refreshOpenOrders,
   orderHistoryProgress,
-  loadingBtn
+  loadingBtn,
 }) => {
-
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
     onError: () => {
       console.log(`Couldn't fetch exchanges`)
     },
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   })
 
   const ProgressBar = (
-    <div className="progress-wrapper m-5">
+    <div className="m-5 progress-wrapper">
       <span className="progress-label text-muted">
         Processing Order History..
       </span>
       <span className="progress-percentage text-muted">{`${orderHistoryProgress}%`}</span>
-      <div className="progress mt-2" style={{ height: `8px` }}>
+      <div className="mt-2 progress" style={{ height: `8px` }}>
         <div
           className="progress-bar bg-primary"
           role="progressbar"
@@ -70,7 +69,7 @@ const Table = ({
           </div>
           <div className="col-auto">
             <div className="d-flex justify-content-between align-items-center">
-              <div className="mr-3 custom-control custom-checkbox">
+              <div className="mr-5 custom-control custom-checkbox">
                 <input
                   type="checkbox"
                   className="custom-control-input"
@@ -81,7 +80,7 @@ const Table = ({
                 <label
                   className={`custom-control-label ${styles['customControlLabel']}`}
                   htmlFor="check-terms"
-                  style={{ fontSize: '14px', verticalAlign: 'middle' }}
+                  style={{ fontSize: '12px', verticalAlign: 'middle' }}
                 >
                   Hide Other Pairs
                 </label>

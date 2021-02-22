@@ -19,5 +19,6 @@
 }
 
 .customControlLabel::before {
-  left: -1.5rem;
+  top: 2.5px !important;
+  left: -1.5rem !important;
 }
