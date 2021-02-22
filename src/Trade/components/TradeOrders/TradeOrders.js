@@ -256,8 +256,6 @@ const TradeOrders = () => {
             let [apiName, exchange] = getKeys[0].split("__")
             exchange = exchange.split("_")[0]
             let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
-            console.log(apiName, exchange)
-            console.log(activeExchange)
             let fsData = doc.data()
             let total, loaded
             getKeys.forEach((item) => {
@@ -268,7 +266,6 @@ const TradeOrders = () => {
               }
             })
             let progress = precisionRound((loaded / total) * 100)
-            console.log(progress, isActiveExchangeSelected)
             if (isActiveExchangeSelected) {
               setOrderHistoryProgress(progress)
             }
