@@ -1,47 +1,121 @@
-import React, { useState, useEffect, useContext, createContext } from 'react'
-import { useQuery } from 'react-query'
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  useCallback,
+} from 'react'
+import axios from 'axios'
+import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
-import { getPortfolioFS } from '../../api/api'
+async function getHeaders(token) {
+  return {
+    'Content-Type': 'application/json;charset=UTF-8',
+    Authorization: `Bearer ${token}`,
+    'Access-Control-Allow-Methods':
+      'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  }
+}
 
 export const PortfolioContext = createContext()
 
 const PortfolioCTXProvider = ({ children }) => {
-  let tickers = [],
-    balance = [],
-    chart = [],
-    estimate = [],
-    error = false
-
+  const [tickers, setTicker] = useState()
+  const [chart, setChart] = useState()
+  const [estimate, setEstimate] = useState()
+  const [balance, setBalance] = useState()
   const [loading, setLoading] = useState(false)
+  const [error, setErrorLoading] = useState(false)
+  const [user, setUser] = useState()
+  const { activeExchange, setActiveExchange } = useContext(UserContext)
 
-  const { activeExchange } = useContext(UserContext)
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    const cacheTicker = localStorage.getItem(
+      `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
 
-  const portfolioQuery = useQuery(['portfolio', activeExchange], () =>
-    getPortfolioFS(activeExchange)
-  )
+    if (cacheTicker) {
+      const parsedTicker = JSON.parse(cacheTicker)
+      setTicker(parsedTicker)
+      setBalance(parsedTicker.BottomTable)
+      setChart(parsedTicker.Distribution)
+      setEstimate(parsedTicker.EstValue)
+      setLoading(false)
+    }
 
-  if (portfolioQuery.data) {
-    tickers = portfolioQuery.data
-    balance = portfolioQuery.data.BottomTable
-    chart = portfolioQuery.data.Distribution
-    estimate = portfolioQuery.data.EstValue
-  } else {
-    error = true
-  }
+    try {
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolioFS?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
+
+      if (user != null) {
+        const currentUser = await firebase.auth().currentUser
+        const token = await currentUser.getIdToken()
+
+        const exchanges = await axios(apiUrl, {
+          headers: await getHeaders(token),
+          method: 'GET',
+        }).catch((err) => err?.response)
+        if (exchanges.status === 404) {
+          refreshData()
+          return
+        }
+        localStorage.setItem(
+          `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+          JSON.stringify(exchanges.data)
+        )
+        setTicker(exchanges.data)
+        setBalance(exchanges.data.BottomTable)
+        setChart(exchanges.data.Distribution)
+        setEstimate(exchanges.data.EstValue)
+        setLoading(false)
+      }
+    } catch (error) {
+      console.log(error)
+      setLoading(false)
+      setErrorLoading(true)
+    }
+  }, [user])
 
   const refreshData = async () => {
-    setLoading(true)
-    await portfolioQuery.refetch()
-    setLoading(false)
+    try {
+      setLoading(true)
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
+      const token = await firebase.auth().currentUser.getIdToken()
+
+      const exchanges = await axios(apiUrl, {
+        headers: await getHeaders(token),
+        method: 'GET',
+      })
+      localStorage.setItem(
+        `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+        JSON.stringify(exchanges.data)
+      )
+      setTicker(exchanges.data)
+      setBalance(exchanges.data.BottomTable)
+      setChart(exchanges.data.Distribution)
+      setEstimate(exchanges.data.EstValue)
+
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+      setLoading(false)
+      setErrorLoading(true)
+    }
   }
 
-  useEffect(() => {
-    portfolioQuery.refetch()
-  }, [activeExchange])
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (user != null) {
+      setUser(user)
+    } else {
+      setUser(null)
+    }
+  })
 
   useEffect(() => {
-    setLoading(portfolioQuery.isLoading)
-  }, [portfolioQuery.isLoading])
+    fetchData()
+  }, [user, activeExchange, fetchData])
 
   return (
     <PortfolioContext.Provider
