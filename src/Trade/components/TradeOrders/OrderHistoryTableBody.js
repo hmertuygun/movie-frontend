@@ -13,11 +13,11 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
     hasNextPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
 
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
@@ -46,11 +46,11 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                       style={
                         !isCanceled
                           ? {
-                              color:
-                                order.side?.toLowerCase() === 'buy'
-                                  ? 'green'
-                                  : 'red',
-                            }
+                            color:
+                              order.side?.toLowerCase() === 'buy'
+                                ? 'green'
+                                : 'red',
+                          }
                           : undefined
                       }
                     >
@@ -94,8 +94,8 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-            ? 'Load Older'
-            : 'Nothing more to load'}
+              ? 'Load Older'
+              : 'Nothing more to load'}
         </td>
       </tr>
     </tbody>

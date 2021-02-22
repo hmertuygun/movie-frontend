@@ -10,6 +10,7 @@ import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
+import { errorNotification } from '../../../components/Notifications'
 
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
@@ -20,26 +21,17 @@ const Table = ({
   infiniteOrders,
   refreshOpenOrders,
   orderHistoryProgress,
-  refreshExchanges,
-  setFullRefresh,
+  loadingBtn
 }) => {
-  const [loadingBtn, setLoadingBtn] = useState(false)
+
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
+  const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
+    onError: () => {
+      console.log(`Couldn't fetch exchanges`)
+    },
+    refetchOnWindowFocus: false
+  })
 
-  const rfshExchange = useQuery('exchangeSymbols', getExchanges)
-
-  const refreshOpenOrder = async () => {
-    setLoadingBtn(true)
-    refreshOpenOrders()
-    // const rfshOpenOrders = await refreshOpenOrders.refetch()
-
-    if (rfshExchange.isSuccess) {
-      setLoadingBtn(false)
-    } else {
-      console.log('error refreshing')
-      setLoadingBtn(false)
-    }
-  }
   const ProgressBar = (
     <div className="progress-wrapper m-5">
       <span className="progress-label text-muted">
@@ -69,9 +61,8 @@ const Table = ({
               Open Orders
             </span>
             <span
-              className={`${
-                !isOpenOrders ? 'h6 action-item' : 'action-item'
-              } pl-4`}
+              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
+                } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
               Order History
@@ -111,19 +102,19 @@ const Table = ({
                   ></span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  className="btn btn-sm btn-neutral btn-icon"
-                  onClick={refreshOpenOrder}
-                >
-                  {!isMobile && (
-                    <span className="btn-inner--text">Refresh</span>
-                  )}
-                  <span className="btn-inner--icon">
-                    <FontAwesomeIcon icon={faSync} />
-                  </span>
-                </button>
-              )}
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-neutral btn-icon"
+                    onClick={refreshOpenOrders}
+                  >
+                    {!isMobile && (
+                      <span className="btn-inner--text">Refresh</span>
+                    )}
+                    <span className="btn-inner--icon">
+                      <FontAwesomeIcon icon={faSync} />
+                    </span>
+                  </button>
+                )}
             </div>
           </div>
         </div>
@@ -131,39 +122,39 @@ const Table = ({
       {!isOpenOrders && orderHistoryProgress !== '100.00' ? (
         ProgressBar
       ) : (
-        <div style={{ overflowY: 'scroll' }}>
-          <table className={['table', styles.table].join(' ')}>
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col">Pair</th>
-                <th scope="col">Type</th>
-                <th scope="col">Side</th>
-                {!isOpenOrders ? <th scope="col">Average</th> : null}
-                <th scope="col">Price</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Filled</th>
-                <th scope="col">Total</th>
-                <th scope="col">Trigger Condition</th>
-                <th scope="col">Status</th>
-                <th scope="col">Date</th>
-                {isOpenOrders ? <th scope="col">Cancel</th> : null}
-              </tr>
-            </thead>
-            {isOpenOrders ? (
-              <OpenOrdersTableBody
-                infiniteOrders={infiniteOrders}
-                isHideOtherPairs={isHideOtherPairs}
-              />
-            ) : (
-              <OrderHistoryTableBody
-                infiniteOrders={infiniteOrders}
-                isHideOtherPairs={isHideOtherPairs}
-              />
-            )}
-          </table>
-        </div>
-      )}
+          <div style={{ overflowY: 'scroll' }}>
+            <table className={['table', styles.table].join(' ')}>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Pair</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Side</th>
+                  {!isOpenOrders ? <th scope="col">Average</th> : null}
+                  <th scope="col">Price</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Filled</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Trigger Condition</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Date</th>
+                  {isOpenOrders ? <th scope="col">Cancel</th> : null}
+                </tr>
+              </thead>
+              {isOpenOrders ? (
+                <OpenOrdersTableBody
+                  infiniteOrders={infiniteOrders}
+                  isHideOtherPairs={isHideOtherPairs}
+                />
+              ) : (
+                  <OrderHistoryTableBody
+                    infiniteOrders={infiniteOrders}
+                    isHideOtherPairs={isHideOtherPairs}
+                  />
+                )}
+            </table>
+          </div>
+        )}
     </div>
   )
 }
@@ -175,17 +166,19 @@ const TradeOrders = () => {
   const [user, setUser] = useState()
   const [orderHistoryProgress, setOrderHistoryProgress] = useState(0)
   const [fullRefresh, setFullRefresh] = useState(0)
+  const [loadBtn, setLoadBtn] = useState(false)
+  const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
   const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            timestamp: pageParam.timestamp,
-            trade_id: pageParam.trade_id,
-            fullRefresh,
-            ...activeExchange,
-          }
+          timestamp: pageParam.timestamp,
+          trade_id: pageParam.trade_id,
+          fullRefresh,
+          ...activeExchange,
+        }
         : { ...activeExchange, fullRefresh }
       const orders = await getOpenOrders(params)
       return orders.items
@@ -197,6 +190,10 @@ const TradeOrders = () => {
       getNextPageParam: (lastPage) => {
         return lastPage[lastPage.length - 1]
       },
+      onError: () => {
+        errorNotification.open({ description: 'Error fetching open orders!' })
+      },
+      refetchOnWindowFocus: false
     }
   )
 
@@ -205,11 +202,11 @@ const TradeOrders = () => {
     async ({ pageParam }) => {
       const params = pageParam
         ? {
-            updateTime: pageParam.update_time,
-            symbol: pageParam.symbol,
-            orderId: pageParam.order_id,
-            ...activeExchange,
-          }
+          updateTime: pageParam.update_time,
+          symbol: pageParam.symbol,
+          orderId: pageParam.order_id,
+          ...activeExchange,
+        }
         : { ...activeExchange }
       const orders = await getOrdersHistory(params)
       return orders.items
@@ -221,15 +218,12 @@ const TradeOrders = () => {
       getNextPageParam: (lastPage) => {
         return lastPage[lastPage.length - 1]
       },
-    }
+      onError: () => {
+        errorNotification.open({ description: 'Error fetching order history' })
+      },
+      refetchOnWindowFocus: false
+    },
   )
-
-  useEffect(async () => {
-    if (fullRefresh === 1) {
-      await infiniteOpenOrders.refetch()
-    }
-    setFullRefresh(0)
-  }, [fullRefresh])
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
@@ -238,6 +232,15 @@ const TradeOrders = () => {
       setUser(null)
     }
   })
+
+  useEffect(async () => {
+    if (fullRefresh === 1) {
+      setLoadBtn(true)
+      await infiniteOpenOrders.refetch()
+      setFullRefresh(0)
+      setLoadBtn(false)
+    }
+  }, [fullRefresh])
 
   useEffect(() => {
     infiniteOpenOrders.refetch()
@@ -273,8 +276,9 @@ const TradeOrders = () => {
         .firestore()
         .collection('order_update')
         .doc(user.email)
-        .onSnapshot(function (doc) {
-          console.log(doc.data())
+        .onSnapshot(async function (doc) {
+          console.log(doc?.data())
+          await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
@@ -292,11 +296,10 @@ const TradeOrders = () => {
       isOpenOrders={isOpenOrders}
       setIsOpenOrders={setIsOpenOrders}
       infiniteOrders={isOpenOrders ? infiniteOpenOrders : infiniteHistory}
-      refreshOpenOrders={() => {
-        setFullRefresh(1)
-      }}
       refreshExchanges={getExchanges}
       orderHistoryProgress={orderHistoryProgress}
+      refreshOpenOrders={() => setFullRefresh(1)}
+      loadingBtn={loadBtn}
     />
   )
 }

@@ -127,11 +127,11 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
     hasNextPage,
   } = infiniteOrders
   const loadMoreButtonRef = React.useRef()
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
 
@@ -166,8 +166,8 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-            ? 'Load Older'
-            : 'No open orders'}
+              ? 'Load Older'
+              : 'No open orders'}
         </td>
       </tr>
     </tbody>
