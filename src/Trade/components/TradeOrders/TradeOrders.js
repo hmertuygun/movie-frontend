@@ -197,7 +197,7 @@ const TradeOrders = () => {
   })
 
   useEffect(async () => {
-    if (fullRefresh === 1 || orderUpdateCount === 2) {
+    if (fullRefresh === 1 || orderUpdateCount >= 2) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
       setFullRefresh(0)
@@ -209,8 +209,6 @@ const TradeOrders = () => {
     infiniteOpenOrders.refetch()
     infiniteHistory.refetch()
   }, [activeExchange])
-
-  console.log(orderUpdateCount)
 
   useEffect(() => {
     if (user != null) {
