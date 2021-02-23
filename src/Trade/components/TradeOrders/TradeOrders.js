@@ -255,7 +255,6 @@ const TradeOrders = () => {
 
   useEffect(async () => {
     if (orderHistoryProgress === "100.00") {
-      console.log("Called")
       Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
     }
   }, [orderHistoryProgress])
