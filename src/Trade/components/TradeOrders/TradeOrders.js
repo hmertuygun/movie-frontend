@@ -244,11 +244,21 @@ const TradeOrders = () => {
   }, [fullRefresh])
 
   useEffect(async () => {
-    document.querySelector(".ordersTable").scrollTop = 0
+    let ordersTable = document.querySelector(".ordersTable")
+    if (ordersTable) {
+      ordersTable.scrollTo(0, 0)
+    }
     setOrderHistoryProgress('100.00')
     // setFullRefresh(1)
     Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
   }, [activeExchange])
+
+  useEffect(async () => {
+    if (orderHistoryProgress === "100.00") {
+      console.log("Called")
+      Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
+    }
+  }, [orderHistoryProgress])
 
   useEffect(() => {
     if (user != null) {
