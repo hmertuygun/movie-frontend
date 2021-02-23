@@ -1,4 +1,7 @@
 steps:
+  # 1. Sending info to Slack
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['pubsub', 'topics', 'publish', 'cloud-builds-custom', '--message', '{"build": "$BUILD_ID", "branch": "$BRANCH_NAME", "repo": "$REPO_NAME"}']
   - name: 'ubuntu'
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
   - name: node:12.10.0
