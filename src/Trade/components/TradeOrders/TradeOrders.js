@@ -120,7 +120,7 @@ const Table = ({
       {!isOpenOrders && orderHistoryProgress !== '100.00' ? (
         ProgressBar
       ) : (
-          <div style={{ overflowY: 'scroll' }}>
+          <div className="ordersTable" style={{ overflowY: 'scroll' }}>
             <table className={['table', styles.table].join(' ')}>
               <thead>
                 <tr>
@@ -244,6 +244,7 @@ const TradeOrders = () => {
   }, [fullRefresh])
 
   useEffect(async () => {
+    document.querySelector(".ordersTable").scrollTop = 0
     setOrderHistoryProgress('100.00')
     // setFullRefresh(1)
     Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
@@ -259,12 +260,12 @@ const TradeOrders = () => {
           function (doc) {
             // If the api key name and exchange name coming from firestore is the currently selected one, only then show progress bar
             let getKeys = Object.keys(doc.data())
-            console.log(doc.data())
-            console.log(activeExchange)
+            //console.log(doc.data())
+            //console.log(activeExchange)
             let [apiName, exchange] = getKeys[0].split("__")
             exchange = exchange.split("_")[0]
             let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
-            console.log(isActiveExchangeSelected)
+            //console.log(isActiveExchangeSelected)
             if (!isActiveExchangeSelected) {
               //setOrderHistoryProgress('100.00')
               return
