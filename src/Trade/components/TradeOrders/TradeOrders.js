@@ -11,7 +11,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
-
 const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 
@@ -164,11 +163,11 @@ const TradeOrders = () => {
   const { activeExchange } = useContext(UserContext)
   const [user, setUser] = useState()
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
-  const [fullRefresh, setFullRefresh] = useState(0)
+  const [fullRefresh, setFullRefresh] = useState(1)
   const [loadBtn, setLoadBtn] = useState(false)
   const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
-  let infiniteOpenOrders = useInfiniteQuery(
+  const infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
@@ -191,7 +190,11 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching open orders!' })
-      }
+      },
+      onSettled: () => {
+        setFullRefresh(0)
+      },
+      refetchOnWindowFocus: false
     }
   )
 
@@ -218,7 +221,8 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching order history' })
-      }
+      },
+      refetchOnWindowFocus: false
     },
   )
 
@@ -231,31 +235,23 @@ const TradeOrders = () => {
   })
 
   useEffect(async () => {
-    console.log(fullRefresh)
     if (fullRefresh === 1) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
-      setFullRefresh(0)
+      //setFullRefresh(0)
       setLoadBtn(false)
     }
   }, [fullRefresh])
 
   useEffect(async () => {
-    if (orderUpdateCount === 1) {
-      const orders = await getOpenOrders({ ...activeExchange, fullRefresh: 1 })
-      infiniteOpenOrders = orders.items
-    }
-  }, [orderUpdateCount])
-
-  useEffect(async () => {
-    await infiniteOpenOrders.refetch()
-    await infiniteHistory.refetch()
-    // await Promise.all([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
+    setOrderHistoryProgress('100.00')
+    // setFullRefresh(1)
+    Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
   }, [activeExchange])
 
   useEffect(() => {
     if (user != null) {
-      firebase
+      const unsubFBHistory = firebase
         .firestore()
         .collection('order_history_load')
         .doc(user.email)
@@ -263,9 +259,16 @@ const TradeOrders = () => {
           function (doc) {
             // If the api key name and exchange name coming from firestore is the currently selected one, only then show progress bar
             let getKeys = Object.keys(doc.data())
+            console.log(doc.data())
+            console.log(activeExchange)
             let [apiName, exchange] = getKeys[0].split("__")
             exchange = exchange.split("_")[0]
             let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
+            console.log(isActiveExchangeSelected)
+            if (!isActiveExchangeSelected) {
+              //setOrderHistoryProgress('100.00')
+              return
+            }
             let fsData = doc.data()
             let total, loaded
             getKeys.forEach((item) => {
@@ -276,12 +279,7 @@ const TradeOrders = () => {
               }
             })
             let progress = precisionRound((loaded / total) * 100)
-            if (isActiveExchangeSelected) {
-              setOrderHistoryProgress(progress)
-            }
-            else {
-              setOrderHistoryProgress("100.00")
-            }
+            setOrderHistoryProgress(progress)
           },
           (err) => {
             console.error(err)
@@ -292,18 +290,22 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
-          setOrderUpdateCount(orderUpdateCount + 1)
-          queryClient.invalidateQueries(OpenOrdersQueryKey)
+          //queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       firebase
         .firestore()
         .collection('order_history_update')
         .doc(user.email)
         .onSnapshot(function (doc) {
-          queryClient.invalidateQueries(OrdersHistoryQueryKey)
+          //queryClient.invalidateQueries(OrdersHistoryQueryKey)
         })
+
+      return () => {
+        unsubFBHistory()
+      }
     }
-  }, [queryClient, user])
+  }, [queryClient, user, activeExchange])
+
 
   return (
     <Table
