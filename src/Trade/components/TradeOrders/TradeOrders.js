@@ -238,7 +238,6 @@ const TradeOrders = () => {
     if (fullRefresh === 1) {
       setLoadBtn(true)
       await infiniteOpenOrders.refetch()
-      //setFullRefresh(0)
       setLoadBtn(false)
     }
   }, [fullRefresh])
@@ -249,7 +248,6 @@ const TradeOrders = () => {
       ordersTable.scrollTo(0, 0)
     }
     setOrderHistoryProgress('100.00')
-    // setFullRefresh(1)
     Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
   }, [activeExchange])
 
@@ -276,7 +274,7 @@ const TradeOrders = () => {
             let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
             //console.log(isActiveExchangeSelected)
             if (!isActiveExchangeSelected) {
-              //setOrderHistoryProgress('100.00')
+              setOrderHistoryProgress('100.00')
               return
             }
             let fsData = doc.data()
