@@ -53,7 +53,7 @@ const Routes = () => {
           path="/register/confirm/recieved"
           component={RegisterFinal}
         />
-        {!isLoggedIn && <Redirect to="/login" />}
+        {!isLoggedIn && <Redirect to="/register" />}
       </Switch>
     </div>
   )
