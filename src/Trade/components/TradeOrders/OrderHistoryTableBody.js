@@ -32,7 +32,7 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                 if (!isHideOtherPairs) {
                   return true
                 }
-                return order.symbol === selectedPair
+                return order.symbol.replace('-', '') === selectedPair
               })
               .map((order, index) => {
                 const isCanceled = order.status?.toLowerCase() === 'canceled'
@@ -46,11 +46,11 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                       style={
                         !isCanceled
                           ? {
-                            color:
-                              order.side?.toLowerCase() === 'buy'
-                                ? 'green'
-                                : 'red',
-                          }
+                              color:
+                                order.side?.toLowerCase() === 'buy'
+                                  ? 'green'
+                                  : 'red',
+                            }
                           : undefined
                       }
                     >
@@ -94,8 +94,8 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
           {isFetchingNextPage
             ? 'Loading more...'
             : hasNextPage
-              ? 'Load Older'
-              : 'Nothing more to load'}
+            ? 'Load Older'
+            : 'Nothing more to load'}
         </td>
       </tr>
     </tbody>
