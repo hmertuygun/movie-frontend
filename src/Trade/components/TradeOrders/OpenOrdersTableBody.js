@@ -19,7 +19,7 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
     setCancelOrderRow({ ...order })
     try {
       await cancelTradeOrder({
-        trade_id: order.trade_id,
+        ...order,
         ...activeExchange,
       })
       successNotification.open({ description: `Order Cancelled!` })
@@ -36,9 +36,6 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   return (
     <>
       {entry.map((order, rowIndex) => {
-        // const isLoading = cancelingOrders.find(
-        //   (cancelingOrder) => cancelingOrder === order.trade_id
-        // )
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -61,7 +58,7 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
               : undefined,
         }
         const cancelColumn =
-          rowIndex === 0 && order.type === 'Full Trade' ? (
+          rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
               onClick={() => { onCancelOrderClick(order) }}
