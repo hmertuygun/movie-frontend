@@ -4,7 +4,7 @@ import { addPrecisionToNumber } from '../../../helpers/tradeForm'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './Table.module.css'
-
+import { UserContext } from '../../../contexts/UserContext'
 const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
   const { selectedSymbolDetail, exchanges } = useSymbolContext()
   const { removeEntry, removeStoploss, removeTarget } = useContext(TradeContext)
@@ -48,7 +48,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
         break
     }
   }
-
+  const { activeExchange } = useContext(UserContext)
   return (
     <>
       <div className={styles['trade-overview']}>
@@ -67,7 +67,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
             </div>
           </div>
           <div className={styles['top-right']}>
-            {exchanges.length && exchanges[0].label}
+            {activeExchange.label}
           </div>
         </div>
       </div>
@@ -141,8 +141,8 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               {target.type === 'stop-market' ? (
                 <td>{target.triggerPrice}</td>
               ) : (
-                <td>{target.price}</td>
-              )}
+                  <td>{target.price}</td>
+                )}
 
               <td className={styles['Table-Row-target-profit']}>
                 {target.profit}%
@@ -196,8 +196,8 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
                 {type === 'stop-limit' ? (
                   <td>{price}</td>
                 ) : (
-                  <td>{triggerPrice}</td>
-                )}
+                    <td>{triggerPrice}</td>
+                  )}
 
                 <td className={styles['Table-Row-stoploss-profit']}>
                   {profit}%
