@@ -288,7 +288,7 @@ export async function getOpenOrders({ timestamp, trade_id, apiKeyName, exchange 
   return openOrders.data
 }
 
-export async function cancelTradeOrder({ trade_id, apiKeyName, exchange }) {
+export async function cancelTradeOrder({ trade_id, symbol, apiKeyName, exchange }) {
   const apiUrl = `${process.env.REACT_APP_API_V2}trade/cancel?exchange=${exchange}&apiKeyName=${apiKeyName}`
   const token = await firebase.auth().currentUser.getIdToken()
   const cancelTradeOrderResp = await axios(apiUrl, {
@@ -296,6 +296,7 @@ export async function cancelTradeOrder({ trade_id, apiKeyName, exchange }) {
     method: 'POST',
     data: {
       trade_id,
+      symbol
     },
   })
   return cancelTradeOrderResp.data
