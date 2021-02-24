@@ -35,7 +35,6 @@ const SymbolContextProvider = ({ children }) => {
       if (!refresh) {
         setIsLoadingBalance(false)
       }
-      setLoaderVisibility(false)
     }
     try {
       const response = await getBalance({
@@ -52,11 +51,10 @@ const SymbolContextProvider = ({ children }) => {
         console.log('no balance found for ' + quote_asset)
         setSelectedSymbolBalance(0)
       }
-    } catch (Exception) {
+    } catch (err) {
       setSelectedSymbolBalance(0)
     }
     setIsLoadingBalance(false)
-    setLoaderVisibility(false)
   }
 
   async function loadLastPrice(symbolpair) {
@@ -218,7 +216,8 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolBalance,
         isLoadingBalance,
         selectedSymbolLastPrice,
-        refreshBalance
+        refreshBalance,
+        isLoadingBalance,
       }}
     >
       {children}
