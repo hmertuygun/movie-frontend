@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, Fragment } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
@@ -120,8 +120,8 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
 }
 
 const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
-  const {
-    data: history,
+  let {
+    data,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
@@ -132,35 +132,33 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
     onIntersect: fetchNextPage,
     enabled: hasNextPage,
   })
+
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-
+  console.log(data)
+  data = data?.pages[data?.pages.length - 1]
+  data = data?.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>
-      {history &&
-        history.pages.map((items, index) => (
-          <React.Fragment key={index}>
-            {items
-              .filter((order) => {
-                if (!isHideOtherPairs) {
-                  return true
-                }
-                return order.symbol.replace('-', '') === selectedPair
-              })
-              .map((order, rowIndex) => {
-                const orders = [order, ...order.orders]
-                return (
-                  <Expandable
-                    entry={orders}
-                    key={rowIndex}
-                    cancelingOrders={cancelingOrders}
-                    setCancelingOrders={setCancelingOrders}
-                  />
-                )
-              })}
-          </React.Fragment>
-        ))}
+      {
+        data && data.map((item, index) => {
+          const orders = [item, ...item.orders]
+          return (
+            <Expandable
+              entry={orders}
+              key={index}
+              cancelingOrders={cancelingOrders}
+              setCancelingOrders={setCancelingOrders}
+            />
+          )
+        })
+      }
       <tr ref={loadMoreButtonRef}>
         <td colSpan="12">
           {isFetchingNextPage

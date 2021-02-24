@@ -164,7 +164,7 @@ const TradeOrders = () => {
   const queryClient = useQueryClient()
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [user, setUser] = useState()
-  const [orderHistoryProgress, setOrderHistoryProgress] = useState('0')
+  const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [fullRefresh, setFullRefresh] = useState(1)
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
@@ -178,10 +178,9 @@ const TradeOrders = () => {
         ? {
           timestamp: pageParam.timestamp,
           trade_id: pageParam.trade_id,
-          fullRefresh,
           ...activeExchange,
         }
-        : { ...activeExchange, fullRefresh }
+        : { ...activeExchange }
       const orders = await getOpenOrders(params)
       return orders.items
     },
@@ -194,9 +193,6 @@ const TradeOrders = () => {
       },
       onError: () => {
         errorNotification.open({ description: 'Error fetching open orders!' })
-      },
-      onSettled: () => {
-        setFullRefresh(0)
       },
       refetchOnWindowFocus: false
     }
@@ -238,13 +234,11 @@ const TradeOrders = () => {
     }
   })
 
-  useEffect(async () => {
-    if (fullRefresh === 1) {
-      setLoadBtn(true)
-      await infiniteOpenOrders.refetch()
-      setLoadBtn(false)
-    }
-  }, [fullRefresh])
+  const onRefreshBtnClick = async () => {
+    setLoadBtn(true)
+    await infiniteOpenOrders.refetch()
+    setLoadBtn(false)
+  }
 
   useEffect(async () => {
     let ordersTable = document.querySelector(".ordersTable")
@@ -256,9 +250,9 @@ const TradeOrders = () => {
   }, [activeExchange])
 
   useEffect(() => {
-    console.log(infiniteOpenOrders.isFetched)
-    console.log(infiniteHistory.isFetched)
-    console.log(isLoadingBalance)
+    // console.log(infiniteOpenOrders.isFetched)
+    // console.log(infiniteHistory.isFetched)
+    // console.log(isLoadingBalance)
     if (infiniteHistory.isFetched && infiniteOpenOrders.isFetched && !isLoadingBalance) {
       setLoaderVisibility(false)
     }
@@ -286,8 +280,8 @@ const TradeOrders = () => {
             let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
             // setIsActiveExchangeFB(isActiveExchangeSelected)
             console.log(doc.data())
-            console.log(activeExchange)
-            console.log(isActiveExchangeSelected)
+            // console.log(activeExchange)
+            // console.log(isActiveExchangeSelected)
             if (!isActiveExchangeSelected) {
               setOrderHistoryProgress('100.00')
               return
@@ -320,6 +314,7 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
+          console.log(`Order update FB`)
           queryClient.invalidateQueries(OpenOrdersQueryKey)
         })
       const unsubFBOrderHistoryUpdate = firebase
@@ -327,6 +322,7 @@ const TradeOrders = () => {
         .collection('order_history_update')
         .doc(user.email)
         .onSnapshot(function (doc) {
+          console.log(`Order History update FB`)
           queryClient.invalidateQueries(OrdersHistoryQueryKey)
         })
 
@@ -336,7 +332,7 @@ const TradeOrders = () => {
         unsubFBOrderHistoryUpdate()
       }
     }
-  }, [user])
+  }, [queryClient, user, activeExchange])
 
 
   return (
@@ -346,7 +342,7 @@ const TradeOrders = () => {
       infiniteOrders={isOpenOrders ? infiniteOpenOrders : infiniteHistory}
       refreshExchanges={getExchanges}
       orderHistoryProgress={orderHistoryProgress}
-      refreshOpenOrders={() => setFullRefresh(1)}
+      refreshOpenOrders={onRefreshBtnClick}
       loadingBtn={loadBtn}
     />
   )
