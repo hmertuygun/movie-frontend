@@ -22,6 +22,7 @@ const Table = ({
   refreshOpenOrders,
   orderHistoryProgress,
   loadingBtn,
+  showProgressBar
 }) => {
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
@@ -30,7 +31,8 @@ const Table = ({
     },
     refetchOnWindowFocus: false,
   })
-
+  // console.log(showProgressBar)
+  // console.log(orderHistoryProgress)
   const ProgressBar = (
     <div className="m-5 progress-wrapper">
       <span className="progress-label text-muted">
@@ -118,7 +120,7 @@ const Table = ({
           </div>
         </div>
       </div>
-      {!isOpenOrders && orderHistoryProgress !== '100.00' ? (
+      {!isOpenOrders && showProgressBar ? (
         ProgressBar
       ) : (
           <div className="ordersTable" style={{ overflowY: 'scroll' }}>
@@ -165,13 +167,10 @@ const TradeOrders = () => {
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [user, setUser] = useState()
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
-  const [fullRefresh, setFullRefresh] = useState(1)
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
-  const [isActiveExchangeFB, setIsActiveExchangeFB] = useState(false)
-  const [orderUpdateCount, setOrderUpdateCount] = useState(0)
 
-  const infiniteOpenOrders = useInfiniteQuery(
+  let infiniteOpenOrders = useInfiniteQuery(
     OpenOrdersQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
@@ -198,7 +197,7 @@ const TradeOrders = () => {
     }
   )
 
-  const infiniteHistory = useInfiniteQuery(
+  let infiniteHistory = useInfiniteQuery(
     OrdersHistoryQueryKey,
     async ({ pageParam }) => {
       const params = pageParam
@@ -246,24 +245,17 @@ const TradeOrders = () => {
       ordersTable.scrollTo(0, 0)
     }
     setOrderHistoryProgress('100.00')
-    await Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
+    setShowProgressBar(false)
+    //sessionStorage.setItem('showProgressBar', false)
+    await Promise.allSettled([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
   }, [activeExchange])
 
   useEffect(() => {
-    // console.log(infiniteOpenOrders.isFetched)
-    // console.log(infiniteHistory.isFetched)
-    // console.log(isLoadingBalance)
     if (infiniteHistory.isFetched && infiniteOpenOrders.isFetched && !isLoadingBalance) {
       setLoaderVisibility(false)
     }
   }, [isLoadingBalance, infiniteOpenOrders.isFetched, infiniteHistory.isFetched])
 
-
-  // useEffect(async () => {
-  //   if (orderHistoryProgress === "100.00") {
-  //     Promise.allSettled([infiniteHistory.refetch(), infiniteOpenOrders.refetch()])
-  //   }
-  // }, [orderHistoryProgress])
 
   useEffect(() => {
     if (user != null) {
@@ -273,36 +265,31 @@ const TradeOrders = () => {
         .doc(user.email)
         .onSnapshot(
           function (doc) {
+            // console.log(doc.data())
             // If the api key name and exchange name coming from firestore is the currently selected one, only then show progress bar
-            let getKeys = Object.keys(doc.data())
-            let [apiName, exchange] = getKeys[0].split("__")
-            exchange = exchange.split("_")[0]
-            let isActiveExchangeSelected = (activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange)
-            // setIsActiveExchangeFB(isActiveExchangeSelected)
-            console.log(doc.data())
+            let total = 0, loaded = 0
+            let totalSelected = false, loadedSelected = false
             // console.log(activeExchange)
-            // console.log(isActiveExchangeSelected)
-            if (!isActiveExchangeSelected) {
-              setOrderHistoryProgress('100.00')
-              return
-            }
-            // if (!isActiveExchangeSelected) {
-            //   setShowProgressBar(false)
-            //   return
-            // }
-            // else {
-            //   setShowProgressBar(true)
-            // }
-            let fsData = doc.data()
-            let total, loaded
-            getKeys.forEach((item) => {
-              if (item.includes('loaded')) {
-                loaded = fsData[item]
-              } else if (item.includes('total')) {
-                total = fsData[item]
-              }
-            })
+            Object.entries(doc.data())
+              .sort()
+              .forEach(([item, no]) => {
+                let [apiName, exchange] = item.split("__")
+                exchange = exchange.split("_")[0]
+                // console.log(apiName, exchange)
+                let isActiveExchangeSelected = activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange
+                if (isActiveExchangeSelected && item.includes("loaded")) {
+                  loaded = no
+                  totalSelected = true
+                }
+                if (isActiveExchangeSelected && item.includes("total")) {
+                  total = no
+                  loadedSelected = true
+                }
+              })
+            //console.log(total, loaded, totalSelected, loadedSelected)
             let progress = precisionRound((loaded / total) * 100)
+            setShowProgressBar(loadedSelected && totalSelected && progress !== '100.00')
+            sessionStorage.setItem('showProgressBar', loadedSelected && totalSelected && progress !== '100.00')
             setOrderHistoryProgress(progress)
           },
           (err) => {
@@ -314,16 +301,22 @@ const TradeOrders = () => {
         .collection('order_update')
         .doc(user.email)
         .onSnapshot(async function (doc) {
-          console.log(`Order update FB`)
-          queryClient.invalidateQueries(OpenOrdersQueryKey)
+          let showProgbar = sessionStorage.getItem('showProgressBar')
+          //console.log(showProgbar, showProgressBar)
+          if (!showProgbar) {
+            queryClient.invalidateQueries(OpenOrdersQueryKey)
+          }
         })
       const unsubFBOrderHistoryUpdate = firebase
         .firestore()
         .collection('order_history_update')
         .doc(user.email)
         .onSnapshot(function (doc) {
-          console.log(`Order History update FB`)
-          queryClient.invalidateQueries(OrdersHistoryQueryKey)
+          let showProgbar = sessionStorage.getItem('showProgressBar')
+          //console.log(showProgbar, showProgressBar)
+          if (!showProgbar) {
+            queryClient.invalidateQueries(OrdersHistoryQueryKey)
+          }
         })
 
       return () => {
@@ -344,6 +337,7 @@ const TradeOrders = () => {
       orderHistoryProgress={orderHistoryProgress}
       refreshOpenOrders={onRefreshBtnClick}
       loadingBtn={loadBtn}
+      showProgressBar={showProgressBar}
     />
   )
 }

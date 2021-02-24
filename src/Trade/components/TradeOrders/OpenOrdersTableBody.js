@@ -135,7 +135,6 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
 
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  console.log(data)
   data = data?.pages[data?.pages.length - 1]
   data = data?.filter((order) => {
     if (!isHideOtherPairs) {
