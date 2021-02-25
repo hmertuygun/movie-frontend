@@ -40,7 +40,7 @@ const Trade = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol } = useContext(SymbolContext)
+  const { selectedSymbol, setIsOrderPlaced } = useContext(SymbolContext)
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
@@ -67,6 +67,7 @@ const Trade = () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
+      setIsOrderPlaced(false)
       await placeOrder({ ...state, ...activeExchange })
       setIsModalVisible(false)
       successNotification.open({ description: `Order Created!` })
@@ -80,6 +81,7 @@ const Trade = () => {
       })
       clear()
     } finally {
+      setIsOrderPlaced(true)
       setBtnVisibility(false)
     }
   }

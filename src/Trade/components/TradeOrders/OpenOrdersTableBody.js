@@ -11,12 +11,14 @@ import {
 } from '../../../components/Notifications'
 import { useSymbolContext } from '../../context/SymbolContext'
 
-const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
+const Expandable = ({ entry, refreshTable, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
+  const { setIsOrderCancelled } = useSymbolContext()
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const onCancelOrderClick = async (order) => {
     setCancelOrderRow({ ...order })
+    setIsOrderCancelled(false)
     try {
       await cancelTradeOrder({
         ...order,
@@ -30,6 +32,8 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
     }
     finally {
       setCancelOrderRow(null)
+      setIsOrderCancelled(true)
+      refreshTable()
     }
   }
 
@@ -133,13 +137,24 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
 
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  data = data?.pages[data?.pages.length - 1]
-  data = data?.filter((order) => {
-    if (!isHideOtherPairs) {
-      return true
-    }
-    return order.symbol.replace('-', '') === selectedPair
-  })
+  // To avoid duplicate array issue caused by react-query
+  data = data?.pages || []
+  let tempArr = []
+  for (let i = 0; i < data.length; i++) {
+    let item = data[i]
+    item.forEach((item1) => {
+      tempArr.push(item1)
+    })
+  }
+  const uniqueAddresses = Array.from(new Set(tempArr.map(a => a.trade_id)))
+    .map(id => tempArr.find(a => a.trade_id === id))
+    .filter((order) => {
+      if (!isHideOtherPairs) {
+        return true
+      }
+      return order.symbol.replace('-', '') === selectedPair
+    })
+  data = uniqueAddresses
   const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>
@@ -152,6 +167,7 @@ const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
               key={index}
               cancelingOrders={cancelingOrders}
               setCancelingOrders={setCancelingOrders}
+              refreshTable={() => infiniteOrders.refetch()}
             />
           )
         })

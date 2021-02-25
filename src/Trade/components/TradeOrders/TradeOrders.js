@@ -161,7 +161,7 @@ const Table = ({
 }
 
 const TradeOrders = () => {
-  const { isLoadingBalance } = useSymbolContext()
+  const { isLoadingBalance, isOrderPlaced, isOrderCancelled } = useSymbolContext()
   const { activeExchange, setLoaderVisibility } = useContext(UserContext)
   const queryClient = useQueryClient()
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
@@ -235,7 +235,7 @@ const TradeOrders = () => {
 
   const onRefreshBtnClick = async () => {
     setLoadBtn(true)
-    await infiniteOpenOrders.refetch()
+    await Promise.allSettled([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
     setLoadBtn(false)
   }
 
@@ -246,9 +246,14 @@ const TradeOrders = () => {
     }
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
-    //sessionStorage.setItem('showProgressBar', false)
     await Promise.allSettled([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
   }, [activeExchange])
+
+  useEffect(async () => {
+    if (isOrderPlaced || isOrderCancelled) {
+      onRefreshBtnClick()
+    }
+  }, [isOrderPlaced, isOrderCancelled])
 
   useEffect(() => {
     if (infiniteHistory.isFetched && infiniteOpenOrders.isFetched && !isLoadingBalance) {
@@ -256,7 +261,20 @@ const TradeOrders = () => {
     }
   }, [isLoadingBalance, infiniteOpenOrders.isFetched, infiniteHistory.isFetched])
 
-
+  const callOpenOrdersKey = () => {
+    let showProgbar = sessionStorage.getItem('showProgressBar')
+    if (!showProgbar) {
+      console.log('Open Orders Func called')
+      queryClient.invalidateQueries(OpenOrdersQueryKey)
+    }
+  }
+  const callOrderHistory = () => {
+    let showProgbar = sessionStorage.getItem('showProgressBar')
+    if (!showProgbar) {
+      console.log('History Update Func called')
+      queryClient.invalidateQueries(OrdersHistoryQueryKey)
+    }
+  }
   useEffect(() => {
     if (user != null) {
       const unsubFBHistoryLoad = firebase
@@ -300,23 +318,19 @@ const TradeOrders = () => {
         .firestore()
         .collection('order_update')
         .doc(user.email)
-        .onSnapshot(async function (doc) {
-          let showProgbar = sessionStorage.getItem('showProgressBar')
-          //console.log(showProgbar, showProgressBar)
-          if (!showProgbar) {
-            queryClient.invalidateQueries(OpenOrdersQueryKey)
-          }
+        .onSnapshot(function (doc) {
+          console.log(`Order Update`)
+          //queryClient.invalidateQueries(OpenOrdersQueryKey)
+          callOpenOrdersKey()
         })
       const unsubFBOrderHistoryUpdate = firebase
         .firestore()
         .collection('order_history_update')
         .doc(user.email)
         .onSnapshot(function (doc) {
-          let showProgbar = sessionStorage.getItem('showProgressBar')
-          //console.log(showProgbar, showProgressBar)
-          if (!showProgbar) {
-            queryClient.invalidateQueries(OrdersHistoryQueryKey)
-          }
+          // console.log(`Order History Update`)
+          //queryClient.invalidateQueries(OrdersHistoryQueryKey)
+          callOrderHistory()
         })
 
       return () => {
