@@ -24,7 +24,8 @@ const SymbolContextProvider = ({ children }) => {
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
   const [selectedSymbolLastPrice, setSelectedSymbolLastPrice] = useState('')
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
-
+  const [isOrderPlaced, setIsOrderPlaced] = useState(false)
+  const [isOrderCancelled, setIsOrderCancelled] = useState(false)
   async function loadBalance(quote_asset, refresh = false) {
     setIsLoadingBalance(true)
     const cacheBalance = localStorage.getItem(
@@ -218,6 +219,10 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolLastPrice,
         refreshBalance,
         isLoadingBalance,
+        isOrderPlaced,
+        setIsOrderPlaced,
+        isOrderCancelled,
+        setIsOrderCancelled
       }}
     >
       {children}
