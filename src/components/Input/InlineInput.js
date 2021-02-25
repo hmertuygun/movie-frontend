@@ -44,9 +44,8 @@ const InlineInput = ({
         id={inputId}
         placeholder={placeholder}
         type={type}
-        value={type === 'number' ? convertCommaNumberToDot(value) : value}
+        value={value}
         name={name}
-        lang="en-US"
         {...props}
       ></input>
       <span

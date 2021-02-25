@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect } from 'react'
-import { InlineInput, Button, Typography } from '../../components'
-import { TradeContext } from '../context/SimpleTradeContext'
-import roundNumbers from '../../helpers/roundNumbers'
-import { useSymbolContext } from '../context/SymbolContext'
+import React, { useState, useEffect, useContext } from 'react'
+import { InlineInput, Button, Typography } from '../../../components'
+import { TradeContext } from '../../context/SimpleTradeContext'
+import roundNumbers from '../../../helpers/roundNumbers'
+import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 
@@ -14,12 +14,13 @@ import {
   getMaxInputLength,
   getInputLength,
   convertCommaNumberToDot,
-} from '../../helpers/tradeForm'
+  detectEntryPrice,
+  allowOnlyNumberDecimalAndComma,
+} from '../../../helpers/tradeForm'
 
-import 'rc-slider/assets/index.css'
 import { makeStyles } from '@material-ui/core/styles'
 
-import styles from './ExitTargetForm.module.css'
+import styles from '../ExitTargetStopMarket/ExitTargetForm.module.css'
 
 const useStyles = makeStyles({
   root: {
@@ -42,14 +43,14 @@ const errorInitialValues = {
   total: '',
 }
 
-const ExitTargetStopMarket = () => {
+const ExitTarget = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolLastPrice,
   } = useSymbolContext()
 
-  const { addStopMarketTarget, state } = useContext(TradeContext)
+  const { addTarget, state } = useContext(TradeContext)
   const { entry } = state
 
   const pricePrecision =
@@ -72,8 +73,7 @@ const ExitTargetStopMarket = () => {
     0
   )
 
-  const entryPrice =
-    entry.type === 'market' ? selectedSymbolLastPrice : entry.price
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -95,24 +95,16 @@ const ExitTargetStopMarket = () => {
     100: '',
   }
 
-  const targetSliderMarks = {
-    0: '',
-    250: '',
-    500: '',
-    750: '',
-    1000: '',
-  }
-
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
     price: yup
       .number()
-      .required('Trigger Price is required')
-      .typeError('Trigger Price is required')
+      .required('Price is required')
+      .typeError('Price is required')
       .test(
-        'Trigger Price',
-        `Trigger Price must be higher than the Entry Price: ${addPrecisionToNumber(
+        'Price',
+        `Price must be higher than the Entry Price: ${addPrecisionToNumber(
           entryPrice,
           pricePrecision
         )}`,
@@ -232,6 +224,8 @@ const ExitTargetStopMarket = () => {
   }
 
   const handleChange = ({ target }) => {
+    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+
     const { name, value } = target
 
     if (name === 'price') {
@@ -246,7 +240,7 @@ const ExitTargetStopMarket = () => {
 
       setValues((values) => ({
         ...values,
-        [name]: value,
+        price: value,
         total,
       }))
 
@@ -385,23 +379,18 @@ const ExitTargetStopMarket = () => {
         }))
       }
     }
-  }, [
-    totalQuantity,
-    values.quantity,
-    values.quantityPercentage,
-    entry.quantity,
-  ])
+  }, [totalQuantity, values.quantity, values.quantityPercentage])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     const isFormValid = await validateForm()
 
-    const isLimit = Number(values.quantity) + totalQuantity >= entry.quantity
+    const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
 
     if (isFormValid && !isLimit) {
-      addStopMarketTarget({
-        triggerPrice: convertCommaNumberToDot(values.price),
+      addTarget({
+        price: convertCommaNumberToDot(values.price),
         quantity: convertCommaNumberToDot(values.quantity),
         profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
@@ -440,13 +429,13 @@ const ExitTargetStopMarket = () => {
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
           <InlineInput
-            label="Trigger Price"
-            type="number"
-            placeholder="Trigger price"
-            value={values.price}
+            label="Price"
+            type="text"
             name="price"
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, pricePrecision)}
+            value={values.price}
+            placeholder="Target price"
             postLabel={selectedSymbolDetail['quote_asset']}
           />
           {renderInputValidationError('price')}
@@ -460,9 +449,9 @@ const ExitTargetStopMarket = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={targetSliderMarks}
+                marks={marks}
                 min={0}
-                max={1000}
+                max={100}
                 onChange={handleSliderChange}
                 value={values.profit}
               />
@@ -481,11 +470,11 @@ const ExitTargetStopMarket = () => {
         <div className={styles['Input']}>
           <InlineInput
             label="Quantity"
-            type="number"
+            type="text"
             name="quantity"
+            value={values.quantity}
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, quantityPrecision)}
-            value={values.quantity}
             postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
           />
           {renderInputValidationError('quantity')}
@@ -512,6 +501,7 @@ const ExitTargetStopMarket = () => {
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
                 postLabel={'%'}
+                type="text"
               />
             </Grid>
           </Grid>
@@ -530,4 +520,4 @@ const ExitTargetStopMarket = () => {
   )
 }
 
-export default ExitTargetStopMarket
+export default ExitTarget

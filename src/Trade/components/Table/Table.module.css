@@ -1,5 +1,5 @@
 .Table {
-  --table-row-border: #444;
+  --table-row-border: #e2e2e2;
   --table-left-spacer: 0.5rem;
 
   --table-buy-color: var(--primary);
@@ -8,36 +8,42 @@
 
   --table-dot-size: 0.5rem;
 
+  --table-header: #666666;
+
   border-collapse: collapse;
   display: table;
   width: 100%;
-  margin: 2rem 0 1rem;
+  margin: 1rem 0 1rem;
   padding: 0;
   font-size: 0.7rem;
 }
 
 .Table-headings {
-  font-weight: 100;
   cursor: pointer;
+  color: var(--table-header);
+}
+
+.Table-headings > th > span {
+  font-weight: 600;
 }
 
 .Table-row {
   padding: 0.2rem;
   margin: 0 0 2rem;
+  border-bottom: 1px solid var(--table-row-border);
 }
 
 .Table-row td {
   margin: 0;
-  border-top: 1px solid var(--table-row-border);
-  border-bottom: 1px solid var(--table-row-border);
+  border-top: none;
 }
 
 .Table-row td:first-child {
-  border-left: 1px solid var(--table-row-border);
+  border-left: none;
 }
 
 .Table-row td:last-child {
-  border-right: 1px solid var(--table-row-border);
+  border-right: none;
 }
 
 .Table-Row-stoploss-profit {
@@ -75,4 +81,43 @@
 .Table-dot-stoploss {
   composes: Table-dot;
   background: var(--table-stoploss-color);
+}
+
+.trade-overview {
+  margin-top: 2rem;
+}
+
+.trade-overview > h1 {
+  font-weight: 700;;
+  font-size: 1rem;
+  color: #666666;
+  margin-bottom: 1.5rem;
+}
+
+.overview-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.overview-container > div {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.overview-container > div > span:nth-child(2) {
+  color: #515252;
+  font-weight: 600;
+}
+
+.top-right {
+  font-size: 0.8rem;
+  color: #515252;
+  width: 30%;
+  word-break: break-word;
+  text-transform: capitalize;
 }

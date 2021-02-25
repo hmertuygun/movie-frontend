@@ -1,7 +1,13 @@
-import React, { useState, useEffect, createContext, useCallback } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  useCallback,
+} from 'react'
 import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
-
+import { UserContext } from '../../contexts/UserContext'
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -23,11 +29,25 @@ const PortfolioCTXProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
+  const { activeExchange, setActiveExchange } = useContext(UserContext)
 
   const fetchData = useCallback(async () => {
+    setLoading(true)
+    const cacheTicker = localStorage.getItem(
+      `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
+
+    if (cacheTicker) {
+      const parsedTicker = JSON.parse(cacheTicker)
+      setTicker(parsedTicker)
+      setBalance(parsedTicker.BottomTable)
+      setChart(parsedTicker.Distribution)
+      setEstimate(parsedTicker.EstValue)
+      setLoading(false)
+    }
+
     try {
-      setLoading(true)
-      const apiUrl = process.env.REACT_APP_API + 'getPortfolioFS'
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolioFS?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
 
       if (user != null) {
         const currentUser = await firebase.auth().currentUser
@@ -36,12 +56,19 @@ const PortfolioCTXProvider = ({ children }) => {
         const exchanges = await axios(apiUrl, {
           headers: await getHeaders(token),
           method: 'GET',
-        })
+        }).catch((err) => err?.response)
+        if (exchanges.status === 404) {
+          refreshData()
+          return
+        }
+        localStorage.setItem(
+          `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+          JSON.stringify(exchanges.data)
+        )
         setTicker(exchanges.data)
         setBalance(exchanges.data.BottomTable)
         setChart(exchanges.data.Distribution)
         setEstimate(exchanges.data.EstValue)
-
         setLoading(false)
       }
     } catch (error) {
@@ -54,14 +81,17 @@ const PortfolioCTXProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API + 'getPortfolio'
+      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
       const token = await firebase.auth().currentUser.getIdToken()
 
       const exchanges = await axios(apiUrl, {
         headers: await getHeaders(token),
         method: 'GET',
       })
-
+      localStorage.setItem(
+        `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+        JSON.stringify(exchanges.data)
+      )
       setTicker(exchanges.data)
       setBalance(exchanges.data.BottomTable)
       setChart(exchanges.data.Distribution)
@@ -85,7 +115,7 @@ const PortfolioCTXProvider = ({ children }) => {
 
   useEffect(() => {
     fetchData()
-  }, [user, fetchData])
+  }, [user, activeExchange, fetchData])
 
   return (
     <PortfolioContext.Provider

@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
-import { errorNotification, successNotification } from '../../components/Notifications'
+import { UserContext } from '../../contexts/UserContext'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { errorNotification, successNotification, infoNotification } from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
   addUserExchange,
   activateUserExchange,
+  updateLastSelectedAPIKey,
   deleteUserExchange,
+  validateUser
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
@@ -18,21 +21,29 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 const Exchanges = () => {
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges, activeExchange, setActiveExchange } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
-
+  let exchanges = []
   const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
-  let exchanges = []
+  useEffect(() => {
+    exchangeQuery.refetch()
+  }, [loadApiKeys])
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data.data.apiKeys
+    setTotalExchanges(exchanges)
   } else {
     exchanges = false
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
-    onSuccess: () => {
+    onSuccess: async (res, param) => {
+      if (res.status !== 200) {
+        errorNotification.open({ description: res.data.detail })
+        return
+      }
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
       successNotification.open({ description: `API key added!` })
@@ -57,7 +68,26 @@ const Exchanges = () => {
   }
 
   const deleteExchangeMutation = useMutation(deleteUserExchange, {
-    onSuccess: () => {
+    onSuccess: async (response, param) => {
+      // check exchanges var here, its not the updated one tho
+      if (exchanges && exchanges.length) {
+        if (exchanges.length - 1 === 0) {
+          setLoadApiKeys(false)
+          sessionStorage.clear()
+        }
+        else {
+          // What if we just deleted an active exchange key, set first one as active by default
+          if (selectedExchange.apiKeyName === activeExchange.apiKeyName && selectedExchange.exchange === activeExchange.exchange) {
+            sessionStorage.clear()
+            // ignore the element that we just deleted
+            let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
+            if (newActiveKey) {
+              await updateLastSelectedAPIKey({ ...newActiveKey })
+              setActiveExchange({ ...newActiveKey, label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`, value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}` })
+            }
+          }
+        }
+      }
       queryClient.invalidateQueries('exchanges')
       setSelectedExchange(null)
       setIsDeletionModalVisible(false)
@@ -68,8 +98,8 @@ const Exchanges = () => {
     }
   })
 
-  const onDelete = async (name) => {
-    await deleteExchangeMutation.mutate(name)
+  const onDelete = async (name, exchange) => {
+    await deleteExchangeMutation.mutate({ name, exchange })
   }
 
   const setActiveMutation = useMutation(activateUserExchange, {
@@ -104,7 +134,7 @@ const Exchanges = () => {
             setSelectedExchange(null)
             setIsDeletionModalVisible(false)
           }}
-          onDelete={() => onDelete(selectedExchange.apiKeyName)}
+          onDelete={() => onDelete(selectedExchange.apiKeyName, selectedExchange.exchange)}
         />
       )}
 

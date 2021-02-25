@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
+import { options } from './ExchangeOptions'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState({
@@ -21,7 +22,6 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
 
   const [errors, setErrors] = useState(errorInitialValues)
 
-  const options = [{ value: 'binance', label: 'Binance' }]
   const customStyles = {
     control: (styles, {}) => ({
       ...styles,

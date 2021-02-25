@@ -1,8 +1,15 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
+import { X } from 'react-feather'
+import { isMobile } from 'react-device-detect'
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
-import { errorNotification, successNotification } from '../components/Notifications'
+import { TabContext } from '../contexts/TabContext'
+import {
+  errorNotification,
+  successNotification,
+} from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
+import { UserContext } from '../contexts/UserContext'
 import {
   TabNavigator,
   ButtonNavigator,
@@ -14,12 +21,14 @@ import {
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
 
-import LimitForm from './forms/LimitForm'
-import MarketForm from './forms/MarketForm'
-import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit'
-import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket'
-import ExitTarget from './forms/ExitTarget'
-import ExitTargetStopMarket from './forms/ExitTargetStopMarket'
+import LimitForm from './forms/LimitForm/LimitForm'
+import MarketForm from './forms/MarketForm/MarketForm'
+import ExitStoplossStopLimit from './forms/ExitStoplossStopLimit/ExitStoplossStopLimit'
+import ExitStoplossStopMarket from './forms/ExitStoplossStopMarket/ExitStoplossStopMarket'
+import ExitTarget from './forms/ExitTarget/ExitTarget'
+import ExitTargetStopMarket from './forms/ExitTargetStopMarket/ExitTargetStopMarket'
+import EntryStopLimitForm from './forms/EntryStopLimitForm/EntryStopLimitForm'
+import EntryStopMarketForm from './forms/EntryStopMarketForm/EntryStopMarketForm'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -31,8 +40,12 @@ const Trade = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol } = useContext(SymbolContext)
+  const { selectedSymbol, setIsOrderPlaced } = useContext(SymbolContext)
+  const { activeExchange } = useContext(UserContext)
+  const { setIsTradePanelOpen } = useContext(TabContext)
+
   const hasEntry = state.entry?.quantity > 0 ? true : false
+
   function checkAllTypes() {
     const targets =
       state &&
@@ -54,17 +67,21 @@ const Trade = () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
-      await placeOrder({ ...state })
+      setIsOrderPlaced(false)
+      await placeOrder({ ...state, ...activeExchange })
       setIsModalVisible(false)
       successNotification.open({ description: `Order Created!` })
+      setIsTradePanelOpen(false)
       clear()
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
-      errorNotification.open({ description: `Order couldn't be created. Please try again later!` })
+      errorNotification.open({
+        description: `Order couldn't be created. Please try again later!`,
+      })
       clear()
-    }
-    finally {
+    } finally {
+      setIsOrderPlaced(true)
       setBtnVisibility(false)
     }
   }
@@ -76,8 +93,14 @@ const Trade = () => {
   return (
     <Fragment>
       <section>
+        <div
+          style={{ position: 'absolute', top: '25px', right: '25px' }}
+          onClick={() => setIsTradePanelOpen(false)}
+        >
+          {isMobile && <X />}
+        </div>
         <TabNavigator labelArray={['Full Trade']} index={0}>
-          <div style={{ marginTop: '4rem' }}>
+          <div style={{ marginTop: '2.4rem' }}>
             {!hasEntry && (
               <div style={{ marginTop: '2rem' }}>
                 <Typography as="h3">1. Entry Order</Typography>
@@ -85,19 +108,18 @@ const Trade = () => {
             )}
 
             {!hasEntry && (
-              <TabNavigator labelArray={['Limit', 'Market']}>
+              <TabNavigator labelArray={['Limit', 'Market', 'custom-tab']}>
                 <LimitForm />
                 <MarketForm />
+                <EntryStopLimitForm />
+                <EntryStopMarketForm />
               </TabNavigator>
             )}
 
             {hasEntry && (
               <Fragment>
                 <Typography as="h3">2. Exits</Typography>
-                <ButtonNavigator
-                  labelArray={['Target', 'Stop-loss']}
-                  index={1}
-                >
+                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />
                     <ExitTargetStopMarket />
@@ -114,14 +136,15 @@ const Trade = () => {
             )}
 
             {ableToPostFulltrade && (
-              <Button
-                variant="confirm"
+              <button
+                type="button"
+                className="btn btn-primary btn-sm w-100"
                 onClick={() => {
                   setIsModalVisible(true)
                 }}
               >
                 Place Fulltrade
-              </Button>
+              </button>
             )}
 
             <TradeTableContainer />

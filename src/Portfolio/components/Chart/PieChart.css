@@ -1,8 +1,12 @@
 /*-- Chart --*/
 
 .c3 svg {
-  font: 10px sans-serif;
+  font: 12px sans-serif !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.c3-legend-item-tile {
+  width: 40px !important;
 }
 
 .c3 path,
@@ -120,11 +124,13 @@
 
 /*-- Select - Drag --*/
 /*-- Legend --*/
-.c3-legend {
+/* .c3-legend {
   font-size: 12px;
   padding-left: 50%;
 }
-
+.c3-legend span {
+  font-size: 14px !important;
+}
 .c3-legend-item-hidden {
   opacity: 0.15;
 }
@@ -134,7 +140,7 @@
   fill: white;
   stroke: lightgray;
   stroke-width: 1;
-}
+} */
 
 /*-- Title --*/
 .c3-title {
@@ -243,4 +249,32 @@
 
 .c3-drag-zoom .extent {
   fill-opacity: 0.1;
+}
+.chart-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  /* justify-content: center; */
+}
+.custom-legend {
+  margin-left: 50px !important;
+}
+.custom-legend .legend-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.custom-legend .legend-item:not(:last-child) {
+  margin-bottom: 4px;
+}
+.custom-legend .legend-item .color-block {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+.custom-legend .legend-item span {
+  color: var(--muted);
+  font-size: 14px;
+  margin-left: 8px;
+  margin-top: 2px;
 }

@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-dropdown-select'
 
@@ -9,10 +10,13 @@ const SymbolSelect = () => {
     symbols,
     selectedSymbol,
     setSymbol,
+    setExchange,
     selectedExchange,
     isLoading,
     isLoadingBalance,
   } = useSymbolContext()
+
+  const { activeExchange } = useContext(UserContext)
 
   if (isLoading) {
     return <div>Loading exchanges..</div>
@@ -38,7 +42,10 @@ const SymbolSelect = () => {
       <div className={styles['Select-Container']}>
         <Select
           options={exchanges}
-          values={[selectedExchange]}
+          style={{ textTransform: 'capitalize' }}
+          searchable={false}
+          onChange={(value) => setExchange(value[0])}
+          values={[activeExchange]}
           backspaceDelete={false}
         />
       </div>

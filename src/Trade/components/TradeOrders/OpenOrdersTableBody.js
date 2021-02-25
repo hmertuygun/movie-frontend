@@ -1,18 +1,45 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, Fragment } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
-import { errorNotification, successNotification } from '../../../components/Notifications'
-const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
+import { UserContext } from '../../../contexts/UserContext'
+import {
+  errorNotification,
+  successNotification,
+} from '../../../components/Notifications'
+import { useSymbolContext } from '../../context/SymbolContext'
+
+const Expandable = ({ entry, refreshTable, cancelingOrders, setCancelingOrders }) => {
   const [show, setShow] = useState(false)
+  const { activeExchange } = useContext(UserContext)
+  const { setIsOrderCancelled } = useSymbolContext()
+  const [cancelOrderRow, setCancelOrderRow] = useState(null)
+  const onCancelOrderClick = async (order) => {
+    setCancelOrderRow({ ...order })
+    setIsOrderCancelled(false)
+    try {
+      await cancelTradeOrder({
+        ...order,
+        ...activeExchange,
+      })
+      successNotification.open({ description: `Order Cancelled!` })
+    } catch (error) {
+      errorNotification.open({
+        description: `Order couldn't be cancelled. Please try again later`,
+      })
+    }
+    finally {
+      setCancelOrderRow(null)
+      setIsOrderCancelled(true)
+      refreshTable()
+    }
+  }
+
   return (
     <>
       {entry.map((order, rowIndex) => {
-        const isLoading = cancelingOrders.find(
-          (cancelingOrder) => cancelingOrder === order.trade_id
-        )
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -35,26 +62,13 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
               : undefined,
         }
         const cancelColumn =
-          rowIndex === 0 && order.type === 'Full Trade' ? (
+          rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={async () => {
-                setCancelingOrders([...cancelingOrders, order.trade_id])
-                try {
-                  await cancelTradeOrder(order.trade_id)
-                  successNotification.open({ description: `Order Cancelled!` })
-                } catch (error) {
-                  const restOfCancelOrders = cancelingOrders.filter(
-                    (cancelingOrder) => cancelingOrder !== order.trade_id
-                  )
-                  errorNotification.open({ description: `Order couldn't be cancelled. Please try again later` })
-                  setCancelingOrders(restOfCancelOrders)
-                  throw error
-                }
-              }}
+              onClick={() => { onCancelOrderClick(order) }}
             >
               Cancel
-              {isLoading ? (
+              {cancelOrderRow?.trade_id === order.trade_id ? (
                 <span
                   className="ml-2 spinner-border spinner-border-sm"
                   role="status"
@@ -107,9 +121,9 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ infiniteOrders }) => {
-  const {
-    data: history,
+const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
+  let {
+    data,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
@@ -120,25 +134,44 @@ const OpenOrdersTableBody = ({ infiniteOrders }) => {
     onIntersect: fetchNextPage,
     enabled: hasNextPage,
   })
+
+  const { selectedSymbolDetail } = useSymbolContext()
+  const selectedPair = selectedSymbolDetail['symbolpair']
+  // To avoid duplicate array issue caused by react-query
+  data = data?.pages || []
+  let tempArr = []
+  for (let i = 0; i < data.length; i++) {
+    let item = data[i]
+    item.forEach((item1) => {
+      tempArr.push(item1)
+    })
+  }
+  const uniqueAddresses = Array.from(new Set(tempArr.map(a => a.trade_id)))
+    .map(id => tempArr.find(a => a.trade_id === id))
+    .filter((order) => {
+      if (!isHideOtherPairs) {
+        return true
+      }
+      return order.symbol.replace('-', '') === selectedPair
+    })
+  data = uniqueAddresses
   const [cancelingOrders, setCancelingOrders] = useState([])
   return (
     <tbody>
-      {history &&
-        history.pages.map((items, index) => (
-          <React.Fragment key={index}>
-            {items.map((order, rowIndex) => {
-              const orders = [order, ...order.orders]
-              return (
-                <Expandable
-                  entry={orders}
-                  key={rowIndex}
-                  cancelingOrders={cancelingOrders}
-                  setCancelingOrders={setCancelingOrders}
-                />
-              )
-            })}
-          </React.Fragment>
-        ))}
+      {
+        data && data.map((item, index) => {
+          const orders = [item, ...item.orders]
+          return (
+            <Expandable
+              entry={orders}
+              key={index}
+              cancelingOrders={cancelingOrders}
+              setCancelingOrders={setCancelingOrders}
+              refreshTable={() => infiniteOrders.refetch()}
+            />
+          )
+        })
+      }
       <tr ref={loadMoreButtonRef}>
         <td colSpan="12">
           {isFetchingNextPage

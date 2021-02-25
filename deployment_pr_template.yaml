@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-<IMAGE_NAME> #here
+  namespace: userfront
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: <IMAGE_NAME> #here
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server-<IMAGE_NAME> #here
+  namespace: userfront
+spec:
+  selector:
+    matchLabels:
+      app: <IMAGE_NAME> #here
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: <IMAGE_NAME> #here
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: user-frontend-pool
+      containers:
+      - name: <IMAGE_NAME> #here
+        image: gcr.io/<GCP_PROJECT>/cp-web-server-<IMAGE_NAME>:<IMAGE_VERSION> #here
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 150m
+            memory: 200Mi
+          requests:
+            cpu: 150m
+            memory: 100Mi
+        ports:
+        - containerPort: 5000

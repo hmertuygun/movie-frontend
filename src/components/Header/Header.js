@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from './Logo/Logo'
 import MenuItems from './Navigation/NavBar/MenuItems'
+import MobileTab from './MobileTab/MobileTab'
 
 import { UserContext } from '../../contexts/UserContext'
 
@@ -140,6 +141,7 @@ const Header = () => {
           </div>
         </div>
       </nav>
+      <MobileTab />
     </header>
   )
 }

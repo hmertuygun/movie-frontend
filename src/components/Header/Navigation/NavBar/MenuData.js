@@ -9,7 +9,8 @@ export const MenuData = [
   },
   {
     title: 'Guides',
-    url: 'https://support.coinpanel.com/hc/en-us',
+    url:
+      'https://support.coinpanel.com/hc/en-us/categories/360002959559-Beginner-s-Guide',
     externalLink: true,
   },
 ]
