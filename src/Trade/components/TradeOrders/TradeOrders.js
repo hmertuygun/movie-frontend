@@ -16,25 +16,108 @@ const OpenOrdersQueryKey = 'OpenOrders'
 const OrdersHistoryQueryKey = 'OrdersHistory'
 let FBOrderUpdate = firebase.firestore().collection('order_update')
 let FBOrderHistory = firebase.firestore().collection('order_history_update')
+const OPEN_ORDERS_INITIAL_STATE = {
+  isFetching: false,
+  lastFetchedData: null,
+  limit: 50,
+  page: 0,
+  data: []
+}
+const ORDER_HISTORY_INITIAL_STATE = {
+  isFetching: false,
+  lastFetchedData: null,
+  limit: 50,
+  page: 0,
+  data: []
+}
 
-const Table = ({
-  isOpenOrders,
-  setIsOpenOrders,
-  tableData,
-  refreshOpenOrders,
-  orderHistoryProgress,
-  loadingBtn,
-  showProgressBar
-}) => {
+const TradeOrders = () => {
+  const { isLoadingBalance, isOrderPlaced, isOrderCancelled } = useSymbolContext()
+  const { activeExchange, setLoaderVisibility, userData, setUserData } = useContext(UserContext)
+  const [isOpenOrders, setIsOpenOrders,] = useState(true)
+  const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
+  const [loadBtn, setLoadBtn] = useState(false)
+  const [showProgressBar, setShowProgressBar] = useState(false)
+  const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
+  const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
-  const rfshExchange = useQuery('exchangeSymbols', getExchanges, {
-    onError: () => {
-      console.log(`Couldn't fetch exchanges`)
-    },
-    refetchOnWindowFocus: false,
-  })
-  // console.log(showProgressBar)
-  // console.log(orderHistoryProgress)
+
+  const getOpenOrdersData = async (refBtn) => {
+    try {
+      if (openOrders.isFetching) return
+      if (refBtn) {
+        setLoadBtn(true)
+        setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
+      }
+      setOpenOrders(prevState => ({ ...openOrders, isFetching: true }))
+      const { lastFetchedData, limit } = openOrders
+      const params = lastFetchedData ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange }
+      const orders = await getOpenOrders(params)
+      if (orders?.items?.length) {
+        const { items } = orders
+        setOpenOrders(prevState => ({ ...prevState, data: [...prevState.data, ...items], lastFetchedData: items[items.length - 1] }))
+        if (items.length < limit) {
+          setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+        }
+      }
+      else {
+        setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+      }
+    }
+    catch (e) {
+      console.log(`Error Fetching Open Orders`)
+      errorNotification.open({ description: 'Error fetching open orders!' })
+    }
+    finally {
+      setOpenOrders(prevState => ({ ...prevState, isFetching: false }))
+      setLoadBtn(false)
+    }
+  }
+  const getOrderHistoryData = async (refBtn) => {
+    try {
+      if (orderHistory.isFetching) return
+      if (refBtn) {
+        setLoadBtn(true)
+        setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
+      }
+      setOrderHistory(prevState => ({ ...prevState, isFetching: true }))
+      const { lastFetchedData, limit } = orderHistory
+      const params = lastFetchedData ? {
+        updateTime: lastFetchedData.update_time,
+        symbol: lastFetchedData.symbol,
+        orderId: lastFetchedData.order_id,
+        limit,
+        ...activeExchange
+      } : { ...activeExchange }
+
+      const orders = await getOrdersHistory(params)
+      if (orders?.items?.length) {
+        const { items } = orders
+        setOrderHistory(prevState => ({ ...prevState, data: [...prevState.data, ...items.slice(1)], lastFetchedData: items[items.length - 1] }))
+        if (items.length < limit) {
+          setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
+        }
+      }
+      else {
+        setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
+        setLoadBtn(false)
+      }
+    }
+    catch (e) {
+      console.log(`Error Fetching History Orders`)
+      errorNotification.open({ description: 'Error fetching order history!' })
+    }
+    finally {
+      setOrderHistory(prevState => ({ ...prevState, isFetching: false }))
+      setLoadBtn(false)
+    }
+  }
+  // const refreshExchange = useQuery('exchangeSymbols', getExchanges, {
+  //   onError: () => {
+  //     console.log(`Couldn't fetch exchanges`)
+  //   },
+  //   refetchOnWindowFocus: false,
+  // })
   const ProgressBar = (
     <div className="m-5 progress-wrapper">
       <span className="progress-label text-muted">
@@ -50,199 +133,23 @@ const Table = ({
       </div>
     </div>
   )
-  return (
-    <div className="d-flex flex-column" style={{ height: '100%' }}>
-      <div className="pb-0">
-        <div className="flex-wrap d-flex justify-content-between align-items-center">
-          <div>
-            <span
-              className={
-                (isOpenOrders ? 'h6 action-item' : 'action-item') + ' pt-3 ml-2'
-              }
-              onClick={() => setIsOpenOrders(true)}
-            >
-              Open Orders
-            </span>
-            <span
-              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
-                } pl-4`}
-              onClick={() => setIsOpenOrders(false)}
-            >
-              Order History
-            </span>
-          </div>
-          <div className="col-auto">
-            <div className="d-flex justify-content-between align-items-center">
-              <div className="mr-5 custom-control custom-checkbox">
-                <input
-                  type="checkbox"
-                  className="custom-control-input"
-                  id="check-terms"
-                  checked={isHideOtherPairs}
-                  onChange={(e) => setIsHideOtherPairs(e.target.checked)}
-                />
-                <label
-                  className={`custom-control-label ${styles['customControlLabel']}`}
-                  htmlFor="check-terms"
-                  style={{ fontSize: '12px', verticalAlign: 'middle' }}
-                >
-                  Hide Other Pairs
-                </label>
-              </div>
-              {loadingBtn ? (
-                <button
-                  className="btn btn-sm btn-neutral btn-icon"
-                  type="button"
-                  disabled
-                >
-                  {!isMobile && (
-                    <span className="btn-inner--text">Refresh</span>
-                  )}
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </button>
-              ) : (
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-neutral btn-icon"
-                    onClick={refreshOpenOrders}
-                  >
-                    {!isMobile && (
-                      <span className="btn-inner--text">Refresh</span>
-                    )}
-                    <span className="btn-inner--icon">
-                      <FontAwesomeIcon icon={faSync} />
-                    </span>
-                  </button>
-                )}
-            </div>
-          </div>
-        </div>
-      </div>
-      {!isOpenOrders && showProgressBar ? (
-        ProgressBar
-      ) : (
-          isOpenOrders ?
-            <OpenOrdersTableBody
-              tableData={tableData}
-              isHideOtherPairs={isHideOtherPairs}
-            />
-            : null
-        )
-      }
-    </div>
-  )
-}
+  // componentDidMount, componentWillUnMount
+  useEffect(() => {
+    getOpenOrdersData()
+    getOrderHistoryData()
+  }, [])
 
-const TradeOrders = () => {
-  const OPEN_ORDERS_INITIAL_STATE = {
-    isFetched: false,
-    lastFetchedData: null,
-    limit: 50,
-    page: 0,
-    data: []
-  }
-  const { isLoadingBalance, isOrderPlaced, isOrderCancelled } = useSymbolContext()
-  const { activeExchange, setLoaderVisibility } = useContext(UserContext)
-  const queryClient = useQueryClient()
-  const [isOpenOrders, setIsOpenOrders,] = useState(true)
-  const [user, setUser] = useState()
-  const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
-  const [loadBtn, setLoadBtn] = useState(false)
-  const [showProgressBar, setShowProgressBar] = useState(false)
-  const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
-
-  const getOpenOrdersData = async () => {
-    try {
-      setOpenOrders({ ...openOrders, isFetched: false })
-      const { lastFetchedData, data } = openOrders
-      const params = lastFetchedData ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, ...activeExchange } : { ...activeExchange }
-      const orders = await getOpenOrders(params)
-      if (orders?.items?.length) {
-        const { items } = orders
-        setOpenOrders({ ...openOrders, data: [...data, ...items], lastFetchedData: items[items.length - 1] })
-      }
-    }
-    catch (e) {
-      console.log(`Error Fetching Open Orders`)
-      errorNotification.open({ description: 'Error fetching open orders!' })
-    }
-    finally {
-      setOpenOrders({ ...openOrders, isFetched: true })
-    }
-  }
-
-  getOpenOrders()
-  // let infiniteOpenOrders = useInfiniteQuery(
-  //   OpenOrdersQueryKey,
-  //   async ({ pageParam }) => {
-  //     const params = pageParam
-  //       ? {
-  //         timestamp: pageParam.timestamp,
-  //         trade_id: pageParam.trade_id,
-  //         ...activeExchange,
-  //       }
-  //       : { ...activeExchange }
-  //     const orders = await getOpenOrders(params)
-  //     return orders.items
-  //   },
-  //   {
-  //     getPreviousPageParam: (firstPage) => {
-  //       return firstPage[0]
-  //     },
-  //     getNextPageParam: (lastPage) => {
-  //       return lastPage[lastPage.length - 1]
-  //     },
-  //     onError: () => {
-  //       errorNotification.open({ description: 'Error fetching open orders!' })
-  //     },
-  //     refetchOnWindowFocus: false
+  // firebase.auth().onAuthStateChanged(function (user) {
+  //   if (user != null) {
+  //     setUser(user)
+  //   } else {
+  //     setUser(null)
   //   }
-  // )
+  // })
 
-  let infiniteHistory = useInfiniteQuery(
-    OrdersHistoryQueryKey,
-    async ({ pageParam }) => {
-      const params = pageParam
-        ? {
-          updateTime: pageParam.update_time,
-          symbol: pageParam.symbol,
-          orderId: pageParam.order_id,
-          ...activeExchange,
-        }
-        : { ...activeExchange }
-      const orders = await getOrdersHistory(params)
-      return orders.items
-    },
-    {
-      getPreviousPageParam: (firstPage) => {
-        return firstPage[0]
-      },
-      getNextPageParam: (lastPage) => {
-        return lastPage[lastPage.length - 1]
-      },
-      onError: () => {
-        errorNotification.open({ description: 'Error fetching order history' })
-      },
-      refetchOnWindowFocus: false
-    },
-  )
-
-  firebase.auth().onAuthStateChanged(function (user) {
-    if (user != null) {
-      setUser(user)
-    } else {
-      setUser(null)
-    }
-  })
-
-  const onRefreshBtnClick = async () => {
-    // setLoadBtn(true)
-    // await Promise.allSettled([infiniteOpenOrders.refetch(), infiniteHistory.refetch()])
-    // setLoadBtn(false)
+  const onRefreshBtnClick = () => {
+    if (isOpenOrders) getOpenOrdersData(true)
+    else getOrderHistoryData(true)
   }
 
   // useEffect(async () => {
@@ -266,21 +173,6 @@ const TradeOrders = () => {
   //     setLoaderVisibility(false)
   //   }
   // }, [isLoadingBalance, infiniteOpenOrders.isFetched, infiniteHistory.isFetched])
-
-  const callOpenOrdersKey = () => {
-    let showProgbar = sessionStorage.getItem('showProgressBar')
-    if (!showProgbar) {
-      console.log('Open Orders Func called')
-      queryClient.invalidateQueries(OpenOrdersQueryKey)
-    }
-  }
-  const callOrderHistory = () => {
-    let showProgbar = sessionStorage.getItem('showProgressBar')
-    if (!showProgbar) {
-      console.log('History Update Func called')
-      queryClient.invalidateQueries(OrdersHistoryQueryKey)
-    }
-  }
 
   // useEffect(() => {
   //   if (user != null) {
@@ -347,16 +239,105 @@ const TradeOrders = () => {
 
 
   return (
-    <Table
-      isOpenOrders={isOpenOrders}
-      setIsOpenOrders={setIsOpenOrders}
-      tableData={isOpenOrders ? openOrders : infiniteHistory}
-      refreshExchanges={getExchanges}
-      orderHistoryProgress={orderHistoryProgress}
-      refreshOpenOrders={onRefreshBtnClick}
-      loadingBtn={loadBtn}
-      showProgressBar={showProgressBar}
-    />
+    <div className="d-flex flex-column" style={{ height: '100%' }}>
+      <div className="pb-2">
+        <div className="flex-wrap d-flex justify-content-between align-items-center">
+          <div>
+            <span
+              className={
+                (isOpenOrders ? 'h6 action-item' : 'action-item') + ' pt-3 ml-2'
+              }
+              onClick={() => setIsOpenOrders(true)}
+            >
+              Open Orders
+            </span>
+            <span
+              className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
+                } pl-4`}
+              onClick={() => setIsOpenOrders(false)}
+            >
+              Order History
+            </span>
+          </div>
+          <div className="col-auto">
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="mr-5 custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  className="custom-control-input"
+                  id="check-terms"
+                  checked={isHideOtherPairs}
+                  onChange={(e) => setIsHideOtherPairs(e.target.checked)}
+                />
+                <label
+                  className={`custom-control-label ${styles['customControlLabel']}`}
+                  htmlFor="check-terms"
+                  style={{ fontSize: '12px', verticalAlign: 'middle' }}
+                >
+                  Hide Other Pairs
+                </label>
+              </div>
+              {(
+                <button
+                  className="btn btn-xs btn-outline-primary btn-icon"
+                  type="button"
+                  onClick={onRefreshBtnClick}
+                  disabled={loadBtn}
+                >
+                  {!isMobile && (
+                    <span className="btn-inner--text">Refresh</span>
+                  )}
+                  {
+                    loadBtn ? (
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                    ) : (
+                        <span className="btn-inner--icon">
+                          <FontAwesomeIcon icon={faSync} />
+                        </span>
+                      )
+                  }
+                </button>
+              )
+                // ) : (
+                //     <button
+                //       type="button"
+                //       className="btn btn-xs btn-outline-primary btn-icon"
+                //       onClick={onRefreshBtnClick}
+                //     >
+                //       {!isMobile && (
+                //         <span className="btn-inner--text">Refresh</span>
+                //       )}
+                //       <span className="btn-inner--icon">
+                //         <FontAwesomeIcon icon={faSync} />
+                //       </span>
+                //     </button>
+                //   )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      {!isOpenOrders && showProgressBar ? (
+        ProgressBar
+      ) : (
+          isOpenOrders ?
+            <OpenOrdersTableBody
+              tableData={openOrders}
+              callOpenOrdersAPI={() => getOpenOrdersData()}
+              isHideOtherPairs={isHideOtherPairs}
+            />
+            : <OrderHistoryTableBody
+              tableData={orderHistory}
+              callOrderHistoryAPI={() => getOrderHistoryData()}
+              isHideOtherPairs={isHideOtherPairs}
+            />
+        )
+      }
+    </div>
   )
 }
 

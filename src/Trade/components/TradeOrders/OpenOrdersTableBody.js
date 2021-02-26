@@ -4,6 +4,7 @@ import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
 import {
   errorNotification,
@@ -12,9 +13,9 @@ import {
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeOrders.module.css'
 
-const deleteDuplicateRows = (data) => {
+const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
-  const uniqueData = Array.from(new Set(data.map(a => a.trade_id))).map(id => data.find(a => a.trade_id === id))
+  const uniqueData = Array.from(new Set(data.map(a => a[key]))).map(id => data.find(a => a[key] === id))
   return uniqueData
 }
 
@@ -23,6 +24,7 @@ const Expandable = ({ entry, refreshTable }) => {
   const { activeExchange } = useContext(UserContext)
   const { setIsOrderCancelled } = useSymbolContext()
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
+  const [rowData, setRowData] = useState(entry)
   const onCancelOrderClick = async (order) => {
     setCancelOrderRow({ ...order })
     setIsOrderCancelled(false)
@@ -46,7 +48,7 @@ const Expandable = ({ entry, refreshTable }) => {
 
   return (
     <>
-      {entry.map((order, rowIndex) => {
+      {rowData.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -128,9 +130,9 @@ const Expandable = ({ entry, refreshTable }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ tableData, isHideOtherPairs }) => {
+const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI }) => {
   const loadMoreButtonRef = React.useRef()
-  let { data, isFetched } = tableData
+  let { data, isFetching, lastFetchedData } = tableData
   const columns = [
     {
       title: 'Pair',
@@ -177,31 +179,27 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs }) => {
       key: 'cancel',
     },
   ]
-  const tableHead = (
-    <thead>
-      <tr>
-        {
-          columns.map((item) => (
-            <th scope="col" key={item.key}>{item.title}</th>
-          ))
-        }
-      </tr>
-    </thead>
-  )
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: fetchNextPage,
-  //   enabled: hasNextPage,
-  // })
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: callOpenOrdersAPI,
+    enabled: lastFetchedData && !isFetching && data?.length,
+    threshold: .1
+  })
 
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-
+  data = data.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   return (
-    <div className="ordersTable" style={{ overflowY: 'scroll' }}>
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
+            <th scope="col"></th>
             {
               columns.map((item) => (
                 <th scope="col" key={item.key}>{item.title}</th>
@@ -221,17 +219,22 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs }) => {
               )
             })
           }
-          {/* <tr ref={loadMoreButtonRef}>
+          <tr ref={loadMoreButtonRef}>
             <td colSpan="12">
-              {isFetchingNextPage
-                ? 'Loading more...'
-                : hasNextPage
-                  ? 'Load Older'
-                  : 'No open orders'}
+              {isFetching ? (
+                <p className="pt-3">
+                  <span
+                    className="spinner-border text-primary spinner-border-sm"
+                  />
+                </p>
+              ) : null}
             </td>
-          </tr> */}
+          </tr>
         </tbody>
       </table>
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
+      </div>
     </div>
   )
 }

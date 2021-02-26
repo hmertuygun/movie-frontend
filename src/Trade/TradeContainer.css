@@ -3,6 +3,7 @@
   flex-direction: row;
   /* min-height: 110vh; */
   justify-content: stretch;
+  margin: 0 16px;
 }
 
 .TradeView-Panel {
