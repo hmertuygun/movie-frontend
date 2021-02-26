@@ -19,13 +19,14 @@ const deleteDuplicateRows = (data, key) => {
   return uniqueData
 }
 
-const Expandable = ({ entry, refreshTable }) => {
+const Expandable = ({ entry }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
   const { setIsOrderCancelled } = useSymbolContext()
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
-  const [rowData, setRowData] = useState(entry)
-  const onCancelOrderClick = async (order) => {
+  let rowData = [...entry]
+
+  const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     setIsOrderCancelled(false)
     try {
@@ -33,6 +34,7 @@ const Expandable = ({ entry, refreshTable }) => {
         ...order,
         ...activeExchange,
       })
+      rowData.splice(index, 1)
       successNotification.open({ description: `Order Cancelled!` })
     } catch (error) {
       errorNotification.open({
@@ -42,7 +44,6 @@ const Expandable = ({ entry, refreshTable }) => {
     finally {
       setCancelOrderRow(null)
       setIsOrderCancelled(true)
-      refreshTable()
     }
   }
 

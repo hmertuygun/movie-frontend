@@ -103,12 +103,12 @@ const SymbolContextProvider = ({ children }) => {
 
   async function setExchange(exchange) {
     try {
+      // if user selects the selected option again in the dropdown
       if (activeExchange.apiKeyName === exchange.apiKeyName && activeExchange.exchange === exchange.exchange) {
         return
       }
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
-      // if user selects the selected option again in the dropdown
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
     }
