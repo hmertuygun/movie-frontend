@@ -63,14 +63,12 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
     }
   ]
   const loadMoreButtonRef = React.useRef()
-
   useIntersectionObserver({
     target: loadMoreButtonRef,
     onIntersect: callOrderHistoryAPI,
     enabled: lastFetchedData && !isFetching && data?.length,
     threshold: .1
   })
-
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
   data = data.filter((order) => {
@@ -80,7 +78,7 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className="ordersTable" style={{ overflowY: 'scroll', overflowX: 'hidden' }}>
+    <div className="ordersTable" style={{ overflowY: 'scroll', overflowX: 'hidden', paddingBottom: '32px' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>

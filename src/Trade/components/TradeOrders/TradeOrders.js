@@ -31,7 +31,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 
 const TradeOrders = () => {
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled } = useSymbolContext()
-  const { activeExchange, loaderVisible, setLoaderVisibility, userData, setUserData } = useContext(UserContext)
+  const { activeExchange, loaderVisible, setLoaderVisibility, userData, totalExchanges, setUserData } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
@@ -41,6 +41,7 @@ const TradeOrders = () => {
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
+  const [keyProcessing, setKeyProcessing] = useState(false)
   const openOrdersInterval = 3000
   const historyOrdersInterval = 10000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
@@ -108,7 +109,7 @@ const TradeOrders = () => {
         const { items } = orders
         let slicedItems = lastFetchedData ? items.slice(1) : items
         setOrderHistory(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
-        if (items.length < limit) {
+        if (slicedItems.length < limit) {
           setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
         }
       }
@@ -144,14 +145,25 @@ const TradeOrders = () => {
         let [apiName, exchange] = item.split("__")
         exchange = exchange.split("_")[0]
         // console.log(apiName, exchange)
+        let tempLoad, tempTotal
         let isActiveExchangeSelected = activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange
-        if (isActiveExchangeSelected && item.includes("loaded")) {
-          loaded = no
-          totalSelected = true
+        let hasKey = totalExchanges.findIndex(item => item.apiKeyName === apiName && item.exchange === exchange)
+        if (item.includes("loaded")) {
+          tempLoad = no
+          if (isActiveExchangeSelected) {
+            loaded = no
+            totalSelected = true
+          }
         }
-        if (isActiveExchangeSelected && item.includes("total")) {
-          total = no
-          loadedSelected = true
+        if (item.includes("total")) {
+          tempTotal = no
+          if (isActiveExchangeSelected) {
+            total = no
+            loadedSelected = true
+          }
+        }
+        if (hasKey && tempLoad !== tempTotal) { // if some key loaded != total, that means some new key added is processing, disable realtime calls
+          setKeyProcessing(true)
         }
       })
     //console.log(total, loaded, totalSelected, loadedSelected)
@@ -161,24 +173,47 @@ const TradeOrders = () => {
     setOrderHistoryProgress(progress)
   }
 
-  // componentDidMount, componentWillUnMount
   useEffect(() => {
-    // openOrderPolling = setInterval(() => getOpenOrdersData(false, true), openOrdersInterval)
-    // orderHistoryPolling = setInterval(() => getOrderHistoryData(false, true), historyOrdersInterval)
+    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(false, true)
+  }, [orderUpdateFB, keyProcessing])
+
+  useEffect(() => {
+    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(false, true)
+  }, [orderHistoryFB, showProgressBar, keyProcessing])
+
+  useEffect(() => {
+    console.log(`In active exchange`)
+    // if (FBOrderHistoryLoad && typeof FBOrderHistoryLoad === "function") {
+    //   console.log(`Unsubbed`)
+    //   FBOrderHistoryLoad()
+    // }
+    // db.collection('order_history_load').doc(userData.email).get().then((doc) => {
+    //   if (doc) {
+    //     console.log(doc.data())
+    //   }
+    // })
+    // let ordersTable = document.querySelector(".ordersTable")
+    // if (ordersTable) {
+    //   ordersTable.scrollTo(0, 0)
+    // }
+
+    setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
+    setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
+    setOrderHistoryProgress('100.00')
+    setShowProgressBar(false)
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        //console.log('Order Update => ', orderUpdateFB)
+        console.log('Order Update => ', orderUpdateFB)
         setOrderUpdateFB(prevState => prevState + 1)
       })
 
     FBOrderHistory = db.collection('order_history_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        //console.log('Order History Update => ', doc.data())
+        console.log('Order History Update => ', orderHistoryFB)
         setOrderHistoryFB(prevState => prevState + 1)
       })
-
     FBOrderHistoryLoad = db.collection('order_history_load')
       .doc(userData.email)
       .onSnapshot(
@@ -187,32 +222,20 @@ const TradeOrders = () => {
           console.error(err)
         }
       )
+
+    // if (keyProcessing) {
+    //   getOpenOrdersData(true, true)
+    //   getOrderHistoryData(true, true)
+    // }
     return () => {
       FBOrderUpdate()
       FBOrderHistory()
       FBOrderHistoryLoad()
+      // if (FBOrderHistoryLoad && typeof FBOrderHistoryLoad === "function") {
+      //   console.log(`Unsubbed History Load`)
+      //   FBOrderHistoryLoad()
+      // }
     }
-  }, [])
-
-  useEffect(() => {
-    getOpenOrdersData(false, true)
-  }, [orderUpdateFB])
-
-  useEffect(() => {
-    getOrderHistoryData(false, true)
-  }, [orderHistoryFB])
-
-  useEffect(() => {
-    let ordersTable = document.querySelector(".ordersTable")
-    if (ordersTable) {
-      ordersTable.scrollTo(0, 0)
-    }
-    // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
-    // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
-    setOrderHistoryProgress('100.00')
-    setShowProgressBar(false)
-    getOpenOrdersData(true, true)
-    getOrderHistoryData(true, true)
   }, [activeExchange])
 
   useEffect(() => {
@@ -324,20 +347,19 @@ const TradeOrders = () => {
           </div>
         </div>
       </div>
-      {!isOpenOrders && showProgressBar ? (
-        ProgressBar
-      ) : (
-          isOpenOrders ?
-            <OpenOrdersTableBody
-              tableData={openOrders}
-              callOpenOrdersAPI={() => getOpenOrdersData()}
-              isHideOtherPairs={isHideOtherPairs}
-            />
-            : <OrderHistoryTableBody
-              tableData={orderHistory}
-              callOrderHistoryAPI={() => getOrderHistoryData()}
-              isHideOtherPairs={isHideOtherPairs}
-            />
+      {
+        isOpenOrders ? (
+          <OpenOrdersTableBody
+            tableData={openOrders}
+            callOpenOrdersAPI={() => getOpenOrdersData()}
+            isHideOtherPairs={isHideOtherPairs}
+          />
+        ) : !isOpenOrders && showProgressBar ? ProgressBar : (
+          <OrderHistoryTableBody
+            tableData={orderHistory}
+            callOrderHistoryAPI={() => getOrderHistoryData()}
+            isHideOtherPairs={isHideOtherPairs}
+          />
         )
       }
     </div>
