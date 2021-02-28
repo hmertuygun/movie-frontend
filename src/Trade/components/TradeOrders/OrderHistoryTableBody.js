@@ -66,8 +66,8 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
   useIntersectionObserver({
     target: loadMoreButtonRef,
     onIntersect: callOrderHistoryAPI,
-    enabled: lastFetchedData && !isFetching && data?.length,
-    threshold: .1
+    enabled: lastFetchedData && !isFetching,
+    threshold: .1,
   })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
@@ -146,7 +146,7 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
               )
             })
           }
-          <tr ref={loadMoreButtonRef}>
+          {/* <tr ref={loadMoreButtonRef}>
             <td colSpan="12">
               {isFetching ? (
                 <p className="pt-3">
@@ -156,9 +156,18 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
                 </p>
               ) : null}
             </td>
-          </tr>
+          </tr> */}
         </tbody>
       </table>
+      <div className="text-center" ref={loadMoreButtonRef}>
+        {isFetching ? (
+          <p className="pt-3">
+            <span
+              className="spinner-border text-primary spinner-border-sm"
+            />
+          </p>
+        ) : null}
+      </div>
       <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
         <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
       </div>

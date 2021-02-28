@@ -183,7 +183,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
   useIntersectionObserver({
     target: loadMoreButtonRef,
     onIntersect: callOpenOrdersAPI,
-    enabled: lastFetchedData && !isFetching && data?.length,
+    enabled: lastFetchedData && !isFetching,
     threshold: .1
   })
 
