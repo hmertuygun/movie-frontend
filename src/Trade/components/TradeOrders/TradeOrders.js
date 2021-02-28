@@ -47,20 +47,19 @@ const TradeOrders = () => {
   const orderHistoryInterval = 30000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
 
-  const getOpenOrdersData = async (refBtn, hideTableLoader) => {
+  const getOpenOrdersData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (openOrders.isFetching) return
-      if (refBtn) {
-        setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
-      }
+      if (refBtn) setLoadBtn(true)
+      if (refreshTable) setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
       if (!hideTableLoader) setOpenOrders(prevState => ({ ...prevState, isFetching: true }))
       const { lastFetchedData, limit } = openOrders
-      const params = refBtn ? { ...activeExchange, limit } : lastFetchedData && !refBtn ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange, limit }
+      const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange, limit }
       const orders = await getOpenOrders(params)
       if (orders?.items?.length) {
         const { items } = orders
-        let slicedItems = refBtn ? items : lastFetchedData && !refBtn ? items.slice(1) : items
-        if (refBtn) {
+        let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        if (refreshTable) {
           setOpenOrders(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
         }
         else {
@@ -80,18 +79,18 @@ const TradeOrders = () => {
     }
     finally {
       setOpenOrders(prevState => ({ ...prevState, isFetching: false }))
+      setLoadBtn(false)
     }
   }
 
-  const getOrderHistoryData = async (refBtn, hideTableLoader) => {
+  const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (orderHistory.isFetching) return
-      if (refBtn) {
-        setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
-      }
+      if (refBtn) setLoadBtn(true)
+      if (refreshTable) setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
       if (!hideTableLoader) setOrderHistory(prevState => ({ ...prevState, isFetching: true }))
       const { lastFetchedData, limit } = orderHistory
-      const params = refBtn ? { ...activeExchange, limit } : lastFetchedData && !refBtn ? {
+      const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? {
         updateTime: lastFetchedData.update_time,
         symbol: lastFetchedData.symbol,
         orderId: lastFetchedData.order_id,
@@ -102,8 +101,8 @@ const TradeOrders = () => {
       const orders = await getOrdersHistory(params)
       if (orders?.items?.length) {
         const { items } = orders
-        let slicedItems = refBtn ? items : lastFetchedData && !refBtn ? items.slice(1) : items
-        if (refBtn) {
+        let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        if (refreshTable) {
           setOrderHistory(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
         }
         else {
@@ -122,15 +121,14 @@ const TradeOrders = () => {
       errorNotification.open({ description: 'Error fetching order history!' })
     }
     finally {
+      setLoadBtn(false)
       setOrderHistory(prevState => ({ ...prevState, isFetching: false }))
     }
   }
 
   const onRefreshBtnClick = () => {
-    setLoadBtn(true)
-    if (isOpenOrders) getOpenOrdersData(true, false)
-    else getOrderHistoryData(true, false)
-    setLoadBtn(false)
+    if (isOpenOrders) getOpenOrdersData(true, false, true)
+    else getOrderHistoryData(true, false, true)
   }
 
   const orderHistoryLoadedFBCallback = (doc) => {
