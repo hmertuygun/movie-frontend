@@ -59,6 +59,7 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        console.log(refreshTable)
         if (refreshTable) {
           setOpenOrders(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
         }
@@ -152,6 +153,14 @@ const TradeOrders = () => {
     }
   }
 
+  const deleteOpenOrdersRow = (row) => {
+    clearInterval(openOrderPolling)
+    let arrData = [...openOrders.data]
+    let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    arrData.splice(dIndex, 1)
+    setOpenOrders(prevState => ({ ...prevState, data: arrData }))
+    openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
+  }
   //  useEffect(() => {
   //   if (isOpenOrders) {
   //     if (orderUpdateFB > 0 && !showProgressBar) getOpenOrdersData(false, true)
@@ -283,6 +292,7 @@ const TradeOrders = () => {
           <OpenOrdersTableBody
             tableData={openOrders}
             callOpenOrdersAPI={() => getOpenOrdersData()}
+            deleteRow={(rData) => deleteOpenOrdersRow(rData)}
             isHideOtherPairs={isHideOtherPairs}
           />
         ) : !isOpenOrders && showProgressBar ? ProgressBar : (

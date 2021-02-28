@@ -1,4 +1,4 @@
-import React, { useState, useContext, Fragment } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
@@ -19,22 +19,18 @@ const deleteDuplicateRows = (data, key) => {
   return uniqueData
 }
 
-const Expandable = ({ entry }) => {
+const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
-  const { setIsOrderCancelled } = useSymbolContext()
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
-  let rowData = [...entry]
-
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
-    setIsOrderCancelled(false)
     try {
       await cancelTradeOrder({
         ...order,
         ...activeExchange,
       })
-      rowData.splice(index, 1)
+      deletedRow(order)
       successNotification.open({ description: `Order Cancelled!` })
     } catch (error) {
       errorNotification.open({
@@ -43,13 +39,11 @@ const Expandable = ({ entry }) => {
     }
     finally {
       setCancelOrderRow(null)
-      setIsOrderCancelled(true)
     }
   }
-
   return (
     <>
-      {rowData.map((order, rowIndex) => {
+      { entry.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -131,9 +125,9 @@ const Expandable = ({ entry }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI }) => {
+const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, deleteRow, callOpenOrdersAPI }) => {
   const loadMoreButtonRef = React.useRef()
-  let { data, isFetching, lastFetchedData } = tableData
+  let { isFetching, lastFetchedData } = tableData
   const columns = [
     {
       title: 'Pair',
@@ -186,17 +180,33 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
     enabled: lastFetchedData && !isFetching,
     threshold: .1
   })
-
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  data = data.filter((order) => {
-    if (!isHideOtherPairs) {
-      return true
-    }
-    return order.symbol.replace('-', '') === selectedPair
-  })
+  const [renderData, setRenderData] = useState(tableData.data)
+
+  useEffect(() => {
+    setRenderData(tableData.data)
+  }, [tableData])
+
+  useEffect(() => {
+    let filteredData = renderData.filter((order) => {
+      if (!isHideOtherPairs) {
+        return true
+      }
+      return order.symbol.replace('-', '') === selectedPair
+    })
+    setRenderData(filteredData)
+  }, [isHideOtherPairs])
+
+  // const deleteRow = (row) => {
+  //   let arrData = [...renderData]
+  //   let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+  //   arrData.splice(dIndex, 1)
+  //   setRenderData(arrData)
+  // }
+
   return (
-    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+    <div className="ordersTable" style={{ overflowY: renderData.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
@@ -210,12 +220,13 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
         </thead>
         <tbody>
           {
-            data && data.map((item, index) => {
+            renderData && renderData.map((item, index) => {
               const orders = [item, ...item.orders]
               return (
                 <Expandable
                   entry={orders}
                   key={index}
+                  deletedRow={(row) => deleteRow(row)}
                 />
               )
             })
@@ -233,7 +244,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
           </tr>
         </tbody>
       </table>
-      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!renderData.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
         <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
       </div>
     </div>
