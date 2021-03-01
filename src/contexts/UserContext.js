@@ -13,9 +13,11 @@ export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
+  const localStorageRemember = localStorage.getItem('remember')
+  const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
-  if (localStorageUser !== 'undefined') {
+  if (localStorageUser !== 'undefined' && (sessionStorageRemember === "true" || localStorageRemember === "true")) {
     initialState = {
       user: JSON.parse(localStorageUser),
       ...JSON.parse(localStorage2faUserDetails),
@@ -31,10 +33,11 @@ const UserContextProvider = ({ children }) => {
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
+  const [rememberCheck, setRememberCheck] = useState(false)
 
-  // @ TODO
-  // Handle error
-  // Unify responses
+  useEffect(() => {
+    getUserExchangesAfterFBInit()
+  }, [])
 
   async function getExchanges() {
     try {
@@ -101,20 +104,6 @@ const UserContextProvider = ({ children }) => {
     })
   }
 
-  const clearStorage = () => {
-    let session = sessionStorage.getItem('ref')
-    if (!session) {
-      logout()
-      return
-    }
-    sessionStorage.setItem('ref', 1)
-  }
-
-  useEffect(() => {
-    window.addEventListener('load', clearStorage)
-    getUserExchangesAfterFBInit()
-  }, [])
-
   async function login(email, password) {
     const signedin = await firebase
       .auth()
@@ -172,7 +161,7 @@ const UserContextProvider = ({ children }) => {
       } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
-      sessionStorage.setItem('ref', 1)
+      localStorage.setItem('remember', rememberCheck)
     }
 
     localStorage.removeItem('registered')
@@ -237,8 +226,6 @@ const UserContextProvider = ({ children }) => {
     return true
   }
 
-  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
-  const isLoggedInWithFirebase = state && state.user
   // REGISTER NEW USER
   async function register(email, password) {
     const registered = await firebase
@@ -285,6 +272,9 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const isLoggedInWithFirebase = state && state.user
+  if (isLoggedIn) sessionStorage.setItem('remember', true)
   return (
     <UserContext.Provider
       value={{
@@ -311,7 +301,9 @@ const UserContextProvider = ({ children }) => {
         loaderText,
         setLoaderText,
         userData,
-        setUserData
+        setUserData,
+        rememberCheck,
+        setRememberCheck
       }}
     >
       {children}

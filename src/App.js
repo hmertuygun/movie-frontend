@@ -15,6 +15,19 @@ library.add(fab, fas)
 const queryClient = new QueryClient()
 
 export default function App() {
+  // const clearStorage = () => {
+  //   let sr = window.sessionStorage.getItem('remember')
+  //   let lr = window.localStorage.getItem('remember')
+  //   console.log(sr, lr)
+  //   if (!sr && lr !== "true") {
+  //     window.localStorage.clear()
+  //     window.sessionStorage.clear()
+  //     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
+  //     //window.location.href = `${window.location.origin}/login`
+  //   }
+  //   window.sessionStorage.setItem('remember', true)
+  // }
+  // window.addEventListener('load', clearStorage)
   return (
     <QueryClientProvider client={queryClient}>
       <Router>

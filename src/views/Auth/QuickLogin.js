@@ -6,7 +6,7 @@ import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLogin = () => {
-  const { login, isLoggedInWithFirebase } = useContext(UserContext)
+  const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -149,6 +149,22 @@ const QuickLogin = () => {
                   <p className="text-sm mt-3 text-danger">{error.message}</p>
                 )}
 
+                <div className="mt-2 custom-control custom-checkbox">
+                  <input
+                    type="checkbox"
+                    className="custom-control-input"
+                    id="check-terms"
+                    checked={rememberCheck}
+                    onChange={(e) => setRememberCheck(e.target.checked)}
+                  />
+                  <label
+                    className={`custom-control-label`}
+                    htmlFor="check-terms"
+                    style={{ fontSize: '14px', paddingTop: '2px', cursor: 'pointer' }}
+                  >
+                    Remember Me
+                  </label>
+                </div>
                 <div className="mt-4">
                   <button
                     type="submit"
@@ -162,8 +178,8 @@ const QuickLogin = () => {
                         aria-hidden="true"
                       />
                     ) : (
-                      'Sign in'
-                    )}
+                        'Sign in'
+                      )}
                   </button>
                 </div>
               </form>
