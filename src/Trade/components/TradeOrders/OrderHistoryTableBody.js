@@ -3,37 +3,96 @@ import useIntersectionObserver from './useIntersectionObserver'
 import Moment from 'react-moment'
 import TradeOrdersStyle from './TradeOrders.module.css'
 import tooltipStyles from '../TradeOrders/tooltip.module.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../context/SymbolContext'
+import styles from './TradeOrders.module.css'
+const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAPI }) => {
+  let {
+    data,
+    isFetching,
+    lastFetchedData
+  } = tableData
 
-const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
-  const {
-    data: history,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = infiniteOrders
+  const columns = [
+    {
+      title: 'Pair',
+      key: 'pair',
+      dataIndex: 'symbol'
+    },
+    {
+      title: 'Type',
+      key: 'type',
+      dataIndex: 'type'
+    },
+    {
+      title: 'Side',
+      key: 'side',
+      dataIndex: 'side'
+    },
+    {
+      title: 'Average',
+      key: 'average',
+    },
+    {
+      title: 'Price',
+      key: 'price',
+    },
+    {
+      title: 'Amount',
+      key: 'amount',
+    },
+    {
+      title: 'Filled',
+      key: 'filled',
+    },
+    {
+      title: 'Total',
+      key: 'total',
+    },
+    {
+      title: 'Trigger Condition',
+      key: 'trigger-conditions',
+    },
+    {
+      title: 'Status',
+      key: 'status',
+    },
+    {
+      title: 'Date',
+      key: 'date',
+    }
+  ]
   const loadMoreButtonRef = React.useRef()
   useIntersectionObserver({
     target: loadMoreButtonRef,
-    onIntersect: fetchNextPage,
-    enabled: hasNextPage,
+    onIntersect: callOrderHistoryAPI,
+    enabled: lastFetchedData && !isFetching,
+    threshold: .1,
   })
-
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-
+  data = data.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   return (
-    <tbody>
-      {history &&
-        history.pages.map((page, pageIndex) => (
-          <React.Fragment key={pageIndex}>
-            {page
-              .filter((order) => {
-                if (!isHideOtherPairs) {
-                  return true
-                }
-                return order.symbol.replace('-', '') === selectedPair
-              })
+    <div className="ordersTable" style={{ overflowY: 'scroll', overflowX: 'hidden', paddingBottom: '32px' }}>
+      <table className={['table', styles.table].join(' ')}>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {
+              columns.map((item) => (
+                <th scope="col" key={item.key}>{item.title}</th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            data
               .map((order, index) => {
                 const isCanceled = order.status?.toLowerCase() === 'canceled'
                 const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
@@ -46,11 +105,11 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                       style={
                         !isCanceled
                           ? {
-                              color:
-                                order.side?.toLowerCase() === 'buy'
-                                  ? 'green'
-                                  : 'red',
-                            }
+                            color:
+                              order.side?.toLowerCase() === 'buy'
+                                ? 'green'
+                                : 'red',
+                          }
                           : undefined
                       }
                     >
@@ -86,19 +145,34 @@ const OrderHistoryTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
                     </td>
                   </tr>
                 )
-              })}
-          </React.Fragment>
-        ))}
-      <tr ref={loadMoreButtonRef}>
-        <td colSpan="12">
-          {isFetchingNextPage
-            ? 'Loading more...'
-            : hasNextPage
-            ? 'Load Older'
-            : 'Nothing more to load'}
-        </td>
-      </tr>
-    </tbody>
+              })
+          }
+          {/* <tr ref={loadMoreButtonRef}>
+            <td colSpan="12">
+              {isFetching ? (
+                <p className="pt-3">
+                  <span
+                    className="spinner-border text-primary spinner-border-sm"
+                  />
+                </p>
+              ) : null}
+            </td>
+          </tr> */}
+        </tbody>
+      </table>
+      <div className="text-center" ref={loadMoreButtonRef}>
+        {isFetching ? (
+          <p className="pt-3">
+            <span
+              className="spinner-border text-primary spinner-border-sm"
+            />
+          </p>
+        ) : null}
+      </div>
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
+      </div>
+    </div>
   )
 }
 

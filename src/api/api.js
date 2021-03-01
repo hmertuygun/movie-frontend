@@ -272,14 +272,10 @@ export async function verifyGoogleAuth2FA(auth_answer) {
   return response
 }
 
-export async function getOpenOrders({ timestamp, trade_id, apiKeyName, exchange }) {
-  const apiUrl =
-    process.env.REACT_APP_API_V2 +
-    'orders?limit=50' +
-    '&apiKeyName=' + apiKeyName +
-    '&exchange=' + capitalize(exchange) +
-    (timestamp ? '&timestamp=' + timestamp : '') +
-    (trade_id ? '&trade_id=' + trade_id : '')
+export async function getOpenOrders({ timestamp, limit, trade_id, apiKeyName, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${limit || 50}
+                  ${timestamp ? `&timestamp=${timestamp}` : ''}${trade_id ? `&trade_id=${trade_id}` : ''}`
+
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
     headers: await getHeaders(token),

@@ -1,29 +1,36 @@
-import React, { useState, useContext, Fragment } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
 import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
 import { useSymbolContext } from '../../context/SymbolContext'
+import styles from './TradeOrders.module.css'
 
-const Expandable = ({ entry, refreshTable, cancelingOrders, setCancelingOrders }) => {
+const deleteDuplicateRows = (data, key) => {
+  if (!data?.length) return []
+  const uniqueData = Array.from(new Set(data.map(a => a[key]))).map(id => data.find(a => a[key] === id))
+  return uniqueData
+}
+
+const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
-  const { setIsOrderCancelled } = useSymbolContext()
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
-  const onCancelOrderClick = async (order) => {
+  const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
-    setIsOrderCancelled(false)
     try {
       await cancelTradeOrder({
         ...order,
         ...activeExchange,
       })
+      deletedRow(order)
       successNotification.open({ description: `Order Cancelled!` })
     } catch (error) {
       errorNotification.open({
@@ -32,14 +39,11 @@ const Expandable = ({ entry, refreshTable, cancelingOrders, setCancelingOrders }
     }
     finally {
       setCancelOrderRow(null)
-      setIsOrderCancelled(true)
-      refreshTable()
     }
   }
-
   return (
     <>
-      {entry.map((order, rowIndex) => {
+      { entry.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -121,67 +125,137 @@ const Expandable = ({ entry, refreshTable, cancelingOrders, setCancelingOrders }
   )
 }
 
-const OpenOrdersTableBody = ({ infiniteOrders, isHideOtherPairs }) => {
-  let {
-    data,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = infiniteOrders
+const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI }) => {
   const loadMoreButtonRef = React.useRef()
+  let { isFetching, lastFetchedData, data } = tableData
+  const [deletedRows, setDeletedRows] = useState([])
+  const columns = [
+    {
+      title: 'Pair',
+      key: 'pair',
+    },
+    {
+      title: 'Type',
+      key: 'type',
+    },
+    {
+      title: 'Side',
+      key: 'side',
+    },
+    {
+      title: 'Price',
+      key: 'price',
+    },
+    {
+      title: 'Amount',
+      key: 'amount',
+    },
+    {
+      title: 'Filled',
+      key: 'filled',
+    },
+    {
+      title: 'Total',
+      key: 'total',
+    },
+    {
+      title: 'Trigger Condition',
+      key: 'trigger-conditions',
+    },
+    {
+      title: 'Status',
+      key: 'status',
+    },
+    {
+      title: 'Date',
+      key: 'date',
+    },
+    {
+      title: 'Cancel',
+      key: 'cancel',
+    },
+  ]
   useIntersectionObserver({
     target: loadMoreButtonRef,
-    onIntersect: fetchNextPage,
-    enabled: hasNextPage,
+    onIntersect: callOpenOrdersAPI,
+    enabled: lastFetchedData && !isFetching,
+    threshold: .1
   })
-
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  // To avoid duplicate array issue caused by react-query
-  data = data?.pages || []
-  let tempArr = []
-  for (let i = 0; i < data.length; i++) {
-    let item = data[i]
-    item.forEach((item1) => {
-      tempArr.push(item1)
-    })
+
+  // const [renderData, setRenderData] = useState(tableData.data)
+  // useEffect(() => {
+  //   setRenderData(tableData.data)
+  // }, [tableData])
+
+  // useEffect(() => {
+  //   let filteredData = renderData.filter((order) => {
+  //     if (!isHideOtherPairs) {
+  //       return true
+  //     }
+  //     return order.symbol.replace('-', '') === selectedPair
+  //   })
+  //   setRenderData(filteredData)
+  // }, [isHideOtherPairs])
+
+  const deleteRow = (row) => {
+    setDeletedRows([...deletedRows, row])
+    // let arrData = [...renderData]
+    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    // arrData.splice(dIndex, 1)
+    // setRenderData(arrData)
   }
-  const uniqueAddresses = Array.from(new Set(tempArr.map(a => a.trade_id)))
-    .map(id => tempArr.find(a => a.trade_id === id))
-    .filter((order) => {
-      if (!isHideOtherPairs) {
-        return true
-      }
-      return order.symbol.replace('-', '') === selectedPair
-    })
-  data = uniqueAddresses
-  const [cancelingOrders, setCancelingOrders] = useState([])
+  data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
+  data = data.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   return (
-    <tbody>
-      {
-        data && data.map((item, index) => {
-          const orders = [item, ...item.orders]
-          return (
-            <Expandable
-              entry={orders}
-              key={index}
-              cancelingOrders={cancelingOrders}
-              setCancelingOrders={setCancelingOrders}
-              refreshTable={() => infiniteOrders.refetch()}
-            />
-          )
-        })
-      }
-      <tr ref={loadMoreButtonRef}>
-        <td colSpan="12">
-          {isFetchingNextPage
-            ? 'Loading more...'
-            : hasNextPage
-              ? 'Load Older'
-              : 'No open orders'}
-        </td>
-      </tr>
-    </tbody>
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+      <table className={['table', styles.table].join(' ')}>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {
+              columns.map((item) => (
+                <th scope="col" key={item.key}>{item.title}</th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            data && data.map((item, index) => {
+              const orders = [item, ...item.orders]
+              return (
+                <Expandable
+                  entry={orders}
+                  key={index}
+                  deletedRow={(row) => deleteRow(row)}
+                />
+              )
+            })
+          }
+          <tr ref={loadMoreButtonRef}>
+            <td colSpan="12">
+              {isFetching ? (
+                <p className="pt-3">
+                  <span
+                    className="spinner-border text-primary spinner-border-sm"
+                  />
+                </p>
+              ) : null}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
+      </div>
+    </div>
   )
 }
 
