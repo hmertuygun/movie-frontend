@@ -104,6 +104,7 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        //slicedItems = slicedItems.filter(item => !item.error.length)
         if (refreshTable) {
           setOrderHistory(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
         }
@@ -120,7 +121,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching History Orders`)
-      errorNotification.open({ description: 'Error fetching order history!' })
+      errorNotification.open({ description: 'Error fetching order history!', duration: 3 })
     }
     finally {
       setLoadBtn(false)

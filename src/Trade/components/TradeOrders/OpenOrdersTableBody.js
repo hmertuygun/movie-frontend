@@ -207,6 +207,12 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
     // setRenderData(arrData)
   }
   data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
+  data = data.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   return (
     <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>

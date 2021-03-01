@@ -92,59 +92,60 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
         </thead>
         <tbody>
           {
-            data.map((order, index) => {
-              const isCanceled = order.status?.toLowerCase() === 'canceled'
-              const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
-              return (
-                <tr key={index} className={rowClass}>
-                  <td></td>
-                  <td>{order.symbol}</td>
-                  <td>{order.type}</td>
-                  <td
-                    style={
-                      !isCanceled
-                        ? {
-                          color:
-                            order.side?.toLowerCase() === 'buy'
-                              ? 'green'
-                              : 'red',
-                        }
-                        : undefined
-                    }
-                  >
-                    {order.side}
-                  </td>
-                  <td>{order.average}</td>
-                  <td>{order.price}</td>
-                  <td>{order.amount}</td>
-                  <td>{order.filled}</td>
-                  <td>{order.total}</td>
-                  <td>{order.trigger}</td>
-                  <td
-                    style={{
-                      color: order.error ? 'red' : '',
-                    }}
-                  >
-                    <div
-                      className={
-                        order.error ? tooltipStyles.customTooltip : ''
+            data
+              .map((order, index) => {
+                const isCanceled = order.status?.toLowerCase() === 'canceled'
+                const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
+                return (
+                  <tr key={index} className={rowClass}>
+                    <td></td>
+                    <td>{order.symbol}</td>
+                    <td>{order.type}</td>
+                    <td
+                      style={
+                        !isCanceled
+                          ? {
+                            color:
+                              order.side?.toLowerCase() === 'buy'
+                                ? 'green'
+                                : 'red',
+                          }
+                          : undefined
                       }
-                      style={{ fontSize: '0.875rem' }}
                     >
-                      {order.status}
-                      <span className={tooltipStyles.tooltiptext}>
-                        {order.error}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <Moment unix format="YYYY-MM-DD hh:mm:ss">
-                      {order.update_time / 1000}
-                    </Moment>
-                  </td>
-                </tr>
-              )
-            })
+                      {order.side}
+                    </td>
+                    <td>{order.average}</td>
+                    <td>{order.price}</td>
+                    <td>{order.amount}</td>
+                    <td>{order.filled}</td>
+                    <td>{order.total}</td>
+                    <td>{order.trigger}</td>
+                    <td
+                      style={{
+                        color: order.error ? 'red' : '',
+                      }}
+                    >
+                      <div
+                        className={
+                          order.error ? tooltipStyles.customTooltip : ''
+                        }
+                        style={{ fontSize: '0.875rem' }}
+                      >
+                        {order.status}
+                        <span className={tooltipStyles.tooltiptext}>
+                          {order.error}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <Moment unix format="YYYY-MM-DD hh:mm:ss">
+                        {order.update_time / 1000}
+                      </Moment>
+                    </td>
+                  </tr>
+                )
+              })
           }
           {/* <tr ref={loadMoreButtonRef}>
             <td colSpan="12">
