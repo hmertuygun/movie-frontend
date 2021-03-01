@@ -125,9 +125,10 @@ const Expandable = ({ entry, deletedRow }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, deleteRow, callOpenOrdersAPI }) => {
+const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI }) => {
   const loadMoreButtonRef = React.useRef()
-  let { isFetching, lastFetchedData } = tableData
+  let { isFetching, lastFetchedData, data } = tableData
+  const [deletedRows, setDeletedRows] = useState([])
   const columns = [
     {
       title: 'Pair',
@@ -182,31 +183,32 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, deleteRow, callOpenO
   })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  const [renderData, setRenderData] = useState(tableData.data)
 
-  useEffect(() => {
-    setRenderData(tableData.data)
-  }, [tableData])
+  // const [renderData, setRenderData] = useState(tableData.data)
+  // useEffect(() => {
+  //   setRenderData(tableData.data)
+  // }, [tableData])
 
-  useEffect(() => {
-    let filteredData = renderData.filter((order) => {
-      if (!isHideOtherPairs) {
-        return true
-      }
-      return order.symbol.replace('-', '') === selectedPair
-    })
-    setRenderData(filteredData)
-  }, [isHideOtherPairs])
+  // useEffect(() => {
+  //   let filteredData = renderData.filter((order) => {
+  //     if (!isHideOtherPairs) {
+  //       return true
+  //     }
+  //     return order.symbol.replace('-', '') === selectedPair
+  //   })
+  //   setRenderData(filteredData)
+  // }, [isHideOtherPairs])
 
-  // const deleteRow = (row) => {
-  //   let arrData = [...renderData]
-  //   let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-  //   arrData.splice(dIndex, 1)
-  //   setRenderData(arrData)
-  // }
-
+  const deleteRow = (row) => {
+    setDeletedRows([...deletedRows, row])
+    // let arrData = [...renderData]
+    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    // arrData.splice(dIndex, 1)
+    // setRenderData(arrData)
+  }
+  data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
   return (
-    <div className="ordersTable" style={{ overflowY: renderData.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
@@ -220,7 +222,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, deleteRow, callOpenO
         </thead>
         <tbody>
           {
-            renderData && renderData.map((item, index) => {
+            data && data.map((item, index) => {
               const orders = [item, ...item.orders]
               return (
                 <Expandable
@@ -244,7 +246,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, deleteRow, callOpenO
           </tr>
         </tbody>
       </table>
-      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!renderData.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
         <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
       </div>
     </div>

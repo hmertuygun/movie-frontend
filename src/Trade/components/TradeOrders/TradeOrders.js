@@ -40,6 +40,7 @@ const TradeOrders = () => {
   const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
   const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
+  const [deletedRows, setDeletedRows] = useState([])
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
@@ -59,7 +60,7 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
-        console.log(refreshTable)
+        // slicedItems = slicedItems.filter(item => deletedRows.findIndex(item1 => item1.trade_id === item.trade_id) < 0)
         if (refreshTable) {
           setOpenOrders(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
         }
@@ -76,7 +77,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching Open Orders`)
-      errorNotification.open({ description: 'Error fetching open orders!' })
+      errorNotification.open({ description: 'Error fetching open orders!', duration: 3 })
     }
     finally {
       setOpenOrders(prevState => ({ ...prevState, isFetching: false }))
@@ -154,12 +155,12 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    clearInterval(openOrderPolling)
-    let arrData = [...openOrders.data]
-    let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-    arrData.splice(dIndex, 1)
-    setOpenOrders(prevState => ({ ...prevState, data: arrData }))
-    openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
+    // setDeletedRows([...deletedRows, ...row])
+    // let arrData = [...openOrders.data]
+    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    // arrData.splice(dIndex, 1)
+    // setOpenOrders(prevState => ({ ...prevState, data: arrData }))
+    // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
   }
   //  useEffect(() => {
   //   if (isOpenOrders) {
