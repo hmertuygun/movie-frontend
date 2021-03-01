@@ -1,0 +1,4 @@
+.btn-dark {
+  background-color: transparent !important;
+  color: var(--dark-dark) !important;
+}

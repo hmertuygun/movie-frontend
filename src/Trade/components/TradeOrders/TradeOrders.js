@@ -12,6 +12,7 @@ import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
 import { useSymbolContext } from '../../context/SymbolContext'
+import './TradeOrders.css'
 import { ref } from 'yup'
 const db = firebase.firestore()
 
@@ -261,7 +262,7 @@ const TradeOrders = () => {
               </div>
               {(
                 <button
-                  className="btn btn-xs btn-outline-primary btn-icon"
+                  className="btn btn-xs btn-dark btn-icon"
                   type="button"
                   onClick={onRefreshBtnClick}
                   disabled={loadBtn}
