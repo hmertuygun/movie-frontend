@@ -30,6 +30,19 @@ import ExitTargetStopMarket from './forms/ExitTargetStopMarket/ExitTargetStopMar
 import EntryStopLimitForm from './forms/EntryStopLimitForm/EntryStopLimitForm'
 import EntryStopMarketForm from './forms/EntryStopMarketForm/EntryStopMarketForm'
 
+import BuyLimitForm from './forms/BuyLimitForm/BuyLimitForm'
+import BuyMarketForm from './forms/BuyMarketForm/BuyMarketForm'
+import BuyStopLimitForm from './forms/BuyStopLimitForm/BuyStopLimitForm'
+import BuyStopMarketForm from './forms/BuyStopMarketForm/BuyStopMarketForm'
+
+import SellLimitForm from './forms/SellLimitForm/SellLimitForm'
+import SellMarketForm from './forms/SellMarketForm/SellMarketForm'
+import SellStopLimitForm from './forms/SellStopLimitForm/SellStopLimitForm'
+import SellStopMarketForm from './forms/SellStopMarketForm/SellStopMarketForm'
+
+import TakeProfitLimitForm from './forms/TakeProfitLimitForm/TakeProfitLimitForm'
+import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketForm'
+
 const TradePanel = () => (
   <SimpleTradeContext>
     <Trade />
@@ -99,7 +112,25 @@ const Trade = () => {
         >
           {isMobile && <X />}
         </div>
-        <TabNavigator labelArray={['Full Trade']} index={0}>
+        <TabNavigator labelArray={['Place Order', 'Full Trade']} index={0}>
+          <div style={{ marginTop: '2rem' }}>
+            <ButtonNavigator labelArray={['Buy', 'Sell']} index={0}>
+              <TabNavigator key="buy-tab-nav" labelArray={['Limit', 'Market', 'custom-tab']}>
+                <BuyLimitForm />
+                <BuyMarketForm />
+                <BuyStopLimitForm />
+                <BuyStopMarketForm />
+              </TabNavigator>
+              <TabNavigator key="sell-tab-nav" labelArray={['Limit', 'Market', 'custom-tab-sell']}>
+                <SellLimitForm />
+                <SellMarketForm />
+                <SellStopLimitForm />
+                <SellStopMarketForm />
+                <TakeProfitLimitForm />
+                <TakeProfitMarketForm />
+              </TabNavigator>
+            </ButtonNavigator>
+          </div>
           <div style={{ marginTop: '2.4rem' }}>
             {!hasEntry && (
               <div style={{ marginTop: '2rem' }}>
@@ -148,10 +179,6 @@ const Trade = () => {
             )}
 
             <TradeTableContainer />
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
-            <Typography as="h3">Not!! available</Typography>
           </div>
         </TabNavigator>
       </section>

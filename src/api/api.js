@@ -20,7 +20,13 @@ async function getHeaders(token) {
   }
 }
 
-export async function placeOrder({ entry, targets, stoploss, apiKeyName, exchange }) {
+export async function placeOrder({
+  entry,
+  targets,
+  stoploss,
+  apiKeyName,
+  exchange,
+}) {
   const newTargets = targets.map((target, index) => {
     const { side, type, symbol, quantity, price, triggerPrice } = target
     return {
@@ -53,7 +59,7 @@ export async function placeOrder({ entry, targets, stoploss, apiKeyName, exchang
     targets: newTargets,
     stopLoss: { ...newStoploss[0] },
     exchange: exchange,
-    apiKeyName: apiKeyName
+    apiKeyName: apiKeyName,
   }
 
   console.log({ dataToBeSent: data })
@@ -66,6 +72,19 @@ export async function placeOrder({ entry, targets, stoploss, apiKeyName, exchang
   })
 
   return fullTrade
+}
+
+export async function createBasicTrade(payload) {
+  console.log({ dataToBeSent: payload })
+  const apiUrl = process.env.REACT_APP_API_V2 + 'createBasicTrade'
+  const token = await firebase.auth().currentUser.getIdToken()
+  const basicTrade = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: payload,
+  })
+
+  return basicTrade
 }
 
 // make sure users can be recognized by user component
@@ -97,7 +116,9 @@ export async function getExchanges() {
 }
 
 export async function getBalance({ symbol, apiKeyName, exchange }) {
-  const apiUrl = `${process.env.REACT_APP_API_V2}balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
+  const apiUrl = `${
+    process.env.REACT_APP_API_V2
+  }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -132,11 +153,15 @@ export async function addUserExchange({ name, apiKey, secret, exchange }) {
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { apiKey, apiKeyName: name.toLowerCase(), signSecret: secret, exchange },
+    data: {
+      apiKey,
+      apiKeyName: name.toLowerCase(),
+      signSecret: secret,
+      exchange,
+    },
+  }).catch((error) => {
+    return error?.response
   })
-    .catch(error => {
-      return error?.response
-    })
   return added
 }
 
@@ -156,7 +181,6 @@ export async function getUserExchanges() {
 }
 
 export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {
-
   const apiUrl = `${process.env.REACT_APP_API}updateLastSelectedApiKey?apiKeyName=${apiKeyName}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
   const added = await axios(apiUrl, {
@@ -298,12 +322,20 @@ export async function cancelTradeOrder({ trade_id, symbol, apiKeyName, exchange 
   return cancelTradeOrderResp.data
 }
 
-export async function getOrdersHistory({ updateTime, symbol, orderId, apiKeyName, exchange }) {
+export async function getOrdersHistory({
+  updateTime,
+  symbol,
+  orderId,
+  apiKeyName,
+  exchange,
+}) {
   const apiUrl =
     process.env.REACT_APP_API_V2 +
     'orderhistory?limit=50' +
-    '&apiKeyName=' + apiKeyName +
-    '&exchange=' + capitalize(exchange) +
+    '&apiKeyName=' +
+    apiKeyName +
+    '&exchange=' +
+    capitalize(exchange) +
     (updateTime ? '&updateTime=' + updateTime : '') +
     (symbol ? '&symbol=' + symbol : '') +
     (orderId ? '&orderId=' + orderId : '')
