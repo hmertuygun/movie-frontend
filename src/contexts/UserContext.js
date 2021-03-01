@@ -101,7 +101,17 @@ const UserContextProvider = ({ children }) => {
     })
   }
 
+  const clearStorage = () => {
+    let session = sessionStorage.getItem('ref')
+    if (!session) {
+      logout()
+      return
+    }
+    sessionStorage.setItem('ref', 1)
+  }
+
   useEffect(() => {
+    window.addEventListener('load', clearStorage)
     getUserExchangesAfterFBInit()
   }, [])
 
@@ -162,6 +172,7 @@ const UserContextProvider = ({ children }) => {
       } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
+      sessionStorage.setItem('ref', 1)
     }
 
     localStorage.removeItem('registered')
