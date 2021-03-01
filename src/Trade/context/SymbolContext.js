@@ -21,39 +21,59 @@ const SymbolContextProvider = ({ children }) => {
   const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
   const [selectedExchange, setSelectedExchange] = useState('')
   const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
+  const [selectedBaseSymbolBalance, setSelectedBaseSymbolBalance] = useState('')
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
   const [selectedSymbolLastPrice, setSelectedSymbolLastPrice] = useState('')
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
-  async function loadBalance(quote_asset, refresh = false) {
+  
+  async function loadBalance(quote_asset, base_asset, refresh = false) {
+  
     setIsLoadingBalance(true)
     const cacheBalance = localStorage.getItem(
       `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`
     )
-    if (cacheBalance) {
+    const cacheBaseBalance = localStorage.getItem(
+      `base_balance_${base_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
+    if (cacheBalance && cacheBaseBalance) {
       setSelectedSymbolBalance(cacheBalance)
+      setSelectedBaseSymbolBalance(cacheBaseBalance)
       if (!refresh) {
         setIsLoadingBalance(false)
       }
     }
     try {
-      const response = await getBalance({
-        symbol: quote_asset,
-        ...activeExchange,
-      })
-      if ('balance' in response.data) {
-        setSelectedSymbolBalance(response.data['balance'])
+      const response = await Promise.all([
+        await getBalance({
+          symbol: quote_asset,
+          ...activeExchange,
+        }),
+        await getBalance({
+          symbol: base_asset,
+          ...activeExchange,
+        }),
+      ])
+      if ('balance' in response[0].data && 'balance' in response[1].data) {
+        setSelectedSymbolBalance(response[0].data['balance'])
+        setSelectedBaseSymbolBalance(response[1].data['balance'])
         localStorage.setItem(
           `balance_${quote_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
-          response.data['balance']
+          response[0].data['balance']
+        )
+        localStorage.setItem(
+          `base_balance_${base_asset}_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
+          response[1].data['balance']
         )
       } else {
         console.log('no balance found for ' + quote_asset)
         setSelectedSymbolBalance(0)
+        setSelectedBaseSymbolBalance(0)
       }
     } catch (err) {
       setSelectedSymbolBalance(0)
+      setSelectedBaseSymbolBalance(0)
     }
     setIsLoadingBalance(false)
   }
@@ -96,7 +116,7 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbolDetail(symbolDetails[symbol['value']])
     setSelectedSymbolBalance('')
     if (symbol['value'] in symbolDetails) {
-      loadBalance(symbolDetails[symbol['value']]['quote_asset'])
+      loadBalance(symbolDetails[symbol['value']]['quote_asset'], symbolDetails[symbol['value']]['base_asset'])
       loadLastPrice(symbolDetails[symbol['value']]['symbolpair'])
     }
   }
@@ -177,7 +197,7 @@ const SymbolContextProvider = ({ children }) => {
         setSymbolDetails(symbolDetails)
         setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
         setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
-        loadBalance('USDT')
+        loadBalance('USDT', 'BTC')
         loadLastPrice('BTCUSDT')
       } else {
         setExchanges([])
@@ -198,7 +218,7 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
-      loadBalance(selectedSymbolDetail.quote_asset, true)
+      loadBalance(selectedSymbolDetail.quote_asset, selectedSymbolDetail.base_asset, true)
     }
   }
 
@@ -215,6 +235,7 @@ const SymbolContextProvider = ({ children }) => {
         symbolDetails,
         selectedSymbolDetail,
         selectedSymbolBalance,
+        selectedBaseSymbolBalance,
         isLoadingBalance,
         selectedSymbolLastPrice,
         refreshBalance,
