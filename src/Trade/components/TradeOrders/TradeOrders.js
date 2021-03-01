@@ -138,6 +138,8 @@ const TradeOrders = () => {
   const orderHistoryLoadedFBCallback = (doc) => {
     // console.log(console.log('Order History Loaded => ', doc.data()))
     let isActiveExchangeSelected = false
+    let loaded = 0, total = 0
+    let isSomeKeyProcessing = false
     // Loop through FB object and see if some key is in processing. e.g: loaded != total
     let keyArr = Object.entries(doc.data()).sort()
     for (let i = 0; i < keyArr.length; i += 2) {
@@ -145,14 +147,27 @@ const TradeOrders = () => {
       let [item1, no1] = keyArr[i + 1] //total
       let [apiName, exchange] = item.split("__")
       exchange = exchange.split("_")[0]
-      isActiveExchangeSelected = activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange
-      if (isActiveExchangeSelected) {
-        let progress = precisionRound((no / no1) * 100)
-        setOrderHistoryProgress(progress)
-        setShowProgressBar(progress !== '100.00')
-        sessionStorage.setItem('showProgressBar', progress !== '100.00')
-        break
+      if (!isSomeKeyProcessing) {
+        let inTotalExchanges = totalExchanges.find(item => item.apiKeyName === apiName && item.exchange === exchange)
+        if (inTotalExchanges && no !== no1) {
+          isSomeKeyProcessing = true
+        }
       }
+      if (!isActiveExchangeSelected) {
+        isActiveExchangeSelected = activeExchange.apiKeyName === apiName && activeExchange.exchange === exchange
+        if (isActiveExchangeSelected) {
+          loaded = no
+          total = no1
+        }
+      }
+    }
+    console.log(isSomeKeyProcessing)
+    setKeyProcessing(isSomeKeyProcessing)
+    if (isActiveExchangeSelected) {
+      let progress = precisionRound((loaded / total) * 100)
+      setOrderHistoryProgress(progress)
+      setShowProgressBar(progress !== '100.00')
+      sessionStorage.setItem('showProgressBar', progress !== '100.00')
     }
   }
 
@@ -164,25 +179,44 @@ const TradeOrders = () => {
     // setOpenOrders(prevState => ({ ...prevState, data: arrData }))
     // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
   }
-  //  useEffect(() => {
-  //   if (isOpenOrders) {
-  //     if (orderUpdateFB > 0 && !showProgressBar) getOpenOrdersData(false, true)
-  //   }
-  //   else {
-  //     if (orderHistoryFB > 0 && !showProgressBar) getOrderHistoryData(false, true)
-  //   }
-  // }, [orderUpdateFB, orderHistoryFB, showProgressBar])
 
+  const setStateSynchronous = (setState, stateUpdate) => {
+    return new Promise(resolve => {
+      setState(stateUpdate, () => resolve())
+    })
+  }
 
   useEffect(() => {
-    // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
-    // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
+    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(false, true)
+    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(false, true)
+  }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
+
+  useEffect(async () => {
+    setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
+    setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
+    setOrderUpdateFB(0)
+    setOrderHistoryFB(0)
     getOpenOrdersData(true, false)
     getOrderHistoryData(true, false)
-    openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
-    orderHistoryPolling = setInterval(() => getOrderHistoryData(true, true), orderHistoryInterval)
+    // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
+    // orderHistoryPolling = setInterval(() => getOrderHistoryData(true, true), orderHistoryInterval)
+
+    FBOrderUpdate = db.collection('order_update')
+      .doc(userData.email)
+      .onSnapshot((doc) => {
+        console.log('Order Update => ')
+        setOrderUpdateFB(prevState => prevState + 1)
+      })
+
+    FBOrderHistory = db.collection('order_history_update')
+      .doc(userData.email)
+      .onSnapshot((doc) => {
+        console.log('Order History Update => ')
+        setOrderHistoryFB(prevState => prevState + 1)
+      })
+
     FBOrderHistoryLoad = db.collection('order_history_load')
       .doc(userData.email)
       .onSnapshot(
@@ -193,8 +227,10 @@ const TradeOrders = () => {
       )
 
     return () => {
-      clearInterval(openOrderPolling)
-      clearInterval(orderHistoryPolling)
+      // clearInterval(openOrderPolling)
+      // clearInterval(orderHistoryPolling)
+      FBOrderUpdate()
+      FBOrderHistory()
       FBOrderHistoryLoad()
     }
   }, [activeExchange])
