@@ -62,9 +62,11 @@ const TradeOrders = () => {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
         if (refreshTable) {
+          console.log(`Overwrite data`)
           setOpenOrders(prevState => ({ ...prevState, data: slicedItems, lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
         else {
+          console.log(`Extend data`)
           setOpenOrders(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
         // if (slicedItems.length < limit - 1) {

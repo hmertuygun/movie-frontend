@@ -199,13 +199,13 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
   // }, [isHideOtherPairs])
 
   const deleteRow = (row) => {
-    setDeletedRows([...deletedRows, row])
+    // setDeletedRows([...deletedRows, row])
     // let arrData = [...renderData]
     // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
     // arrData.splice(dIndex, 1)
     // setRenderData(arrData)
   }
-  data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
+  // data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
