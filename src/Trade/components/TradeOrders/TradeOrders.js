@@ -89,7 +89,7 @@ const TradeOrders = () => {
     try {
       if (orderHistory.isFetching) return
       if (refBtn) setLoadBtn(true)
-      if (refreshTable) setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
+      // if (refreshTable) setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
       if (!hideTableLoader) setOrderHistory(prevState => ({ ...prevState, isFetching: true }))
       const { lastFetchedData, limit } = orderHistory
       const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? {
@@ -104,16 +104,15 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
-        //slicedItems = slicedItems.filter(item => !item.error.length)
         if (refreshTable) {
-          setOrderHistory(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
+          setOrderHistory(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
         else {
-          setOrderHistory(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
+          setOrderHistory(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
-        if (slicedItems.length < limit - 1) {
-          setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
-        }
+        // if (slicedItems.length < limit - 1) {
+        //   setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
+        // }
       }
       else {
         setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))

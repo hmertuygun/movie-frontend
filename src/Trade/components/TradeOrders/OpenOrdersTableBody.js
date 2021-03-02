@@ -183,7 +183,6 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
   })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  console.log(data)
   // const [renderData, setRenderData] = useState(tableData.data)
   // useEffect(() => {
   //   setRenderData(tableData.data)
