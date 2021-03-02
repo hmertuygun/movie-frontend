@@ -191,7 +191,8 @@ const TradeOrders = () => {
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
 
-  useEffect(async () => {
+
+  useEffect(() => {
     // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
     // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
     // setOrderUpdateFB(0)
