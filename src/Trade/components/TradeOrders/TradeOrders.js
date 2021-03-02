@@ -53,7 +53,7 @@ const TradeOrders = () => {
     try {
       if (openOrders.isFetching) return
       if (refBtn) setLoadBtn(true)
-      // if (refreshTable) setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+      if (refreshTable) setOpenOrders(prevState => ({ ...prevState, data: [] }))
       if (!hideTableLoader) setOpenOrders(prevState => ({ ...prevState, isFetching: true }))
       const { lastFetchedData, limit } = openOrders
       const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange, limit }
@@ -172,12 +172,10 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    // setDeletedRows([...deletedRows, ...row])
     // let arrData = [...openOrders.data]
     // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
     // arrData.splice(dIndex, 1)
-    // setOpenOrders(prevState => ({ ...prevState, data: arrData }))
-    // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
+    // setOpenOrders(prevState => ({ ...prevState, isFetching: true, data: arrData }))
   }
 
   const setStateSynchronous = (setState, stateUpdate) => {
@@ -195,8 +193,8 @@ const TradeOrders = () => {
   useEffect(() => {
     // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
     // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
-    // setOrderUpdateFB(0)
-    // setOrderHistoryFB(0)
+    if (orderUpdateFB > 0) setOrderUpdateFB(0)
+    if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
     getOpenOrdersData(true, false)
@@ -207,14 +205,14 @@ const TradeOrders = () => {
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        console.log('Order Update => ')
+        console.log('Order Update at => ', new Date())
         setOrderUpdateFB(prevState => prevState + 1)
       })
 
     FBOrderHistory = db.collection('order_history_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        console.log('Order History Update => ')
+        console.log('Order History Update at => ', new Date())
         setOrderHistoryFB(prevState => prevState + 1)
       })
 
