@@ -46,14 +46,14 @@ const TradeOrders = () => {
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
   const openOrdersInterval = 3000
-  const orderHistoryInterval = 30000
+  const orderHistoryInterval = 60000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
 
   const getOpenOrdersData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (openOrders.isFetching) return
       if (refBtn) setLoadBtn(true)
-      if (refreshTable) setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+      // if (refreshTable) setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
       if (!hideTableLoader) setOpenOrders(prevState => ({ ...prevState, isFetching: true }))
       const { lastFetchedData, limit } = openOrders
       const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange, limit }
@@ -61,16 +61,15 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         const { items } = orders
         let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
-        // slicedItems = slicedItems.filter(item => deletedRows.findIndex(item1 => item1.trade_id === item.trade_id) < 0)
         if (refreshTable) {
-          setOpenOrders(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
+          setOpenOrders(prevState => ({ ...prevState, data: slicedItems, lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
         else {
-          setOpenOrders(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems[slicedItems.length - 1] }))
+          setOpenOrders(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
         }
-        if (slicedItems.length < limit - 1) {
-          setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
-        }
+        // if (slicedItems.length < limit - 1) {
+        //   setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+        // }
       }
       else {
         setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
@@ -187,17 +186,17 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(false, true)
-    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(false, true)
+    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(true, false)
+    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
 
   useEffect(async () => {
-    setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
-    setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
+    // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
+    // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
+    // setOrderUpdateFB(0)
+    // setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
-    setOrderUpdateFB(0)
-    setOrderHistoryFB(0)
     getOpenOrdersData(true, false)
     getOrderHistoryData(true, false)
     // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
