@@ -7,7 +7,10 @@ import Security from '../Settings/Security/Security'
 const Settings = () => {
   return (
     <Fragment>
-      <section className="pt-5 bg-section-secondary">
+      <section
+        className="pt-5 bg-section-secondary"
+        style={{ height: 'calc(100vh - 71px)' }}
+      >
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-9">
