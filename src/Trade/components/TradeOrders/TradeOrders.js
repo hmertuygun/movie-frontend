@@ -299,7 +299,7 @@ const TradeOrders = () => {
               </div>
               {(
                 <button
-                  className="btn btn-xs btn-dark btn-icon"
+                  className="btn btn-xs btn-neutral btn-icon"
                   type="button"
                   onClick={onRefreshBtnClick}
                   disabled={loadBtn}
