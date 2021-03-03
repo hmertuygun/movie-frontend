@@ -27,7 +27,7 @@ const SymbolContextProvider = ({ children }) => {
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
-  
+
   async function loadBalance(quote_asset, base_asset, refresh = false) {
     try {
       setIsLoadingBalance(true)
@@ -110,7 +110,7 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const queryExchanges = useQuery('exchangeSymbols', getExchanges)
+  const queryExchanges = useQuery('exchangeSymbols', getExchanges, { refetchOnWindowFocus: false })
 
   const loadExchanges = useCallback(async () => {
     try {
