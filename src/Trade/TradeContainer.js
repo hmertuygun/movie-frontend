@@ -1,6 +1,5 @@
 import React, { useEffect, useContext } from 'react'
 import { Route } from 'react-router-dom'
-import { isMobile } from 'react-device-detect'
 import { useHistory } from 'react-router-dom'
 
 import TradePanel from './TradePanel'
@@ -26,41 +25,40 @@ const TradeContainer = () => {
 
   return (
     <SymbolContextProvider>
-      {!isMobile ? (
-        <>
-          <section className="TradeView-Panel">
-            <Route path="/trade/" component={TradePanel} />
-          </section>
+      <>
+        <section className="TradeView-Panel TradeView-Panel-Desktop">
+          <Route path="/trade/" component={TradePanel} />
+        </section>
 
-          <section className="TradeChart-Container">
-            <section className="TradeView-Symbol">
-              <SymbolSelect />
-            </section>
-            <section className="TradeView-Chart">
-              <TradeChart />
-            </section>
-            <section className="TradeOrders">
-              <TradeOrders />
-            </section>
+        <section className="TradeChart-Container TradeChart-Container-Desktop">
+          <section className="TradeView-Symbol">
+            <SymbolSelect />
           </section>
-        </>
-      ) : isTradePanelOpen ? (
+          <section className="TradeView-Chart">
+            <TradeChart />
+          </section>
+          <section className="TradeOrders">
+            <TradeOrders />
+          </section>
+        </section>
+      </>
+      {isTradePanelOpen ? (
         <section className="TradeView-Panel TradeView-Panel-Mobile">
           <Route path="/trade/" component={TradePanel} />
         </section>
       ) : (
-            <section className="TradeChart-Container TradeChart-Container-Mobile">
-              <section className="TradeView-Symbol">
-                <SymbolSelect />
-              </section>
-              <section className="TradeView-Chart TradeView-Chart-Mobile">
-                <TradeChart />
-              </section>
-              <section className="TradeOrders">
-                <TradeOrders />
-              </section>
-            </section>
-          )}
+        <section className="TradeChart-Container TradeChart-Container-Mobile">
+          <section className="TradeView-Symbol">
+            <SymbolSelect />
+          </section>
+          <section className="TradeView-Chart TradeView-Chart-Mobile">
+            <TradeChart />
+          </section>
+          <section className="TradeOrders">
+            <TradeOrders />
+          </section>
+        </section>
+      )}
     </SymbolContextProvider>
   )
 }

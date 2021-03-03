@@ -49,3 +49,33 @@
 .TradeView-Container-Mobile {
   margin-bottom: 100px;
 }
+
+.TradeView-Panel-Mobile-Close {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+}
+
+@media (min-width: 768px) {
+  .TradeView-Container-Mobile {
+    display: none;
+  }
+  .TradeView-Panel-Mobile {
+    display: none;
+  }
+  .TradeChart-Container-Mobile {
+    display: none;
+  }
+  .TradeView-Panel-Mobile-Close {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .TradeView-Panel-Desktop {
+    display: none;
+  }
+  .TradeChart-Container-Desktop {
+    display: none;
+  }
+}
