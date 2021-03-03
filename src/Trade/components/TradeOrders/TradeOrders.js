@@ -14,6 +14,7 @@ import { errorNotification } from '../../../components/Notifications'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './TradeOrders.css'
 import { ref } from 'yup'
+import { render } from '@testing-library/react'
 const db = firebase.firestore()
 
 const OPEN_ORDERS_INITIAL_STATE = {
@@ -85,9 +86,6 @@ const TradeOrders = () => {
     finally {
       setIsOpenOrderFetching(false)
       setLoadBtn(false)
-      if (orderUpdateFB > 0 && !keyProcessing && !refBtn) {
-        refreshBalance()
-      }
     }
   }
 
@@ -195,16 +193,12 @@ const TradeOrders = () => {
 
 
   useEffect(() => {
-    // setOrderHistory(ORDER_HISTORY_INITIAL_STATE)
-    // setOpenOrders(OPEN_ORDERS_INITIAL_STATE)
     if (orderUpdateFB > 0) setOrderUpdateFB(0)
     if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
     getOpenOrdersData(true, false)
     getOrderHistoryData(true, false)
-    // openOrderPolling = setInterval(() => getOpenOrdersData(true, true), openOrdersInterval)
-    // orderHistoryPolling = setInterval(() => getOrderHistoryData(true, true), orderHistoryInterval)
 
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)

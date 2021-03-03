@@ -371,6 +371,7 @@ const SellLimitForm = () => {
         }
         else {
           successNotification.open({ description: `Order Created!` })
+          refreshBalance()
         }
         setValues({
           ...values,
@@ -379,9 +380,7 @@ const SellLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({
-          description: `Order couldn't be created. Please try again later!`,
-        })
+        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
       } finally {
         setBtnVisibility(false)
       }
