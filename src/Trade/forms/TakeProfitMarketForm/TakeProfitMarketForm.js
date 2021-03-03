@@ -364,14 +364,19 @@ const TakeProfitMarketForm = () => {
             quantity: convertCommaNumberToDot(values.quantity),
           },
         }
-        await createBasicTrade(payload)
+        const { data, status } = await createBasicTrade(payload)
+        if (data?.status === "error") {
+          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
+        }
+        else {
+          successNotification.open({ description: `Order Created!` })
+        }
         setValues({
           ...values,
           quantity: '',
           total: '',
           quantityPercentage: '',
         })
-        successNotification.open({ description: `Order Created!` })
       } catch (error) {
         errorNotification.open({
           description: `Order couldn't be created. Please try again later!`,
@@ -409,14 +414,14 @@ const TakeProfitMarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-          <FontAwesomeIcon
-            icon={faSync}
-            onClick={refreshBalance}
-            style={{ cursor: 'pointer', marginRight: '10px' }}
-            color="#5A6677"
-            size="sm"
-          />
-        )}
+            <FontAwesomeIcon
+              icon={faSync}
+              onClick={refreshBalance}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+              color="#5A6677"
+              size="sm"
+            />
+          )}
       </div>
       <section>
         <form onSubmit={handleSubmit}>

@@ -81,9 +81,14 @@ const Trade = () => {
       if (isBtnDisabled) return
       setBtnVisibility(true)
       setIsOrderPlaced(false)
-      await placeOrder({ ...state, ...activeExchange })
+      const { data, status } = await placeOrder({ ...state, ...activeExchange })
+      if (data?.status === "error") {
+        errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
+      }
+      else {
+        successNotification.open({ description: `Order Created!` })
+      }
       setIsModalVisible(false)
-      successNotification.open({ description: `Order Created!` })
       setIsTradePanelOpen(false)
       clear()
     } catch (error) {
