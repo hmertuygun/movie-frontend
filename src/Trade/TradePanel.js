@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { X } from 'react-feather'
-import { isMobile } from 'react-device-detect'
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { TabContext } from '../contexts/TabContext'
@@ -112,21 +111,27 @@ const Trade = () => {
     <Fragment>
       <section>
         <div
-          style={{ position: 'absolute', top: '25px', right: '25px' }}
+          className="TradeView-Panel-Mobile-Close"
           onClick={() => setIsTradePanelOpen(false)}
         >
-          {isMobile && <X />}
+          <X />
         </div>
         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={0}>
           <div style={{ marginTop: '2rem' }}>
             <ButtonNavigator labelArray={['Buy', 'Sell']} index={0}>
-              <TabNavigator key="buy-tab-nav" labelArray={['Limit', 'Market', 'custom-tab']}>
+              <TabNavigator
+                key="buy-tab-nav"
+                labelArray={['Limit', 'Market', 'custom-tab']}
+              >
                 <BuyLimitForm />
                 <BuyMarketForm />
                 <BuyStopLimitForm />
                 <BuyStopMarketForm />
               </TabNavigator>
-              <TabNavigator key="sell-tab-nav" labelArray={['Limit', 'Market', 'custom-tab-sell']}>
+              <TabNavigator
+                key="sell-tab-nav"
+                labelArray={['Limit', 'Market', 'custom-tab-sell']}
+              >
                 <SellLimitForm />
                 <SellMarketForm />
                 <SellStopLimitForm />
