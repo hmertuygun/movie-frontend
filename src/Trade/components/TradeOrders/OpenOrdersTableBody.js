@@ -26,12 +26,17 @@ const Expandable = ({ entry, deletedRow }) => {
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
-      await cancelTradeOrder({
+      const { data, status } = await cancelTradeOrder({
         ...order,
         ...activeExchange,
       })
+      if (data?.status === "error") {
+        errorNotification.open({ description: data?.error || `Order couldn't be cancelled. Please try again later` })
+      }
+      else {
+        successNotification.open({ description: `Order Cancelled!` })
+      }
       deletedRow(order)
-      successNotification.open({ description: `Order Cancelled!` })
     } catch (error) {
       errorNotification.open({
         description: `Order couldn't be cancelled. Please try again later`,
