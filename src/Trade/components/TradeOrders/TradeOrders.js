@@ -32,7 +32,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 }
 
 const TradeOrders = () => {
-  const { isLoadingBalance, isOrderPlaced, isOrderCancelled } = useSymbolContext()
+  const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
   const { activeExchange, loaderVisible, setLoaderVisibility, userData, totalExchanges, setUserData } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
@@ -85,6 +85,9 @@ const TradeOrders = () => {
     finally {
       setIsOpenOrderFetching(false)
       setLoadBtn(false)
+      if (orderUpdateFB > 0 && !keyProcessing && !refBtn) {
+        refreshBalance()
+      }
     }
   }
 
@@ -176,6 +179,7 @@ const TradeOrders = () => {
     let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
     arrData.splice(dIndex, 1)
     setOpenOrderData(arrData)
+    refreshBalance()
   }
 
   const setStateSynchronous = (setState, stateUpdate) => {
@@ -185,7 +189,7 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(true, true)
+    if (orderUpdateFB > 0) getOpenOrdersData(true, true)
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
 

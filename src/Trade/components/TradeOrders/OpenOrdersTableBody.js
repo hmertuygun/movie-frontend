@@ -69,9 +69,9 @@ const Expandable = ({ entry, deletedRow }) => {
           rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={() => { onCancelOrderClick(order) }}
+              onClick={() => cancelOrderRow?.trade_id === order.trade_id ? null : onCancelOrderClick(order)}
             >
-              Cancel
+              { cancelOrderRow?.trade_id === order.trade_id ? '' : 'Cancel'}
               {cancelOrderRow?.trade_id === order.trade_id ? (
                 <span
                   className="ml-2 spinner-border spinner-border-sm"
@@ -228,7 +228,7 @@ const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPai
         </tbody>
       </table>
       <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
-        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
       </div>
     </div>
   )
