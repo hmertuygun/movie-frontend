@@ -38,43 +38,44 @@ const TradeOrders = () => {
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
-  const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
+  // const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
   const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const [deletedRows, setDeletedRows] = useState([])
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
+  /////////////////////////////////////////////////////////
+  const [openOrderData, setOpenOrderData] = useState([])
+  const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(false)
+  const [openOrdersLastFetchedData, setIsLastFetchedData] = useState(null)
+  const openOrdersLimit = 50
+  ////////////////////////////////////////////////////////
   const openOrdersInterval = 3000
   const orderHistoryInterval = 60000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
 
   const getOpenOrdersData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
-      if (openOrders.isFetching) return
+      if (isOpenOrderFetching) return
       if (refBtn) setLoadBtn(true)
-      if (refreshTable) setOpenOrders(prevState => ({ ...prevState, data: [] }))
-      if (!hideTableLoader) setOpenOrders(prevState => ({ ...prevState, isFetching: true }))
-      const { lastFetchedData, limit } = openOrders
-      const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? { timestamp: lastFetchedData.timestamp, trade_id: lastFetchedData.trade_id, limit, ...activeExchange } : { ...activeExchange, limit }
+      if (!hideTableLoader) setIsOpenOrderFetching(true)
+      const params = refreshTable ? { ...activeExchange, limit: openOrdersLimit } : openOrdersLastFetchedData && !refreshTable ? { timestamp: openOrdersLastFetchedData.timestamp, trade_id: openOrdersLastFetchedData.trade_id, limit: openOrdersLimit, ...activeExchange } : { ...activeExchange, limit: openOrdersLimit }
       const orders = await getOpenOrders(params)
       if (orders?.items?.length) {
-        const { items } = orders
-        let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        let slicedItems = refreshTable ? orders.items : openOrdersLastFetchedData && !refreshTable ? orders.items.slice(1) : orders.items
         if (refreshTable) {
           console.log(`Overwrite data`)
-          setOpenOrders(prevState => ({ ...prevState, data: slicedItems, lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
+          setOpenOrderData(slicedItems)
         }
         else {
           console.log(`Extend data`)
-          setOpenOrders(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
+          setOpenOrderData(prevState => [...prevState, ...slicedItems])
         }
-        // if (slicedItems.length < limit - 1) {
-        //   setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
-        // }
+        setIsLastFetchedData(slicedItems.length < openOrdersLimit - 1 ? null : slicedItems[slicedItems.length - 1])
       }
       else {
-        setOpenOrders(prevState => ({ ...prevState, lastFetchedData: null }))
+        setIsLastFetchedData(null)
       }
     }
     catch (e) {
@@ -82,7 +83,7 @@ const TradeOrders = () => {
       errorNotification.open({ description: 'Error fetching open orders!', duration: 3 })
     }
     finally {
-      setOpenOrders(prevState => ({ ...prevState, isFetching: false }))
+      setIsOpenOrderFetching(false)
       setLoadBtn(false)
     }
   }
@@ -161,7 +162,6 @@ const TradeOrders = () => {
         }
       }
     }
-    console.log(isSomeKeyProcessing)
     setKeyProcessing(isSomeKeyProcessing)
     if (isActiveExchangeSelected) {
       let progress = precisionRound((loaded / total) * 100)
@@ -172,10 +172,10 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    // let arrData = [...openOrders.data]
-    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-    // arrData.splice(dIndex, 1)
-    // setOpenOrders(prevState => ({ ...prevState, isFetching: true, data: arrData }))
+    let arrData = [...openOrderData]
+    let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    arrData.splice(dIndex, 1)
+    setOpenOrderData(arrData)
   }
 
   const setStateSynchronous = (setState, stateUpdate) => {
@@ -185,7 +185,7 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(true, false)
+    if (orderUpdateFB > 0 && !keyProcessing) getOpenOrdersData(true, true)
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
 
@@ -328,7 +328,9 @@ const TradeOrders = () => {
       {
         isOpenOrders ? (
           <OpenOrdersTableBody
-            tableData={openOrders}
+            isFetching={isOpenOrderFetching}
+            lastFetchedData={openOrdersLastFetchedData}
+            data={openOrderData}
             callOpenOrdersAPI={() => getOpenOrdersData()}
             deleteRow={(rData) => deleteOpenOrdersRow(rData)}
             isHideOtherPairs={isHideOtherPairs}

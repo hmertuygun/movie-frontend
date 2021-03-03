@@ -125,9 +125,8 @@ const Expandable = ({ entry, deletedRow }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI, deleteRow }) => {
+const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPairs, callOpenOrdersAPI, deleteRow }) => {
   const loadMoreButtonRef = React.useRef()
-  let { isFetching, lastFetchedData, data } = tableData
   const [deletedRows, setDeletedRows] = useState([])
   const columns = [
     {
@@ -190,7 +189,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI, d
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden', marginRight: '-12px' }}>
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
