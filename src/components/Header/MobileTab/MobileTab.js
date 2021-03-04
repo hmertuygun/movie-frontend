@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import {
   faChartLine,
-  faPercentage,
+  faChartPie,
   faCog,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -50,7 +50,7 @@ const MobileTab = () => {
               to="/portfolio"
             >
               <div className="svg-icon gear">
-                <FontAwesomeIcon icon={faPercentage} size="2x" />
+                <FontAwesomeIcon icon={faChartPie} size="2x" />
               </div>
             </NavLink>
           </div>
