@@ -48,7 +48,7 @@ const TradeOrders = () => {
   const [keyProcessing, setKeyProcessing] = useState(false)
   /////////////////////////////////////////////////////////
   const [openOrderData, setOpenOrderData] = useState([])
-  const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(false)
+  const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(true)
   const [openOrdersLastFetchedData, setOpenOrdersLastElement] = useState(null)
   const openOrdersLimit = 50
   ////////////////////////////////////////////////////////
@@ -64,15 +64,19 @@ const TradeOrders = () => {
   const getOpenOrdersData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (isOpenOrderFetching) return
-      if (refBtn) setLoadBtn(true)
       if (!hideTableLoader) setIsOpenOrderFetching(true)
+      if (refreshTable && !keyProcessing) setOpenOrderData([])
+      if (refBtn) {
+        setLoadBtn(true)
+      }
       const params = refreshTable ? { ...activeExchange, limit: openOrdersLimit } : openOrdersLastFetchedData && !refreshTable ? { timestamp: openOrdersLastFetchedData.timestamp, trade_id: openOrdersLastFetchedData.trade_id, limit: openOrdersLimit, ...activeExchange } : { ...activeExchange, limit: openOrdersLimit }
+      console.log(deletedRows)
       const orders = await getOpenOrders(params)
       if (orders?.items?.length) {
         let slicedItems = refreshTable ? orders.items : openOrdersLastFetchedData && !refreshTable ? orders.items.slice(1) : orders.items
         if (refreshTable) {
           console.log(`Overwrite data`)
-          setOpenOrderData(slicedItems)
+          setOpenOrderData([...slicedItems])
         }
         else {
           console.log(`Extend data`)
@@ -139,7 +143,7 @@ const TradeOrders = () => {
   }
 
   const orderHistoryLoadedFBCallback = (doc) => {
-    // console.log(console.log('Order History Loaded => ', doc.data()))
+    //console.log(console.log('Order History Loaded => ', doc.data()))
     if (!doc?.data()) return
     let isActiveExchangeSelected = false
     let loaded = 0, total = 0
@@ -175,10 +179,11 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    let arrData = [...openOrderData]
-    let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-    arrData.splice(dIndex, 1)
-    setOpenOrderData(arrData)
+    setDeletedRows(prevState => [...prevState, row])
+    // let arrData = [...openOrderData]
+    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    // arrData.splice(dIndex, 1)
+    // setOpenOrderData(arrData)
     refreshBalance()
   }
 
@@ -189,15 +194,21 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderUpdateFB > 0) getOpenOrdersData(true, false)
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
-  }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
+  }, [orderHistoryFB, showProgressBar, keyProcessing])
+
+  useEffect(() => {
+    if (orderUpdateFB > 0) getOpenOrdersData(true, false)
+  }, [orderUpdateFB])
 
   useEffect(() => {
     if (orderUpdateFB > 0) setOrderUpdateFB(0)
     if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
+    setIsOpenOrderFetching(true)
+    setOpenOrderData([])
+    setOrderHistoryData([])
     // getOpenOrdersData(true, false)
     // getOrderHistoryData(true, false)
 
@@ -232,7 +243,6 @@ const TradeOrders = () => {
   }, [activeExchange])
 
   useEffect(() => {
-    console.log(`In Loading Balance`)
     if (!isLoadingBalance) {
       setLoaderVisibility(false)
     }
@@ -311,10 +321,10 @@ const TradeOrders = () => {
                         aria-hidden="true"
                       ></span>
                     ) : (
-                        <span className="btn-inner--icon">
-                          <FontAwesomeIcon icon={faSync} />
-                        </span>
-                      )
+                      <span className="btn-inner--icon">
+                        <FontAwesomeIcon icon={faSync} />
+                      </span>
+                    )
                   }
                 </button>
               )
