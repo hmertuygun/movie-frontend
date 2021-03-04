@@ -86,7 +86,10 @@ const Trade = () => {
       }
       else {
         successNotification.open({ description: `Order Created!` })
-        refreshBalance()
+        const { entry } = state
+        if (entry.type !== "stop-limit" && entry.type !== "stop-market") {
+          refreshBalance()
+        }
       }
       setIsModalVisible(false)
       setIsTradePanelOpen(false)

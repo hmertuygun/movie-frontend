@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
 import { isMobile } from 'react-device-detect'
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
@@ -40,7 +40,7 @@ const TradeOrders = () => {
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
   // const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
-  const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
+  // const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const [deletedRows, setDeletedRows] = useState([])
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
@@ -49,8 +49,13 @@ const TradeOrders = () => {
   /////////////////////////////////////////////////////////
   const [openOrderData, setOpenOrderData] = useState([])
   const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(false)
-  const [openOrdersLastFetchedData, setIsLastFetchedData] = useState(null)
+  const [openOrdersLastFetchedData, setOpenOrdersLastElement] = useState(null)
   const openOrdersLimit = 50
+  ////////////////////////////////////////////////////////
+  const [orderHistoryData, setOrderHistoryData] = useState([])
+  const [isOrderHistoryFetching, setIsOrderHistoryFetching] = useState(false)
+  const [orderHistoryLastFetchedData, setOrderHistoryLastElement] = useState(null)
+  const orderHistoryLimit = 50
   ////////////////////////////////////////////////////////
   const openOrdersInterval = 3000
   const orderHistoryInterval = 60000
@@ -73,10 +78,10 @@ const TradeOrders = () => {
           console.log(`Extend data`)
           setOpenOrderData(prevState => [...prevState, ...slicedItems])
         }
-        setIsLastFetchedData(slicedItems.length < openOrdersLimit - 1 ? null : slicedItems[slicedItems.length - 1])
+        setOpenOrdersLastElement(slicedItems.length < openOrdersLimit - 1 ? null : slicedItems[slicedItems.length - 1])
       }
       else {
-        setIsLastFetchedData(null)
+        setOpenOrdersLastElement(null)
       }
     }
     catch (e) {
@@ -91,35 +96,31 @@ const TradeOrders = () => {
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
-      if (orderHistory.isFetching) return
+      if (isOrderHistoryFetching) return
       if (refBtn) setLoadBtn(true)
-      // if (refreshTable) setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
-      if (!hideTableLoader) setOrderHistory(prevState => ({ ...prevState, isFetching: true }))
-      const { lastFetchedData, limit } = orderHistory
-      const params = refreshTable ? { ...activeExchange, limit } : lastFetchedData && !refreshTable ? {
-        updateTime: lastFetchedData.update_time,
-        symbol: lastFetchedData.symbol,
-        orderId: lastFetchedData.order_id,
-        limit,
+      if (refreshTable) setOrderHistoryData([])
+      if (!hideTableLoader) setIsOrderHistoryFetching(true)
+      const params = refreshTable ? { ...activeExchange, orderHistoryLimit } : orderHistoryLastFetchedData && !refreshTable ? {
+        updateTime: orderHistoryLastFetchedData.update_time,
+        symbol: orderHistoryLastFetchedData.symbol,
+        orderId: orderHistoryLastFetchedData.order_id,
+        orderHistoryLimit,
         ...activeExchange
-      } : { ...activeExchange, limit }
+      } : { ...activeExchange, orderHistoryLimit }
 
       const orders = await getOrdersHistory(params)
       if (orders?.items?.length) {
-        const { items } = orders
-        let slicedItems = refreshTable ? items : lastFetchedData && !refreshTable ? items.slice(1) : items
+        let slicedItems = refreshTable ? orders.items : orderHistoryLastFetchedData && !refreshTable ? orders.items.slice(1) : orders.items
         if (refreshTable) {
-          setOrderHistory(prevState => ({ ...prevState, data: [...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
+          setOrderHistoryData(slicedItems)
         }
         else {
-          setOrderHistory(prevState => ({ ...prevState, data: [...prevState.data, ...slicedItems], lastFetchedData: slicedItems.length < limit - 1 ? null : slicedItems[slicedItems.length - 1] }))
+          setOrderHistoryData(prevState => [...prevState, ...slicedItems])
         }
-        // if (slicedItems.length < limit - 1) {
-        //   setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
-        // }
+        setOrderHistoryLastElement(slicedItems.length < orderHistoryLimit - 1 ? null : slicedItems[slicedItems.length - 1])
       }
       else {
-        setOrderHistory(prevState => ({ ...prevState, lastFetchedData: null }))
+        setOrderHistoryLastElement(null)
       }
     }
     catch (e) {
@@ -127,8 +128,8 @@ const TradeOrders = () => {
       errorNotification.open({ description: 'Error fetching order history!', duration: 3 })
     }
     finally {
+      setIsOrderHistoryFetching(false)
       setLoadBtn(false)
-      setOrderHistory(prevState => ({ ...prevState, isFetching: false }))
     }
   }
 
@@ -139,6 +140,7 @@ const TradeOrders = () => {
 
   const orderHistoryLoadedFBCallback = (doc) => {
     // console.log(console.log('Order History Loaded => ', doc.data()))
+    if (!doc?.data()) return
     let isActiveExchangeSelected = false
     let loaded = 0, total = 0
     let isSomeKeyProcessing = false
@@ -187,18 +189,17 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderUpdateFB > 0) getOpenOrdersData(true, true)
+    if (orderUpdateFB > 0) getOpenOrdersData(true, false)
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderUpdateFB, orderHistoryFB, showProgressBar, keyProcessing])
-
 
   useEffect(() => {
     if (orderUpdateFB > 0) setOrderUpdateFB(0)
     if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
-    getOpenOrdersData(true, false)
-    getOrderHistoryData(true, false)
+    // getOpenOrdersData(true, false)
+    // getOrderHistoryData(true, false)
 
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
@@ -224,7 +225,7 @@ const TradeOrders = () => {
       )
 
     return () => {
-      // clearInterval(openOrderPolling)
+      // clearInterval(openOrderPolling)  
       // clearInterval(orderHistoryPolling)
       FBOrderUpdate()
       FBOrderHistory()
@@ -335,7 +336,9 @@ const TradeOrders = () => {
           />
         ) : !isOpenOrders && showProgressBar ? ProgressBar : (
           <OrderHistoryTableBody
-            tableData={orderHistory}
+            isFetching={isOrderHistoryFetching}
+            lastFetchedData={orderHistoryLastFetchedData}
+            data={orderHistoryData}
             callOrderHistoryAPI={() => getOrderHistoryData()}
             isHideOtherPairs={isHideOtherPairs}
           />
