@@ -1,0 +1,8 @@
+.customControlLabel {
+  font-size: 12px;
+  vertical-align: middle;
+}
+.customControlLabel::before {
+  top: 2.5px !important;
+  left: -1.5rem !important;
+}
