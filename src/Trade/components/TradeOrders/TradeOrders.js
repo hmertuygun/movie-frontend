@@ -13,8 +13,6 @@ import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './TradeOrders.css'
-import { ref } from 'yup'
-import { render } from '@testing-library/react'
 const db = firebase.firestore()
 
 const OPEN_ORDERS_INITIAL_STATE = {
@@ -86,7 +84,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching Open Orders`)
-      errorNotification.open({ description: 'Error fetching open orders!', duration: 3 })
+      errorNotification.open({ description: 'Error fetching open orders!', duration: 3, key: "open_orders" })
     }
     finally {
       setIsOpenOrderFetching(false)
@@ -125,7 +123,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching History Orders`)
-      errorNotification.open({ description: 'Error fetching order history!', duration: 3 })
+      errorNotification.open({ description: 'Error fetching order history!', duration: 3, key: "order_history" })
     }
     finally {
       setIsOrderHistoryFetching(false)
@@ -225,8 +223,6 @@ const TradeOrders = () => {
       )
 
     return () => {
-      // clearInterval(openOrderPolling)  
-      // clearInterval(orderHistoryPolling)
       FBOrderUpdate()
       FBOrderHistory()
       FBOrderHistoryLoad()
@@ -234,6 +230,7 @@ const TradeOrders = () => {
   }, [activeExchange])
 
   useEffect(() => {
+    console.log(`In Loading Balance`)
     if (!isLoadingBalance) {
       setLoaderVisibility(false)
     }
