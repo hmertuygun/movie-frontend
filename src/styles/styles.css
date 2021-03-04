@@ -106,17 +106,6 @@ hr {
   vertical-align: middle;
 }
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
-/* @supports (-webkit-marquee-repetition: infinite) and (object-fit: fill) {
-  [id*='tradingview-widget-'] {
-    height: 65vh !important;
-  }
-}
-@media not all and (min-resolution:.001dpcm) { @media {
-  [id*='tradingview-widget-'] {
-    height: 65vh !important;
-  }
-}} */
-
 _::-webkit-full-page-media,
 _:future,
 :root [id*='tradingview-widget-'] {

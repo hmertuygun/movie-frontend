@@ -1,20 +1,54 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
-import { errorNotification, successNotification } from '../../../components/Notifications'
-const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
+import {
+  errorNotification,
+  successNotification,
+} from '../../../components/Notifications'
+import { useSymbolContext } from '../../context/SymbolContext'
+import styles from './TradeOrders.module.css'
+
+const deleteDuplicateRows = (data, key) => {
+  if (!data?.length) return []
+  const uniqueData = Array.from(new Set(data.map(a => a[key]))).map(id => data.find(a => a[key] === id))
+  return uniqueData
+}
+
+const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
+  const [cancelOrderRow, setCancelOrderRow] = useState(null)
+  const onCancelOrderClick = async (order, index) => {
+    setCancelOrderRow({ ...order })
+    try {
+      const { data, status } = await cancelTradeOrder({
+        ...order,
+        ...activeExchange,
+      })
+      if (data?.status === "error") {
+        errorNotification.open({ description: data?.error || `Order couldn't be cancelled. Please try again later` })
+      }
+      else {
+        successNotification.open({ description: `Order Cancelled!` })
+      }
+      deletedRow(order)
+    } catch (error) {
+      errorNotification.open({
+        description: `Order couldn't be cancelled. Please try again later`,
+      })
+    }
+    finally {
+      setCancelOrderRow(null)
+    }
+  }
   return (
     <>
-      {entry.map((order, rowIndex) => {
-        const isLoading = cancelingOrders.find(
-          (cancelingOrder) => cancelingOrder === order.trade_id
-        )
+      { entry.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -37,26 +71,13 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
               : undefined,
         }
         const cancelColumn =
-          rowIndex === 0 && order.type === 'Full Trade' ? (
+          rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={async () => {
-                setCancelingOrders([...cancelingOrders, order.trade_id])
-                try {
-                  await cancelTradeOrder({ trade_id: order.trade_id, ...activeExchange })
-                  successNotification.open({ description: `Order Cancelled!` })
-                } catch (error) {
-                  const restOfCancelOrders = cancelingOrders.filter(
-                    (cancelingOrder) => cancelingOrder !== order.trade_id
-                  )
-                  errorNotification.open({ description: `Order couldn't be cancelled. Please try again later` })
-                  setCancelingOrders(restOfCancelOrders)
-                  throw error
-                }
-              }}
+              onClick={() => cancelOrderRow?.trade_id === order.trade_id ? null : onCancelOrderClick(order)}
             >
-              Cancel
-              {isLoading ? (
+              { cancelOrderRow?.trade_id === order.trade_id ? '' : 'Cancel'}
+              {cancelOrderRow?.trade_id === order.trade_id ? (
                 <span
                   className="ml-2 spinner-border spinner-border-sm"
                   role="status"
@@ -109,48 +130,112 @@ const Expandable = ({ entry, cancelingOrders, setCancelingOrders }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ infiniteOrders }) => {
-  const {
-    data: history,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = infiniteOrders
+const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPairs, callOpenOrdersAPI, deleteRow }) => {
   const loadMoreButtonRef = React.useRef()
+  const [deletedRows, setDeletedRows] = useState([])
+  const columns = [
+    {
+      title: 'Pair',
+      key: 'pair',
+    },
+    {
+      title: 'Type',
+      key: 'type',
+    },
+    {
+      title: 'Side',
+      key: 'side',
+    },
+    {
+      title: 'Price',
+      key: 'price',
+    },
+    {
+      title: 'Amount',
+      key: 'amount',
+    },
+    {
+      title: 'Filled',
+      key: 'filled',
+    },
+    {
+      title: 'Total',
+      key: 'total',
+    },
+    {
+      title: 'Trigger Condition',
+      key: 'trigger-conditions',
+    },
+    {
+      title: 'Status',
+      key: 'status',
+    },
+    {
+      title: 'Date',
+      key: 'date',
+    },
+    {
+      title: 'Cancel',
+      key: 'cancel',
+    },
+  ]
   useIntersectionObserver({
     target: loadMoreButtonRef,
-    onIntersect: fetchNextPage,
-    enabled: hasNextPage,
+    onIntersect: callOpenOrdersAPI,
+    enabled: lastFetchedData && !isFetching,
+    threshold: .1
   })
-  const [cancelingOrders, setCancelingOrders] = useState([])
+  const { selectedSymbolDetail } = useSymbolContext()
+  const selectedPair = selectedSymbolDetail['symbolpair']
+  data = data.filter((order) => {
+    if (!isHideOtherPairs) {
+      return true
+    }
+    return order.symbol.replace('-', '') === selectedPair
+  })
   return (
-    <tbody>
-      {history &&
-        history.pages.map((items, index) => (
-          <React.Fragment key={index}>
-            {items.map((order, rowIndex) => {
-              const orders = [order, ...order.orders]
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+      <table className={['table', styles.table].join(' ')}>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {
+              columns.map((item) => (
+                <th scope="col" key={item.key}>{item.title}</th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            data && data.map((item, index) => {
+              const orders = [item, ...item.orders]
               return (
                 <Expandable
                   entry={orders}
-                  key={rowIndex}
-                  cancelingOrders={cancelingOrders}
-                  setCancelingOrders={setCancelingOrders}
+                  key={index}
+                  deletedRow={(row) => deleteRow(row)}
                 />
               )
-            })}
-          </React.Fragment>
-        ))}
-      <tr ref={loadMoreButtonRef}>
-        <td colSpan="12">
-          {isFetchingNextPage
-            ? 'Loading more...'
-            : hasNextPage
-              ? 'Load Older'
-              : 'No open orders'}
-        </td>
-      </tr>
-    </tbody>
+            })
+          }
+          <tr ref={loadMoreButtonRef}>
+            <td colSpan="12">
+              {isFetching ? (
+                <p className="pt-3">
+                  <span
+                    className="spinner-border text-primary spinner-border-sm"
+                  />
+                </p>
+              ) : null}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
+      </div>
+    </div>
   )
 }
 

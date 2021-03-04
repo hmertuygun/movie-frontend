@@ -30,7 +30,6 @@ export default function useIntersectionObserver({
     }
 
     observer.observe(el)
-
     return () => {
       observer.unobserve(el)
     }

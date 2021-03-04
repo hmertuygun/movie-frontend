@@ -3,11 +3,11 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { Typography } from '../../../components'
 import styles from './TradeOverview.module.css'
-
+import { UserContext } from '../../../contexts/UserContext'
 const TradeOverview = () => {
   const { state } = useContext(TradeContext)
   const { selectedSymbol, selectedExchange } = useSymbolContext()
-
+  const { activeExchange } = useContext(UserContext)
   if (!state) {
     return null
   }
@@ -19,7 +19,7 @@ const TradeOverview = () => {
       <div className={styles['TradeOverview-row']}>
         <Typography>{selectedSymbol}</Typography>
 
-        <Typography>Exchange: {selectedExchange}</Typography>
+        <Typography>Exchange: {activeExchange.label}</Typography>
       </div>
 
       <Typography>Amount: {state.entry.quantity}</Typography>

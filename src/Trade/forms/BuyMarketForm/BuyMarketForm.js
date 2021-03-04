@@ -1,40 +1,42 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
-import 'rc-slider/assets/index.css'
-import { getLastPrice } from '../../../api/api'
+
+import { createBasicTrade } from '../../../api/api'
+import {
+  errorNotification,
+  successNotification,
+} from '../../../components/Notifications'
 
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-  convertCommaNumberToDot,
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 
 import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from './MarketForm.module.css'
+import styles from '../MarketForm/MarketForm.module.css'
 
-const MarketForm = () => {
+const BuyMarketForm = () => {
   const {
     isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
     selectedSymbolLastPrice,
-    selectedSymbol,
     refreshBalance,
   } = useSymbolContext()
-  const { addMarketEntry } = useContext(TradeContext)
+  const { activeExchange } = useContext(UserContext)
 
   const [values, setValues] = useState({
     price: '',
@@ -49,7 +51,7 @@ const MarketForm = () => {
     total: '',
   })
 
-  const [btnProc, setBtnProc] = useState(false)
+  const [isBtnDisabled, setBtnVisibility] = useState(false)
 
   const minNotional = Number(selectedSymbolDetail.minNotional)
   const maxQty = Number(selectedSymbolDetail.maxQty)
@@ -212,10 +214,7 @@ const MarketForm = () => {
     }))
   }
 
-  const calculateTotalAndQuantityFromSliderPercentage = (
-    sliderValue,
-    symbolBalance
-  ) => {
+  const calculateTotalAndQuantityFromSliderPercentage = (sliderValue) => {
     const balance = selectedSymbolBalance
     const sliderPercentage = Number(sliderValue) / 100
     const cost = addPrecisionToNumber(
@@ -224,7 +223,7 @@ const MarketForm = () => {
     )
 
     const quantityWithPrecision = addPrecisionToNumber(
-      cost / parseFloat(symbolBalance || selectedSymbolLastPrice),
+      cost / parseFloat(selectedSymbolLastPrice),
       quantityPrecision
     )
 
@@ -306,27 +305,47 @@ const MarketForm = () => {
 
   const handleSubmit = async (evt) => {
     evt.preventDefault()
+
     const isFormValid = await validateForm()
-    console.log('Here')
+
     if (isFormValid) {
-      setBtnProc(true)
       setErrors({ price: '', quantity: '', total: '' })
-      const symbol = selectedSymbolDetail['symbolpair']
-      const response = await getLastPrice(symbol)
-      setBtnProc(false)
-      const {
-        quantityWithPrecision,
-      } = calculateTotalAndQuantityFromSliderPercentage(
-        values.quantityPercentage,
-        response?.data?.last_price
-      )
-      const payload = {
-        quantity: convertCommaNumberToDot(quantityWithPrecision),
-        balance: selectedSymbolBalance,
-        symbol,
-        type: 'market',
+      try {
+        if (isBtnDisabled) return
+        setBtnVisibility(true)
+
+        const symbol = selectedSymbolDetail['symbolpair']
+        const { exchange, apiKeyName } = activeExchange
+
+        const payload = {
+          apiKeyName,
+          exchange,
+          order: {
+            type: 'market',
+            side: 'BUY',
+            symbol,
+            quantity: values.quantity,
+          },
+        }
+        const { data, status } = await createBasicTrade(payload)
+        if (data?.status === "error") {
+          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
+        }
+        else {
+          successNotification.open({ description: `Order Created!` })
+          refreshBalance()
+        }
+        setValues({
+          ...values,
+          quantity: '',
+          total: '',
+          quantityPercentage: '',
+        })
+      } catch (error) {
+        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+      } finally {
+        setBtnVisibility(false)
       }
-      addMarketEntry(payload)
     }
   }
 
@@ -431,33 +450,8 @@ const MarketForm = () => {
             />
             {renderInputValidationError('total')}
           </div>
-          <Button variant="exits" type="submit" disabled={btnProc}>
-            {btnProc ? (
-              <span
-                style={{ marginTop: '8px' }}
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-                <span>
-                  Next: Exits
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="feather feather-chevron-right"
-                  >
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </span>
-              )}
+          <Button type="submit" variant="buy" disabled={isBtnDisabled}>
+            <span>Buy {selectedSymbolDetail['base_asset']}</span>
           </Button>
         </form>
       </section>
@@ -465,4 +459,4 @@ const MarketForm = () => {
   )
 }
 
-export default MarketForm
+export default BuyMarketForm

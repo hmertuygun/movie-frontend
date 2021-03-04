@@ -25,7 +25,7 @@ const UserContextProvider = ({ children }) => {
   }
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
-  const [hasToken, setHasToken] = useState(false)
+  const [userData, setUserData] = useState(false)
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
@@ -92,7 +92,7 @@ const UserContextProvider = ({ children }) => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
-        setHasToken(true)
+        setUserData(user)
         getExchanges()
       }
       else {
@@ -221,6 +221,7 @@ const UserContextProvider = ({ children }) => {
   // LOGOUT
   function logout() {
     localStorage.clear()
+    sessionStorage.clear()
     setState({ user: null, has2FADetails: null, is2FAVerified: false })
     return true
   }
@@ -297,7 +298,9 @@ const UserContextProvider = ({ children }) => {
         loaderVisible,
         setLoaderVisibility,
         loaderText,
-        setLoaderText
+        setLoaderText,
+        userData,
+        setUserData
       }}
     >
       {children}
