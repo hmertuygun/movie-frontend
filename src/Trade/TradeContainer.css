@@ -57,25 +57,7 @@
 }
 
 @media (min-width: 992px) {
-  .TradeView-Container-Mobile {
-    display: none;
-  }
-  .TradeView-Panel-Mobile {
-    display: none;
-  }
-  .TradeChart-Container-Mobile {
-    display: none;
-  }
   .TradeView-Panel-Mobile-Close {
-    display: none;
-  }
-}
-
-@media (max-width: 991.98px) {
-  .TradeView-Panel-Desktop {
-    display: none;
-  }
-  .TradeChart-Container-Desktop {
     display: none;
   }
 }

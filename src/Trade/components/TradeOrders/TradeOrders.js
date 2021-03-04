@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
-import { isMobile } from 'react-device-detect'
+import { useMediaQuery } from 'react-responsive';
+
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 import { firebase } from '../../../firebase/firebase'
@@ -33,6 +34,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 }
 
 const TradeOrders = () => {
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
   const { activeExchange, loaderVisible, setLoaderVisibility, userData, totalExchanges, setUserData } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
