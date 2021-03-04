@@ -56,7 +56,7 @@
   right: 25px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .TradeView-Container-Mobile {
     display: none;
   }
@@ -71,7 +71,7 @@
   }
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 991.98px) {
   .TradeView-Panel-Desktop {
     display: none;
   }
