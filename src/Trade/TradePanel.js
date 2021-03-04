@@ -1,5 +1,8 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { X } from 'react-feather'
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { TabContext } from '../contexts/TabContext'
@@ -49,6 +52,7 @@ const TradePanel = () => (
 )
 
 const Trade = () => {
+  const { removeEntry } = useContext(TradeContext)
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
@@ -160,7 +164,12 @@ const Trade = () => {
 
             {hasEntry && (
               <Fragment>
-                <Typography as="h3">2. Exits</Typography>
+                <div className="d-flex justify-content-between align-items-start">
+                  <Typography as="h3">2. Exits</Typography>
+                  <button type="button" class="btn btn-link py-0 px-0" onClick={() => removeEntry(0)}>
+                    <FontAwesomeIcon icon={faChevronLeft} /> Back
+                  </button>
+                </div>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />

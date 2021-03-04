@@ -277,7 +277,7 @@ const TradeOrders = () => {
           </div>
           <div className="col-auto">
             <div className="d-flex justify-content-between align-items-center">
-              <div className="mr-5 custom-control custom-checkbox">
+              <div className="mr-5 custom-control custom-checkbox d-flex align-items-center">
                 <input
                   type="checkbox"
                   className="custom-control-input"
@@ -288,7 +288,7 @@ const TradeOrders = () => {
                 <label
                   className={`custom-control-label ${styles['customControlLabel']}`}
                   htmlFor="check-terms"
-                  style={{ fontSize: '12px', verticalAlign: 'middle' }}
+                  style={{ fontSize: '12px', verticalAlign: 'middle', lineHeight: 'unset' }}
                 >
                   Hide Other Pairs
                 </label>
