@@ -24,17 +24,19 @@ const Routes = () => {
     <div>
       <FullScreenLoader />
       <Switch>
+        {isLoggedIn && userContextLoaded && (
+          <Route
+            path="/logout"
+            render={() => {
+              logout()
+              return <div>Logging you out..</div>
+            }}
+          />
+        )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
         {isLoggedIn && userContextLoaded && (
           <Switch>
             <Route path="/trade" component={TradeView} />
-            <Route
-              path="/logout"
-              render={() => {
-                logout()
-                return <div>Logging you out..</div>
-              }}
-            />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/positions" component={Position} />
