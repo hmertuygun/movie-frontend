@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
-import { isMobile } from 'react-device-detect'
+import { useMediaQuery } from 'react-responsive';
+
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 import { firebase } from '../../../firebase/firebase'
@@ -31,6 +32,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 }
 
 const TradeOrders = () => {
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
   const { activeExchange, loaderVisible, setLoaderVisibility, userData, totalExchanges, setUserData } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
@@ -275,7 +277,7 @@ const TradeOrders = () => {
           </div>
           <div className="col-auto">
             <div className="d-flex justify-content-between align-items-center">
-              <div className="mr-5 custom-control custom-checkbox">
+              <div className="mr-5 custom-control custom-checkbox d-flex align-items-center">
                 <input
                   type="checkbox"
                   className="custom-control-input"
@@ -286,7 +288,7 @@ const TradeOrders = () => {
                 <label
                   className={`custom-control-label ${styles['customControlLabel']}`}
                   htmlFor="check-terms"
-                  style={{ fontSize: '12px', verticalAlign: 'middle' }}
+                  style={{ fontSize: '12px', verticalAlign: 'middle', lineHeight: 'unset' }}
                 >
                   Hide Other Pairs
                 </label>
