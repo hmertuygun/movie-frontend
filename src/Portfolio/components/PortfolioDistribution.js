@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import PieCharts from './Chart/PieCharts'
+import './PortfolioDistribution.css'
 
 const PortfolioDistribution = () => {
-  const [isHideBalance, setIsHideBalance] = useState(false)
+  const [isHideBalance, setIsHideBalance] = useState(
+    JSON.parse(localStorage.getItem('hide_balance_under_ten')) || false
+  )
   return (
     <>
       <div className="card card-fluid">
@@ -18,10 +21,14 @@ const PortfolioDistribution = () => {
                 id="check-terms"
                 checked={isHideBalance}
                 onChange={() => {
+                  localStorage.setItem('hide_balance_under_ten', !isHideBalance)
                   setIsHideBalance(!isHideBalance)
                 }}
               />
-              <label className="custom-control-label" htmlFor="check-terms">
+              <label
+                className="custom-control-label customControlLabel"
+                htmlFor="check-terms"
+              >
                 Hide balances &lt; $10
               </label>
             </div>
