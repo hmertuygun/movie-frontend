@@ -65,7 +65,7 @@ const TradeOrders = () => {
     try {
       if (isOpenOrderFetching) return
       if (!hideTableLoader) setIsOpenOrderFetching(true)
-      if (refreshTable && !keyProcessing) setOpenOrderData([])
+      if (refreshTable) setOpenOrderData([])
       if (refBtn) {
         setLoadBtn(true)
       }
@@ -209,7 +209,7 @@ const TradeOrders = () => {
     setIsOpenOrderFetching(true)
     setOpenOrderData([])
     setOrderHistoryData([])
-    // getOpenOrdersData(true, false)
+    getOpenOrdersData(true, false)
     // getOrderHistoryData(true, false)
 
     FBOrderUpdate = db.collection('order_update')
