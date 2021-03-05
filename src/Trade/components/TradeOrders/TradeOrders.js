@@ -61,41 +61,20 @@ const TradeOrders = () => {
   const orderHistoryInterval = 60000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
 
-  const getOpenOrdersData = async (refreshTable, hideTableLoader, refBtn) => {
-    try {
-      if (isOpenOrderFetching) return
-      if (!hideTableLoader) setIsOpenOrderFetching(true)
-      if (refreshTable) setOpenOrderData([])
-      if (refBtn) {
-        setLoadBtn(true)
-      }
-      const params = refreshTable ? { ...activeExchange, limit: openOrdersLimit } : openOrdersLastFetchedData && !refreshTable ? { timestamp: openOrdersLastFetchedData.timestamp, trade_id: openOrdersLastFetchedData.trade_id, limit: openOrdersLimit, ...activeExchange } : { ...activeExchange, limit: openOrdersLimit }
-      console.log(deletedRows)
-      const orders = await getOpenOrders(params)
-      if (orders?.items?.length) {
-        let slicedItems = refreshTable ? orders.items : openOrdersLastFetchedData && !refreshTable ? orders.items.slice(1) : orders.items
-        if (refreshTable) {
-          console.log(`Overwrite data`)
-          setOpenOrderData([...slicedItems])
-        }
-        else {
-          console.log(`Extend data`)
-          setOpenOrderData(prevState => [...prevState, ...slicedItems])
-        }
-        setOpenOrdersLastElement(slicedItems.length < openOrdersLimit - 1 ? null : slicedItems[slicedItems.length - 1])
-      }
-      else {
-        setOpenOrdersLastElement(null)
-      }
-    }
-    catch (e) {
-      console.log(`Error Fetching Open Orders`)
-      errorNotification.open({ description: 'Error fetching open orders!', duration: 3, key: "open_orders" })
-    }
-    finally {
-      setIsOpenOrderFetching(false)
-      setLoadBtn(false)
-    }
+  const getOpenOrdersData = (refBtn) => {
+    if (refBtn) setLoadBtn(true)
+    setIsOpenOrderFetching(true)
+    getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
+      .then(res => {
+        setOpenOrderData([...res.items])
+      })
+      .catch(e => {
+        console.log(e)
+      })
+      .then(() => {
+        setIsOpenOrderFetching(false)
+        setLoadBtn(false)
+      })
   }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
@@ -116,7 +95,7 @@ const TradeOrders = () => {
       if (orders?.items?.length) {
         let slicedItems = refreshTable ? orders.items : orderHistoryLastFetchedData && !refreshTable ? orders.items.slice(1) : orders.items
         if (refreshTable) {
-          setOrderHistoryData(slicedItems)
+          setOrderHistoryData([...slicedItems])
         }
         else {
           setOrderHistoryData(prevState => [...prevState, ...slicedItems])
@@ -138,7 +117,7 @@ const TradeOrders = () => {
   }
 
   const onRefreshBtnClick = () => {
-    if (isOpenOrders) getOpenOrdersData(true, false, true)
+    if (isOpenOrders) getOpenOrdersData(true)
     else getOrderHistoryData(true, false, true)
   }
 
@@ -194,23 +173,21 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
-  }, [orderHistoryFB, showProgressBar, keyProcessing])
+    if (orderHistoryFB > 0 && !showProgressBar) getOrderHistoryData(true, false)
+  }, [orderHistoryFB, showProgressBar])
 
   useEffect(() => {
-    if (orderUpdateFB > 0) getOpenOrdersData(true, false)
+    if (orderUpdateFB > 0) getOpenOrdersData()
   }, [orderUpdateFB])
 
   useEffect(() => {
-    if (orderUpdateFB > 0) setOrderUpdateFB(0)
-    if (orderHistoryFB > 0) setOrderHistoryFB(0)
+    // if (orderUpdateFB > 0) setOrderUpdateFB(0)
+    // if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
     setShowProgressBar(false)
-    setIsOpenOrderFetching(true)
-    setOpenOrderData([])
-    setOrderHistoryData([])
-    getOpenOrdersData(true, false)
-    // getOrderHistoryData(true, false)
+    // setOpenOrderData([])
+    // setOrderHistoryData([])
+    // getOpenOrdersData()
 
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
@@ -243,10 +220,10 @@ const TradeOrders = () => {
   }, [activeExchange])
 
   useEffect(() => {
-    if (!isLoadingBalance) {
+    if (!isLoadingBalance && !isOpenOrderFetching && !isOrderHistoryFetching) {
       setLoaderVisibility(false)
     }
-  }, [isLoadingBalance])
+  }, [isLoadingBalance, isOpenOrderFetching, isOrderHistoryFetching])
 
   const ProgressBar = (
     <div className="m-5 progress-wrapper">
@@ -275,14 +252,14 @@ const TradeOrders = () => {
               }
               onClick={() => setIsOpenOrders(true)}
             >
-              Open Orders
+              Open Orders({openOrderData.length})
             </span>
             <span
               className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
                 } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
-              Order History
+              Order History({orderHistoryData.length})
             </span>
           </div>
           <div className="col-auto">
@@ -336,10 +313,7 @@ const TradeOrders = () => {
       {
         isOpenOrders ? (
           <OpenOrdersTableBody
-            isFetching={isOpenOrderFetching}
-            lastFetchedData={openOrdersLastFetchedData}
             data={openOrderData}
-            callOpenOrdersAPI={() => getOpenOrdersData()}
             deleteRow={(rData) => deleteOpenOrdersRow(rData)}
             isHideOtherPairs={isHideOtherPairs}
           />
@@ -352,6 +326,15 @@ const TradeOrders = () => {
             isHideOtherPairs={isHideOtherPairs}
           />
         )
+      }
+      {
+        isOpenOrderFetching && isOpenOrders && <div className="text-center pt-3">
+          <span className="spinner-border text-primary spinner-border-sm" />
+        </div>
+      }
+      { isOpenOrders && !openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-5 mx-auto`} style={{ maxWidth: '400px' }} role="alert">
+        <FontAwesomeIcon icon='exclamation-triangle' /> <b>You have no open orders.</b>
+      </div>
       }
     </div>
   )
