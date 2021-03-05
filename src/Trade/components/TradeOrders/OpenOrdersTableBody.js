@@ -221,19 +221,6 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
           }
         </tbody>
       </table>
-      {/* <div className="text-center" ref={loadMoreButtonRef}>
-        {isFetching ? (
-          <p className="pt-3">
-            <span
-              className="spinner-border text-primary spinner-border-sm"
-            />
-          </p>
-        ) : null}
-      </div> */}
-      {/* { !data.length && !isFetching && <div className={`alert alert-secondary text-center mt-5 mx-auto`} style={{ maxWidth: '400px' }} role="alert">
-        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
-      </div>
-      } */}
     </div>
   )
 }

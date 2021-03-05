@@ -60,8 +60,10 @@ const TradeOrders = () => {
   const openOrdersInterval = 3000
   const orderHistoryInterval = 60000
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
-
+  let cancelOrder = false
   const getOpenOrdersData = (refBtn) => {
+    // console.log(cancelOrder)
+    // if (cancelOrder) return
     if (refBtn) setLoadBtn(true)
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
@@ -158,7 +160,11 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    setDeletedRows(prevState => [...prevState, row])
+    // setDeletedRows(prevState => [...prevState, row])
+    // cancelOrder = true
+    // setTimeout(() => {
+    //   cancelOrder = false
+    // }, 3000)
     // let arrData = [...openOrderData]
     // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
     // arrData.splice(dIndex, 1)
@@ -332,8 +338,8 @@ const TradeOrders = () => {
           <span className="spinner-border text-primary spinner-border-sm" />
         </div>
       }
-      { isOpenOrders && !openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-5 mx-auto`} style={{ maxWidth: '400px' }} role="alert">
-        <FontAwesomeIcon icon='exclamation-triangle' /> <b>You have no open orders.</b>
+      { isOpenOrders && !openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-4 mx-auto`} style={{ width: '400px' }} role="alert">
+        <strong><FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
       </div>
       }
     </div>
