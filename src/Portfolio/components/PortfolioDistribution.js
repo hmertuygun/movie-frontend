@@ -14,7 +14,7 @@ const PortfolioDistribution = () => {
             <div>
               <span className="h6">Portfolio Distribution</span>
             </div>
-            <div className="custom-control custom-checkbox">
+            <div className="custom-control custom-checkbox d-flex align-items-center">
               <input
                 type="checkbox"
                 className="custom-control-input"

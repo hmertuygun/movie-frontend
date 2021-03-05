@@ -6,12 +6,7 @@ import tooltipStyles from '../TradeOrders/tooltip.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeOrders.module.css'
-const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAPI }) => {
-  let {
-    data,
-    isFetching,
-    lastFetchedData
-  } = tableData
+const OrderHistoryTableBody = ({ data, isFetching, lastFetchedData, isHideOtherPairs, callOrderHistoryAPI }) => {
 
   const columns = [
     {
@@ -147,17 +142,6 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
                 )
               })
           }
-          {/* <tr ref={loadMoreButtonRef}>
-            <td colSpan="12">
-              {isFetching ? (
-                <p className="pt-3">
-                  <span
-                    className="spinner-border text-primary spinner-border-sm"
-                  />
-                </p>
-              ) : null}
-            </td>
-          </tr> */}
         </tbody>
       </table>
       <div className="text-center" ref={loadMoreButtonRef}>
@@ -170,7 +154,7 @@ const OrderHistoryTableBody = ({ tableData, isHideOtherPairs, callOrderHistoryAP
         ) : null}
       </div>
       <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
-        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
+        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> You have no order history.</strong>
       </div>
     </div>
   )

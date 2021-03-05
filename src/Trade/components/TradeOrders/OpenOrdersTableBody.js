@@ -34,9 +34,9 @@ const Expandable = ({ entry, deletedRow }) => {
         errorNotification.open({ description: data?.error || `Order couldn't be cancelled. Please try again later` })
       }
       else {
+        deletedRow(order)
         successNotification.open({ description: `Order Cancelled!` })
       }
-      deletedRow(order)
     } catch (error) {
       errorNotification.open({
         description: `Order couldn't be cancelled. Please try again later`,
@@ -130,7 +130,7 @@ const Expandable = ({ entry, deletedRow }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPairs, callOpenOrdersAPI, deleteRow }) => {
+const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
   const columns = [
@@ -179,12 +179,12 @@ const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPai
       key: 'cancel',
     },
   ]
-  useIntersectionObserver({
-    target: loadMoreButtonRef,
-    onIntersect: callOpenOrdersAPI,
-    enabled: lastFetchedData && !isFetching,
-    threshold: .1
-  })
+  // useIntersectionObserver({
+  //   target: loadMoreButtonRef,
+  //   onIntersect: callOpenOrdersAPI,
+  //   enabled: lastFetchedData && !isFetching,
+  //   threshold: .1
+  // })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
   data = data.filter((order) => {
@@ -208,7 +208,7 @@ const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPai
         </thead>
         <tbody>
           {
-            data && data.map((item, index) => {
+            data.map((item, index) => {
               const orders = [item, ...item.orders]
               return (
                 <Expandable
@@ -219,22 +219,8 @@ const OpenOrdersTableBody = ({ isFetching, lastFetchedData, data, isHideOtherPai
               )
             })
           }
-          <tr ref={loadMoreButtonRef}>
-            <td colSpan="12">
-              {isFetching ? (
-                <p className="pt-3">
-                  <span
-                    className="spinner-border text-primary spinner-border-sm"
-                  />
-                </p>
-              ) : null}
-            </td>
-          </tr>
         </tbody>
       </table>
-      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
-        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
-      </div>
     </div>
   )
 }
