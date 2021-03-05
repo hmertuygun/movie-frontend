@@ -106,7 +106,10 @@ const Expandable = ({ entry, deletedRow }) => {
             </td>
             <td style={hideFirst}>{order.trigger}</td>
             <td style={hideFirst}>
-              <div className={tooltipStyles.customTooltip}>
+              <div
+                className={tooltipStyles.customTooltip}
+                style={{ fontSize: '12px' }}
+              >
                 {order.status}
                 <span className={tooltipStyles.tooltiptext}>
                   {order.status?.toLowerCase() === 'pending'

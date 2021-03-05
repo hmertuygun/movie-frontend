@@ -13,6 +13,7 @@ const Button = ({
   className,
   disabled,
   remove,
+  pageLink,
   ...props
 }) => {
   const ButtonStyle = () => {
@@ -44,6 +45,14 @@ const Button = ({
       <Link className={ButtonStyle()} type="button" to={to} {...props}>
         {children}
       </Link>
+    )
+  }
+
+  if (pageLink) {
+    return (
+      <button className="page-link" {...props}>
+        {children}
+      </button>
     )
   }
 

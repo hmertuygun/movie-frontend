@@ -31,6 +31,9 @@
 .TradeView-Chart {
   background: var(--trade-background);
   flex-grow: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .TradeOrders {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import Input from '../../Input/Input'
 
 const Search = ({ onSearch }) => {
   const [search, setSearch] = useState('')
@@ -9,11 +8,13 @@ const Search = ({ onSearch }) => {
     onSearch(value)
   }
   return (
-    <Input
+    <input
+      className="form-control"
+      style={{ width: '210px' }}
       type="text"
       placeholder="Search"
       value={search}
-      onChange={(value) => onInputChange(value)}
+      onChange={(e) => onInputChange(e.target.value)}
     />
   )
 }

@@ -47,18 +47,16 @@ const BalanceTable = () => {
     <>
       <div className="card card-fluid">
         <div className="card-header pb-0">
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-start">
             <div>
               <span className="h6">Balances</span>
             </div>
-            <div className="col-md-6 d-flex flex-row-reverse">
-              <Search
-                onSearch={(value) => {
-                  setSearch(value)
-                  setCurrentPage(1)
-                }}
-              />
-            </div>
+            <Search
+              onSearch={(value) => {
+                setSearch(value)
+                setCurrentPage(1)
+              }}
+            />
           </div>
         </div>
         <div className="card-body">
