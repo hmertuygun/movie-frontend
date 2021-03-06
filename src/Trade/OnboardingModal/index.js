@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import * as yup from 'yup'
 
+import { analytics } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { successNotification } from '../../components/Notifications'
 import {
@@ -178,6 +179,7 @@ const OnboardingModal = () => {
     } else {
       setStepNo(step + 1)
       successNotification.open({ description: 'API key added!' })
+      analytics.logEvent('api_keys_added')
     }
     setIsApiProc(false)
   }
