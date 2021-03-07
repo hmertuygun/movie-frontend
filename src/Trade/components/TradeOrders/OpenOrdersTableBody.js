@@ -179,12 +179,6 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
       key: 'cancel',
     },
   ]
-  // useIntersectionObserver({
-  //   target: loadMoreButtonRef,
-  //   onIntersect: callOpenOrdersAPI,
-  //   enabled: lastFetchedData && !isFetching,
-  //   threshold: .1
-  // })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
   data = data.filter((order) => {
