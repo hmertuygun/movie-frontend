@@ -346,3 +346,58 @@ export async function getOrdersHistory({
   })
   return openOrders.data
 }
+
+export async function loadNotificationChannels() {
+  const apiUrl = process.env.REACT_APP_API + 'loadNotificationChannels'
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const loadNotificationChannels = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return loadNotificationChannels.data
+}
+
+export async function setTelegramNotification(enable) {
+  const apiUrl = process.env.REACT_APP_API + `setTelegramNotification?enable=${enable}`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const setTelegramNotification = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return setTelegramNotification
+}
+
+export async function setEmailNotification(enable) {
+  const apiUrl = process.env.REACT_APP_API + `setEmailNotification?enable=${enable}`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const setEmailNotification = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return setEmailNotification
+}
+
+export async function connectTelegramLoadKey() {
+  const apiUrl = process.env.REACT_APP_API + `connectTelegramLoadKey`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const connectTelegramLoadKey = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return connectTelegramLoadKey.data
+}
+
+export async function disconnectTelegram() {
+  const apiUrl = process.env.REACT_APP_API + `disconnectTelegram`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const disconnectTelegram = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return disconnectTelegram.data
+}
