@@ -216,7 +216,7 @@ const OnboardingModal = () => {
           <div className="modal-header">
             <h5 className="modal-title h6">Exchange Setup</h5>
             <Link to="/logout">
-              <button type="button" class="btn btn-link py-0 px-0">
+              <button type="button" className="btn btn-link py-0 px-0">
                 Logout
               </button>
             </Link>

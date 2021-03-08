@@ -169,7 +169,7 @@ const Trade = () => {
               <Fragment>
                 <div className="d-flex justify-content-between align-items-start">
                   <Typography as="h3">2. Exits</Typography>
-                  <button type="button" class="btn btn-link py-0 px-0" onClick={() => removeEntry(0)}>
+                  <button type="button" className="btn btn-link py-0 px-0" onClick={() => removeEntry(0)}>
                     <FontAwesomeIcon icon={faChevronLeft} /> Back
                   </button>
                 </div>
