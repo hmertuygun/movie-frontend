@@ -162,7 +162,7 @@ const QuickLogin = () => {
                     htmlFor="check-terms"
                     style={{ fontSize: '14px', paddingTop: '2px', cursor: 'pointer' }}
                   >
-                    Remember Me
+                    Keep me logged in
                   </label>
                 </div>
                 <div className="mt-4">
@@ -178,8 +178,8 @@ const QuickLogin = () => {
                         aria-hidden="true"
                       />
                     ) : (
-                        'Sign in'
-                      )}
+                      'Sign in'
+                    )}
                   </button>
                 </div>
               </form>

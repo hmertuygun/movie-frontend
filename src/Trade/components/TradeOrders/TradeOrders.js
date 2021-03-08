@@ -65,7 +65,9 @@ const TradeOrders = () => {
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
       .then(res => {
-        setOpenOrderData([...res.items])
+        const temp = res.items
+        temp.sort((a, b) => b.timestamp - a.timestamp)
+        setOpenOrderData([...temp])
         setOpenOrderError(false)
       })
       .catch(e => {
