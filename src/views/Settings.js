@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
-// import Notifications from '../Settings/Notifications' @Todo
+import Notifications from '../Settings/Notifications'
 
 const Settings = () => {
   return (
@@ -18,18 +18,19 @@ const Settings = () => {
                 <div className="col">
                   <span className="surtitle">Your account</span>
 
-                  <h1 className="h2 mb-0">Settings</h1>
+                  <h1 className="mb-0 h2">Settings</h1>
                 </div>
               </div>
 
-              <div className="row align-items-center mt-4">
+              <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security']}
+                    labelArray={['Exchanges', 'Security', 'Notifications']}
                     tabIndex={1}
                   >
                     <Exchanges />
                     <Security />
+                    <Notifications />
                   </TabNavigator>
                 </div>
               </div>
