@@ -209,6 +209,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedBaseSymbolBalance,
         isLoadingBalance,
         selectedSymbolLastPrice,
+        setSelectedSymbolLastPrice,
         refreshBalance,
         isOrderPlaced,
         setIsOrderPlaced,

@@ -31,6 +31,7 @@ const MarketForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     selectedSymbolLastPrice,
+    setSelectedSymbolLastPrice,
     selectedSymbol,
     refreshBalance,
   } = useSymbolContext()
@@ -307,12 +308,12 @@ const MarketForm = () => {
   const handleSubmit = async (evt) => {
     evt.preventDefault()
     const isFormValid = await validateForm()
-    console.log('Here')
     if (isFormValid) {
       setBtnProc(true)
       setErrors({ price: '', quantity: '', total: '' })
       const symbol = selectedSymbolDetail['symbolpair']
       const response = await getLastPrice(symbol)
+      setSelectedSymbolLastPrice(response?.data?.last_price)
       setBtnProc(false)
       const {
         quantityWithPrecision,
@@ -320,6 +321,7 @@ const MarketForm = () => {
         values.quantityPercentage,
         response?.data?.last_price
       )
+      console.log(selectedSymbolBalance)
       const payload = {
         quantity: convertCommaNumberToDot(quantityWithPrecision),
         balance: selectedSymbolBalance,
@@ -357,14 +359,14 @@ const MarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
       <section>
         <form onSubmit={handleSubmit}>
@@ -440,24 +442,24 @@ const MarketForm = () => {
                 aria-hidden="true"
               />
             ) : (
-                <span>
-                  Next: Exits
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="feather feather-chevron-right"
-                  >
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </span>
-              )}
+              <span>
+                Next: Exits
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="feather feather-chevron-right"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            )}
           </Button>
         </form>
       </section>
