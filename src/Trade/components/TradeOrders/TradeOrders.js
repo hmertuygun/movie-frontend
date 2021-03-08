@@ -40,7 +40,7 @@ const TradeOrders = () => {
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
-  const [deletedRows, setDeletedRows] = useState([])
+  const [deletedRows, setDeletedRows] = useState(null)
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
@@ -60,7 +60,7 @@ const TradeOrders = () => {
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad
 
   const getOpenOrdersData = (refBtn) => {
-    if (cancelOrder) return
+    if (deletedRows) return
     if (refBtn) setLoadBtn(true)
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
@@ -160,17 +160,35 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    // setDeletedRows(prevState => [...prevState, row])
-    setCancelOrder(true)
-    setTimeout(() => {
-      setCancelOrder(false)
-    }, 3000)
-    let arrData = [...openOrderData]
-    let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-    arrData.splice(dIndex, 1)
-    setOpenOrderData(arrData)
+    setDeletedRows(row)
+    // setCancelOrder(true)
+    // setTimeout(() => {
+    //   setCancelOrder(false)
+    // }, 3000)
+    // let arrData = [...openOrderData]
+    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
+    // arrData.splice(dIndex, 1)
+    // setOpenOrderData(arrData)
     refreshBalance()
   }
+
+  useEffect(() => {
+    let timeOut
+    if (deletedRows) {
+      let arrData = [...openOrderData]
+      let dIndex = arrData.findIndex(item => item.trade_id === deletedRows.trade_id)
+      if (dIndex !== -1) {
+        arrData.splice(dIndex, 1)
+        setOpenOrderData([...arrData])
+      }
+      timeOut = setTimeout(() => {
+        setDeletedRows(null)
+      }, 3000)
+    }
+    return () => {
+      clearTimeout(timeOut)
+    }
+  }, [deletedRows])
 
   const setStateSynchronous = (setState, stateUpdate) => {
     return new Promise(resolve => {
