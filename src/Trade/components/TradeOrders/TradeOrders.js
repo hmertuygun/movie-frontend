@@ -110,6 +110,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching History Orders`)
+      setOrderHistoryData([])
       errorNotification.open({ description: 'Error fetching order history!', duration: 3, key: "order_history" })
     }
     finally {
