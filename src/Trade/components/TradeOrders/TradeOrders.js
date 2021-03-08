@@ -39,10 +39,8 @@ const TradeOrders = () => {
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
-  // const [openOrders, setOpenOrders] = useState(OPEN_ORDERS_INITIAL_STATE)
-  // const [orderHistory, setOrderHistory] = useState(ORDER_HISTORY_INITIAL_STATE)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
-  const [deletedRows, setDeletedRows] = useState([])
+  const [deletedRows, setDeletedRows] = useState(null)
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
@@ -57,21 +55,23 @@ const TradeOrders = () => {
   const [orderHistoryLastFetchedData, setOrderHistoryLastElement] = useState(null)
   const orderHistoryLimit = 50
   ////////////////////////////////////////////////////////
-  const openOrdersInterval = 3000
-  const orderHistoryInterval = 60000
-  let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad, openOrderPolling, orderHistoryPolling
-  let cancelOrder = false
+  const [cancelOrder, setCancelOrder] = useState(false)
+  const [openOrderError, setOpenOrderError] = useState(false)
+  let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad
+
   const getOpenOrdersData = (refBtn) => {
-    // console.log(cancelOrder)
-    // if (cancelOrder) return
+    if (deletedRows) return
     if (refBtn) setLoadBtn(true)
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
       .then(res => {
         setOpenOrderData([...res.items])
+        setOpenOrderError(false)
       })
       .catch(e => {
         console.log(e)
+        setOpenOrderData([])
+        setOpenOrderError(true)
       })
       .then(() => {
         setIsOpenOrderFetching(false)
@@ -110,6 +110,7 @@ const TradeOrders = () => {
     }
     catch (e) {
       console.log(`Error Fetching History Orders`)
+      setOrderHistoryData([])
       errorNotification.open({ description: 'Error fetching order history!', duration: 3, key: "order_history" })
     }
     finally {
@@ -160,10 +161,10 @@ const TradeOrders = () => {
   }
 
   const deleteOpenOrdersRow = (row) => {
-    // setDeletedRows(prevState => [...prevState, row])
-    // cancelOrder = true
+    setDeletedRows(row)
+    // setCancelOrder(true)
     // setTimeout(() => {
-    //   cancelOrder = false
+    //   setCancelOrder(false)
     // }, 3000)
     // let arrData = [...openOrderData]
     // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
@@ -171,6 +172,24 @@ const TradeOrders = () => {
     // setOpenOrderData(arrData)
     refreshBalance()
   }
+
+  useEffect(() => {
+    let timeOut
+    if (deletedRows) {
+      let arrData = [...openOrderData]
+      let dIndex = arrData.findIndex(item => item.trade_id === deletedRows.trade_id)
+      if (dIndex !== -1) {
+        arrData.splice(dIndex, 1)
+        setOpenOrderData([...arrData])
+      }
+      timeOut = setTimeout(() => {
+        setDeletedRows(null)
+      }, 3000)
+    }
+    return () => {
+      clearTimeout(timeOut)
+    }
+  }, [deletedRows])
 
   const setStateSynchronous = (setState, stateUpdate) => {
     return new Promise(resolve => {
@@ -193,7 +212,6 @@ const TradeOrders = () => {
     setShowProgressBar(false)
     // setOpenOrderData([])
     // setOrderHistoryData([])
-    // getOpenOrdersData()
 
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
@@ -334,13 +352,22 @@ const TradeOrders = () => {
         )
       }
       {
-        isOpenOrderFetching && isOpenOrders && <div className="text-center pt-3">
-          <span className="spinner-border text-primary spinner-border-sm" />
+        isOpenOrders &&
+        <div className="open-orders-msg d-flex flex-wrap justify-content-center">
+          {
+            isOpenOrderFetching && <div className="text-center pt-3">
+              <span className="spinner-border text-primary spinner-border-sm" />
+            </div>
+          }
+          {!openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-4`} style={{ width: '400px' }} role="alert">
+            <strong><FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
+          </div>
+          }
+          {!isOpenOrderFetching && openOrderError && <div className={`alert alert-danger text-center mt-4`} style={{ width: '400px' }} role="alert">
+            <strong><FontAwesomeIcon icon='times-circle' /> Failed to get open orders.</strong>
+          </div>
+          }
         </div>
-      }
-      { isOpenOrders && !openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-4 mx-auto`} style={{ width: '400px' }} role="alert">
-        <strong><FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
-      </div>
       }
     </div>
   )
