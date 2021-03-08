@@ -26,12 +26,17 @@ const Expandable = ({ entry, deletedRow }) => {
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
-      await cancelTradeOrder({
+      const { data, status } = await cancelTradeOrder({
         ...order,
         ...activeExchange,
       })
-      deletedRow(order)
-      successNotification.open({ description: `Order Cancelled!` })
+      if (data?.status === "error") {
+        errorNotification.open({ description: data?.error || `Order couldn't be cancelled. Please try again later` })
+      }
+      else {
+        deletedRow(order)
+        successNotification.open({ description: `Order Cancelled!` })
+      }
     } catch (error) {
       errorNotification.open({
         description: `Order couldn't be cancelled. Please try again later`,
@@ -69,9 +74,9 @@ const Expandable = ({ entry, deletedRow }) => {
           rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={() => { onCancelOrderClick(order) }}
+              onClick={() => cancelOrderRow?.trade_id === order.trade_id ? null : onCancelOrderClick(order)}
             >
-              Cancel
+              { cancelOrderRow?.trade_id === order.trade_id ? '' : 'Cancel'}
               {cancelOrderRow?.trade_id === order.trade_id ? (
                 <span
                   className="ml-2 spinner-border spinner-border-sm"
@@ -125,9 +130,8 @@ const Expandable = ({ entry, deletedRow }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI }) => {
+const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) => {
   const loadMoreButtonRef = React.useRef()
-  let { isFetching, lastFetchedData, data } = tableData
   const [deletedRows, setDeletedRows] = useState([])
   const columns = [
     {
@@ -175,38 +179,8 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
       key: 'cancel',
     },
   ]
-  useIntersectionObserver({
-    target: loadMoreButtonRef,
-    onIntersect: callOpenOrdersAPI,
-    enabled: lastFetchedData && !isFetching,
-    threshold: .1
-  })
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-
-  // const [renderData, setRenderData] = useState(tableData.data)
-  // useEffect(() => {
-  //   setRenderData(tableData.data)
-  // }, [tableData])
-
-  // useEffect(() => {
-  //   let filteredData = renderData.filter((order) => {
-  //     if (!isHideOtherPairs) {
-  //       return true
-  //     }
-  //     return order.symbol.replace('-', '') === selectedPair
-  //   })
-  //   setRenderData(filteredData)
-  // }, [isHideOtherPairs])
-
-  const deleteRow = (row) => {
-    setDeletedRows([...deletedRows, row])
-    // let arrData = [...renderData]
-    // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
-    // arrData.splice(dIndex, 1)
-    // setRenderData(arrData)
-  }
-  data = data.filter(item => deletedRows.findIndex(item1 => item.trade_id === item1.trade_id) < 0)
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
@@ -228,7 +202,7 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
         </thead>
         <tbody>
           {
-            data && data.map((item, index) => {
+            data.map((item, index) => {
               const orders = [item, ...item.orders]
               return (
                 <Expandable
@@ -239,22 +213,8 @@ const OpenOrdersTableBody = ({ tableData, isHideOtherPairs, callOpenOrdersAPI })
               )
             })
           }
-          <tr ref={loadMoreButtonRef}>
-            <td colSpan="12">
-              {isFetching ? (
-                <p className="pt-3">
-                  <span
-                    className="spinner-border text-primary spinner-border-sm"
-                  />
-                </p>
-              ) : null}
-            </td>
-          </tr>
         </tbody>
       </table>
-      <div className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'}`} style={{ maxWidth: '400px' }} role="alert">
-        <strong> <FontAwesomeIcon icon='exclamation-triangle' /> Nothing to show!</strong>
-      </div>
     </div>
   )
 }

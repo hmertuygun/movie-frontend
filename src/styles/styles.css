@@ -106,35 +106,8 @@ hr {
   vertical-align: middle;
 }
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
-/* @supports (-webkit-marquee-repetition: infinite) and (object-fit: fill) {
-  [id*='tradingview-widget-'] {
-    height: 65vh !important;
-  }
-}
-@media not all and (min-resolution:.001dpcm) { @media {
-  [id*='tradingview-widget-'] {
-    height: 65vh !important;
-  }
-}} */
-
 _::-webkit-full-page-media,
 _:future,
 :root [id*='tradingview-widget-'] {
   height: 65vh !important;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-button {
-  display: none !important;
-}
-::-webkit-scrollbar-track {
-  /* background-color: #eaeaea; */
-}
-::-webkit-scrollbar-thumb {
-  background-color: #bbb;
-  border-radius: 4px;
-  /* border-top: 2px solid #333;
-  border-bottom: 2px solid #333; */
 }

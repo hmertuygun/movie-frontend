@@ -1,6 +1,8 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { X } from 'react-feather'
-import { isMobile } from 'react-device-detect'
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { TabContext } from '../contexts/TabContext'
@@ -50,10 +52,11 @@ const TradePanel = () => (
 )
 
 const Trade = () => {
+  const { removeEntry } = useContext(TradeContext)
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol, setIsOrderPlaced } = useContext(SymbolContext)
+  const { selectedSymbol, setIsOrderPlaced, refreshBalance } = useContext(SymbolContext)
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
@@ -81,9 +84,18 @@ const Trade = () => {
       if (isBtnDisabled) return
       setBtnVisibility(true)
       setIsOrderPlaced(false)
-      await placeOrder({ ...state, ...activeExchange })
+      const { data, status } = await placeOrder({ ...state, ...activeExchange })
+      if (data?.status === "error") {
+        errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
+      }
+      else {
+        successNotification.open({ description: `Order Created!` })
+        const { entry } = state
+        if (entry.type !== "stop-limit" && entry.type !== "stop-market") {
+          refreshBalance()
+        }
+      }
       setIsModalVisible(false)
-      successNotification.open({ description: `Order Created!` })
       setIsTradePanelOpen(false)
       clear()
     } catch (error) {
@@ -107,21 +119,27 @@ const Trade = () => {
     <Fragment>
       <section>
         <div
-          style={{ position: 'absolute', top: '25px', right: '25px' }}
+          className="TradeView-Panel-Mobile-Close"
           onClick={() => setIsTradePanelOpen(false)}
         >
-          {isMobile && <X />}
+          <X />
         </div>
         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={0}>
           <div style={{ marginTop: '2rem' }}>
             <ButtonNavigator labelArray={['Buy', 'Sell']} index={0}>
-              <TabNavigator key="buy-tab-nav" labelArray={['Limit', 'Market', 'custom-tab']}>
+              <TabNavigator
+                key="buy-tab-nav"
+                labelArray={['Limit', 'Market', 'custom-tab']}
+              >
                 <BuyLimitForm />
                 <BuyMarketForm />
                 <BuyStopLimitForm />
                 <BuyStopMarketForm />
               </TabNavigator>
-              <TabNavigator key="sell-tab-nav" labelArray={['Limit', 'Market', 'custom-tab-sell']}>
+              <TabNavigator
+                key="sell-tab-nav"
+                labelArray={['Limit', 'Market', 'custom-tab-sell']}
+              >
                 <SellLimitForm />
                 <SellMarketForm />
                 <SellStopLimitForm />
@@ -149,7 +167,12 @@ const Trade = () => {
 
             {hasEntry && (
               <Fragment>
-                <Typography as="h3">2. Exits</Typography>
+                <div className="d-flex justify-content-between align-items-start">
+                  <Typography as="h3">2. Exits</Typography>
+                  <button type="button" class="btn btn-link py-0 px-0" onClick={() => removeEntry(0)}>
+                    <FontAwesomeIcon icon={faChevronLeft} /> Back
+                  </button>
+                </div>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
                   <TabNavigator labelArray={['Limit', 'Stop-market']}>
                     <ExitTarget />

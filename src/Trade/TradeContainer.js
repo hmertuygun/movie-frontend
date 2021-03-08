@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from 'react'
 import { Route } from 'react-router-dom'
-import { isMobile } from 'react-device-detect'
 import { useHistory } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive';
 
 import TradePanel from './TradePanel'
 import TradeChart from './TradeChart'
@@ -17,6 +17,7 @@ const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
   const { loadApiKeys } = useContext(UserContext)
   const history = useHistory()
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
 
   useEffect(() => {
     if (!loadApiKeys) {

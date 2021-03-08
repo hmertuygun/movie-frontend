@@ -49,8 +49,8 @@ const UserContextProvider = ({ children }) => {
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
       let getSavedKey = sessionStorage.getItem('exchangeKey')
-      if (getSavedKey) {
-        const ssData = JSON.parse(getSavedKey)
+      const ssData = JSON.parse(getSavedKey)
+      if (ssData && (apiKeys.findIndex(item => item.apiKeyName === ssData.apiKeyName && item.exchange === ssData.exchange) > -1)) {
         setActiveExchange({ ...ssData })
         setLoadApiKeys(true)
       }

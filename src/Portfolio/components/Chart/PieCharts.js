@@ -4,12 +4,13 @@ import { PortfolioContext } from '../../context/PortfolioContext'
 
 import './PieChart.css'
 
-const PieCharts = () => {
+const PieCharts = ({ isHideBalance }) => {
   const [legend, setLegend] = useState({})
   const [data, setData] = useState([])
   const [extData, setExtData] = useState(null)
-  const { chart } = useContext(PortfolioContext)
-  let colorArray = ['#E64D66', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+  const { chart, balance } = useContext(PortfolioContext)
+  
+  const colorArray = ['#E64D66', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
     '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
     '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
     '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
@@ -29,10 +30,41 @@ const PieCharts = () => {
       copyData.forEach((item, index, arr) => {
         pieColors[item[0]] = colorArray[index]
       })
-      setLegend(pieColors)
-      setData(copyData)
+      const filteredPieColors = Object.fromEntries(
+        Object.entries(pieColors).filter(([key, val]) => {
+          if (isHideBalance) {
+            const chartItemBalance = balance.find(
+              (balanceItem) => balanceItem.SYMBOL === key
+            )?.USD
+            return chartItemBalance >= 10
+          } else {
+            return true
+          }
+        })
+      )
+
+      const filteredData = copyData
+        .filter((item) => {
+          if (extData) {
+            return item[0] !== extData.item[0]
+          } else {
+            return true
+          }
+        })
+        .filter((item) => {
+          if (isHideBalance) {
+            const chartItemBalance = balance.find(
+              (balanceItem) => balanceItem.SYMBOL === item[0]
+            )?.USD
+            return chartItemBalance >= 10
+          } else {
+            return true
+          }
+        })
+      setLegend(filteredPieColors)
+      setData(filteredData)
     }
-  }, [chart])
+  }, [chart, balance, isHideBalance])
 
   const onLegendItemClick = (id) => {
     let copyData = [...data]
@@ -85,7 +117,7 @@ const PieCharts = () => {
         }
       },
     })
-  }, [data])
+  }, [data, legend])
 
   let rows = 5
   let pieKeys = []

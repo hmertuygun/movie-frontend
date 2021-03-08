@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import * as yup from 'yup'
 
+import { analytics } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { successNotification } from '../../components/Notifications'
 import {
@@ -177,6 +179,7 @@ const OnboardingModal = () => {
     } else {
       setStepNo(step + 1)
       successNotification.open({ description: 'API key added!' })
+      analytics.logEvent('api_keys_added')
     }
     setIsApiProc(false)
   }
@@ -212,6 +215,11 @@ const OnboardingModal = () => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title h6">Exchange Setup</h5>
+            <Link to="/logout">
+              <button type="button" class="btn btn-link py-0 px-0">
+                Logout
+              </button>
+            </Link>
           </div>
           <div className="modal-body">
             <div className="row ml-0 text-center mb-3">

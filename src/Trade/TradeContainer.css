@@ -49,3 +49,15 @@
 .TradeView-Container-Mobile {
   margin-bottom: 100px;
 }
+
+.TradeView-Panel-Mobile-Close {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+}
+
+@media (min-width: 992px) {
+  .TradeView-Panel-Mobile-Close {
+    display: none;
+  }
+}
