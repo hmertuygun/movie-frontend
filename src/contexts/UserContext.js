@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
-import { firebase } from '../firebase/firebase'
+import { firebase, messaging } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
@@ -37,6 +37,7 @@ const UserContextProvider = ({ children }) => {
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
+    FCMSubscription()
   }, [])
 
   async function getExchanges() {
@@ -89,6 +90,15 @@ const UserContextProvider = ({ children }) => {
     finally {
       setUserContextLoaded(true)
     }
+  }
+
+  async function FCMSubscription() {
+    const np = await Notification.requestPermission() // "granted", "denied", "default"
+    if (np === "denied") return
+    const token = await messaging.getToken() // device specific token to be stored in back-end
+    console.log(token)
+    messaging.onMessage((payload) => console.log('Message received. ', payload))
+    navigator.serviceWorker.addEventListener("message", (message) => console.log(message))
   }
 
   const getUserExchangesAfterFBInit = () => {
