@@ -77,7 +77,7 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
       <ul className="pagination">
         {currentPage === 1 ? (
           <li className="page-item disabled">
-            <span className="page-link">Previous</span>
+            <span className={`page-link ${styles['disabled-page-link']}`}>Previous</span>
           </li>
         ) : (
           <li className="page-item">
@@ -116,7 +116,7 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
         })}
         {currentPage > pageNumbers.length - 1 ? (
           <li className="page-item disabled">
-            <span className="page-link">Next</span>
+            <span className={`page-link ${styles['disabled-page-link']}`}>Next</span>
           </li>
         ) : (
           <li className="page-item">
