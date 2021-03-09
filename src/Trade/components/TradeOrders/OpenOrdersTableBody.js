@@ -191,7 +191,7 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className={tooltipStyles.ordersTable} style={{ minHeight: '100px', overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+    <div className={tooltipStyles.ordersTable} style={{ minHeight: '60px', overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
