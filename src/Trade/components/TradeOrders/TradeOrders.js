@@ -361,9 +361,7 @@ const TradeOrders = () => {
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
           }
-          {!openOrderData.length && !isOpenOrderFetching && <div className={`alert alert-secondary text-center mt-4`} style={{ width: '400px' }} role="alert">
-            <strong><FontAwesomeIcon icon='exclamation-triangle' /> You have no open orders.</strong>
-          </div>
+          {!openOrderData.length && !isOpenOrderFetching &&  <div style={{fontSize: '12px', color: 'rgb(174, 180, 188)'}}>You have no open orders.</div>
           }
           {!isOpenOrderFetching && openOrderError && <div className={`alert alert-danger text-center mt-4`} style={{ width: '400px' }} role="alert">
             <strong><FontAwesomeIcon icon='times-circle' /> Failed to get open orders.</strong>

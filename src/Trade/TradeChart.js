@@ -10,7 +10,11 @@ const TradeChart = () => {
     : Themes.LIGHT
 
   if (isLoading) {
-    return null
+    return (
+      <div className="spinner-border text-primary" role="status">
+        <span className="sr-only">Loading...</span>
+      </div>
+    )
   }
 
   return (

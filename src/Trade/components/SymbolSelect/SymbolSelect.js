@@ -19,7 +19,7 @@ const SymbolSelect = () => {
   const { activeExchange } = useContext(UserContext)
 
   if (isLoading) {
-    return <div>Loading exchanges..</div>
+    return null
   }
 
   const handleSearch = ({ state }) => {

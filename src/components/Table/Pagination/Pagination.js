@@ -75,17 +75,31 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
   return (
     <nav className={styles['navigation']}>
       <ul className="pagination">
-        <li className="page-item">
-          <Button
-            onClick={() => pagNextPrev('prev')}
-            plain
-            disabled={currentPage === 1 ? true : false}
-          >
-            Previous
-          </Button>
-        </li>
+        {currentPage === 1 ? (
+          <li className="page-item disabled">
+            <span className="page-link">Previous</span>
+          </li>
+        ) : (
+          <li className="page-item">
+            <Button onClick={() => pagNextPrev('prev')} pageLink>
+              Previous
+            </Button>
+          </li>
+        )}
         {pageNumbers.map((number) => {
-          return (
+          return currentPage === number ? (
+            <li className="page-item active" key={number}>
+              <span
+                className="page-link"
+                onClick={() => {
+                  paginate(number)
+                  setCurrentPage(number)
+                }}
+              >
+                {number}
+              </span>
+            </li>
+          ) : (
             <li className="page-item" key={number}>
               <NavLink
                 to="#"
@@ -100,15 +114,17 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
             </li>
           )
         })}
-        <li className="page-item">
-          <Button
-            onClick={() => pagNextPrev('next')}
-            plain
-            disabled={currentPage > pageNumbers.length - 1 ? true : false}
-          >
-            Next
-          </Button>
-        </li>
+        {currentPage > pageNumbers.length - 1 ? (
+          <li className="page-item disabled">
+            <span className="page-link">Next</span>
+          </li>
+        ) : (
+          <li className="page-item">
+            <Button onClick={() => pagNextPrev('next')} pageLink>
+              Next
+            </Button>
+          </li>
+        )}
       </ul>
     </nav>
   )

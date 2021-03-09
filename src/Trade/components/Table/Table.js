@@ -55,12 +55,12 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
         <h1>Trade Overview</h1>
         <div className={styles['overview-wrapper']}>
           <div className={styles['overview-container']}>
-            <div>
-              <span>Market:</span>
+            <div className="d-flex align-items-center">
+              <span className="mr-1">Market :</span>
               <span>{`${selectedSymbolDetail['base_asset']}-${selectedSymbolDetail['quote_asset']}`}</span>
             </div>
             <div>
-              <span>Total:</span>
+              <span>Total :</span>
               <span>
                 {total} {selectedSymbolDetail['quote_asset']}
               </span>

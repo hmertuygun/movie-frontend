@@ -126,7 +126,7 @@ const Trade = () => {
         </div>
         <TabNavigator labelArray={['Place Order', 'Full Trade']} index={0}>
           <div style={{ marginTop: '2rem' }}>
-            <ButtonNavigator labelArray={['Buy', 'Sell']} index={0}>
+            <ButtonNavigator labelArray={['BUY', 'SELL']} index={0}>
               <TabNavigator
                 key="buy-tab-nav"
                 labelArray={['Limit', 'Market', 'custom-tab']}
@@ -169,7 +169,7 @@ const Trade = () => {
               <Fragment>
                 <div className="d-flex justify-content-between align-items-start">
                   <Typography as="h3">2. Exits</Typography>
-                  <button type="button" className="btn btn-link py-0 px-0" onClick={() => removeEntry(0)}>
+                  <button type="button" className="px-0 py-0 btn btn-link" onClick={() => removeEntry(0)}>
                     <FontAwesomeIcon icon={faChevronLeft} /> Back
                   </button>
                 </div>

@@ -125,7 +125,7 @@ const OrderHistoryTableBody = ({ data, isFetching, lastFetchedData, isHideOtherP
                         className={
                           order.error ? tooltipStyles.customTooltip : ''
                         }
-                        style={{ fontSize: '0.875rem' }}
+                        style={{ fontSize: '12px' }}
                       >
                         {order.status}
                         <span className={tooltipStyles.tooltiptext}>
