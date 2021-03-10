@@ -272,6 +272,7 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  const devENV = process.NODE_ENV !== "production" ? true : false
   const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
   if (isLoggedIn) sessionStorage.setItem('remember', true)
@@ -303,7 +304,8 @@ const UserContextProvider = ({ children }) => {
         userData,
         setUserData,
         rememberCheck,
-        setRememberCheck
+        setRememberCheck,
+        devENV
       }}
     >
       {children}
