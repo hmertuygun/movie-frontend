@@ -1,43 +1,68 @@
 import React, { useState, useEffect, useContext, Component } from 'react'
 import binanceAPI from '../../../api/binanceAPI'
 import { UserContext } from '../../../contexts/UserContext'
+const getLocalLanguage = () => {
+  return navigator.language.split('-')[0] || 'en'
+}
+export default class TradingViewChart extends Component {
+  constructor({ symbol, theme }) {
+    super()
+    this.bfAPI = new binanceAPI({ debug: false })
+    this.widgetOptions = {
+      container_id: "chart_container",
+      datafeed: this.bfAPI,
+      library_path: "/scripts/charting_library/",
+      debug: false,
+      fullscreen: false,
+      language: getLocalLanguage(),
+      autosize: true,
+      interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
+      symbol: symbol || 'BINANCE:BTCUSDT',
+      disabled_features: ["header_symbol_search", "timeframes_toolbar"],
+    }
+    this.tradingViewWidget = null
+    this.chartObject = null
+    this.state = {
+      isChartReady: false,
+      symbol,
+      theme
+    }
+  }
 
-const TradingViewChart = ({ chartOptions }) => {
-  const [isChartReady, setIsChartReady] = useState(false)
-  const bAPI = new binanceAPI({ debug: false })
-  const getLocalLanguage = () => {
-    return navigator.language.split('-')[0] || 'en'
+  static getDerivedStateFromProps(newProps, prevState) {
+    if (prevState.symbol !== newProps.symbol || prevState.theme !== newProps.theme) return { ...prevState, ...newProps }
+    else return { ...prevState }
   }
-  const defaultChartOptions = {
-    locale: getLocalLanguage(),
-    debug: false,
-    fullscreen: false,
-    autosize: true,
-    interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
-    theme: 'light',
-    allow_symbol_change: false,
-    hide_side_toolbar: false
-  }
-  const widgetOptions = {
-    container_id: "chart_container",
-    datafeed: bAPI,
-    library_path: "/scripts/charting_library/",
-    ...defaultChartOptions,
-    ...chartOptions
-  }
-  const chartReady = () => {
-    const tradingViewWidget = (window.tvWidget = new window.TradingView.widget(widgetOptions))
-    tradingViewWidget.onChartReady(() => {
-      setIsChartReady(true)
+
+  chartReady = () => {
+    this.tradingViewWidget.onChartReady(() => {
+      this.setState({
+        isChartReady: true
+      })
     })
   }
 
-  useEffect(() => {
-    chartReady()
-  }, [])
+  changeSymbol = (newSymbol) => {
+    if (!newSymbol || !this.tradingViewWidget) return
+    const { interval, symbol } = this.tradingViewWidget.symbolInterval()
+    this.tradingViewWidget.setSymbol(newSymbol, interval, () => { })
+  }
 
-  return (
-    <div id='chart_container' style={{ width: "100%", height: "100%" }}></div>
-  )
+  componentDidMount() {
+    this.tradingViewWidget = (window.tvWidget = new window.TradingView.widget(this.widgetOptions))
+    this.chartReady()
+  }
+
+  componentDidUpdate() {
+    if (this.tradingViewWidget) {
+      const { symbol } = this.state
+      this.changeSymbol(symbol)
+    }
+  }
+
+  render() {
+    return (
+      <div id='chart_container' style={{ width: "100%", height: "100%" }}></div>
+    )
+  }
 }
-export default TradingViewChart
