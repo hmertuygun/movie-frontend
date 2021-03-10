@@ -210,7 +210,7 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
               return (
                 <Expandable
                   entry={orders}
-                  key={index}
+                  key={item.trade_id}
                   deletedRow={(row) => deleteRow(row)}
                 />
               )
