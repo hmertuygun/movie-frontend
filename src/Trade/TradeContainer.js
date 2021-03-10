@@ -9,7 +9,7 @@ import { SymbolContextProvider } from './context/SymbolContext'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
 
@@ -33,11 +33,11 @@ const TradeContainer = () => {
             <Route path="/trade/" component={TradePanel} />
           </section>
 
-          <section className="TradeChart-Container">
+          <section className="TradeChart-Container" style={{ display: "unset" }}>
             <section className="TradeView-Symbol">
               <SymbolSelect />
             </section>
-            <section className="TradeView-Chart">
+            <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: "62%", paddingBottom: "10px" }}>
               <TradeChart />
             </section>
             <section className="TradeOrders">
@@ -50,18 +50,18 @@ const TradeContainer = () => {
           <Route path="/trade/" component={TradePanel} />
         </section>
       ) : (
-            <section className="TradeChart-Container TradeChart-Container-Mobile">
-              <section className="TradeView-Symbol">
-                <SymbolSelect />
-              </section>
-              <section className="TradeView-Chart TradeView-Chart-Mobile">
-                <TradeChart />
-              </section>
-              <section className="TradeOrders">
-                <TradeOrders />
-              </section>
-            </section>
-          )}
+        <section className="TradeChart-Container TradeChart-Container-Mobile">
+          <section className="TradeView-Symbol">
+            <SymbolSelect />
+          </section>
+          <section className="TradeView-Chart TradeView-Chart-Mobile">
+            <TradeChart />
+          </section>
+          <section className="TradeOrders">
+            <TradeOrders />
+          </section>
+        </section>
+      )}
     </SymbolContextProvider>
   )
 }

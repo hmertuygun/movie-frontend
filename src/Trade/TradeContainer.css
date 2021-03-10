@@ -23,6 +23,7 @@
   flex-direction: column;
   min-height: 100vh;
   flex-grow: 2;
+  overflow-y: hidden;
 }
 
 .TradeView-Symbol {
@@ -34,13 +35,14 @@
 .TradeView-Chart {
   background: var(--trade-background);
   flex-grow: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+}
+.TradeView-Chart ::-webkit-resizer {
+  background-color: red;
 }
 
 .TradeOrders {
-  height: 40vh;
+  /* height: 40vh; */
+  height: 35%;
   background: var(--trade-background);
   margin-top: 4px;
 }
