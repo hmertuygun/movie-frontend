@@ -1,5 +1,5 @@
 import React from 'react'
-//import TradingViewWidget, { Themes } from 'react-tradingview-widget'
+import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 import { useSymbolContext } from './context/SymbolContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 const TradeChart = () => {
@@ -23,6 +23,13 @@ const TradeChart = () => {
     <TradingViewChart
       chartOptions={chartOptions}
     />
+    // <TradingViewWidget
+    //   symbol={selectedSymbol['value'] || ''}
+    //   theme={Themes.LIGHT}
+    //   hide_side_toolbar={false}
+    //   autosize={true}
+    //   allow_symbol_change={false}
+    // />
   )
 }
 

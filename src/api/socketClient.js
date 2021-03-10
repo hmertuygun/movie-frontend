@@ -43,6 +43,7 @@ export default class socketClient {
     }
 
     this._ws.onmessage = (msg) => {
+      if (!msg?.data) return
       let sData = JSON.parse(msg.data)
       if (sData && sData.k) {
         let { s, E } = sData
@@ -58,6 +59,7 @@ export default class socketClient {
           closeTime: T,
           openTime: t,
         }
+        console.log(this.streams[s])
         this.streams[s].data = lastSocketData
         this.streams[s].listener(lastSocketData)
       }
