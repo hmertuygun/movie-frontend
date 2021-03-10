@@ -37,7 +37,6 @@ const UserContextProvider = ({ children }) => {
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
-    FCMSubscription()
   }, [])
 
   async function getExchanges() {
@@ -107,6 +106,7 @@ const UserContextProvider = ({ children }) => {
         // User is signed in.
         setUserData(user)
         getExchanges()
+        FCMSubscription()
       }
       else {
         // User is signed out.
