@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import React, { useContext, useState, useEffect } from 'react'
+import { Switch, Route, Redirect, useHistory } from 'react-router-dom'
 import { UserContext } from './contexts/UserContext'
 
 import Login from './views/Auth/QuickLogin'
@@ -17,8 +17,16 @@ import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 import OnboardingModal from './Trade/OnboardingModal'
 import FullScreenLoader from './components/FullScreenLoader'
+import { PageView } from './Tracking'
 
 const Routes = () => {
+  const history = useHistory()
+
+  useEffect(() => {
+    PageView()
+    history.listen(PageView)
+  }, [history])
+
   const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
   return (
     <div>
