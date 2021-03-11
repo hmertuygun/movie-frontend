@@ -33,11 +33,12 @@ const TradeContainer = () => {
             <Route path="/trade/" component={TradePanel} />
           </section>
 
+          {/*  */}
           <section className="TradeChart-Container" style={{ display: "unset" }}>
             <section className="TradeView-Symbol">
               <SymbolSelect />
             </section>
-            <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: "62%", paddingBottom: "10px" }}>
+            <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: "60vh", paddingBottom: "10px" }}>
               <TradeChart />
             </section>
             <section className="TradeOrders">
