@@ -19,8 +19,7 @@ export default class TradingViewChart extends Component {
       interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       symbol: symbol || 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar"],
-      enabled_features: ["header_saveload"],
-      saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
+      saved_data: JSON.parse(localStorage.getItem('savedDrawing')),
     }
     this.tradingViewWidget = null
     this.chartObject = null
@@ -38,7 +37,7 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
-      this.chartObject = this.tradingViewWidget.chart()
+      this.chartObject = this.tradingViewWidget.activeChart()
       this.chartEvent("drawing_event")
     })
   }
@@ -46,7 +45,6 @@ export default class TradingViewChart extends Component {
   chartEvent = (event) => {
     if (!this.tradingViewWidget) return
     this.tradingViewWidget.subscribe(event, (obj) => {
-      console.log(event, obj)
       this.saveChartDrawing()
     })
   }
@@ -54,7 +52,7 @@ export default class TradingViewChart extends Component {
   saveChartDrawing = () => {
     if (!this.tradingViewWidget) return
     this.tradingViewWidget.save((obj) => {
-      console.log(obj)
+      console.log(`Chart Saved`)
       localStorage.setItem('savedDrawing', JSON.stringify(obj.charts[0]))
     })
   }
@@ -63,6 +61,22 @@ export default class TradingViewChart extends Component {
     if (!newSymbol || !this.tradingViewWidget) return
     const { interval, symbol } = this.tradingViewWidget.symbolInterval()
     this.tradingViewWidget.setSymbol(newSymbol, interval, () => { })
+  }
+
+  removeAllDrawings = () => {
+    if (!this.chartObject) return
+    this.chartObject.removeAllShapes()
+    localStorage.removeItem('savedDrawing')
+  }
+
+  addButtonToHeader = async () => {
+    if (!this.tradingViewWidget) return
+    await this.tradingViewWidget.headerReady()
+    var button = this.tradingViewWidget.createButton()
+    button.setAttribute('title', 'Clear all Drawings')
+    button.setAttribute('class', 'btn btn-primary')
+    button.addEventListener('click', this.removeAllDrawings);
+    button.textContent = 'Clear Drawings'
   }
 
   componentDidMount() {
