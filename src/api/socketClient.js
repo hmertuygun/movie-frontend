@@ -45,22 +45,27 @@ export default class socketClient {
     this._ws.onmessage = (msg) => {
       if (!msg?.data) return
       let sData = JSON.parse(msg.data)
-      if (sData && sData.k) {
-        let { s, E } = sData
-        let { o, h, l, v, c, T, t } = sData.k
-        // Update data
-        let lastSocketData = {
-          time: t,
-          close: parseFloat(c),
-          open: parseFloat(o),
-          high: parseFloat(h),
-          low: parseFloat(l),
-          volume: parseFloat(v),
-          closeTime: T,
-          openTime: t,
+      try {
+        if (sData && sData.k) {
+          let { s, E } = sData
+          let { o, h, l, v, c, T, t } = sData.k
+          // Update data
+          let lastSocketData = {
+            time: t,
+            close: parseFloat(c),
+            open: parseFloat(o),
+            high: parseFloat(h),
+            low: parseFloat(l),
+            volume: parseFloat(v),
+            closeTime: T,
+            openTime: t,
+          }
+          this.streams[s].data = lastSocketData
+          this.streams[s].listener(lastSocketData)
         }
-        this.streams[s].data = lastSocketData
-        this.streams[s].listener(lastSocketData)
+      }
+      catch (e) {
+        console.log(e)
       }
     }
   }

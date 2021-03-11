@@ -19,6 +19,8 @@ export default class TradingViewChart extends Component {
       interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       symbol: symbol || 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar"],
+      enabled_features: ["header_saveload"],
+      saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
     }
     this.tradingViewWidget = null
     this.chartObject = null
@@ -36,9 +38,24 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
-      this.setState({
-        isChartReady: true
-      })
+      this.chartObject = this.tradingViewWidget.chart()
+      this.chartEvent("drawing_event")
+    })
+  }
+
+  chartEvent = (event) => {
+    if (!this.tradingViewWidget) return
+    this.tradingViewWidget.subscribe(event, (obj) => {
+      console.log(event, obj)
+      this.saveChartDrawing()
+    })
+  }
+
+  saveChartDrawing = () => {
+    if (!this.tradingViewWidget) return
+    this.tradingViewWidget.save((obj) => {
+      console.log(obj)
+      localStorage.setItem('savedDrawing', JSON.stringify(obj.charts[0]))
     })
   }
 
@@ -54,10 +71,15 @@ export default class TradingViewChart extends Component {
   }
 
   componentDidUpdate() {
+    console.log(`In Update`)
     if (this.tradingViewWidget) {
       const { symbol } = this.state
       this.changeSymbol(symbol)
     }
+  }
+
+  componentWillUnmount() {
+
   }
 
   render() {
