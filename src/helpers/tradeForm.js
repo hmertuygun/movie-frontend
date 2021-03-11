@@ -23,6 +23,16 @@ export const addPrecisionToNumber = (value, precisionCount) => {
     return ''
   }
 }
+export const addPrecisionToNumberForSell = (value, precisionCount) => {
+  if (value) {
+    if (value === '0') return Number(value)
+    if (precisionCount > 8) return Number(value).toFixed(0)
+
+    return Number(value).toFixed(precisionCount)
+  } else {
+    return ''
+  }
+}
 
 export const removeTrailingZeroFromInput = (value) => Number(value).toString()
 
