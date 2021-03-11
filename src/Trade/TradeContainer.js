@@ -33,7 +33,6 @@ const TradeContainer = () => {
             <Route path="/trade/" component={TradePanel} />
           </section>
 
-          {/*  */}
           <section className="TradeChart-Container" style={{ display: "unset" }}>
             <section className="TradeView-Symbol">
               <SymbolSelect />

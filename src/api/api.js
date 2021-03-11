@@ -401,3 +401,27 @@ export async function disconnectTelegram() {
   })
   return disconnectTelegram.data
 }
+
+export async function getChartDrawing(name) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing?drawing_name=${name}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return chartDrawingData.data
+}
+
+export async function saveChartDrawing(name, image) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: {
+      name,
+      image
+    },
+  })
+  return chartDrawingData.data
+}

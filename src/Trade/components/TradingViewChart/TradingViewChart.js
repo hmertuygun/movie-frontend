@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext, Component } from 'react'
 import binanceAPI from '../../../api/binanceAPI'
+import { getChartDrawing, saveChartDrawing } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
 export default class TradingViewChart extends Component {
-  constructor({ symbol, theme }) {
+  constructor({ symbol, theme, email }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
     this.widgetOptions = {
@@ -19,14 +20,15 @@ export default class TradingViewChart extends Component {
       interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       symbol: symbol || 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar"],
-      saved_data: JSON.parse(localStorage.getItem('savedDrawing')),
+      // saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
     }
     this.tradingViewWidget = null
     this.chartObject = null
     this.state = {
       isChartReady: false,
       symbol,
-      theme
+      theme,
+      email
     }
   }
 
@@ -37,6 +39,7 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
+      this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
       this.chartEvent("drawing_event")
     })
@@ -45,15 +48,17 @@ export default class TradingViewChart extends Component {
   chartEvent = (event) => {
     if (!this.tradingViewWidget) return
     this.tradingViewWidget.subscribe(event, (obj) => {
-      this.saveChartDrawing()
+      this.saveChartDrawingToServer()
     })
   }
 
-  saveChartDrawing = () => {
+  saveChartDrawingToServer = () => {
     if (!this.tradingViewWidget) return
     this.tradingViewWidget.save((obj) => {
       console.log(`Chart Saved`)
-      localStorage.setItem('savedDrawing', JSON.stringify(obj.charts[0]))
+      const str = JSON.stringify(obj.charts[0])
+      saveChartDrawing(this.state.email, str)
+      // localStorage.setItem('savedDrawing', str)
     })
   }
 
@@ -79,6 +84,17 @@ export default class TradingViewChart extends Component {
     button.textContent = 'Clear Drawings'
   }
 
+  getChartDrawingFromServer = async () => {
+    if (!this.tradingViewWidget) return
+    try {
+      const dt = await getChartDrawing(this.state.email)
+      this.tradingViewWidget.load(JSON.parse(dt))
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
   componentDidMount() {
     this.tradingViewWidget = (window.tvWidget = new window.TradingView.widget(this.widgetOptions))
     this.chartReady()
@@ -93,7 +109,6 @@ export default class TradingViewChart extends Component {
   }
 
   componentWillUnmount() {
-
   }
 
   render() {
