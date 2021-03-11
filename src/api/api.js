@@ -412,6 +412,15 @@ export async function getChartDrawing(name) {
   return chartDrawingData.data
 }
 
+export async function deleteChartDrawing(name) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing/drawing_name=${name}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE'
+  })
+  return chartDrawingData.data
+}
 export async function saveChartDrawing(name, image) {
   const apiUrl = process.env.REACT_APP_API + `chart/drawing`
   const token = await firebase.auth().currentUser.getIdToken()

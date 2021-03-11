@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, Component } from 'react'
 import binanceAPI from '../../../api/binanceAPI'
-import { getChartDrawing, saveChartDrawing } from '../../../api/api'
+import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -46,19 +46,20 @@ export default class TradingViewChart extends Component {
   }
 
   chartEvent = (event) => {
-    if (!this.tradingViewWidget) return
+    //if (!this.tradingViewWidget) return
     this.tradingViewWidget.subscribe(event, (obj) => {
       this.saveChartDrawingToServer()
     })
   }
 
   saveChartDrawingToServer = () => {
-    if (!this.tradingViewWidget) return
+    //if (!this.tradingViewWidget) return
     this.tradingViewWidget.save((obj) => {
       console.log(`Chart Saved`)
+      // const str = JSON.stringify(obj.charts[0].panes[0])
       const str = JSON.stringify(obj.charts[0])
       saveChartDrawing(this.state.email, str)
-      // localStorage.setItem('savedDrawing', str)
+      //localStorage.setItem('savedDrawing', str)
     })
   }
 
@@ -85,10 +86,15 @@ export default class TradingViewChart extends Component {
   }
 
   getChartDrawingFromServer = async () => {
-    if (!this.tradingViewWidget) return
+    //if (!this.tradingViewWidget) return
     try {
-      const dt = await getChartDrawing(this.state.email)
-      this.tradingViewWidget.load(JSON.parse(dt))
+      const cData = await getChartDrawing(this.state.email)
+      const pData = JSON.parse(cData)
+      this.tradingViewWidget.load(pData)
+      // this.tradingViewWidget.save((obj) => {
+      //   const prep = { ...obj.charts[0], panes: [pData] }
+      //   this.tradingViewWidget.load(prep)
+      // })
     }
     catch (e) {
       console.log(e)
