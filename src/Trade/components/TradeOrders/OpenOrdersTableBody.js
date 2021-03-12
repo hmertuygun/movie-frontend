@@ -106,7 +106,10 @@ const Expandable = ({ entry, deletedRow }) => {
             </td>
             <td style={hideFirst}>{order.trigger}</td>
             <td style={hideFirst}>
-              <div className={tooltipStyles.customTooltip}>
+              <div
+                className={tooltipStyles.customTooltip}
+                style={{ fontSize: '12px' }}
+              >
                 {order.status}
                 <span className={tooltipStyles.tooltiptext}>
                   {order.status?.toLowerCase() === 'pending'
@@ -188,7 +191,7 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
+    <div className={tooltipStyles.ordersTable} style={{ minHeight: '60px', overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
@@ -207,7 +210,7 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
               return (
                 <Expandable
                   entry={orders}
-                  key={index}
+                  key={item.trade_id}
                   deletedRow={(row) => deleteRow(row)}
                 />
               )

@@ -9,7 +9,7 @@ const Settings = () => {
     <Fragment>
       <section
         className="pt-5 bg-section-secondary"
-        style={{ height: 'calc(100vh - 71px)' }}
+        style={{ minHeight: 'calc(100vh - 71px)' }}
       >
         <div className="container">
           <div className="row justify-content-center">

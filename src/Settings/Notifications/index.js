@@ -84,26 +84,23 @@ const Notifications = () => {
                   <OrderNotificationCard
                     title="Order triggered"
                     showImportantlabel={true}
-                    description="You will receive an alert when the specified price is reached and an
-                order is placed or failed."
+                    description="You will receive an alert when the specified price is reached and an order is placed or failed."
                     checkboxId="shop-notification-1"
                     enabled={
                       notificationChannels.notification_types.order_triggered
                     }
                   />
                   <OrderNotificationCard
-                    title="Trailing stop order moves"
-                    description="You will receive an alert when your trailing stop order's
-                  price is updated."
+                    title="Order fills"
+                    description="You will receive an alert when an order is filled in Full Trade."
                     checkboxId="shop-notification-2"
                     enabled={
                       notificationChannels.notification_types.order_fills
                     }
                   />
                   <OrderNotificationCard
-                    title="Stop-loss / take-profit adjustments"
-                    description="You will receive an alert when your SL/TP triggers and
-                  orders are adjusted."
+                    title="Stop-loss amount adjustments"
+                    description="You will receive an alert when your Full Trade TP triggers and SL order amount is adjusted."
                     checkboxId="shop-notification-3"
                     enabled={
                       notificationChannels.notification_types.stop_loss_adj

@@ -85,7 +85,8 @@
   z-index: 999999;
   flex-direction: column;
   width: max-content;
-  border-radius: 3px;
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 .market-items > .dropdown-btn,

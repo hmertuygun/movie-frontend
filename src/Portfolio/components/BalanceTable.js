@@ -14,7 +14,7 @@ const BalanceTable = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-  const ITEMS_PER_PAGE = 20
+  const ITEMS_PER_PAGE = 8
 
   const getTableData = useMemo(() => {
     if (tableData) {
@@ -46,19 +46,17 @@ const BalanceTable = () => {
   return (
     <>
       <div className="card card-fluid">
-        <div className="card-header pb-0">
-          <div className="d-flex justify-content-between align-items-center">
+        <div className="pb-0 card-header">
+          <div className="d-flex justify-content-between align-items-start">
             <div>
               <span className="h6">Balances</span>
             </div>
-            <div className="col-md-6 d-flex flex-row-reverse">
-              <Search
-                onSearch={(value) => {
-                  setSearch(value)
-                  setCurrentPage(1)
-                }}
-              />
-            </div>
+            <Search
+              onSearch={(value) => {
+                setSearch(value)
+                setCurrentPage(1)
+              }}
+            />
           </div>
         </div>
         <div className="card-body">
