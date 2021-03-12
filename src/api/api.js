@@ -401,3 +401,13 @@ export async function disconnectTelegram() {
   })
   return disconnectTelegram.data
 }
+
+export async function storeNotificationToken(fcmToken) {
+  const apiUrl = process.env.REACT_APP_API + `notification/token?notification_token=${fcmToken}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const notifData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return notifData.data
+}

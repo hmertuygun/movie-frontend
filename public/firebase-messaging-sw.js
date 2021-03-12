@@ -21,7 +21,7 @@ messaging.setBackgroundMessageHandler(function (payload) {
       }
     })
     .then(() => {
-      return registration.showNotification("my notification title");
+      return registration.showNotification("In-app notifications");
     });
   return promiseChain;
 });
