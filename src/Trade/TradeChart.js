@@ -8,7 +8,7 @@ const TradeChart = () => {
   return (
     <TradingViewChart
       email={userData?.email}
-      symbol={selectedSymbol['value']}
+      symbol={selectedSymbol['value'] || 'BINANCE:BTCUSDT'}
       theme={"light"}
     />
   )

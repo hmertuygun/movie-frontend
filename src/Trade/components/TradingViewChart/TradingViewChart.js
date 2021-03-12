@@ -18,15 +18,15 @@ export default class TradingViewChart extends Component {
       language: getLocalLanguage(),
       autosize: true,
       interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
-      symbol: symbol || 'BINANCE:BTCUSDT',
-      disabled_features: ["header_symbol_search", "timeframes_toolbar"],
+      symbol: 'BINANCE:BTCUSDT',
+      disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
       // saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
     }
     this.tradingViewWidget = null
     this.chartObject = null
     this.state = {
       isChartReady: false,
-      symbol,
+      symbol: 'BINANCE:BTCUSDT',
       theme,
       email
     }
@@ -59,14 +59,18 @@ export default class TradingViewChart extends Component {
       // const str = JSON.stringify(obj.charts[0].panes[0])
       const str = JSON.stringify(obj.charts[0])
       saveChartDrawing(this.state.email, str)
-      //localStorage.setItem('savedDrawing', str)
     })
   }
 
   changeSymbol = (newSymbol) => {
     if (!newSymbol || !this.tradingViewWidget) return
-    const { interval, symbol } = this.tradingViewWidget.symbolInterval()
-    this.tradingViewWidget.setSymbol(newSymbol, interval, () => { })
+    try {
+      const symbObj = this.tradingViewWidget.symbolInterval()
+      if (!symbObj) return
+      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+    }
+    catch (e) {
+    }
   }
 
   removeAllDrawings = () => {
@@ -107,11 +111,9 @@ export default class TradingViewChart extends Component {
   }
 
   componentDidUpdate() {
+    if (!this.tradingViewWidget) return
     console.log(`In Update`)
-    if (this.tradingViewWidget) {
-      const { symbol } = this.state
-      this.changeSymbol(symbol)
-    }
+    this.changeSymbol(this.state.symbol)
   }
 
   componentWillUnmount() {

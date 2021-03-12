@@ -11,7 +11,7 @@
   padding: 1rem;
   background: #ffffff;
   color: #000000;
-  min-height: 100vh;
+  /* min-height: calc(100vh - 71px); */
   flex-grow: 0;
   margin: 4px 4px 0 0;
 }
@@ -19,7 +19,7 @@
 .TradeChart-Container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   flex-grow: 2;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .TradeOrders {
-  height: 37vh;
+  height: 40vh;
   background: var(--trade-background);
   margin-top: 4px;
 }

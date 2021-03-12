@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react'
+import React, { useEffect, useContext, useState } from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive';
@@ -12,12 +12,28 @@ import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
-
+const registerResizeObserver = (cb, elem) => {
+  const resizeObserver = new ResizeObserver(cb)
+  resizeObserver.observe(elem)
+}
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
   const { loadApiKeys } = useContext(UserContext)
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
+  const totalHeight = window.innerHeight - 40 - 75
+  let chartHeight = window.innerHeight * .6 + "px"
+  const [orderHeight, setOrderHeight] = useState(totalHeight * .4 + "px")
+
+  useEffect(() => {
+    const elem = document.querySelector(".TradeView-Chart")
+    registerResizeObserver(resizeCallBack, elem)
+  }, [])
+
+  const resizeCallBack = (entries, observer) => {
+    const { borderBoxSize } = entries[0]
+    setOrderHeight((totalHeight - borderBoxSize[0].blockSize) + "px")
+  }
 
   useEffect(() => {
     if (!loadApiKeys) {
@@ -37,10 +53,10 @@ const TradeContainer = () => {
             <section className="TradeView-Symbol">
               <SymbolSelect />
             </section>
-            <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: "60vh", paddingBottom: "10px" }}>
+            <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: chartHeight, paddingBottom: "10px" }}>
               <TradeChart />
             </section>
-            <section className="TradeOrders">
+            <section className="TradeOrders" style={{ height: orderHeight }}>
               <TradeOrders />
             </section>
           </section>
