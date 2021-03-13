@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { errorNotification, successNotification, infoNotification } from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
+import { Event } from '../../Tracking'
 import ExchangeRow from './ExchangeRow'
 import {
   getUserExchanges,
@@ -48,6 +49,7 @@ const Exchanges = () => {
       setIsModalVisible(false)
       successNotification.open({ description: `API key added!` })
       analytics.logEvent('api_keys_added')
+      Event('user', 'api_keys_added', 'user')
     },
     onError: () => {
       errorNotification.open({ description: `Couldn't add API key. Please try again later!` })
