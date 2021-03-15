@@ -101,11 +101,11 @@ export default class socketClient {
   unsubscribeFromStream(subscriberUID) {
     try {
       let id = subscriberUID.split("_")[0]
-      if (!'paramStr' in this.streams[id]) return
+      if (!this.streams[id] || !this.streams[id].paramStr) return
       const obj = {
         method: "UNSUBSCRIBE",
         params: [
-          this.streams[id].paramStr
+          this.streams[id]?.paramStr
         ],
         id: 1
       }

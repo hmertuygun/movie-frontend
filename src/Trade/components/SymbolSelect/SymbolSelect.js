@@ -18,9 +18,9 @@ const SymbolSelect = () => {
 
   const { activeExchange } = useContext(UserContext)
 
-  if (isLoading) {
-    return null
-  }
+  // if (isLoading) {
+  //   return null
+  // }
 
   const handleSearch = ({ state }) => {
     const filteredData = Object.values(symbols).filter((search) =>
