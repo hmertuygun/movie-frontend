@@ -91,17 +91,23 @@ export default class socketClient {
   }
 
   unsubscribeFromStream(subscriberUID) {
-    let id = subscriberUID.split("_")[0]
-    const obj = {
-      method: "UNSUBSCRIBE",
-      params: [
-        this.streams[id].paramStr
-      ],
-      id: 1
+    try {
+      let id = subscriberUID.split("_")[0]
+      console.log(id)
+      const obj = {
+        method: "UNSUBSCRIBE",
+        params: [
+          this.streams[id].paramStr
+        ],
+        id: 1
+      }
+      delete this.streams[id]
+      if (this._ws.readyState === 1) {
+        this._ws.send(JSON.stringify(obj))
+      }
     }
-    delete this.streams[id]
-    if (this._ws.readyState === 1) {
-      this._ws.send(JSON.stringify(obj))
+    catch (e) {
+      console.log(e)
     }
   }
 }
