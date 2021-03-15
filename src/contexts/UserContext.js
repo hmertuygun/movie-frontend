@@ -11,6 +11,7 @@ import {
   storeNotificationToken
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
+import capitalize from '../helpers/capitalizeFirstLetter'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
@@ -102,15 +103,20 @@ const UserContextProvider = ({ children }) => {
       messaging.onMessage((payload) => {
         console.log(payload)
         const { data } = payload
+        let apiKey = data.message_3
+        apiKey = apiKey.split(":")[1]
         const description = (
           <>
             <p className='mb-0'>{data.message_1}</p>
             <p className='mb-0'>{data.message_2}</p>
+            <p className='mb-0'>API Key: {apiKey}</p>
           </>
         )
         successNotification.open({ message: data.title, duration: 3, description })
       })
-      navigator.serviceWorker.addEventListener("message", (message) => console.log(message))
+      navigator.serviceWorker.addEventListener("message", (message) => {
+        //console.log(message)
+      })
     }
     catch (e) {
       console.log(e)
