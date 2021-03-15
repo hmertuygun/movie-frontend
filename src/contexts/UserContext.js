@@ -114,7 +114,9 @@ const UserContextProvider = ({ children }) => {
         )
         successNotification.open({ message: data.title, duration: 3, description })
       })
-      navigator.serviceWorker.addEventListener("message", (message) => console.log(message))
+      navigator.serviceWorker.addEventListener("message", (message) => {
+        //console.log(message)
+      })
     }
     catch (e) {
       console.log(e)
