@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
-import { firebase } from '../firebase/firebase'
+import { firebase, messaging } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
@@ -7,8 +7,10 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
-  updateLastSelectedAPIKey
+  updateLastSelectedAPIKey,
+  storeNotificationToken
 } from '../api/api'
+import { successNotification } from '../components/Notifications'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
@@ -91,12 +93,37 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  async function FCMSubscription() {
+    try {
+      const np = await Notification.requestPermission() // "granted", "denied", "default"
+      if (np === "denied") return
+      const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
+      await storeNotificationToken(token)
+      messaging.onMessage((payload) => {
+        console.log(payload)
+        const { data } = payload
+        const description = (
+          <>
+            <p className='mb-0'>{data.message_1}</p>
+            <p className='mb-0'>{data.message_2}</p>
+          </>
+        )
+        successNotification.open({ message: data.title, duration: 3, description })
+      })
+      navigator.serviceWorker.addEventListener("message", (message) => console.log(message))
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
   const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
         setUserData(user)
         getExchanges()
+        FCMSubscription()
       }
       else {
         // User is signed out.

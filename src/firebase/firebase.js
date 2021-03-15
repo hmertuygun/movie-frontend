@@ -9,7 +9,7 @@ import 'firebase/analytics'
 // Add the Firebase products that you want to use
 import 'firebase/auth'
 import 'firebase/firestore'
-
+import 'firebase/messaging'
 // TODO: Replace the following with your app's Firebase project configuration
 // For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field
 
@@ -29,7 +29,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
 }
 const analytics = firebase.analytics()
-
+const messaging = firebase.messaging()
 const auth = firebase.auth()
 
-export { auth, analytics, firebase }
+export { auth, analytics, messaging, firebase }
