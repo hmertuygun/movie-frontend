@@ -47,6 +47,7 @@
 .TradeChart-Container-Mobile {
   padding: 0 4px 0 4px;
   width: 100%;
+  min-height: 100vh;
 }
 
 .TradeView-Container-Mobile {
