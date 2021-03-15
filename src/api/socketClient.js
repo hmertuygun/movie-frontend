@@ -29,7 +29,7 @@ export default class socketClient {
 
   _createSocket() {
     try {
-      this._ws = new WebSocket(`${this.baseUrl}`)
+      this._ws = new WebSocket('wss://stream.binance.com:9443/ws')
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
       }
@@ -101,6 +101,7 @@ export default class socketClient {
   unsubscribeFromStream(subscriberUID) {
     try {
       let id = subscriberUID.split("_")[0]
+      if (!'paramStr' in this.streams[id]) return
       const obj = {
         method: "UNSUBSCRIBE",
         params: [
