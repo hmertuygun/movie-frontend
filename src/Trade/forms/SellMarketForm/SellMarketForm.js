@@ -19,6 +19,7 @@ import {
 
 import {
   addPrecisionToNumber,
+  addPrecisionToNumberForSell,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
@@ -264,24 +265,29 @@ const SellMarketForm = () => {
 
   const priceAndProfitSync = (inputName, inputValue) => {
     if (inputName === 'quantity') {
+      const pq =
+        (inputValue * 100) /
+        roundNumbers(selectedBaseSymbolBalance, quantityPrecision)
+      const percentageQuantityWithPrecision =
+        pq > 100 ? 100 : parseFloat(pq.toFixed(0))
       setValues((values) => ({
         ...values,
-        quantityPercentage: roundNumbers(
-          (inputValue / selectedBaseSymbolBalance) * 100,
-          quantityPrecision
-        ),
+        quantityPercentage: percentageQuantityWithPrecision,
       }))
     }
 
     if (inputName === 'quantityPercentage') {
-      const theQuantity = (selectedBaseSymbolBalance * inputValue) / 100
+      const theQuantity =
+        (roundNumbers(selectedBaseSymbolBalance, quantityPrecision) *
+          inputValue) /
+        100
 
-      const derivedQuantity = addPrecisionToNumber(
+      const derivedQuantity = addPrecisionToNumberForSell(
         theQuantity,
         quantityPrecision
       )
 
-      const total = addPrecisionToNumber(
+      const total = addPrecisionToNumberForSell(
         derivedQuantity * Number(values.price),
         totalPrecision
       )
