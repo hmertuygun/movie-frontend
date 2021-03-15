@@ -24,7 +24,6 @@ export default class socketClient {
     }
     this.paramStr = ''
     this.lastSocketData = {}
-    this.listener = null
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
   }
 
@@ -87,7 +86,6 @@ export default class socketClient {
         listener: onRealtimeCallback
       }
     }
-    this.listener = onRealtimeCallback
   }
 
   unsubscribeFromStream(subscriberUID) {
