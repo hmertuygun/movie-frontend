@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { getLastPrice } from '../../../api/api'
+import { getLastPrice, binanceSymbolPrice } from '../../../api/api'
 
 import {
   addPrecisionToNumber,
@@ -306,29 +306,33 @@ const MarketForm = () => {
   }
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault()
-    const isFormValid = await validateForm()
-    if (isFormValid) {
-      setBtnProc(true)
-      setErrors({ price: '', quantity: '', total: '' })
-      const symbol = selectedSymbolDetail['symbolpair']
-      const response = await getLastPrice(symbol)
-      setSelectedSymbolLastPrice(response?.data?.last_price)
-      setBtnProc(false)
-      const {
-        quantityWithPrecision,
-      } = calculateTotalAndQuantityFromSliderPercentage(
-        values.quantityPercentage,
-        response?.data?.last_price
-      )
-      console.log(selectedSymbolBalance)
-      const payload = {
-        quantity: convertCommaNumberToDot(quantityWithPrecision),
-        balance: selectedSymbolBalance,
-        symbol,
-        type: 'market',
+    try {
+      evt.preventDefault()
+      const isFormValid = await validateForm()
+      if (isFormValid) {
+        setBtnProc(true)
+        setErrors({ price: '', quantity: '', total: '' })
+        const symbol = selectedSymbolDetail['symbolpair']
+        const response = await binanceSymbolPrice(symbol)
+        setSelectedSymbolLastPrice(response?.price)
+        setBtnProc(false)
+        const {
+          quantityWithPrecision,
+        } = calculateTotalAndQuantityFromSliderPercentage(
+          values.quantityPercentage,
+          response?.price
+        )
+        const payload = {
+          quantity: convertCommaNumberToDot(quantityWithPrecision),
+          balance: selectedSymbolBalance,
+          symbol,
+          type: 'market',
+        }
+        addMarketEntry(payload)
       }
-      addMarketEntry(payload)
+    }
+    catch (e) {
+      console.log(e)
     }
   }
 

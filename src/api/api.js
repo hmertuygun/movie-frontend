@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
+const binanceAPI = `https://api.binance.com/api/`
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -18,6 +19,13 @@ async function getHeaders(token) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
+}
+
+export async function binanceSymbolPrice(symbol) {
+  const result = await axios(`${binanceAPI}v3/ticker/price?symbol=${symbol}`, {
+    method: 'GET',
+  })
+  return result.data
 }
 
 export async function placeOrder({
