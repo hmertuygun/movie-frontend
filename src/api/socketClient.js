@@ -28,63 +28,73 @@ export default class socketClient {
   }
 
   _createSocket() {
-    this._ws = new WebSocket(`${this.baseUrl}`)
-    this._ws.onopen = (e) => {
-      console.info(`Binance WS Open`)
-    }
+    try {
+      this._ws = new WebSocket(`${this.baseUrl}`)
+      this._ws.onopen = (e) => {
+        console.info(`Binance WS Open`)
+      }
 
-    this._ws.onclose = () => {
-      console.warn('Binance WS Closed')
-    }
+      this._ws.onclose = () => {
+        console.warn('Binance WS Closed')
+      }
 
-    this._ws.onerror = (err) => {
-      console.warn('WS Error', err)
-    }
+      this._ws.onerror = (err) => {
+        console.warn('WS Error', err)
+      }
 
-    this._ws.onmessage = (msg) => {
-      if (!msg?.data) return
-      let sData = JSON.parse(msg.data)
-      try {
-        if (sData && sData.k) {
-          let { s, E } = sData
-          let { o, h, l, v, c, T, t } = sData.k
-          // Update data
-          let lastSocketData = {
-            time: t,
-            close: parseFloat(c),
-            open: parseFloat(o),
-            high: parseFloat(h),
-            low: parseFloat(l),
-            volume: parseFloat(v),
-            closeTime: T,
-            openTime: t,
+      this._ws.onmessage = (msg) => {
+        if (!msg?.data) return
+        let sData = JSON.parse(msg.data)
+        try {
+          if (sData && sData.k) {
+            let { s, E } = sData
+            let { o, h, l, v, c, T, t } = sData.k
+            // Update data
+            let lastSocketData = {
+              time: t,
+              close: parseFloat(c),
+              open: parseFloat(o),
+              high: parseFloat(h),
+              low: parseFloat(l),
+              volume: parseFloat(v),
+              closeTime: T,
+              openTime: t,
+            }
+            this.streams[s].data = lastSocketData
+            this.streams[s].listener(lastSocketData)
           }
-          this.streams[s].data = lastSocketData
-          this.streams[s].listener(lastSocketData)
+        }
+        catch (e) {
+          console.log(e)
         }
       }
-      catch (e) {
-        console.log(e)
-      }
+    }
+    catch (e) {
+      console.log(e)
     }
   }
 
   subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback, lastDailyBar) {
-    let paramStr = `${symbolInfo.name.toLowerCase()}@kline_${this.tvIntervals[resolution]}`
-    const obj = {
-      method: "SUBSCRIBE",
-      params: [
-        paramStr
-      ],
-      id: 1
-    }
-    if (this._ws.readyState === 1) {
-      this._ws.send(JSON.stringify(obj))
-      //register multiple streams in streams object
-      this.streams[symbolInfo.name] = {
-        paramStr,
-        listener: onRealtimeCallback
+    try {
+      let paramStr = `${symbolInfo.name.toLowerCase()}@kline_${this.tvIntervals[resolution]}`
+      const obj = {
+        method: "SUBSCRIBE",
+        params: [
+          paramStr
+        ],
+        id: 1
       }
+      if (this._ws.readyState === 1) {
+        this._ws.send(JSON.stringify(obj))
+        //register multiple streams in streams object
+        this.streams[symbolInfo.name] = {
+          paramStr,
+          listener: onRealtimeCallback
+        }
+      }
+    }
+    catch (e) {
+      console.log(e)
     }
   }
 
