@@ -1,29 +1,15 @@
-import React from 'react'
-import TradingViewWidget, { Themes } from 'react-tradingview-widget'
+import React, { useContext } from 'react'
 import { useSymbolContext } from './context/SymbolContext'
-
+import { UserContext } from '../contexts/UserContext'
+import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 const TradeChart = () => {
   const { selectedSymbol, isLoading } = useSymbolContext()
-
-  const theme = window.matchMedia('(prefers-color-scheme: light').matches
-    ? Themes.LIGHT
-    : Themes.LIGHT
-
-  if (isLoading) {
-    return (
-      <div className="spinner-border text-primary" role="status">
-        <span className="sr-only">Loading...</span>
-      </div>
-    )
-  }
-
+  const { userData } = useContext(UserContext)
   return (
-    <TradingViewWidget
-      symbol={selectedSymbol['value'] || ''}
-      theme={Themes.LIGHT}
-      hide_side_toolbar={false}
-      autosize={true}
-      allow_symbol_change={false}
+    <TradingViewChart
+      email={userData?.email}
+      symbol={selectedSymbol['value'] || 'BINANCE:BTCUSDT'}
+      theme={"light"}
     />
   )
 }
