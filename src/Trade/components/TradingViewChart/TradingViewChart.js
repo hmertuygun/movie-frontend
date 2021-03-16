@@ -20,7 +20,7 @@ export default class TradingViewChart extends Component {
       interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       symbol: 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
-      // saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
+      saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
     }
     this.tradingViewWidget = null
     this.chartObject = null
@@ -58,6 +58,7 @@ export default class TradingViewChart extends Component {
       console.log(`Chart Saved`)
       // const str = JSON.stringify(obj.charts[0].panes[0])
       const str = JSON.stringify(obj.charts[0])
+      localStorage.setItem('savedDrawing', str)
       saveChartDrawing(this.state.email, str)
     })
   }
@@ -92,9 +93,12 @@ export default class TradingViewChart extends Component {
   getChartDrawingFromServer = async () => {
     //if (!this.tradingViewWidget) return
     try {
+      const sD = localStorage.getItem('savedDrawing')
+      if (sD) return
       const cData = await getChartDrawing(this.state.email)
       const pData = JSON.parse(cData)
       this.tradingViewWidget.load(pData)
+      localStorage.setItem('savedDrawing', cData)
       // this.tradingViewWidget.save((obj) => {
       //   const prep = { ...obj.charts[0], panes: [pData] }
       //   this.tradingViewWidget.load(prep)
@@ -102,6 +106,11 @@ export default class TradingViewChart extends Component {
     }
     catch (e) {
       console.log(e)
+    }
+    finally {
+      // this.setState({
+      //   isChartReady: true
+      // })
     }
   }
 
@@ -120,8 +129,10 @@ export default class TradingViewChart extends Component {
   }
 
   render() {
+    const { isChartReady } = this.state
+    //display: isChartReady ? 'block' : 'none', 
     return (
-      <div id='chart_container' style={{ width: "100%", height: "100%" }}></div>
+      <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb' }}></div>
     )
   }
 }
