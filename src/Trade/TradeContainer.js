@@ -9,6 +9,7 @@ import { SymbolContextProvider } from './context/SymbolContext'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
+import MarketStatistics from './components/MarketStatistics'
 
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
@@ -36,6 +37,7 @@ const TradeContainer = () => {
           <section className="TradeChart-Container">
             <section className="TradeView-Symbol">
               <SymbolSelect />
+              <MarketStatistics />
             </section>
             <section className="TradeView-Chart">
               <TradeChart />
@@ -53,6 +55,7 @@ const TradeContainer = () => {
             <section className="TradeChart-Container TradeChart-Container-Mobile">
               <section className="TradeView-Symbol">
                 <SymbolSelect />
+                <MarketStatistics />
               </section>
               <section className="TradeView-Chart TradeView-Chart-Mobile">
                 <TradeChart />
