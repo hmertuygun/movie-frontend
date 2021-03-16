@@ -294,13 +294,13 @@ const TradeOrders = () => {
                 <input
                   type="checkbox"
                   className="custom-control-input"
-                  id="check-terms"
+                  id="check-terms-pairs"
                   checked={isHideOtherPairs}
                   onChange={(e) => setIsHideOtherPairs(e.target.checked)}
                 />
                 <label
                   className={`custom-control-label ${styles['customControlLabel']}`}
-                  htmlFor="check-terms"
+                  htmlFor="check-terms-pairs"
                   style={{ fontSize: '12px', verticalAlign: 'middle', lineHeight: 'unset' }}
                 >
                   Hide Other Pairs
@@ -361,7 +361,7 @@ const TradeOrders = () => {
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
           }
-          {!openOrderData.length && !isOpenOrderFetching &&  <div style={{fontSize: '12px', color: 'rgb(174, 180, 188)'}}>You have no open orders.</div>
+          {!openOrderData.length && !isOpenOrderFetching && <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>You have no open orders.</div>
           }
           {!isOpenOrderFetching && openOrderError && <div className={`alert alert-danger text-center mt-4`} style={{ width: '400px' }} role="alert">
             <strong><FontAwesomeIcon icon='times-circle' /> Failed to get open orders.</strong>
