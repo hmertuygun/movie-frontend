@@ -74,7 +74,7 @@ export default class binanceAPI {
 
     function pricescale(symbol) {
       for (let filter of symbol.filters) {
-        if (filter.filterType == 'PRICE_FILTER') {
+        if (filter.filterType === 'PRICE_FILTER') {
           return Math.round(1 / parseFloat(filter.tickSize))
         }
       }
@@ -82,7 +82,7 @@ export default class binanceAPI {
     }
 
     for (let symbol of this.symbols) {
-      if (symbol.symbol == symbolName) {
+      if (symbol.symbol === symbolName) {
         setTimeout(() => {
           onSymbolResolvedCallback({
             name: symbol.symbol,

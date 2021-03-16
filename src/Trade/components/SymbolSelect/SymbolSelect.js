@@ -46,6 +46,7 @@ const SymbolSelect = () => {
           searchable={false}
           onChange={(value) => setExchange(value[0])}
           values={[activeExchange]}
+          disabled={isLoading}
           backspaceDelete={false}
         />
       </div>
@@ -57,7 +58,7 @@ const SymbolSelect = () => {
           values={[selectedSymbol]}
           valueField="label"
           onChange={(value) => setSymbol(value[0])}
-          disabled={isLoadingBalance}
+          disabled={isLoadingBalance || isLoading}
           searchFn={handleSearch}
         />
       </div>
