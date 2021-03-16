@@ -38,14 +38,12 @@ const MarketForm = () => {
   const { addMarketEntry } = useContext(TradeContext)
 
   const [values, setValues] = useState({
-    price: '',
     quantity: '',
     total: '',
     quantityPercentage: '',
   })
 
   const [errors, setErrors] = useState({
-    price: '',
     quantity: '',
     total: '',
   })
@@ -125,8 +123,8 @@ const MarketForm = () => {
     return { quantityWithPrecision, percentageQuantityWithPrecision }
   }
 
-  const calculateTotalAndPercentageQuantity = (value, key) => {
-    const total = Number(value) * Number(values[key])
+  const calculateTotalAndPercentageQuantity = (value) => {
+    const total = Number(value) * selectedSymbolLastPrice
     const balance = selectedSymbolBalance
 
     const totalWithPrecision =
@@ -187,7 +185,7 @@ const MarketForm = () => {
       const {
         totalWithPrecision,
         percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value, 'price')
+      } = calculateTotalAndPercentageQuantity(target.value)
 
       setValues((values) => ({
         ...values,
