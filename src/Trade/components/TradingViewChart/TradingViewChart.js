@@ -12,7 +12,7 @@ export default class TradingViewChart extends Component {
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.bfAPI,
-      library_path: "/scripts/charting_library/",
+      library_path: `/scripts/charting_library/`, // ${window.location.origin}/scripts/charting_library/
       debug: false,
       fullscreen: false,
       language: getLocalLanguage(),
