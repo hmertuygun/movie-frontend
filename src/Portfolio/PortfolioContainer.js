@@ -3,12 +3,25 @@ import BalanceTable from './components/BalanceTable'
 import EstimateValue from './components/EstimateValue'
 import PortfolioDistribution from './components/PortfolioDistribution'
 import { PortfolioContext } from './context/PortfolioContext'
+import { UserContext } from '../contexts/UserContext'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
   const { loading, refreshData } = useContext(PortfolioContext)
+  const { activeExchange } = useContext(UserContext)
+
+  const onUnload = () => {
+    localStorage.removeItem(`portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`)
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', onUnload)
+    return () => {
+      window.removeEventListener('beforeunload', onUnload)
+    }
+  }, [])
 
   useEffect(() => {
     if (loading) {

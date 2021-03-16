@@ -10,6 +10,8 @@ import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import MarketStatistics from './components/MarketStatistics'
+
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
 const registerResizeObserver = (cb, elem) => {
@@ -52,6 +54,7 @@ const TradeContainer = () => {
           <section className="TradeChart-Container" style={{ display: "unset" }}>
             <section className="TradeView-Symbol">
               <SymbolSelect />
+              <MarketStatistics />
             </section>
             <section className="TradeView-Chart" style={{ resize: "vertical", overflow: "auto", height: chartHeight, paddingBottom: "10px" }}>
               <TradeChart />
@@ -69,6 +72,7 @@ const TradeContainer = () => {
         <section className="TradeChart-Container TradeChart-Container-Mobile">
           <section className="TradeView-Symbol">
             <SymbolSelect />
+            <MarketStatistics />
           </section>
           <section className="TradeView-Chart TradeView-Chart-Mobile">
             <TradeChart />

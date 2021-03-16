@@ -24,6 +24,10 @@
 }
 
 .TradeView-Symbol {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   background: var(--trade-background);
   flex-grow: 0;
   margin-top: 4px;

@@ -29,52 +29,25 @@ const PortfolioCTXProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
-  const { activeExchange, setActiveExchange } = useContext(UserContext)
+  const { activeExchange } = useContext(UserContext)
 
   const fetchData = useCallback(async () => {
-    setLoading(true)
-    const cacheTicker = localStorage.getItem(
-      `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-    )
+    if (user) {
+      setLoading(true)
+      const cacheTicker = localStorage.getItem(
+        `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+      )
 
-    if (cacheTicker) {
-      const parsedTicker = JSON.parse(cacheTicker)
-      setTicker(parsedTicker)
-      setBalance(parsedTicker.BottomTable)
-      setChart(parsedTicker.Distribution)
-      setEstimate(parsedTicker.EstValue)
-      setLoading(false)
-    }
-
-    try {
-      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolioFS?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
-
-      if (user != null) {
-        const currentUser = await firebase.auth().currentUser
-        const token = await currentUser.getIdToken()
-
-        const exchanges = await axios(apiUrl, {
-          headers: await getHeaders(token),
-          method: 'GET',
-        }).catch((err) => err?.response)
-        if (exchanges.status === 404) {
-          refreshData()
-          return
-        }
-        localStorage.setItem(
-          `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
-          JSON.stringify(exchanges.data)
-        )
-        setTicker(exchanges.data)
-        setBalance(exchanges.data.BottomTable)
-        setChart(exchanges.data.Distribution)
-        setEstimate(exchanges.data.EstValue)
+      if (cacheTicker) {
+        const parsedTicker = JSON.parse(cacheTicker)
+        setTicker(parsedTicker)
+        setBalance(parsedTicker.BottomTable)
+        setChart(parsedTicker.Distribution)
+        setEstimate(parsedTicker.EstValue)
         setLoading(false)
+      } else {
+        refreshData()
       }
-    } catch (error) {
-      console.log(error)
-      setLoading(false)
-      setErrorLoading(true)
     }
   }, [user])
 
