@@ -278,14 +278,14 @@ const TradeOrders = () => {
               }
               onClick={() => setIsOpenOrders(true)}
             >
-              Open Orders({openOrderData.length})
+              Open Orders
             </span>
             <span
               className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
                 } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
-              Order History({orderHistoryData.length})
+              Order History
             </span>
           </div>
           <div className="col-auto">
