@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom'
+import { useMediaQuery } from 'react-responsive';
 import { UserContext } from './contexts/UserContext'
 
 import Login from './views/Auth/QuickLogin'
@@ -21,6 +22,7 @@ import { PageView } from './Tracking'
 
 const Routes = () => {
   const history = useHistory()
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
 
   useEffect(() => {
     PageView()
@@ -29,7 +31,7 @@ const Routes = () => {
 
   const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
   return (
-    <div>
+    <div style={{paddingBottom: isMobile? '80px': ''}}>
       <FullScreenLoader />
       <Switch>
         {isLoggedIn && userContextLoaded && (

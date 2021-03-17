@@ -1,16 +1,16 @@
 .SymbolSelect-Container {
-  display: flex;
-  flex-direction: column;
-  position: relative;
   width: 100%;
+  display: grid;
+  grid-template-columns: 55% 45%;
 }
 
 @media (min-width: 767.98px) {
   .SymbolSelect-Container {
-     flex-direction: row; 
-     width: 600px;
-     align-items: flex-start;
-     justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+    width: 600px;
+    align-items: flex-start;
+    justify-content: space-between;
   }
 }
 
