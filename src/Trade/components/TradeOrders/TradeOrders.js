@@ -278,14 +278,14 @@ const TradeOrders = () => {
               }
               onClick={() => setIsOpenOrders(true)}
             >
-              Open Orders({openOrderData.length})
+              Open Orders
             </span>
             <span
               className={`${!isOpenOrders ? 'h6 action-item' : 'action-item'
                 } pl-4`}
               onClick={() => setIsOpenOrders(false)}
             >
-              Order History({orderHistoryData.length})
+              Order History
             </span>
           </div>
           <div className="col-auto">
@@ -361,7 +361,7 @@ const TradeOrders = () => {
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
           }
-          {!openOrderData.length && !isOpenOrderFetching &&  <div style={{fontSize: '12px', color: 'rgb(174, 180, 188)'}}>You have no open orders.</div>
+          {!openOrderData.length && !isOpenOrderFetching && <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>You have no open orders.</div>
           }
           {!isOpenOrderFetching && openOrderError && <div className={`alert alert-danger text-center mt-4`} style={{ width: '400px' }} role="alert">
             <strong><FontAwesomeIcon icon='times-circle' /> Failed to get open orders.</strong>
