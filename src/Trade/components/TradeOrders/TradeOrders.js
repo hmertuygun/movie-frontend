@@ -294,13 +294,13 @@ const TradeOrders = () => {
                 <input
                   type="checkbox"
                   className="custom-control-input"
-                  id="check-terms"
+                  id="check-terms-pairs"
                   checked={isHideOtherPairs}
                   onChange={(e) => setIsHideOtherPairs(e.target.checked)}
                 />
                 <label
                   className={`custom-control-label ${styles['customControlLabel']}`}
-                  htmlFor="check-terms"
+                  htmlFor="check-terms-pairs"
                   style={{ fontSize: '12px', verticalAlign: 'middle', lineHeight: 'unset' }}
                 >
                   Hide Other Pairs

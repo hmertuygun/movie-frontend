@@ -19,6 +19,7 @@ import Portfolio from './views/PortfolioView'
 import OnboardingModal from './Trade/OnboardingModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
+import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 const Routes = () => {
   const history = useHistory()
@@ -30,6 +31,7 @@ const Routes = () => {
   }, [history])
 
   const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
+
   return (
     <div style={{paddingBottom: isMobile? '80px': ''}}>
       <FullScreenLoader />
@@ -45,13 +47,13 @@ const Routes = () => {
         )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
         {isLoggedIn && userContextLoaded && (
-          <Switch>
-            <Route path="/trade" component={TradeView} />
+          <CacheSwitch>
+            <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
             <Route path="/positions" component={Position} />
             <Redirect to="/trade" />
-          </Switch>
+          </CacheSwitch>
         )}
         <Route path="/login/verify2fa" component={LoginVerify2FA} />
         <Route path="/login" component={Login} />

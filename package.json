@@ -29,6 +29,7 @@
     "react-moment": "^1.1.1",
     "react-query": "^3.2.0",
     "react-responsive": "^8.2.0",
+    "react-router-cache-route": "^1.11.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "react-select": "^4.1.0",
