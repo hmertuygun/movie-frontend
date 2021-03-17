@@ -29,6 +29,7 @@ const TradeContainer = () => {
 
   useEffect(() => {
     const elem = document.querySelector(".TradeView-Chart")
+    if (!elem) return
     registerResizeObserver(resizeCallBack, elem)
   }, [])
 
