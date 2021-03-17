@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/logout", "destination": "/index.html" },
+    { "source": "/trade", "destination": "/index.html" },
+    { "source": "/settings", "destination": "/index.html" },
+    { "source": "/portfolio", "destination": "/index.html" },
+    { "source": "/positions", "destination": "/index.html" },
+    { "source": "/login/**", "destination": "/index.html" },
+    { "source": "/recover-password", "destination": "/index.html" },
+    { "source": "/new-password", "destination": "/index.html" },
+    { "source": "/action", "destination": "/index.html" },
+    { "source": "/register/**", "destination": "/index.html" }
+  ]
+}
