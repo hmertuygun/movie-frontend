@@ -73,7 +73,7 @@ const OrderHistoryTableBody = ({ data, isFetching, lastFetchedData, isHideOtherP
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'hidden', marginRight: '-12px', paddingBottom: '12px' }}>
+    <div className="ordersTable" style={{ overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'auto', marginRight: '-12px', paddingBottom: '12px' }}>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
