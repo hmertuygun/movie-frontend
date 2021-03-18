@@ -30,24 +30,19 @@ const TradeContainer = () => {
   let chartHeight = window.innerHeight * .6 + "px"
   const [orderHeight, setOrderHeight] = useState(totalHeight * .4 + "px")
   const [snapShotCount, setSnapShotCount] = useState(0)
+  const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
 
   useEffect(() => {
     callObserver()
     const fBNotice = db.collection("platform_messages")
-      .where("type", "in", ['warning', 'error', 'info'])
+      .where("type", "in", ['warning', 'danger', 'info'])
       .onSnapshot((doc) => {
-        setSnapShotCount(prevValue => prevValue + 1)
-        if (snapShotCount <= 1) return
-        // doc.forEach(item => {
-        //   console.log(item.data())
-        // })
         doc.docChanges().forEach(item => {
-          console.log(item.type) // added , removed, modified
-          setNotices(prevState => [...prevState, item.doc.data()])
+          console.log(item.type, item.doc.data())
+          setFBNotice({ ...item.doc.data(), action: item.type }) // action = added , removed, modified
         })
-      }, (err) => {
-        console.log(err)
+        setSnapShotCount(prevValue => prevValue + 1)
       })
     return () => {
       fBNotice()
@@ -55,7 +50,9 @@ const TradeContainer = () => {
   }, [])
 
   useEffect(() => {
-    console.log(snapShotCount)
+    if (snapShotCount > 1 && fbNotice && fbNotice.action === "added") {
+      setNotices(prevState => [...prevState, fbNotice])
+    }
   }, [snapShotCount])
 
   useEffect(() => {
@@ -75,6 +72,12 @@ const TradeContainer = () => {
     setOrderHeight((totalHeight - borderBoxSize[0].blockSize) + "px")
   }
 
+  const removeNotice = (index) => {
+    let temp = [...notices]
+    temp.splice(index, 1)
+    setNotices([...temp])
+  }
+
   return (
     <SymbolContextProvider>
       {!isMobile ? (
@@ -84,6 +87,16 @@ const TradeContainer = () => {
           </section>
 
           <section className="TradeChart-Container" style={{ display: "unset" }}>
+            <div className={`mx-5 ${notices.length ? 'alert-messages mt-2' : ''}`}>
+              {notices.map((item, index) => (
+                <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
+                  {item.message}
+                  <button type="button" className="close" onClick={() => removeNotice(index)}>
+                    <span>&times;</span>
+                  </button>
+                </div>
+              ))}
+            </div>
             <section className="TradeView-Symbol">
               <SymbolSelect />
               <MarketStatistics />
