@@ -1,8 +1,8 @@
 import React, { useEffect, useContext, useState } from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive';
-
+import { useMediaQuery } from 'react-responsive'
+import { firebase } from '../firebase/firebase'
 import TradePanel from './TradePanel'
 import TradeChart from './TradeChart'
 import { SymbolContextProvider } from './context/SymbolContext'
@@ -11,38 +11,69 @@ import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MarketStatistics from './components/MarketStatistics'
-
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
+
+const db = firebase.firestore()
+
 const registerResizeObserver = (cb, elem) => {
   const resizeObserver = new ResizeObserver(cb)
   resizeObserver.observe(elem)
 }
+
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
   const { loadApiKeys } = useContext(UserContext)
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
-  const totalHeight = window.innerHeight - 40 - 75
+  const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = window.innerHeight * .6 + "px"
   const [orderHeight, setOrderHeight] = useState(totalHeight * .4 + "px")
+  const [snapShotCount, setSnapShotCount] = useState(0)
+  const [notices, setNotices] = useState([])
 
   useEffect(() => {
-    const elem = document.querySelector(".TradeView-Chart")
-    if (!elem) return
-    registerResizeObserver(resizeCallBack, elem)
+    callObserver()
+    const fBNotice = db.collection("platform_messages")
+      .where("type", "in", ['warning', 'error', 'info'])
+      .onSnapshot((doc) => {
+        setSnapShotCount(prevValue => prevValue + 1)
+        if (snapShotCount <= 1) return
+        // doc.forEach(item => {
+        //   console.log(item.data())
+        // })
+        doc.docChanges().forEach(item => {
+          console.log(item.type) // added , removed, modified
+          setNotices(prevState => [...prevState, item.doc.data()])
+        })
+      }, (err) => {
+        console.log(err)
+      })
+    return () => {
+      fBNotice()
+    }
   }, [])
 
-  const resizeCallBack = (entries, observer) => {
-    const { borderBoxSize } = entries[0]
-    setOrderHeight((totalHeight - borderBoxSize[0].blockSize) + "px")
-  }
+  useEffect(() => {
+    console.log(snapShotCount)
+  }, [snapShotCount])
 
   useEffect(() => {
     if (!loadApiKeys) {
       history.push('/settings')
     }
   }, [loadApiKeys, history])
+
+  const callObserver = () => {
+    const elem = document.querySelector(".TradeView-Chart")
+    if (!elem) return
+    registerResizeObserver(resizeCallBack, elem)
+  }
+
+  const resizeCallBack = (entries, observer) => {
+    const { borderBoxSize } = entries[0]
+    setOrderHeight((totalHeight - borderBoxSize[0].blockSize) + "px")
+  }
 
   return (
     <SymbolContextProvider>
