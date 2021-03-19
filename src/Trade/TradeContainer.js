@@ -39,7 +39,6 @@ const TradeContainer = () => {
       .where("type", "in", ['warning', 'danger', 'info'])
       .onSnapshot((doc) => {
         doc.docChanges().forEach(item => {
-          console.log(item.type, item.doc.data())
           setFBNotice({ ...item.doc.data(), action: item.type }) // action = added , removed, modified
         })
         setSnapShotCount(prevValue => prevValue + 1)
@@ -90,7 +89,7 @@ const TradeContainer = () => {
             <div className={`mx-5 ${notices.length ? 'alert-messages mt-2' : ''}`}>
               {notices.map((item, index) => (
                 <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
-                  {item.message}
+                  <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
                   <button type="button" className="close" onClick={() => removeNotice(index)}>
                     <span>&times;</span>
                   </button>
@@ -115,6 +114,16 @@ const TradeContainer = () => {
         </section>
       ) : (
         <section className="TradeChart-Container TradeChart-Container-Mobile">
+          <div className={`mx-5 ${notices.length ? 'alert-messages mt-2' : ''}`}>
+            {notices.map((item, index) => (
+              <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
+                <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
+                <button type="button" className="close" onClick={() => removeNotice(index)}>
+                  <span>&times;</span>
+                </button>
+              </div>
+            ))}
+          </div>
           <section className="TradeView-Symbol">
             <SymbolSelect />
             <MarketStatistics />
