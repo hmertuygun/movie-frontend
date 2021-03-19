@@ -41,8 +41,8 @@
     "yup": "^0.32.8"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "node swEnvBuild.js && react-scripts start",
+    "build": "node swEnvBuild.js && react-scripts build",
     "test": "react-scripts test",
     "test:e2e": "testcafe chrome:headless",
     "eject": "react-scripts eject",
