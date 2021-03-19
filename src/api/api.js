@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
+const binanceAPI = `https://api.binance.com/api/`
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -18,6 +19,13 @@ async function getHeaders(token) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
+}
+
+export async function binanceSymbolPrice(symbol) {
+  const result = await axios(`${binanceAPI}v3/ticker/price?symbol=${symbol}`, {
+    method: 'GET',
+  })
+  return result.data
 }
 
 export async function placeOrder({
@@ -345,4 +353,101 @@ export async function getOrdersHistory({
     method: 'GET',
   })
   return openOrders.data
+}
+
+export async function loadNotificationChannels() {
+  const apiUrl = process.env.REACT_APP_API + 'loadNotificationChannels'
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const loadNotificationChannels = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return loadNotificationChannels.data
+}
+
+export async function setTelegramNotification(enable) {
+  const apiUrl = process.env.REACT_APP_API + `setTelegramNotification?enable=${enable}`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const setTelegramNotification = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return setTelegramNotification
+}
+
+export async function setEmailNotification(enable) {
+  const apiUrl = process.env.REACT_APP_API + `setEmailNotification?enable=${enable}`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const setEmailNotification = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return setEmailNotification
+}
+
+export async function connectTelegramLoadKey() {
+  const apiUrl = process.env.REACT_APP_API + `connectTelegramLoadKey`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const connectTelegramLoadKey = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return connectTelegramLoadKey.data
+}
+
+export async function disconnectTelegram() {
+  const apiUrl = process.env.REACT_APP_API + `disconnectTelegram`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const disconnectTelegram = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return disconnectTelegram.data
+}
+
+export async function getChartDrawing(name) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing?drawing_name=${name}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return chartDrawingData.data
+}
+
+export async function deleteChartDrawing(name) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing/drawing_name=${name}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE'
+  })
+  return chartDrawingData.data
+}
+export async function saveChartDrawing(name, image) {
+  const apiUrl = process.env.REACT_APP_API + `chart/drawing`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const chartDrawingData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: {
+      name,
+      image
+    },
+  })
+  return chartDrawingData.data
+}
+export async function storeNotificationToken(fcmToken) {
+  const apiUrl = process.env.REACT_APP_API + `notification/token?notification_token=${fcmToken}`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const notifData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return notifData.data
 }

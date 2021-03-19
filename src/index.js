@@ -6,6 +6,18 @@ import './styles/theme.css'
 import './styles/styles.css'
 import './styles/quick-website.css'
 
+if ("serviceWorker" in navigator) {
+  const swPath = process.env.NODE_ENV !== "production" ? "./firebase/dev/" : "./firebase/prod/"
+  navigator.serviceWorker
+    .register(`./firebase-messaging-sw.js`)
+    .then(function (registration) {
+      console.log("Registration successful, scope is:", registration.scope);
+    })
+    .catch(function (err) {
+      console.log("Service worker registration failed, error:", err);
+    });
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

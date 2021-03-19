@@ -513,7 +513,7 @@ const ExitTarget = () => {
           variant="buy"
           type="submit"
         >
-          Add Target
+          Add Target {(state?.targets?.length || 0) + 1}
         </Button>
       </form>
     </section>

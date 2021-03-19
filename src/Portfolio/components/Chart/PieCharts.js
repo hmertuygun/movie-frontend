@@ -9,7 +9,7 @@ const PieCharts = ({ isHideBalance }) => {
   const [data, setData] = useState([])
   const [extData, setExtData] = useState(null)
   const { chart, balance } = useContext(PortfolioContext)
-  
+
   const colorArray = ['#E64D66', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
     '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
     '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
@@ -92,8 +92,8 @@ const PieCharts = ({ isHideBalance }) => {
     c3.generate({
       bindto: '#data',
       size: {
-        height: 160,
-        width: 160,
+        height: 180,
+        width: 180,
       },
       data: {
         columns: data || [],

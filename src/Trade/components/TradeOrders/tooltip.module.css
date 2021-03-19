@@ -1,3 +1,15 @@
+.ordersTable tr:first-child .tooltiptext{
+  top: 150%;
+  bottom: unset;
+}
+
+.ordersTable tr:first-child .tooltiptext::after{
+  bottom: 100%;
+  top: unset;
+  border-top-color: unset;
+  border-bottom-color: #1f2d3d;
+}
+
 .customTooltip {
   position: relative;
   display: inline-block;

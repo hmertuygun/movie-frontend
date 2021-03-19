@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
-import { firebase } from '../firebase/firebase'
+import { firebase, messaging } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
@@ -7,15 +7,20 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
-  updateLastSelectedAPIKey
+  updateLastSelectedAPIKey,
+  storeNotificationToken
 } from '../api/api'
+import { successNotification } from '../components/Notifications'
+import capitalize from '../helpers/capitalizeFirstLetter'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
+  const localStorageRemember = localStorage.getItem('remember')
+  const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   let initialState = {}
-  if (localStorageUser !== 'undefined') {
+  if (localStorageUser !== 'undefined' && (sessionStorageRemember === "true" || localStorageRemember === "true")) {
     initialState = {
       user: JSON.parse(localStorageUser),
       ...JSON.parse(localStorage2faUserDetails),
@@ -31,10 +36,11 @@ const UserContextProvider = ({ children }) => {
   const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
+  const [rememberCheck, setRememberCheck] = useState(false)
 
-  // @ TODO
-  // Handle error
-  // Unify responses
+  useEffect(() => {
+    getUserExchangesAfterFBInit()
+  }, [])
 
   async function getExchanges() {
     try {
@@ -46,8 +52,8 @@ const UserContextProvider = ({ children }) => {
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
       let getSavedKey = sessionStorage.getItem('exchangeKey')
-      if (getSavedKey) {
-        const ssData = JSON.parse(getSavedKey)
+      const ssData = JSON.parse(getSavedKey)
+      if (ssData && (apiKeys.findIndex(item => item.apiKeyName === ssData.apiKeyName && item.exchange === ssData.exchange) > -1)) {
         setActiveExchange({ ...ssData })
         setLoadApiKeys(true)
       }
@@ -88,22 +94,48 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  async function FCMSubscription() {
+    try {
+      const np = await Notification.requestPermission() // "granted", "denied", "default"
+      if (np === "denied") return
+      const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
+      await storeNotificationToken(token)
+      messaging.onMessage((payload) => {
+        console.log(payload)
+        const { data } = payload
+        let apiKey = data.message_3
+        apiKey = apiKey.split(":")[1]
+        const description = (
+          <>
+            <p className='mb-0'>{data.message_1}</p>
+            <p className='mb-0'>{data.message_2}</p>
+            <p className='mb-0'>API Key: {apiKey}</p>
+          </>
+        )
+        successNotification.open({ message: data.title, duration: 3, description })
+      })
+      navigator.serviceWorker.addEventListener("message", (message) => {
+        //console.log(message)
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
   const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
         setUserData(user)
         getExchanges()
+        FCMSubscription()
       }
       else {
         // User is signed out.
       }
     })
   }
-
-  useEffect(() => {
-    getUserExchangesAfterFBInit()
-  }, [])
 
   async function login(email, password) {
     const signedin = await firebase
@@ -162,6 +194,7 @@ const UserContextProvider = ({ children }) => {
       } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
+      localStorage.setItem('remember', rememberCheck)
     }
 
     localStorage.removeItem('registered')
@@ -226,8 +259,6 @@ const UserContextProvider = ({ children }) => {
     return true
   }
 
-  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
-  const isLoggedInWithFirebase = state && state.user
   // REGISTER NEW USER
   async function register(email, password) {
     const registered = await firebase
@@ -274,6 +305,10 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  const devENV = process.NODE_ENV !== "production" ? true : false
+  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const isLoggedInWithFirebase = state && state.user
+  if (isLoggedIn) sessionStorage.setItem('remember', true)
   return (
     <UserContext.Provider
       value={{
@@ -300,7 +335,10 @@ const UserContextProvider = ({ children }) => {
         loaderText,
         setLoaderText,
         userData,
-        setUserData
+        setUserData,
+        rememberCheck,
+        setRememberCheck,
+        devENV
       }}
     >
       {children}

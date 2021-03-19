@@ -2,11 +2,12 @@ import React, { useState, useEffect, useContext } from 'react'
 import { User, Key } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
 import { analytics } from '../../firebase/firebase'
+import { Event } from '../../Tracking'
 import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLogin = () => {
-  const { login, isLoggedInWithFirebase } = useContext(UserContext)
+  const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -50,6 +51,7 @@ const QuickLogin = () => {
     }
     setLoading(false)
     analytics.logEvent('login')
+    Event("user", "login", "user")
   }
 
   const toggleTypeText = () => {
@@ -149,6 +151,22 @@ const QuickLogin = () => {
                   <p className="text-sm mt-3 text-danger">{error.message}</p>
                 )}
 
+                <div className="mt-2 custom-control custom-checkbox">
+                  <input
+                    type="checkbox"
+                    className="custom-control-input"
+                    id="check-terms"
+                    checked={rememberCheck}
+                    onChange={(e) => setRememberCheck(e.target.checked)}
+                  />
+                  <label
+                    className={`custom-control-label`}
+                    htmlFor="check-terms"
+                    style={{ fontSize: '14px', paddingTop: '2px', cursor: 'pointer' }}
+                  >
+                    Keep me logged in
+                  </label>
+                </div>
                 <div className="mt-4">
                   <button
                     type="submit"

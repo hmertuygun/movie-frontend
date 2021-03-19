@@ -5,13 +5,14 @@ const OrderNotificationCard = ({
   description,
   showImportantlabel = false,
   checkboxId,
+  enabled,
 }) => (
   <div className="list-group-item d-flex w-100 justify-content-between">
     <div>
-      <h6 className="font-weight-light mb-3">
+      <h6 className="mb-3 font-weight-light">
         {title}
         {showImportantlabel && (
-          <span className="badge badge-soft-warning ml-3">Important</span>
+          <span className="ml-3 badge badge-soft-warning">Important</span>
         )}
       </h6>
 
@@ -23,8 +24,10 @@ const OrderNotificationCard = ({
           type="checkbox"
           className="custom-control-input"
           id={checkboxId}
+          disabled
+          checked={enabled}
         />
-        <label className="custom-control-label" for={checkboxId}></label>
+        <label className="custom-control-label" htmlFor={checkboxId}></label>
       </div>
     </div>
   </div>

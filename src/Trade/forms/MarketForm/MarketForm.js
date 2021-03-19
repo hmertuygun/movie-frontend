@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { getLastPrice } from '../../../api/api'
+import { getLastPrice, binanceSymbolPrice } from '../../../api/api'
 
 import {
   addPrecisionToNumber,
@@ -31,20 +31,19 @@ const MarketForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     selectedSymbolLastPrice,
+    setSelectedSymbolLastPrice,
     selectedSymbol,
     refreshBalance,
   } = useSymbolContext()
   const { addMarketEntry } = useContext(TradeContext)
 
   const [values, setValues] = useState({
-    price: '',
     quantity: '',
     total: '',
     quantityPercentage: '',
   })
 
   const [errors, setErrors] = useState({
-    price: '',
     quantity: '',
     total: '',
   })
@@ -124,8 +123,8 @@ const MarketForm = () => {
     return { quantityWithPrecision, percentageQuantityWithPrecision }
   }
 
-  const calculateTotalAndPercentageQuantity = (value, key) => {
-    const total = Number(value) * Number(values[key])
+  const calculateTotalAndPercentageQuantity = (value) => {
+    const total = Number(value) * selectedSymbolLastPrice
     const balance = selectedSymbolBalance
 
     const totalWithPrecision =
@@ -186,7 +185,7 @@ const MarketForm = () => {
       const {
         totalWithPrecision,
         percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value, 'price')
+      } = calculateTotalAndPercentageQuantity(target.value)
 
       setValues((values) => ({
         ...values,
@@ -305,28 +304,33 @@ const MarketForm = () => {
   }
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault()
-    const isFormValid = await validateForm()
-    console.log('Here')
-    if (isFormValid) {
-      setBtnProc(true)
-      setErrors({ price: '', quantity: '', total: '' })
-      const symbol = selectedSymbolDetail['symbolpair']
-      const response = await getLastPrice(symbol)
-      setBtnProc(false)
-      const {
-        quantityWithPrecision,
-      } = calculateTotalAndQuantityFromSliderPercentage(
-        values.quantityPercentage,
-        response?.data?.last_price
-      )
-      const payload = {
-        quantity: convertCommaNumberToDot(quantityWithPrecision),
-        balance: selectedSymbolBalance,
-        symbol,
-        type: 'market',
+    try {
+      evt.preventDefault()
+      const isFormValid = await validateForm()
+      if (isFormValid) {
+        setBtnProc(true)
+        setErrors({ price: '', quantity: '', total: '' })
+        const symbol = selectedSymbolDetail['symbolpair']
+        const response = await binanceSymbolPrice(symbol)
+        setSelectedSymbolLastPrice(response?.price)
+        setBtnProc(false)
+        const {
+          quantityWithPrecision,
+        } = calculateTotalAndQuantityFromSliderPercentage(
+          values.quantityPercentage,
+          response?.price
+        )
+        const payload = {
+          quantity: convertCommaNumberToDot(quantityWithPrecision),
+          balance: selectedSymbolBalance,
+          symbol,
+          type: 'market',
+        }
+        addMarketEntry(payload)
       }
-      addMarketEntry(payload)
+    }
+    catch (e) {
+      console.log(e)
     }
   }
 
@@ -357,14 +361,14 @@ const MarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
       <section>
         <form onSubmit={handleSubmit}>
@@ -440,24 +444,24 @@ const MarketForm = () => {
                 aria-hidden="true"
               />
             ) : (
-                <span>
-                  Next: Exits
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="feather feather-chevron-right"
-                  >
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </span>
-              )}
+              <span>
+                Next: Exits
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="feather feather-chevron-right"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            )}
           </Button>
         </form>
       </section>

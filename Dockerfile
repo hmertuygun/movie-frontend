@@ -3,4 +3,4 @@ RUN npm install -g serve
 COPY . /app
 WORKDIR /app 
 EXPOSE 5000
-CMD ["serve", "-s", "build", "-l", "5000"]
+CMD ["serve", "build", "-l", "5000"]
