@@ -1,6 +1,46 @@
 import React, { useState, Fragment, useEffect } from 'react'
-import { ChevronDown } from 'react-feather'
+import { ChevronDown, Info } from 'react-feather'
 import './TabNavigator.css'
+
+const TabInfo = () => {
+  const [infoShow, setInfoShow] = useState(false)
+
+  return (
+    <div
+      className={`tab-info-wrapper ${infoShow ? 'show' : ''}`}
+      onMouseEnter={() => setInfoShow(true)}
+      onMouseLeave={() => setInfoShow(false)}
+    >
+      <Info size="18" />
+      {infoShow && (
+        <div className="tab-info">
+          <a
+            href="https://support.coinpanel.com/hc/en-us/articles/360018713960-What-is-a-Stop-Limit-Order-"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Stop Limit
+          </a>
+          <p>
+            Stop Limit Orders execute when a specified stop price is reached.
+            Specify a trigger price to activate the order.
+          </p>
+          <a
+            href="https://support.coinpanel.com/hc/en-us/articles/360018782039-What-is-a-Stop-Market-order-"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Stop Market
+          </a>
+          <p>
+            Stop Market Orders execute when a specified price is reached.
+            Specify a trigger price to activate the order.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const TabNavigator = ({ index, labelArray = [], children }) => {
   const [contentIndex, setContentIndex] = useState(index || 0)
@@ -11,7 +51,7 @@ const TabNavigator = ({ index, labelArray = [], children }) => {
   const handleButtonClick = ({ target }) => {
     if (target.id === 'Stop-limit') {
       setContentIndex(2)
-    } else if(target.id === 'Stop-market') {
+    } else if (target.id === 'Stop-market') {
       setContentIndex(3)
     } else if (target.id === 'Take-Profit-Limit') {
       setContentIndex(4)
@@ -36,6 +76,7 @@ const TabNavigator = ({ index, labelArray = [], children }) => {
             <Fragment key={labelIndex}>
               {label === 'custom-tab' ? (
                 <div className="custom-dropdown-wrapper">
+                  <TabInfo />
                   <button
                     id={selectedDropDownOption}
                     onClick={handleButtonClick}
@@ -77,6 +118,7 @@ const TabNavigator = ({ index, labelArray = [], children }) => {
                 </div>
               ) : label === 'custom-tab-sell' ? (
                 <div className="custom-dropdown-wrapper">
+                  <TabInfo />
                   <button
                     id={selectedDropDownOption}
                     onClick={handleButtonClick}
