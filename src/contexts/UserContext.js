@@ -129,9 +129,10 @@ const UserContextProvider = ({ children }) => {
         // User is signed in.
         setUserData(user)
         getExchanges()
-        FCMSubscription()
-      }
-      else {
+        if (firebase.messaging.isSupported()) {
+          FCMSubscription()
+        }
+      } else {
         // User is signed out.
       }
     })
