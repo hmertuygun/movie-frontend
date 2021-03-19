@@ -21,7 +21,6 @@ const firebaseConfig = {
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGEBUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGESENDERID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENTID,
 }
 
 // Initialize Firebase
@@ -29,7 +28,10 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
 }
 const analytics = firebase.analytics()
-const messaging = firebase.messaging()
+let messaging = null;
+if(firebase.messaging.isSupported()) {
+  messaging = firebase.messaging()
+}
 const auth = firebase.auth()
 
 export { auth, analytics, messaging, firebase }
