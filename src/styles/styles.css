@@ -108,6 +108,13 @@ hr {
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,
-:root [id*='tradingview-widget-'] {
+:root [id='chart_container'] {
   height: 65vh !important;
+}
+@media (max-width:575.98px) {
+  _::-webkit-full-page-media,
+  _:future,
+  :root [id='chart_container'] {
+    height: 45vh !important;
+  }
 }
