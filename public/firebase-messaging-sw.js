@@ -1,10 +1,11 @@
+importScripts('swenv.js');
 importScripts("https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/8.2.10/firebase-messaging.js");
 const firebaseConfig = {
-  apiKey: "AIzaSyDHJ0FUWDbHIqYdKjYL53hPoG3gWK22QvE",
-  projectId: "coinpanel-dev",
-  appId: "1:273691305840:web:b8270f98010fc68f3cd1b5",
-  messagingSenderId: "273691305840",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGESENDERID,
 };
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
