@@ -109,9 +109,9 @@ hr {
 _::-webkit-full-page-media,
 _:future,
 :root [id='chart_container'] {
-  height: 65vh !important;
+  height: 100% !important;
 }
-@media (max-width:575.98px) {
+@media (max-width: 992px) {
   _::-webkit-full-page-media,
   _:future,
   :root [id='chart_container'] {
