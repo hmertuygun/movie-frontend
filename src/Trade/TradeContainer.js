@@ -67,8 +67,8 @@ const TradeContainer = () => {
   }
 
   const resizeCallBack = (entries, observer) => {
-    const { borderBoxSize } = entries[0]
-    setOrderHeight((totalHeight - borderBoxSize[0].blockSize) + "px")
+    const { contentRect } = entries[0]
+    setOrderHeight((totalHeight - contentRect.height) + "px")
   }
 
   const removeNotice = (index) => {

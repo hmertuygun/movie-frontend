@@ -1,13 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {firebase} from './firebase/firebase'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './styles/theme.css'
 import './styles/styles.css'
 import './styles/quick-website.css'
 
-if ("serviceWorker" in navigator) {
-  const swPath = process.env.NODE_ENV !== "production" ? "./firebase/dev/" : "./firebase/prod/"
+if ("serviceWorker" in navigator && firebase.messaging.isSupported()) {
   navigator.serviceWorker
     .register(`./firebase-messaging-sw.js`)
     .then(function (registration) {
