@@ -23,7 +23,7 @@ const TradeContainer = () => {
   const { loadApiKeys } = useContext(UserContext)
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
-  const totalHeight = window.innerHeight - 40 - 75
+  const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = window.innerHeight * .6 + "px"
   const [orderHeight, setOrderHeight] = useState(totalHeight * .4 + "px")
 
