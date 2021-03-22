@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
@@ -84,6 +85,7 @@ const TakeProfitMarketForm = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -368,6 +370,7 @@ const TakeProfitMarketForm = () => {
             symbol,
             trigger: convertCommaNumberToDot(values.price),
             quantity: convertCommaNumberToDot(values.quantity),
+            price_trigger: values.price_trigger,
           },
         }
         const { data, status } = await createBasicTrade(payload)
@@ -430,16 +433,23 @@ const TakeProfitMarketForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger Price"
-              type="text"
-              placeholder="Trigger price"
-              value={values.price}
-              name="price"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger Price"
+                type="text"
+                placeholder="Trigger price"
+                value={values.price}
+                name="price"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                postLabel={selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('price')}
           </div>
           <div className={styles['Input']}>

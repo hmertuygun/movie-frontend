@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -81,6 +82,7 @@ const ExitTargetStopMarket = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -399,6 +401,7 @@ const ExitTargetStopMarket = () => {
         quantity: convertCommaNumberToDot(values.quantity),
         profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
+        price_trigger: values.price_trigger,
       })
 
       setValues((values) => ({
@@ -433,16 +436,23 @@ const ExitTargetStopMarket = () => {
     <section style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
-          <InlineInput
-            label="Trigger Price"
-            type="text"
-            placeholder="Trigger price"
-            value={values.price}
-            name="price"
-            onChange={handleChange}
-            onBlur={(e) => handleBlur(e, pricePrecision)}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
+          <div className={styles['InputDropdownContainer']}>
+            <PriceTriggerDropdown
+              onSelect={(selected) =>
+                setValues({ ...values, price_trigger: selected.value })
+              }
+            />
+            <InlineInput
+              label="Trigger Price"
+              type="text"
+              placeholder="Trigger price"
+              value={values.price}
+              name="price"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              postLabel={selectedSymbolDetail['quote_asset']}
+            />
+          </div>
           {renderInputValidationError('price')}
         </div>
         <div className={classes.root}>
