@@ -86,7 +86,7 @@ const TradeContainer = () => {
           </section>
 
           <section className="TradeChart-Container" style={{ display: "unset" }}>
-            <div className={`mx-5 ${notices.length ? 'alert-messages mt-2' : ''}`}>
+            <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
               {notices.map((item, index) => (
                 <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
                   <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
@@ -114,7 +114,7 @@ const TradeContainer = () => {
         </section>
       ) : (
         <section className="TradeChart-Container TradeChart-Container-Mobile">
-          <div className={`mx-5 ${notices.length ? 'alert-messages mt-2' : ''}`}>
+          <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
                 <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
