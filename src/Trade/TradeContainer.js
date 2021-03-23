@@ -1,8 +1,8 @@
 import React, { useEffect, useContext, useState } from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive';
-
+import { useMediaQuery } from 'react-responsive'
+import { firebase } from '../firebase/firebase'
 import TradePanel from './TradePanel'
 import TradeChart from './TradeChart'
 import { SymbolContextProvider } from './context/SymbolContext'
@@ -11,13 +11,16 @@ import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MarketStatistics from './components/MarketStatistics'
-
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
+
+const db = firebase.firestore()
+
 const registerResizeObserver = (cb, elem) => {
   const resizeObserver = new ResizeObserver(cb)
   resizeObserver.observe(elem)
 }
+
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
   const { loadApiKeys } = useContext(UserContext)
@@ -26,23 +29,53 @@ const TradeContainer = () => {
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = window.innerHeight * .6 + "px"
   const [orderHeight, setOrderHeight] = useState(totalHeight * .4 + "px")
+  const [snapShotCount, setSnapShotCount] = useState(0)
+  const [fbNotice, setFBNotice] = useState(null)
+  const [notices, setNotices] = useState([])
 
   useEffect(() => {
-    const elem = document.querySelector(".TradeView-Chart")
-    if (!elem) return
-    registerResizeObserver(resizeCallBack, elem)
+    callObserver()
+    const fBNotice = db.collection("platform_messages")
+      .where("type", "in", ['warning', 'danger', 'info'])
+      .onSnapshot((doc) => {
+        doc.docChanges().forEach(item => {
+          setFBNotice({ ...item.doc.data(), action: item.type }) // action = added , removed, modified
+        })
+        setSnapShotCount(prevValue => prevValue + 1)
+      })
+    return () => {
+      fBNotice()
+    }
   }, [])
 
-  const resizeCallBack = (entries, observer) => {
-    const { contentRect } = entries[0]
-    setOrderHeight((totalHeight - contentRect.height) + "px")
-  }
+  useEffect(() => {
+    if (snapShotCount > 1 && fbNotice && fbNotice.action === "added") {
+      setNotices(prevState => [...prevState, fbNotice])
+    }
+  }, [snapShotCount])
 
   useEffect(() => {
     if (!loadApiKeys) {
       history.push('/settings')
     }
   }, [loadApiKeys, history])
+
+  const callObserver = () => {
+    const elem = document.querySelector(".TradeView-Chart")
+    if (!elem) return
+    registerResizeObserver(resizeCallBack, elem)
+  }
+
+  const resizeCallBack = (entries, observer) => {
+    const { contentRect } = entries[0]
+    setOrderHeight((totalHeight - contentRect.height) + "px")
+  }
+
+  const removeNotice = (index) => {
+    let temp = [...notices]
+    temp.splice(index, 1)
+    setNotices([...temp])
+  }
 
   return (
     <SymbolContextProvider>
@@ -53,6 +86,16 @@ const TradeContainer = () => {
           </section>
 
           <section className="TradeChart-Container" style={{ display: "unset" }}>
+            <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
+              {notices.map((item, index) => (
+                <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
+                  <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
+                  <button type="button" className="close" onClick={() => removeNotice(index)}>
+                    <span>&times;</span>
+                  </button>
+                </div>
+              ))}
+            </div>
             <section className="TradeView-Symbol">
               <SymbolSelect />
               <MarketStatistics />
@@ -71,6 +114,16 @@ const TradeContainer = () => {
         </section>
       ) : (
         <section className="TradeChart-Container TradeChart-Container-Mobile">
+          <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
+            {notices.map((item, index) => (
+              <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
+                <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
+                <button type="button" className="close" onClick={() => removeNotice(index)}>
+                  <span>&times;</span>
+                </button>
+              </div>
+            ))}
+          </div>
           <section className="TradeView-Symbol">
             <SymbolSelect />
             <MarketStatistics />

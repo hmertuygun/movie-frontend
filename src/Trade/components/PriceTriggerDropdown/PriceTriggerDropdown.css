@@ -1,0 +1,29 @@
+.priceTriggerDropdown {
+  min-width: 70px;
+}
+
+.priceTriggerDropdown.is-open .priceTriggerDropdownControl {
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.priceTriggerDropdownControl {
+  padding: 2px 30px 2px 10px;
+  border-radius: 0.375rem;
+  border-color: var(--input-default-border);
+  height: 32px;
+}
+
+.priceTriggerDropdownPlaceholder {
+  color: var(--label-default-color);
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+.priceTriggerDropdownMenu .Dropdown-option {
+  padding: 2px 10px;
+}
+
+.priceTriggerDropdownMenu .Dropdown-option.is-selected {
+  background-color: #0074D9;
+  color: white;
+}

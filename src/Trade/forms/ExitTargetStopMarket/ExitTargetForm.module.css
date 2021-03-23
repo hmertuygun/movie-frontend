@@ -25,6 +25,11 @@
   margin-bottom: 1rem;
 }
 
+.InputDropdownContainer {
+  margin-bottom: 1rem;
+  display: flex;
+}
+
 .Error {
   background-color: #fff0f1;
   border: 1px solid #e35b66;
