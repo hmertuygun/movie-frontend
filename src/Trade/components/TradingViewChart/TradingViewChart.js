@@ -17,10 +17,9 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
+      //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       symbol: 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
-      //saved_data: JSON.parse(localStorage.getItem('savedDrawing'))
     }
     this.tradingViewWidget = null
     this.chartObject = null
@@ -55,8 +54,6 @@ export default class TradingViewChart extends Component {
     this.tradingViewWidget.save((obj) => {
       console.log(`Chart Saved`)
       const str = JSON.stringify(obj.charts[0].panes[0])
-      // const str = JSON.stringify(obj.charts[0])
-      // localStorage.setItem('savedDrawing', str)
       saveChartDrawing(this.state.email, str)
     })
   }
@@ -65,6 +62,7 @@ export default class TradingViewChart extends Component {
     if (!newSymbol || !this.tradingViewWidget) return
     try {
       const symbObj = this.tradingViewWidget.symbolInterval()
+      //console.log(symbObj)
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
     }
@@ -90,12 +88,9 @@ export default class TradingViewChart extends Component {
 
   getChartDrawingFromServer = async () => {
     try {
-      // const sD = localStorage.getItem('savedDrawing')
-      // if (sD) return
       const cData = await getChartDrawing(this.state.email)
+      if (!cData) return
       const pData = JSON.parse(cData)
-      // this.tradingViewWidget.load(pData)
-      // localStorage.setItem('savedDrawing', cData)
       this.tradingViewWidget.save((obj) => {
         const prep = { ...obj.charts[0], panes: [pData] }
         this.tradingViewWidget.load(prep)
@@ -118,7 +113,7 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    console.log(`In Update`)
+    // console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
   }
 
