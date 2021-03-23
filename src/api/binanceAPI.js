@@ -40,7 +40,7 @@ export default class binanceAPI {
         supports_timescale_marks: false,
         supports_time: true,
         supported_resolutions: [
-          '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
+          '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M'
         ]
       })
     }).catch(err => {
@@ -83,24 +83,24 @@ export default class binanceAPI {
 
     for (let symbol of this.symbols) {
       if (symbol.symbol === symbolName) {
-        setTimeout(() => {
-          onSymbolResolvedCallback({
-            name: symbol.symbol,
-            description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-            ticker: symbol.symbol,
-            exchange: 'Binance',
-            listed_exchange: 'Binance',
-            type: 'crypto',
-            session: '24x7',
-            minmov: 1,
-            pricescale: pricescale(symbol),
-            timezone: 'UTC',
-            has_intraday: true,
-            has_daily: true,
-            has_weekly_and_monthly: true,
-            currency_code: symbol.quoteAsset
-          })
-        }, 0)
+        // setTimeout(() => {
+        // }, 0)
+        onSymbolResolvedCallback({
+          name: symbol.symbol,
+          description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
+          ticker: symbol.symbol,
+          exchange: 'Binance',
+          listed_exchange: 'Binance',
+          type: 'crypto',
+          session: '24x7',
+          pricescale: pricescale(symbol),
+          timezone: 'UTC',
+          currency_code: symbol.quoteAsset,
+          has_intraday: true,
+          has_daily: true,
+          has_weekly_and_monthly: true,
+          minmov: 1,
+        })
         return
       }
     }
@@ -112,19 +112,25 @@ export default class binanceAPI {
     try {
       let interval = this.ws.tvIntervals[resolution]
       to *= 1000
+      from *= 1000
+      console.log(`Chart Date Range | ${new Date(from)} - ${new Date(to)}`)
+      //console.log(`Interval: ${resolution}`)
       let data = await this.binanceKlines(symbolInfo.name, interval, null, to)
+      console.log(`First Data: ${new Date(data[0][0])} | Last Data: ${new Date(data[data.length - 1][0])}`)
+
       if (!data || !data.length) onHistoryCallback([], { noData: true })
       else {
         data = data.map(item => ({
           time: item[0],
-          close: parseFloat(item[4]),
           open: parseFloat(item[1]),
           high: parseFloat(item[2]),
           low: parseFloat(item[3]),
+          close: parseFloat(item[4]),
           volume: parseFloat(item[5])
         }))
-        onHistoryCallback(data, { noData: true })
+        onHistoryCallback(data, { noData: false })
       }
+      console.log(`*****************************************************`)
     }
     catch (e) {
       console.error(e)
