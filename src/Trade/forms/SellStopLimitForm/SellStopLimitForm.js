@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
@@ -88,6 +89,7 @@ const SellStopLimitForm = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -391,6 +393,7 @@ const SellStopLimitForm = () => {
             trigger: convertCommaNumberToDot(values.triggerPrice),
             price: convertCommaNumberToDot(values.price),
             quantity: convertCommaNumberToDot(values.quantity),
+            price_trigger: values.price_trigger,
           },
         }
         const { data, status } = await createBasicTrade(payload)
@@ -453,16 +456,23 @@ const SellStopLimitForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              placeholder="Trigger price"
-              value={values.triggerPrice}
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                placeholder="Trigger price"
+                value={values.triggerPrice}
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                postLabel={selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>

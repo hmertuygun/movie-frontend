@@ -17,6 +17,7 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
@@ -38,6 +39,7 @@ const EntryStopMarketForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState({
@@ -358,6 +360,7 @@ const EntryStopMarketForm = () => {
         symbol,
         type: 'stop-market',
         side: 'buy',
+        price_trigger: values.price_trigger,
       }
       addEntryStopMarket(payload)
     }
@@ -403,16 +406,23 @@ const EntryStopMarketForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              value={values.triggerPrice}
-              placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                value={values.triggerPrice}
+                placeholder=""
+                postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>
