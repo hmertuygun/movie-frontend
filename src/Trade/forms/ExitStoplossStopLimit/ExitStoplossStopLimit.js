@@ -25,13 +25,13 @@ import styles from './ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 170,
-    marginLeft: '5px',
+    width: '100%',
     vertiicalAlign: 'middle',
+    marginLeft: '8px',
   },
   input: {
     width: 35,
@@ -89,11 +89,18 @@ const ExitStoplossStopLimit = () => {
   const classes = useStyles()
 
   const marks = {
-    '-100': '',
-    '-75': '',
-    '-50': '',
-    '-25': '',
     0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
+  }
+  const marks2 = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    99: '',
   }
 
   // @TODO
@@ -463,7 +470,7 @@ const ExitStoplossStopLimit = () => {
                 reverse
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={marks2}
                 min={0}
                 max={99}
                 onChange={handleSliderChange}
@@ -497,7 +504,7 @@ const ExitStoplossStopLimit = () => {
         </div>
 
         <div className={classes.root}>
-          <Grid container spacing={0} alignItems="center">
+          <Grid container spacing={2} alignItems="center">
             <Grid item xs>
               <Slider
                 className={classes.slider}

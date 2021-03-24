@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
-import 'rc-slider/assets/index.css'
 
 import { createBasicTrade } from '../../../api/api'
 import {

@@ -21,15 +21,15 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles'
 
-import styles from './ExitTargetForm.module.css'
+import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 160,
+    width: '100%',
     vertiicalAlign: 'middle',
     marginLeft: '8px',
   },

@@ -5,7 +5,6 @@ import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import Slider from 'rc-slider'
-import Grid from '@material-ui/core/Grid'
 
 import * as yup from 'yup'
 
@@ -28,24 +27,7 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
-import { makeStyles } from '@material-ui/core/styles'
-
-import styles from '../ExitTargetStopMarket/ExitTargetForm.module.css'
-
-const useStyles = makeStyles({
-  root: {
-    width: 255,
-    marginBottom: '1rem',
-  },
-  slider: {
-    width: 160,
-    vertiicalAlign: 'middle',
-    marginLeft: '8px',
-  },
-  input: {
-    width: 35,
-  },
-})
+import styles from '../LimitForm/LimitForm.module.css'
 
 const errorInitialValues = {
   price: '',
@@ -89,8 +71,6 @@ const SellStopMarketForm = () => {
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
-
-  const classes = useStyles()
 
   const marks = {
     0: '',
@@ -374,10 +354,13 @@ const SellStopMarketForm = () => {
           },
         }
         const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
+        if (data?.status === 'error') {
+          errorNotification.open({
+            description:
+              data?.error ||
+              `Order couldn't be created. Please try again later!`,
+          })
+        } else {
           successNotification.open({ description: `Order Created!` })
         }
         setValues({
@@ -387,7 +370,20 @@ const SellStopMarketForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({
+          description: (
+            <p>
+              Order couldn’t be created. Unknown error. Please report at:{' '}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href="https://support.coinpanel.com"
+              >
+                <b>support.coinpanel.com</b>
+              </a>
+            </p>
+          ),
+        })
       } finally {
         setBtnVisibility(false)
       }
@@ -421,14 +417,14 @@ const SellStopMarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
       <section>
         <form onSubmit={handleSubmit}>
@@ -465,31 +461,28 @@ const SellStopMarketForm = () => {
             />
             {renderInputValidationError('quantity')}
           </div>
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs>
-                <Slider
-                  className={classes.slider}
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={values.quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={values.quantityPercentage}
-                  margin="dense"
-                  name="quantityPercentage"
-                  onChange={handleQPInputChange}
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleQPSliderChange}
+                value={values.quantityPercentage}
+              />
+            </div>
+
+            <div className={styles['SliderInput']}>
+              <InlineInput
+                value={values.quantityPercentage}
+                margin="dense"
+                name="quantityPercentage"
+                onChange={handleQPInputChange}
+                postLabel={'%'}
+              />
+            </div>
           </div>
 
           <div className={styles['Input']}>
