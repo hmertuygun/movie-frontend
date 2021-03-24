@@ -20,7 +20,7 @@ import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTri
 
 import * as yup from 'yup'
 
-import styles from './EntryStopLimitForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const EntryStopLimitForm = () => {
   const {

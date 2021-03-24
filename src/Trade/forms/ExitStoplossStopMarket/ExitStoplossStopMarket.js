@@ -23,11 +23,11 @@ import {
 
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 160,
+    width: '100%',
     vertiicalAlign: 'middle',
     marginLeft: '8px',
   },
@@ -82,11 +82,18 @@ const ExitStoplossStopMarket = () => {
   const classes = useStyles()
 
   const marks = {
-    '-100': '',
-    '-75': '',
-    '-50': '',
-    '-25': '',
     0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
+  }
+  const marks2 = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    99: '',
   }
 
   // @TODO
@@ -409,7 +416,7 @@ const ExitStoplossStopMarket = () => {
                   reverse
                   defaultValue={0}
                   step={1}
-                  marks={marks}
+                  marks={marks2}
                   min={0}
                   max={99}
                   onChange={handleSliderChange}

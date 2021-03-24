@@ -25,7 +25,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from '../MarketForm/MarketForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const BuyMarketForm = () => {
   const {

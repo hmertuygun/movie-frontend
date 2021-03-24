@@ -22,7 +22,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from './MarketForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const MarketForm = () => {
   const {
