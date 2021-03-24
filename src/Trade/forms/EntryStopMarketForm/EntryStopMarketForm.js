@@ -89,8 +89,8 @@ const EntryStopMarketForm = () => {
       )
       .max(
         maxPrice,
-        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-          minPrice,
+        `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+          maxPrice,
           pricePrecision
         )}`
       ),
