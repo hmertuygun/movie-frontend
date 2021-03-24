@@ -21,6 +21,8 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+import scientificToDecimal from '../../../helpers/toDecimal'
+
 const useStyles = makeStyles({
   root: {
     width: '100%',
@@ -66,7 +68,7 @@ const ExitStoplossStopMarket = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
-  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice);
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -274,10 +276,10 @@ const ExitStoplossStopMarket = () => {
         return true
 
       case 'profit':
-        const newPrice = entryPrice * (-inputValue / 100)
+        const newPrice = scientificToDecimal(entryPrice * (-inputValue / 100))
 
         const derivedtiggerPrice = addPrecisionToNumber(
-          entryPrice - newPrice,
+          scientificToDecimal(entryPrice - newPrice),
           pricePrecision
         )
 

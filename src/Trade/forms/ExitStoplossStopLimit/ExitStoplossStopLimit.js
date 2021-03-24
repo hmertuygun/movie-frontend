@@ -19,6 +19,8 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+import scientificToDecimal from '../../../helpers/toDecimal'
+
 import * as yup from 'yup'
 
 import styles from './ExitForm.module.css'
@@ -316,9 +318,9 @@ const ExitStoplossStopLimit = () => {
         return true
 
       case 'profit':
-        const newPrice = usePrice * (-inputValue / 100)
+        const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
         const derivedPrice = addPrecisionToNumber(
-          usePrice - newPrice,
+          scientificToDecimal(usePrice - newPrice),
           pricePrecision
         )
         setValues((values) => ({
