@@ -152,7 +152,7 @@ const ExitStoplossStopLimit = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -308,14 +308,16 @@ const ExitStoplossStopLimit = () => {
     const usePrice = detectUsePrice(entry)
 
     switch (inputName) {
-      case 'price':
+      case 'price': {
         const diff = usePrice - inputValue
-        const percentage = roundNumbers((diff / usePrice) * 100, 2)
+        const percentage = (diff / usePrice) * 100
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          profit: 0 - percentage,
+          profit: 0 - profitPercentage,
         }))
         return true
+      }
 
       case 'profit':
         const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
@@ -343,15 +345,16 @@ const ExitStoplossStopLimit = () => {
 
         return false
 
-      case 'quantity':
+      case 'quantity': {
+        const percentage = (inputValue / entry.quantity) * 100
+        const quantityPercentage =
+          percentage > 100 ? 100 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          quantityPercentage: roundNumbers(
-            (inputValue / entry.quantity) * 100,
-            2
-          ),
+          quantityPercentage,
         }))
         return false
+      }
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
