@@ -481,6 +481,7 @@ const SellStopMarketForm = () => {
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
                 postLabel={'%'}
+                type="text"
               />
             </div>
           </div>

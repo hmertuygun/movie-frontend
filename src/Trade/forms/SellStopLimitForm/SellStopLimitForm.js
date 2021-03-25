@@ -518,6 +518,7 @@ const SellStopLimitForm = () => {
                 onChange={handleQPInputChange}
                 name="quantityPercentage"
                 postLabel={'%'}
+                type="text"
               />
             </div>
           </div>

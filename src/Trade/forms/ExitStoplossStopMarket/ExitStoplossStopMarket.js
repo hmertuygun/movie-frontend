@@ -133,7 +133,7 @@ const ExitStoplossStopMarket = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -266,14 +266,16 @@ const ExitStoplossStopMarket = () => {
 
   const priceAndProfitSync = (inputName, inputValue) => {
     switch (inputName) {
-      case 'triggerPrice':
+      case 'triggerPrice': {
         const diff = entryPrice - inputValue
-        const percentage = roundNumbers((diff / entryPrice) * 100, 2)
+        const percentage = (diff / entryPrice) * 100
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          profit: -percentage,
+          profit: -profitPercentage,
         }))
         return true
+      }
 
       case 'profit':
         const newPrice = scientificToDecimal(entryPrice * (-inputValue / 100))
@@ -303,15 +305,16 @@ const ExitStoplossStopMarket = () => {
 
         return false
 
-      case 'quantity':
+      case 'quantity': {
+        const percentage = (inputValue / entry.quantity) * 100
+        const quantityPercentage =
+          percentage > 100 ? 100 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          quantityPercentage: roundNumbers(
-            (inputValue / entry.quantity) * 100,
-            2
-          ),
+          quantityPercentage,
         }))
         return false
+      }
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
@@ -472,6 +475,7 @@ const ExitStoplossStopMarket = () => {
                   onChange={handleQPInputChange}
                   name="quantityPercentage"
                   postLabel={'%'}
+                  type="text"
                 />
               </Grid>
             </Grid>

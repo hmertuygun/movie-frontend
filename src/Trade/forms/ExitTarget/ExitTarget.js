@@ -130,7 +130,7 @@ const ExitTarget = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -272,10 +272,11 @@ const ExitTarget = () => {
   const priceAndProfitSync = (inputName, inputValue) => {
     if (inputName === 'price') {
       const diff = inputValue - entryPrice
-      const percentage = roundNumbers((diff / entryPrice) * 100, 2)
+      const percentage = (diff / entryPrice) * 100
+      const profitPercentage = percentage > 1000 ? 1000 : percentage.toFixed(0)
       setValues((values) => ({
         ...values,
-        profit: percentage,
+        profit: profitPercentage,
       }))
     }
 
@@ -310,12 +311,11 @@ const ExitTarget = () => {
     }
 
     if (inputName === 'quantity') {
+      const percentage = (inputValue / entry.quantity) * 100
+      const quantityPercentage = percentage > 100 ? 100 : percentage.toFixed(0)
       setValues((values) => ({
         ...values,
-        quantityPercentage: roundNumbers(
-          (inputValue / entry.quantity) * 100,
-          quantityPrecision
-        ),
+        quantityPercentage,
       }))
     }
 
@@ -463,6 +463,7 @@ const ExitTarget = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
+                type="text"
               />
             </div>
           </div>

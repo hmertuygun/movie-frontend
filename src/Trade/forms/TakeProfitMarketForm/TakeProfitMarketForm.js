@@ -481,6 +481,7 @@ const TakeProfitMarketForm = () => {
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
                 postLabel={'%'}
+                type="text"
               />
             </div>
           </div>

@@ -518,6 +518,7 @@ const TakeProfitLimitForm = () => {
                 onChange={handleQPInputChange}
                 name="quantityPercentage"
                 postLabel={'%'}
+                type="text"
               />
             </div>
           </div>
