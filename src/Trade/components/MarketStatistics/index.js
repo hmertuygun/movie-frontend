@@ -104,13 +104,13 @@ function MarketStatistics() {
 
   return (
     <div className="marketDataContainer">
-      <div className="marketData">
-        {message && (
-          <>
-            <div className="lastPriceBlock">
-              <div className="marketDataLastPrice">{message.lastPrice}</div>
-              <div className="marketDataWorth">${message.worth}</div>
-            </div>
+      {message && (
+        <div className="d-flex">
+          <div className="lastPriceBlock">
+            <div className="marketDataLastPrice">{message.lastPrice}</div>
+            <div className="marketDataWorth">${message.worth}</div>
+          </div>
+          <div className="marketData">
             <div className="marketDataBlock">
               <div className="marketDataBlockTitle">24h Change</div>
               <div className="marketDataBlockValue">
@@ -141,9 +141,9 @@ function MarketStatistics() {
                 {message.totalTradedQuoteAssetVolume}
               </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
