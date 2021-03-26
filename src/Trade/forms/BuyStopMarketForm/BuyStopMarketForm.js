@@ -23,10 +23,11 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
-import styles from '../EntryStopMarketForm/EntryStopMarketForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const BuyStopMarketForm = () => {
   const {
@@ -43,6 +44,7 @@ const BuyStopMarketForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState({
@@ -372,6 +374,7 @@ const BuyStopMarketForm = () => {
             symbol,
             quantity: values.quantity,
             trigger: values.triggerPrice,
+            price_trigger: values.price_trigger,
           },
         }
         const { data, status } = await createBasicTrade(payload)
@@ -435,16 +438,23 @@ const BuyStopMarketForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              value={values.triggerPrice}
-              placeholder="Trigger price"
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                value={values.triggerPrice}
+                placeholder="Trigger price"
+                postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>

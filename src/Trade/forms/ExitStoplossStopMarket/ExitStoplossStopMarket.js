@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 import { InlineInput, Button, Typography } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
 
 import roundNumbers from '../../../helpers/roundNumbers'
@@ -20,13 +21,15 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+import scientificToDecimal from '../../../helpers/toDecimal'
+
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 160,
+    width: '100%',
     vertiicalAlign: 'middle',
     marginLeft: '8px',
   },
@@ -65,7 +68,7 @@ const ExitStoplossStopMarket = () => {
   const minQty = Number(selectedSymbolDetail.minQty)
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
-  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice);
+  const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -73,6 +76,7 @@ const ExitStoplossStopMarket = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -80,11 +84,18 @@ const ExitStoplossStopMarket = () => {
   const classes = useStyles()
 
   const marks = {
-    '-100': '',
-    '-75': '',
-    '-50': '',
-    '-25': '',
     0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
+  }
+  const marks2 = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    99: '',
   }
 
   // @TODO
@@ -122,7 +133,7 @@ const ExitStoplossStopMarket = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -255,20 +266,22 @@ const ExitStoplossStopMarket = () => {
 
   const priceAndProfitSync = (inputName, inputValue) => {
     switch (inputName) {
-      case 'triggerPrice':
+      case 'triggerPrice': {
         const diff = entryPrice - inputValue
-        const percentage = roundNumbers((diff / entryPrice) * 100, 2)
+        const percentage = (diff / entryPrice) * 100
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          profit: -percentage,
+          profit: -profitPercentage,
         }))
         return true
+      }
 
       case 'profit':
-        const newPrice = entryPrice * (-inputValue / 100)
+        const newPrice = scientificToDecimal(entryPrice * (-inputValue / 100))
 
         const derivedtiggerPrice = addPrecisionToNumber(
-          entryPrice - newPrice,
+          scientificToDecimal(entryPrice - newPrice),
           pricePrecision
         )
 
@@ -292,15 +305,16 @@ const ExitStoplossStopMarket = () => {
 
         return false
 
-      case 'quantity':
+      case 'quantity': {
+        const percentage = (inputValue / entry.quantity) * 100
+        const quantityPercentage =
+          percentage > 100 ? 100 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          quantityPercentage: roundNumbers(
-            (inputValue / entry.quantity) * 100,
-            2
-          ),
+          quantityPercentage,
         }))
         return false
+      }
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
@@ -360,6 +374,7 @@ const ExitStoplossStopMarket = () => {
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail['symbolpair'],
+        price_trigger: values.price_trigger,
       })
     }
   }
@@ -377,17 +392,23 @@ const ExitStoplossStopMarket = () => {
       <section style={{ marginTop: '2rem' }}>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              placeholder="Trigger price"
-              value={values.triggerPrice}
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
-            />
-
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                placeholder="Trigger price"
+                value={values.triggerPrice}
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                postLabel={selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={classes.root}>
@@ -400,7 +421,7 @@ const ExitStoplossStopMarket = () => {
                   reverse
                   defaultValue={0}
                   step={1}
-                  marks={marks}
+                  marks={marks2}
                   min={0}
                   max={99}
                   onChange={handleSliderChange}
@@ -454,6 +475,7 @@ const ExitStoplossStopMarket = () => {
                   onChange={handleQPInputChange}
                   name="quantityPercentage"
                   postLabel={'%'}
+                  type="text"
                 />
               </Grid>
             </Grid>

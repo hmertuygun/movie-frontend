@@ -27,6 +27,7 @@ const SimpleTradeContextProvider = ({ children }) => {
   }
 
   const addMarketEntry = ({
+    price,
     quantity,
     symbol,
     type = 'market',
@@ -35,6 +36,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     setState({
       ...state,
       entry: {
+        price,
         quantity,
         symbol,
         type,

@@ -13,8 +13,10 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
       ? 7
       : selectedSymbolDetail['quote_asset_precision']
 
+  // To calculate total, use entry price but use entry trigger for stop-market order
+  const entryPrice = entry.price || entry.trigger
   const total = addPrecisionToNumber(
-    entry.price * entry.quantity,
+    entryPrice * entry.quantity,
     totalPrecision
   )
 

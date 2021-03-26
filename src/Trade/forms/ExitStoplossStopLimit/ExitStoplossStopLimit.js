@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -18,19 +19,21 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+import scientificToDecimal from '../../../helpers/toDecimal'
+
 import * as yup from 'yup'
 
 import styles from './ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 170,
-    marginLeft: '5px',
+    width: '100%',
     vertiicalAlign: 'middle',
+    marginLeft: '8px',
   },
   input: {
     width: 35,
@@ -80,6 +83,7 @@ const ExitStoplossStopLimit = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -87,11 +91,18 @@ const ExitStoplossStopLimit = () => {
   const classes = useStyles()
 
   const marks = {
-    '-100': '',
-    '-75': '',
-    '-50': '',
-    '-25': '',
     0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
+  }
+  const marks2 = {
+    0: '',
+    25: '',
+    50: '',
+    75: '',
+    99: '',
   }
 
   // @TODO
@@ -141,7 +152,7 @@ const ExitStoplossStopLimit = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -297,19 +308,21 @@ const ExitStoplossStopLimit = () => {
     const usePrice = detectUsePrice(entry)
 
     switch (inputName) {
-      case 'price':
+      case 'price': {
         const diff = usePrice - inputValue
-        const percentage = roundNumbers((diff / usePrice) * 100, 2)
+        const percentage = (diff / usePrice) * 100
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          profit: 0 - percentage,
+          profit: 0 - profitPercentage,
         }))
         return true
+      }
 
       case 'profit':
-        const newPrice = usePrice * (-inputValue / 100)
+        const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
         const derivedPrice = addPrecisionToNumber(
-          usePrice - newPrice,
+          scientificToDecimal(usePrice - newPrice),
           pricePrecision
         )
         setValues((values) => ({
@@ -332,15 +345,16 @@ const ExitStoplossStopLimit = () => {
 
         return false
 
-      case 'quantity':
+      case 'quantity': {
+        const percentage = (inputValue / entry.quantity) * 100
+        const quantityPercentage =
+          percentage > 100 ? 100 : percentage.toFixed(0)
         setValues((values) => ({
           ...values,
-          quantityPercentage: roundNumbers(
-            (inputValue / entry.quantity) * 100,
-            2
-          ),
+          quantityPercentage,
         }))
         return false
+      }
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
@@ -402,6 +416,7 @@ const ExitStoplossStopLimit = () => {
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail['symbolpair'],
+        price_trigger: values.price_trigger,
       })
     }
   }
@@ -418,16 +433,23 @@ const ExitStoplossStopLimit = () => {
     <section style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
-          <InlineInput
-            label="Trigger price"
-            type="text"
-            placeholder="Trigger price"
-            value={values.triggerPrice}
-            name="triggerPrice"
-            onChange={handleChange}
-            onBlur={(e) => handleBlur(e, pricePrecision)}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
+          <div className={styles['InputDropdownContainer']}>
+            <PriceTriggerDropdown
+              onSelect={(selected) =>
+                setValues({ ...values, price_trigger: selected.value })
+              }
+            />
+            <InlineInput
+              label="Trigger price"
+              type="text"
+              placeholder="Trigger price"
+              value={values.triggerPrice}
+              name="triggerPrice"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              postLabel={selectedSymbolDetail['quote_asset']}
+            />
+          </div>
           {renderInputValidationError('triggerPrice')}
         </div>
         <div className={styles['Input']}>
@@ -453,7 +475,7 @@ const ExitStoplossStopLimit = () => {
                 reverse
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={marks2}
                 min={0}
                 max={99}
                 onChange={handleSliderChange}
@@ -487,7 +509,7 @@ const ExitStoplossStopLimit = () => {
         </div>
 
         <div className={classes.root}>
-          <Grid container spacing={0} alignItems="center">
+          <Grid container spacing={2} alignItems="center">
             <Grid item xs>
               <Slider
                 className={classes.slider}

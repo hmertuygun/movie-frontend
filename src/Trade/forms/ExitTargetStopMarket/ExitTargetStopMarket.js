@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -20,15 +21,15 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles'
 
-import styles from './ExitTargetForm.module.css'
+import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
-    width: 255,
+    width: '100%',
     marginBottom: '1rem',
   },
   slider: {
-    width: 160,
+    width: '100%',
     vertiicalAlign: 'middle',
     marginLeft: '8px',
   },
@@ -81,6 +82,7 @@ const ExitTargetStopMarket = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -130,7 +132,7 @@ const ExitTargetStopMarket = () => {
       )
       .max(
         entry.quantity,
-        `Stop loss amount cannot be higher than entry amount: ${entry.quantity}`
+        `Amount cannot be higher than entry amount: ${entry.quantity}`
       ),
     total: yup
       .number()
@@ -272,10 +274,11 @@ const ExitTargetStopMarket = () => {
   const priceAndProfitSync = (inputName, inputValue) => {
     if (inputName === 'price') {
       const diff = inputValue - entryPrice
-      const percentage = roundNumbers((diff / entryPrice) * 100, 2)
+      const percentage = (diff / entryPrice) * 100
+      const profitPercentage = percentage > 1000 ? 1000 : percentage.toFixed(0)
       setValues((values) => ({
         ...values,
-        profit: percentage,
+        profit: profitPercentage,
       }))
     }
 
@@ -310,12 +313,11 @@ const ExitTargetStopMarket = () => {
     }
 
     if (inputName === 'quantity') {
+      const percentage = (inputValue / entry.quantity) * 100
+      const quantityPercentage = percentage > 100 ? 100 : percentage.toFixed(0)
       setValues((values) => ({
         ...values,
-        quantityPercentage: roundNumbers(
-          (inputValue / entry.quantity) * 100,
-          quantityPrecision
-        ),
+        quantityPercentage,
       }))
     }
 
@@ -399,6 +401,7 @@ const ExitTargetStopMarket = () => {
         quantity: convertCommaNumberToDot(values.quantity),
         profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail['symbolpair'],
+        price_trigger: values.price_trigger,
       })
 
       setValues((values) => ({
@@ -433,16 +436,23 @@ const ExitTargetStopMarket = () => {
     <section style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
-          <InlineInput
-            label="Trigger Price"
-            type="text"
-            placeholder="Trigger price"
-            value={values.price}
-            name="price"
-            onChange={handleChange}
-            onBlur={(e) => handleBlur(e, pricePrecision)}
-            postLabel={selectedSymbolDetail['quote_asset']}
-          />
+          <div className={styles['InputDropdownContainer']}>
+            <PriceTriggerDropdown
+              onSelect={(selected) =>
+                setValues({ ...values, price_trigger: selected.value })
+              }
+            />
+            <InlineInput
+              label="Trigger Price"
+              type="text"
+              placeholder="Trigger price"
+              value={values.price}
+              name="price"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              postLabel={selectedSymbolDetail['quote_asset']}
+            />
+          </div>
           {renderInputValidationError('price')}
         </div>
         <div className={classes.root}>
@@ -468,6 +478,7 @@ const ExitTargetStopMarket = () => {
                 onChange={handleSliderInputChange}
                 postLabel={'%'}
                 name="profit"
+                type="text"
               />
             </div>
           </div>
@@ -506,6 +517,7 @@ const ExitTargetStopMarket = () => {
                 name="quantityPercentage"
                 onChange={handleQPInputChange}
                 postLabel={'%'}
+                type="text"
               />
             </Grid>
           </Grid>

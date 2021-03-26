@@ -12,17 +12,22 @@
 }
 
 .SliderSlider {
-  width: 130px;
+  width: calc(100% - 120px);
   height: 15px;
 }
 
 .SliderInput {
-  width: 26%;
-  min-width: 50px;
+  width: 65px;
+  min-width: 65px;
 }
 
 .Input {
   margin-bottom: 1rem;
+}
+
+.InputDropdownContainer {
+  margin-bottom: 1rem;
+  display: flex;
 }
 
 .Error {

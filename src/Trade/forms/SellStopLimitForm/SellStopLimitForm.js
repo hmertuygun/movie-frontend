@@ -1,12 +1,10 @@
 import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import Slider from 'rc-slider'
-import Grid from '@material-ui/core/Grid'
-import 'rc-slider/assets/index.css'
-import { makeStyles } from '@material-ui/core/styles'
 
 import {
   addPrecisionToNumber,
@@ -29,22 +27,7 @@ import {
   successNotification,
 } from '../../../components/Notifications'
 
-import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
-
-const useStyles = makeStyles({
-  root: {
-    width: 255,
-    marginBottom: '1rem',
-  },
-  slider: {
-    width: 170,
-    marginLeft: '5px',
-    vertiicalAlign: 'middle',
-  },
-  input: {
-    width: 35,
-  },
-})
+import styles from '../LimitForm/LimitForm.module.css'
 
 const errorInitialValues = {
   triggerPrice: '',
@@ -88,18 +71,17 @@ const SellStopLimitForm = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
 
-  const classes = useStyles()
-
   const marks = {
-    '-100': '',
-    '-75': '',
-    '-50': '',
-    '-25': '',
     0: '',
+    25: '',
+    50: '',
+    75: '',
+    100: '',
   }
 
   // @TODO
@@ -391,13 +373,17 @@ const SellStopLimitForm = () => {
             trigger: convertCommaNumberToDot(values.triggerPrice),
             price: convertCommaNumberToDot(values.price),
             quantity: convertCommaNumberToDot(values.quantity),
+            price_trigger: values.price_trigger,
           },
         }
         const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
+        if (data?.status === 'error') {
+          errorNotification.open({
+            description:
+              data?.error ||
+              `Order couldn't be created. Please try again later!`,
+          })
+        } else {
           successNotification.open({ description: `Order Created!` })
         }
         setValues({
@@ -407,7 +393,20 @@ const SellStopLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({
+          description: (
+            <p>
+              Order couldn’t be created. Unknown error. Please report at:{' '}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href="https://support.coinpanel.com"
+              >
+                <b>support.coinpanel.com</b>
+              </a>
+            </p>
+          ),
+        })
       } finally {
         setBtnVisibility(false)
       }
@@ -441,28 +440,35 @@ const SellStopLimitForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              placeholder="Trigger price"
-              value={values.triggerPrice}
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                placeholder="Trigger price"
+                value={values.triggerPrice}
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                postLabel={selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>
@@ -492,31 +498,29 @@ const SellStopLimitForm = () => {
             {renderInputValidationError('quantity')}
           </div>
 
-          <div className={classes.root}>
-            <Grid container spacing={0} alignItems="center">
-              <Grid item xs>
-                <Slider
-                  className={classes.slider}
-                  defaultValue={1}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={values.quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={values.quantityPercentage}
-                  margin="dense"
-                  onChange={handleQPInputChange}
-                  name="quantityPercentage"
-                  postLabel={'%'}
-                />
-              </Grid>
-            </Grid>
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                defaultValue={0}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleQPSliderChange}
+                value={values.quantityPercentage}
+              />
+            </div>
+
+            <div className={styles['SliderInput']}>
+              <InlineInput
+                value={values.quantityPercentage}
+                margin="dense"
+                onChange={handleQPInputChange}
+                name="quantityPercentage"
+                postLabel={'%'}
+                type="text"
+              />
+            </div>
           </div>
 
           <div className={styles['Input']}>

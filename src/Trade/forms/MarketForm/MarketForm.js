@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { getLastPrice, binanceSymbolPrice } from '../../../api/api'
+import { binanceSymbolPrice } from '../../../api/api'
 
 import {
   addPrecisionToNumber,
@@ -22,7 +22,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from './MarketForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const MarketForm = () => {
   const {
@@ -320,7 +320,10 @@ const MarketForm = () => {
           values.quantityPercentage,
           response?.price
         )
+        setValues({ ...values, quantity: quantityWithPrecision })
+        
         const payload = {
+          price: response?.price,
           quantity: convertCommaNumberToDot(quantityWithPrecision),
           balance: selectedSymbolBalance,
           symbol,
@@ -328,8 +331,7 @@ const MarketForm = () => {
         }
         addMarketEntry(payload)
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }

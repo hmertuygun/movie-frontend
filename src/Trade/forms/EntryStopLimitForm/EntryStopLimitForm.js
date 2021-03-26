@@ -16,10 +16,11 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
-import styles from './EntryStopLimitForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const EntryStopLimitForm = () => {
   const {
@@ -38,6 +39,7 @@ const EntryStopLimitForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState({
@@ -88,8 +90,8 @@ const EntryStopLimitForm = () => {
       )
       .max(
         maxPrice,
-        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-          minPrice,
+        `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+          maxPrice,
           pricePrecision
         )}`
       ),
@@ -106,7 +108,7 @@ const EntryStopLimitForm = () => {
       )
       .max(
         maxPrice,
-        `Price needs to meet min-price: ${addPrecisionToNumber(
+        `Price needs to meet max-price: ${addPrecisionToNumber(
           maxPrice,
           pricePrecision
         )}`
@@ -386,6 +388,7 @@ const EntryStopLimitForm = () => {
         symbol,
         type: 'stop-limit',
         side: 'buy',
+        price_trigger: values.price_trigger,
       }
       addEntryStopLimit(payload)
     }
@@ -431,16 +434,23 @@ const EntryStopLimitForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              value={values.triggerPrice}
-              placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                value={values.triggerPrice}
+                placeholder=""
+                postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>

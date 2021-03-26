@@ -25,7 +25,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
-import styles from '../MarketForm/MarketForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const BuyMarketForm = () => {
   const {
@@ -108,7 +108,7 @@ const BuyMarketForm = () => {
   })
 
   const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
-    const price = Number(values.price)
+    const price = selectedSymbolLastPrice
     const total = Number(value)
 
     const quantity = total / price

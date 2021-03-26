@@ -22,10 +22,11 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 
 import { InlineInput, Button } from '../../../components'
+import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
-import styles from '../EntryStopLimitForm/EntryStopLimitForm.module.css'
+import styles from '../LimitForm/LimitForm.module.css'
 
 const BuyStopLimitForm = () => {
   const {
@@ -43,6 +44,7 @@ const BuyStopLimitForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
+    price_trigger: 'p',
   })
 
   const [errors, setErrors] = useState({
@@ -400,13 +402,17 @@ const BuyStopLimitForm = () => {
             quantity: values.quantity,
             price: values.price,
             trigger: values.triggerPrice,
+            price_trigger: values.price_trigger,
           },
         }
         const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
+        if (data?.status === 'error') {
+          errorNotification.open({
+            description:
+              data?.error ||
+              `Order couldn't be created. Please try again later!`,
+          })
+        } else {
           successNotification.open({ description: `Order Created!` })
         }
         setValues({
@@ -416,7 +422,20 @@ const BuyStopLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({
+          description: (
+            <p>
+              Order couldn’t be created. Unknown error. Please report at:{' '}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href="https://support.coinpanel.com"
+              >
+                <b>support.coinpanel.com</b>
+              </a>
+            </p>
+          ),
+        })
       } finally {
         setBtnVisibility(false)
       }
@@ -450,29 +469,36 @@ const BuyStopLimitForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
 
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <InlineInput
-              label="Trigger price"
-              type="text"
-              name="triggerPrice"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              value={values.triggerPrice}
-              placeholder="Trigger price"
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
+            <div className={styles['InputDropdownContainer']}>
+              <PriceTriggerDropdown
+                onSelect={(selected) =>
+                  setValues({ ...values, price_trigger: selected.value })
+                }
+              />
+              <InlineInput
+                label="Trigger price"
+                type="text"
+                name="triggerPrice"
+                onChange={handleChange}
+                onBlur={(e) => handleBlur(e, pricePrecision)}
+                value={values.triggerPrice}
+                placeholder="Trigger price"
+                postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+              />
+            </div>
             {renderInputValidationError('triggerPrice')}
           </div>
           <div className={styles['Input']}>
