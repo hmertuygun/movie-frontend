@@ -33,7 +33,8 @@ const useStyles = makeStyles({
     marginLeft: '8px',
   },
   input: {
-    width: 35,
+    width: 45,
+    textAlign: 'right',
   },
 })
 
@@ -93,6 +94,13 @@ const ExitTarget = () => {
     50: '',
     75: '',
     100: '',
+  }
+  const marks2 = {
+    0: '',
+    250: '',
+    500: '',
+    750: '',
+    1000: '',
   }
 
   // @TODO
@@ -449,9 +457,9 @@ const ExitTarget = () => {
               <Slider
                 defaultValue={0}
                 step={1}
-                marks={marks}
+                marks={marks2}
                 min={0}
-                max={100}
+                max={1000}
                 onChange={handleSliderChange}
                 value={values.profit}
               />

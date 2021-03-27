@@ -34,7 +34,8 @@ const useStyles = makeStyles({
     marginLeft: '8px',
   },
   input: {
-    width: 35,
+    width: 45,
+    textAlign: 'right',
   },
 })
 
@@ -430,7 +431,6 @@ const ExitStoplossStopMarket = () => {
               </div>
               <div className={styles['SliderInput']}>
                 <InlineInput
-                  className={classes.input}
                   value={values.profit}
                   margin="dense"
                   onChange={handleSliderInputChange}
