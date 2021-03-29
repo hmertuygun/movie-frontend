@@ -41,6 +41,8 @@ export default class TradingViewChart extends Component {
       this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
       this.chartEvent("drawing_event")
+      this.chartEvent("study")
+      this.chartEvent("study_event")
     })
   }
 
@@ -53,7 +55,8 @@ export default class TradingViewChart extends Component {
   saveChartDrawingToServer = () => {
     this.tradingViewWidget.save((obj) => {
       console.log(`Chart Saved`)
-      const str = JSON.stringify(obj.charts[0].panes[0])
+      // console.log(obj)
+      const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })
   }
@@ -92,7 +95,7 @@ export default class TradingViewChart extends Component {
       if (!cData) return
       const pData = JSON.parse(cData)
       this.tradingViewWidget.save((obj) => {
-        const prep = { ...obj.charts[0], panes: [pData] }
+        const prep = { ...obj.charts[0], panes: pData }
         this.tradingViewWidget.load(prep)
       })
     }

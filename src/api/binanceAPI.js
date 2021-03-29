@@ -41,7 +41,7 @@ export default class binanceAPI {
         supports_timescale_marks: false,
         supports_time: true,
         supported_resolutions: [
-          '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M'
+          '1', '3', '5', '15', '30', '45', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M'
         ]
       })
     }).catch(err => {
@@ -142,7 +142,7 @@ export default class binanceAPI {
         console.log('📊:', totalKlines.length)
       }
 
-      if (totalKlines.length == 0) {
+      if (totalKlines.length === 0) {
         onHistoryCallback([], { noData: true })
       } else {
         onHistoryCallback(totalKlines.map(kline => {
@@ -164,7 +164,7 @@ export default class binanceAPI {
       this.binanceKlines(symbolInfo.name, interval, from, to, 500).then(klines => {
         totalKlines = totalKlines.concat(klines)
 
-        if (klines.length == 500) {
+        if (klines.length === 500) {
           from = klines[klines.length - 1][0] + 1
           getKlines(from, to)
         } else {
