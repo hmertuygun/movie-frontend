@@ -56,7 +56,9 @@ const Trade = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol, setIsOrderPlaced, refreshBalance } = useContext(SymbolContext)
+  const { selectedSymbol, setIsOrderPlaced, refreshBalance } = useContext(
+    SymbolContext
+  )
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
@@ -85,13 +87,15 @@ const Trade = () => {
       setBtnVisibility(true)
       setIsOrderPlaced(false)
       const { data, status } = await placeOrder({ ...state, ...activeExchange })
-      if (data?.status === "error") {
-        errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-      }
-      else {
+      if (data?.status === 'error') {
+        errorNotification.open({
+          description:
+            data?.error || `Order couldn't be created. Please try again later!`,
+        })
+      } else {
         successNotification.open({ description: `Order Created!` })
         const { entry } = state
-        if (entry.type !== "stop-limit" && entry.type !== "stop-market") {
+        if (entry.type !== 'stop-limit' && entry.type !== 'stop-market') {
           refreshBalance()
         }
       }
@@ -169,17 +173,21 @@ const Trade = () => {
               <Fragment>
                 <div className="d-flex justify-content-between align-items-start">
                   <Typography as="h3">2. Exits</Typography>
-                  <button type="button" className="px-0 py-0 btn btn-link" onClick={() => removeEntry(0)}>
+                  <button
+                    type="button"
+                    className="px-0 py-0 btn btn-link"
+                    onClick={() => removeEntry(0)}
+                  >
                     <FontAwesomeIcon icon={faChevronLeft} /> Back
                   </button>
                 </div>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
-                  <TabNavigator labelArray={['Limit', 'Stop-market']}>
+                  <TabNavigator labelArray={['Stop-market', 'Limit']}>
                     <ExitTarget />
                     <ExitTargetStopMarket />
                   </TabNavigator>
                   <TabNavigator
-                    labelArray={['Stop-limit', 'Stop-market']}
+                    labelArray={['Stop-market', 'Stop-limit']}
                     index={0}
                   >
                     <ExitStoplossStopLimit />
