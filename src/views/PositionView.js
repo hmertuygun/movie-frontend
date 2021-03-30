@@ -1,12 +1,14 @@
 import React from 'react'
+import PositionCTXProvider from '../Position/context/PositionContext'
 import AccordionContainer from '../Position/components/Accordion/AccordionContainer'
-import { data, cols } from '../Position/utils/mock-data'
 
 const Position = () => {
   return (
-    <div className="container" style={{ paddingTop: '48px' }}>
-      <AccordionContainer data={data} columns={cols} />
-    </div>
+    <PositionCTXProvider>
+      <div className="container" style={{ paddingTop: '48px' }}>
+        <AccordionContainer />
+      </div>
+    </PositionCTXProvider>
   )
 }
 

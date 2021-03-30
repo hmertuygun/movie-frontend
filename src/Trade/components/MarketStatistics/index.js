@@ -91,16 +91,14 @@ function MarketStatistics() {
   }, [lastMessage, quoteAsset, symbolPair])
 
   useEffect(() => {
-    if (symbolPair) {
-      sendMessage(
-        JSON.stringify({
-          id: 1,
-          method: 'SUBSCRIBE',
-          params: ['!ticker@arr'],
-        })
-      )
-    }
-  }, [symbolPair])
+    sendMessage(
+      JSON.stringify({
+        id: 1,
+        method: 'SUBSCRIBE',
+        params: ['!ticker@arr'],
+      })
+    )
+  }, [])
 
   return (
     <div className="marketDataContainer">

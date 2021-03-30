@@ -451,3 +451,15 @@ export async function storeNotificationToken(fcmToken) {
   })
   return notifData.data
 }
+
+export async function getPositionsList({ apiKeyName, exchange }) {
+  const apiUrl = `${process.env.REACT_APP_POSITION_API}list?apikeyname=${apiKeyName}&exchange=${exchange}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response
+}

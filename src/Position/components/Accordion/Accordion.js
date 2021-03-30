@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react'
+import { Popover } from 'react-tiny-popover'
 import AccordionContent from './AccordionContent'
 
 const Accordion = (props) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const [isPositionSuccess, setIsPositionSuccess] = useState(true)
   const toggleRow = () => {
     setIsOpen(!isOpen)
   }
 
-  const { market, ROE, PNL, entryPrice, currentPrice, units, date } = props
+  const {
+    market,
+    ROE,
+    PNL,
+    entryPrice,
+    orders,
+    currentPrice,
+    units,
+    date,
+  } = props
 
   useEffect(() => {
     const { ROE } = props
@@ -21,7 +32,7 @@ const Accordion = (props) => {
     <>
       <div className="card">
         <div
-          className="card-header py-0 pl-0 pr-0 pr-md-6"
+          className="py-0 pl-0 pr-0 card-header pr-md-6"
           id="heading"
           data-toggle="collapse"
           role="button"
@@ -30,9 +41,9 @@ const Accordion = (props) => {
           aria-controls="collapse"
           onClick={toggleRow}
         >
-          <div className="card-body d-flex align-items-center flex-wrap flex-lg-nowrap py-0 pr-0">
-            <div className="col-auto col-lg-2 d-flex align-items-center px-0 pt-3 pt-lg-0 zindex-100 mr-3">
-              <span className="badge badge-md text-sm badge-light mr-2 positionMarketName">
+          <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap">
+            <div className="col-auto px-0 pt-3 mr-3 col-lg-2 d-flex align-items-center pt-lg-0 zindex-100">
+              <span className="mr-2 text-sm badge badge-md badge-light positionMarketName">
                 {market}
               </span>
               <div className="">
@@ -45,8 +56,8 @@ const Accordion = (props) => {
                 </span>
               </div>
             </div>
-            <div className="col-lg-1 col-auto pl-0 px-md-0 ml-md-0 ml-2 px-0 pt-3 pt-lg-0">
-              <div className="align-items-center mb-0 text-center">
+            <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
+              <div className="mb-0 text-center align-items-center">
                 <span
                   className={`${
                     isPositionSuccess ? 'text-success' : 'text-danger'
@@ -56,8 +67,8 @@ const Accordion = (props) => {
                 </span>
               </div>
             </div>
-            <div className="col-lg-2 col-auto pl-0 pl-md-2 ml-md-0 ml-2 px-0 pt-3 pt-lg-0">
-              <div className="align-items-center mb-0 text-center">
+            <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
+              <div className="mb-0 text-center align-items-center">
                 <span
                   className={`${
                     isPositionSuccess ? 'text-success' : 'text-danger'
@@ -67,25 +78,58 @@ const Accordion = (props) => {
                 </span>
               </div>
             </div>
-            <div className="col-12 col-lg-7 d-flex align-items-center position-static py-3 py-lg-3 px-0">
-              <div className="col col-lg-12 position-static px-0 text-lg-center">
-                <div className="d-flex flex-wrap flex-lg-nowrap align-items-center ">
-                  <div className="col-12 col-lg-3 px-0 position-static">
-                    <span className="d-lg-none h6">Entry Price: </span>
-                    <span id="value">{entryPrice}</span>
-                  </div>
-                  <div className="col-12 col-lg-3 px-0 position-static">
+            <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
+              <div className="px-0 col col-lg-12 position-static text-lg-center">
+                <div className="flex-wrap d-flex flex-lg-nowrap align-items-center ">
+                  <Popover
+                    isOpen={showInfo}
+                    positions={['bottom']}
+                    padding={10}
+                    onClickOutside={() => setShowInfo(false)}
+                    content={({ position, nudgedLeft, nudgedTop }) =>
+                      orders.orders
+                        .sort((a, b) => {
+                          return a.time > b.time
+                        })
+                        .map((order, index) => (
+                          <div
+                            key={index}
+                            className="d-flex justify-content-between zindex-100"
+                            style={{
+                              background:
+                                order.side === 'BUY' ? '#5cc9a7' : '#f84960',
+                              color: 'white',
+                            }}
+                          >
+                            <div className="px-2">{order.executedQty}</div>
+                            <div className="px-2">{`${order.averageFillPrice} ${
+                              market.split('-')?.[1]
+                            }`}</div>
+                          </div>
+                        ))
+                    }
+                  >
+                    <div
+                      className="px-0 col-12 col-lg-3 position-static"
+                      onMouseOver={() => setShowInfo(true)}
+                      onMouseOut={() => setShowInfo(false)}
+                    >
+                      <span className="d-lg-none h6">Entry Price: </span>
+                      <span id="value">{entryPrice}</span>
+                    </div>
+                  </Popover>
+                  <div className="px-0 col-12 col-lg-3 position-static">
                     <span className="d-lg-none h6">Current Price: </span>
                     <span id="value">{currentPrice}</span>
                   </div>
-                  <div className="col-12 col-lg-3 px-0 position-static">
+                  <div className="px-0 col-12 col-lg-3 position-static">
                     <span className="d-lg-none h6">Amount: </span>
                     <span id="value">{units}</span>
                   </div>
-                  <div className="col-12 col-lg-3 px-0 position-static text-muted text-sm">
+                  <div className="px-0 text-sm col-12 col-lg-3 position-static text-muted">
                     <span className="d-lg-none h6">Opened: </span>
                     <span
-                      className="badge badge-xs text-xs badge-light mr-2"
+                      className="mr-2 text-xs badge badge-xs badge-light"
                       id="value"
                     >
                       {' '}
