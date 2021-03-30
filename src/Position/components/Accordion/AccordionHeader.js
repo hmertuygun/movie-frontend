@@ -33,9 +33,9 @@ const AccordionHeader = (props) => {
 
   return (
     <>
-      <div className="row align-items-center mb-4">
+      <div className="mb-4 row align-items-center">
         <div className="col">
-          <h1 className="h4 mb-0">Positions</h1>
+          <h1 className="mb-0 h4">Positions</h1>
         </div>
         <div className="col-auto">
           <button
@@ -48,7 +48,7 @@ const AccordionHeader = (props) => {
             </span>
           </button>
           <span
-            className="badge badge-dot px-3"
+            className="px-3 badge badge-dot"
             data-toggle="tooltip"
             data-placement="top"
             title="Live price update is working."
@@ -60,7 +60,7 @@ const AccordionHeader = (props) => {
 
           <button
             type="button"
-            className="btn btn-sm btn-neutral btn-icon ml-0"
+            className="ml-0 btn btn-sm btn-neutral btn-icon"
             id="dropdownMenuButton"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -98,7 +98,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('ROE')
+                requestSort('ROE', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -108,7 +108,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('market')
+                requestSort('position', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -119,7 +119,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('date')
+                requestSort('date', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -147,7 +147,11 @@ const AccordionHeader = (props) => {
               ></span>
             </button>
           ) : (
-            <button onClick={refreshData} type="button" className="btn btn-sm btn-neutral btn-icon">
+            <button
+              onClick={refreshData}
+              type="button"
+              className="btn btn-sm btn-neutral btn-icon"
+            >
               <span style={{ paddingRight: '6px' }}>Refresh</span>
               <span className="btn-inner--icon">
                 <FontAwesomeIcon icon={faSync} />

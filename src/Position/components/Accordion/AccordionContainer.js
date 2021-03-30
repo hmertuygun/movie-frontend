@@ -5,9 +5,11 @@ import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
 // import { data } from '../../utils/mock-data'
 import { PositionContext } from '../../context/PositionContext'
+import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
+  const { symbolDetails } = useSymbolContext()
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
   const { sendMessage, lastMessage } = useWebSocket(
@@ -28,6 +30,8 @@ const AccordionContainer = () => {
       const currentPrice = Number(
         message.find((message) => message.s === symbol.replace('-', ''))?.c
       )
+      const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
+
       // if no market data for position's symbol, return previous market data
       if (!currentPrice) return data.find((item) => item.market === symbol)
       let ROE = ''
@@ -35,11 +39,22 @@ const AccordionContainer = () => {
       if (entry > currentPrice) {
         ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
         PNL =
-          '-' + ((entry - currentPrice) * amount).toFixed(2) + ` ${quoteAsset}`
+          '-' +
+          ((entry - currentPrice) * amount).toFixed(selectedSymbol.tickSize) +
+          ` ${quoteAsset}`
       } else {
         ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
         PNL =
-          '+' + ((currentPrice - entry) * amount).toFixed(2) + ` ${quoteAsset}`
+          '+' +
+          ((currentPrice - entry) * amount).toFixed(selectedSymbol.tickSize) +
+          ` ${quoteAsset}`
+      }
+      let positionValue = currentPrice * amount
+      if (quoteAsset !== 'USDT') {
+        const quotePrice = Number(
+          message.find((message) => message.s === `${quoteAsset}USDT`)?.c
+        )
+        positionValue *= quotePrice
       }
       const modifiedData = {
         market: symbol,
@@ -48,12 +63,9 @@ const AccordionContainer = () => {
         entryPrice: entry,
         currentPrice,
         units: amount,
-        date: new Date(dateOpened).toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          // year: 'numeric',
-        }),
+        date: dateOpened,
         orders,
+        position: positionValue,
       }
       return modifiedData
     })

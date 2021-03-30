@@ -133,7 +133,11 @@ const Accordion = (props) => {
                       id="value"
                     >
                       {' '}
-                      {date}
+                      {new Date(date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </span>
                   </div>
                 </div>

@@ -51,39 +51,28 @@ function MarketStatistics() {
           totalTradedQuoteAssetVolume,
         }
 
-        const splittedValue = Number(priceChange).toString().split('.')
-        if (priceChange >= 1) {
-          for (const [key, value] of Object.entries(newMessage)) {
-            newMessage[key] = Number(value).toFixed(2)
-          }
-        } else {
-          let precision = 0
-          if (splittedValue[1]?.length <= 2) {
-            precision = 2
-          } else if (splittedValue[1]?.length <= 4) {
-            precision = 4
-          } else if (splittedValue[1]?.length <= 6) {
-            precision = 6
-          } else {
-            precision = 8
-          }
-          newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(precision)
-          newMessage.worth = Number(newMessage.worth).toFixed(2)
-          newMessage.priceChange = Number(newMessage.priceChange).toFixed(
-            precision
-          )
-          newMessage.priceChangePercent = Number(
-            newMessage.priceChangePercent
-          ).toFixed(2)
-          newMessage.highPrice = Number(newMessage.highPrice).toFixed(precision)
-          newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(precision)
-          newMessage.totalTradedBaseAssetVolume = Number(
-            newMessage.totalTradedBaseAssetVolume
-          ).toFixed(2)
-          newMessage.totalTradedQuoteAssetVolume = Number(
-            newMessage.totalTradedQuoteAssetVolume
-          ).toFixed(2)
-        }
+        newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(
+          selectedSymbolDetail.tickSize
+        )
+        newMessage.worth = Number(newMessage.worth).toFixed(2)
+        newMessage.priceChange = Number(newMessage.priceChange).toFixed(
+          selectedSymbolDetail.tickSize
+        )
+        newMessage.priceChangePercent = Number(
+          newMessage.priceChangePercent
+        ).toFixed(2)
+        newMessage.highPrice = Number(newMessage.highPrice).toFixed(
+          selectedSymbolDetail.tickSize
+        )
+        newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(
+          selectedSymbolDetail.tickSize
+        )
+        newMessage.totalTradedBaseAssetVolume = Number(
+          newMessage.totalTradedBaseAssetVolume
+        ).toFixed(2)
+        newMessage.totalTradedQuoteAssetVolume = Number(
+          newMessage.totalTradedQuoteAssetVolume
+        ).toFixed(2)
 
         setMessage(newMessage)
       }
