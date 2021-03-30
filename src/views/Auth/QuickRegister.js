@@ -72,7 +72,7 @@ const QuickRegister = () => {
     <section>
       <div
         className="position-absolute h-100 top-0 left-0 zindex-100 col-lg-6 col-xl-6 zindex-100 d-none d-lg-flex flex-column justify-content-center"
-        style={{backgroundColor: '#1652f1'}}
+        style={{ backgroundColor: '#1652f1' }}
       >
         <div className="row position-relative zindex-110 p-5">
           <div className="col-12 text-center mb-4">
@@ -86,7 +86,7 @@ const QuickRegister = () => {
           </div>
           <div className="col-md-12 text-center mx-auto">
             <h5 className="h3 text-white mt-3 mb-4">
-              Relaxed crypto trading is here.
+              Carefree crypto trading is here
             </h5>
             <p className="text-white opacity-9 mb-4">
               Connect your exchange and never be tied to your screen again.
