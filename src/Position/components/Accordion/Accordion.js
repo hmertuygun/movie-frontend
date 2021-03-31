@@ -39,7 +39,7 @@ const Accordion = (props) => {
           data-target="#collapse"
           aria-expanded="false"
           aria-controls="collapse"
-          onClick={toggleRow}
+          // onClick={toggleRow}
         >
           <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap">
             <div className="col-auto px-0 pt-3 mr-3 col-lg-2 d-flex align-items-center pt-lg-0 zindex-100">
@@ -90,28 +90,55 @@ const Accordion = (props) => {
                     positions={['bottom']}
                     padding={10}
                     onClickOutside={() => setShowInfo(false)}
-                    content={({ position, nudgedLeft, nudgedTop }) =>
-                      orders.orders
-                        .sort((a, b) => {
-                          return a.time > b.time
-                        })
-                        .map((order, index) => (
-                          <div
-                            key={index}
-                            className="d-flex justify-content-between zindex-100"
-                            style={{
-                              background:
-                                order.side === 'BUY' ? '#5cc9a7' : '#f84960',
-                              color: 'white',
-                            }}
-                          >
-                            <div className="px-2">{order.executedQty}</div>
-                            <div className="px-2">{`${order.averageFillPrice} ${
-                              market.split('-')?.[1]
-                            }`}</div>
-                          </div>
-                        ))
-                    }
+                    content={({ position, nudgedLeft, nudgedTop }) => {
+                      return (
+                        <table>
+                          <tbody>
+                            <tr
+                              className="bg-secondary"
+                              style={{
+                                color: 'black',
+                              }}
+                            >
+                              <th
+                                className="px-2 text-dark"
+                                style={{ fontWeight: '400' }}
+                              >
+                                Amount
+                              </th>
+                              <th
+                                className="px-2 text-dark"
+                                style={{ fontWeight: '400' }}
+                              >
+                                Price
+                              </th>
+                            </tr>
+                            {orders.orders
+                              .sort((a, b) => {
+                                return a.time > b.time
+                              })
+                              .map((order, index) => (
+                                <tr
+                                  key={index}
+                                  className={`${
+                                    order.side === 'BUY'
+                                      ? 'bg-light-success'
+                                      : 'bg-light-danger'
+                                  }`}
+                                  style={{
+                                    color: 'white',
+                                  }}
+                                >
+                                  <td className="px-2">{order.executedQty}</td>
+                                  <td className="px-2">{`${
+                                    order.averageFillPrice
+                                  } ${market.split('-')?.[1]}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      )
+                    }}
                   >
                     <div
                       className="px-0 col-12 col-lg-3 position-static"
