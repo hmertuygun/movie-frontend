@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef, useContext } from 'react'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { PositionContext } from '../../context/PositionContext'
+import tooltipStyles from '../../../Trade/components/TradeOrders/tooltip.module.css'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef)
 
-  const { requestSort } = props
+  const { requestSort, liveUpdate } = props
   const { isLoading, refreshData } = useContext(PositionContext)
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [liveUpdate] = useState(false)
 
   const ToggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -47,16 +47,20 @@ const AccordionHeader = (props) => {
               <i className="fab fa-bitcoin"></i>
             </span>
           </button>
-          <span
-            className="px-3 badge badge-dot"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Live price update is working."
-            style={{ fontWeight: '600' }}
-          >
-            <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
-            Connected
-          </span>
+          <div className={tooltipStyles.customTooltip}>
+            <span
+              className="px-3 badge badge-dot"
+              style={{ fontWeight: '600' }}
+            >
+              <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
+              Connected
+            </span>
+            <span className={tooltipStyles.tooltiptext}>
+              {liveUpdate
+                ? 'Live price update is working.'
+                : "Live price update isn't working."}
+            </span>
+          </div>
 
           <button
             type="button"
@@ -138,7 +142,10 @@ const AccordionHeader = (props) => {
             </button>
           </div>
           {isLoading ? (
-            <button className="btn btn-sm btn-neutral btn-icon" type="button">
+            <button
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
+              type="button"
+            >
               <span style={{ paddingRight: '6px' }}>Refresh</span>
               <span
                 className="spinner-border spinner-border-sm"
@@ -150,7 +157,7 @@ const AccordionHeader = (props) => {
             <button
               onClick={refreshData}
               type="button"
-              className="btn btn-sm btn-neutral btn-icon"
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
             >
               <span style={{ paddingRight: '6px' }}>Refresh</span>
               <span className="btn-inner--icon">

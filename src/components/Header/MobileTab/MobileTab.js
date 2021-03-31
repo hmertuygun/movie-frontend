@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import {
+  faPercentage,
   faChartLine,
   faChartPie,
   faCog,
@@ -40,17 +41,17 @@ const MobileTab = () => {
               className="nav-link"
               to="/trade"
             >
-              <div className="svg-icon trade">
+              <div className="svg-icon">
                 <FontAwesomeIcon icon={faChartLine} size="2x" />
               </div>
             </NavLink>
             <NavLink
               activeClassName="nav-link active"
               className="nav-link"
-              to="/portfolio"
+              to="/positions"
             >
-              <div className="svg-icon gear">
-                <FontAwesomeIcon icon={faChartPie} size="2x" />
+              <div className="svg-icon">
+                <FontAwesomeIcon icon={faPercentage} size="2x" />
               </div>
             </NavLink>
           </div>
@@ -60,9 +61,18 @@ const MobileTab = () => {
             <NavLink
               activeClassName="nav-link active"
               className="nav-link"
+              to="/portfolio"
+            >
+              <div className="svg-icon">
+                <FontAwesomeIcon icon={faChartPie} size="2x" />
+              </div>
+            </NavLink>
+            <NavLink
+              activeClassName="nav-link active"
+              className="nav-link"
               to="/settings"
             >
-              <div className="svg-icon trade">
+              <div className="svg-icon">
                 <FontAwesomeIcon icon={faCog} size="2x" />
               </div>
             </NavLink>
