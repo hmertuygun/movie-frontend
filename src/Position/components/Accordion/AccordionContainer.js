@@ -6,10 +6,12 @@ import Accordion from './Accordion'
 // import { data } from '../../utils/mock-data'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
   const { symbolDetails } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
   const { sendMessage, lastMessage, readyState } = useWebSocket(
@@ -40,13 +42,13 @@ const AccordionContainer = () => {
         ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
         PNL =
           '-' +
-          ((entry - currentPrice) * amount).toFixed(selectedSymbol.tickSize) +
+          ((entry - currentPrice) * amount).toFixed(selectedSymbol?.tickSize) +
           ` ${quoteAsset}`
       } else {
         ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
         PNL =
           '+' +
-          ((currentPrice - entry) * amount).toFixed(selectedSymbol.tickSize) +
+          ((currentPrice - entry) * amount).toFixed(selectedSymbol?.tickSize) +
           ` ${quoteAsset}`
       }
       let positionValue = currentPrice * amount
@@ -60,7 +62,7 @@ const AccordionContainer = () => {
         market: symbol,
         ROE,
         PNL,
-        entryPrice: Number(entry.toFixed(selectedSymbol.tickSize)),
+        entryPrice: Number(entry.toFixed(selectedSymbol?.tickSize)),
         currentPrice,
         units: amount,
         date: dateOpened,
@@ -72,6 +74,12 @@ const AccordionContainer = () => {
     setData(positionsData)
   }, [positions, message])
 
+  const onUnload = () => {
+    localStorage.removeItem(
+      `position_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
+  }
+
   useEffect(() => {
     sendMessage(
       JSON.stringify({
@@ -80,6 +88,10 @@ const AccordionContainer = () => {
         params: ['!ticker@arr'],
       })
     )
+    window.addEventListener('beforeunload', onUnload)
+    return () => {
+      window.removeEventListener('beforeunload', onUnload)
+    }
   }, [])
 
   const { items, requestSort } = useSortableData(data)

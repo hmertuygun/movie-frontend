@@ -15,14 +15,13 @@ const PositionCTXProvider = ({ children }) => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
-      if (data?.status === 'error') {
-        console.log(
-          data?.error || 'Cannot fetch positions. Please try again later!'
-        )
-      } else {
-        setPositions(data.positions)
-        setIsLoading(false)
-      }
+      localStorage.setItem(
+        `position_${apiKeyName}_${exchange}`,
+        JSON.stringify(data.positions)
+      )
+
+      setPositions(data.positions)
+      setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
       console.log('Cannot fetch positions. Please try again later!')
@@ -30,7 +29,20 @@ const PositionCTXProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    if (exchange && apiKeyName) fetchPositionsList()
+    if (exchange && apiKeyName) {
+      setIsLoading(true)
+      const cachePosition = localStorage.getItem(
+        `position_${apiKeyName}_${exchange}`
+      )
+
+      if (cachePosition) {
+        const parsedPosition = JSON.parse(cachePosition)
+        setPositions(parsedPosition)
+        setIsLoading(false)
+      } else {
+        fetchPositionsList()
+      }
+    }
   }, [activeExchange])
 
   const refreshData = () => {
