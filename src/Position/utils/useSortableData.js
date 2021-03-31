@@ -20,16 +20,7 @@ const useSortableData = (items, config = null) => {
     return sortableItems
   }, [items, sortConfig])
 
-  const requestSort = (key) => {
-    let direction = 'ascending'
-
-    if (
-      sortConfig &&
-      sortConfig.key !== 'ROE' &&
-      sortConfig.direction === 'ascending'
-    ) {
-      direction = 'descending'
-    }
+  const requestSort = (key, direction = 'ascending') => {
     setSortConfig({ key, direction })
   }
 

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Switch, Route, Redirect, useHistory } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive';
+import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
 import Login from './views/Auth/QuickLogin'
@@ -23,17 +23,24 @@ import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 const Routes = () => {
   const history = useHistory()
-  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   useEffect(() => {
     PageView()
     history.listen(PageView)
   }, [history])
 
-  const { isLoggedIn, logout, userContextLoaded, loadApiKeys, loaderVisible, loaderText } = useContext(UserContext)
+  const {
+    isLoggedIn,
+    logout,
+    userContextLoaded,
+    loadApiKeys,
+    loaderVisible,
+    loaderText,
+  } = useContext(UserContext)
 
   return (
-    <div style={{paddingBottom: isMobile? '80px': ''}}>
+    <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
       <Switch>
         {isLoggedIn && userContextLoaded && (
@@ -51,7 +58,7 @@ const Routes = () => {
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
-            <Route path="/positions" component={Position} />
+            <CacheRoute path="/positions" component={Position} />
             <Redirect to="/trade" />
           </CacheSwitch>
         )}

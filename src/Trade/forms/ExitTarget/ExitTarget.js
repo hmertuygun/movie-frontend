@@ -33,7 +33,8 @@ const useStyles = makeStyles({
     marginLeft: '8px',
   },
   input: {
-    width: 35,
+    width: 45,
+    textAlign: 'right',
   },
 })
 

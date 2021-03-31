@@ -12,13 +12,13 @@
 }
 
 .SliderSlider {
-  width: calc(100% - 120px);
+  width: calc(100% - 130px);
   height: 15px;
 }
 
 .SliderInput {
-  width: 65px;
-  min-width: 65px;
+  width: 75px;
+  min-width: 75px;
 }
 
 .Input {

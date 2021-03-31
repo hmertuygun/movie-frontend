@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import { faSync } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { PositionContext } from '../../context/PositionContext'
+import tooltipStyles from '../../../Trade/components/TradeOrders/tooltip.module.css'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef)
 
-  const { requestSort } = props
+  const { requestSort, liveUpdate } = props
+  const { isLoading, refreshData } = useContext(PositionContext)
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [liveUpdate] = useState(false)
 
   const ToggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -29,9 +33,9 @@ const AccordionHeader = (props) => {
 
   return (
     <>
-      <div className="row align-items-center mb-4">
+      <div className="mb-4 row align-items-center">
         <div className="col">
-          <h1 className="h4 mb-0">Positions</h1>
+          <h1 className="mb-0 h4">Positions</h1>
         </div>
         <div className="col-auto">
           <button
@@ -43,20 +47,24 @@ const AccordionHeader = (props) => {
               <i className="fab fa-bitcoin"></i>
             </span>
           </button>
-          <span
-            className="badge badge-dot px-3"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="Live price update is working."
-            style={{ fontWeight: '600' }}
-          >
-            <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
-            Connected
-          </span>
+          <div className={tooltipStyles.customTooltip}>
+            <span
+              className="px-3 badge badge-dot"
+              style={{ fontWeight: '600' }}
+            >
+              <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
+              Connected
+            </span>
+            <span className={tooltipStyles.tooltiptext}>
+              {liveUpdate
+                ? 'Live price update is working.'
+                : "Live price update isn't working."}
+            </span>
+          </div>
 
           <button
             type="button"
-            className="btn btn-sm btn-neutral btn-icon ml-0"
+            className="ml-0 btn btn-sm btn-neutral btn-icon"
             id="dropdownMenuButton"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -94,7 +102,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('ROE')
+                requestSort('ROE', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -104,7 +112,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('market')
+                requestSort('position', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -115,7 +123,7 @@ const AccordionHeader = (props) => {
             <button
               className="dropdown-item"
               onClick={() => {
-                requestSort('date')
+                requestSort('date', 'descending')
                 setIsMenuOpen(false)
               }}
             >
@@ -133,25 +141,30 @@ const AccordionHeader = (props) => {
               Newest
             </button>
           </div>
-          <button type="button" className="btn btn-sm btn-neutral btn-icon">
-            <span style={{ paddingRight: '6px' }}>Refresh</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              className="feather feather-refresh-ccw"
+          {isLoading ? (
+            <button
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
+              type="button"
             >
-              <polyline points="1 4 1 10 7 10"></polyline>
-              <polyline points="23 20 23 14 17 14"></polyline>
-              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-            </svg>
-          </button>
+              <span style={{ paddingRight: '6px' }}>Refresh</span>
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            </button>
+          ) : (
+            <button
+              onClick={refreshData}
+              type="button"
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
+            >
+              <span style={{ paddingRight: '6px' }}>Refresh</span>
+              <span className="btn-inner--icon">
+                <FontAwesomeIcon icon={faSync} />
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </>
