@@ -142,7 +142,10 @@ const AccordionHeader = (props) => {
             </button>
           </div>
           {isLoading ? (
-            <button className="btn btn-sm btn-neutral btn-icon" type="button">
+            <button
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
+              type="button"
+            >
               <span style={{ paddingRight: '6px' }}>Refresh</span>
               <span
                 className="spinner-border spinner-border-sm"
@@ -154,7 +157,7 @@ const AccordionHeader = (props) => {
             <button
               onClick={refreshData}
               type="button"
-              className="btn btn-sm btn-neutral btn-icon"
+              className="ml-2 btn btn-sm btn-neutral btn-icon"
             >
               <span style={{ paddingRight: '6px' }}>Refresh</span>
               <span className="btn-inner--icon">

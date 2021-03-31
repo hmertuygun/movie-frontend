@@ -89,72 +89,77 @@ const AccordionContainer = () => {
   })
 
   return (
-    <>
-      <AccordionHeader
-        requestSort={requestSort}
-        liveUpdate={readyState === ReadyState.OPEN}
-      />
+    <div
+      className="bg-section-secondary"
+      style={{ minHeight: 'calc(100vh - 71px)' }}
+    >
+      <div className="container" style={{ paddingTop: '48px' }}>
+        <AccordionHeader
+          requestSort={requestSort}
+          liveUpdate={readyState === ReadyState.OPEN}
+        />
 
-      <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
-        <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap font-weight-bold">
-          <div
-            className="col-auto pt-3 pr-0 mr-3 col-lg-2 align-items-center pt-lg-0 zindex-100"
-            style={{ paddingLeft: '1.85rem' }}
-          >
-            Market
-          </div>
-          <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
+        <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
+          <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap font-weight-bold">
             <div
-              className="mb-0 text-center align-items-center"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Return on Equity"
+              className="col-auto pt-3 pr-0 mr-3 col-lg-2 align-items-center pt-lg-0 zindex-100"
+              style={{ paddingLeft: '1.85rem' }}
             >
-              <span className="text-md font-weight-bold">ROE %</span>
+              Market
             </div>
-          </div>
-          <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
-            <div
-              className="mb-0 text-center align-items-center"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Profit & Loss"
-            >
-              <span className="text-md font-weight-bold">PNL</span>
+            <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
+              <div
+                className="mb-0 text-center align-items-center"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Return on Equity"
+              >
+                <span className="text-md font-weight-bold">ROE %</span>
+              </div>
             </div>
-          </div>
-          <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
-            <div className="px-0 col col-lg-12 position-static text-lg-center">
-              <div className="flex-wrap d-flex flex-lg-nowrap align-items-center">
-                <div className="px-0 col-12 col-lg-3 position-static">
-                  <span id="value">Entry Price</span>
-                </div>
-                <div className="px-0 col-12 col-lg-3 position-static">
-                  <span id="value">Current Price</span>
-                </div>
-                <div className="px-0 col-12 col-lg-3 position-static">
-                  <span id="value">Units</span>
-                </div>
-                <div className="px-0 col-12 col-lg-3 position-static text-muted">
-                  <span id="value">Date Opened</span>
+            <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
+              <div
+                className="mb-0 text-center align-items-center"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Profit & Loss"
+              >
+                <span className="text-md font-weight-bold">PNL</span>
+              </div>
+            </div>
+            <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
+              <div className="px-0 col col-lg-12 position-static text-lg-center">
+                <div className="flex-wrap d-flex flex-lg-nowrap align-items-center">
+                  <div className="px-0 col-12 col-lg-3 position-static">
+                    <span id="value">Entry Price</span>
+                  </div>
+                  <div className="px-0 col-12 col-lg-3 position-static">
+                    <span id="value">Current Price</span>
+                  </div>
+                  <div className="px-0 col-12 col-lg-3 position-static">
+                    <span id="value">Units</span>
+                  </div>
+                  <div className="px-0 col-12 col-lg-3 position-static text-muted">
+                    <span id="value">Date Opened</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div id="accordion" className="accordion accordion-spaced">
-        {isLoading ? (
-          <div className="pt-5 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="sr-only">Loading...</span>
+        <div id="accordion" className="accordion accordion-spaced">
+          {isLoading ? (
+            <div className="pt-5 text-center">
+              <div className="spinner-border text-primary" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
             </div>
-          </div>
-        ) : (
-          rows
-        )}
+          ) : (
+            rows
+          )}
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 

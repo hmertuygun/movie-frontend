@@ -7,9 +7,7 @@ const Position = () => {
   return (
     <PositionCTXProvider>
       <SymbolContextProvider>
-        <div className="container" style={{ paddingTop: '48px' }}>
-          <AccordionContainer />
-        </div>
+        <AccordionContainer />
       </SymbolContextProvider>
     </PositionCTXProvider>
   )
