@@ -105,6 +105,9 @@ hr {
   border-radius: 50%;
   vertical-align: middle;
 }
+.grayscale {
+  filter: grayscale(1);
+}
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,

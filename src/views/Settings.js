@@ -3,7 +3,7 @@ import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
 import Notifications from '../Settings/Notifications'
-
+import Subscriptions from '../Settings/Subscription'
 const Settings = () => {
   return (
     <Fragment>
@@ -25,12 +25,13 @@ const Settings = () => {
               <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security', 'Notifications']}
+                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions']}
                     tabIndex={1}
                   >
                     <Exchanges />
                     <Security />
                     <Notifications />
+                    <Subscriptions />
                   </TabNavigator>
                 </div>
               </div>

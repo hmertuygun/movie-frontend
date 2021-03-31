@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom'
+import { Switch, Route, Redirect, useHistory, useLocation } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
@@ -17,12 +17,15 @@ import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 import OnboardingModal from './Trade/OnboardingModal'
+import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 const Routes = () => {
   const history = useHistory()
+  const { pathname } = useLocation()
+  const isSettingsPage = pathname === "/settings"
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   useEffect(() => {
@@ -35,10 +38,12 @@ const Routes = () => {
     logout,
     userContextLoaded,
     loadApiKeys,
+    hasSub,
     loaderVisible,
     loaderText,
   } = useContext(UserContext)
 
+  console.log(isSettingsPage)
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
@@ -52,9 +57,11 @@ const Routes = () => {
             }}
           />
         )}
+        {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && <SubscriptionModal />}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
+            {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />

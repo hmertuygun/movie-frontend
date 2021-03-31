@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MarketStatistics from './components/MarketStatistics'
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
-
+import Modal from '../components/Modal/Modal'
 const db = firebase.firestore()
 
 const registerResizeObserver = (cb, elem) => {
