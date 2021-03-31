@@ -12,6 +12,9 @@
   padding: 2px !important;
   vertical-align: middle !important;
   color: rgb(174, 180, 188);
+  position: sticky;
+  top: -1px;
+  background-color: white !important;
 }
 
 .canceled {
