@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import useWebSocket from 'react-use-websocket'
+import useWebSocket, { ReadyState } from 'react-use-websocket'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
@@ -12,7 +12,7 @@ const AccordionContainer = () => {
   const { symbolDetails } = useSymbolContext()
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
-  const { sendMessage, lastMessage } = useWebSocket(
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
     'wss://stream.binance.com:9443/stream'
   )
 
@@ -60,7 +60,7 @@ const AccordionContainer = () => {
         market: symbol,
         ROE,
         PNL,
-        entryPrice: entry,
+        entryPrice: Number(entry.toFixed(selectedSymbol.tickSize)),
         currentPrice,
         units: amount,
         date: dateOpened,
@@ -90,7 +90,10 @@ const AccordionContainer = () => {
 
   return (
     <>
-      <AccordionHeader requestSort={requestSort} />
+      <AccordionHeader
+        requestSort={requestSort}
+        liveUpdate={readyState === ReadyState.OPEN}
+      />
 
       <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
         <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap font-weight-bold">

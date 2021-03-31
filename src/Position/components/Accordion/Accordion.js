@@ -52,7 +52,11 @@ const Accordion = (props) => {
                     isPositionSuccess ? 'bg-soft-success' : 'bg-soft-danger'
                   }`}
                 >
-                  <i className="fas fa-caret-up"></i>
+                  <i
+                    className={`fas ${
+                      isPositionSuccess ? 'fa-caret-up' : 'fa-caret-down'
+                    }`}
+                  ></i>
                 </span>
               </div>
             </div>
