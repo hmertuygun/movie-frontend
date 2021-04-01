@@ -48,8 +48,10 @@ const Accordion = (props) => {
               </span>
               <div className="">
                 <span
-                  className={`icon icon-shape icon-sm text-success" ${
-                    isPositionSuccess ? 'bg-soft-success' : 'bg-soft-danger'
+                  className={`icon icon-shape icon-sm bg-soft-success ${
+                    isPositionSuccess
+                      ? 'bg-soft-success text-success'
+                      : 'bg-soft-danger text-danger'
                   }`}
                 >
                   <i
