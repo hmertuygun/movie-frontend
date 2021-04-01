@@ -145,8 +145,9 @@ const AccordionHeader = (props) => {
             <button
               className="ml-2 btn btn-sm btn-neutral btn-icon"
               type="button"
+              disabled
             >
-              <span style={{ paddingRight: '6px' }}>Refresh</span>
+              Refresh{'  '}
               <span
                 className="spinner-border spinner-border-sm"
                 role="status"
@@ -155,11 +156,11 @@ const AccordionHeader = (props) => {
             </button>
           ) : (
             <button
-              onClick={refreshData}
               type="button"
               className="ml-2 btn btn-sm btn-neutral btn-icon"
+              onClick={refreshData}
             >
-              <span style={{ paddingRight: '6px' }}>Refresh</span>
+              <span className="btn-inner--text">Refresh</span>
               <span className="btn-inner--icon">
                 <FontAwesomeIcon icon={faSync} />
               </span>
