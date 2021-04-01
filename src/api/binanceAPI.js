@@ -111,7 +111,6 @@ export default class binanceAPI {
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
-    console.log('In Binance API', symbolInfo.name)
 
     const interval = {
       '1': '1m',

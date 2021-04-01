@@ -6,6 +6,7 @@ const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
 export default class TradingViewChart extends Component {
+
   constructor({ symbol, theme, email }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
@@ -17,7 +18,11 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
+      // save_chart_properties_to_local_storage: "off",
       //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
+      favorites: {
+        intervals: ["1D", "W", "M"],
+      },
       disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
       symbol,
     }
@@ -42,8 +47,6 @@ export default class TradingViewChart extends Component {
       this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
       this.chartEvent("drawing_event")
-      this.chartEvent("study")
-      this.chartEvent("study_event")
     })
   }
 
@@ -55,26 +58,22 @@ export default class TradingViewChart extends Component {
 
   saveChartDrawingToServer = (event) => {
     this.tradingViewWidget.save((obj) => {
-      this.setState(prev => ({
-        saveCount: prev.saveCount + 1
-      }))
-      if (this.state.saveCount === 1) return
+      console.log(`Saving Chart`)
       const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })
   }
 
   changeSymbol = (newSymbol) => {
-    // if (!newSymbol || !this.tradingViewWidget) return
+    if (!newSymbol || !this.tradingViewWidget) return
     try {
-      //console.log('Setting symbol => ', newSymbol)
       const symbObj = this.tradingViewWidget.symbolInterval()
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
       //this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
-      console.log(e)
+      //console.log(e)
     }
   }
 
@@ -97,7 +96,11 @@ export default class TradingViewChart extends Component {
   getChartDrawingFromServer = async () => {
     try {
       const cData = await getChartDrawing(this.state.email)
-      if (!cData) return
+      if (!cData) {
+        //this.chartEvent("study")
+        this.chartEvent("study_event")
+        return
+      }
       const pData = JSON.parse(cData)
       this.tradingViewWidget.save((obj) => {
         const prep = { ...obj.charts[0], panes: pData }
@@ -111,6 +114,8 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
+      //this.chartEvent("study")
+      this.chartEvent("study_event")
     }
   }
 
