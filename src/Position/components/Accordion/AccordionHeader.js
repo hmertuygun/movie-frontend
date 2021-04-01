@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import Tooltip from '../../../components/Tooltip'
 import { PositionContext } from '../../context/PositionContext'
-import tooltipStyles from '../../../Trade/components/TradeOrders/tooltip.module.css'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
@@ -47,20 +48,20 @@ const AccordionHeader = (props) => {
               <i className="fab fa-bitcoin"></i>
             </span>
           </button>
-          <div className={tooltipStyles.customTooltip}>
-            <span
-              className="px-3 badge badge-dot"
-              style={{ fontWeight: '600' }}
-            >
-              <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
-              Connected
-            </span>
-            <span className={tooltipStyles.tooltiptext}>
-              {liveUpdate
+          <span
+            className="px-3 badge badge-dot"
+            data-for="position-connected-status"
+            data-tip={
+              liveUpdate
                 ? 'Live price update is working.'
-                : "Live price update isn't working."}
-            </span>
-          </div>
+                : "Live price update isn't working."
+            }
+            style={{ fontWeight: '600' }}
+          >
+            <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
+            Connected
+          </span>
+          <Tooltip id="position-connected-status" />
 
           <button
             type="button"

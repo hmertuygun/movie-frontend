@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
+
+import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
@@ -122,22 +124,22 @@ const AccordionContainer = () => {
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
               <div
                 className="mb-0 text-center align-items-center"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Return on Equity"
+                data-for="ROE-tooltip"
+                data-tip="Return on Equity"
               >
                 <span className="text-md font-weight-bold">ROE %</span>
               </div>
+              <Tooltip id="ROE-tooltip" />
             </div>
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
               <div
                 className="mb-0 text-center align-items-center"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Profit & Loss"
+                data-for="PNL-tooltip"
+                data-tip="Profit & Loss"
               >
                 <span className="text-md font-weight-bold">PNL</span>
               </div>
+              <Tooltip id="PNL-tooltip" />
             </div>
             <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
               <div className="px-0 col col-lg-12 position-static text-lg-center">
