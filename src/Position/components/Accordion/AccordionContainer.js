@@ -16,8 +16,15 @@ const AccordionContainer = () => {
   const { activeExchange } = useContext(UserContext)
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(
-    'wss://stream.binance.com:9443/stream'
+    'wss://stream.binance.com:9443/stream',
+    {
+      retryOnError: true,
+      onError: (errorEvent) => {
+        console.log('Web Socket Error ==============> ', errorEvent)
+      },
+    }
   )
 
   useEffect(() => {
@@ -37,8 +44,7 @@ const AccordionContainer = () => {
       )
       const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
 
-      // if no market data for position's symbol, return previous market data
-      if (!currentPrice) return
+      if (!currentPrice || !selectedSymbol) return
       let ROE = ''
       let PNL = ''
 
@@ -191,7 +197,7 @@ const AccordionContainer = () => {
           ) : data.length > 0 ? (
             rows
           ) : (
-            <div className="text-center pt-5">No positions</div>
+            <div className="pt-5 text-center">No positions</div>
           )}
         </div>
       </div>
