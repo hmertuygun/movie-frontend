@@ -4,7 +4,9 @@ const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = useState(config)
 
   const sortedItems = useMemo(() => {
-    let sortableItems = [...items]
+    let sortableItems = items.map((item) => {
+      return { ...item, ROE: Number(item.ROE) }
+    })
 
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
