@@ -30,6 +30,7 @@ const Accordion = (props) => {
 
   return (
     <>
+      {/* Disable accordion click by commenting onClick */}
       <div className="card">
         <div
           className="py-0 pl-0 pr-0 card-header pr-md-6"

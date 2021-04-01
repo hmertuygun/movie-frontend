@@ -163,7 +163,8 @@ const AccordionContainer = () => {
             </div>
           </div>
         </div>
-        <div id="accordion" className="accordion accordion-spaced">
+        {/* Disable accordion by removing accordion class, to enable add again */}
+        <div id="accordion" className="accordion-spaced">
           {isLoading ? (
             <div className="pt-5 text-center">
               <div className="spinner-border text-primary" role="status">
