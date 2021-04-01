@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
 
 const useSortableData = (items, config = null) => {
-  const [sortConfig, setSortConfig] = useState(config)
-
+  const [sortConfig, setSortConfig] = useState(
+    config || JSON.parse(localStorage.getItem('position_sort'))
+  )
   const sortedItems = useMemo(() => {
     let sortableItems = items.map((item) => {
-      return { ...item, ROE: Number(item.ROE) }
+      return { ...item, ROE: Number(item?.ROE) }
     })
 
     if (sortConfig !== null) {
@@ -23,6 +24,7 @@ const useSortableData = (items, config = null) => {
   }, [items, sortConfig])
 
   const requestSort = (key, direction = 'ascending') => {
+    localStorage.setItem('position_sort', JSON.stringify({ key, direction }))
     setSortConfig({ key, direction })
   }
 
