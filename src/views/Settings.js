@@ -1,4 +1,7 @@
 import React, { Fragment } from 'react'
+import { Link } from 'react-router-dom'
+import { LogOut } from 'react-feather'
+
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
@@ -18,7 +21,12 @@ const Settings = () => {
                 <div className="col">
                   <span className="surtitle">Your account</span>
 
-                  <h1 className="mb-0 h2">Settings</h1>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h1 className="mb-0 h2">Settings</h1>
+                    <Link to="/logout" className="ml-lg-auto d-flex d-lg-none">
+                      <LogOut strokeWidth="3" />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
