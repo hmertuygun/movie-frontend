@@ -41,19 +41,28 @@ const AccordionContainer = () => {
       if (!currentPrice) return
       let ROE = ''
       let PNL = ''
+
+      let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
       if (entry > currentPrice) {
         ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
-        PNL =
-          '-' +
-          ((entry - currentPrice) * amount).toFixed(selectedSymbol?.tickSize) +
-          ` ${quoteAsset}`
+        const PNLValue = (entry - currentPrice) * amount
+        if (twoDecimalArray.includes(quoteAsset)) {
+          PNL = '-' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+        } else {
+          PNL =
+            '-' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+        }
       } else {
         ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
-        PNL =
-          '+' +
-          ((currentPrice - entry) * amount).toFixed(selectedSymbol?.tickSize) +
-          ` ${quoteAsset}`
+        const PNLValue = (currentPrice - entry) * amount
+        if (twoDecimalArray.includes(quoteAsset)) {
+          PNL = '+' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+        } else {
+          PNL =
+            '+' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+        }
       }
+
       let positionValue = currentPrice * amount
       if (quoteAsset !== 'USDT') {
         const quotePrice = Number(
@@ -61,11 +70,19 @@ const AccordionContainer = () => {
         )
         positionValue *= quotePrice
       }
+
+      let entryPrice = null
+      if (twoDecimalArray.includes(quoteAsset)) {
+        entryPrice = Number(entry.toFixed(2))
+      } else {
+        entryPrice = Number(entry.toFixed(selectedSymbol?.tickSize))
+      }
+
       const modifiedData = {
         market: symbol,
         ROE,
         PNL,
-        entryPrice: Number(entry.toFixed(selectedSymbol?.tickSize)),
+        entryPrice,
         currentPrice,
         units: amount,
         date: dateOpened,
