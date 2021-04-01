@@ -168,8 +168,10 @@ const AccordionContainer = () => {
                 <span className="sr-only">Loading...</span>
               </div>
             </div>
-          ) : (
+          ) : data.length > 0 ? (
             rows
+          ) : (
+            <div className="text-center pt-5">No positions</div>
           )}
         </div>
       </div>
