@@ -18,14 +18,15 @@ export default class TradingViewChart extends Component {
       language: getLocalLanguage(),
       autosize: true,
       //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
-      symbol: 'BINANCE:BTCUSDT',
       disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
+      symbol,
     }
     this.tradingViewWidget = null
     this.chartObject = null
     this.state = {
       isChartReady: false,
-      symbol: 'BINANCE:BTCUSDT',
+      saveCount: 0,
+      symbol,
       theme,
       email
     }
@@ -48,28 +49,32 @@ export default class TradingViewChart extends Component {
 
   chartEvent = (event) => {
     this.tradingViewWidget.subscribe(event, (obj) => {
-      this.saveChartDrawingToServer()
+      this.saveChartDrawingToServer(event)
     })
   }
 
-  saveChartDrawingToServer = () => {
+  saveChartDrawingToServer = (event) => {
     this.tradingViewWidget.save((obj) => {
-      console.log(`Chart Saved`)
-      // console.log(obj)
+      this.setState(prev => ({
+        saveCount: prev.saveCount + 1
+      }))
+      if (this.state.saveCount === 1) return
       const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })
   }
 
   changeSymbol = (newSymbol) => {
-    if (!newSymbol || !this.tradingViewWidget) return
+    // if (!newSymbol || !this.tradingViewWidget) return
     try {
+      //console.log('Setting symbol => ', newSymbol)
       const symbObj = this.tradingViewWidget.symbolInterval()
-      //console.log(symbObj)
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+      //this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
+      console.log(e)
     }
   }
 
@@ -116,7 +121,7 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    // console.log(`In Update`)
+    console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
   }
 
