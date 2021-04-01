@@ -183,15 +183,15 @@ const Trade = () => {
                 </div>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
                   <TabNavigator labelArray={['Stop-market', 'Limit']}>
-                    <ExitTarget />
                     <ExitTargetStopMarket />
+                    <ExitTarget />
                   </TabNavigator>
                   <TabNavigator
                     labelArray={['Stop-market', 'Stop-limit']}
                     index={0}
                   >
-                    <ExitStoplossStopLimit />
                     <ExitStoplossStopMarket />
+                    <ExitStoplossStopLimit />
                   </TabNavigator>
                 </ButtonNavigator>
               </Fragment>
