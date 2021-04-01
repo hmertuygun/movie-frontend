@@ -28,7 +28,8 @@ const AccordionContainer = () => {
   }, [lastMessage])
 
   useEffect(() => {
-    const positionsData = positions.map((position) => {
+    const positionsData = []
+    for (const position of positions) {
       const { amount, dateOpened, entry, orders, symbol } = position
       const quoteAsset = symbol.split('-')?.[1]
       const currentPrice = Number(
@@ -37,7 +38,7 @@ const AccordionContainer = () => {
       const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
 
       // if no market data for position's symbol, return previous market data
-      if (!currentPrice) return data.find((item) => item.market === symbol)
+      if (!currentPrice) return
       let ROE = ''
       let PNL = ''
       if (entry > currentPrice) {
@@ -71,10 +72,11 @@ const AccordionContainer = () => {
         orders,
         position: positionValue,
       }
-      return modifiedData
-    })
+      positionsData.push(modifiedData)
+    }
+
     setData(positionsData)
-  }, [positions, message])
+  }, [positions, message, symbolDetails])
 
   const onUnload = () => {
     localStorage.removeItem(
