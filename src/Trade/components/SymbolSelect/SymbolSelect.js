@@ -49,18 +49,18 @@ const SymbolSelect = () => {
           setExchange(value)
         }}
         styles={customStyles}
-        disabled={isLoading}
+        isDisabled={isLoading}
         options={exchanges}
       />
       <Select
-        placeholder="Choose Exchange"
+        placeholder="Loading.. "
         value={selectedSymbol}
         components={{
           IndicatorSeparator: () => null,
         }}
         onChange={(value) => setSymbol(value)}
         styles={customStyles}
-        disabled={isLoadingBalance || isLoading}
+        isDisabled={isLoadingBalance || isLoading}
         options={Object.values(symbols)}
       />
     </div>
