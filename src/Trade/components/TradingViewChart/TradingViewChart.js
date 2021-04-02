@@ -7,7 +7,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email }) {
+  constructor({ symbol, theme, email, intervals }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
     this.widgetOptions = {
@@ -21,7 +21,7 @@ export default class TradingViewChart extends Component {
       // save_chart_properties_to_local_storage: "off",
       //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       favorites: {
-        intervals: ["1D", "W", "M"],
+        intervals: intervals,
       },
       disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
       symbol,
@@ -97,7 +97,6 @@ export default class TradingViewChart extends Component {
     try {
       const cData = await getChartDrawing(this.state.email)
       if (!cData) {
-        //this.chartEvent("study")
         this.chartEvent("study_event")
         return
       }
@@ -114,7 +113,6 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      //this.chartEvent("study")
       this.chartEvent("study_event")
     }
   }
