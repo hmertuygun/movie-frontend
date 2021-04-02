@@ -463,3 +463,26 @@ export async function getPositionsList({ apiKeyName, exchange }) {
 
   return response
 }
+export async function getChartIntervals() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/interval`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data?.intervals || []
+}
+export async function saveChartIntervals(cIntervals) {
+  const apiUrl = `${process.env.REACT_APP_API}chart/interval`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { intervals: cIntervals }
+  })
+
+  return response?.data?.intervals || []
+}

@@ -19,6 +19,7 @@ const UserContextProvider = ({ children }) => {
   const localStorageRemember = localStorage.getItem('remember')
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
+  localStorage.removeItem("tradingview.IntervalWidget.quicks")
   let initialState = {}
   if (localStorageUser !== 'undefined' && (sessionStorageRemember === "true" || localStorageRemember === "true")) {
     initialState = {
