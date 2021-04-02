@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
-import Select from 'react-select'
+import Select from 'react-dropdown-select'
 const SymbolSelect = () => {
   const {
     exchanges,
@@ -22,7 +22,8 @@ const SymbolSelect = () => {
       padding: '0px',
       width: '300px',
       boxShadow: 'none',
-      minHeight: '40px',
+      minHeight: '36px',
+      borderRadius: '2px',
       textTransform: 'capitalize',
       '&:hover': {
         backgroundColor: '#d6ddea',
@@ -36,33 +37,46 @@ const SymbolSelect = () => {
     }),
   }
 
+  const handleSearch = ({ state }) => {
+    const filteredData = Object.values(symbols).filter((search) =>
+      search.label
+        .split('-')[0]
+        .toLowerCase()
+        .includes(state.search.toLowerCase())
+    )
+    if (!filteredData.length) {
+      return Object.values(symbols).filter((search) =>
+        search.label.toLowerCase().includes(state.search.toLowerCase())
+      )
+    }
+    return filteredData
+  }
+
   return (
     <div className={styles['SymbolSelect-Container']}>
-      <Select
-        placeholder="Choose Exchange"
-        value={activeExchange}
-        isSearchable={false}
-        components={{
-          IndicatorSeparator: () => null,
-        }}
-        onChange={(value) => {
-          setExchange(value)
-        }}
-        styles={customStyles}
-        isDisabled={isLoading}
-        options={exchanges}
-      />
-      <Select
-        placeholder="Loading.. "
-        value={selectedSymbol}
-        components={{
-          IndicatorSeparator: () => null,
-        }}
-        onChange={(value) => setSymbol(value)}
-        styles={customStyles}
-        isDisabled={isLoadingBalance || isLoading}
-        options={Object.values(symbols)}
-      />
+      <div className={styles['Select-Container']}>
+        <Select
+          options={exchanges}
+          style={{ textTransform: 'capitalize' }}
+          searchable={false}
+          onChange={(value) => setExchange(value[0])}
+          values={[activeExchange]}
+          disabled={isLoading}
+          backspaceDelete={false}
+        />
+      </div>
+
+      <div className={styles['Select-Container']}>
+        <Select
+          options={Object.values(symbols)}
+          placeholder="Select trading pair"
+          values={[selectedSymbol]}
+          valueField="label"
+          onChange={(value) => setSymbol(value[0])}
+          disabled={isLoadingBalance || isLoading}
+          searchFn={handleSearch}
+        />
+      </div>
     </div>
   )
 }
