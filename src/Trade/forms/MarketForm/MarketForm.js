@@ -30,6 +30,7 @@ const MarketForm = () => {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
     selectedSymbolLastPrice,
     setSelectedSymbolLastPrice,
     selectedSymbol,
@@ -321,7 +322,7 @@ const MarketForm = () => {
           response?.price
         )
         setValues({ ...values, quantity: quantityWithPrecision })
-        
+
         const payload = {
           price: response?.price,
           quantity: convertCommaNumberToDot(quantityWithPrecision),
@@ -409,6 +410,7 @@ const MarketForm = () => {
                 max={100}
                 onChange={handleSlider}
                 value={values.quantityPercentage}
+                disabled={isLoadingLastPrice}
               />
             </div>
 
