@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
+
+import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
@@ -14,8 +16,15 @@ const AccordionContainer = () => {
   const { activeExchange } = useContext(UserContext)
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(
-    'wss://stream.binance.com:9443/stream'
+    'wss://stream.binance.com:9443/stream',
+    {
+      retryOnError: true,
+      onError: (errorEvent) => {
+        console.log('Web Socket Error ==============> ', errorEvent)
+      },
+    }
   )
 
   useEffect(() => {
@@ -26,7 +35,8 @@ const AccordionContainer = () => {
   }, [lastMessage])
 
   useEffect(() => {
-    const positionsData = positions.map((position) => {
+    const positionsData = []
+    for (const position of positions) {
       const { amount, dateOpened, entry, orders, symbol } = position
       const quoteAsset = symbol.split('-')?.[1]
       const currentPrice = Number(
@@ -34,23 +44,31 @@ const AccordionContainer = () => {
       )
       const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
 
-      // if no market data for position's symbol, return previous market data
-      if (!currentPrice) return data.find((item) => item.market === symbol)
+      if (!currentPrice || !selectedSymbol) return
       let ROE = ''
       let PNL = ''
+
+      let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
       if (entry > currentPrice) {
         ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
-        PNL =
-          '-' +
-          ((entry - currentPrice) * amount).toFixed(selectedSymbol?.tickSize) +
-          ` ${quoteAsset}`
+        const PNLValue = (entry - currentPrice) * amount
+        if (twoDecimalArray.includes(quoteAsset)) {
+          PNL = '-' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+        } else {
+          PNL =
+            '-' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+        }
       } else {
         ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
-        PNL =
-          '+' +
-          ((currentPrice - entry) * amount).toFixed(selectedSymbol?.tickSize) +
-          ` ${quoteAsset}`
+        const PNLValue = (currentPrice - entry) * amount
+        if (twoDecimalArray.includes(quoteAsset)) {
+          PNL = '+' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+        } else {
+          PNL =
+            '+' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+        }
       }
+
       let positionValue = currentPrice * amount
       if (quoteAsset !== 'USDT') {
         const quotePrice = Number(
@@ -58,21 +76,30 @@ const AccordionContainer = () => {
         )
         positionValue *= quotePrice
       }
+
+      let entryPrice = null
+      if (twoDecimalArray.includes(quoteAsset)) {
+        entryPrice = Number(entry.toFixed(2))
+      } else {
+        entryPrice = Number(entry.toFixed(selectedSymbol?.tickSize))
+      }
+
       const modifiedData = {
         market: symbol,
         ROE,
         PNL,
-        entryPrice: Number(entry.toFixed(selectedSymbol?.tickSize)),
+        entryPrice,
         currentPrice,
         units: amount,
         date: dateOpened,
         orders,
         position: positionValue,
       }
-      return modifiedData
-    })
+      positionsData.push(modifiedData)
+    }
+
     setData(positionsData)
-  }, [positions, message])
+  }, [positions, message, symbolDetails])
 
   const onUnload = () => {
     localStorage.removeItem(
@@ -122,22 +149,22 @@ const AccordionContainer = () => {
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
               <div
                 className="mb-0 text-center align-items-center"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Return on Equity"
+                data-for="ROE-tooltip"
+                data-tip="Return on Equity"
               >
                 <span className="text-md font-weight-bold">ROE %</span>
               </div>
+              <Tooltip id="ROE-tooltip" />
             </div>
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
               <div
                 className="mb-0 text-center align-items-center"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Profit & Loss"
+                data-for="PNL-tooltip"
+                data-tip="Profit & Loss"
               >
                 <span className="text-md font-weight-bold">PNL</span>
               </div>
+              <Tooltip id="PNL-tooltip" />
             </div>
             <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
               <div className="px-0 col col-lg-12 position-static text-lg-center">
@@ -159,15 +186,18 @@ const AccordionContainer = () => {
             </div>
           </div>
         </div>
-        <div id="accordion" className="accordion accordion-spaced">
+        {/* Disable accordion by removing accordion class, to enable add again */}
+        <div id="accordion" className="accordion-spaced">
           {isLoading ? (
             <div className="pt-5 text-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="sr-only">Loading...</span>
               </div>
             </div>
-          ) : (
+          ) : data.length > 0 ? (
             rows
+          ) : (
+            <div className="pt-5 text-center">No positions</div>
           )}
         </div>
       </div>

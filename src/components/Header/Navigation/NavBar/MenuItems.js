@@ -22,10 +22,18 @@ const MenuItems = () => (
           ) : (
             <NavLink
               activeClassName="nav-link active"
-              className="nav-link"
+              className="nav-link btn"
               to={item.url}
             >
               {item.title}
+              {item.title === 'Positions' && (
+                <span
+                  className="mt-3 badge badge-sm badge-danger badge-pill badge-floating border-white"
+                  style={{ fontSize: '0.3rem', padding: '3px 5px' }}
+                >
+                  BETA
+                </span>
+              )}
             </NavLink>
           )}
         </li>
