@@ -270,7 +270,7 @@ const ExitStoplossStopMarket = () => {
       case 'triggerPrice': {
         const diff = entryPrice - inputValue
         const percentage = (diff / entryPrice) * 100
-        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(2)
         setValues((values) => ({
           ...values,
           profit: -profitPercentage,
