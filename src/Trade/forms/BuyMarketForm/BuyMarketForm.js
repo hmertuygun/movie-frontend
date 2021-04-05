@@ -33,6 +33,7 @@ const BuyMarketForm = () => {
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
     selectedSymbolLastPrice,
     refreshBalance,
   } = useSymbolContext()
@@ -420,6 +421,7 @@ const BuyMarketForm = () => {
                 max={100}
                 onChange={handleSlider}
                 value={values.quantityPercentage}
+                disabled={isLoadingLastPrice}
               />
             </div>
 

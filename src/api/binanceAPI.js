@@ -41,7 +41,7 @@ export default class binanceAPI {
         supports_timescale_marks: false,
         supports_time: true,
         supported_resolutions: [
-          '1', '3', '5', '15', '30', '45', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M'
+          '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M'
         ]
       })
     }).catch(err => {
@@ -68,10 +68,9 @@ export default class binanceAPI {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
-    this.debug && console.log('👉 resolveSymbol:', symbolName)
-
-    const comps = symbolName.split(':')
-    symbolName = (comps.length > 1 ? comps[1] : symbolName).toUpperCase()
+    let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
+    const comps = chosenSymbol.split(':')
+    chosenSymbol = (comps.length > 1 ? comps[1] : chosenSymbol).toUpperCase()
 
     function pricescale(symbol) {
       for (let filter of symbol.filters) {
@@ -82,26 +81,28 @@ export default class binanceAPI {
       return 1
     }
 
+    // console.log('👉 resolveSymbol:', chosenSymbol)
+
     for (let symbol of this.symbols) {
-      if (symbol.symbol === symbolName) {
-        // setTimeout(() => {
-        // }, 0)
-        onSymbolResolvedCallback({
-          name: symbol.symbol,
-          description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-          ticker: symbol.symbol,
-          exchange: 'Binance',
-          listed_exchange: 'Binance',
-          type: 'crypto',
-          session: '24x7',
-          pricescale: pricescale(symbol),
-          timezone: 'UTC',
-          currency_code: symbol.quoteAsset,
-          has_intraday: true,
-          has_daily: true,
-          has_weekly_and_monthly: true,
-          minmov: 1,
-        })
+      if (symbol.symbol === chosenSymbol) {
+        setTimeout(() => {
+          onSymbolResolvedCallback({
+            name: symbol.symbol,
+            description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
+            ticker: symbol.symbol,
+            exchange: 'Binance',
+            listed_exchange: 'Binance',
+            type: 'crypto',
+            session: '24x7',
+            pricescale: pricescale(symbol),
+            timezone: 'UTC',
+            currency_code: symbol.quoteAsset,
+            has_intraday: true,
+            has_daily: true,
+            has_weekly_and_monthly: true,
+            minmov: 1,
+          })
+        }, 0)
         return
       }
     }
@@ -110,6 +111,7 @@ export default class binanceAPI {
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
+
     const interval = {
       '1': '1m',
       '3': '3m',

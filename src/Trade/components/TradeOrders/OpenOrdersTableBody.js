@@ -1,8 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react'
+import { useSymbolContext } from '../../context/SymbolContext'
+import Tooltip from '../../../components/Tooltip'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
-import tooltipStyles from './tooltip.module.css'
 import Moment from 'react-moment'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
@@ -10,12 +11,14 @@ import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
-import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeOrders.module.css'
+
 
 const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
-  const uniqueData = Array.from(new Set(data.map(a => a[key]))).map(id => data.find(a => a[key] === id))
+  const uniqueData = Array.from(new Set(data.map((a) => a[key]))).map((id) =>
+    data.find((a) => a[key] === id)
+  )
   return uniqueData
 }
 
@@ -23,6 +26,9 @@ const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
+  const {
+    setSymbol,
+  } = useSymbolContext()
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
@@ -30,10 +36,13 @@ const Expandable = ({ entry, deletedRow }) => {
         ...order,
         ...activeExchange,
       })
-      if (data?.status === "error") {
-        errorNotification.open({ description: data?.error || `Order couldn't be cancelled. Please try again later` })
-      }
-      else {
+      if (data?.status === 'error') {
+        errorNotification.open({
+          description:
+            data?.error ||
+            `Order couldn't be cancelled. Please try again later`,
+        })
+      } else {
         deletedRow(order)
         successNotification.open({ description: `Order Cancelled!` })
       }
@@ -41,14 +50,13 @@ const Expandable = ({ entry, deletedRow }) => {
       errorNotification.open({
         description: `Order couldn't be cancelled. Please try again later`,
       })
-    }
-    finally {
+    } finally {
       setCancelOrderRow(null)
     }
   }
   return (
     <>
-      { entry.map((order, rowIndex) => {
+      {entry.map((order, rowIndex) => {
         const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
@@ -74,9 +82,13 @@ const Expandable = ({ entry, deletedRow }) => {
           rowIndex === 0 ? (
             <td
               style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
-              onClick={() => cancelOrderRow?.trade_id === order.trade_id ? null : onCancelOrderClick(order)}
+              onClick={() =>
+                cancelOrderRow?.trade_id === order.trade_id
+                  ? null
+                  : onCancelOrderClick(order)
+              }
             >
-              { cancelOrderRow?.trade_id === order.trade_id ? '' : 'Cancel'}
+              {cancelOrderRow?.trade_id === order.trade_id ? '' : 'Cancel'}
               {cancelOrderRow?.trade_id === order.trade_id ? (
                 <span
                   className="ml-2 spinner-border spinner-border-sm"
@@ -95,7 +107,7 @@ const Expandable = ({ entry, deletedRow }) => {
             <td style={firstColumnIconStyle} onClick={rowClick}>
               {firstColumnIcon}
             </td>
-            <td style={tdStyle}>{order.symbol}</td>
+            <td style={tdStyle} onClick={() => { setSymbol({ label: order.symbol, value: `BINANCE:${order.symbol.replace('-', '')}` }) }}>{order.symbol}</td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
             <td style={hideFirst}>{order.price}</td>
@@ -107,16 +119,16 @@ const Expandable = ({ entry, deletedRow }) => {
             <td style={hideFirst}>{order.trigger}</td>
             <td style={hideFirst}>
               <div
-                className={tooltipStyles.customTooltip}
-                style={{ fontSize: '12px' }}
+                data-for={`open-orders-${order.trade_id}`}
+                data-tip={
+                  order.status?.toLowerCase() === 'pending'
+                    ? PendingOrderTooltip
+                    : PlacedOrderTooltip
+                }
               >
                 {order.status}
-                <span className={tooltipStyles.tooltiptext}>
-                  {order.status?.toLowerCase() === 'pending'
-                    ? PendingOrderTooltip
-                    : PlacedOrderTooltip}
-                </span>
               </div>
+              <Tooltip id={`open-orders-${order.trade_id}`} />
             </td>
             <td style={tdStyle}>
               {order.timestamp === 0 ? null : (
@@ -133,9 +145,15 @@ const Expandable = ({ entry, deletedRow }) => {
   )
 }
 
-const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) => {
+const OpenOrdersTableBody = ({
+  isFetching,
+  data,
+  isHideOtherPairs,
+  deleteRow,
+}) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
+
   const columns = [
     {
       title: 'Pair',
@@ -191,31 +209,35 @@ const OpenOrdersTableBody = ({ isFetching, data, isHideOtherPairs, deleteRow }) 
     return order.symbol.replace('-', '') === selectedPair
   })
   return (
-    <div className={tooltipStyles.ordersTable} style={{ minHeight: '90px', overflowY: data.length ? 'scroll' : 'hidden', overflowX: 'auto' }}>
+    <div
+      style={{
+        minHeight: '90px',
+        overflowY: data.length ? 'scroll' : 'hidden',
+        overflowX: 'auto',
+      }}
+    >
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
             <th scope="col"></th>
-            {
-              columns.map((item) => (
-                <th scope="col" key={item.key}>{item.title}</th>
-              ))
-            }
+            {columns.map((item) => (
+              <th scope="col" key={item.key}>
+                {item.title}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {
-            data.map((item, index) => {
-              const orders = [item, ...item.orders]
-              return (
-                <Expandable
-                  entry={orders}
-                  key={item.trade_id}
-                  deletedRow={(row) => deleteRow(row)}
-                />
-              )
-            })
-          }
+          {data.map((item, index) => {
+            const orders = [item, ...item.orders]
+            return (
+              <Expandable
+                entry={orders}
+                key={item.trade_id}
+                deletedRow={(row) => deleteRow(row)}
+              />
+            )
+          })}
         </tbody>
       </table>
     </div>

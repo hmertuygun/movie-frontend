@@ -19,6 +19,7 @@ const UserContextProvider = ({ children }) => {
   const localStorageRemember = localStorage.getItem('remember')
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
+  localStorage.removeItem("tradingview.IntervalWidget.quicks")
   let initialState = {}
   if (localStorageUser !== 'undefined' && (sessionStorageRemember === "true" || localStorageRemember === "true")) {
     initialState = {
@@ -38,6 +39,7 @@ const UserContextProvider = ({ children }) => {
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
   const [hasSub, setHasSub] = useState(false)
+  const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
@@ -341,7 +343,9 @@ const UserContextProvider = ({ children }) => {
         rememberCheck,
         setRememberCheck,
         devENV,
-        hasSub
+        hasSub,
+        orderHistoryProgressUC,
+        setOrderHistoryProgressUC
       }}
     >
       {children}

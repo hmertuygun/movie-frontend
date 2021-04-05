@@ -3,7 +3,6 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-dropdown-select'
-
 const SymbolSelect = () => {
   const {
     exchanges,
@@ -17,10 +16,26 @@ const SymbolSelect = () => {
   } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
-
-  // if (isLoading) {
-  //   return null
-  // }
+  const customStyles = {
+    control: (styles, { }) => ({
+      ...styles,
+      padding: '0px',
+      width: '300px',
+      boxShadow: 'none',
+      minHeight: '36px',
+      borderRadius: '2px',
+      textTransform: 'capitalize',
+      '&:hover': {
+        backgroundColor: '#d6ddea',
+        cursor: 'pointer',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      textTransform: 'capitalize',
+      cursor: 'pointer',
+    }),
+  }
 
   const handleSearch = ({ state }) => {
     const filteredData = Object.values(symbols).filter((search) =>
