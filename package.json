@@ -17,6 +17,7 @@
     "axios": "^0.21.1",
     "c3": "^0.7.20",
     "cra-append-sw": "^2.7.0",
+    "exponential-backoff": "^3.1.0",
     "firebase": "^8.0.0",
     "prettier": "^2.1.2",
     "qrcode": "^1.4.4",

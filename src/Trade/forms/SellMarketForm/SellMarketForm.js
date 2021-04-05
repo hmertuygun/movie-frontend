@@ -40,6 +40,7 @@ const SellMarketForm = () => {
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
     refreshBalance,
     selectedSymbolLastPrice,
   } = useSymbolContext()
@@ -423,6 +424,7 @@ const SellMarketForm = () => {
                 max={100}
                 onChange={handleQPSliderChange}
                 value={values.quantityPercentage}
+                disabled={isLoadingLastPrice}
               />
             </div>
             
