@@ -70,19 +70,16 @@ const Position = () => {
     }
   }, [])
 
-  const toRender1 = () => {
+  const toRender = () => {
     if (!checkProgress) return null
     else if (checkProgress && orderHistoryProgressPV === '100.00' && orderHistoryProgressUC === '100.00') return <AccordionContainer />
     else if (checkProgress && (orderHistoryProgressPV !== '100.00' || orderHistoryProgressUC !== '100.00')) return ProgressBar
-  }
-  const toRender2 = () => {
-    return orderHistoryProgressUC === '100.00' ? <AccordionContainer /> : ProgressBar
   }
 
   return (
     <PositionCTXProvider>
       <SymbolContextProvider>
-        {toRender1()}
+        {toRender()}
       </SymbolContextProvider>
     </PositionCTXProvider>
   )
