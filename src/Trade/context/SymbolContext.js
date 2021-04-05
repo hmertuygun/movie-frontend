@@ -92,9 +92,7 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   function setSymbol(symbol) {
-    if (symbol == null || symbol === selectedSymbol) {
-      return
-    }
+    if (!symbol || symbol?.value === selectedSymbol?.value) return
     console.log('setting symbol')
     setSelectedSymbol(symbol)
     setSelectedSymbolDetail(symbolDetails[symbol['value']])
