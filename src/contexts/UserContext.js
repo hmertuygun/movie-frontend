@@ -38,6 +38,7 @@ const UserContextProvider = ({ children }) => {
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
+  const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
@@ -340,7 +341,9 @@ const UserContextProvider = ({ children }) => {
         setUserData,
         rememberCheck,
         setRememberCheck,
-        devENV
+        devENV,
+        orderHistoryProgressUC,
+        setOrderHistoryProgressUC
       }}
     >
       {children}
