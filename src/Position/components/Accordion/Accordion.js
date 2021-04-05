@@ -70,7 +70,7 @@ const Accordion = (props) => {
                     isPositionSuccess ? 'text-success' : 'text-danger'
                   } text-success text-md font-weight-bold`}
                 >
-                  {ROE}%
+                  {ROE} %
                 </span>
               </div>
             </div>
