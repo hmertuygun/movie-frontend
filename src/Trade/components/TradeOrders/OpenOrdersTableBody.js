@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-
+import { useSymbolContext } from '../../context/SymbolContext'
 import Tooltip from '../../../components/Tooltip'
 import { cancelTradeOrder } from '../../../api/api'
 import { Icon } from '../../../components'
@@ -11,8 +11,8 @@ import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
-import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeOrders.module.css'
+
 
 const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
@@ -26,6 +26,9 @@ const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
+  const {
+    setSymbol,
+  } = useSymbolContext()
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
@@ -104,7 +107,7 @@ const Expandable = ({ entry, deletedRow }) => {
             <td style={firstColumnIconStyle} onClick={rowClick}>
               {firstColumnIcon}
             </td>
-            <td style={tdStyle}>{order.symbol}</td>
+            <td style={tdStyle} onClick={() => { setSymbol({ label: order.symbol, value: `BINANCE:${order.symbol.replace('-', '')}` }) }}>{order.symbol}</td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
             <td style={hideFirst}>{order.price}</td>
@@ -150,6 +153,7 @@ const OpenOrdersTableBody = ({
 }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
+
   const columns = [
     {
       title: 'Pair',
