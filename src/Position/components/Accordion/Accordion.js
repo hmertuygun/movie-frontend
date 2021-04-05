@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Popover } from 'react-tiny-popover'
+import { Info } from 'react-feather'
+
 import AccordionContent from './AccordionContent'
 
 const Accordion = (props) => {
@@ -88,70 +90,74 @@ const Accordion = (props) => {
             <div className="px-0 py-3 col-12 col-lg-7 d-flex align-items-center position-static py-lg-3">
               <div className="px-0 col col-lg-12 position-static text-lg-center">
                 <div className="flex-wrap d-flex flex-lg-nowrap align-items-center ">
-                  <Popover
-                    isOpen={showInfo}
-                    positions={['bottom']}
-                    padding={10}
-                    onClickOutside={() => setShowInfo(false)}
-                    content={({ position, nudgedLeft, nudgedTop }) => {
-                      return (
-                        <table>
-                          <tbody>
-                            <tr
-                              className="bg-secondary"
-                              style={{
-                                color: 'black',
-                              }}
-                            >
-                              <th
-                                className="px-2 text-dark"
-                                style={{ fontWeight: '400' }}
-                              >
-                                Amount
-                              </th>
-                              <th
-                                className="px-2 text-dark"
-                                style={{ fontWeight: '400' }}
-                              >
-                                Price
-                              </th>
-                            </tr>
-                            {orders.orders
-                              .sort((a, b) => {
-                                return a.time > b.time
-                              })
-                              .map((order, index) => (
-                                <tr
-                                  key={index}
-                                  className={`${
-                                    order.side === 'BUY'
-                                      ? 'bg-light-success'
-                                      : 'bg-light-danger'
-                                  }`}
-                                  style={{
-                                    color: 'white',
-                                  }}
-                                >
-                                  <td className="px-2">{order.executedQty}</td>
-                                  <td className="px-2">{`${
-                                    order.averageFillPrice
-                                  } ${market.split('-')?.[1]}`}</td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </table>
-                      )
-                    }}
+                  <div
+                    className="px-0 col-12 col-lg-3 position-static"
+                    onMouseOver={() => setShowInfo(true)}
+                    onMouseOut={() => setShowInfo(false)}
                   >
-                    <div
-                      className="px-0 col-12 col-lg-3 position-static"
-                      onMouseOver={() => setShowInfo(true)}
-                      onMouseOut={() => setShowInfo(false)}
+                    <span className="d-lg-none h6">Entry Price: </span>
+                    <span id="value">{entryPrice}</span>
+                    {` `}
+                    <Popover
+                      isOpen={showInfo}
+                      positions={['bottom']}
+                      padding={10}
+                      onClickOutside={() => setShowInfo(false)}
+                      content={({ position, nudgedLeft, nudgedTop }) => {
+                        return (
+                          <table>
+                            <tbody>
+                              <tr
+                                className="bg-secondary"
+                                style={{
+                                  color: 'black',
+                                }}
+                              >
+                                <th
+                                  className="px-2 text-dark"
+                                  style={{ fontWeight: '400' }}
+                                >
+                                  Amount
+                                </th>
+                                <th
+                                  className="px-2 text-dark"
+                                  style={{ fontWeight: '400' }}
+                                >
+                                  Price
+                                </th>
+                              </tr>
+                              {orders.orders
+                                .sort((a, b) => {
+                                  return a.time > b.time
+                                })
+                                .map((order, index) => (
+                                  <tr
+                                    key={index}
+                                    className={`${
+                                      order.side === 'BUY'
+                                        ? 'bg-light-success'
+                                        : 'bg-light-danger'
+                                    }`}
+                                    style={{
+                                      color: 'white',
+                                    }}
+                                  >
+                                    <td className="px-2">
+                                      {order.executedQty}
+                                    </td>
+                                    <td className="px-2">{`${
+                                      order.averageFillPrice
+                                    } ${market.split('-')?.[1]}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        )
+                      }}
                     >
-                      <span className="d-lg-none h6">Entry Price: </span>
-                      <span id="value">{entryPrice}</span>
-                    </div>
-                  </Popover>
+                      <Info size={18} style={{ marginTop: '-3px' }} />
+                    </Popover>
+                  </div>
                   <div className="px-0 col-12 col-lg-3 position-static">
                     <span className="d-lg-none h6">Current Price: </span>
                     <span id="value">{currentPrice}</span>
