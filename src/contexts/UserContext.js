@@ -38,7 +38,7 @@ const UserContextProvider = ({ children }) => {
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
-  const [hasSub, setHasSub] = useState(false)
+  const [hasSub, setHasSub] = useState(true)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -344,6 +344,7 @@ const UserContextProvider = ({ children }) => {
         setRememberCheck,
         devENV,
         hasSub,
+        setHasSub,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC
       }}

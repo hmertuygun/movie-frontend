@@ -42,8 +42,6 @@ const Routes = () => {
     loaderVisible,
     loaderText,
   } = useContext(UserContext)
-
-  console.log(isSettingsPage)
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
