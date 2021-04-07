@@ -125,9 +125,6 @@ const StripeForm = ({ onCancelClick }) => {
     <form onSubmit={handleSubmit}>
       <div className="row">
         <div className="col-8 mx-auto">
-          {/* <div className="logo d-flex justify-content-center">
-            <img src="./img/brand/stripe-logo.png" width="175" />
-          </div> */}
           <div className={`form-group ${processing ? 'disable-element' : ''}`}>
             <div style={{ borderBottom: '1px solid #aaa' }}>
               <label className="text-bold">Card Number</label>

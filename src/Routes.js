@@ -73,22 +73,18 @@ const Routes = () => {
             <Redirect to="/trade" />
           </CacheSwitch>
         )}
-        {!isLoggedIn && (
-          <>
-            <Route path="/login/verify2fa" component={LoginVerify2FA} />
-            <Route path="/login" component={Login} />
-            <Route path="/recover-password" component={RecoverPassword} />
-            <Route path="/new-password" component={NewPassword} />
-            <Route path="/action" component={HandleEmailActions} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/register/confirm" component={RegisterConfirm} />
-            <Route
-              exact
-              path="/register/confirm/recieved"
-              component={RegisterFinal}
-            />
-          </>
-        )}
+        {userContextLoaded && <Route path="/login/verify2fa" component={LoginVerify2FA} />}
+        <Route path="/login" component={Login} />
+        <Route path="/recover-password" component={RecoverPassword} />
+        <Route path="/new-password" component={NewPassword} />
+        <Route path="/action" component={HandleEmailActions} />
+        <Route exact path="/register" component={Register} />
+        <Route exact path="/register/confirm" component={RegisterConfirm} />
+        <Route
+          exact
+          path="/register/confirm/recieved"
+          component={RegisterFinal}
+        />
         {!isLoggedIn && <Redirect to="/register" />}
       </Switch>
     </div>
