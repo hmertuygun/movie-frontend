@@ -8,7 +8,8 @@ import {
   verifyGoogleAuth2FA,
   getUserExchanges,
   updateLastSelectedAPIKey,
-  storeNotificationToken
+  storeNotificationToken,
+  checkSubscription
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
@@ -38,7 +39,8 @@ const UserContextProvider = ({ children }) => {
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
-  const [hasSub, setHasSub] = useState(true)
+  const [hasSub, setHasSub] = useState(false)
+  const [subStatus, setSubStatus] = useState("")
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -127,18 +129,32 @@ const UserContextProvider = ({ children }) => {
   }
 
   const getUserExchangesAfterFBInit = () => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in.
-        setUserData(user)
-        getExchanges()
-        if (firebase.messaging.isSupported()) {
-          FCMSubscription()
+    try {
+      const accValues = ["active", "trialing"]
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          // User is signed in.
+          setUserData(user)
+          const response = await checkSubscription()
+          setSubStatus(response.status)
+          if (accValues.includes(response.status)) {
+            setHasSub(true)
+          }
+          else {
+            setHasSub(false)
+          }
+          getExchanges()
+          if (firebase.messaging.isSupported() && accValues.includes(response.status)) {
+            FCMSubscription()
+          }
+        } else {
+          // User is signed out.
         }
-      } else {
-        // User is signed out.
-      }
-    })
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
   async function login(email, password) {
@@ -345,6 +361,8 @@ const UserContextProvider = ({ children }) => {
         devENV,
         hasSub,
         setHasSub,
+        subStatus,
+        setSubStatus,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC
       }}

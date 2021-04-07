@@ -32,10 +32,10 @@ const SubscriptionModal = () => {
               <FontAwesomeIcon icon="exclamation-triangle" size="6x" color="#f25767" className="mb-3" />
               <p>
                 Uh oh! Looks like your CoinPanel subscription has expired. <br />
-                Click on the button below to renew your subscription on Stripe.
+                Click on the button below to renew your subscription.
               </p>
               <button type="button" className="btn btn-primary btn-sm">
-                Redirect to Stripe
+                <Link to="/settings#subscription" className="text-light">Buy Subscription</Link>
                 <FontAwesomeIcon icon="external-link-alt" color="#ffffff" className="ml-1" />
               </button>
             </div>
