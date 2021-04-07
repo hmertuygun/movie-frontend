@@ -51,11 +51,17 @@ const Routes = () => {
             path="/logout"
             render={() => {
               logout()
-              return <div>Logging you out..</div>
+              return (
+                <div className="d-flex justify-content-center">
+                  <h3 className="mt-5">Logging you out..</h3>
+                </div>
+              )
             }}
           />
         )}
-        {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && <SubscriptionModal />}
+        {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
+          <SubscriptionModal />
+        )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
@@ -67,18 +73,22 @@ const Routes = () => {
             <Redirect to="/trade" />
           </CacheSwitch>
         )}
-        <Route path="/login/verify2fa" component={LoginVerify2FA} />
-        <Route path="/login" component={Login} />
-        <Route path="/recover-password" component={RecoverPassword} />
-        <Route path="/new-password" component={NewPassword} />
-        <Route path="/action" component={HandleEmailActions} />
-        <Route exact path="/register" component={Register} />
-        <Route exact path="/register/confirm" component={RegisterConfirm} />
-        <Route
-          exact
-          path="/register/confirm/recieved"
-          component={RegisterFinal}
-        />
+        {!isLoggedIn && (
+          <>
+            <Route path="/login/verify2fa" component={LoginVerify2FA} />
+            <Route path="/login" component={Login} />
+            <Route path="/recover-password" component={RecoverPassword} />
+            <Route path="/new-password" component={NewPassword} />
+            <Route path="/action" component={HandleEmailActions} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/register/confirm" component={RegisterConfirm} />
+            <Route
+              exact
+              path="/register/confirm/recieved"
+              component={RegisterFinal}
+            />
+          </>
+        )}
         {!isLoggedIn && <Redirect to="/register" />}
       </Switch>
     </div>

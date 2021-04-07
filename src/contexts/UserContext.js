@@ -15,6 +15,7 @@ import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
+
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorageRemember = localStorage.getItem('remember')
@@ -129,13 +130,15 @@ const UserContextProvider = ({ children }) => {
   }
 
   const getUserExchangesAfterFBInit = () => {
-    try {
-      const accValues = ["active", "trialing"]
-      firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-          // User is signed in.
-          setUserData(user)
+    const accValues = ["active", "trialing"]
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        // User is signed in.
+        let status
+        setUserData(user)
+        try {
           const response = await checkSubscription()
+          status = response.status
           setSubStatus(response.status)
           if (accValues.includes(response.status)) {
             setHasSub(true)
@@ -143,18 +146,18 @@ const UserContextProvider = ({ children }) => {
           else {
             setHasSub(false)
           }
-          getExchanges()
-          if (firebase.messaging.isSupported() && accValues.includes(response.status)) {
-            FCMSubscription()
-          }
-        } else {
-          // User is signed out.
         }
-      })
-    }
-    catch (e) {
-      console.log(e)
-    }
+        catch (e) {
+          console.log(e)
+        }
+        getExchanges()
+        if (firebase.messaging.isSupported() && accValues.includes(status)) {
+          FCMSubscription()
+        }
+      } else {
+        // User is signed out.
+      }
+    })
   }
 
   async function login(email, password) {
@@ -273,10 +276,15 @@ const UserContextProvider = ({ children }) => {
 
   // LOGOUT
   function logout() {
-    localStorage.clear()
-    sessionStorage.clear()
-    setState({ user: null, has2FADetails: null, is2FAVerified: false })
-    return true
+    firebase.auth().signOut()
+      .then(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+        window.location = window.origin + '/login'
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   }
 
   // REGISTER NEW USER
