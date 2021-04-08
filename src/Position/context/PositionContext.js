@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
+import { errorNotification } from '../../components/Notifications'
 
 export const PositionContext = createContext()
 
@@ -24,7 +25,10 @@ const PositionCTXProvider = ({ children }) => {
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
-      console.log('Cannot fetch positions. Please try again later!')
+      errorNotification.open({
+        description: 'Cannot fetch positions. Please try again later!',
+      })
+      console.log(error)
     }
   }
 
