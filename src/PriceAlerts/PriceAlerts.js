@@ -22,7 +22,7 @@ const ADD_EDIT_INITIAL_STATE = {
   saving: false,
 }
 
-const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, isSaved }) => {
+const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, updatedData }) => {
   const { symbols } = useSymbolContext()
   const [state, setState] = useState(ADD_EDIT_INITIAL_STATE)
 
@@ -46,9 +46,21 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
 
   useEffect(() => {
     if (type === "edit") {
+      const fCond = conditionOptions.find((item) => item.value === condition)
+      const editState = {
+        exchange: { label: exchange, value: exchange },
+        symbol: { label: symbol, value: `${exchange.toUpperCase()}:${symbol.replace("-", "")}` },
+        condition: fCond,
+        target_price,
+        status
+      }
+      setState({
+        ...ADD_EDIT_INITIAL_STATE,
+        fetchingSymbolPrice: false,
+        ...editState
+      })
     }
     else if (type === "add") {
-
     }
     else {
       console.error("Invalid Option")
@@ -60,7 +72,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   }
 
   useEffect(() => {
-    if (!state.symbol?.label) return
+    if (!state.symbol?.label || type === "edit") return
     setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: true }))
     getLastPrice(state.symbol.label.replace('-', ''))
       .then((res) => {
@@ -92,6 +104,29 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       errorNotification.open({ description: 'Price alert creation failed!' })
     }
     finally {
+    }
+  }
+
+  const onUpdate = async () => {
+    try {
+      setState(prev => ({ ...prev, saving: true }))
+      const reqPayload = { exchange: state.exchange.value, symbol: state.symbol.label, condition: state.condition.value, target_price: state.target_price }
+      const resp = await updatePriceAlert(alert_id, reqPayload)
+      if (resp?.status === "OK") {
+        updatedData(reqPayload)
+        successNotification.open({ description: 'Price alert updated!' })
+        onCancel()
+      }
+      else {
+        errorNotification.open({ description: resp?.error })
+      }
+    }
+    catch (e) {
+      console.log(e)
+      errorNotification.open({ description: 'Price alert modification failed!' })
+    }
+    finally {
+
     }
   }
 
@@ -154,8 +189,8 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
         </div>
         <div className="row mt-5">
           <div className="col-md-12 text-right">
-            <button className="btn btn-primary btn-sm" onClick={onSave} disabled={state.saving || state.fetchingSymbolPrice || !symbols.length}>
-              {state.saving ? <span className="spinner-border spinner-border-sm" /> : "Save"}
+            <button className="btn btn-primary btn-sm" onClick={() => type === "edit" ? onUpdate() : onSave()} disabled={state.saving || state.fetchingSymbolPrice || !symbols.length}>
+              {state.saving ? <span className="spinner-border spinner-border-sm" /> : type === "edit" ? 'Update' : 'Save'}
             </button>
             <button className="btn btn-secondary btn-sm" onClick={onCancel} disabled={state.saving}>Cancel</button>
           </div>
@@ -166,20 +201,23 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
 }
 
 const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index, isLast }) => {
-
+  //const editCardProps = { alert_id, exchange, symbol, target_price, condition, status }
+  const [editAlert, setEditAlert] = useState(false)
+  const [state, setState] = useState({ alert_id, exchange, symbol, target_price, condition, status })
   return (
     <div className="py-3" style={!isLast ? { borderBottom: '1px solid #e2e8f0' } : {}}>
-      <div className="row align-items-center">
+      {editAlert && <AddOrEditPriceAlert type="edit" {...state} showAlertCard={(e) => setEditAlert(e)} updatedData={(data) => setState(data)} />}
+      <div className={`row align-items-center ${editAlert ? 'd-none' : 'd-flex'}`}>
         <div className="col-auto">
           <div
-            className={`icon icon-shape ${condition === '<='
+            className={`icon icon-shape ${state.condition === '<='
               ? 'bg-soft-danger text-danger'
               : 'bg-soft-success text-success'
               }`}
             style={{ width: '2.5rem', height: '2.5rem' }}
           >
             <i
-              className={`fas ${condition === '<='
+              className={`fas ${state.condition === '<='
                 ? 'fa-less-than-equal'
                 : 'fa-greater-than-equal'
                 }`}
@@ -188,15 +226,15 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
         </div>
         <div className="col pl-0">
           <span className="d-block h6 text-sm mb-0">
-            {symbol} [{exchange}]
+            {state.symbol} [{state.exchange}]
           </span>
           <p className="mb-0 text-sm">
-            price {condition === ">=" ? '≥' : '≤'} {target_price} {parseSymbol(symbol)}
+            price {state.condition === ">=" ? '≥' : '≤'} {state.target_price} {parseSymbol(state.symbol)}
           </p>
         </div>
         <div className="col-auto actions">
           <div className="actions ml-3">
-            <a className="action-item mr-2" data-for="edit" data-tip="Edit">
+            <a className="action-item mr-2" data-for="edit" data-tip="Edit" onClick={() => setEditAlert(true)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1em"
