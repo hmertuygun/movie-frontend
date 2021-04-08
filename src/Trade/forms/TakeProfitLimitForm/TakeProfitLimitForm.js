@@ -8,7 +8,6 @@ import Slider from 'rc-slider'
 
 import {
   addPrecisionToNumber,
-  addPrecisionToNumberForSell,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
@@ -306,12 +305,12 @@ const TakeProfitLimitForm = () => {
           inputValue) /
         100
 
-      const derivedQuantity = addPrecisionToNumberForSell(
+      const derivedQuantity = addPrecisionToNumber(
         theQuantity,
         quantityPrecision
       )
 
-      const total = addPrecisionToNumberForSell(
+      const total = addPrecisionToNumber(
         derivedQuantity * Number(values.price),
         totalPrecision
       )

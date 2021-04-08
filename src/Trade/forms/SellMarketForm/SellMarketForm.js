@@ -18,7 +18,6 @@ import {
 
 import {
   addPrecisionToNumber,
-  addPrecisionToNumberForSell,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
@@ -263,12 +262,12 @@ const SellMarketForm = () => {
           inputValue) /
         100
 
-      const derivedQuantity = addPrecisionToNumberForSell(
+      const derivedQuantity = addPrecisionToNumber(
         theQuantity,
         quantityPrecision
       )
 
-      const total = addPrecisionToNumberForSell(
+      const total = addPrecisionToNumber(
         derivedQuantity * Number(values.price),
         totalPrecision
       )
