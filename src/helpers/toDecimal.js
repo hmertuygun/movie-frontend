@@ -3,7 +3,7 @@ export default function scientificToDecimal(num) {
   //remove the sign
   num = Math.abs(num)
   //if the number is in scientific notation remove it
-  if (/\d+\.?\d*e[\+\-]*\d+/i.test(num)) {
+  if (/\d+\.?\d*e[+-]*\d+/i.test(num)) {
     var zero = '0',
       parts = String(num).toLowerCase().split('e'), //split into coeff and exponent
       e = parts.pop(), //store the exponential part
