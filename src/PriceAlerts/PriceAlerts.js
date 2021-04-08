@@ -81,8 +81,9 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       const resp = await createPriceAlert(reqPayload)
       if (resp?.status === "OK") {
         successNotification.open({ description: 'Price alert created!' })
-        showAlertCard(false)
-        isSaved(true)
+        // showAlertCard(false)
+        // isSaved(true)
+        onCancel()
       }
       else {
         errorNotification.open({ description: resp?.error })
@@ -93,7 +94,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       errorNotification.open({ description: 'Price alert creation failed!' })
     }
     finally {
-      setState(prev => ({ ...prev, saving: false }))
+      // setState(prev => ({ ...prev, saving: false }))
     }
   }
 
@@ -168,7 +169,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index }) => {
 
   return (
     <div className="py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
@@ -224,7 +225,7 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
                 className="action-item text-danger mr-2"
                 data-for="delete"
                 data-tip="Delete"
-                onClick={() => delClick(alert_id)}
+                onClick={() => delClick(index, alert_id)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -265,6 +266,7 @@ const PriceAlerts = () => {
 
   const getAllPriceAlerts = async () => {
     try {
+      setFetching(true)
       const res = await getPriceAlerts()
       setPriceAlertData(res?.alerts)
     }
@@ -276,16 +278,16 @@ const PriceAlerts = () => {
     }
   }
 
-  const onAlertDelete = async (id) => {
+  const onAlertDelete = async (index, id) => {
     try {
       setDelId(id)
       const resp = await deletePriceAlert(id)
       if (resp?.status === "OK") {
-        let tempAlerts = [...priceAlertData]
-        let fIndex = tempAlerts.findIndex(item => item.alert_id === id)
-        tempAlerts.splice(fIndex, 1)
-        setPriceAlertData(tempAlerts)
-        successNotification.open({ description: 'Price alert deleted' })
+        setPriceAlertData(prevState => {
+          let tempAlerts = [...prevState]
+          return tempAlerts.splice(index, 1)
+        })
+        successNotification.open({ description: 'Price alert deleted', key: 'deleted' })
       }
       else {
         errorNotification.open({ description: resp?.error })
@@ -326,39 +328,45 @@ const PriceAlerts = () => {
           </div>
         </div>
 
-        {showCreateAlert && <AddOrEditPriceAlert type="add" showAlertCard={(e) => setShowCreateAlert(e)} isSaved={getAllPriceAlerts} />}
+        {showCreateAlert && (
+          <AddOrEditPriceAlert
+            type="add"
+            showAlertCard={(e) => {
+              setShowCreateAlert(e)
+              getAllPriceAlerts()
+            }}
+          />
+        )}
 
-        <div className={`text-center ${fetching ? 'd-block' : 'd-none'}`} >
-
-        </div>
-
-        <div
-          className={`card card-fluid ${!fetching && !priceAlertData?.length ? 'd-block' : 'd-none'}`}
-        >
-          <div className="card-header">
-            <div className="d-flex justify-content-center">
-              <p>Nothing to show!</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`card card-fluid ${!fetching && priceAlertData?.length ? 'd-block' : 'd-none'}`}
-        >
+        <div className={`card card-fluid`}>
           <div className="card-header pb-3">
             <div className="mb-3">
               <span className="h6">Active Alerts</span>
             </div>
 
-            {
-              priceAlertData.map((item, index) => (
-                <SinglePriceAlert key={`price-alert-${index + 1}`} delId={delId} delClick={(id) => onAlertDelete(id)} {...item} />
-              ))
-            }
+            {priceAlertData.map((item, index) => (
+              <SinglePriceAlert
+                key={`price-alert-${index + 1}`}
+                delId={delId}
+                index={index}
+                delClick={(index, id) => onAlertDelete(index, id)}
+                {...item}
+              />
+            ))}
 
-            <div className="d-flex justify-content-center">
-              <p> Nothing to show!</p>
-              <span className="spinner-border text-primary" role="status"></span>
+            <div className="d-flex justify-content-center mt-3">
+              <p
+                className={`${!fetching && !priceAlertData.length ? 'd-block' : 'd-none'
+                  }`}
+              >
+                {' '}
+                Nothing to show!
+              </p>
+              <span
+                className={`spinner-border text-primary ${fetching ? 'd-inline-block' : 'd-none'
+                  }`}
+                role="status"
+              ></span>
             </div>
           </div>
         </div>
