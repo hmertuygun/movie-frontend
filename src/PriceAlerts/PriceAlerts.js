@@ -81,8 +81,6 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       const resp = await createPriceAlert(reqPayload)
       if (resp?.status === "OK") {
         successNotification.open({ description: 'Price alert created!' })
-        // showAlertCard(false)
-        // isSaved(true)
         onCancel()
       }
       else {
@@ -94,18 +92,16 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       errorNotification.open({ description: 'Price alert creation failed!' })
     }
     finally {
-      // setState(prev => ({ ...prev, saving: false }))
     }
   }
 
   const onCancel = () => {
-    setState(ADD_EDIT_INITIAL_STATE)
     showAlertCard(false)
   }
 
   return (
-    <div className="card card-fluid">
-      <div className="card-body">
+    <div className={`${type === "edit" ? '' : 'card card-fluid'}`}>
+      <div className={`${type === "edit" ? '' : 'card-body'}`}>
         <div className="row">
           <div className="col-lg-3 col-md-6">
             <label>Select exchange</label>
@@ -169,10 +165,10 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index, isLast }) => {
 
   return (
-    <div className="py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
+    <div className="py-3" style={!isLast ? { borderBottom: '1px solid #e2e8f0' } : {}}>
       <div className="row align-items-center">
         <div className="col-auto">
           <div
@@ -349,6 +345,7 @@ const PriceAlerts = () => {
                 key={`price-alert-${index + 1}`}
                 delId={delId}
                 index={index}
+                isLast={index === priceAlertData.length - 1}
                 delClick={(index, id) => onAlertDelete(index, id)}
                 {...item}
               />
