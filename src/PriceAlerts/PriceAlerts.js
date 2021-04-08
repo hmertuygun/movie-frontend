@@ -319,7 +319,8 @@ const PriceAlerts = () => {
       if (resp?.status === "OK") {
         setPriceAlertData(prevState => {
           let tempAlerts = [...prevState]
-          return tempAlerts.splice(index, 1)
+          tempAlerts.splice(index, 1)
+          return tempAlerts
         })
         successNotification.open({ description: 'Price alert deleted', key: 'deleted' })
       }
