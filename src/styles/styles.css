@@ -107,7 +107,14 @@ hr {
 }
 .react-dropdown-select-dropdown {
   z-index: 999 !important;
-  width: 300px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+.react-dropdown-select:focus,
+.react-dropdown-select:focus-within,
+.react-dropdown-select:hover {
+  box-shadow: none !important;
+  border-color: rgba(0, 138, 255, 0.5) !important;
 }
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,

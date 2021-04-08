@@ -16,6 +16,7 @@ import TradeView from './views/TradeView'
 import Settings from './views/Settings'
 import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
+import PriceAlerts from './views/PriceAlertView'
 import OnboardingModal from './Trade/OnboardingModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
@@ -58,6 +59,7 @@ const Routes = () => {
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
+            <Route path="/alerts" component={PriceAlerts} />
             <CacheRoute path="/positions" component={Position} />
             <Redirect to="/trade" />
           </CacheSwitch>
