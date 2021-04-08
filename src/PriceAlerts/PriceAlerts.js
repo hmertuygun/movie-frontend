@@ -200,26 +200,37 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index, isLast }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, index, isLast, alertUpdated }) => {
   //const editCardProps = { alert_id, exchange, symbol, target_price, condition, status }
   const [editAlert, setEditAlert] = useState(false)
   const [state, setState] = useState({ alert_id, exchange, symbol, target_price, condition, status })
   return (
-    <div className="py-3" style={!isLast ? { borderBottom: '1px solid #e2e8f0' } : {}}>
-      {editAlert && <AddOrEditPriceAlert type="edit" {...state} showAlertCard={(e) => setEditAlert(e)} updatedData={(data) => setState(data)} />}
-      <div className={`row align-items-center ${editAlert ? 'd-none' : 'd-flex'}`}>
+    <div
+      className="py-3"
+      style={!isLast ? { borderBottom: '1px solid #e2e8f0' } : {}}
+    >
+      {editAlert && (
+        <AddOrEditPriceAlert
+          type="edit" {...state}
+          showAlertCard={(e) => { setEditAlert(e) }}
+          updatedData={alertUpdated}
+        />
+      )}
+      <div
+        className={`row align-items-center ${editAlert ? 'd-none' : 'd-flex'}`}
+      >
         <div className="col-auto">
           <div
             className={`icon icon-shape ${state.condition === '<='
-              ? 'bg-soft-danger text-danger'
-              : 'bg-soft-success text-success'
+                ? 'bg-soft-danger text-danger'
+                : 'bg-soft-success text-success'
               }`}
             style={{ width: '2.5rem', height: '2.5rem' }}
           >
             <i
               className={`fas ${state.condition === '<='
-                ? 'fa-less-than-equal'
-                : 'fa-greater-than-equal'
+                  ? 'fa-less-than-equal'
+                  : 'fa-greater-than-equal'
                 }`}
             ></i>
           </div>
@@ -229,12 +240,18 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
             {state.symbol} [{state.exchange}]
           </span>
           <p className="mb-0 text-sm">
-            price {state.condition === ">=" ? '≥' : '≤'} {state.target_price} {parseSymbol(state.symbol)}
+            price {state.condition === '>=' ? '≥' : '≤'} {state.target_price}{' '}
+            {parseSymbol(state.symbol)}
           </p>
         </div>
         <div className="col-auto actions">
           <div className="actions ml-3">
-            <a className="action-item mr-2" data-for="edit" data-tip="Edit" onClick={() => setEditAlert(true)}>
+            <a
+              className="action-item mr-2"
+              data-for="edit"
+              data-tip="Edit"
+              onClick={() => setEditAlert(true)}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1em"
@@ -336,6 +353,11 @@ const PriceAlerts = () => {
     }
   }
 
+  const onPriceAlertUpdate = () => {
+    setPriceAlertData([])
+    getAllPriceAlerts()
+  }
+
   return (
     <section
       className="pt-5 bg-section-secondary price-alerts"
@@ -386,6 +408,7 @@ const PriceAlerts = () => {
                 index={index}
                 isLast={index === priceAlertData.length - 1}
                 delClick={(index, id) => onAlertDelete(index, id)}
+                alertUpdated={onPriceAlertUpdate}
                 {...item}
               />
             ))}
