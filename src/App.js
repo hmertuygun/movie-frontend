@@ -11,15 +11,12 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import FullScreenLoader from './components/FullScreenLoader'
 import { initGA } from './Tracking'
+initGA(process.env.REACT_APP_TRACKING_ID)
 
 library.add(fab, fas)
 const queryClient = new QueryClient()
 
 export default function App() {
-  useEffect(() => {
-    initGA(process.env.REACT_APP_TRACKING_ID)
-  }, [])
-
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
