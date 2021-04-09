@@ -109,7 +109,7 @@ const StripeForm = ({ onCancelClick }) => {
       })
       await buySubscription(payload.paymentMethod.id)
       setHasSub(true)
-      setSubStatus("active")
+      setSubStatus("trialing")
       successNotification.open({ description: 'Subscription Added!' })
     } catch (e) {
       console.error(e)
@@ -218,7 +218,8 @@ const UserSubscriptions = () => {
         <p className="text-muted lh-150 text-sm mb-0">
           {subStatus === 'active'
             ? 'Will Auto renew at $29 / month'
-            : 'Trial will end on'}
+            : 'Free 14-day trial active. If you have bought subscription, your status will automatically turn active.'}
+          {/* Trial will end on */}
         </p>
       </div>
     </>
@@ -270,31 +271,34 @@ const UserSubscriptions = () => {
               <div className="media align-items-center">{subCard}</div>
             </div>
             <div className="col-md-2 text-md-right">
+              {/* ${subStatus === "active" ? 'btn-danger' : 'btn-primary'}` */}
               <button
                 type="button"
-                className={`btn btn-sm rounded-pill ${subStatus === "active" ? 'btn-danger' : 'btn-primary'}`}
+                className={`btn btn-sm rounded-pill btn-primary ${subStatus === 'active' ? 'btn-danger' : 'btn-primary'
+                  }`}
                 onClick={() => setShowStripeForm(true)}
               >
-                {subStatus === "active" ? 'Delete' : 'Manage'}
+                {subStatus === 'active' ? 'Delete' : 'Manage'}
               </button>
             </div>
           </div>
         </div>
       </div>
-      {subStatus !== "active" ? <div
-        className={`card card-fluid ${showStripeForm ? 'd-block' : 'd-none'}`}
-      >
-        <div className="card-body">
-          <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
-            <StripeForm
-              onCancelClick={(e) => {
-                setShowStripeForm(e)
-              }}
-            />
-          </Elements>
+      {subStatus !== 'active' && subStatus !== 'trialing' ? (
+        <div
+          className={`card card-fluid ${showStripeForm ? 'd-block' : 'd-none'}`}
+        >
+          <div className="card-body">
+            <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
+              <StripeForm
+                onCancelClick={(e) => {
+                  setShowStripeForm(e)
+                }}
+              />
+            </Elements>
+          </div>
         </div>
-      </div> : null
-      }
+      ) : null}
     </section>
   )
 }
