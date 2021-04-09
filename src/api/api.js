@@ -533,7 +533,7 @@ export async function deletePriceAlert(id) {
   return response?.data
 }
 export async function reactivatePriceAlert(id) {
-  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/reactivate/${id}`
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/reactive/${id}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {

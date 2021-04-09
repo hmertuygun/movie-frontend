@@ -197,7 +197,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, isLast, alertUpdated }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, type, delClick, delId, isLast, alertUpdated, onReactivate }) => {
   const [editAlert, setEditAlert] = useState(false)
   const state = { alert_id, exchange, symbol, target_price, condition, status }
 
@@ -246,38 +246,23 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
           </p>
         </div>
         <div className="col-auto actions">
-          <div className="actions ml-3">
-            <a
-              className="action-item mr-2"
-              data-for="edit"
-              data-tip="Edit"
-              onClick={() => setEditAlert(true)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="feather feather-edit-2"
-              >
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-              </svg>
-              <Tooltip id="edit" />
-            </a>
-
-            {delId && delId === state.alert_id ? (
-              <span className="spinner-border spinner-border-sm mr-2" />
-            ) : (
+          {type === 'completed' ? (
+            <div className="actions ml-3">
+              {delId && delId === state.alert_id ? (
+                <span className="spinner-border spinner-border-sm mr-2" />
+              ) : (
+                <a className="action-item mr-2" onClick={onReactivate}>
+                  Reactivate
+                </a>
+              )}
+            </div>
+          ) : (
+            <div className="actions ml-3">
               <a
-                className="action-item text-danger mr-2"
-                data-for="delete"
-                data-tip="Delete"
-                onClick={() => delClick(state.alert_id)}
+                className="action-item mr-2"
+                data-for="edit"
+                data-tip="Edit"
+                onClick={() => setEditAlert(true)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -289,17 +274,43 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="feather feather-trash-2"
+                  className="feather feather-edit-2"
                 >
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                 </svg>
-                <Tooltip id="delete" />
+                <Tooltip id="edit" />
               </a>
-            )}
-          </div>
+              {delId && delId === state.alert_id ? (
+                <span className="spinner-border spinner-border-sm mr-2" />
+              ) : (
+                <a
+                  className="action-item text-danger mr-2"
+                  data-for="delete"
+                  data-tip="Delete"
+                  onClick={() => delClick(state.alert_id)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="feather feather-trash-2"
+                  >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                  <Tooltip id="delete" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -310,21 +321,31 @@ const PriceAlerts = () => {
   const [fetching, setFetching] = useState(true)
   const [priceAlertData, setPriceAlertData] = useState([])
   const [showCreateAlert, setShowCreateAlert] = useState(false)
+  const [completedAlerts, setCompletedAlerts] = useState([])
   const [delId, setDelId] = useState(null)
 
   useEffect(() => {
     getAllPriceAlerts()
   }, [])
 
-  // useEffect(() => {
-  //   console.log(priceAlertData)
-  // }, [priceAlertData])
 
   const getAllPriceAlerts = async () => {
     try {
       setFetching(true)
-      const res = await getPriceAlerts()
-      setPriceAlertData(res?.alerts)
+      const resp = await getPriceAlerts()
+      const { alerts } = resp
+      let active = [], completed = []
+      for (let i = 0; i < alerts.length; i++) {
+        let item = alerts[i]
+        if (item.status === "active") {
+          active.push(item)
+        }
+        else if (item.status === "completed") {
+          completed.push(item)
+        }
+      }
+      setPriceAlertData(active)
+      setCompletedAlerts(completed)
     }
     catch (e) {
       console.log(e)
@@ -378,6 +399,34 @@ const PriceAlerts = () => {
     }
   }
 
+  const onAlertReactivate = async (data) => {
+    const { alert_id } = data
+    setDelId(alert_id)
+    try {
+      const resp = await reactivatePriceAlert(alert_id)
+      if (resp?.status === "OK") {
+        setCompletedAlerts(prevState => {
+          let tempAlerts = [...prevState]
+          let fIndex = tempAlerts.findIndex(item => item.alert_id === alert_id)
+          tempAlerts.splice(fIndex, 1)
+          return tempAlerts
+        })
+        setPriceAlertData(prevState => [{ ...data, alert_id: resp.alert_id }, ...prevState])
+        successNotification.open({ description: 'Price alert deleted', key: 'deleted' })
+      }
+      else {
+        errorNotification.open({ description: resp?.error })
+      }
+    }
+    catch (e) {
+      console.log(e)
+      errorNotification.open({ description: `Alert didn't re-activate!` })
+    }
+    finally {
+      setDelId(null)
+    }
+  }
+
   return (
     <section
       className="pt-5 bg-section-secondary price-alerts"
@@ -421,7 +470,7 @@ const PriceAlerts = () => {
 
             {priceAlertData.map((item, index) => (
               <SinglePriceAlert
-                key={`price-alert-${index + 1}`}
+                key={`price-alert-active-${index + 1}`}
                 delId={delId}
                 isLast={index === priceAlertData.length - 1}
                 delClick={(del_id) => onAlertDelete(del_id)}
@@ -443,6 +492,34 @@ const PriceAlerts = () => {
                   }`}
                 role="status"
               ></span>
+            </div>
+          </div>
+        </div>
+
+        <div className={`card card-fluid ${!fetching && completedAlerts.length} ? 'd-block' : 'd-none'`}>
+          <div className="card-header pb-3">
+            <div className="mb-3">
+              <span className="h6">Past Alerts</span>
+            </div>
+
+            {completedAlerts.map((item, index) => (
+              <SinglePriceAlert
+                key={`price-alert-completed-${index + 1}`}
+                type={item.status}
+                isLast={index === completedAlerts.length - 1}
+                onReactivate={() => onAlertReactivate(item)}
+                delId={delId}
+                {...item}
+              />
+            ))}
+            <div className="d-flex justify-content-center mt-3">
+              <p
+                className={`${!fetching && !completedAlerts.length ? 'd-block' : 'd-none'
+                  }`}
+              >
+                {' '}
+                Nothing to show!
+              </p>
             </div>
           </div>
         </div>
