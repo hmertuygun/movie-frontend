@@ -22,7 +22,7 @@ const ADD_EDIT_INITIAL_STATE = {
   saving: false,
 }
 
-const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, cardOp }) => {
+const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, cardOp, onCancel }) => {
   const { symbols } = useSymbolContext()
   const [state, setState] = useState(ADD_EDIT_INITIAL_STATE)
 
@@ -116,7 +116,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       const resp = await updatePriceAlert(alert_id, reqPayload)
       if (resp?.status === "OK") {
         successNotification.open({ description: 'Price alert updated!' })
-        cardOp("edit", { ...currState, alert_id: resp.alert_id, status: "active" })
+        cardOp("edit", { ...currState, old_alert_id: alert_id, alert_id: resp.alert_id, status: "active" })
       }
       else {
         errorNotification.open({ description: resp?.error })
@@ -189,7 +189,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
             <button className="btn btn-primary btn-sm" onClick={() => type === "edit" ? onUpdate() : onSave()} disabled={state.saving || state.fetchingSymbolPrice || !symbols.length}>
               {state.saving ? <span className="spinner-border spinner-border-sm" /> : type === "edit" ? 'Update' : 'Save'}
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={() => showAlertCard(false)} disabled={state.saving}>Cancel</button>
+            <button className="btn btn-secondary btn-sm" onClick={onCancel} disabled={state.saving}>Cancel</button>
           </div>
         </div>
       </div>
@@ -199,19 +199,6 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
 
 const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, delClick, delId, isLast, alertUpdated }) => {
   const [editAlert, setEditAlert] = useState(false)
-  //const [state, setState] = useState(null)
-
-  // useEffect(() => {
-  //   setState({ alert_id, exchange, symbol, target_price, condition, status })
-  // }, [])
-
-  // useEffect(() => {
-  //   setEditAlert(false)
-  //   setState({ alert_id, exchange, symbol, target_price, condition, status })
-  // }, [state])
-
-  // if (!state) return null
-
   const state = { alert_id, exchange, symbol, target_price, condition, status }
 
   return (
@@ -226,9 +213,9 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
             alertUpdated(type, data)
             setEditAlert(false)
           }}
+          onCancel={() => setEditAlert(false)}
           {...state}
         />
-        // updatedData={alertUpdated} , updatedData={(data) => setState(data)}
       )}
       <div
         className={`row align-items-center ${editAlert ? 'd-none' : 'd-flex'}`}
@@ -375,10 +362,19 @@ const PriceAlerts = () => {
 
   const onAdded = (type, data) => {
     if (type === "add") {
-      console.log(type)
-      console.log(data)
       setPriceAlertData(prevState => [data, ...prevState])
       setShowCreateAlert(false)
+    }
+  }
+
+  const onAlertUpdate = (type, data) => {
+    if (type === "edit") {
+      setPriceAlertData(prevState => {
+        let tempAlerts = [...prevState]
+        let fIndex = tempAlerts.findIndex(item => item.alert_id === data.old_alert_id)
+        tempAlerts[fIndex] = { ...data }
+        return tempAlerts
+      })
     }
   }
 
@@ -413,6 +409,7 @@ const PriceAlerts = () => {
           <AddOrEditPriceAlert
             type="add"
             cardOp={onAdded}
+            onCancel={() => { setShowCreateAlert(false) }}
           />
         )}
 
@@ -428,6 +425,7 @@ const PriceAlerts = () => {
                 delId={delId}
                 isLast={index === priceAlertData.length - 1}
                 delClick={(del_id) => onAlertDelete(del_id)}
+                alertUpdated={onAlertUpdate}
                 {...item}
               />
             ))}
