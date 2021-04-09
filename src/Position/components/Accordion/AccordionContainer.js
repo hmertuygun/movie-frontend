@@ -9,6 +9,7 @@ import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
+import scientificToDecimal from '../../../helpers/toDecimal'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
@@ -39,8 +40,10 @@ const AccordionContainer = () => {
     for (const position of positions) {
       const { amount, dateOpened, entry, orders, symbol } = position
       const quoteAsset = symbol.split('-')?.[1]
-      const currentPrice = Number(
-        message.find((message) => message.s === symbol.replace('-', ''))?.c
+      const currentPrice = scientificToDecimal(
+        Number(
+          message.find((message) => message.s === symbol.replace('-', ''))?.c
+        )
       )
       const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
 
@@ -50,22 +53,36 @@ const AccordionContainer = () => {
 
       let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
       if (entry > currentPrice) {
-        ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
+        ROE =
+          '-' +
+          scientificToDecimal(
+            (((entry - currentPrice) * 100) / entry).toFixed(2)
+          )
         const PNLValue = (entry - currentPrice) * amount
         if (twoDecimalArray.includes(quoteAsset)) {
-          PNL = '-' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+          PNL =
+            '-' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
         } else {
           PNL =
-            '-' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+            '-' +
+            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+            ` ${quoteAsset}`
         }
       } else {
-        ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
+        ROE =
+          '+' +
+          scientificToDecimal(
+            (((currentPrice - entry) * 100) / entry).toFixed(2)
+          )
         const PNLValue = (currentPrice - entry) * amount
         if (twoDecimalArray.includes(quoteAsset)) {
-          PNL = '+' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+          PNL =
+            '+' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
         } else {
           PNL =
-            '+' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+            '+' +
+            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+            ` ${quoteAsset}`
         }
       }
 
@@ -79,9 +96,11 @@ const AccordionContainer = () => {
 
       let entryPrice = null
       if (twoDecimalArray.includes(quoteAsset)) {
-        entryPrice = Number(entry.toFixed(2))
+        entryPrice = scientificToDecimal(Number(entry.toFixed(2)))
       } else {
-        entryPrice = Number(entry.toFixed(selectedSymbol?.tickSize))
+        entryPrice = scientificToDecimal(
+          Number(entry.toFixed(selectedSymbol?.tickSize))
+        )
       }
 
       const modifiedData = {
