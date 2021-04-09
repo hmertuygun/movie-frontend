@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
 import Tooltip from '../../../components/Tooltip'
@@ -18,13 +18,17 @@ const AccordionContainer = () => {
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
 
+  const didUnmount = useRef(false)
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     'wss://stream.binance.com:9443/stream',
     {
       retryOnError: true,
-      onError: (errorEvent) => {
-        console.log('Web Socket Error ==============> ', errorEvent)
+      shouldReconnect: (closeEvent) => {
+        return didUnmount.current === false
       },
+      reconnectAttempts: 2880,
+      reconnectInterval: 30000,
     }
   )
 
@@ -128,6 +132,9 @@ const AccordionContainer = () => {
         params: ['!ticker@arr'],
       })
     )
+    return () => {
+      didUnmount.current = true
+    }
   }, [])
 
   const { items, requestSort } = useSortableData(data)
