@@ -120,12 +120,6 @@ const AccordionContainer = () => {
     setData(positionsData)
   }, [positions, message, symbolDetails])
 
-  const onUnload = () => {
-    localStorage.removeItem(
-      `position_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-    )
-  }
-
   useEffect(() => {
     sendMessage(
       JSON.stringify({
@@ -134,10 +128,6 @@ const AccordionContainer = () => {
         params: ['!ticker@arr'],
       })
     )
-    window.addEventListener('beforeunload', onUnload)
-    return () => {
-      window.removeEventListener('beforeunload', onUnload)
-    }
   }, [])
 
   const { items, requestSort } = useSortableData(data)

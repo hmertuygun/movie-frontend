@@ -16,11 +16,6 @@ const PositionCTXProvider = ({ children }) => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
-      localStorage.setItem(
-        `position_${apiKeyName}_${exchange}`,
-        JSON.stringify(data.positions)
-      )
-
       setPositions(data.positions)
       setIsLoading(false)
     } catch (error) {
@@ -34,18 +29,7 @@ const PositionCTXProvider = ({ children }) => {
 
   useEffect(() => {
     if (exchange && apiKeyName) {
-      setIsLoading(true)
-      const cachePosition = localStorage.getItem(
-        `position_${apiKeyName}_${exchange}`
-      )
-
-      if (cachePosition) {
-        const parsedPosition = JSON.parse(cachePosition)
-        setPositions(parsedPosition)
-        setIsLoading(false)
-      } else {
-        fetchPositionsList()
-      }
+      fetchPositionsList()
     }
   }, [activeExchange])
 
