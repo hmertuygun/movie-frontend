@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import useWebSocket from 'react-use-websocket'
 
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -11,8 +11,18 @@ function MarketStatistics() {
   const baseAsset = selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail.quote_asset
 
+  const didUnmount = useRef(false)
+
   const { sendMessage, lastMessage } = useWebSocket(
-    'wss://stream.binance.com:9443/stream'
+    'wss://stream.binance.com:9443/stream',
+    {
+      retryOnError: true,
+      shouldReconnect: (closeEvent) => {
+        return didUnmount.current === false
+      },
+      reconnectAttempts: 2880,
+      reconnectInterval: 30000,
+    }
   )
 
   useEffect(() => {
@@ -87,6 +97,9 @@ function MarketStatistics() {
         params: ['!ticker@arr'],
       })
     )
+    return () => {
+      didUnmount.current = true
+    }
   }, [])
 
   return (

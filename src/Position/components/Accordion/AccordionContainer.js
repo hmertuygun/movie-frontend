@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
 import Tooltip from '../../../components/Tooltip'
@@ -18,13 +18,17 @@ const AccordionContainer = () => {
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
 
+  const didUnmount = useRef(false)
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     'wss://stream.binance.com:9443/stream',
     {
       retryOnError: true,
-      onError: (errorEvent) => {
-        console.log('Web Socket Error ==============> ', errorEvent)
+      shouldReconnect: (closeEvent) => {
+        return didUnmount.current === false
       },
+      reconnectAttempts: 2880,
+      reconnectInterval: 30000,
     }
   )
 
@@ -86,6 +90,24 @@ const AccordionContainer = () => {
         }
       }
 
+      let modifiedOrders = orders.orders.map((order) => {
+        if (twoDecimalArray.includes(quoteAsset)) {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(2)
+            ),
+          }
+        } else {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(selectedSymbol?.tickSize)
+            ),
+          }
+        }
+      })
+
       let positionValue = currentPrice * amount
       if (quoteAsset !== 'USDT') {
         const quotePrice = Number(
@@ -111,7 +133,7 @@ const AccordionContainer = () => {
         currentPrice,
         units: amount,
         date: dateOpened,
-        orders,
+        orders: modifiedOrders,
         position: positionValue,
       }
       positionsData.push(modifiedData)
@@ -119,12 +141,6 @@ const AccordionContainer = () => {
 
     setData(positionsData)
   }, [positions, message, symbolDetails])
-
-  const onUnload = () => {
-    localStorage.removeItem(
-      `position_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-    )
-  }
 
   useEffect(() => {
     sendMessage(
@@ -134,9 +150,8 @@ const AccordionContainer = () => {
         params: ['!ticker@arr'],
       })
     )
-    window.addEventListener('beforeunload', onUnload)
     return () => {
-      window.removeEventListener('beforeunload', onUnload)
+      didUnmount.current = true
     }
   }, [])
 
