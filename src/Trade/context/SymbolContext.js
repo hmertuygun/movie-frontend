@@ -5,7 +5,14 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { getExchanges, getBalance, getLastPrice, getUserExchanges, updateLastSelectedAPIKey } from '../../api/api'
+import { backOff } from 'exponential-backoff'
+import {
+  getExchanges,
+  getBalance,
+  getLastPrice,
+  getUserExchanges,
+  updateLastSelectedAPIKey,
+} from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
@@ -13,7 +20,13 @@ import { useQuery } from 'react-query'
 const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
-  const { activeExchange, setActiveExchange, totalExchanges, loaderVisible, setLoaderVisibility } = useContext(UserContext)
+  const {
+    activeExchange,
+    setActiveExchange,
+    totalExchanges,
+    loaderVisible,
+    setLoaderVisibility,
+  } = useContext(UserContext)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -60,7 +73,7 @@ const SymbolContextProvider = ({ children }) => {
   async function loadLastPrice(symbolpair) {
     try {
       setIsLoadingLastPrice(true)
-      const response = await getLastPrice(symbolpair)
+      const response = await backOff(() => getLastPrice(symbolpair))
       if (
         'last_price' in response.data &&
         response.data['last_price'] !== 'NA'
@@ -79,15 +92,16 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   function setSymbol(symbol) {
-    if (symbol == null || symbol === selectedSymbol) {
-      return
-    }
+    if (!symbol || symbol?.value === selectedSymbol?.value) return
     console.log('setting symbol')
     setSelectedSymbol(symbol)
     setSelectedSymbolDetail(symbolDetails[symbol['value']])
     setSelectedSymbolBalance('')
     if (symbol['value'] in symbolDetails) {
-      loadBalance(symbolDetails[symbol['value']]['quote_asset'], symbolDetails[symbol['value']]['base_asset'])
+      loadBalance(
+        symbolDetails[symbol['value']]['quote_asset'],
+        symbolDetails[symbol['value']]['base_asset']
+      )
       loadLastPrice(symbolDetails[symbol['value']]['symbolpair'])
     }
   }
@@ -95,22 +109,27 @@ const SymbolContextProvider = ({ children }) => {
   async function setExchange(exchange) {
     try {
       // if user selects the selected option again in the dropdown
-      if (activeExchange.apiKeyName === exchange.apiKeyName && activeExchange.exchange === exchange.exchange) {
+      if (
+        activeExchange.apiKeyName === exchange.apiKeyName &&
+        activeExchange.exchange === exchange.exchange
+      ) {
         return
       }
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
-    }
-    catch (e) {
-      errorNotification.open({ description: `Error activating this exchange key!` })
-    }
-    finally {
+    } catch (e) {
+      errorNotification.open({
+        description: `Error activating this exchange key!`,
+      })
+    } finally {
     }
   }
 
-  const queryExchanges = useQuery('exchangeSymbols', getExchanges, { refetchOnWindowFocus: false })
+  const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
+    refetchOnWindowFocus: false,
+  })
 
   const loadExchanges = useCallback(async () => {
     try {
@@ -162,7 +181,11 @@ const SymbolContextProvider = ({ children }) => {
           })
         })
         // Set total user added exchanges in dropdown
-        let mapExchanges = totalExchanges.map((item) => ({ ...item, label: `${item.exchange} - ${item.apiKeyName}`, value: `${item.exchange} - ${item.apiKeyName}` }))
+        let mapExchanges = totalExchanges.map((item) => ({
+          ...item,
+          label: `${item.exchange} - ${item.apiKeyName}`,
+          value: `${item.exchange} - ${item.apiKeyName}`,
+        }))
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
@@ -189,7 +212,11 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
-      loadBalance(selectedSymbolDetail.quote_asset, selectedSymbolDetail.base_asset, true)
+      loadBalance(
+        selectedSymbolDetail.quote_asset,
+        selectedSymbolDetail.base_asset,
+        true
+      )
     }
   }
 
@@ -208,13 +235,14 @@ const SymbolContextProvider = ({ children }) => {
         selectedSymbolBalance,
         selectedBaseSymbolBalance,
         isLoadingBalance,
+        isLoadingLastPrice,
         selectedSymbolLastPrice,
         setSelectedSymbolLastPrice,
         refreshBalance,
         isOrderPlaced,
         setIsOrderPlaced,
         isOrderCancelled,
-        setIsOrderCancelled
+        setIsOrderCancelled,
       }}
     >
       {children}

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
+import { errorNotification } from '../../components/Notifications'
 
 export const PositionContext = createContext()
 
@@ -15,33 +16,20 @@ const PositionCTXProvider = ({ children }) => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
-      localStorage.setItem(
-        `position_${apiKeyName}_${exchange}`,
-        JSON.stringify(data.positions)
-      )
-
       setPositions(data.positions)
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
-      console.log('Cannot fetch positions. Please try again later!')
+      errorNotification.open({
+        description: 'Cannot fetch positions. Please try again later!',
+      })
+      console.log(error)
     }
   }
 
   useEffect(() => {
     if (exchange && apiKeyName) {
-      setIsLoading(true)
-      const cachePosition = localStorage.getItem(
-        `position_${apiKeyName}_${exchange}`
-      )
-
-      if (cachePosition) {
-        const parsedPosition = JSON.parse(cachePosition)
-        setPositions(parsedPosition)
-        setIsLoading(false)
-      } else {
-        fetchPositionsList()
-      }
+      fetchPositionsList()
     }
   }, [activeExchange])
 

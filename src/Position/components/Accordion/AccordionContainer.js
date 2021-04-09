@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
 import Tooltip from '../../../components/Tooltip'
@@ -9,6 +9,7 @@ import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
+import scientificToDecimal from '../../../helpers/toDecimal'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
@@ -17,13 +18,17 @@ const AccordionContainer = () => {
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
 
+  const didUnmount = useRef(false)
+
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     'wss://stream.binance.com:9443/stream',
     {
       retryOnError: true,
-      onError: (errorEvent) => {
-        console.log('Web Socket Error ==============> ', errorEvent)
+      shouldReconnect: (closeEvent) => {
+        return didUnmount.current === false
       },
+      reconnectAttempts: 2880,
+      reconnectInterval: 30000,
     }
   )
 
@@ -39,8 +44,10 @@ const AccordionContainer = () => {
     for (const position of positions) {
       const { amount, dateOpened, entry, orders, symbol } = position
       const quoteAsset = symbol.split('-')?.[1]
-      const currentPrice = Number(
-        message.find((message) => message.s === symbol.replace('-', ''))?.c
+      const currentPrice = scientificToDecimal(
+        Number(
+          message.find((message) => message.s === symbol.replace('-', ''))?.c
+        )
       )
       const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
 
@@ -50,24 +57,56 @@ const AccordionContainer = () => {
 
       let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
       if (entry > currentPrice) {
-        ROE = '-' + (((entry - currentPrice) * 100) / entry).toFixed(2)
+        ROE =
+          '-' +
+          scientificToDecimal(
+            (((entry - currentPrice) * 100) / entry).toFixed(2)
+          )
         const PNLValue = (entry - currentPrice) * amount
         if (twoDecimalArray.includes(quoteAsset)) {
-          PNL = '-' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+          PNL =
+            '-' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
         } else {
           PNL =
-            '-' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+            '-' +
+            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+            ` ${quoteAsset}`
         }
       } else {
-        ROE = '+' + (((currentPrice - entry) * 100) / entry).toFixed(2)
+        ROE =
+          '+' +
+          scientificToDecimal(
+            (((currentPrice - entry) * 100) / entry).toFixed(2)
+          )
         const PNLValue = (currentPrice - entry) * amount
         if (twoDecimalArray.includes(quoteAsset)) {
-          PNL = '+' + PNLValue.toFixed(2) + ` ${quoteAsset}`
+          PNL =
+            '+' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
         } else {
           PNL =
-            '+' + PNLValue.toFixed(selectedSymbol?.tickSize) + ` ${quoteAsset}`
+            '+' +
+            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+            ` ${quoteAsset}`
         }
       }
+
+      let modifiedOrders = orders.orders.map((order) => {
+        if (twoDecimalArray.includes(quoteAsset)) {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(2)
+            ),
+          }
+        } else {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(selectedSymbol?.tickSize)
+            ),
+          }
+        }
+      })
 
       let positionValue = currentPrice * amount
       if (quoteAsset !== 'USDT') {
@@ -79,9 +118,11 @@ const AccordionContainer = () => {
 
       let entryPrice = null
       if (twoDecimalArray.includes(quoteAsset)) {
-        entryPrice = Number(entry.toFixed(2))
+        entryPrice = scientificToDecimal(Number(entry.toFixed(2)))
       } else {
-        entryPrice = Number(entry.toFixed(selectedSymbol?.tickSize))
+        entryPrice = scientificToDecimal(
+          Number(entry.toFixed(selectedSymbol?.tickSize))
+        )
       }
 
       const modifiedData = {
@@ -92,7 +133,7 @@ const AccordionContainer = () => {
         currentPrice,
         units: amount,
         date: dateOpened,
-        orders,
+        orders: modifiedOrders,
         position: positionValue,
       }
       positionsData.push(modifiedData)
@@ -100,12 +141,6 @@ const AccordionContainer = () => {
 
     setData(positionsData)
   }, [positions, message, symbolDetails])
-
-  const onUnload = () => {
-    localStorage.removeItem(
-      `position_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-    )
-  }
 
   useEffect(() => {
     sendMessage(
@@ -115,9 +150,8 @@ const AccordionContainer = () => {
         params: ['!ticker@arr'],
       })
     )
-    window.addEventListener('beforeunload', onUnload)
     return () => {
-      window.removeEventListener('beforeunload', onUnload)
+      didUnmount.current = true
     }
   }, [])
 

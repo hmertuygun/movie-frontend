@@ -463,3 +463,83 @@ export async function getPositionsList({ apiKeyName, exchange }) {
 
   return response
 }
+export async function getChartIntervals() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/interval`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data?.intervals || []
+}
+export async function saveChartIntervals(cIntervals) {
+  const apiUrl = `${process.env.REACT_APP_API}chart/interval`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { intervals: cIntervals }
+  })
+
+  return response?.data?.intervals || []
+}
+export async function createPriceAlert(data) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/create`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data
+  })
+
+  return response?.data
+}
+export async function updatePriceAlert(id, data) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/update/${id}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data
+  })
+
+  return response?.data
+}
+export async function getPriceAlerts() {
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/list`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET'
+  })
+
+  return response?.data
+}
+export async function deletePriceAlert(id) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/delete/${id}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE'
+  })
+
+  return response?.data
+}
+export async function reactivatePriceAlert(id) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/reactive/${id}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST'
+  })
+
+  return response?.data
+}

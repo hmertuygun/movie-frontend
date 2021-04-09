@@ -34,7 +34,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
-  const { activeExchange, loaderVisible, setLoaderVisibility, userData, totalExchanges, setUserData } = useContext(UserContext)
+  const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
@@ -157,6 +157,7 @@ const TradeOrders = () => {
     if (isActiveExchangeSelected) {
       let progress = precisionRound((loaded / total) * 100)
       setOrderHistoryProgress(progress)
+      setOrderHistoryProgressUC(progress)
       setShowProgressBar(progress !== '100.00')
       sessionStorage.setItem('showProgressBar', progress !== '100.00')
     }
@@ -211,6 +212,7 @@ const TradeOrders = () => {
     // if (orderUpdateFB > 0) setOrderUpdateFB(0)
     // if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
+    setOrderHistoryProgressUC('100.00')
     setShowProgressBar(false)
     // setOpenOrderData([])
     // setOrderHistoryData([])
@@ -361,7 +363,7 @@ const TradeOrders = () => {
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
           }
-          {!openOrderData.length && !isOpenOrderFetching && <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>You have no open orders.</div>
+          {!openOrderData.length && !isOpenOrderFetching && !openOrderError && <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>You have no open orders.</div>
           }
           {!isOpenOrderFetching && openOrderError && <div className={`alert alert-danger text-center mt-4`} style={{ width: '400px' }} role="alert">
             <strong><FontAwesomeIcon icon='times-circle' /> Failed to get open orders.</strong>

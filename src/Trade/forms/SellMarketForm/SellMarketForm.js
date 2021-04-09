@@ -18,7 +18,6 @@ import {
 
 import {
   addPrecisionToNumber,
-  addPrecisionToNumberForSell,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
@@ -40,6 +39,7 @@ const SellMarketForm = () => {
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
+    isLoadingLastPrice,
     refreshBalance,
     selectedSymbolLastPrice,
   } = useSymbolContext()
@@ -262,12 +262,12 @@ const SellMarketForm = () => {
           inputValue) /
         100
 
-      const derivedQuantity = addPrecisionToNumberForSell(
+      const derivedQuantity = addPrecisionToNumber(
         theQuantity,
         quantityPrecision
       )
 
-      const total = addPrecisionToNumberForSell(
+      const total = addPrecisionToNumber(
         derivedQuantity * Number(values.price),
         totalPrecision
       )
@@ -423,6 +423,7 @@ const SellMarketForm = () => {
                 max={100}
                 onChange={handleQPSliderChange}
                 value={values.quantityPercentage}
+                disabled={isLoadingLastPrice}
               />
             </div>
             

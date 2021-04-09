@@ -312,7 +312,7 @@ const ExitStoplossStopLimit = () => {
       case 'price': {
         const diff = usePrice - inputValue
         const percentage = (diff / usePrice) * 100
-        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(0)
+        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(2)
         setValues((values) => ({
           ...values,
           profit: 0 - profitPercentage,

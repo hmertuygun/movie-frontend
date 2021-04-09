@@ -13,7 +13,9 @@ const OrderHistoryTableBody = ({
   lastFetchedData,
   isHideOtherPairs,
   callOrderHistoryAPI,
+  symbolClick
 }) => {
+
   const columns = [
     {
       title: 'Pair',
@@ -63,21 +65,30 @@ const OrderHistoryTableBody = ({
       key: 'date',
     },
   ]
+
+  const {
+    setSymbol,
+  } = useSymbolContext()
+
   const loadMoreButtonRef = React.useRef()
+
   useIntersectionObserver({
     target: loadMoreButtonRef,
     onIntersect: callOrderHistoryAPI,
     enabled: lastFetchedData && !isFetching,
     threshold: 0.1,
   })
+
   const { selectedSymbolDetail } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
+
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
     }
     return order.symbol.replace('-', '') === selectedPair
   })
+
   return (
     <div
       className="ordersTable"
@@ -106,17 +117,17 @@ const OrderHistoryTableBody = ({
             return (
               <tr key={index} className={rowClass}>
                 <td></td>
-                <td>{order.symbol}</td>
+                <td style={{ cursor: 'pointer' }} onClick={() => { setSymbol({ label: order.symbol, value: `BINANCE:${order.symbol.replace('-', '')}` }) }}>{order.symbol}</td>
                 <td>{order.type}</td>
                 <td
                   style={
                     !isCanceled
                       ? {
-                          color:
-                            order.side?.toLowerCase() === 'buy'
-                              ? 'green'
-                              : 'red',
-                        }
+                        color:
+                          order.side?.toLowerCase() === 'buy'
+                            ? 'green'
+                            : 'red',
+                      }
                       : undefined
                   }
                 >
@@ -161,9 +172,8 @@ const OrderHistoryTableBody = ({
         ) : null}
       </div>
       <div
-        className={`alert alert-secondary text-center mt-5 mx-auto d-none ${
-          !data.length && !isFetching ? 'd-block' : 'd-none'
-        }`}
+        className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'
+          }`}
         style={{ maxWidth: '400px' }}
         role="alert"
       >
