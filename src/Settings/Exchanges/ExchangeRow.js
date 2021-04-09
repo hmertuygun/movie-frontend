@@ -19,13 +19,13 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
         </div>
 
         <div className="col-md-4 text-right">
-          <a
-            href="#"
+          <span
             className={`text-sm text-danger`}
+            style={{ cursor: 'pointer' }}
             onClick={onDeleteClick}
           >
             Delete
-          </a>
+          </span>
         </div>
       </div>
 
