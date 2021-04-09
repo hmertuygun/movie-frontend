@@ -12,6 +12,10 @@ export const MenuData = [
     url: '/portfolio',
   },
   {
+    title: 'Price Alerts',
+    url: '/alerts',
+  },
+  {
     title: 'Guides',
     url:
       'https://support.coinpanel.com/hc/en-us/categories/360002959559-Beginner-s-Guide',
