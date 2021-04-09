@@ -274,7 +274,7 @@ const UserSubscriptions = () => {
               {/* ${subStatus === "active" ? 'btn-danger' : 'btn-primary'}` */}
               <button
                 type="button"
-                className={`btn btn-sm rounded-pill btn-primary ${subStatus === 'active' ? 'btn-danger' : 'btn-primary'
+                className={`btn btn-sm rounded-pill btn-primary ${subStatus === 'active' || subStatus === 'trialing' ? 'd-none' : 'd-block'
                   }`}
                 onClick={() => setShowStripeForm(true)}
               >
