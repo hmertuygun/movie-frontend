@@ -126,7 +126,7 @@ const Accordion = (props) => {
                                   Price
                                 </th>
                               </tr>
-                              {orders.orders
+                              {orders
                                 .sort((a, b) => {
                                   return a.time > b.time
                                 })

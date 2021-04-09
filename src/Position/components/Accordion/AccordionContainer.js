@@ -90,6 +90,24 @@ const AccordionContainer = () => {
         }
       }
 
+      let modifiedOrders = orders.orders.map((order) => {
+        if (twoDecimalArray.includes(quoteAsset)) {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(2)
+            ),
+          }
+        } else {
+          return {
+            ...order,
+            averageFillPrice: scientificToDecimal(
+              order.averageFillPrice.toFixed(selectedSymbol?.tickSize)
+            ),
+          }
+        }
+      })
+
       let positionValue = currentPrice * amount
       if (quoteAsset !== 'USDT') {
         const quotePrice = Number(
@@ -115,7 +133,7 @@ const AccordionContainer = () => {
         currentPrice,
         units: amount,
         date: dateOpened,
-        orders,
+        orders: modifiedOrders,
         position: positionValue,
       }
       positionsData.push(modifiedData)
