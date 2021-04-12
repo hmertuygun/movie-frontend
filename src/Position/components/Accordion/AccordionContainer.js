@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import useWebSocket, { ReadyState } from 'react-use-websocket'
-
+import ReconnectingWebSocket from 'reconnecting-websocket'
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
@@ -8,37 +7,44 @@ import Accordion from './Accordion'
 // import { data } from '../../utils/mock-data'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
-import { UserContext } from '../../../contexts/UserContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
   const { symbolDetails } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
   const [message, setMessage] = useState([])
   const [data, setData] = useState([])
-
-  const didUnmount = useRef(false)
-
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    'wss://stream.binance.com:9443/stream',
-    {
-      retryOnError: true,
-      shouldReconnect: (closeEvent) => {
-        return didUnmount.current === false
-      },
-      reconnectAttempts: 2880,
-      reconnectInterval: 30000,
-    }
-  )
+  const [socketInstance, setSocketInstance] = useState(null)
 
   useEffect(() => {
-    if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-      const marketData = JSON.parse(lastMessage.data).data
-      setMessage(marketData)
-    }
-  }, [lastMessage])
+    const rws = new ReconnectingWebSocket(
+      'wss://stream.binance.com:9443/stream'
+    )
+    rws.addEventListener('open', () => {
+      rws.send(
+        JSON.stringify({
+          id: 1,
+          method: 'SUBSCRIBE',
+          params: ['!ticker@arr'],
+        })
+      )
+    })
 
+    rws.addEventListener('message', (lastMessage) => {
+      if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
+        const marketData = JSON.parse(lastMessage.data).data
+        setMessage(marketData)
+      }
+    })
+    setSocketInstance(rws)
+
+    return () => {
+      rws.close()
+      rws.removeEventListener('open')
+      rws.removeEventListener('message')
+      setSocketInstance(null)
+    }
+  }, [])
   useEffect(() => {
     const positionsData = []
     for (const position of positions) {
@@ -142,19 +148,6 @@ const AccordionContainer = () => {
     setData(positionsData)
   }, [positions, message, symbolDetails])
 
-  useEffect(() => {
-    sendMessage(
-      JSON.stringify({
-        id: 1,
-        method: 'SUBSCRIBE',
-        params: ['!ticker@arr'],
-      })
-    )
-    return () => {
-      didUnmount.current = true
-    }
-  }, [])
-
   const { items, requestSort } = useSortableData(data)
 
   let rows = items.map((item, idx) => {
@@ -169,7 +162,7 @@ const AccordionContainer = () => {
       <div className="container" style={{ paddingTop: '48px' }}>
         <AccordionHeader
           requestSort={requestSort}
-          liveUpdate={readyState === ReadyState.OPEN}
+          liveUpdate={socketInstance && socketInstance.readyState === 1}
         />
 
         <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
@@ -228,7 +221,7 @@ const AccordionContainer = () => {
                 <span className="sr-only">Loading...</span>
               </div>
             </div>
-          ) : data.length > 0 ? (
+          ) : positions.length > 0 ? (
             rows
           ) : (
             <div className="pt-5 text-center">No positions</div>
