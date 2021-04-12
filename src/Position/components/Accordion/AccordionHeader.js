@@ -11,7 +11,7 @@ const AccordionHeader = (props) => {
   useOutsideAlerter(wrapperRef)
 
   const { requestSort, liveUpdate } = props
-  const { isLoading, refreshData } = useContext(PositionContext)
+  const { positions, isLoading, refreshData } = useContext(PositionContext)
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -49,34 +49,40 @@ const AccordionHeader = (props) => {
               <i className="fab fa-bitcoin"></i>
             </span>
           </button>
-          <Online>
-            <span
-              className="px-3 badge badge-dot"
-              data-for="position-connected-online-status"
-              data-tip={
-                liveUpdate
-                  ? 'Live price update is working.'
-                  : "Live price update isn't working."
-              }
-              style={{ fontWeight: '600' }}
-            >
-              <i className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}></i>
-              Connected
-            </span>
-            <Tooltip id="position-connected-online-status" />
-          </Online>
-          <Offline>
-            <span
-              className="px-3 badge badge-dot"
-              data-for="position-connected-offline-status"
-              data-tip="Live price update isn't working."
-              style={{ fontWeight: '600' }}
-            >
-              <i className="bg-danger"></i>
-              Connected
-            </span>
-          <Tooltip id="position-connected-offline-status" />
-          </Offline>
+          {positions.length > 0 ? (
+            <>
+              <Online>
+                <span
+                  className="px-3 badge badge-dot"
+                  data-for="position-connected-online-status"
+                  data-tip={
+                    liveUpdate
+                      ? 'Live price update is working.'
+                      : "Live price update isn't working."
+                  }
+                  style={{ fontWeight: '600' }}
+                >
+                  <i
+                    className={` ${liveUpdate ? 'bg-success' : 'bg-danger'} `}
+                  ></i>
+                  Connected
+                </span>
+                <Tooltip id="position-connected-online-status" />
+              </Online>
+              <Offline>
+                <span
+                  className="px-3 badge badge-dot"
+                  data-for="position-connected-offline-status"
+                  data-tip="Live price update isn't working."
+                  style={{ fontWeight: '600' }}
+                >
+                  <i className="bg-danger"></i>
+                  Connected
+                </span>
+                <Tooltip id="position-connected-offline-status" />
+              </Offline>
+            </>
+          ) : null}
 
           <button
             type="button"

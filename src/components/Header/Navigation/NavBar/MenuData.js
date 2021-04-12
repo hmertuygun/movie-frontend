@@ -11,10 +11,10 @@ export const MenuData = [
     title: 'Portfolio',
     url: '/portfolio',
   },
-  {
-    title: 'Price Alerts',
-    url: '/alerts',
-  },
+  // {
+  //   title: 'Price Alerts',
+  //   url: '/alerts',
+  // },
   {
     title: 'Guides',
     url:
