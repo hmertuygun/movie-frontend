@@ -2,7 +2,6 @@ import ReconnectingWebSocket from 'reconnecting-websocket'
 export default class socketClient {
   constructor() {
     this.baseUrl = 'wss://stream.binance.com:9443/ws'
-    this._createSocket()
     this.tvIntervals = {
       '1': '1m',
       '3': '3m',
@@ -26,20 +25,37 @@ export default class socketClient {
     this.paramStr = ''
     this.lastSocketData = {}
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
+    this.isDisconnected = false
+    this._createSocket()
+  }
+
+  reconnectWSOnWindowFocus() {
+    document.addEventListener('visibilitychange', (ev) => {
+      console.log(`Tab state : ${document.visibilityState}`)
+      console.log(this._ws)
+      if (this._ws && 'onmessage' in this._ws && this.isDisconnected && document.visibilityState === "visible") {
+        console.log(this._ws)
+        this.isDisconnected = false
+        this._ws.close()
+        this._createSocket()
+      }
+    })
   }
 
   _createSocket() {
     try {
-      this._ws = new ReconnectingWebSocket('wss://stream.binance.com:9443/ws')
+      this._ws = new WebSocket('wss://stream.binance.com:9443/ws')
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
       }
 
       this._ws.onclose = () => {
+        this.isDisconnected = true
         console.warn('Binance WS Closed')
       }
 
       this._ws.onerror = (err) => {
+        this.isDisconnected = true
         console.warn('WS Error', err)
       }
 
@@ -61,14 +77,18 @@ export default class socketClient {
               closeTime: T,
               openTime: t,
             }
-            this.streams[s].data = lastSocketData
-            this.streams[s].listener(lastSocketData)
+            if (Object.keys(this.streams).length) {
+              this.streams[s].data = lastSocketData
+              this.streams[s].listener(lastSocketData)
+            }
           }
         }
         catch (e) {
           console.log(e)
         }
       }
+
+      this.reconnectWSOnWindowFocus()
     }
     catch (e) {
       console.log(e)

@@ -5,6 +5,16 @@ export default class binanceAPI {
     this.debug = options?.debug || false
     this.ws = new socketClient()
     this.lastDate = null
+    // this.reconnectWSOnWindowFocus()
+  }
+
+  reconnectWSOnWindowFocus() {
+    document.addEventListener('visibilitychange', (ev) => {
+      if (this.ws && 'onmessage' in this.ws && this.ws.isDisconnected && document.visibilityState === "visible") {
+        console.log(`Tab state : ${document.visibilityState}`)
+        this.ws = new socketClient()
+      }
+    })
   }
 
   binanceServerTime() {
