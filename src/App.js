@@ -15,8 +15,7 @@ import FullScreenLoader from './components/FullScreenLoader'
 import { initGA } from './Tracking'
 initGA(process.env.REACT_APP_TRACKING_ID)
 Sentry.init({
-  dsn:
-    'https://ff7679176ebe42b583be941055ce703d@o569955.ingest.sentry.io/5716327',
+  dsn: process.env.REACT_APP_SENTRY_DSN,
   integrations: [new Integrations.BrowserTracing()],
 
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -30,16 +29,18 @@ const queryClient = new QueryClient()
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <UserContextProvider>
-          <TabContextProvider>
-            <Header />
-            <Routes />
-          </TabContextProvider>
-        </UserContextProvider>
-      </Router>
-      {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary fallback={'An error has occurred'}>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <UserContextProvider>
+            <TabContextProvider>
+              <Header />
+              <Routes />
+            </TabContextProvider>
+          </UserContextProvider>
+        </Router>
+        {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+      </QueryClientProvider>
+    </Sentry.ErrorBoundary>
   )
 }
