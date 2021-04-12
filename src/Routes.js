@@ -59,7 +59,7 @@ const Routes = () => {
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <Route path="/portfolio" component={Portfolio} />
-            <Route path="/alerts" component={PriceAlerts} />
+            <CacheRoute path="/alerts" component={PriceAlerts} />
             <CacheRoute path="/positions" component={Position} />
             <Redirect to="/trade" />
           </CacheSwitch>
