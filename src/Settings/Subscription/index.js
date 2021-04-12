@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../contexts/UserContext'
 import { loadStripe } from '@stripe/stripe-js'
+import Moment from 'react-moment'
 import {
   CardElement,
   CardNumberElement,
@@ -195,16 +196,23 @@ const StripeForm = ({ onCancelClick }) => {
 
 const UserSubscriptions = () => {
   const [showStripeForm, setShowStripeForm] = useState(false)
-  const { hasSub, subInfo } = useContext(UserContext)
+  const { hasSub, subInfo, userData } = useContext(UserContext)
   const trialEnded = ['incomplete', 'incomplete_expired']
   const subExpired = ['canceled', 'unpaid', 'past_due']
   const subActive = ['active', 'trialing']
   const [subStatus, setSubStatus] = useState("")
   const [subDate, setSubDate] = useState("")
-
+  const month = ["January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"]
   useEffect(() => {
     if (subInfo?.status) setSubStatus(subInfo.status)
-    if (subInfo?.created) setSubDate(new Date(subInfo.created).getDate())
+    if (subInfo?.created) {
+      let wholeDate = new Date(subInfo.created)
+      let add1Month = new Date(wholeDate.setMonth(wholeDate.getMonth() + 1))
+      console.log(add1Month)
+      wholeDate = `${month[add1Month.getMonth()]} ${dateFormat(add1Month.getDate())}, ${add1Month.getFullYear()}`
+      setSubDate(wholeDate)
+    }
   }, [subInfo])
 
   const dateFormat = (val) => {
@@ -221,21 +229,19 @@ const UserSubscriptions = () => {
       : ''
   const subCard = subActive.includes(subStatus) ? (
     <>
-      <span className="avatar bg-success text-white rounded-circle mr-3">
-        <FontAwesomeIcon icon="check" color="#ffffff" size="2x" />
+      <span className="avatar bg-danger text-white rounded-circle mr-3">
+        <i className="far fa-bell" />
       </span>
       <div className="media-body">
         <h5 className="mb-0">
-          Subscription active!
-          {/* {subStatus === 'active'
-            ? 'Subscription active!'
-            : 'Trial period active!'} */}
+          Pro Account | $29/month
         </h5>
         <p className="text-muted lh-150 text-sm mb-0">
-          Will auto renew at <b>$29</b> on <b>{dateFormat(subDate)}</b> of every month.
-          {/* {subStatus === 'active'
-            ? `Will auto renew at $29 on `
-            : `Will auto renew on `} */}
+          Email: {userData.email}
+        </p>
+        <p className="text-muted lh-150 text-sm mb-0">
+          {/* Will auto renew at <b>$29</b> on <b>{dateFormat(subDate)}</b> of every month. */}
+          Your subscription will auto-renew on {subDate}
         </p>
       </div>
     </>
