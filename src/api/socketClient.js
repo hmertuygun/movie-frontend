@@ -27,14 +27,17 @@ export default class socketClient {
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
     this.isDisconnected = false
     this._createSocket()
+    // this.reconnectWSOnWindowFocus()
   }
 
   reconnectWSOnWindowFocus() {
     document.addEventListener('visibilitychange', (ev) => {
       console.log(`Tab state : ${document.visibilityState}`)
       console.log(this._ws)
-      if (this._ws && 'onmessage' in this._ws && this.isDisconnected && document.visibilityState === "visible") {
-        console.log(this._ws)
+      // console.log(this.streams)
+      if (document.visibilityState === "visible" && (this._ws?.readyState === 2 || this._ws?.readyState === 3)) {
+        console.log('Re-opened')
+        // this._ws.reconnect()
         this.isDisconnected = false
         this._ws.close()
         this._createSocket()
@@ -44,7 +47,9 @@ export default class socketClient {
 
   _createSocket() {
     try {
+      this._ws = null
       this._ws = new WebSocket('wss://stream.binance.com:9443/ws')
+
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
       }
@@ -78,6 +83,7 @@ export default class socketClient {
               openTime: t,
             }
             if (Object.keys(this.streams).length) {
+              localStorage.setItem('lastSocketData', new Date().getTime())
               this.streams[s].data = lastSocketData
               this.streams[s].listener(lastSocketData)
             }
@@ -87,8 +93,6 @@ export default class socketClient {
           console.log(e)
         }
       }
-
-      this.reconnectWSOnWindowFocus()
     }
     catch (e) {
       console.log(e)

@@ -7,7 +7,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals }) {
+  constructor({ symbol, theme, email, intervals, reRender }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
     this.widgetOptions = {
