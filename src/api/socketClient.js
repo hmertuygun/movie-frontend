@@ -1,3 +1,4 @@
+import ReconnectingWebSocket from 'reconnecting-websocket'
 export default class socketClient {
   constructor() {
     this.baseUrl = 'wss://stream.binance.com:9443/ws'
@@ -29,7 +30,7 @@ export default class socketClient {
 
   _createSocket() {
     try {
-      this._ws = new WebSocket('wss://stream.binance.com:9443/ws')
+      this._ws = new ReconnectingWebSocket('wss://stream.binance.com:9443/ws')
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
       }
