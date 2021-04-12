@@ -8,12 +8,14 @@ import {
   verifyGoogleAuth2FA,
   getUserExchanges,
   updateLastSelectedAPIKey,
-  storeNotificationToken
+  storeNotificationToken,
+  checkSubscription
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
+
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorageRemember = localStorage.getItem('remember')
@@ -38,6 +40,8 @@ const UserContextProvider = ({ children }) => {
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
+  const [hasSub, setHasSub] = useState(false)
+  const [subInfo, setSubInfo] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -126,12 +130,28 @@ const UserContextProvider = ({ children }) => {
   }
 
   const getUserExchangesAfterFBInit = () => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const accValues = ["active", "trialing"]
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         // User is signed in.
+        let status
         setUserData(user)
+        try {
+          const response = await checkSubscription()
+          status = response.status
+          setSubInfo(response)
+          if (accValues.includes(response.status)) {
+            setHasSub(true)
+          }
+          else {
+            setHasSub(false)
+          }
+        }
+        catch (e) {
+          console.log(e)
+        }
         getExchanges()
-        if (firebase.messaging.isSupported()) {
+        if (firebase.messaging.isSupported() && accValues.includes(status)) {
           FCMSubscription()
         }
       } else {
@@ -256,10 +276,15 @@ const UserContextProvider = ({ children }) => {
 
   // LOGOUT
   function logout() {
-    localStorage.clear()
-    sessionStorage.clear()
-    setState({ user: null, has2FADetails: null, is2FAVerified: false })
-    return true
+    firebase.auth().signOut()
+      .then(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+        window.location = window.origin + '/login'
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   }
 
   // REGISTER NEW USER
@@ -342,6 +367,10 @@ const UserContextProvider = ({ children }) => {
         rememberCheck,
         setRememberCheck,
         devENV,
+        hasSub,
+        subInfo,
+        setSubInfo,
+        setHasSub,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC
       }}

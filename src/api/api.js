@@ -486,6 +486,38 @@ export async function saveChartIntervals(cIntervals) {
 
   return response?.data?.intervals || []
 }
+export async function createUserSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return response?.data
+}
+export async function buySubscription(payment_id) {
+  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data: { id: payment_id }
+  })
+  return response?.data
+}
+export async function checkSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users/payment_status`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data
+}
 export async function createPriceAlert(data) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/create`
   const token = await firebase.auth().currentUser.getIdToken()
