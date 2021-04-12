@@ -100,7 +100,7 @@ const Accordion = (props) => {
                     {` `}
                     <Popover
                       isOpen={showInfo}
-                      positions={['bottom']}
+                      positions={['bottom', 'top', 'right', 'left']}
                       padding={10}
                       onClickOutside={() => setShowInfo(false)}
                       content={({ position, nudgedLeft, nudgedTop }) => {
@@ -126,7 +126,7 @@ const Accordion = (props) => {
                                   Price
                                 </th>
                               </tr>
-                              {orders.orders
+                              {orders
                                 .sort((a, b) => {
                                   return a.time > b.time
                                 })
@@ -173,11 +173,14 @@ const Accordion = (props) => {
                       id="value"
                     >
                       {' '}
-                      {new Date(date).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
+                      {new Date(date.replace(/\s/g, 'T')).toLocaleDateString(
+                        'en-US',
+                        {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric',
+                        }
+                      )}
                     </span>
                   </div>
                 </div>

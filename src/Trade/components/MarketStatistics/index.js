@@ -1,19 +1,36 @@
-import React, { useState, useEffect } from 'react'
-import useWebSocket from 'react-use-websocket'
-
+import React, { useState, useEffect, useRef } from 'react'
+import ReconnectingWebSocket from 'reconnecting-websocket'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './MarketStatistics.css'
 
 function MarketStatistics() {
+  const [lastMessage, setLastMessage] = useState(null)
   const [message, setMessage] = useState(null)
   const { selectedSymbolDetail } = useSymbolContext()
   const symbolPair = selectedSymbolDetail.symbolpair
   const baseAsset = selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail.quote_asset
 
-  const { sendMessage, lastMessage } = useWebSocket(
-    'wss://stream.binance.com:9443/stream'
-  )
+  useEffect(() => {
+    const rws = new ReconnectingWebSocket('wss://stream.binance.com:9443/stream')
+    rws.addEventListener('open', () => {
+      rws.send(JSON.stringify({
+        id: 1,
+        method: 'SUBSCRIBE',
+        params: ['!ticker@arr'],
+      }))
+    })
+    
+    rws.addEventListener('message', (lastMessage) => {
+      setLastMessage(lastMessage)
+    })
+
+    return () => {
+      rws.close()
+      rws.removeEventListener('open');
+      rws.removeEventListener('message')
+    }
+  }, [])
 
   useEffect(() => {
     if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
@@ -78,16 +95,6 @@ function MarketStatistics() {
       }
     }
   }, [lastMessage, quoteAsset, symbolPair])
-
-  useEffect(() => {
-    sendMessage(
-      JSON.stringify({
-        id: 1,
-        method: 'SUBSCRIBE',
-        params: ['!ticker@arr'],
-      })
-    )
-  }, [])
 
   return (
     <div className="marketDataContainer">
