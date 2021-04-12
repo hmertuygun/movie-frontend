@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
+import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
@@ -16,6 +17,7 @@ const PositionCTXProvider = ({ children }) => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
+      console.log("positions: ", data.positions)
       setPositions(data.positions)
       setIsLoading(false)
     } catch (error) {
@@ -23,7 +25,8 @@ const PositionCTXProvider = ({ children }) => {
       errorNotification.open({
         description: 'Cannot fetch positions. Please try again later!',
       })
-      console.log(error)
+      Sentry.captureException(error)
+      throw new Error('Cannot fetch positions')
     }
   }
 
