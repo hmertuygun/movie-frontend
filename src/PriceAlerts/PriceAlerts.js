@@ -2,9 +2,13 @@ import React, { useContext, useState, useEffect } from 'react'
 import Tooltip from '../components/Tooltip'
 import DropDownSelect from 'react-dropdown-select'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
+import { UserContext } from '../contexts/UserContext'
 import { getLastPrice, createPriceAlert, getPriceAlerts, deletePriceAlert, reactivatePriceAlert, updatePriceAlert } from '../api/api'
 import { errorNotification, successNotification } from '../components/Notifications'
 import precisionRound from '../helpers/precisionRound'
+import { firebase } from '../firebase/firebase'
+
+const db = firebase.firestore()
 
 const parseSymbol = (symbol) => {
   if (!symbol) return ''
@@ -323,11 +327,83 @@ const PriceAlerts = () => {
   const [showCreateAlert, setShowCreateAlert] = useState(false)
   const [completedAlerts, setCompletedAlerts] = useState([])
   const [delId, setDelId] = useState(null)
+  const [snapShotCount, setSnapShotCount] = useState(0)
+  const [fBData, setFBData] = useState(null)
+  const { userData } = useContext(UserContext)
+  const { symbolDetails } = useSymbolContext()
 
   useEffect(() => {
     getAllPriceAlerts()
+    const fBNotice = db.collection("price_alerts")
+      .where("user", "==", userData.email)
+      .onSnapshot((doc) => {
+        doc.docChanges().forEach(item => {
+          // item.type = added , removed, modified
+          if (item.type === "modified") {
+            setFBData(item.doc.data())
+          }
+        })
+        setSnapShotCount(prevValue => prevValue + 1)
+      })
+    return () => {
+      fBNotice()
+    }
   }, [])
 
+  useEffect(() => {
+    if (snapShotCount === 0 || !symbolDetails || !Object.keys(symbolDetails).length) return
+    //console.log(fBData)
+    if (!fBData || !fBData['status'] || !fBData['price_alert_details'] || !fBData['alert_id']) return
+    const { status, price_alert_details, alert_id } = fBData
+    let { symbol } = price_alert_details
+    let ext = symbolDetails[`BINANCE:${symbol}`]
+    symbol = `${ext.base_asset}-${ext.quote_asset}`
+    if (status === "active") {
+      // if not exists put in active alerts section, and take out of past alerts section if it's there
+      setPriceAlertData(prevState => {
+        let check = prevState.find(item => item.alert_id === alert_id)
+        if (check) {
+          return prevState
+        }
+        else {
+          return [{ alert_id, status, ...price_alert_details, symbol }, ...prevState]
+        }
+      })
+      setCompletedAlerts(prevState => {
+        let check = prevState.findIndex(item => item.alert_id === alert_id)
+        if (check > -1) {
+          let tempArr = [...prevState]
+          tempArr.splice(check, 1)
+          return tempArr
+        }
+        else {
+          return prevState
+        }
+      })
+    }
+    else if (status === "completed") {
+      setCompletedAlerts(prevState => {
+        let check = prevState.find(item => item.alert_id === alert_id)
+        if (check) {
+          return prevState
+        }
+        else {
+          return [{ alert_id, status, ...price_alert_details, symbol }, ...prevState]
+        }
+      })
+      setPriceAlertData(prevState => {
+        let check = prevState.findIndex(item => item.alert_id === alert_id)
+        if (check > -1) {
+          let tempArr = [...prevState]
+          tempArr.splice(check, 1)
+          return tempArr
+        }
+        else {
+          return prevState
+        }
+      })
+    }
+  }, [fBData])
 
   const getAllPriceAlerts = async () => {
     try {
