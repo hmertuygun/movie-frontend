@@ -62,7 +62,7 @@ const CARD_DATA_INITIAL = {
 const StripeForm = ({ onCancelClick }) => {
   const stripe = useStripe()
   const elements = useElements()
-  const { userData, setHasSub, setSubStatus } = useContext(UserContext)
+  const { userData, setHasSub, setSubInfo } = useContext(UserContext)
   const [errors, setError] = useState(null)
   const [cardComplete, setCardComplete] = useState(CARD_DATA_INITIAL)
   const [processing, setProcessing] = useState(false)
@@ -107,9 +107,9 @@ const StripeForm = ({ onCancelClick }) => {
         card: elements.getElement(CardNumberElement),
         billing_details: { email: userData?.email },
       })
-      await buySubscription(payload.paymentMethod.id)
+      const response = await buySubscription(payload.paymentMethod.id)
       setHasSub(true)
-      setSubStatus("trialing")
+      setSubInfo({ ...response, status: 'trialing' })
       successNotification.open({ description: 'Subscription Added!' })
     } catch (e) {
       console.error(e)
@@ -195,10 +195,25 @@ const StripeForm = ({ onCancelClick }) => {
 
 const UserSubscriptions = () => {
   const [showStripeForm, setShowStripeForm] = useState(false)
-  const { hasSub, subStatus } = useContext(UserContext)
+  const { hasSub, subInfo } = useContext(UserContext)
   const trialEnded = ['incomplete', 'incomplete_expired']
   const subExpired = ['canceled', 'unpaid', 'past_due']
   const subActive = ['active', 'trialing']
+  const [subStatus, setSubStatus] = useState("")
+  const [subDate, setSubDate] = useState("")
+
+  useEffect(() => {
+    if (subInfo?.status) setSubStatus(subInfo.status)
+    if (subInfo?.created) setSubDate(new Date(subInfo.created).getDate())
+  }, [subInfo])
+
+  const dateFormat = (val) => {
+    if (val === 1) return '1st'
+    else if (val === 2) return '2nd'
+    else if (val === 3) return '3rd'
+    else return `${val}th`
+  }
+
   const statusMsg = trialEnded.includes(subStatus)
     ? 'Your free trial ended. '
     : subExpired
@@ -211,15 +226,16 @@ const UserSubscriptions = () => {
       </span>
       <div className="media-body">
         <h5 className="mb-0">
-          {subStatus === 'active'
+          Subscription active!
+          {/* {subStatus === 'active'
             ? 'Subscription active!'
-            : 'Trial period active!'}
+            : 'Trial period active!'} */}
         </h5>
         <p className="text-muted lh-150 text-sm mb-0">
-          {subStatus === 'active'
-            ? 'Will Auto renew at $29 / month'
-            : 'Free 14-day trial active. If you have bought subscription, your status will automatically turn active.'}
-          {/* Trial will end on */}
+          Will auto renew at <b>$29</b> on <b>{dateFormat(subDate)}</b> of every month.
+          {/* {subStatus === 'active'
+            ? `Will auto renew at $29 on `
+            : `Will auto renew on `} */}
         </p>
       </div>
     </>
@@ -254,7 +270,7 @@ const UserSubscriptions = () => {
         <FontAwesomeIcon icon="exclamation" color="#ffffff" size="2x" />
       </span>
       <div className="media-body">
-        <h5 className="mb-0">Your subscription has expired!</h5>
+        <h5 className="mb-0">No active subscription found!</h5>
         <p className="text-muted lh-150 text-sm mb-0">
           Click on Manage button to add subscription.
         </p>

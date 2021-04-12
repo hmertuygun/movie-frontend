@@ -41,7 +41,7 @@ const UserContextProvider = ({ children }) => {
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
   const [hasSub, setHasSub] = useState(false)
-  const [subStatus, setSubStatus] = useState("")
+  const [subInfo, setSubInfo] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const UserContextProvider = ({ children }) => {
         try {
           const response = await checkSubscription()
           status = response.status
-          setSubStatus(response.status)
+          setSubInfo(response)
           if (accValues.includes(response.status)) {
             setHasSub(true)
           }
@@ -368,9 +368,9 @@ const UserContextProvider = ({ children }) => {
         setRememberCheck,
         devENV,
         hasSub,
+        subInfo,
+        setSubInfo,
         setHasSub,
-        subStatus,
-        setSubStatus,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC
       }}
