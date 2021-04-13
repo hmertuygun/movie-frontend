@@ -215,18 +215,9 @@ const UserSubscriptions = () => {
       setSubDate(wholeDate)
     }
     setHasPaymentMethod(subInfo.payment_method !== null)
-    if (subActive.includes(subInfo.status)) setStatusMsg('Pro Account | $29/month')
+    if (subActive.includes(subInfo.status) && subInfo.payment_method) setStatusMsg('Pro Account | $29/month')
+    else if (subInfo.status === "trialing" && !subInfo.payment_method) setStatusMsg('Trial period active')
     else if (subExpired.includes(subInfo.status) || trialEnded.includes(subInfo.status)) setStatusMsg('Subscription Inactive!')
-    // if (subInfo.payment_method) {
-    //   setHasPaymentMethod(true)
-    //   if (subActive.includes(subInfo.status)) setStatusMsg('Pro Account | $29/month')
-    //   else if (subExpired.includes(subInfo.status)) setStatusMsg('Subscription Expired!')
-    // }
-    // else {
-    //   setHasPaymentMethod(false)
-    //   if (subActive.includes(subInfo.status)) setStatusMsg('Pro Account | $29/month')
-    //   else if (subExpired.includes(subInfo.status)) setStatusMsg('Subscription Expired!')
-    // }
   }, [subInfo])
 
   const dateFormat = (val) => {
