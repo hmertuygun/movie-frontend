@@ -144,8 +144,7 @@ const UserContextProvider = ({ children }) => {
           }
           status = response.status
           setSubInfo(response)
-          if (new Date(response.current_period_end) > new Date()) setHasSub(true)
-          else setHasSub(false)
+          setHasSub(new Date(response.current_period_end) > new Date())
         }
         catch (e) {
           console.log(e)
