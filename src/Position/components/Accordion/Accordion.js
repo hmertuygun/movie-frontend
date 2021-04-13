@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Popover } from 'react-tiny-popover'
 import { Info } from 'react-feather'
+import style from './Accordion.module.css'
 
 import AccordionContent from './AccordionContent'
 
@@ -103,6 +104,7 @@ const Accordion = (props) => {
                       positions={['bottom', 'top', 'right', 'left']}
                       padding={10}
                       onClickOutside={() => setShowInfo(false)}
+                      containerClassName={style['app-popover']}
                       content={({ position, nudgedLeft, nudgedTop }) => {
                         return (
                           <table>
