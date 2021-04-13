@@ -130,13 +130,16 @@ hr {
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,
-:root [id='chart_container'] {
+:root [id='chart_container'],
+:root [id='chart_outer_container'] {
   height: 100% !important;
 }
+
 @media (max-width: 992px) {
   _::-webkit-full-page-media,
   _:future,
-  :root [id='chart_container'] {
+  :root [id='chart_container'],
+  :root [id='chart_outer_container'] {
     height: 45vh !important;
   }
 }

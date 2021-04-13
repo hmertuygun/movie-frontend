@@ -134,7 +134,10 @@ export default class TradingViewChart extends Component {
   render() {
     const { isChartReady } = this.state
     return (
-      <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+      <div id="chart_outer_container" className="d-flex justify-content-center align-items-center" style={{ width: "100%", height: "100%" }}>
+        <span className="spinner-border spinner-border-sm text-primary" style={{ display: isChartReady ? 'none' : 'block' }} />
+        <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+      </div>
     )
   }
 }
