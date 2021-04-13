@@ -497,7 +497,7 @@ export async function createUserSubscription() {
   return response?.data
 }
 export async function buySubscription(payment_id) {
-  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users`
+  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users/payment_status`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -514,6 +514,17 @@ export async function checkSubscription() {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'GET',
+  })
+
+  return response?.data
+}
+export async function deleteSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace("usercomp", "subscriptions")}users`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE',
   })
 
   return response?.data

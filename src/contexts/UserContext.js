@@ -140,7 +140,7 @@ const UserContextProvider = ({ children }) => {
           const response = await checkSubscription()
           status = response.status
           setSubInfo(response)
-          if (accValues.includes(response.status)) {
+          if (new Date(response.current_period_end) > new Date()) {
             setHasSub(true)
           }
           else {
