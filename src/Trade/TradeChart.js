@@ -10,6 +10,7 @@ const TradeChart = () => {
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
+  const [reRender, setReRender] = useState(new Date().getTime())
 
   const getSavedIntervals = async () => {
     try {
@@ -24,8 +25,20 @@ const TradeChart = () => {
     }
   }
 
+  const reconnectWSOnWindowFocus = () => {
+    document.addEventListener('visibilitychange', (ev) => {
+      const savedTime = localStorage.getItem('lastSocketData')
+
+      if (document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
+        console.log(`Re-render`)
+        setReRender(new Date().getTime())
+      }
+    })
+  }
+
   useEffect(() => {
     getSavedIntervals()
+    reconnectWSOnWindowFocus()
   }, [])
 
   useEffect(() => {
@@ -35,12 +48,14 @@ const TradeChart = () => {
   if (!selectedSymbol['value'] || fecthingIntervals) return null
 
   localStorage.setItem('selectedSymbol', selectedSymbol['value'])
+
   return (
     <TradingViewChart
       email={userData?.email}
       symbol={selectedSymbol['value']}
       theme={"light"}
       intervals={intervals}
+      key={reRender}
     />
   )
 }
