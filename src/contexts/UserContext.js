@@ -9,7 +9,8 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   storeNotificationToken,
-  checkSubscription
+  checkSubscription,
+  createUserSubscription
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
@@ -137,15 +138,14 @@ const UserContextProvider = ({ children }) => {
         let status
         setUserData(user)
         try {
-          const response = await checkSubscription()
+          let response = await checkSubscription()
+          if (response?.status === "error" && response?.message === "User not found") {
+            response = await createUserSubscription()
+          }
           status = response.status
           setSubInfo(response)
-          if (new Date(response.current_period_end) > new Date()) {
-            setHasSub(true)
-          }
-          else {
-            setHasSub(false)
-          }
+          if (new Date(response.current_period_end) > new Date()) setHasSub(true)
+          else setHasSub(false)
         }
         catch (e) {
           console.log(e)

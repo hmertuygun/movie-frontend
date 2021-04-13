@@ -514,6 +514,8 @@ export async function checkSubscription() {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'GET',
+  }).catch((error) => {
+    return error?.response
   })
 
   return response?.data
