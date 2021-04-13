@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../contexts/UserContext'
 import { loadStripe } from '@stripe/stripe-js'
-import Moment from 'react-moment'
 import {
   CardElement,
   CardNumberElement,
@@ -12,7 +11,7 @@ import {
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js'
-import { buySubscription, createUserSubscription } from '../../api/api'
+import { buySubscription, createUserSubscription, deleteSubscription } from '../../api/api'
 import {
   errorNotification,
   successNotification,
@@ -110,7 +109,7 @@ const StripeForm = ({ onCancelClick }) => {
       })
       const response = await buySubscription(payload.paymentMethod.id)
       setHasSub(true)
-      setSubInfo({ ...response, status: 'trialing' })
+      setSubInfo({ ...response })
       successNotification.open({ description: 'Subscription Added!' })
     } catch (e) {
       console.error(e)
@@ -196,21 +195,20 @@ const StripeForm = ({ onCancelClick }) => {
 
 const UserSubscriptions = () => {
   const [showStripeForm, setShowStripeForm] = useState(false)
-  const { hasSub, subInfo, userData } = useContext(UserContext)
+  const { hasSub, subInfo, setSubInfo, setHasSub, userData } = useContext(UserContext)
   const trialEnded = ['incomplete', 'incomplete_expired']
   const subExpired = ['canceled', 'unpaid', 'past_due']
   const subActive = ['active', 'trialing']
   const [subStatus, setSubStatus] = useState("")
   const [subDate, setSubDate] = useState("")
-  const month = ["January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"]
+  const [deleting, setDeleting] = useState(false)
+  const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
   useEffect(() => {
     if (subInfo?.status) setSubStatus(subInfo.status)
-    if (subInfo?.created) {
-      let wholeDate = new Date(subInfo.created)
-      let add1Month = new Date(wholeDate.setMonth(wholeDate.getMonth() + 1))
-      console.log(add1Month)
-      wholeDate = `${month[add1Month.getMonth()]} ${dateFormat(add1Month.getDate())}, ${add1Month.getFullYear()}`
+    if (subInfo?.current_period_end) {
+      let wholeDate = new Date(subInfo.current_period_end)
+      wholeDate = `${month[wholeDate.getMonth()]} ${dateFormat(wholeDate.getDate())}, ${wholeDate.getFullYear()}`
       setSubDate(wholeDate)
     }
   }, [subInfo])
@@ -222,12 +220,31 @@ const UserSubscriptions = () => {
     else return `${val}th`
   }
 
+  const deleteSub = async () => {
+    try {
+      setDeleting(true)
+      const resp = await deleteSubscription()
+      successNotification.open({ description: 'Payment method deleted!' })
+      setSubInfo(resp)
+      if (new Date(resp.current_period_end) > new Date()) setHasSub(true)
+      else setHasSub(false)
+    }
+    catch (e) {
+      console.log(e)
+      errorNotification.open({ description: `Couldn't delete subscription. Please try again later!` })
+    }
+    finally {
+      setDeleting(false)
+    }
+  }
+
   const statusMsg = trialEnded.includes(subStatus)
     ? 'Your free trial ended. '
     : subExpired
       ? 'Your subscription expired.'
       : ''
-  const subCard = subActive.includes(subStatus) ? (
+
+  const subCard = (
     <>
       <span className="avatar bg-danger text-white rounded-circle mr-3">
         <i className="far fa-bell" />
@@ -240,45 +257,7 @@ const UserSubscriptions = () => {
           Email: {userData.email}
         </p>
         <p className="text-muted lh-150 text-sm mb-0">
-          {/* Will auto renew at <b>$29</b> on <b>{dateFormat(subDate)}</b> of every month. */}
-          Your subscription will auto-renew on {subDate}
-        </p>
-      </div>
-    </>
-  ) : trialEnded.includes(subStatus) ? (
-    <>
-      <span className="avatar bg-warning text-white rounded-circle mr-3">
-        <FontAwesomeIcon icon="exclamation" color="#ffffff" size="2x" />
-      </span>
-      <div className="media-body">
-        <h5 className="mb-0">Your free trial has ended.</h5>
-        <p className="text-muted lh-150 text-sm mb-0">
-          Your 14 day trial period is over! Click on Manage button to add
-          subscription.
-        </p>
-      </div>
-    </>
-  ) : subExpired.includes(subStatus) ? (
-    <>
-      <span className="avatar bg-danger text-white rounded-circle mr-3">
-        <FontAwesomeIcon icon="exclamation" color="#ffffff" size="2x" />
-      </span>
-      <div className="media-body">
-        <h5 className="mb-0">Your subscription has expired!</h5>
-        <p className="text-muted lh-150 text-sm mb-0">
-          Click on Manage button to add subscription.
-        </p>
-      </div>
-    </>
-  ) : (
-    <>
-      <span className="avatar bg-danger text-white rounded-circle mr-3">
-        <FontAwesomeIcon icon="exclamation" color="#ffffff" size="2x" />
-      </span>
-      <div className="media-body">
-        <h5 className="mb-0">No active subscription found!</h5>
-        <p className="text-muted lh-150 text-sm mb-0">
-          Click on Manage button to add subscription.
+          {subActive.includes(subStatus) ? `Your subscription will auto-renew on ${subDate}` : `Your subscription will not auto-renew. Please click on 'Manage' button to add a valid payment method.`}
         </p>
       </div>
     </>
@@ -296,11 +275,17 @@ const UserSubscriptions = () => {
               {/* ${subStatus === "active" ? 'btn-danger' : 'btn-primary'}` */}
               <button
                 type="button"
-                className={`btn btn-sm rounded-pill btn-primary ${subStatus === 'active' || subStatus === 'trialing' ? 'd-none' : 'd-block'
-                  }`}
+                className={`btn btn-sm rounded-pill btn-neutral ${subActive.includes(subStatus) ? 'd-none' : 'd-block'}`}
                 onClick={() => setShowStripeForm(true)}
               >
-                {subStatus === 'active' ? 'Delete' : 'Manage'}
+                Manage
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm btn-danger btn-icon rounded-pill ${subActive.includes(subStatus) ? 'd-block' : 'd-none'}`}
+                onClick={deleteSub}
+              >
+                {deleting ? <span className="spinner-border spinner-border-sm" /> : 'Delete'}
               </button>
             </div>
           </div>
