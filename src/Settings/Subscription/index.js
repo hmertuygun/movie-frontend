@@ -258,7 +258,7 @@ const UserSubscriptions = () => {
           Email: {userData.email}
         </p>
         <p className="text-muted lh-150 text-sm mb-0">
-          {hasPaymentMethod ? `Your subscription will auto-renew on ${subDate}` : `No payment method found. Please click on 'Manage' button to add a valid payment method.`}
+          {hasPaymentMethod ? `Your subscription will auto-renew on ${subDate}` : `Your subscription will not auto-renew after ${subDate}. Please click on 'Manage' button to add a valid payment method.`}
         </p>
       </div>
     </>
