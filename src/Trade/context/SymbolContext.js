@@ -6,12 +6,16 @@ import React, {
   useContext,
 } from 'react'
 import { backOff } from 'exponential-backoff'
+import ReconnectingWebSocket from 'reconnecting-websocket'
+import * as Sentry from '@sentry/browser'
+
 import {
   getExchanges,
   getBalance,
   getLastPrice,
   getUserExchanges,
   updateLastSelectedAPIKey,
+  get24hrTickerPrice,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
@@ -40,6 +44,84 @@ const SymbolContextProvider = ({ children }) => {
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
+  const [lastMessage, setLastMessage] = useState([])
+  const [liveUpdate, setLiveUpdate] = useState(true)
+  const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
+  const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
+
+  const [timer, setTimer] = useState(null)
+
+  useEffect(() => {
+    const rws = new ReconnectingWebSocket(
+      'wss://stream.binance.com:9443/stream'
+    )
+    rws.addEventListener('open', () => {
+      setLiveUpdate(true)
+      rws.send(
+        JSON.stringify({
+          id: 1,
+          method: 'SUBSCRIBE',
+          params: ['!ticker@arr'],
+        })
+      )
+    })
+
+    rws.addEventListener('message', (lastMessage) => {
+      if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
+        const marketData = JSON.parse(lastMessage.data).data.map((item) => {
+          return {
+            symbol: item.s,
+            lastPrice: item.c,
+            priceChange: item.p,
+            priceChangePercent: item.P,
+            highPrice: item.h,
+            lowPrice: item.l,
+            volume: item.v,
+            quoteVolume: item.q,
+          }
+        })
+        setLastMessage(marketData)
+      }
+    })
+
+    rws.addEventListener('error', (error) => {
+      setSocketLiveUpdate(false)
+      rws.close()
+      Sentry.captureException(error)
+    })
+
+    return () => {
+      setTimer(null)
+      rws.close()
+      rws.removeEventListener('open')
+      rws.removeEventListener('message')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!socketLiveUpdate) {
+      const getFirstData = async () => {
+        const data = await get24hrTickerPrice()
+        setLastMessage(data)
+      }
+      getFirstData()
+      setTimer(
+        setInterval(async () => {
+          try {
+            const data = await get24hrTickerPrice()
+            setPollingLiveUpdate(true)
+            setLastMessage(data)
+          } catch (error) {
+            setPollingLiveUpdate(false)
+            Sentry.captureException(error)
+          }
+        }, 5000)
+      )
+    }
+    return () => {
+      clearInterval(timer)
+    }
+  }, [socketLiveUpdate])
 
   async function loadBalance(quote_asset, base_asset, refresh = false) {
     try {
@@ -243,6 +325,8 @@ const SymbolContextProvider = ({ children }) => {
         setIsOrderPlaced,
         isOrderCancelled,
         setIsOrderCancelled,
+        lastMessage,
+        liveUpdate: socketLiveUpdate || pollingLiveUpdate,
       }}
     >
       {children}
