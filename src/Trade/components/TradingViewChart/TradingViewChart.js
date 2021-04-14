@@ -44,9 +44,15 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
-      this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
-      this.chartEvent("drawing_event")
+      this.getChartDrawingFromServer()
+      setTimeout(() => {
+        this.chartObject.createOrderLine().setText("Buy Line").setQuantity("221.235 USDT").setPrice(50000)
+      }, 3000)
+      // this.setState({
+      //   isChartReady: true
+      // })
+      //this.chartEvent("drawing_event")
     })
   }
 
@@ -59,6 +65,7 @@ export default class TradingViewChart extends Component {
   saveChartDrawingToServer = (event) => {
     this.tradingViewWidget.save((obj) => {
       console.log(`Saving Chart`)
+      console.log(obj)
       const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })
