@@ -7,7 +7,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals }) {
+  constructor({ symbol, theme, email, intervals, openOrders }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
     this.widgetOptions = {
@@ -28,6 +28,7 @@ export default class TradingViewChart extends Component {
     }
     this.tradingViewWidget = null
     this.chartObject = null
+    this.orderLinesDrawn = []
     this.state = {
       isChartReady: false,
       saveCount: 0,
@@ -46,13 +47,10 @@ export default class TradingViewChart extends Component {
     this.tradingViewWidget.onChartReady(() => {
       this.chartObject = this.tradingViewWidget.activeChart()
       this.getChartDrawingFromServer()
-      setTimeout(() => {
-        this.chartObject.createOrderLine().setText("Buy Line").setQuantity("221.235 USDT").setPrice(50000)
-      }, 3000)
-      // this.setState({
-      //   isChartReady: true
-      // })
-      //this.chartEvent("drawing_event")
+      // setTimeout(() => {
+      //   this.drawOpenOrdersChartLines(this.props.openOrders)
+      // }, 3000)
+      this.chartEvent("drawing_event")
     })
   }
 
@@ -65,7 +63,6 @@ export default class TradingViewChart extends Component {
   saveChartDrawingToServer = (event) => {
     this.tradingViewWidget.save((obj) => {
       console.log(`Saving Chart`)
-      console.log(obj)
       const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })
@@ -81,6 +78,32 @@ export default class TradingViewChart extends Component {
     }
     catch (e) {
       //console.log(e)
+    }
+  }
+
+  drawOpenOrdersChartLines = async (openOrders) => {
+    // console.log(this.state.isChartReady)
+    // console.log(openOrders)
+    // console.log(this.chartObject)
+    if (!this.chartObject || !this.state.isChartReady || !openOrders || !openOrders.length) return
+    try {
+      // console.log(this.chartObject)
+      // console.log(openOrders)
+      // this.chartObject.createOrderLine().remove()
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      openOrders = openOrders.filter(item => !this.orderLinesDrawn.includes(item.trade_id))
+      for (let i = 0; i < openOrders.length; i++) {
+        const { type, total, side, quote_asset, status, price, trade_id } = openOrders[i]
+        this.orderLinesDrawn.push(trade_id)
+        this.chartObject.createOrderLine()
+          .setTooltip(`${type} order ${status}`)
+          .setText(`${side}`)
+          .setQuantity(`${total} ${quote_asset}`)
+          .setPrice(price)
+      }
+    }
+    catch (e) {
+      console.log(e)
     }
   }
 
@@ -133,6 +156,7 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
+    this.drawOpenOrdersChartLines(this.props.openOrders)
   }
 
   componentWillUnmount() {
