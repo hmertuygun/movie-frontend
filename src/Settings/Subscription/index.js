@@ -59,7 +59,7 @@ const CARD_DATA_INITIAL = {
   cardCvc: false,
 }
 
-const StripeForm = ({ onCancelClick }) => {
+const StripeForm = ({ onCancelClick, hideStripeForm }) => {
   const stripe = useStripe()
   const elements = useElements()
   const { userData, setHasSub, setSubInfo } = useContext(UserContext)
@@ -101,15 +101,15 @@ const StripeForm = ({ onCancelClick }) => {
 
     setProcessing(true)
     try {
-      let payload = await createUserSubscription()
-      payload = await stripe.createPaymentMethod({
+      const payload = await stripe.createPaymentMethod({
         type: 'card',
         card: elements.getElement(CardNumberElement),
         billing_details: { email: userData?.email },
       })
       const response = await buySubscription(payload.paymentMethod.id)
-      setHasSub(true)
+      setHasSub(new Date(response.current_period_end) > new Date())
       setSubInfo({ ...response })
+      hideStripeForm()
       successNotification.open({ description: 'Subscription Added!' })
     } catch (e) {
       console.error(e)
@@ -201,16 +201,23 @@ const UserSubscriptions = () => {
   const subActive = ['active', 'trialing']
   const [subStatus, setSubStatus] = useState("")
   const [subDate, setSubDate] = useState("")
+  const [statusMsg, setStatusMsg] = useState("")
+  const [hasPaymentMethod, setHasPaymentMethod] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
   useEffect(() => {
+    if (!subInfo) return
     if (subInfo?.status) setSubStatus(subInfo.status)
     if (subInfo?.current_period_end) {
       let wholeDate = new Date(subInfo.current_period_end)
       wholeDate = `${month[wholeDate.getMonth()]} ${dateFormat(wholeDate.getDate())}, ${wholeDate.getFullYear()}`
       setSubDate(wholeDate)
     }
+    setHasPaymentMethod(subInfo.payment_method !== null)
+    if (subActive.includes(subInfo.status) && subInfo.payment_method) setStatusMsg('Pro Account | $29/month')
+    else if (subInfo.status === "trialing" && !subInfo.payment_method) setStatusMsg('Trial period active')
+    else if (subExpired.includes(subInfo.status) || trialEnded.includes(subInfo.status)) setStatusMsg('Subscription Inactive!')
   }, [subInfo])
 
   const dateFormat = (val) => {
@@ -238,12 +245,6 @@ const UserSubscriptions = () => {
     }
   }
 
-  const statusMsg = trialEnded.includes(subStatus)
-    ? 'Your free trial ended. '
-    : subExpired
-      ? 'Your subscription expired.'
-      : ''
-
   const subCard = (
     <>
       <span className="avatar bg-danger text-white rounded-circle mr-3">
@@ -251,13 +252,13 @@ const UserSubscriptions = () => {
       </span>
       <div className="media-body">
         <h5 className="mb-0">
-          Pro Account | $29/month
+          {statusMsg}
         </h5>
         <p className="text-muted lh-150 text-sm mb-0">
           Email: {userData.email}
         </p>
         <p className="text-muted lh-150 text-sm mb-0">
-          {subActive.includes(subStatus) ? `Your subscription will auto-renew on ${subDate}` : `Your subscription will not auto-renew. Please click on 'Manage' button to add a valid payment method.`}
+          {hasPaymentMethod ? `Your subscription will auto-renew on ${subDate}` : `Your subscription will not auto-renew after ${subDate}. Please click on 'Manage' button to add a valid payment method.`}
         </p>
       </div>
     </>
@@ -272,28 +273,32 @@ const UserSubscriptions = () => {
               <div className="media align-items-center">{subCard}</div>
             </div>
             <div className="col-md-2 text-md-right">
-              {/* ${subStatus === "active" ? 'btn-danger' : 'btn-primary'}` */}
-              <button
-                type="button"
-                className={`btn btn-sm rounded-pill btn-neutral ${subActive.includes(subStatus) ? 'd-none' : 'd-block'}`}
-                onClick={() => setShowStripeForm(true)}
-              >
-                Manage
-              </button>
-              <button
-                type="button"
-                className={`btn btn-sm btn-danger btn-icon rounded-pill ${subActive.includes(subStatus) ? 'd-block' : 'd-none'}`}
-                onClick={deleteSub}
-              >
-                {deleting ? <span className="spinner-border spinner-border-sm" /> : 'Delete'}
-              </button>
+              {
+                hasPaymentMethod ? (
+                  <button
+                    type="button"
+                    className={`btn btn-sm btn-danger btn-icon rounded-pill ${hasPaymentMethod ? 'd-block' : 'd-none'}`}
+                    onClick={deleteSub}
+                  >
+                    {deleting ? <span className="spinner-border spinner-border-sm" /> : 'Delete'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={`btn btn-sm rounded-pill btn-neutral`}
+                    onClick={() => setShowStripeForm(true)}
+                  >
+                    Manage
+                  </button>
+                )
+              }
             </div>
           </div>
         </div>
       </div>
-      {subStatus !== 'active' && subStatus !== 'trialing' ? (
+      {showStripeForm ? (
         <div
-          className={`card card-fluid ${showStripeForm ? 'd-block' : 'd-none'}`}
+          className={`card card-fluid`}
         >
           <div className="card-body">
             <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
@@ -301,6 +306,7 @@ const UserSubscriptions = () => {
                 onCancelClick={(e) => {
                   setShowStripeForm(e)
                 }}
+                hideStripeForm={() => setShowStripeForm(false)}
               />
             </Elements>
           </div>
