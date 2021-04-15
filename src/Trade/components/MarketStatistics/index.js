@@ -4,95 +4,66 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import './MarketStatistics.css'
 
 function MarketStatistics() {
-  const [lastMessage, setLastMessage] = useState(null)
   const [message, setMessage] = useState(null)
-  const { selectedSymbolDetail } = useSymbolContext()
+  const { selectedSymbolDetail, lastMessage } = useSymbolContext()
   const symbolPair = selectedSymbolDetail.symbolpair
   const baseAsset = selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail.quote_asset
 
   useEffect(() => {
-    const rws = new ReconnectingWebSocket('wss://stream.binance.com:9443/stream')
-    rws.addEventListener('open', () => {
-      rws.send(JSON.stringify({
-        id: 1,
-        method: 'SUBSCRIBE',
-        params: ['!ticker@arr'],
-      }))
-    })
-    
-    rws.addEventListener('message', (lastMessage) => {
-      setLastMessage(lastMessage)
+    const activeMarketData = lastMessage.find((data) => {
+      return data.symbol === symbolPair
     })
 
-    return () => {
-      rws.close()
-      rws.removeEventListener('open');
-      rws.removeEventListener('message')
-    }
-  }, [])
+    const quoteWorth =
+      quoteAsset === 'USDT'
+        ? { lastPrice: 1 }
+        : lastMessage.find((data) => {
+            return data.symbol === `${quoteAsset}USDT`
+          })
 
-  useEffect(() => {
-    if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-      const marketData = JSON.parse(lastMessage.data).data
-      const activeMarketData = marketData.find((data) => {
-        return data.s === symbolPair
-      })
+    if (activeMarketData && quoteWorth) {
+      const {
+        lastPrice,
+        priceChange,
+        priceChangePercent,
+        highPrice,
+        lowPrice,
+        volume,
+        quoteVolume,
+      } = activeMarketData
 
-      const quoteWorth =
-        quoteAsset === 'USDT'
-          ? { c: 1 }
-          : marketData.find((data) => {
-              return data.s === `${quoteAsset}USDT`
-            })
-
-      if (activeMarketData && quoteWorth) {
-        const {
-          c: lastPrice,
-          p: priceChange,
-          P: priceChangePercent,
-          h: highPrice,
-          l: lowPrice,
-          v: totalTradedBaseAssetVolume,
-          q: totalTradedQuoteAssetVolume,
-        } = activeMarketData
-
-        const newMessage = {
-          lastPrice,
-          worth: lastPrice * quoteWorth.c,
-          priceChange,
-          priceChangePercent,
-          highPrice,
-          lowPrice,
-          totalTradedBaseAssetVolume,
-          totalTradedQuoteAssetVolume,
-        }
-
-        newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.worth = Number(newMessage.worth).toFixed(2)
-        newMessage.priceChange = Number(newMessage.priceChange).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.priceChangePercent = Number(
-          newMessage.priceChangePercent
-        ).toFixed(2)
-        newMessage.highPrice = Number(newMessage.highPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.totalTradedBaseAssetVolume = Number(
-          newMessage.totalTradedBaseAssetVolume
-        ).toFixed(2)
-        newMessage.totalTradedQuoteAssetVolume = Number(
-          newMessage.totalTradedQuoteAssetVolume
-        ).toFixed(2)
-
-        setMessage(newMessage)
+      const newMessage = {
+        lastPrice,
+        worth: lastPrice * quoteWorth.lastPrice,
+        priceChange,
+        priceChangePercent,
+        highPrice,
+        lowPrice,
+        volume,
+        quoteVolume,
       }
+
+      newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(
+        selectedSymbolDetail.tickSize
+      )
+      newMessage.worth = Number(newMessage.worth).toFixed(2)
+      newMessage.priceChange = Number(newMessage.priceChange).toFixed(
+        selectedSymbolDetail.tickSize
+      )
+      newMessage.priceChangePercent = Number(
+        newMessage.priceChangePercent
+      ).toFixed(2)
+      newMessage.highPrice = Number(newMessage.highPrice).toFixed(
+        selectedSymbolDetail.tickSize
+      )
+      newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(
+        selectedSymbolDetail.tickSize
+      )
+      newMessage.volume = Number(newMessage.volume).toFixed(2)
+      newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
+
+      setMessage(newMessage)
     }
   }, [lastMessage, quoteAsset, symbolPair])
 
@@ -123,17 +94,13 @@ function MarketStatistics() {
               <div className="marketDataBlockTitle">
                 24h Volume({baseAsset})
               </div>
-              <div className="marketDataBlockValue">
-                {message.totalTradedBaseAssetVolume}
-              </div>
+              <div className="marketDataBlockValue">{message.volume}</div>
             </div>
             <div className="marketDataBlock">
               <div className="marketDataBlockTitle">
                 24h Volume({quoteAsset})
               </div>
-              <div className="marketDataBlockValue">
-                {message.totalTradedQuoteAssetVolume}
-              </div>
+              <div className="marketDataBlockValue">{message.quoteVolume}</div>
             </div>
           </div>
         </div>
