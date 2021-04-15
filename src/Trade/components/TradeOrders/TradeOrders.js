@@ -34,7 +34,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
-  const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC } = useContext(UserContext)
+  const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
@@ -165,6 +165,7 @@ const TradeOrders = () => {
 
   const deleteOpenOrdersRow = (row) => {
     setDeletedRows(row)
+    setDelOpenOrders(row)
     // setCancelOrder(true)
     // setTimeout(() => {
     //   setCancelOrder(false)

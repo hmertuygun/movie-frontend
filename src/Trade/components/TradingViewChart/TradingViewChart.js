@@ -7,7 +7,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false })
     this.widgetOptions = {
@@ -79,23 +79,52 @@ export default class TradingViewChart extends Component {
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
+    // || !openOrders || !openOrders.length
     if (!this.chartObject || !this.state.isChartReady || !openOrders || !openOrders.length) return
     try {
+      const greenColor = "rgb(38, 166, 154)"
+      const redColor = "rgb(239, 83, 80)"
+      // this.chartObject.removeAllShapes()
+      // this.chartObject.removeAllStudies()
+      // if (!this.orderLineCount)
       if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
-      openOrders = openOrders.filter(item => !this.orderLinesDrawn.includes(item.trade_id))
+      let ordersToDraw = []
+      this.orderLineCount++
+      openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      // if an item in new array exists in an older one
+      // if an item in new array doesn't exist in older one
+
+      // for (let i = 0; i < openOrders.length; i++) {
+      //   let item = openOrders[i]
+      //   let exists = this.orderLinesDrawn.find(item1 => item1.trade_id === item.trade_id)
+      //   if (exists) {
+      //     this.chartObject.setEntityVisibility(exists.line_id, false)
+      //     ordersToDraw.push(item)
+      //   }
+      //   else {
+      //     ordersToDraw.push(item)
+      //   }
+      // }
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id } = openOrders[i]
-        this.orderLinesDrawn.push(trade_id)
-        this.chartObject.createOrderLine()
+        let entityId = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
           .setText(`${side}`)
           .setQuantity(`${total} ${quote_asset}`)
           .setPrice(price)
+        this.orderLinesDrawn.push({ line_id: entityId._line._id, trade_id })
       }
+      // this.chartObject.removeEntity(entity?._line?._id || "abcd")
     }
     catch (e) {
       console.log(e)
     }
+  }
+
+  deleteOpenOrderLine = (trade_id) => {
+    if (!this.chartObject || !this.state.isChartReady || !trade_id) return
+    let fData = this.orderLinesDrawn.find(item => item.trade_id === trade_id)
+    if (fData && fData.line_id) this.chartObject.setEntityVisibility(fData.line_id, false)
   }
 
   removeAllDrawings = () => {
@@ -148,6 +177,7 @@ export default class TradingViewChart extends Component {
     console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
     this.drawOpenOrdersChartLines(this.props.openOrders)
+    this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
   componentWillUnmount() {

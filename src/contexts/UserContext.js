@@ -44,6 +44,7 @@ const UserContextProvider = ({ children }) => {
   const [hasSub, setHasSub] = useState(false)
   const [subInfo, setSubInfo] = useState(null)
   const [openOrdersUC, setOpenOrdersUC] = useState(null)
+  const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -143,9 +144,11 @@ const UserContextProvider = ({ children }) => {
           if (response?.status === "error" && response?.message === "User not found") {
             response = await createUserSubscription()
           }
-          status = response.status
           setSubInfo(response)
-          setHasSub(new Date(response.current_period_end) > new Date())
+          if (response && Object.keys(response).length) {
+            status = response.status
+            setHasSub(new Date(response.current_period_end) > new Date())
+          }
         }
         catch (e) {
           console.log(e)
@@ -374,7 +377,9 @@ const UserContextProvider = ({ children }) => {
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,
         openOrdersUC,
-        setOpenOrdersUC
+        setOpenOrdersUC,
+        delOpenOrders,
+        setDelOpenOrders
       }}
     >
       {children}
