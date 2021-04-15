@@ -79,32 +79,11 @@ export default class TradingViewChart extends Component {
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
-    // || !openOrders || !openOrders.length
     if (!this.chartObject || !this.state.isChartReady || !openOrders || !openOrders.length) return
     try {
-      const greenColor = "rgb(38, 166, 154)"
-      const redColor = "rgb(239, 83, 80)"
-      // this.chartObject.removeAllShapes()
-      // this.chartObject.removeAllStudies()
-      // if (!this.orderLineCount)
       if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
-      let ordersToDraw = []
       this.orderLineCount++
       openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
-      // if an item in new array exists in an older one
-      // if an item in new array doesn't exist in older one
-
-      // for (let i = 0; i < openOrders.length; i++) {
-      //   let item = openOrders[i]
-      //   let exists = this.orderLinesDrawn.find(item1 => item1.trade_id === item.trade_id)
-      //   if (exists) {
-      //     this.chartObject.setEntityVisibility(exists.line_id, false)
-      //     ordersToDraw.push(item)
-      //   }
-      //   else {
-      //     ordersToDraw.push(item)
-      //   }
-      // }
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id } = openOrders[i]
         let entityId = this.chartObject.createOrderLine()
@@ -114,7 +93,6 @@ export default class TradingViewChart extends Component {
           .setPrice(price)
         this.orderLinesDrawn.push({ line_id: entityId._line._id, trade_id })
       }
-      // this.chartObject.removeEntity(entity?._line?._id || "abcd")
     }
     catch (e) {
       console.log(e)
