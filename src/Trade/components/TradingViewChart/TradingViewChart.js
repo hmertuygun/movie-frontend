@@ -7,7 +7,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, exchange }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange }) {
     super()
     this.bfAPI = new binanceAPI({ debug: false, exchange })
     this.widgetOptions = {
@@ -26,6 +26,8 @@ export default class TradingViewChart extends Component {
     }
     this.tradingViewWidget = null
     this.chartObject = null
+    this.orderLinesDrawn = []
+    this.orderLineCount = 0
     this.state = {
       isChartReady: false,
       saveCount: 0,
@@ -42,8 +44,8 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
-      this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
+      this.getChartDrawingFromServer()
       this.chartEvent("drawing_event")
     })
   }
@@ -68,11 +70,48 @@ export default class TradingViewChart extends Component {
       const symbObj = this.tradingViewWidget.symbolInterval()
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
-      //this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
       //console.log(e)
     }
+  }
+
+  drawOpenOrdersChartLines = async (openOrders) => {
+    if (!this.chartObject || !this.state.isChartReady || !openOrders || !openOrders.length) return
+    try {
+      const blue = "#008aff"
+      const green = "#3cb690"
+      if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
+      this.orderLineCount++
+      openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      for (let i = 0; i < openOrders.length; i++) {
+        const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
+        const orderColor = side === "Sell" ? blue : side === "Buy" ? green : '#000'
+        const orderText = type.includes("STOP") ? `${type} order | Trigger ${side === 'Buy' ? '<=' : '>='}` : `${type} order`
+        const orderPrice = price === "Market" ? trigger : price
+        let entityId = this.chartObject.createOrderLine()
+          .setTooltip(`${type} order ${status}`)
+          .setLineColor(orderColor)
+          .setBodyBorderColor(orderColor)
+          .setBodyTextColor(orderColor)
+          .setQuantityBackgroundColor(orderColor)
+          .setQuantityBorderColor(orderColor)
+          .setQuantityTextColor("#fff")
+          .setText(orderText)
+          .setQuantity(`${total} ${quote_asset}`)
+          .setPrice(orderPrice)
+        this.orderLinesDrawn.push({ line_id: entityId._line._id, trade_id })
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  deleteOpenOrderLine = (trade_id) => {
+    if (!this.chartObject || !this.state.isChartReady || !trade_id) return
+    let fData = this.orderLinesDrawn.find(item => item.trade_id === trade_id)
+    if (fData && fData.line_id) this.chartObject.setEntityVisibility(fData.line_id, false)
   }
 
   removeAllDrawings = () => {
@@ -124,6 +163,8 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
+    this.drawOpenOrdersChartLines(this.props.openOrders)
+    this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
   componentWillUnmount() {
