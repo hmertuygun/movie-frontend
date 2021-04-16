@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext, Component } from 'react'
-import binanceAPI from '../../../api/binanceAPI'
+import React, { Component } from 'react'
+import dataFeed from './dataFeed'
 import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
-import { UserContext } from '../../../contexts/UserContext'
+
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
@@ -9,10 +9,10 @@ export default class TradingViewChart extends Component {
 
   constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange }) {
     super()
-    this.bfAPI = new binanceAPI({ debug: false, exchange })
+    this.dF = new dataFeed({ debug: false, exchange })
     this.widgetOptions = {
       container_id: "chart_container",
-      datafeed: this.bfAPI,
+      datafeed: this.dF,
       library_path: "/scripts/charting_library/",
       debug: false,
       fullscreen: false,
