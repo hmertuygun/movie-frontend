@@ -44,6 +44,8 @@ import SellStopMarketForm from './forms/SellStopMarketForm/SellStopMarketForm'
 
 import TakeProfitLimitForm from './forms/TakeProfitLimitForm/TakeProfitLimitForm'
 import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketForm'
+import BuyTrailingStopForm from './forms/BuyTrailingStopForm/BuyTrailingStopForm'
+import SellTrailingStopForm from './forms/SellTrailingStopForm/SellTrailingStopForm'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -128,21 +130,39 @@ const Trade = () => {
         >
           <X />
         </div>
-        <TabNavigator labelArray={['Place Order', 'Full Trade']} index={0}>
+        <TabNavigator
+          labelArray={['Place Order', 'Full Trade']}
+          hadDropDown={false}
+        >
           <div style={{ marginTop: '2rem' }}>
-            <ButtonNavigator labelArray={['BUY', 'SELL']} index={0}>
+            <ButtonNavigator labelArray={['BUY', 'SELL']}>
               <TabNavigator
                 key="buy-tab-nav"
-                labelArray={['Limit', 'Market', 'custom-tab']}
+                labelArray={[
+                  'Limit',
+                  'Market',
+                  'Stop-limit',
+                  'Stop-market',
+                  'Trailing-stop',
+                ]}
               >
                 <BuyLimitForm />
                 <BuyMarketForm />
                 <BuyStopLimitForm />
                 <BuyStopMarketForm />
+                <BuyTrailingStopForm />
               </TabNavigator>
               <TabNavigator
                 key="sell-tab-nav"
-                labelArray={['Limit', 'Market', 'custom-tab-sell']}
+                labelArray={[
+                  'Limit',
+                  'Market',
+                  'Stop-limit',
+                  'Stop-market',
+                  'Take-Profit-Limit',
+                  'Take-Profit-Market',
+                  'Trailing-stop',
+                ]}
               >
                 <SellLimitForm />
                 <SellMarketForm />
@@ -150,6 +170,7 @@ const Trade = () => {
                 <SellStopMarketForm />
                 <TakeProfitLimitForm />
                 <TakeProfitMarketForm />
+                <SellTrailingStopForm />
               </TabNavigator>
             </ButtonNavigator>
           </div>
@@ -161,7 +182,10 @@ const Trade = () => {
             )}
 
             {!hasEntry && (
-              <TabNavigator labelArray={['Limit', 'Market', 'custom-tab']}>
+              <TabNavigator
+                labelArray={['Limit', 'Market', 'Stop-limit', 'Stop-market']}
+                key="entry-order-buy"
+              >
                 <LimitForm />
                 <MarketForm />
                 <EntryStopLimitForm />
@@ -182,16 +206,23 @@ const Trade = () => {
                   </button>
                 </div>
                 <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
-                  <TabNavigator labelArray={['Stop-market', 'Limit']}>
+                  <TabNavigator
+                    labelArray={['Stop-market', 'Limit', 'Trailing-stop']}
+                    key="exit-target-order"
+                    hadDropDown={false}
+                  >
                     <ExitTargetStopMarket />
                     <ExitTarget />
+                    <SellTrailingStopForm />
                   </TabNavigator>
                   <TabNavigator
-                    labelArray={['Stop-market', 'Stop-limit']}
-                    index={0}
+                    labelArray={['Stop-market', 'Stop-limit', 'Trailing-stop']}
+                    key="exit-stop-loss-order"
+                    hadDropDown={false}
                   >
                     <ExitStoplossStopMarket />
                     <ExitStoplossStopLimit />
+                    <SellTrailingStopForm />
                   </TabNavigator>
                 </ButtonNavigator>
               </Fragment>

@@ -3,15 +3,7 @@ import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
 import './PriceTriggerDropdown.css'
 
-const options = [
-  { value: 'b', label: 'Bid' },
-  { value: 'a', label: 'Ask' },
-  { value: 'p', label: 'Last' },
-]
-
-const defaultOption = { value: 'p', label: 'Last' }
-
-function PriceTriggerDropdown({ onSelect }) {
+function PriceTriggerDropdown({ options, value, onSelect }) {
   return (
     <Dropdown
       className="priceTriggerDropdown"
@@ -20,7 +12,7 @@ function PriceTriggerDropdown({ onSelect }) {
       menuClassName="priceTriggerDropdownMenu"
       options={options}
       onChange={onSelect}
-      value={defaultOption}
+      value={value}
       placeholder="Select an option"
     />
   )
