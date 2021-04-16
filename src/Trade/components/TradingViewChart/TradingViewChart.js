@@ -89,7 +89,7 @@ export default class TradingViewChart extends Component {
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
         const orderColor = side === "Sell" ? blue : side === "Buy" ? green : '#000'
-        const orderText = type.includes("STOP") ? `${type} order | Trigger ${side === 'Buy' ? '<=' : '>='}` : `${type} order`
+        const orderText = type.includes("STOP") ? `${type} order | Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type} order`
         const orderPrice = price === "Market" ? trigger : price
         let entityId = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
