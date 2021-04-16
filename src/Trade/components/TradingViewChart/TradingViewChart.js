@@ -81,16 +81,27 @@ export default class TradingViewChart extends Component {
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders || !openOrders.length) return
     try {
+      const blue = "#008aff"
+      const green = "#3cb690"
       if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
       this.orderLineCount++
       openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
-        const { type, total, side, quote_asset, status, price, trade_id } = openOrders[i]
+        const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
+        const orderColor = side === "Sell" ? blue : side === "Buy" ? green : '#000'
+        const orderText = type.includes("STOP") ? `${type} order | Trigger ${side === 'Buy' ? '<=' : '>='}` : `${type} order`
+        const orderPrice = price === "Market" ? trigger : price
         let entityId = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
-          .setText(`${side}`)
+          .setLineColor(orderColor)
+          .setBodyBorderColor(orderColor)
+          .setBodyTextColor(orderColor)
+          .setQuantityBackgroundColor(orderColor)
+          .setQuantityBorderColor(orderColor)
+          .setQuantityTextColor("#fff")
+          .setText(orderText)
           .setQuantity(`${total} ${quote_asset}`)
-          .setPrice(price)
+          .setPrice(orderPrice)
         this.orderLinesDrawn.push({ line_id: entityId._line._id, trade_id })
       }
     }
