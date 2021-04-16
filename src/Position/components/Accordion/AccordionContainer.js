@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import ReconnectingWebSocket from 'reconnecting-websocket'
 import * as Sentry from '@sentry/browser'
 
 import Tooltip from '../../../components/Tooltip'
@@ -13,44 +12,9 @@ import scientificToDecimal from '../../../helpers/toDecimal'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
-  const { symbolDetails } = useSymbolContext()
-  const [message, setMessage] = useState([])
+  const { symbolDetails, lastMessage, liveUpdate } = useSymbolContext()
   const [data, setData] = useState([])
-  const [socketInstance, setSocketInstance] = useState(null)
 
-  useEffect(() => {
-    const rws = new ReconnectingWebSocket(
-      'wss://stream.binance.com:9443/stream'
-    )
-    rws.addEventListener('open', () => {
-      rws.send(
-        JSON.stringify({
-          id: 1,
-          method: 'SUBSCRIBE',
-          params: ['!ticker@arr'],
-        })
-      )
-    })
-
-    rws.addEventListener('message', (lastMessage) => {
-      if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-        const marketData = JSON.parse(lastMessage.data).data
-        setMessage(marketData)
-      }
-    })
-
-    rws.addEventListener('error', (error) => {
-      Sentry.captureException(error)
-    })
-    setSocketInstance(rws)
-
-    return () => {
-      rws.close()
-      rws.removeEventListener('open')
-      rws.removeEventListener('message')
-      setSocketInstance(null)
-    }
-  }, [])
   useEffect(() => {
     const positionsData = []
     try {
@@ -59,7 +23,9 @@ const AccordionContainer = () => {
         const quoteAsset = symbol.split('-')?.[1]
         const currentPrice = scientificToDecimal(
           Number(
-            message.find((message) => message.s === symbol.replace('-', ''))?.c
+            lastMessage.find(
+              (lastMessage) => lastMessage.symbol === symbol.replace('-', '')
+            )?.lastPrice
           )
         )
         const selectedSymbol =
@@ -125,7 +91,9 @@ const AccordionContainer = () => {
         let positionValue = currentPrice * amount
         if (quoteAsset !== 'USDT') {
           const quotePrice = Number(
-            message.find((message) => message.s === `${quoteAsset}USDT`)?.c
+            lastMessage.find(
+              (lastMessage) => lastMessage.symbol === `${quoteAsset}USDT`
+            )?.lastPrice
           )
           positionValue *= quotePrice
         }
@@ -158,7 +126,7 @@ const AccordionContainer = () => {
     }
 
     setData(positionsData)
-  }, [positions, message, symbolDetails])
+  }, [positions, lastMessage, symbolDetails])
 
   const { items, requestSort } = useSortableData(data)
 
@@ -172,10 +140,7 @@ const AccordionContainer = () => {
       style={{ minHeight: 'calc(100vh - 71px)' }}
     >
       <div className="container" style={{ paddingTop: '48px' }}>
-        <AccordionHeader
-          requestSort={requestSort}
-          liveUpdate={socketInstance && socketInstance.readyState === 1}
-        />
+        <AccordionHeader requestSort={requestSort} liveUpdate={liveUpdate} />
 
         <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
           <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap font-weight-bold">
