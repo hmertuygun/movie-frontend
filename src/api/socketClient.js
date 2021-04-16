@@ -1,6 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
 export default class socketClient {
-  constructor() {
+  constructor({ exchange }) {
     this.baseUrl = 'wss://stream.binance.com:9443/ws'
     this.tvIntervals = {
       '1': '1m',
@@ -26,8 +26,7 @@ export default class socketClient {
     this.lastSocketData = {}
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
     this.isDisconnected = false
-    this._createSocket()
-    // this.reconnectWSOnWindowFocus()
+    this._createSocket(exchange)
   }
 
   reconnectWSOnWindowFocus() {
@@ -45,7 +44,8 @@ export default class socketClient {
     })
   }
 
-  _createSocket() {
+  _createSocket(exchange) {
+    console.log(exchange)
     try {
       this._ws = null
       this._ws = new WebSocket('wss://stream.binance.com:9443/ws')

@@ -2,10 +2,10 @@ import socketClient from './socketClient'
 export default class binanceAPI {
   constructor(options) {
     this.binanceHost = 'https://api.binance.com'
+    this.ftxHost = 'https://ftx.com/api'
     this.debug = options?.debug || false
-    this.ws = new socketClient()
+    this.ws = new socketClient(options)
     this.lastDate = null
-    // this.reconnectWSOnWindowFocus()
   }
 
   reconnectWSOnWindowFocus() {
@@ -59,23 +59,23 @@ export default class binanceAPI {
     })
   }
 
-  searchSymbols(userInput, exchange, symbolType, onResultReadyCallback) {
-    userInput = userInput.toUpperCase()
-    onResultReadyCallback(
-      this.symbols.filter((symbol) => {
-        return symbol.symbol.indexOf(userInput) >= 0
-      }).map((symbol) => {
-        return {
-          symbol: symbol.symbol,
-          full_name: symbol.symbol,
-          description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-          ticker: symbol.symbol,
-          exchange: 'Binance',
-          type: 'crypto'
-        }
-      })
-    )
-  }
+  // searchSymbols(userInput, exchange, symbolType, onResultReadyCallback) {
+  //   userInput = userInput.toUpperCase()
+  //   onResultReadyCallback(
+  //     this.symbols.filter((symbol) => {
+  //       return symbol.symbol.indexOf(userInput) >= 0
+  //     }).map((symbol) => {
+  //       return {
+  //         symbol: symbol.symbol,
+  //         full_name: symbol.symbol,
+  //         description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
+  //         ticker: symbol.symbol,
+  //         exchange: 'Binance',
+  //         type: 'crypto'
+  //       }
+  //     })
+  //   )
+  // }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName

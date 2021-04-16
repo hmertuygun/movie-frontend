@@ -7,9 +7,9 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals }) {
+  constructor({ symbol, theme, email, intervals, exchange }) {
     super()
-    this.bfAPI = new binanceAPI({ debug: false })
+    this.bfAPI = new binanceAPI({ debug: false, exchange })
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.bfAPI,
@@ -18,8 +18,6 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      // save_chart_properties_to_local_storage: "off",
-      //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       favorites: {
         intervals: intervals,
       },
