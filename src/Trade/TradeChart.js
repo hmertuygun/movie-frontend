@@ -6,7 +6,7 @@ import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
   const { selectedSymbol, isLoading } = useSymbolContext()
-  const { userData } = useContext(UserContext)
+  const { userData, openOrdersUC, delOpenOrders } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
@@ -55,6 +55,8 @@ const TradeChart = () => {
       symbol={selectedSymbol['value']}
       theme={"light"}
       intervals={intervals}
+      openOrders={openOrdersUC}
+      delOrderId={delOpenOrders?.trade_id}
       key={reRender}
     />
   )
