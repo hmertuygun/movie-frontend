@@ -44,7 +44,7 @@ const BuyStopMarketForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
-    price_trigger: 'p',
+    price_trigger: { value: 'p', label: 'Last' },
   })
 
   const [errors, setErrors] = useState({
@@ -374,14 +374,17 @@ const BuyStopMarketForm = () => {
             symbol,
             quantity: values.quantity,
             trigger: values.triggerPrice,
-            price_trigger: values.price_trigger,
+            price_trigger: values.price_trigger.value,
           },
         }
         const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
+        if (data?.status === 'error') {
+          errorNotification.open({
+            description:
+              data?.error ||
+              `Order couldn't be created. Please try again later!`,
+          })
+        } else {
           successNotification.open({ description: `Order Created!` })
         }
         setValues({
@@ -391,7 +394,20 @@ const BuyStopMarketForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({
+          description: (
+            <p>
+              Order couldn’t be created. Unknown error. Please report at:{' '}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href="https://support.coinpanel.com"
+              >
+                <b>support.coinpanel.com</b>
+              </a>
+            </p>
+          ),
+        })
       } finally {
         setBtnVisibility(false)
       }
@@ -425,14 +441,14 @@ const BuyStopMarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
 
       <section>
@@ -440,18 +456,24 @@ const BuyStopMarketForm = () => {
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
               <PriceTriggerDropdown
+                options={[
+                  { value: 'b', label: 'Bid' },
+                  { value: 'a', label: 'Ask' },
+                  { value: 'p', label: 'Last' },
+                ]}
+                value={values.price_trigger}
                 onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected.value })
+                  setValues({ ...values, price_trigger: selected })
                 }
               />
               <InlineInput
-                label="Trigger price"
+                label="Trigger Price"
                 type="text"
                 name="triggerPrice"
                 onChange={handleChange}
                 onBlur={(e) => handleBlur(e, pricePrecision)}
                 value={values.triggerPrice}
-                placeholder="Trigger price"
+                placeholder=""
                 postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
               />
             </div>

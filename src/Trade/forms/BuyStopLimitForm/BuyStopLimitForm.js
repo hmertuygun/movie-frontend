@@ -44,7 +44,7 @@ const BuyStopLimitForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
-    price_trigger: 'p',
+    price_trigger: { value: 'p', label: 'Last' },
   })
 
   const [errors, setErrors] = useState({
@@ -402,7 +402,7 @@ const BuyStopLimitForm = () => {
             quantity: values.quantity,
             price: values.price,
             trigger: values.triggerPrice,
-            price_trigger: values.price_trigger,
+            price_trigger: values.price_trigger.value,
           },
         }
         const { data, status } = await createBasicTrade(payload)
@@ -484,18 +484,24 @@ const BuyStopLimitForm = () => {
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
               <PriceTriggerDropdown
+                options={[
+                  { value: 'b', label: 'Bid' },
+                  { value: 'a', label: 'Ask' },
+                  { value: 'p', label: 'Last' },
+                ]}
+                value={values.price_trigger}
                 onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected.value })
+                  setValues({ ...values, price_trigger: selected })
                 }
               />
               <InlineInput
-                label="Trigger price"
+                label="Trigger Price"
                 type="text"
                 name="triggerPrice"
                 onChange={handleChange}
                 onBlur={(e) => handleBlur(e, pricePrecision)}
                 value={values.triggerPrice}
-                placeholder="Trigger price"
+                placeholder=""
                 postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
               />
             </div>

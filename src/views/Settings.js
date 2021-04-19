@@ -38,6 +38,7 @@ const Settings = () => {
                   <TabNavigator
                     labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions']}
                     index={tabIndex}
+                    hadDropDown={false}
                   >
                     <Exchanges />
                     <Security />
