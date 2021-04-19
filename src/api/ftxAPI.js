@@ -1,24 +1,28 @@
-
+import axios from 'axios'
+import ccxt from 'ccxt'
 export default class ftxAPI {
   constructor() {
     this.ftxHost = 'https://ftx.com/api'
+    this.ftx = new ccxt.ftx()
+    this.ftx.proxy = 'https://cors-anywhere.herokuapp.com/' // https://cors-anywhere.herokuapp.com/
   }
 
-  getKlines(symbol, interval, startTime, endTime, limit) {
-    const url = `${this.ftxHost}/markets/${symbol}/candles?resolution=${interval}${startTime ? `&start_time=${startTime}` : ''}${endTime ? `&end_time=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
-
-    return fetch(url).then(res => {
-      return res.json()
-    }).then(json => {
-      return json
-    })
+  async getKlines(symbol, interval, startTime, endTime, limit) {
+    //console.log(symbol, interval, startTime)
+    try {
+      return this.ftx.fetchOHLCV(symbol, interval, startTime, limit)
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
-  getSymbols() {
-    return fetch(`${this.ftxHost}/markets`).then(res => {
-      return res.json()
-    }).then(json => {
-      return json.result
-    })
+  async getSymbols() {
+    try {
+      return await this.ftx.loadMarkets()
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 }

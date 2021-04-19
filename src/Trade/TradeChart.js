@@ -58,7 +58,7 @@ const TradeChart = () => {
       openOrders={openOrdersUC}
       delOrderId={delOpenOrders?.trade_id}
       key={reRender}
-      exchange={'binance'}
+      exchange={'ftx'}
     />
   )
 }
