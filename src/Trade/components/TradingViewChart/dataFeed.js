@@ -8,7 +8,7 @@ export default class dataFeed {
     this.ftxStr = "ftx"
     this.selectedExchange = exchange
     this.ftxResolutions = ['1', '5', '15', '60', '240', '1440']
-    this.ftxMappedResolutions = { '1': 60, '5': 300, '15': 900, '60': 3600, '240': 14400, '1440': 86400 }
+    // this.ftxMappedResolutions = { '1': '1m', '5': '5m', '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 }
     this.binanceResolutions = ['1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M']
     this.binanceMappedResolutions = {
       '1': '1m',
@@ -57,6 +57,7 @@ export default class dataFeed {
       return 1
     }
 
+    console.log(symbolName)
     for (let symbol of this.symbols) {
       if (this.selectedExchange === this.binanceStr) {
         if (symbol.symbol === chosenSymbol) {
@@ -110,7 +111,8 @@ export default class dataFeed {
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
-    const interval = this.selectedExchange === this.binanceStr ? this.binanceMappedResolutions[resolution] : this.ftxMappedResolutions[resolution]
+    console.log(symbolInfo, resolution, from, to)
+    const interval = this.selectedExchange === this.binanceStr ? this.binanceMappedResolutions[resolution] : this.binanceMappedResolutions[resolution]
 
     if (!interval) {
       onErrorCallback('Invalid interval')
@@ -166,10 +168,8 @@ export default class dataFeed {
       })
     }
 
-    if (this.selectedExchange === this.binanceStr) {
-      from *= 1000
-      to *= 1000
-    }
+    from *= 1000
+    to *= 1000
 
     getKlines(from, to)
   }

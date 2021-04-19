@@ -1,10 +1,10 @@
-import axios from 'axios'
 import ccxt from 'ccxt'
 export default class ftxAPI {
   constructor() {
     this.ftxHost = 'https://ftx.com/api'
     this.ftx = new ccxt.ftx()
-    this.ftx.proxy = 'https://cors-anywhere.herokuapp.com/' // https://cors-anywhere.herokuapp.com/
+    this.ftx.proxy = 'http://localhost:9999/' // https://cors-anywhere.herokuapp.com/
+    this.getKlines('BTC/USD', '1m', 1618740996000, null, 500)
   }
 
   async getKlines(symbol, interval, startTime, endTime, limit) {
