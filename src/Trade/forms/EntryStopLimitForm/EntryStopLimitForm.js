@@ -39,7 +39,7 @@ const EntryStopLimitForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
-    price_trigger: 'p',
+    price_trigger: { value: 'p', label: 'Last' },
   })
 
   const [errors, setErrors] = useState({
@@ -388,7 +388,7 @@ const EntryStopLimitForm = () => {
         symbol,
         type: 'stop-limit',
         side: 'buy',
-        price_trigger: values.price_trigger,
+        price_trigger: values.price_trigger.value,
       }
       addEntryStopLimit(payload)
     }
@@ -436,12 +436,18 @@ const EntryStopLimitForm = () => {
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
               <PriceTriggerDropdown
+                options={[
+                  { value: 'b', label: 'Bid' },
+                  { value: 'a', label: 'Ask' },
+                  { value: 'p', label: 'Last' },
+                ]}
+                value={values.price_trigger}
                 onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected.value })
+                  setValues({ ...values, price_trigger: selected })
                 }
               />
               <InlineInput
-                label="Trigger price"
+                label="Trigger Price"
                 type="text"
                 name="triggerPrice"
                 onChange={handleChange}

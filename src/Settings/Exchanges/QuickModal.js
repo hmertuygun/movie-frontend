@@ -156,7 +156,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 </a>
               </div>
 
-              <div className="row mb-3">
+              <div className="mb-3 row">
                 <div className="col-md-4">
                   <Select
                     placeholder="Choose Exchange"
@@ -193,7 +193,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                       })
                       setApiName(event.target.value)
                     }}
-                    placeholder="Binance1"
+                    placeholder={`${exchange.label}1`}
                   />
                 </div>
                 {renderInputValidationError('apiName')}

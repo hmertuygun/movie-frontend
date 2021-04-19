@@ -86,6 +86,7 @@
   margin: 0;
   height: 32px;
   margin-top: -1px;
+  min-width: fit-content;
 }
 
 .InputPostLabelSmall {

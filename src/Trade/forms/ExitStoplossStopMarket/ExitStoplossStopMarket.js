@@ -77,7 +77,7 @@ const ExitStoplossStopMarket = () => {
     quantity: '',
     quantityPercentage: '',
     total: '',
-    price_trigger: 'p',
+    price_trigger: { value: 'p', label: 'Last' },
   })
 
   const [errors, setErrors] = useState(errorInitialValues)
@@ -375,7 +375,7 @@ const ExitStoplossStopMarket = () => {
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail['symbolpair'],
-        price_trigger: values.price_trigger,
+        price_trigger: values.price_trigger.value,
       })
     }
   }
@@ -395,14 +395,20 @@ const ExitStoplossStopMarket = () => {
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
               <PriceTriggerDropdown
+                options={[
+                  { value: 'b', label: 'Bid' },
+                  { value: 'a', label: 'Ask' },
+                  { value: 'p', label: 'Last' },
+                ]}
+                value={values.price_trigger}
                 onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected.value })
+                  setValues({ ...values, price_trigger: selected })
                 }
               />
               <InlineInput
-                label="Trigger price"
+                label="Trigger Price"
                 type="text"
-                placeholder="Trigger price"
+                placeholder=""
                 value={values.triggerPrice}
                 name="triggerPrice"
                 onChange={handleChange}
