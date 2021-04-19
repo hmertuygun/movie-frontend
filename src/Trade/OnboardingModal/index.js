@@ -281,7 +281,7 @@ const OnboardingModal = () => {
                       })
                       setApiName(event.target.value)
                     }}
-                    placeholder="Binance1"
+                    placeholder={`${exchange.label}1`}
                   />
                 </div>
                 {renderInputValidationError('apiName')}
