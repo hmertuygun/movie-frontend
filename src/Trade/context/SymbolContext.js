@@ -123,7 +123,7 @@ const SymbolContextProvider = ({ children }) => {
     }
   }, [socketLiveUpdate])
 
-  async function loadBalance(quote_asset, base_asset, refresh = false) {
+  async function loadBalance(quote_asset, base_asset) {
     try {
       setIsLoadingBalance(true)
       const response = await Promise.all([
@@ -164,7 +164,7 @@ const SymbolContextProvider = ({ children }) => {
         console.log('setting last price for ' + symbolpair)
         setSelectedSymbolLastPrice(response.data['last_price'])
       } else {
-        console.log('no balance found for ' + symbolpair)
+        console.log('no last price found for ' + symbolpair)
         setSelectedSymbolLastPrice(0)
       }
     } catch (Exception) {
@@ -178,15 +178,6 @@ const SymbolContextProvider = ({ children }) => {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
     console.log('setting symbol')
     setSelectedSymbol(symbol)
-    setSelectedSymbolDetail(symbolDetails[symbol['value']])
-    setSelectedSymbolBalance('')
-    if (symbol['value'] in symbolDetails) {
-      loadBalance(
-        symbolDetails[symbol['value']]['quote_asset'],
-        symbolDetails[symbol['value']]['base_asset']
-      )
-      loadLastPrice(symbolDetails[symbol['value']]['symbolpair'])
-    }
   }
 
   async function setExchange(exchange) {
@@ -272,10 +263,7 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
-        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
-        loadBalance('USDT', 'BTC')
-        loadLastPrice('BTCUSDT')
+        setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' })
       } else {
         setExchanges([])
         setSymbols([])
@@ -285,23 +273,62 @@ const SymbolContextProvider = ({ children }) => {
     }
   }, [queryExchanges.data, queryExchanges.status])
 
-  useEffect(() => {
-    refreshBalance()
-  }, [activeExchange])
-
-  useEffect(() => {
-    loadExchanges()
-  }, [queryExchanges.status, loadExchanges, totalExchanges])
-
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
         selectedSymbolDetail.quote_asset,
-        selectedSymbolDetail.base_asset,
-        true
+        selectedSymbolDetail.base_asset
       )
     }
   }
+
+  useEffect(() => {
+    const { exchange } = activeExchange
+    if (!exchange || !selectedSymbolDetail.base_asset) return
+
+    const symbolLabel = `${selectedSymbolDetail.base_asset}-${selectedSymbolDetail.quote_asset}`
+    switch (exchange) {
+      case 'binance': {
+        const symbolValue = `BINANCE:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
+        const details = symbolDetails[symbolValue]
+        if (details) {
+          setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+        } else {
+          setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' })
+        }
+        break
+      }
+      case 'ftx': {
+        const symbolValue = `FTX:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
+        const details = symbolDetails[symbolValue]
+        if (details) {
+          setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+        } else {
+          setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
+        }
+        break
+      }
+      default:
+        break
+    }
+  }, [activeExchange])
+
+  useEffect(() => {
+    if (!selectedSymbol) return
+    setSelectedSymbolDetail(symbolDetails[selectedSymbol['value']])
+    setSelectedSymbolBalance('')
+    if (selectedSymbol['value'] in symbolDetails) {
+      loadBalance(
+        symbolDetails[selectedSymbol['value']]['quote_asset'],
+        symbolDetails[selectedSymbol['value']]['base_asset']
+      )
+      loadLastPrice(symbolDetails[selectedSymbol['value']]['symbolpair'])
+    }
+  }, [selectedSymbol])
+
+  useEffect(() => {
+    loadExchanges()
+  }, [queryExchanges.status, loadExchanges, totalExchanges])
 
   return (
     <SymbolContext.Provider
