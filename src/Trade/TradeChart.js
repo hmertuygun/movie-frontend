@@ -5,7 +5,7 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
-  const { selectedSymbol, isLoading } = useSymbolContext()
+  const { selectedSymbol, symbols, symbolDetails, isLoading } = useSymbolContext()
   const { userData, openOrdersUC, delOpenOrders } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
@@ -57,8 +57,9 @@ const TradeChart = () => {
       intervals={intervals}
       openOrders={openOrdersUC}
       delOrderId={delOpenOrders?.trade_id}
-      key={reRender}
+      // key={reRender}
       exchange={'ftx'}
+      marketSymbols={symbolDetails}
     />
   )
 }

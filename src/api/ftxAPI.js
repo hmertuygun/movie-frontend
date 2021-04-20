@@ -4,11 +4,9 @@ export default class ftxAPI {
     this.ftxHost = 'https://ftx.com/api'
     this.ftx = new ccxt.ftx()
     this.ftx.proxy = 'http://localhost:9999/' // https://cors-anywhere.herokuapp.com/
-    this.getKlines('BTC/USD', '1m', 1618740996000, null, 500)
   }
 
   async getKlines(symbol, interval, startTime, endTime, limit) {
-    //console.log(symbol, interval, startTime)
     try {
       return this.ftx.fetchOHLCV(symbol, interval, startTime, limit)
     }

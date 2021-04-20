@@ -3,10 +3,11 @@ import ftxAPI from '../../../api/ftxAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
 import ftxSockets from '../../../sockets/ftxSockets'
 export default class dataFeed {
-  constructor({ exchange, debug }) {
+  constructor({ exchange, symbolList, debug }) {
     this.binanceStr = "binance"
     this.ftxStr = "ftx"
     this.selectedExchange = exchange
+    this.symbolList = symbolList
     this.ftxResolutions = ['1', '5', '15', '60', '240', '1440']
     // this.ftxMappedResolutions = { '1': '1m', '5': '5m', '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 }
     this.binanceResolutions = ['1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M']
@@ -32,9 +33,12 @@ export default class dataFeed {
     }
     this.exchangeAPI = exchange === this.binanceStr ? new binanceAPI() : exchange === this.ftxStr ? new ftxAPI() : ''
     this.ws = new binanceSockets()
+    this.fromDate = null
+    this.toDate = null
   }
-  onReady(callback) {
-    this.symbols = this.exchangeAPI.getSymbols()
+  async onReady(callback) {
+    // this.symbols = await this.exchangeAPI.getSymbols()
+    //console.log(this.symbolList)
     callback({
       supports_marks: false,
       supports_timescale_marks: false,
@@ -57,61 +61,73 @@ export default class dataFeed {
       return 1
     }
 
-    console.log(symbolName)
-    for (let symbol of this.symbols) {
-      if (this.selectedExchange === this.binanceStr) {
-        if (symbol.symbol === chosenSymbol) {
-          setTimeout(() => {
-            onSymbolResolvedCallback({
-              name: symbol.symbol,
-              description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-              ticker: symbol.symbol,
-              exchange: 'Binance',
-              listed_exchange: 'Binance',
-              type: 'crypto',
-              session: '24x7',
-              pricescale: pricescale(symbol),
-              timezone: 'UTC',
-              currency_code: symbol.quoteAsset,
-              has_intraday: true,
-              has_daily: true,
-              has_weekly_and_monthly: true,
-              minmov: 1,
-            })
-          }, 0)
-          return
-        }
-      }
-      else if (this.selectedExchange === this.ftxStr) {
-        if (symbol.name === chosenSymbol) {
-          setTimeout(() => {
-            onSymbolResolvedCallback({
-              name: symbol.name,
-              description: symbol.type === "future" ? symbol.name.replace("-", " / ") : symbol.baseCurrencey + ' / ' + symbol.quoteCurrency,
-              ticker: symbol.name,
-              exchange: 'FTX',
-              listed_exchange: 'FTX',
-              type: 'crypto',
-              session: '24x7',
-              pricescale: symbol.priceIncrement,
-              timezone: 'UTC',
-              currency_code: symbol.type === "future" ? symbol.underlying : symbol.quoteCurrency,
-              has_intraday: true,
-              has_daily: true,
-              has_weekly_and_monthly: true,
-              minmov: 1,
-            })
-          }, 0)
-          return
-        }
-      }
+    onSymbolResolvedCallback({
+      name: 'BTC-USD', // symbol.name
+      description: 'BTC-USD',
+      exchange: 'FTX',
+      listed_exchange: 'FTX',
+      type: 'crypto',
+      session: '24x7',
+      timezone: 'UTC',
+      has_intraday: true,
+      has_daily: true,
+      has_weekly_and_monthly: true,
+      minmov: 1,
+    })
+
+    if (this.selectedExchange === this.binanceStr) {
+      // for (let symbol of this.symbols) {
+      //   if (symbol.symbol === chosenSymbol) {
+      //     onSymbolResolvedCallback({
+      //       name: symbol.symbol,
+      //       description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
+      //       ticker: symbol.symbol,
+      //       exchange: 'Binance',
+      //       listed_exchange: 'Binance',
+      //       type: 'crypto',
+      //       session: '24x7',
+      //       pricescale: pricescale(symbol),
+      //       timezone: 'UTC',
+      //       currency_code: symbol.quoteAsset,
+      //       has_intraday: true,
+      //       has_daily: true,
+      //       has_weekly_and_monthly: true,
+      //       minmov: 1,
+      //     })
+      //     return
+      //   }
+      // }
+    }
+    if (this.selectedExchange === this.ftxStr) {
+      //console.log(Object.entries(this.symbols))
+      // for (const [key, value] of Object.entries(this.symbols)) {
+      //   if (value.symbol === chosenSymbol) {
+      //     onSymbolResolvedCallback({
+      //       name: value.symbol,
+      //       description: value.symbol.replace('-','/'),
+      //       ticker: value.symbol,
+      //       exchange: 'FTX',
+      //       listed_exchange: 'FTX',
+      //       type: 'crypto',
+      //       session: '24x7',
+      //       //pricescale: pricescale(symbol),
+      //       timezone: 'UTC',
+      //       //currency_code: symbol.quoteAsset,
+      //       has_intraday: true,
+      //       has_daily: true,
+      //       has_weekly_and_monthly: true,
+      //       minmov: 1,
+      //     })
+      //     return
+      //   }
+      // }
     }
 
     onResolveErrorCallback('not found')
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
-    console.log(symbolInfo, resolution, from, to)
+    //console.log(from, to)
     const interval = this.selectedExchange === this.binanceStr ? this.binanceMappedResolutions[resolution] : this.binanceMappedResolutions[resolution]
 
     if (!interval) {
@@ -141,31 +157,45 @@ export default class dataFeed {
         }
         else {
           historyCBArray = totalKlines.map(kline => ({
-            time: new Date(kline.startTime).getTime() / 1000,
-            close: kline.close,
-            open: kline.open,
-            high: kline.high,
-            low: kline.low,
-            volume: kline.volume
+            time: kline[0],
+            open: kline[1],
+            high: kline[2],
+            low: kline[3],
+            close: kline[4],
+            volume: kline[5]
           }))
         }
         onHistoryCallback(historyCBArray, { noData: false })
       }
     }
 
-    const getKlines = (from, to) => {
-      this.exchangeAPI.getKlines(symbolInfo.name, interval, from, to, 500).then(klines => {
-        totalKlines = this.selectedExchange === this.binanceStr ? totalKlines.concat(klines) : totalKlines.concat(klines.result)
-        if (klines.length === 500) {
-          from = klines[klines.length - 1][0] + 1
-          getKlines(from, to)
-        } else {
-          finishKlines()
-        }
-      }).catch(err => {
-        console.error(err)
-        onErrorCallback('Some problem')
-      })
+    const getKlines = async (from, to) => {
+      // symbolInfo.name, interval, from, to, 500
+      // 'BTC/USD', '1m', 1618740996000, null, 500
+      const symbolName = this.selectedExchange === this.binanceStr ? symbolInfo.name : symbolInfo.name.replace('-', '/')
+      const data = await this.exchangeAPI.getKlines(symbolName, this.binanceMappedResolutions[resolution], from, null, 500)
+      this.fromDate = from
+      totalKlines = totalKlines.concat(data)
+      if (data.length === 500) {
+        from = data[data.length - 1][0] + 1
+        this.fromDate = from
+        getKlines(from, to)
+      } else {
+        finishKlines()
+      }
+
+      // this.exchangeAPI.getKlines(symbolInfo.name, interval, from, to, 500).then(klines => {
+      //   totalKlines = this.selectedExchange === this.binanceStr ? totalKlines.concat(klines) : totalKlines.concat(klines.result)
+      //   if (klines.length === 500) {
+      //     from = klines[klines.length - 1][0] + 1
+      //     getKlines(from, to)
+      //   } else {
+      //     finishKlines()
+      //   }
+      // }).catch(err => {
+      //   console.error(err)
+      //   onErrorCallback('Some problem')
+      // })
     }
 
     from *= 1000
@@ -174,8 +204,24 @@ export default class dataFeed {
     getKlines(from, to)
   }
 
-  subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
+  async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
+    if (this.selectedExchange === this.binanceStr) {
+      this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
+    }
+    else {
+      // let time = parseInt(new Date().getTime() / 1000)
+      // const kline = await this.exchangeAPI.getKlines(symbolInfo.name.replace('-', '/'), 15, null, null, 500)
+      // console.log(kline)
+      // const cbData = {
+      //   time: kline[0],
+      //   open: kline[1],
+      //   high: kline[2],
+      //   low: kline[3],
+      //   close: kline[4],
+      //   volume: kline[5]
+      // }
+      // onRealtimeCallback(cbData)
+    }
   }
 
   unsubscribeBars(subscriberUID) {
