@@ -271,8 +271,8 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' })
-        setSelectedSymbolDetail(symbolDetails['BINANCE:BTCUSDT'])
+        setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
+        setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
         loadBalance('USDT', 'BTC')
         loadLastPrice('BTCUSDT')
       } else {

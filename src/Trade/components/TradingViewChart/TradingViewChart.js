@@ -7,9 +7,9 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail }) {
     super()
-    this.dF = new dataFeed({ debug: false, exchange, symbolList: marketSymbols })
+    this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols })
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.dF,

@@ -5,12 +5,14 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
-  const { selectedSymbol, symbols, symbolDetails, isLoading } = useSymbolContext()
+  const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail } = useSymbolContext()
   const { userData, openOrdersUC, delOpenOrders } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [reRender, setReRender] = useState(new Date().getTime())
+  const [exchangeType, setExchangeType] = useState(null)
+  const [symbolType, setSymbolType] = useState(null)
 
   const getSavedIntervals = async () => {
     try {
@@ -45,20 +47,27 @@ const TradeChart = () => {
     if (lsValue && lsValue.length) saveChartIntervals(lsValue)
   }, [lsValue])
 
-  if (!selectedSymbol['value'] || fecthingIntervals) return null
+  useEffect(() => {
+    if (!selectedSymbol || !selectedSymbol.value) return
+    const [exchange, symbol] = selectedSymbol.value.split(":")
+    setExchangeType(exchange.toLowerCase())
+    setSymbolType(symbol)
+  }, [selectedSymbol])
 
-  localStorage.setItem('selectedSymbol', selectedSymbol['value'])
+  if (!exchangeType || !symbolType || fecthingIntervals) return null
+
+  localStorage.setItem('selectedSymbol', symbolType)
 
   return (
     <TradingViewChart
       email={userData?.email}
-      symbol={selectedSymbol['value']}
       theme={"light"}
       intervals={intervals}
       openOrders={openOrdersUC}
       delOrderId={delOpenOrders?.trade_id}
       // key={reRender}
-      exchange={'ftx'}
+      symbol={symbolType}
+      exchange={exchangeType}
       marketSymbols={symbolDetails}
     />
   )

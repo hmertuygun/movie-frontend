@@ -3,13 +3,13 @@ import ftxAPI from '../../../api/ftxAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
 import ftxSockets from '../../../sockets/ftxSockets'
 export default class dataFeed {
-  constructor({ exchange, symbolList, debug }) {
+  constructor({ exchange, symbolList, selectedSymbolDetail, marketSymbols, debug }) {
     this.binanceStr = "binance"
     this.ftxStr = "ftx"
     this.selectedExchange = exchange
     this.symbolList = symbolList
     this.ftxResolutions = ['1', '5', '15', '60', '240', '1440']
-    // this.ftxMappedResolutions = { '1': '1m', '5': '5m', '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 }
+    this.ftxMappedResolutions = { '1': '1m', '5': '5m', '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 }
     this.binanceResolutions = ['1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M']
     this.binanceMappedResolutions = {
       '1': '1m',
@@ -33,6 +33,8 @@ export default class dataFeed {
     }
     this.exchangeAPI = exchange === this.binanceStr ? new binanceAPI() : exchange === this.ftxStr ? new ftxAPI() : ''
     this.ws = new binanceSockets()
+    this.selectedSymbolDetail = selectedSymbolDetail
+    this.marketSymbols = marketSymbols
     this.fromDate = null
     this.toDate = null
   }
@@ -49,81 +51,25 @@ export default class dataFeed {
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
-    const comps = chosenSymbol.split(':')
-    chosenSymbol = (comps.length > 1 ? comps[1] : chosenSymbol).toUpperCase()
-
-    function pricescale(symbol) {
-      for (let filter of symbol.filters) {
-        if (filter.filterType === 'PRICE_FILTER') {
-          return Math.round(1 / parseFloat(filter.tickSize))
-        }
-      }
-      return 1
-    }
-
+    // console.log(chosenSymbol)
+    const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+    // console.log(this.marketSymbols[selectedSymbolDetail])
     onSymbolResolvedCallback({
-      name: 'BTC-USD', // symbol.name
-      description: 'BTC-USD',
-      exchange: 'FTX',
-      listed_exchange: 'FTX',
-      type: 'crypto',
+      name: chosenSymbol,
+      description: chosenSymbol,
+      ticker: chosenSymbol,
+      exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+      listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+      type: 'Crypto',
       session: '24x7',
+      pricescale: 1, // parseInt(this.selectedSymbolDetail.tickSize)
       timezone: 'UTC',
+      currency_code: selectedSymbolDetail.quote_asset,
       has_intraday: true,
       has_daily: true,
       has_weekly_and_monthly: true,
       minmov: 1,
     })
-
-    if (this.selectedExchange === this.binanceStr) {
-      // for (let symbol of this.symbols) {
-      //   if (symbol.symbol === chosenSymbol) {
-      //     onSymbolResolvedCallback({
-      //       name: symbol.symbol,
-      //       description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-      //       ticker: symbol.symbol,
-      //       exchange: 'Binance',
-      //       listed_exchange: 'Binance',
-      //       type: 'crypto',
-      //       session: '24x7',
-      //       pricescale: pricescale(symbol),
-      //       timezone: 'UTC',
-      //       currency_code: symbol.quoteAsset,
-      //       has_intraday: true,
-      //       has_daily: true,
-      //       has_weekly_and_monthly: true,
-      //       minmov: 1,
-      //     })
-      //     return
-      //   }
-      // }
-    }
-    if (this.selectedExchange === this.ftxStr) {
-      //console.log(Object.entries(this.symbols))
-      // for (const [key, value] of Object.entries(this.symbols)) {
-      //   if (value.symbol === chosenSymbol) {
-      //     onSymbolResolvedCallback({
-      //       name: value.symbol,
-      //       description: value.symbol.replace('-','/'),
-      //       ticker: value.symbol,
-      //       exchange: 'FTX',
-      //       listed_exchange: 'FTX',
-      //       type: 'crypto',
-      //       session: '24x7',
-      //       //pricescale: pricescale(symbol),
-      //       timezone: 'UTC',
-      //       //currency_code: symbol.quoteAsset,
-      //       has_intraday: true,
-      //       has_daily: true,
-      //       has_weekly_and_monthly: true,
-      //       minmov: 1,
-      //     })
-      //     return
-      //   }
-      // }
-    }
-
-    onResolveErrorCallback('not found')
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
@@ -173,7 +119,7 @@ export default class dataFeed {
       // symbolInfo.name, interval, from, to, 500
       // 'BTC/USD', '1m', 1618740996000, null, 500
       const symbolName = this.selectedExchange === this.binanceStr ? symbolInfo.name : symbolInfo.name.replace('-', '/')
-      const data = await this.exchangeAPI.getKlines(symbolName, this.binanceMappedResolutions[resolution], from, null, 500)
+      const data = await this.exchangeAPI.getKlines(symbolInfo.name, this.binanceMappedResolutions[resolution], from, null, 500)
       this.fromDate = from
       totalKlines = totalKlines.concat(data)
       if (data.length === 500) {
