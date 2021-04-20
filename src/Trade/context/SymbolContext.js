@@ -155,7 +155,8 @@ const SymbolContextProvider = ({ children }) => {
   async function loadLastPrice(symbolpair) {
     try {
       setIsLoadingLastPrice(true)
-      const response = await backOff(() => getLastPrice(symbolpair))
+      const { exchange } = activeExchange
+      const response = await backOff(() => getLastPrice(symbolpair, exchange))
       if (
         'last_price' in response.data &&
         response.data['last_price'] !== 'NA'

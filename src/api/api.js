@@ -144,14 +144,14 @@ export async function getBalance({ symbol, apiKeyName, exchange }) {
   return response
 }
 
-export async function getLastPrice(symbol) {
+export async function getLastPrice(symbol, exchange) {
   const apiUrl =
-    process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
+    `${process.env.REACT_APP_API_V2}lastprice?symbol=${symbol}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'GET',
+    method: 'POST',
   })
 
   return response
