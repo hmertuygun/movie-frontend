@@ -69,7 +69,7 @@ const Routes = () => {
             {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
-            <Route path="/portfolio" component={Portfolio} />
+            <CacheRoute path="/portfolio" component={Portfolio} />
             <CacheRoute path="/alerts" component={PriceAlerts} />
             <CacheRoute path="/positions" component={Position} />
             <Redirect to="/trade" />
