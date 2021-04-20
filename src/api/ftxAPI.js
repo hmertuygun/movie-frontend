@@ -6,7 +6,7 @@ export default class ftxAPI {
     this.ftx.proxy = 'http://localhost:9999/' // https://cors-anywhere.herokuapp.com/
   }
 
-  async getKlines(symbol, interval, startTime, endTime, limit) {
+  getKlines(symbol, interval, startTime, endTime, limit) {
     try {
       return this.ftx.fetchOHLCV(symbol, interval, startTime, limit)
     }
@@ -15,9 +15,9 @@ export default class ftxAPI {
     }
   }
 
-  async getSymbols() {
+  getSymbols() {
     try {
-      return await this.ftx.loadMarkets()
+      return this.ftx.loadMarkets()
     }
     catch (e) {
       console.log(e)
