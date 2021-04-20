@@ -21,13 +21,6 @@ async function getHeaders(token) {
   }
 }
 
-export async function binanceSymbolPrice(symbol) {
-  const result = await axios(`${binanceAPI}v3/ticker/price?symbol=${symbol}`, {
-    method: 'GET',
-  })
-  return result.data
-}
-
 export async function get24hrTickerPrice() {
   const result = await axios(`${binanceAPI}v3/ticker/24hr`, {
     method: 'GET',
