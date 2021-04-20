@@ -63,7 +63,8 @@ export default class socketClient {
 
   subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback, lastDailyBar) {
     try {
-      let paramStr = `${symbolInfo.name.toLowerCase()}@kline_${tvIntervals[resolution]}`
+      const symbol = symbolInfo.name.replace('/', '')
+      let paramStr = `${symbol.toLowerCase()}@kline_${tvIntervals[resolution]}`
       const obj = {
         method: "SUBSCRIBE",
         params: [
@@ -73,7 +74,7 @@ export default class socketClient {
       }
       if (this._ws.readyState === 1) {
         this._ws.send(JSON.stringify(obj))
-        this.streams[symbolInfo.name] = { //register multiple streams in streams object
+        this.streams[symbol] = { // register multiple streams in streams object
           paramStr,
           listener: onRealtimeCallback
         }

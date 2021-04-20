@@ -57,6 +57,7 @@ const TradeChart = () => {
   if (!exchangeType || !symbolType || fecthingIntervals) return null
 
   localStorage.setItem('selectedSymbol', symbolType)
+  localStorage.setItem('selectedExchange', exchangeType)
 
   return (
     <TradingViewChart

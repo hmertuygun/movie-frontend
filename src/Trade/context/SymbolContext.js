@@ -51,6 +51,14 @@ const SymbolContextProvider = ({ children }) => {
 
   const [timer, setTimer] = useState(null)
 
+  const setSymbolFromExchange = (symbolDetails) => {
+    if (!activeExchange?.exchange) return
+    const { exchange } = activeExchange
+    const symbolVal = `${exchange.toUpperCase()}:BTC/USDT`
+    setSelectedSymbol({ label: 'BTC-USDT', value: symbolVal })
+    setSelectedSymbolDetail(symbolDetails[symbolVal])
+  }
+
   useEffect(() => {
     const rws = new ReconnectingWebSocket(
       'wss://stream.binance.com:9443/stream'
@@ -263,8 +271,9 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
-        setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
+        setSymbolFromExchange(symbolDetails)
+        // setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
+        // setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
         loadBalance('USDT', 'BTC')
         loadLastPrice('BTCUSDT')
       } else {
@@ -296,8 +305,10 @@ const SymbolContextProvider = ({ children }) => {
         const details = symbolDetails[symbolValue]
         if (details) {
           setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+          setSelectedSymbolDetail(details)
         } else {
           setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' })
+          setSelectedSymbolDetail(symbolDetails['BINANCE:BTC/USDT'])
         }
         break
       }
@@ -306,8 +317,10 @@ const SymbolContextProvider = ({ children }) => {
         const details = symbolDetails[symbolValue]
         if (details) {
           setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+          setSelectedSymbolDetail(details)
         } else {
           setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
+          setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
         }
         break
       }

@@ -161,7 +161,7 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    console.log(`In Update`)
+    //console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
     // this.drawOpenOrdersChartLines(this.props.openOrders)
     // this.deleteOpenOrderLine(this.props.delOrderId)

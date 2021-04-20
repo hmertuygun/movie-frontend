@@ -36,6 +36,7 @@ export default class dataFeed {
     this.pollingInterval = null
   }
   onReady(callback) {
+    console.log(`onReady`)
     callback({
       supports_marks: false,
       supports_timescale_marks: false,
@@ -45,10 +46,12 @@ export default class dataFeed {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
+    console.log(`resolveSymbol`)
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
-    // console.log(chosenSymbol)
+    //console.log(this.selectedExchange)
+    this.selectedExchange = localStorage.getItem('selectedExchange')
+    //console.log(this.selectedExchange)
     const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
-    // console.log(this.marketSymbols[selectedSymbolDetail])
     onSymbolResolvedCallback({
       name: chosenSymbol,
       description: chosenSymbol,
@@ -68,6 +71,7 @@ export default class dataFeed {
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
+    console.log(`getBars`)
     const interval = this.selectedExchange === this.binanceStr ? this.mappedResolutions[resolution] : this.mappedResolutions[resolution]
     if (!interval) {
       onErrorCallback('Invalid interval')
@@ -110,7 +114,8 @@ export default class dataFeed {
 
     const getKlines = async (from, to) => {
       try {
-        const data = await this.exchangeAPI.getKlines(symbolInfo.name, this.mappedResolutions[resolution], from, null, kLinesLimit)
+        const symbolAPI = this.selectedExchange === this.binanceStr ? symbolInfo.name.replace('/', '') : symbolInfo.name
+        const data = await this.exchangeAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, null, kLinesLimit)
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -131,6 +136,7 @@ export default class dataFeed {
   }
 
   async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
+    console.log(`Sub`)
     if (this.selectedExchange === this.binanceStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
@@ -139,7 +145,6 @@ export default class dataFeed {
         try {
           const klines = await this.exchangeAPI.getKlines(symbolInfo.name, this.mappedResolutions[resolution], undefined, null, 500)
           const kline = klines[klines.length - 1]
-          // console.log(kline)
           const cbData = {
             time: kline[0],
             open: kline[1],
@@ -156,18 +161,18 @@ export default class dataFeed {
       }
       this.pollingInterval = setInterval(async () => {
         const data = await pollingAPI()
-        console.log(data)
         onRealtimeCallback(data)
       }, 3000)
     }
   }
 
   unsubscribeBars(subscriberUID) {
+    console.log(`UnSub`, this.selectedExchange)
     if (this.selectedExchange === this.binanceStr) {
-      this.ws.unsubscribeFromStream(subscriberUID)
+      clearInterval(this.pollingInterval)
     }
     else {
-      clearInterval(this.pollingInterval)
+      this.ws.unsubscribeFromStream(subscriberUID)
     }
   }
 
