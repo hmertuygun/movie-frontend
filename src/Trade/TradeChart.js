@@ -13,6 +13,7 @@ const TradeChart = () => {
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
+  const [count, setCount] = useState(0)
 
   const getSavedIntervals = async () => {
     try {
@@ -51,8 +52,8 @@ const TradeChart = () => {
     if (!selectedSymbol || !selectedSymbol.value) return
     const [exchange, symbol] = selectedSymbol.value.split(":")
     localStorage.setItem('selectedSymbol', symbol)
-    localStorage.setItem('selectedExchange', exchange.toLowerCase())
-    setExchangeType(exchange.toLowerCase())
+    // localStorage.setItem('selectedExchange', exchange.toLowerCase())
+    // setExchangeType(exchange.toLowerCase())
     setSymbolType(symbol)
   }, [selectedSymbol])
 
@@ -60,7 +61,11 @@ const TradeChart = () => {
     if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
     localStorage.setItem('selectedExchange', activeExchange.exchange)
     setExchangeType(activeExchange.exchange)
-    setReRender(new Date().getTime())
+    if (count > 0) {
+      console.log('Re-rendered')
+      setReRender(new Date().getTime())
+    }
+    setCount(prev => prev + 1)
   }, [activeExchange])
 
   if (!exchangeType || !symbolType || fecthingIntervals) return null
