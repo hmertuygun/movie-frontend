@@ -204,6 +204,7 @@ const EntryStopLimitForm = () => {
       if (inputLength > maxLength) return
 
       setValues({
+        ...values,
         [target.name]: target.value,
       })
     } else if (target.name === 'price') {
