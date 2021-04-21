@@ -31,6 +31,8 @@ const SymbolContextProvider = ({ children }) => {
     loaderVisible,
     setLoaderVisibility,
   } = useContext(UserContext)
+  const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
+  const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -48,14 +50,19 @@ const SymbolContextProvider = ({ children }) => {
   const [liveUpdate, setLiveUpdate] = useState(true)
   const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
   const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
-
   const [timer, setTimer] = useState(null)
+  const [exchangeType, setExchangeType] = useState(null)
+  const [symbolType, setSymbolType] = useState(null)
 
-  const setSymbolFromExchange = (symbolDetails) => {
+  const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
-    const symbolVal = `${exchange.toUpperCase()}:BTC/USDT`
-    setSelectedSymbol({ label: 'BTC-USDT', value: symbolVal })
+    const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
+    localStorage.setItem('selectedExchange', exchange)
+    localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
+    setExchangeType(exchange)
+    setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
+    setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
   }
 
@@ -271,9 +278,7 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSymbolFromExchange(symbolDetails)
-        // setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
-        // setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
+        setSymbolFromExchangeOnLoad(symbolDetails)
         loadBalance('USDT', 'BTC')
         loadLastPrice('BTCUSDT')
       } else {
@@ -303,12 +308,15 @@ const SymbolContextProvider = ({ children }) => {
       case 'binance': {
         const symbolValue = `BINANCE:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
         const details = symbolDetails[symbolValue]
+        localStorage.setItem('selectedExchange', 'binance')
         if (details) {
+          localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
           setSelectedSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
-          setSelectedSymbol({ label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' })
-          setSelectedSymbolDetail(symbolDetails['BINANCE:BTC/USDT'])
+          localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
+          setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}` })
+          setSelectedSymbolDetail(symbolDetails[`BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
         break
       }
@@ -316,11 +324,13 @@ const SymbolContextProvider = ({ children }) => {
         const symbolValue = `FTX:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
         const details = symbolDetails[symbolValue]
         if (details) {
+          localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
           setSelectedSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
-          setSelectedSymbol({ label: 'BTC-USDT', value: 'FTX:BTC/USDT' })
-          setSelectedSymbolDetail(symbolDetails['FTX:BTC/USDT'])
+          localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
+          setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `FTX:${INITIAL_SYMBOL_LOAD_SLASH}` })
+          setSelectedSymbolDetail(symbolDetails[`FTX:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
         break
       }
@@ -371,6 +381,8 @@ const SymbolContextProvider = ({ children }) => {
         setIsOrderCancelled,
         lastMessage,
         liveUpdate: socketLiveUpdate || pollingLiveUpdate,
+        exchangeType,
+        symbolType
       }}
     >
       {children}
