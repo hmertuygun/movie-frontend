@@ -6,9 +6,9 @@ import './MarketStatistics.css'
 function MarketStatistics() {
   const [message, setMessage] = useState(null)
   const { selectedSymbolDetail, lastMessage } = useSymbolContext()
-  const symbolPair = selectedSymbolDetail.symbolpair
   const baseAsset = selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail.quote_asset
+  const symbolPair = `${baseAsset}${quoteAsset}`
 
   useEffect(() => {
     const activeMarketData = lastMessage.find((data) => {
@@ -44,22 +44,16 @@ function MarketStatistics() {
         quoteVolume,
       }
 
-      newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(
-        selectedSymbolDetail.tickSize
-      )
+      const tickSize = selectedSymbolDetail.tickSize > 8 ? 8: selectedSymbolDetail.tickSize
+
+      newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
       newMessage.worth = Number(newMessage.worth).toFixed(2)
-      newMessage.priceChange = Number(newMessage.priceChange).toFixed(
-        selectedSymbolDetail.tickSize
-      )
+      newMessage.priceChange = Number(newMessage.priceChange).toFixed(tickSize)
       newMessage.priceChangePercent = Number(
         newMessage.priceChangePercent
       ).toFixed(2)
-      newMessage.highPrice = Number(newMessage.highPrice).toFixed(
-        selectedSymbolDetail.tickSize
-      )
-      newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(
-        selectedSymbolDetail.tickSize
-      )
+      newMessage.highPrice = Number(newMessage.highPrice).toFixed(tickSize)
+      newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(tickSize)
       newMessage.volume = Number(newMessage.volume).toFixed(2)
       newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
 
