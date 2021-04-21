@@ -26,9 +26,8 @@ const Expandable = ({ entry, deletedRow }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
-  const {
-    setSymbol,
-  } = useSymbolContext()
+  const { symbolDetails, setSymbol } = useSymbolContext()
+
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
@@ -54,6 +53,14 @@ const Expandable = ({ entry, deletedRow }) => {
       setCancelOrderRow(null)
     }
   }
+
+  const onSymbolClick = (rowIndex, val) => {
+    if (rowIndex !== 0) return
+    const calcVal = `${activeExchange.exchange.toUpperCase()}:${val.replace('-', '/')}`
+    if (!symbolDetails[calcVal]) return
+    setSymbol({ label: val, value: calcVal })
+  }
+
   return (
     <>
       {entry.map((order, rowIndex) => {
@@ -100,14 +107,14 @@ const Expandable = ({ entry, deletedRow }) => {
           ) : null
 
         const PlacedOrderTooltip = 'Order is on the exchange order book.'
-        const PendingOrderTooltip =
-          'Order is waiting to be placed in the order book.'
+        const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
+
         return (
           <tr className={rowClass} key={rowIndex}>
             <td style={firstColumnIconStyle} onClick={rowClick}>
               {firstColumnIcon}
             </td>
-            <td style={tdStyle} onClick={() => { setSymbol({ label: order.symbol, value: `BINANCE:${order.symbol.replace('-', '')}` }) }}>{order.symbol}</td>
+            <td style={tdStyle} onClick={() => { onSymbolClick(rowIndex, order.symbol) }}>{order.symbol}</td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
             <td style={hideFirst}>{order.price}</td>

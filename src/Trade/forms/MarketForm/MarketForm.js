@@ -332,7 +332,9 @@ const MarketForm = () => {
           }
           case 'ftx': {
             try {
-              const ftx = new ccxt.ftx()
+              const ftx = new ccxt.ftx({
+                proxy: 'https://cors-anywhere.herokuapp.com/',
+              })
               const response = await ftx.fetchTicker(symbol)
               price = response.last
             } catch (error) {
