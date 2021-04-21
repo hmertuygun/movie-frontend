@@ -1,25 +1,23 @@
-import React, { useState, useEffect, useContext, Component } from 'react'
-import binanceAPI from '../../../api/binanceAPI'
+import React, { Component } from 'react'
+import dataFeed from './dataFeed'
 import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
-import { UserContext } from '../../../contexts/UserContext'
+
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail }) {
     super()
-    this.bfAPI = new binanceAPI({ debug: false })
+    this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols })
     this.widgetOptions = {
       container_id: "chart_container",
-      datafeed: this.bfAPI,
+      datafeed: this.dF,
       library_path: "/scripts/charting_library/",
       debug: false,
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      // save_chart_properties_to_local_storage: "off",
-      //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       favorites: {
         intervals: intervals,
       },
@@ -90,7 +88,7 @@ export default class TradingViewChart extends Component {
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
         const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type} order`
+        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type}`
         const orderPrice = price === "Market" ? trigger : price
         let entity = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
@@ -105,7 +103,7 @@ export default class TradingViewChart extends Component {
           .setText(orderText)
           .setQuantity(`${total} ${quote_asset}`)
           .setPrice(orderPrice)
-        this.orderLinesDrawn.push({ line_id: entity._line._id, trade_id, lineObj: entity })
+        this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id })
       }
     }
     catch (e) {
@@ -166,7 +164,7 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    console.log(`In Update`)
+    //console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
     this.drawOpenOrdersChartLines(this.props.openOrders)
     this.deleteOpenOrderLine(this.props.delOrderId)

@@ -14,9 +14,10 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import FullScreenLoader from './components/FullScreenLoader'
 import { initGA } from './Tracking'
 initGA(process.env.REACT_APP_TRACKING_ID)
+
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
-  integrations: [new Integrations.BrowserTracing()],
+  integrations: [new Integrations.BrowserTracing({ console: false })],
 
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for performance monitoring.
