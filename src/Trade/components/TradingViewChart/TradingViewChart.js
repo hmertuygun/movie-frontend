@@ -88,7 +88,7 @@ export default class TradingViewChart extends Component {
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
         const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type} order`
+        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type}`
         const orderPrice = price === "Market" ? trigger : price
         let entity = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
@@ -103,7 +103,7 @@ export default class TradingViewChart extends Component {
           .setText(orderText)
           .setQuantity(`${total} ${quote_asset}`)
           .setPrice(orderPrice)
-        this.orderLinesDrawn.push({ line_id: entity._line._id, trade_id, lineObj: entity })
+        this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id })
       }
     }
     catch (e) {
@@ -166,8 +166,8 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     //console.log(`In Update`)
     this.changeSymbol(this.state.symbol)
-    // this.drawOpenOrdersChartLines(this.props.openOrders)
-    // this.deleteOpenOrderLine(this.props.delOrderId)
+    this.drawOpenOrdersChartLines(this.props.openOrders)
+    this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
   componentWillUnmount() {

@@ -29,7 +29,7 @@ export default class dataFeed {
       'M': '1M',
       '1M': '1M',
     }
-    // this.exchangeAPI = exchange === this.binanceStr ? new binanceAPI() : exchange === this.ftxStr ? new ftxAPI() : ''
+    this.debug = debug
     this.binanceAPI = new binanceAPI()
     this.ftxAPI = new ftxAPI()
     this.ws = new binanceSockets()
@@ -48,11 +48,11 @@ export default class dataFeed {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
-    //console.log(`resolveSymbol`)
+    //this.debug && console.log(`resolveSymbol`)
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
-    //console.log(this.selectedExchange)
+    // this.debug && console.log(this.selectedExchange)
     this.selectedExchange = localStorage.getItem('selectedExchange')
-    console.log(this.selectedExchange)
+    this.debug && console.log(this.selectedExchange)
     const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
     onSymbolResolvedCallback({
       name: chosenSymbol,
@@ -130,7 +130,7 @@ export default class dataFeed {
   }
 
   async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    console.log(`Sub`, this.selectedExchange)
+    this.debug && console.log(`Sub`, this.selectedExchange)
     if (this.selectedExchange === this.binanceStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
@@ -162,7 +162,7 @@ export default class dataFeed {
   }
 
   unsubscribeBars(subscriberUID) {
-    console.log(`UnSub`, this.selectedExchange)
+    this.debug && console.log(`UnSub`, this.selectedExchange)
     if (this.selectedExchange === this.binanceStr) {
       this.ws.unsubscribeFromStream(subscriberUID)
     }
