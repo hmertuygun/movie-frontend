@@ -83,26 +83,29 @@ export default class TradingViewChart extends Component {
     try {
       const blue = "#008aff"
       const green = "#3cb690"
+      const red = '#f25767'
       if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
       this.orderLineCount++
       openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
         const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
-        const orderColor = side === "Sell" ? blue : side === "Buy" ? green : '#000'
-        const orderText = type.includes("STOP") ? `${type} order | Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type} order`
+        const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
+        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type} order`
         const orderPrice = price === "Market" ? trigger : price
-        let entityId = this.chartObject.createOrderLine()
+        let entity = this.chartObject.createOrderLine()
           .setTooltip(`${type} order ${status}`)
+          .setLineLength(60)
+          .setExtendLeft(false)
           .setLineColor(orderColor)
           .setBodyBorderColor(orderColor)
           .setBodyTextColor(orderColor)
           .setQuantityBackgroundColor(orderColor)
           .setQuantityBorderColor(orderColor)
-          .setQuantityTextColor("#fff")
+          // .setQuantityTextColor("rgb(255,255,255)")
           .setText(orderText)
           .setQuantity(`${total} ${quote_asset}`)
           .setPrice(orderPrice)
-        this.orderLinesDrawn.push({ line_id: entityId._line._id, trade_id })
+        this.orderLinesDrawn.push({ line_id: entity._line._id, trade_id, lineObj: entity })
       }
     }
     catch (e) {
