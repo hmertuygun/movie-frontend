@@ -36,7 +36,7 @@ export default class dataFeed {
     this.pollingInterval = null
   }
   onReady(callback) {
-    console.log(`onReady`)
+    //console.log(`onReady`)
     callback({
       supports_marks: false,
       supports_timescale_marks: false,
@@ -46,7 +46,7 @@ export default class dataFeed {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
-    console.log(`resolveSymbol`)
+    //console.log(`resolveSymbol`)
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
     //console.log(this.selectedExchange)
     this.selectedExchange = localStorage.getItem('selectedExchange')
@@ -71,7 +71,7 @@ export default class dataFeed {
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
-    console.log(`getBars`)
+    //console.log(`getBars`)
     const interval = this.selectedExchange === this.binanceStr ? this.mappedResolutions[resolution] : this.mappedResolutions[resolution]
     if (!interval) {
       onErrorCallback('Invalid interval')
@@ -115,7 +115,7 @@ export default class dataFeed {
     const getKlines = async (from, to) => {
       try {
         const symbolAPI = this.selectedExchange === this.binanceStr ? symbolInfo.name.replace('/', '') : symbolInfo.name
-        const data = await this.exchangeAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, null, kLinesLimit)
+        const data = await this.exchangeAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit)
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -136,7 +136,7 @@ export default class dataFeed {
   }
 
   async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    console.log(`Sub`)
+    //console.log(`Sub`)
     if (this.selectedExchange === this.binanceStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
@@ -159,6 +159,7 @@ export default class dataFeed {
           console.log(e)
         }
       }
+      clearInterval(this.pollingInterval)
       this.pollingInterval = setInterval(async () => {
         const data = await pollingAPI()
         onRealtimeCallback(data)
