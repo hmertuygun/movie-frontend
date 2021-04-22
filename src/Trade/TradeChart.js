@@ -6,7 +6,7 @@ import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
   const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail } = useSymbolContext()
-  const { userData, openOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
+  const { userData, openOrdersUC, setOpenOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
@@ -32,7 +32,7 @@ const TradeChart = () => {
     document.addEventListener('visibilitychange', (ev) => {
       const savedTime = localStorage.getItem('lastSocketData')
 
-      if (document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
+      if (exchangeType === 'binance' && count > 0 && document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
         console.log(`Re-render`)
         setReRender(new Date().getTime())
       }
@@ -41,7 +41,7 @@ const TradeChart = () => {
 
   useEffect(() => {
     getSavedIntervals()
-    // reconnectWSOnWindowFocus()
+    reconnectWSOnWindowFocus()
   }, [])
 
   useEffect(() => {

@@ -3,7 +3,8 @@ export default class ftxAPI {
   constructor() {
     this.ftxHost = 'https://ftx.com/api'
     this.ftx = new ccxt.ftx()
-    this.ftx.proxy = window.location.hostname === "localhost" ? 'http://localhost:9999/' : '' // https://cors-anywhere.herokuapp.com/
+    this.ftx.proxy = window.location.hostname === "localhost" ? 'http://localhost:8080/' : 'https://nodejs-cors.herokuapp.com/'
+    // https://cors-anywhere.herokuapp.com/
   }
 
   getKlines(symbol, interval, startTime, endTime, limit) {
