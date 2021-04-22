@@ -32,7 +32,7 @@ const TradeChart = () => {
     document.addEventListener('visibilitychange', (ev) => {
       const savedTime = localStorage.getItem('lastSocketData')
 
-      if (document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
+      if (exchangeType === 'binance' && count > 0 && document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
         console.log(`Re-render`)
         setReRender(new Date().getTime())
       }
@@ -41,7 +41,7 @@ const TradeChart = () => {
 
   useEffect(() => {
     getSavedIntervals()
-    // reconnectWSOnWindowFocus()
+    reconnectWSOnWindowFocus()
   }, [])
 
   useEffect(() => {
