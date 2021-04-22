@@ -20,6 +20,7 @@ import {
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
+import ccxt from 'ccxt'
 
 const SymbolContext = createContext()
 
@@ -48,7 +49,6 @@ const SymbolContextProvider = ({ children }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
   const [lastMessage, setLastMessage] = useState([])
-  const [liveUpdate, setLiveUpdate] = useState(true)
   const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
   const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
   const [timer, setTimer] = useState(null)
@@ -68,21 +68,45 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    const rws = new ReconnectingWebSocket(
-      'wss://stream.binance.com:9443/stream'
-    )
+    const { exchange } = activeExchange
+
+    let socketURL = ''
+    switch (exchange) {
+      case 'binance':
+        socketURL = 'wss://stream.binance.com:9443/stream'
+        break
+      case 'ftx':
+        socketURL = 'wss://ftx.com/ws/'
+        break
+
+      default:
+        break
+    }
+
+    const rws = new ReconnectingWebSocket(socketURL)
     rws.addEventListener('open', () => {
-      setLiveUpdate(true)
-      rws.send(
-        JSON.stringify({
-          id: 1,
-          method: 'SUBSCRIBE',
-          params: ['!ticker@arr'],
-        })
-      )
+      setLastMessage([])
+      switch (exchange) {
+        case 'binance':
+          setSocketLiveUpdate(true)
+          rws.send(
+            JSON.stringify({
+              id: 1,
+              method: 'SUBSCRIBE',
+              params: ['!ticker@arr'],
+            })
+          )
+          break
+        case 'ftx':
+          setSocketLiveUpdate(false)
+          break
+
+        default:
+          break
+      }
     })
 
-    rws.addEventListener('message', (lastMessage) => {
+    const onBinanceMessage = (lastMessage) => {
       if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
         const marketData = JSON.parse(lastMessage.data).data.map((item) => {
           return {
@@ -98,6 +122,17 @@ const SymbolContextProvider = ({ children }) => {
         })
         setLastMessage(marketData)
       }
+    }
+
+    rws.addEventListener('message', (lastMessage) => {
+      switch (exchange) {
+        case 'binance':
+          onBinanceMessage(lastMessage)
+          break
+
+        default:
+          break
+      }
     })
 
     rws.addEventListener('error', (error) => {
@@ -112,32 +147,88 @@ const SymbolContextProvider = ({ children }) => {
       rws.removeEventListener('open')
       rws.removeEventListener('message')
     }
-  }, [])
+  }, [activeExchange])
 
   useEffect(() => {
+    const { exchange } = activeExchange
     if (!socketLiveUpdate) {
-      const getFirstData = async () => {
-        const data = await get24hrTickerPrice()
-        setLastMessage(data)
-      }
-      getFirstData()
-      setTimer(
-        setInterval(async () => {
-          try {
-            const data = await get24hrTickerPrice()
-            setPollingLiveUpdate(true)
-            setLastMessage(data)
-          } catch (error) {
-            setPollingLiveUpdate(false)
-            Sentry.captureException(error)
+      if (timer) clearInterval(timer)
+      switch (exchange) {
+        case 'binance':
+          {
+            const getFirstData = async () => {
+              const data = await get24hrTickerPrice()
+              setLastMessage(data)
+            }
+            getFirstData()
+            setTimer(
+              setInterval(async () => {
+                try {
+                  getFirstData()
+                  setPollingLiveUpdate(true)
+                } catch (error) {
+                  setPollingLiveUpdate(false)
+                  Sentry.captureException(error)
+                }
+              }, 5000)
+            )
           }
-        }, 5000)
-      )
+          break
+        case 'ftx':
+          {
+            const fetchTickers = async () => {
+              try {
+                const ftx = new ccxt.ftx({
+                  proxy: 'https://nodejs-cors.herokuapp.com/',
+                })
+                const response = await ftx.fetchTickers()
+                return response
+              } catch (error) {
+                console.log(error)
+              }
+            }
+            const getFirstData = async () => {
+              const response = await fetchTickers()
+              const message = Object.values(response).map((item) => {
+                return {
+                  symbol: item.symbol,
+                  lastPrice: item.last,
+                  priceChange: item.change,
+                  priceChangePercent: item.percentage,
+                  highPrice: item.high,
+                  lowPrice: item.low,
+                  volume: item.baseVolume,
+                  quoteVolume: item.quoteVolume,
+                }
+              })
+              setLastMessage(message)
+            }
+
+            getFirstData()
+            setTimer(
+              setInterval(async () => {
+                try {
+                  getFirstData()
+                  setPollingLiveUpdate(true)
+                } catch (error) {
+                  setPollingLiveUpdate(false)
+                  Sentry.captureException(error)
+                }
+              }, 5000)
+            )
+          }
+          break
+
+        default:
+          break
+      }
+    } else {
+      if (timer) clearInterval(timer)
     }
     return () => {
       clearInterval(timer)
     }
-  }, [socketLiveUpdate])
+  }, [socketLiveUpdate, activeExchange])
 
   async function loadBalance(quote_asset, base_asset) {
     try {
