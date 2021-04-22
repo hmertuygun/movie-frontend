@@ -12,53 +12,57 @@ function MarketStatistics() {
 
   useEffect(() => {
     const activeMarketData = lastMessage.find((data) => {
-      return data.symbol === symbolPair
+      return data.symbol.replace('/', '') === symbolPair
     })
-
     const quoteWorth =
       quoteAsset === 'USDT'
         ? { lastPrice: 1 }
         : lastMessage.find((data) => {
-            return data.symbol === `${quoteAsset}USDT`
+            return data.symbol.replace('/', '') === `${quoteAsset}USDT`
           })
 
-    if (activeMarketData && quoteWorth) {
-      const {
-        lastPrice,
-        priceChange,
-        priceChangePercent,
-        highPrice,
-        lowPrice,
-        volume,
-        quoteVolume,
-      } = activeMarketData
+    if (!activeMarketData) return
+    const {
+      lastPrice,
+      priceChange,
+      priceChangePercent,
+      highPrice,
+      lowPrice,
+      volume,
+      quoteVolume,
+    } = activeMarketData
 
-      const newMessage = {
-        lastPrice,
-        worth: lastPrice * quoteWorth.lastPrice,
-        priceChange,
-        priceChangePercent,
-        highPrice,
-        lowPrice,
-        volume,
-        quoteVolume,
-      }
-
-      const tickSize = selectedSymbolDetail.tickSize > 8 ? 8: selectedSymbolDetail.tickSize
-
-      newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
-      newMessage.worth = Number(newMessage.worth).toFixed(2)
-      newMessage.priceChange = Number(newMessage.priceChange).toFixed(tickSize)
-      newMessage.priceChangePercent = Number(
-        newMessage.priceChangePercent
-      ).toFixed(2)
-      newMessage.highPrice = Number(newMessage.highPrice).toFixed(tickSize)
-      newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(tickSize)
-      newMessage.volume = Number(newMessage.volume).toFixed(2)
-      newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
-
-      setMessage(newMessage)
+    const newMessage = {
+      lastPrice,
+      worth: lastPrice * quoteWorth?.lastPrice,
+      priceChange,
+      priceChangePercent,
+      highPrice,
+      lowPrice,
+      volume,
+      quoteVolume,
     }
+
+    let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
+
+    let tickSize = twoDecimalArray.includes(quoteAsset)
+      ? 2
+      : selectedSymbolDetail.tickSize > 8
+      ? 8
+      : selectedSymbolDetail.tickSize
+
+    newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
+    newMessage.worth = Number(newMessage.worth).toFixed(2)
+    newMessage.priceChange = Number(newMessage.priceChange).toFixed(tickSize)
+    newMessage.priceChangePercent = Number(
+      newMessage.priceChangePercent
+    ).toFixed(2)
+    newMessage.highPrice = Number(newMessage.highPrice).toFixed(tickSize)
+    newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(tickSize)
+    newMessage.volume = Number(newMessage.volume).toFixed(2)
+    newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
+
+    setMessage(newMessage)
   }, [lastMessage, quoteAsset, symbolPair])
 
   return (
@@ -67,35 +71,48 @@ function MarketStatistics() {
         <div className="d-flex">
           <div className="lastPriceBlock">
             <div className="marketDataLastPrice">{message.lastPrice}</div>
-            <div className="marketDataWorth">${message.worth}</div>
+            {!isNaN(message.worth) ? (
+              <div className="marketDataWorth">${message.worth}</div>
+            ) : null}
           </div>
           <div className="marketData">
-            <div className="marketDataBlock">
+            {!isNaN(message.priceChange)? (<div className="marketDataBlock">
               <div className="marketDataBlockTitle">24h Change</div>
               <div className="marketDataBlockValue">
                 {`${message.priceChange} ${message.priceChangePercent}%`}
               </div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">24h High</div>
-              <div className="marketDataBlockValue">{message.highPrice}</div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">24h Low</div>
-              <div className="marketDataBlockValue">{message.lowPrice}</div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">
-                24h Volume({baseAsset})
+            </div>): null}
+
+            {!isNaN(message.highPrice) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">24h High</div>
+                <div className="marketDataBlockValue">{message.highPrice}</div>
               </div>
-              <div className="marketDataBlockValue">{message.volume}</div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">
-                24h Volume({quoteAsset})
+            ) : null}
+            {!isNaN(message.lowPrice) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">24h Low</div>
+                <div className="marketDataBlockValue">{message.lowPrice}</div>
               </div>
-              <div className="marketDataBlockValue">{message.quoteVolume}</div>
-            </div>
+            ) : null}
+            {!isNaN(message.volume) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">
+                  24h Volume({baseAsset})
+                </div>
+                <div className="marketDataBlockValue">{message.volume}</div>
+              </div>
+            ) : null}
+            {!isNaN(message.quoteVolume) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">
+                  24h Volume({quoteAsset})
+                </div>
+                <div className="marketDataBlockValue">
+                  {message.quoteVolume}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}

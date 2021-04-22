@@ -9,9 +9,11 @@ import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
+import { UserContext } from '../../../contexts/UserContext'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
+  const { activeExchange } = useContext(UserContext)
   const { symbolDetails, lastMessage, liveUpdate } = useSymbolContext()
   const [data, setData] = useState([])
 
@@ -28,8 +30,10 @@ const AccordionContainer = () => {
             )?.lastPrice
           )
         )
+
+        const { exchange } = activeExchange
         const selectedSymbol =
-          symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
+          symbolDetails[`${exchange.toUpperCase()}:${symbol.replace('-', '/')}`]
 
         if (!currentPrice || !selectedSymbol) return
         let ROE = ''
@@ -126,7 +130,7 @@ const AccordionContainer = () => {
     }
 
     setData(positionsData)
-  }, [positions, lastMessage, symbolDetails])
+  }, [positions, lastMessage, symbolDetails, activeExchange])
 
   const { items, requestSort } = useSortableData(data)
 
