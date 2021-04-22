@@ -30,6 +30,7 @@ const SymbolContextProvider = ({ children }) => {
     totalExchanges,
     loaderVisible,
     setLoaderVisibility,
+    setOpenOrdersUC
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
@@ -302,7 +303,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     const { exchange } = activeExchange
     if (!exchange || !selectedSymbolDetail.base_asset) return
-
+    setOpenOrdersUC(null)
     const symbolLabel = `${selectedSymbolDetail.base_asset}-${selectedSymbolDetail.quote_asset}`
     switch (exchange) {
       case 'binance': {
