@@ -125,18 +125,24 @@ export default class TradingViewChart extends Component {
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? `${isFullTrade ? '' : '<='}` : `${isFullTrade ? '' : '>='}`}${trigger}` : `${type}`
-
+          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
+          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
+          // ? true : symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending" ? false : false
           let orderPrice
           if (isFullTrade) {
             if (price === "Market") {
-              if (trigger.includes(">=")) {
-                let split = trigger.split(">= ")
-                orderPrice = split[1]
+              if (showOnlyEntryOrder) {
+                orderPrice = trigger
               }
-              else if (trigger.includes("<=")) {
-                let split = trigger.split("<= ")
-                orderPrice = split[1]
+              else {
+                if (trigger.includes(">=")) {
+                  let split = trigger.split(">= ")
+                  orderPrice = split[1]
+                }
+                else if (trigger.includes("<=")) {
+                  let split = trigger.split("<= ")
+                  orderPrice = split[1]
+                }
               }
             }
             else {
@@ -161,6 +167,7 @@ export default class TradingViewChart extends Component {
             .setQuantity(`${total} ${quote_asset}`)
             .setPrice(orderPrice)
           this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+          if (showOnlyEntryOrder) break
         }
       }
     }
