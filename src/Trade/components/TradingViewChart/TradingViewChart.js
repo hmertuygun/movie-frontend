@@ -9,7 +9,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail, chartReady }) {
     super()
     //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
     this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols }) // exchangeDataFeeds[exchange]
@@ -125,18 +125,24 @@ export default class TradingViewChart extends Component {
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? `${isFullTrade ? '' : '<='}` : `${isFullTrade ? '' : '>='}`}${trigger}` : `${type}`
-
+          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
+          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
+          // ? true : symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending" ? false : false
           let orderPrice
           if (isFullTrade) {
             if (price === "Market") {
-              if (trigger.includes(">=")) {
-                let split = trigger.split(">= ")
-                orderPrice = split[1]
+              if (showOnlyEntryOrder) {
+                orderPrice = trigger
               }
-              else if (trigger.includes("<=")) {
-                let split = trigger.split("<= ")
-                orderPrice = split[1]
+              else {
+                if (trigger.includes(">=")) {
+                  let split = trigger.split(">= ")
+                  orderPrice = split[1]
+                }
+                else if (trigger.includes("<=")) {
+                  let split = trigger.split("<= ")
+                  orderPrice = split[1]
+                }
               }
             }
             else {
@@ -161,6 +167,7 @@ export default class TradingViewChart extends Component {
             .setQuantity(`${total} ${quote_asset}`)
             .setPrice(orderPrice)
           this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+          if (showOnlyEntryOrder) break
         }
       }
     }
@@ -193,6 +200,7 @@ export default class TradingViewChart extends Component {
 
   getChartDrawingFromServer = async () => {
     try {
+      if (!this.tradingViewWidget) return
       const cData = await getChartDrawing(this.state.email)
       if (!cData) {
         this.chartEvent("study_event")
@@ -213,6 +221,9 @@ export default class TradingViewChart extends Component {
         isChartReady: true
       })
       this.chartEvent("study_event")
+      setTimeout(() => {
+        this.props.chartReady(true)
+      }, 2500)
     }
   }
 
