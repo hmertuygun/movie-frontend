@@ -108,11 +108,13 @@ const UserContextProvider = ({ children }) => {
       const np = await Notification.requestPermission() // "granted", "denied", "default"
       if (np === "denied") return
       const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
+      console.log(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
-        console.log(payload)
+        console.log(`Received msg in UC onMessage`)
         const { data } = payload
-        let apiKey = data.message_3
+        let apiKey = data?.message_3
+        if (!apiKey) return
         apiKey = apiKey.split(":")[1]
         const description = (
           <>
@@ -124,7 +126,7 @@ const UserContextProvider = ({ children }) => {
         successNotification.open({ message: data.title, duration: 3, description })
       })
       navigator.serviceWorker.addEventListener("message", (message) => {
-        //console.log(message)
+        console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
     }
     catch (e) {

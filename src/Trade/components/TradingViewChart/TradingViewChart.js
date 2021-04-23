@@ -45,9 +45,37 @@ export default class TradingViewChart extends Component {
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
       this.chartObject = this.tradingViewWidget.activeChart()
+      this.onIntervalSelect()
       this.getChartDrawingFromServer()
       this.chartEvent("drawing_event")
     })
+  }
+
+  onIntervalSelect = () => {
+    if (!this.chartObject) return
+    try {
+      this.chartObject.onIntervalChanged().subscribe(null, (interval, timeframeObj) => {
+        if (this.props.exchange === "binance") {
+          localStorage.setItem('selectedIntervalBinance', interval)
+        }
+        else if (this.props.exchange === "ftx") {
+          localStorage.setItem('selectedIntervalFtx', interval)
+        }
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  setLastSelectedInterval = () => {
+    if (!this.chartObject) return
+    if (this.props.exchange === "binance") {
+      this.chartObject.setResolution(localStorage.getItem('selectedIntervalBinance') || '1D')
+    }
+    else if (this.props.exchange === "ftx") {
+      this.chartObject.setResolution(localStorage.getItem('selectedIntervalFtx') || '1D')
+    }
   }
 
   chartEvent = (event) => {
@@ -65,11 +93,13 @@ export default class TradingViewChart extends Component {
   }
 
   changeSymbol = (newSymbol) => {
-    if (!newSymbol || !this.tradingViewWidget) return
+    if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
-      const symbObj = this.tradingViewWidget.symbolInterval()
-      if (!symbObj) return
-      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+      // const symbObj = this.tradingViewWidget.symbolInterval()
+      // if (!symbObj) return
+      // console.log(symbObj)
+      //this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+      this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
       //console.log(e)
@@ -84,26 +114,55 @@ export default class TradingViewChart extends Component {
       const red = '#f25767'
       if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
       this.orderLineCount++
+      for (let i = 0; i < this.orderLinesDrawn.length; i++) {
+        const { trade_id, line_id } = this.orderLinesDrawn[i]
+        let fData = openOrders.find(item => item.trade_id === trade_id)
+        if (!fData) this.chartObject.setEntityVisibility(line_id, false)
+      }
       openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
-        const { type, total, side, quote_asset, status, price, trade_id, trigger } = openOrders[i]
-        const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-        const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? '<=' : '>='}${trigger}` : `${type}`
-        const orderPrice = price === "Market" ? trigger : price
-        let entity = this.chartObject.createOrderLine()
-          .setTooltip(`${type} order ${status}`)
-          .setLineLength(60)
-          .setExtendLeft(false)
-          .setLineColor(orderColor)
-          .setBodyBorderColor(orderColor)
-          .setBodyTextColor(orderColor)
-          .setQuantityBackgroundColor(orderColor)
-          .setQuantityBorderColor(orderColor)
-          // .setQuantityTextColor("rgb(255,255,255)")
-          .setText(orderText)
-          .setQuantity(`${total} ${quote_asset}`)
-          .setPrice(orderPrice)
-        this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id })
+        const { trade_id, orders, type } = openOrders[i]
+        const isFullTrade = type.includes("Full")
+        for (let j = 0; j < orders.length; j++) {
+          const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
+          const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
+          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${side === 'Buy' ? `${isFullTrade ? '' : '<='}` : `${isFullTrade ? '' : '>='}`}${trigger}` : `${type}`
+
+          let orderPrice
+          if (isFullTrade) {
+            if (price === "Market") {
+              if (trigger.includes(">=")) {
+                let split = trigger.split(">= ")
+                orderPrice = split[1]
+              }
+              else if (trigger.includes("<=")) {
+                let split = trigger.split("<= ")
+                orderPrice = split[1]
+              }
+            }
+            else {
+              orderPrice = price
+            }
+          }
+          else {
+            orderPrice = price === "Market" ? trigger : price
+          }
+
+          let entity = this.chartObject.createOrderLine()
+            .setTooltip(`${type} order ${status}`)
+            .setLineLength(60)
+            .setExtendLeft(false)
+            .setLineColor(orderColor)
+            .setBodyBorderColor(orderColor)
+            .setBodyTextColor(orderColor)
+            .setQuantityBackgroundColor(orderColor)
+            .setQuantityBorderColor(orderColor)
+            // .setQuantityTextColor("rgb(255,255,255)")
+            .setText(orderText)
+            .setQuantity(`${total} ${quote_asset}`)
+            .setPrice(orderPrice)
+          this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+        }
       }
     }
     catch (e) {
@@ -145,6 +204,7 @@ export default class TradingViewChart extends Component {
         const prep = { ...obj.charts[0], panes: pData }
         this.tradingViewWidget.load(prep)
       })
+      this.setLastSelectedInterval()
     }
     catch (e) {
       console.log(e)

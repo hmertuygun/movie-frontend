@@ -26,6 +26,18 @@ messaging.setBackgroundMessageHandler(function (payload) {
     });
   return promiseChain;
 });
+messaging.onBackgroundMessage((payload) => {
+  console.log(payload)
+  const { data } = payload
+  console.log(`Received msg in messaging.onBackgroundMessage`)
+  // Customize notification here
+  const notificationTitle = data.title;
+  const notificationOptions = {
+    body: `${data?.message_1} | ${data?.message_2}`,
+    icon: '/icon-192x192.png'
+  };
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
 self.addEventListener("notificationclick", function (event) {
   console.log(event);
 });
