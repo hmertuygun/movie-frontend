@@ -61,9 +61,9 @@ const Routes = () => {
           />
         )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
-        {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
+        {/* {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
           <SubscriptionModal />
-        )}
+        )} */}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
             {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
