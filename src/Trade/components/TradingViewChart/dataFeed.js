@@ -58,11 +58,11 @@ export default class dataFeed {
       ticker: chosenSymbol,
       exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
       listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-      type: 'Crypto',
+      type: 'crypto',
       session: '24x7',
       pricescale: 100, // parseInt(this.selectedSymbolDetail.tickSize)
       timezone: 'UTC',
-      currency_code: chosenSymbol.replace("/", ""),
+      currency_code: chosenSymbol.split("/")[1],
       has_intraday: true,
       has_daily: true,
       has_weekly_and_monthly: true,
