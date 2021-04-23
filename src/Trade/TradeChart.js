@@ -44,7 +44,6 @@ const TradeChart = () => {
   useEffect(() => {
     if (!count) return
     const savedTime = localStorage.getItem('lastSocketData')
-    console.log(isChartReady)
     if (docVisibility && isChartReady && (new Date().getTime() - savedTime) > 10000) {
       setReRender(new Date().getTime())
     }
