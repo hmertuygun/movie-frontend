@@ -9,7 +9,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail, chartReady }) {
     super()
     //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
     this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols }) // exchangeDataFeeds[exchange]
@@ -200,6 +200,7 @@ export default class TradingViewChart extends Component {
 
   getChartDrawingFromServer = async () => {
     try {
+      if (!this.tradingViewWidget) return
       const cData = await getChartDrawing(this.state.email)
       if (!cData) {
         this.chartEvent("study_event")
@@ -220,6 +221,9 @@ export default class TradingViewChart extends Component {
         isChartReady: true
       })
       this.chartEvent("study_event")
+      setTimeout(() => {
+        this.props.chartReady(true)
+      }, 2500)
     }
   }
 

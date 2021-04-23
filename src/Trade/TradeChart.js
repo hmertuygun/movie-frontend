@@ -15,6 +15,7 @@ const TradeChart = () => {
   const [symbolType, setSymbolType] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
+  const [isChartReady, setIsChartReady] = useState(false)
 
   const getSavedIntervals = async () => {
     try {
@@ -43,10 +44,15 @@ const TradeChart = () => {
   useEffect(() => {
     if (!count) return
     const savedTime = localStorage.getItem('lastSocketData')
-    if (docVisibility && (new Date().getTime() - savedTime) > 10000) {
+    console.log(isChartReady)
+    if (docVisibility && isChartReady && (new Date().getTime() - savedTime) > 10000) {
       setReRender(new Date().getTime())
     }
   }, [docVisibility])
+
+  useEffect(() => {
+    setIsChartReady(false)
+  }, [reRender])
 
   useEffect(() => {
     if (lsValue && lsValue.length) saveChartIntervals(lsValue)
@@ -85,6 +91,7 @@ const TradeChart = () => {
       symbol={symbolType}
       exchange={exchangeType}
       marketSymbols={symbolDetails}
+      chartReady={(e) => { setIsChartReady(e) }}
     />
   )
 }
