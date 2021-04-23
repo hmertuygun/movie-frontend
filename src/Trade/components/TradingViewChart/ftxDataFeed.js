@@ -48,7 +48,9 @@ export default class dataFeed {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
+    //this.debug && console.log(`resolveSymbol`)
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
+    // this.debug && console.log(this.selectedExchange)
     this.selectedExchange = localStorage.getItem('selectedExchange')
     this.debug && console.log(this.selectedExchange)
     const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
@@ -62,7 +64,7 @@ export default class dataFeed {
       session: '24x7',
       pricescale: 100, // parseInt(this.selectedSymbolDetail.tickSize)
       timezone: 'UTC',
-      currency_code: chosenSymbol.replace("/", ""),
+      currency_code: selectedSymbolDetail.quote_asset,
       has_intraday: true,
       has_daily: true,
       has_weekly_and_monthly: true,

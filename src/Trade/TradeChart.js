@@ -31,7 +31,7 @@ const TradeChart = () => {
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', (ev) => {
       const savedTime = localStorage.getItem('lastSocketData')
-
+      console.log(`visibilitychange event triggered: ${document.visibilityState}`)
       if (exchangeType === 'binance' && count > 0 && document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
         console.log(`Re-render`)
         setReRender(new Date().getTime())

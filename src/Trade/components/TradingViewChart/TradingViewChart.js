@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import binanceDataFeed from './binanceDataFeed'
+import ftxDataFeed from './ftxDataFeed'
 import dataFeed from './dataFeed'
 import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
 
@@ -9,7 +11,8 @@ export default class TradingViewChart extends Component {
 
   constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail }) {
     super()
-    this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols })
+    //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
+    this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols }) // exchangeDataFeeds[exchange]
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.dF,
@@ -95,10 +98,6 @@ export default class TradingViewChart extends Component {
   changeSymbol = (newSymbol) => {
     if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
-      // const symbObj = this.tradingViewWidget.symbolInterval()
-      // if (!symbObj) return
-      // console.log(symbObj)
-      //this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
       this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
@@ -225,7 +224,7 @@ export default class TradingViewChart extends Component {
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
     //console.log(`In Update`)
-    this.changeSymbol(this.state.symbol)
+    this.changeSymbol(this.props.symbol)
     this.drawOpenOrdersChartLines(this.props.openOrders)
     this.deleteOpenOrderLine(this.props.delOrderId)
   }
