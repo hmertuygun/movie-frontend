@@ -14,6 +14,7 @@ const TradeChart = () => {
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
   const [count, setCount] = useState(0)
+  const [docVisibility, setDocVisibility] = useState(true)
 
   const getSavedIntervals = async () => {
     try {
@@ -30,12 +31,7 @@ const TradeChart = () => {
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', (ev) => {
-      const savedTime = localStorage.getItem('lastSocketData')
-      console.log(`visibilitychange event triggered: ${document.visibilityState}`)
-      if (exchangeType === 'binance' && count > 0 && document.visibilityState === "visible" && (new Date().getTime() - savedTime) > 10000) {
-        console.log(`Re-render`)
-        setReRender(new Date().getTime())
-      }
+      setDocVisibility(document.visibilityState === "visible" ? true : false)
     })
   }
 
@@ -43,6 +39,14 @@ const TradeChart = () => {
     getSavedIntervals()
     reconnectWSOnWindowFocus()
   }, [])
+
+  useEffect(() => {
+    if (!count) return
+    const savedTime = localStorage.getItem('lastSocketData')
+    if (docVisibility && (new Date().getTime() - savedTime) > 10000) {
+      setReRender(new Date().getTime())
+    }
+  }, [docVisibility])
 
   useEffect(() => {
     if (lsValue && lsValue.length) saveChartIntervals(lsValue)

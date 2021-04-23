@@ -15,33 +15,33 @@ import FullScreenLoader from './components/FullScreenLoader'
 import { initGA } from './Tracking'
 initGA(process.env.REACT_APP_TRACKING_ID)
 
-Sentry.init({
-  dsn: process.env.REACT_APP_SENTRY_DSN,
-  integrations: [new Integrations.BrowserTracing({ console: false })],
+// Sentry.init({
+//   dsn: process.env.REACT_APP_SENTRY_DSN,
+//   integrations: [new Integrations.BrowserTracing({ console: false })],
 
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-})
+//   // Set tracesSampleRate to 1.0 to capture 100%
+//   // of transactions for performance monitoring.
+//   // We recommend adjusting this value in production
+//   tracesSampleRate: 1.0,
+// })
 
 library.add(fab, fas)
 const queryClient = new QueryClient()
 
 export default function App() {
   return (
-    <Sentry.ErrorBoundary fallback={'An error has occurred'}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <UserContextProvider>
-            <TabContextProvider>
-              <Header />
-              <Routes />
-            </TabContextProvider>
-          </UserContextProvider>
-        </Router>
-        {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
-      </QueryClientProvider>
-    </Sentry.ErrorBoundary>
+    // <Sentry.ErrorBoundary fallback={'An error has occurred'}>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <UserContextProvider>
+          <TabContextProvider>
+            <Header />
+            <Routes />
+          </TabContextProvider>
+        </UserContextProvider>
+      </Router>
+      {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+    </QueryClientProvider>
+    // </Sentry.ErrorBoundary>
   )
 }
