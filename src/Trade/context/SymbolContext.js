@@ -22,7 +22,7 @@ import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
 import ccxt from 'ccxt'
 
-const SymbolContext = createContext()
+export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
   const {
@@ -486,4 +486,4 @@ export const useSymbolContext = () => {
   return useContext(SymbolContext)
 }
 
-export { SymbolContext, SymbolContextProvider }
+export default SymbolContextProvider
