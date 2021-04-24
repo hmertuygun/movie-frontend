@@ -248,7 +248,7 @@ const OpenOrdersTableBody = ({
                   setDeletedRows((rows) => [...rows, row])
                   setTimeout(() => {
                     setDeletedRows(rows => rows.splice(0, 1))
-                  }, 10000)
+                  }, 3600000)
                 }}
                 deletedRow={(row) => deleteRow(row)}
               />
