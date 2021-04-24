@@ -1,6 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react'
-import PositionCTXProvider from '../Position/context/PositionContext'
-import { SymbolContextProvider } from '../Trade/context/SymbolContext'
 import AccordionContainer from '../Position/components/Accordion/AccordionContainer'
 import { UserContext } from '../contexts/UserContext'
 import precisionRound from '../helpers/precisionRound'
@@ -77,11 +75,9 @@ const Position = () => {
   }
 
   return (
-    <PositionCTXProvider>
-      <SymbolContextProvider>
-        {toRender()}
-      </SymbolContextProvider>
-    </PositionCTXProvider>
+    <>
+      {toRender()}
+    </>
   )
 }
 

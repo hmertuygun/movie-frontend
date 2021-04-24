@@ -8,6 +8,9 @@ import { Header } from './components'
 import Routes from './Routes'
 import UserContextProvider from './contexts/UserContext'
 import TabContextProvider from './contexts/TabContext'
+import SymbolContextProvider from './Trade/context/SymbolContext'
+import PositionCTXProvider from './Position/context/PositionContext'
+import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
@@ -34,10 +37,16 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <UserContextProvider>
-          <TabContextProvider>
-            <Header />
-            <Routes />
-          </TabContextProvider>
+          <SymbolContextProvider>
+            <TabContextProvider>
+              <PositionCTXProvider>
+                <PortfolioCTXProvider>
+                  <Header />
+                  <Routes />
+                </PortfolioCTXProvider>
+              </PositionCTXProvider>
+            </TabContextProvider>
+          </SymbolContextProvider>
         </UserContextProvider>
       </Router>
       {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}

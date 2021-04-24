@@ -32,10 +32,10 @@ const PortfolioCTXProvider = ({ children }) => {
   const { activeExchange } = useContext(UserContext)
 
   const fetchData = useCallback(async () => {
-    if (user) {
+    if (user && activeExchange.exchange) {
       refreshData()
     }
-  }, [user])
+  }, [user, activeExchange])
 
   const refreshData = async () => {
     try {
