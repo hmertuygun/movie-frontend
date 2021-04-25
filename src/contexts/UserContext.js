@@ -43,7 +43,7 @@ const UserContextProvider = ({ children }) => {
   const [rememberCheck, setRememberCheck] = useState(false)
   const [hasSub, setHasSub] = useState(false)
   const [subInfo, setSubInfo] = useState(null)
-  const [openOrdersUC, setOpenOrdersUC] = useState(null)
+  const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
