@@ -9,10 +9,10 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, selectedSymbolDetail, chartReady }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, chartReady }) {
     super()
     //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
-    this.dF = new dataFeed({ debug: false, exchange, selectedSymbolDetail, marketSymbols }) // exchangeDataFeeds[exchange]
+    this.dF = new dataFeed({ debug: false, exchange, marketSymbols }) // exchangeDataFeeds[exchange]
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.dF,
@@ -107,8 +107,8 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady) return
-    console.log(`Open Orders Received: `, openOrders)
-    console.log(`Orders Drawn: `, this.orderLinesDrawn)
+    // console.log(`Open Orders Received: `, openOrders)
+    // console.log(`Orders Drawn: `, this.orderLinesDrawn)
     try {
       const blue = "#008aff"
       const green = "#3cb690"

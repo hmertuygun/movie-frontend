@@ -356,6 +356,7 @@ const SymbolContextProvider = ({ children }) => {
               minNotional: symbol['minNotional'],
               minPrice: symbol['minPrice'],
               minQty: symbol['minQty'],
+              originalTickSize: symbol['tickSize'],
               tickSize: tickSize,
               lotSize: lotSize,
             }

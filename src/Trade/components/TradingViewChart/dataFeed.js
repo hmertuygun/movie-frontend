@@ -1,8 +1,9 @@
 import binanceAPI from '../../../api/binanceAPI'
 import ftxAPI from '../../../api/ftxAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
+import precisionRound from '../../../helpers/precisionRound'
 export default class dataFeed {
-  constructor({ exchange, symbolList, selectedSymbolDetail, marketSymbols, debug }) {
+  constructor({ exchange, symbolList, marketSymbols, debug }) {
     this.binanceStr = "binance"
     this.ftxStr = "ftx"
     this.selectedExchange = exchange
@@ -33,7 +34,6 @@ export default class dataFeed {
     this.binanceAPI = new binanceAPI()
     this.ftxAPI = new ftxAPI()
     this.ws = new binanceSockets()
-    this.selectedSymbolDetail = selectedSymbolDetail
     this.marketSymbols = marketSymbols
     this.pollingInterval = null
   }
@@ -51,7 +51,24 @@ export default class dataFeed {
     let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
     this.selectedExchange = localStorage.getItem('selectedExchange')
     this.debug && console.log(this.selectedExchange)
-    const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+    const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+    const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
+
+    const calculatePriceScale = (tick) => {
+      if (parseFloat(tick) >= 1) return 100
+      else {
+        let spl = tick.split(".")[1]
+        // const zeroCount = (spl.match(/0/g)).length
+        let zeroCount = 1
+        let splitStr = spl.split("")
+        for (let i = 0; i < splitStr.length; i++) {
+          if (splitStr[i] === "0") zeroCount++
+          else break
+        }
+        return Math.pow(10, zeroCount)
+      }
+    }
+    const priceTick = calculatePriceScale(selectedSymbolDetail.originalTickSize)
     onSymbolResolvedCallback({
       name: chosenSymbol,
       description: chosenSymbol,
@@ -60,13 +77,13 @@ export default class dataFeed {
       listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
       type: 'crypto',
       session: '24x7',
-      pricescale: 100, // parseInt(this.selectedSymbolDetail.tickSize)
+      minmov: 1,
+      pricescale: priceTick, // parseFloat(selectedSymbolDetail.tickSize),
       timezone: 'UTC',
       currency_code: chosenSymbol.split("/")[1],
       has_intraday: true,
       has_daily: true,
       has_weekly_and_monthly: true,
-      minmov: 1,
     })
   }
 
