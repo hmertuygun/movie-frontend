@@ -132,7 +132,7 @@ export default class TradingViewChart extends Component {
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          // ? true : symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending" ? false : false
+          if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
           let toolTipText
           let orderPrice
           if (isFullTrade) {
@@ -155,7 +155,7 @@ export default class TradingViewChart extends Component {
             else {
               toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
             }
-            if (price === "Market") {
+            if (trigger && trigger.length) { // price === "Market"
               if (showOnlyEntryOrder) {
                 orderPrice = trigger
               }
