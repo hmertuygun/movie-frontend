@@ -7,6 +7,7 @@ import { getLastPrice, createPriceAlert, getPriceAlerts, deletePriceAlert, react
 import { errorNotification, successNotification } from '../components/Notifications'
 import precisionRound from '../helpers/precisionRound'
 import { firebase } from '../firebase/firebase'
+import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter'
 
 const db = firebase.firestore()
 
@@ -16,8 +17,8 @@ const parseSymbol = (symbol) => {
 }
 
 const ADD_EDIT_INITIAL_STATE = {
-  exchange: { label: 'Binance', value: 'Binance' },
-  symbol: { label: 'BTC-USDT', value: 'BINANCE:BTCUSDT' },
+  exchange: { label: 'Binance', value: 'binance' },
+  symbol: { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' },
   condition: { label: `Less and equal to ≤`, value: '<=' },
   target_price: 0,
   status: '',
@@ -27,37 +28,46 @@ const ADD_EDIT_INITIAL_STATE = {
 }
 
 const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, cardOp, onCancel }) => {
-  const { symbols } = useSymbolContext()
+  const { symbols, symbolDetails } = useSymbolContext()
+  const [symbolDD, setSymbolDD] = useState([])
   const [state, setState] = useState(ADD_EDIT_INITIAL_STATE)
-
-  const handleSearch = ({ state }) => {
-    const filteredData = Object.values(symbols).filter((search) =>
-      search.label
-        .split('-')[0]
-        .toLowerCase()
-        .includes(state.search.toLowerCase())
-    )
-    if (!filteredData.length) {
-      return Object.values(symbols).filter((search) =>
-        search.label.toLowerCase().includes(state.search.toLowerCase())
-      )
-    }
-    return filteredData
-  }
-
-  const exchangeOptions = [{ label: 'Binance', value: 'Binance' }]
+  const defaultSymbolLabel = "BTC-USDT"
+  const defaultSybolValue = "BINANCE:BTC/USDT"
+  const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }]
   const conditionOptions = [{ label: `Less and equal to ≤`, value: '<=' }, { label: 'Greater and equal to ≥', value: '>=' }]
 
-  useEffect(() => {
+  const roundOff = (price) => {
+    if (parseFloat(price) >= 1) return precisionRound(price)
+    else return parseFloat(price)
+  }
+
+  const stepSize = (val) => {
+    if (!val || parseFloat(val) >= 1) return "1"
+    let spl = val.toString().split(".")
+    console.log(spl)
+    if (!spl || spl.length < 2) return "1"
+    let zeroCount = 2
+    let splitStr = spl[1].split("")
+    for (let i = 0; i < splitStr.length; i++) {
+      if (splitStr[i] === "0") zeroCount++
+      else break
+    }
+    return (1 / Math.pow(10, zeroCount)).toString()
+  }
+
+  const onCardOp = (type, alert_id, exchange, symbol, target_price, condition, status, note) => {
     if (type === "edit") {
       const fCond = conditionOptions.find((item) => item.value === condition)
+      console.log(exchange, symbol, status, target_price)
       const editState = {
-        exchange: { label: exchange, value: exchange },
-        symbol: { label: symbol, value: `${exchange.toUpperCase()}:${symbol.replace("-", "")}` },
+        exchange: { label: capitalizeFirstLetter(exchange), value: exchange },
+        symbol: { label: symbol.replace("/", "-"), value: `${exchange.toUpperCase()}:${symbol}` },
         condition: fCond,
         target_price,
         status
       }
+      // console.log(editState)
+      // console.log(symbolDD)
       setState({
         ...ADD_EDIT_INITIAL_STATE,
         fetchingSymbolPrice: false,
@@ -69,18 +79,44 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
     else {
       console.error("Invalid Option")
     }
-  }, [])
-
-  const onInputChange = (name, val) => {
-    setState(prevVal => ({ ...prevVal, [name]: val }))
   }
+
+  useEffect(() => {
+    if (type === "edit") {
+      if (exchange === "binance") {
+        setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      }
+      else if (exchange === "ftx") {
+        setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
+      }
+      const fCond = conditionOptions.find((item) => item.value === condition)
+      const editState = {
+        exchange: { label: capitalizeFirstLetter(exchange), value: exchange },
+        symbol: { label: symbol.replace("/", "-"), value: `${exchange.toUpperCase()}:${symbol}` },
+        condition: fCond,
+        target_price,
+        status
+      }
+      setState({
+        ...ADD_EDIT_INITIAL_STATE,
+        fetchingSymbolPrice: false,
+        ...editState
+      })
+    }
+    else if (type === "add") {
+      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+    }
+    else {
+      console.error("Invalid Option")
+    }
+  }, [])
 
   useEffect(() => {
     if (!state.symbol?.label || type === "edit") return
     setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: true }))
-    getLastPrice(state.symbol.label.replace('-', ''))
+    getLastPrice(state.symbol.label.replace('-', '/'), state.exchange.value)
       .then((res) => {
-        setState(prevVal => ({ ...prevVal, target_price: precisionRound(res?.data?.last_price) }))
+        setState(prevVal => ({ ...prevVal, target_price: roundOff(res?.data?.last_price) }))
       })
       .catch((e) => {
         console.log(e)
@@ -88,13 +124,45 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
       .finally(() => {
         setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: false }))
       })
-  }, [state.symbol])
+  }, [state.symbol, state.exchange])
+
+  useEffect(() => {
+    if (state.exchange.value === "binance") {
+      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      //setState(prevVal => ({ ...prevVal, symbol: { label: "BTC-USDT", value: 'BINANCE:BTC/USDT' } }))
+    }
+    else if (state.exchange.value === "ftx") {
+      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
+      //if (type !== "edit") setState(prevVal => ({ ...prevVal, symbol: { label: "BTC-USDT", value: 'FTX:BTC/USDT' } }))
+    }
+    console.log(state)
+    console.log(symbolDD)
+  }, [state.exchange])
+
+  const handleSearch = ({ state }) => {
+    const filteredData = symbolDD.filter((search) =>
+      search.label
+        .split('-')[0]
+        .toLowerCase()
+        .includes(state.search.toLowerCase())
+    )
+    if (!filteredData.length) {
+      return symbolDD.filter((search) =>
+        search.label.toLowerCase().includes(state.search.toLowerCase())
+      )
+    }
+    return filteredData
+  }
+
+  const onInputChange = (name, val) => {
+    setState(prevVal => ({ ...prevVal, [name]: val }))
+  }
 
   const onSave = async () => {
     try {
       setState(prev => ({ ...prev, saving: true }))
       const currState = { exchange: state.exchange.value, symbol: state.symbol.label, condition: state.condition.value, target_price: state.target_price }
-      const reqPayload = { ...currState, symbol: state.symbol.label.replace('-', '') }
+      const reqPayload = { ...currState, symbol: state.symbol.label.replace('-', '/') }
       const resp = await createPriceAlert(reqPayload)
       if (resp?.status === "OK") {
         successNotification.open({ description: 'Price alert created!' })
@@ -116,7 +184,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
     try {
       setState(prev => ({ ...prev, saving: true }))
       const currState = { exchange: state.exchange.value, symbol: state.symbol.label, condition: state.condition.value, target_price: state.target_price }
-      const reqPayload = { ...currState, symbol: state.symbol.label.replace('-', '') }
+      const reqPayload = { ...currState, symbol: state.symbol.label.replace('-', '/') }
       const resp = await updatePriceAlert(alert_id, reqPayload)
       if (resp?.status === "OK") {
         successNotification.open({ description: 'Price alert updated!' })
@@ -154,12 +222,12 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
           <div className="col-lg-3 col-md-6">
             <label>Select symbol</label>
             <DropDownSelect
-              options={Object.values(symbols)}
+              options={symbolDD}
               style={{ borderRadius: '4px', outline: '0', height: '44px' }}
               placeholder="Select symbol"
               values={[state.symbol]}
               valueField="label"
-              disabled={!symbols || !symbols.length}
+              disabled={!symbolDD || !symbolDD.length}
               onChange={(val) => onInputChange('symbol', val[0])}
               searchFn={handleSearch}
             />
@@ -178,6 +246,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
           </div>
           <div className="col-lg-3 col-md-6">
             <label>Enter target price ({parseSymbol(state.symbol?.label)})</label>
+            {/* step={stepSize(state.target_price)} */}
             <input
               type="number"
               className="form-control"
@@ -242,7 +311,7 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
         </div>
         <div className="col pl-0">
           <span className="d-block h6 text-sm mb-0">
-            {state.symbol} [{state.exchange}]
+            {state.symbol} [{capitalizeFirstLetter(state.exchange)}]
           </span>
           <p className="mb-0 text-sm">
             price {state.condition === '>=' ? '≥' : '≤'} {state.target_price}{' '}
@@ -357,7 +426,7 @@ const PriceAlerts = () => {
     const { status, price_alert_details, alert_id } = fBData
     let { symbol } = price_alert_details
     let ext = symbolDetails[`BINANCE:${symbol}`]
-    symbol = `${ext.base_asset}-${ext.quote_asset}`
+    symbol = `${ext.base_asset}/${ext.quote_asset}`
     if (status === "active") {
       // if not exists put in active alerts section, and take out of past alerts section if it's there
       setPriceAlertData(prevState => {
