@@ -21,9 +21,9 @@ const SymbolSelect = () => {
     control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '1px solid rgb(204, 204, 204)',
-      height: '36px',
-      minHeight: '36px',
+      border: '2px solid rgb(204, 204, 204)',
+      height: '45px',
+      minHeight: '45px',
       color: '#718096',
 
       '&:hover': {
@@ -33,7 +33,7 @@ const SymbolSelect = () => {
 
     valueContainer: (styles) => ({
       ...styles,
-      height: '36px',
+      height: '41px',
       padding: '0 5px'
     }),
 
@@ -60,7 +60,7 @@ const SymbolSelect = () => {
 
     indicatorsContainer: (styles) => ({
       ...styles,
-      height: '36px'
+      height: '41px'
     }),
   }
 
