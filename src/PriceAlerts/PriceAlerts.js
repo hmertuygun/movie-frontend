@@ -129,14 +129,10 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   useEffect(() => {
     if (state.exchange.value === "binance") {
       setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
-      //setState(prevVal => ({ ...prevVal, symbol: { label: "BTC-USDT", value: 'BINANCE:BTC/USDT' } }))
     }
     else if (state.exchange.value === "ftx") {
       setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
-      //if (type !== "edit") setState(prevVal => ({ ...prevVal, symbol: { label: "BTC-USDT", value: 'FTX:BTC/USDT' } }))
     }
-    console.log(state)
-    console.log(symbolDD)
   }, [state.exchange])
 
   const handleSearch = ({ state }) => {
@@ -421,12 +417,11 @@ const PriceAlerts = () => {
 
   useEffect(() => {
     if (snapShotCount === 0 || !symbolDetails || !Object.keys(symbolDetails).length) return
-    //console.log(fBData)
     if (!fBData || !fBData['status'] || !fBData['price_alert_details'] || !fBData['alert_id']) return
     const { status, price_alert_details, alert_id } = fBData
     let { symbol } = price_alert_details
-    let ext = symbolDetails[`BINANCE:${symbol}`]
-    symbol = `${ext.base_asset}/${ext.quote_asset}`
+    // let ext = symbolDetails[`BINANCE:${symbol}`]
+    // symbol = `${ext.base_asset}/${ext.quote_asset}`
     if (status === "active") {
       // if not exists put in active alerts section, and take out of past alerts section if it's there
       setPriceAlertData(prevState => {
