@@ -107,8 +107,8 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
-    // console.log(`Open Orders Received: `, openOrders)
-    // console.log(`Orders Drawn: `, this.orderLinesDrawn)
+    console.log(`Open Orders Received: `, openOrders)
+    console.log(`Orders Drawn: `, this.orderLinesDrawn)
     try {
       const blue = "#008aff"
       const green = "#3cb690"

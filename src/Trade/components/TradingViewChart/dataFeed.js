@@ -100,7 +100,7 @@ export default class dataFeed {
       if (this.debug) {
         console.log('📊:', totalKlines.length)
       }
-
+      localStorage.setItem('lastSocketData', new Date().getTime())
       if (totalKlines.length === 0) {
         onHistoryCallback([], { noData: true })
       } else {

@@ -44,7 +44,6 @@ const TradeChart = () => {
   useEffect(() => {
     if (!count) return
     const savedTime = localStorage.getItem('lastSocketData')
-    console.log(docVisibility, isChartReady, activeExchange.exchange)
     if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 10000) {
       setReRender(new Date().getTime())
     }
