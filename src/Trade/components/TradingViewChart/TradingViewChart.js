@@ -123,7 +123,7 @@ export default class TradingViewChart extends Component {
         let fData = openOrders.find(item => item.trade_id === trade_id)
         if (!fData) this.chartObject.setEntityVisibility(line_id, false)
       }
-      openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      // openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
         const { trade_id, orders, type } = openOrders[i]
         const isFullTrade = type.includes("Full")
@@ -135,6 +135,7 @@ export default class TradingViewChart extends Component {
           if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
           let toolTipText
           let orderPrice
+          let orderLineId
           if (isFullTrade) {
             if (symbol.toLowerCase() === "entry") {
               if (status.toLowerCase() !== "pending") {
@@ -173,26 +174,38 @@ export default class TradingViewChart extends Component {
             else {
               orderPrice = price
             }
+            orderLineId = trade_id + '-' + symbol.toLowerCase().replace(' ', '-')
           }
           else {
             orderPrice = price === "Market" ? trigger : price
             toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+            orderLineId = trade_id
           }
 
-          let entity = this.chartObject.createOrderLine()
-            .setTooltip(toolTipText)
-            .setLineLength(60)
-            .setExtendLeft(false)
-            .setLineColor(orderColor)
-            .setBodyBorderColor(orderColor)
-            .setBodyTextColor(orderColor)
-            .setQuantityBackgroundColor(orderColor)
-            .setQuantityBorderColor(orderColor)
-            // .setQuantityTextColor("rgb(255,255,255)")
-            .setText(orderText)
-            .setQuantity(`${total} ${quote_asset}`)
-            .setPrice(orderPrice)
-          this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+          const fIndex = this.orderLinesDrawn.findIndex(item => item.orderLineId === orderLineId)
+          if (fIndex > -1) {
+            const { line_id, trade_id, entity } = this.orderLinesDrawn[fIndex]
+            entity.setTooltip(toolTipText)
+              .setText(orderText)
+              .setQuantity(`${total} ${quote_asset}`)
+              .setPrice(orderPrice)
+          }
+          else {
+            let entity = this.chartObject.createOrderLine()
+              .setTooltip(toolTipText)
+              .setLineLength(60)
+              .setExtendLeft(false)
+              .setLineColor(orderColor)
+              .setBodyBorderColor(orderColor)
+              .setBodyTextColor(orderColor)
+              .setQuantityBackgroundColor(orderColor)
+              .setQuantityBorderColor(orderColor)
+              // .setQuantityTextColor("rgb(255,255,255)")
+              .setText(orderText)
+              .setQuantity(`${total} ${quote_asset}`)
+              .setPrice(orderPrice)
+            this.orderLinesDrawn.push({ line_id: entity?._line?._id, id: orderLineId, trade_id, entity })
+          }
           if (showOnlyEntryOrder) break
         }
       }
