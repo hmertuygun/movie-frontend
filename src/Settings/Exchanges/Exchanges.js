@@ -87,6 +87,7 @@ const Exchanges = () => {
             // ignore the element that we just deleted
             let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
             if (newActiveKey) {
+              await refreshExchanges()
               await updateLastSelectedAPIKey({ ...newActiveKey })
               setActiveExchange({ ...newActiveKey, label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`, value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}` })
             }
