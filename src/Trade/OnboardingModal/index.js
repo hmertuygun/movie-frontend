@@ -6,14 +6,17 @@ import * as yup from 'yup'
 import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
+import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
-  getUserExchanges
+  getUserExchanges,
+  updateLastSelectedAPIKey
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 
 const OnboardingModal = () => {
+  const { refreshExchanges } = useSymbolContext()
   const { loadApiKeys, setLoadApiKeys, isLoggedIn, setTotalExchanges, setActiveExchange } = useContext(UserContext)
   let formData = {
     apiKey: '',
@@ -178,6 +181,8 @@ const OnboardingModal = () => {
     if (result.status !== 200) {
       setError(true)
     } else {
+      await updateLastSelectedAPIKey({apiKeyName: apiName, exchange: exchange.value})
+      refreshExchanges()
       setStepNo(step + 1)
       successNotification.open({ description: 'API key added!' })
       analytics.logEvent('api_keys_added')
