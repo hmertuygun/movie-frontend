@@ -22,7 +22,7 @@ const deleteDuplicateRows = (data, key) => {
   return uniqueData
 }
 
-const Expandable = ({ entry, deletedRow }) => {
+const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
@@ -42,6 +42,7 @@ const Expandable = ({ entry, deletedRow }) => {
             `Order couldn't be cancelled. Please try again later`,
         })
       } else {
+        setDeletedRows(order.trade_id)
         deletedRow(order)
         successNotification.open({ description: `Order Cancelled!` })
       }
@@ -214,6 +215,8 @@ const OpenOrdersTableBody = ({
       return true
     }
     return order.symbol.replace('-', '') === selectedPair
+  }).filter(order => {
+    return !deletedRows.includes(order.trade_id)
   })
   return (
     <div
@@ -241,6 +244,12 @@ const OpenOrdersTableBody = ({
               <Expandable
                 entry={orders}
                 key={item.trade_id}
+                setDeletedRows={(row) => {
+                  setDeletedRows((rows) => [...rows, row])
+                  setTimeout(() => {
+                    setDeletedRows(rows => rows.splice(0, 1))
+                  }, 3600000)
+                }}
                 deletedRow={(row) => deleteRow(row)}
               />
             )

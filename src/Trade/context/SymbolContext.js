@@ -22,7 +22,7 @@ import { errorNotification } from '../../components/Notifications'
 import { useQuery } from 'react-query'
 import ccxt from 'ccxt'
 
-const SymbolContext = createContext()
+export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
   const {
@@ -449,13 +449,29 @@ const SymbolContextProvider = ({ children }) => {
     loadExchanges()
   }, [queryExchanges.status, loadExchanges, totalExchanges])
 
+  const refreshExchanges = async () => {
+    try {
+      const response  = await getUserExchanges();
+      const apiKeys = response.data.apiKeys.map((item) => {
+        return {
+          ...item,
+          label: `${item.exchange} - ${item.apiKeyName}`,
+          value: `${item.exchange} - ${item.apiKeyName}`
+        }
+      })
+      setExchanges(apiKeys)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <SymbolContext.Provider
       value={{
         isLoading: queryExchanges.isLoading || !selectedSymbolDetail,
         exchanges,
+        refreshExchanges,
         setExchange,
-        selectedExchange,
         symbols,
         setSymbol,
         selectedSymbol,
@@ -487,4 +503,4 @@ export const useSymbolContext = () => {
   return useContext(SymbolContext)
 }
 
-export { SymbolContext, SymbolContextProvider }
+export default SymbolContextProvider
