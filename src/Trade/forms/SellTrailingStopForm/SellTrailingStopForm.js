@@ -464,19 +464,6 @@ const BuyTrailingStopForm = () => {
       <section>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
-            <PriceTriggerDropdown
-              options={[
-                { value: 'b', label: 'Bid' },
-                { value: 'a', label: 'Ask' },
-                { value: 'p', label: 'Last' },
-              ]}
-              value={values.price_trigger}
-              onSelect={(selected) =>
-                setValues({ ...values, price_trigger: selected })
-              }
-            />
-          </div>
-          <div className={styles['Input']}>
             <div className={styles['CallbackRateInput']}>
               <InlineInput
                 label="Callback Rate"
