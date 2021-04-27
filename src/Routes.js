@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { Switch, Route, Redirect, useHistory } from 'react-router-dom'
+import { Switch, Route, Redirect, useHistory, useLocation } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
@@ -18,12 +18,15 @@ import Position from './views/PositionView'
 import Portfolio from './views/PortfolioView'
 import PriceAlerts from './views/PriceAlertView'
 import OnboardingModal from './Trade/OnboardingModal'
+import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 const Routes = () => {
   const history = useHistory()
+  const { pathname } = useLocation()
+  const isSettingsPage = pathname === "/settings"
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   useEffect(() => {
@@ -36,10 +39,10 @@ const Routes = () => {
     logout,
     userContextLoaded,
     loadApiKeys,
+    hasSub,
     loaderVisible,
     loaderText,
   } = useContext(UserContext)
-
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
@@ -49,22 +52,30 @@ const Routes = () => {
             path="/logout"
             render={() => {
               logout()
-              return <div>Logging you out..</div>
+              return (
+                <div className="d-flex justify-content-center">
+                  <h3 className="mt-5">Logging you out..</h3>
+                </div>
+              )
             }}
           />
         )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
+        {/* {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
+          <SubscriptionModal />
+        )} */}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
+            {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
-            <Route path="/portfolio" component={Portfolio} />
+            <CacheRoute path="/portfolio" component={Portfolio} />
             <CacheRoute path="/alerts" component={PriceAlerts} />
             <CacheRoute path="/positions" component={Position} />
             <Redirect to="/trade" />
           </CacheSwitch>
         )}
-        <Route path="/login/verify2fa" component={LoginVerify2FA} />
+        {userContextLoaded && <Route path="/login/verify2fa" component={LoginVerify2FA} />}
         <Route path="/login" component={Login} />
         <Route path="/recover-password" component={RecoverPassword} />
         <Route path="/new-password" component={NewPassword} />

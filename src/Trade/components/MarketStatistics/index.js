@@ -4,96 +4,65 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import './MarketStatistics.css'
 
 function MarketStatistics() {
-  const [lastMessage, setLastMessage] = useState(null)
   const [message, setMessage] = useState(null)
-  const { selectedSymbolDetail } = useSymbolContext()
-  const symbolPair = selectedSymbolDetail.symbolpair
+  const { selectedSymbolDetail, lastMessage } = useSymbolContext()
   const baseAsset = selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail.quote_asset
+  const symbolPair = `${baseAsset}${quoteAsset}`
 
   useEffect(() => {
-    const rws = new ReconnectingWebSocket('wss://stream.binance.com:9443/stream')
-    rws.addEventListener('open', () => {
-      rws.send(JSON.stringify({
-        id: 1,
-        method: 'SUBSCRIBE',
-        params: ['!ticker@arr'],
-      }))
+    const activeMarketData = lastMessage.find((data) => {
+      return data.symbol.replace('/', '') === symbolPair
     })
-    
-    rws.addEventListener('message', (lastMessage) => {
-      setLastMessage(lastMessage)
-    })
+    const quoteWorth =
+      quoteAsset === 'USDT'
+        ? { lastPrice: 1 }
+        : lastMessage.find((data) => {
+            return data.symbol.replace('/', '') === `${quoteAsset}USDT`
+          })
 
-    return () => {
-      rws.close()
-      rws.removeEventListener('open');
-      rws.removeEventListener('message')
+    if (!activeMarketData) return
+    const {
+      lastPrice,
+      priceChange,
+      priceChangePercent,
+      highPrice,
+      lowPrice,
+      volume,
+      quoteVolume,
+    } = activeMarketData
+
+    const newMessage = {
+      lastPrice,
+      worth: lastPrice * quoteWorth?.lastPrice,
+      priceChange,
+      priceChangePercent,
+      highPrice,
+      lowPrice,
+      volume,
+      quoteVolume,
     }
-  }, [])
 
-  useEffect(() => {
-    if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-      const marketData = JSON.parse(lastMessage.data).data
-      const activeMarketData = marketData.find((data) => {
-        return data.s === symbolPair
-      })
+    let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
 
-      const quoteWorth =
-        quoteAsset === 'USDT'
-          ? { c: 1 }
-          : marketData.find((data) => {
-              return data.s === `${quoteAsset}USDT`
-            })
+    let tickSize = twoDecimalArray.includes(quoteAsset)
+      ? 2
+      : selectedSymbolDetail.tickSize > 8
+      ? 8
+      : selectedSymbolDetail.tickSize
 
-      if (activeMarketData && quoteWorth) {
-        const {
-          c: lastPrice,
-          p: priceChange,
-          P: priceChangePercent,
-          h: highPrice,
-          l: lowPrice,
-          v: totalTradedBaseAssetVolume,
-          q: totalTradedQuoteAssetVolume,
-        } = activeMarketData
+    newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
+    newMessage.worth = Number(newMessage.worth).toFixed(2)
+    newMessage.priceChange = Number(newMessage.priceChange).toFixed(tickSize)
+    newMessage.priceChangePercent = Number(
+      newMessage.priceChangePercent
+    ).toFixed(2)
+    newMessage.highPrice = Number(newMessage.highPrice).toFixed(tickSize)
+    newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(tickSize)
+    newMessage.volume = Number(newMessage.volume).toFixed(2)
+    newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
 
-        const newMessage = {
-          lastPrice,
-          worth: lastPrice * quoteWorth.c,
-          priceChange,
-          priceChangePercent,
-          highPrice,
-          lowPrice,
-          totalTradedBaseAssetVolume,
-          totalTradedQuoteAssetVolume,
-        }
-
-        newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.worth = Number(newMessage.worth).toFixed(2)
-        newMessage.priceChange = Number(newMessage.priceChange).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.priceChangePercent = Number(
-          newMessage.priceChangePercent
-        ).toFixed(2)
-        newMessage.highPrice = Number(newMessage.highPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(
-          selectedSymbolDetail.tickSize
-        )
-        newMessage.totalTradedBaseAssetVolume = Number(
-          newMessage.totalTradedBaseAssetVolume
-        ).toFixed(2)
-        newMessage.totalTradedQuoteAssetVolume = Number(
-          newMessage.totalTradedQuoteAssetVolume
-        ).toFixed(2)
-
-        setMessage(newMessage)
-      }
-    }
+    setMessage(newMessage)
   }, [lastMessage, quoteAsset, symbolPair])
 
   return (
@@ -102,39 +71,48 @@ function MarketStatistics() {
         <div className="d-flex">
           <div className="lastPriceBlock">
             <div className="marketDataLastPrice">{message.lastPrice}</div>
-            <div className="marketDataWorth">${message.worth}</div>
+            {!isNaN(message.worth) ? (
+              <div className="marketDataWorth">${message.worth}</div>
+            ) : null}
           </div>
           <div className="marketData">
-            <div className="marketDataBlock">
+            {!isNaN(message.priceChange)? (<div className="marketDataBlock">
               <div className="marketDataBlockTitle">24h Change</div>
               <div className="marketDataBlockValue">
                 {`${message.priceChange} ${message.priceChangePercent}%`}
               </div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">24h High</div>
-              <div className="marketDataBlockValue">{message.highPrice}</div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">24h Low</div>
-              <div className="marketDataBlockValue">{message.lowPrice}</div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">
-                24h Volume({baseAsset})
+            </div>): null}
+
+            {!isNaN(message.highPrice) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">24h High</div>
+                <div className="marketDataBlockValue">{message.highPrice}</div>
               </div>
-              <div className="marketDataBlockValue">
-                {message.totalTradedBaseAssetVolume}
+            ) : null}
+            {!isNaN(message.lowPrice) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">24h Low</div>
+                <div className="marketDataBlockValue">{message.lowPrice}</div>
               </div>
-            </div>
-            <div className="marketDataBlock">
-              <div className="marketDataBlockTitle">
-                24h Volume({quoteAsset})
+            ) : null}
+            {!isNaN(message.volume) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">
+                  24h Volume({baseAsset})
+                </div>
+                <div className="marketDataBlockValue">{message.volume}</div>
               </div>
-              <div className="marketDataBlockValue">
-                {message.totalTradedQuoteAssetVolume}
+            ) : null}
+            {!isNaN(message.quoteVolume) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">
+                  24h Volume({quoteAsset})
+                </div>
+                <div className="marketDataBlockValue">
+                  {message.quoteVolume}
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
       )}

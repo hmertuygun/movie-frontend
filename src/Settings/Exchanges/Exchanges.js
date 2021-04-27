@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
 import { UserContext } from '../../contexts/UserContext'
+import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { errorNotification, successNotification, infoNotification } from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
@@ -20,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const Exchanges = () => {
+  const { refreshExchanges } = useSymbolContext()
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges, activeExchange, setActiveExchange } = useContext(UserContext)
@@ -50,6 +52,7 @@ const Exchanges = () => {
       successNotification.open({ description: `API key added!` })
       analytics.logEvent('api_keys_added')
       Event('user', 'api_keys_added', 'user')
+      refreshExchanges()
     },
     onError: () => {
       errorNotification.open({ description: `Couldn't add API key. Please try again later!` })
@@ -84,6 +87,7 @@ const Exchanges = () => {
             // ignore the element that we just deleted
             let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
             if (newActiveKey) {
+              await refreshExchanges()
               await updateLastSelectedAPIKey({ ...newActiveKey })
               setActiveExchange({ ...newActiveKey, label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`, value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}` })
             }
@@ -94,6 +98,7 @@ const Exchanges = () => {
       setSelectedExchange(null)
       setIsDeletionModalVisible(false)
       successNotification.open({ description: `API key deleted!` })
+      refreshExchanges()
     },
     onError: () => {
       errorNotification.open({ description: `Couldn't delete API key. Please try again later!` })

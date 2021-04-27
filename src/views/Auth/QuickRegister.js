@@ -72,9 +72,9 @@ const QuickRegister = () => {
     <section>
       <div
         className="position-absolute h-100 top-0 left-0 zindex-100 col-lg-6 col-xl-6 zindex-100 d-none d-lg-flex flex-column justify-content-center"
-        style={{ backgroundColor: '#1652f1' }}
+        style={{ backgroundColor: '#1652f1', minHeight: '768px' }}
       >
-        <div className="row position-relative zindex-110 p-5">
+        <div className="row position-relative zindex-110 p-5 h-100">
           <div className="col-12 text-center mb-4">
             <figure className="w-100">
               <img

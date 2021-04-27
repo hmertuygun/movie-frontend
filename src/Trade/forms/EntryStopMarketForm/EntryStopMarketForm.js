@@ -39,7 +39,7 @@ const EntryStopMarketForm = () => {
     quantity: '',
     total: '',
     quantityPercentage: '',
-    price_trigger: 'p',
+    price_trigger: { value: 'p', label: 'Last' },
   })
 
   const [errors, setErrors] = useState({
@@ -360,7 +360,7 @@ const EntryStopMarketForm = () => {
         symbol,
         type: 'stop-market',
         side: 'buy',
-        price_trigger: values.price_trigger,
+        price_trigger: values.price_trigger.value,
       }
       addEntryStopMarket(payload)
     }
@@ -407,13 +407,8 @@ const EntryStopMarketForm = () => {
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
-              <PriceTriggerDropdown
-                onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected.value })
-                }
-              />
               <InlineInput
-                label="Trigger price"
+                label="Trigger Price"
                 type="text"
                 name="triggerPrice"
                 onChange={handleChange}

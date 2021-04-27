@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import ReconnectingWebSocket from 'reconnecting-websocket'
+import * as Sentry from '@sentry/browser'
+
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
@@ -8,145 +9,128 @@ import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
+import { UserContext } from '../../../contexts/UserContext'
 
 const AccordionContainer = () => {
   const { positions, isLoading } = useContext(PositionContext)
-  const { symbolDetails } = useSymbolContext()
-  const [message, setMessage] = useState([])
+  const { activeExchange } = useContext(UserContext)
+  const { symbolDetails, lastMessage, liveUpdate } = useSymbolContext()
   const [data, setData] = useState([])
-  const [socketInstance, setSocketInstance] = useState(null)
 
-  useEffect(() => {
-    const rws = new ReconnectingWebSocket(
-      'wss://stream.binance.com:9443/stream'
-    )
-    rws.addEventListener('open', () => {
-      rws.send(
-        JSON.stringify({
-          id: 1,
-          method: 'SUBSCRIBE',
-          params: ['!ticker@arr'],
-        })
-      )
-    })
-
-    rws.addEventListener('message', (lastMessage) => {
-      if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-        const marketData = JSON.parse(lastMessage.data).data
-        setMessage(marketData)
-      }
-    })
-    setSocketInstance(rws)
-
-    return () => {
-      rws.close()
-      rws.removeEventListener('open')
-      rws.removeEventListener('message')
-      setSocketInstance(null)
-    }
-  }, [])
   useEffect(() => {
     const positionsData = []
-    for (const position of positions) {
-      const { amount, dateOpened, entry, orders, symbol } = position
-      const quoteAsset = symbol.split('-')?.[1]
-      const currentPrice = scientificToDecimal(
-        Number(
-          message.find((message) => message.s === symbol.replace('-', ''))?.c
-        )
-      )
-      const selectedSymbol = symbolDetails[`BINANCE:${symbol.replace('-', '')}`]
-
-      if (!currentPrice || !selectedSymbol) return
-      let ROE = ''
-      let PNL = ''
-
-      let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
-      if (entry > currentPrice) {
-        ROE =
-          '-' +
-          scientificToDecimal(
-            (((entry - currentPrice) * 100) / entry).toFixed(2)
+    try {
+      for (const position of positions) {
+        const { amount, dateOpened, entry, orders, symbol } = position
+        const quoteAsset = symbol.split('-')?.[1]
+        const currentPrice = scientificToDecimal(
+          Number(
+            lastMessage.find(
+              (lastMessage) => lastMessage.symbol === symbol.replace('-', '')
+            )?.lastPrice
           )
-        const PNLValue = (entry - currentPrice) * amount
-        if (twoDecimalArray.includes(quoteAsset)) {
-          PNL =
-            '-' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
-        } else {
-          PNL =
+        )
+
+        const { exchange } = activeExchange
+        const selectedSymbol =
+          symbolDetails[`${exchange.toUpperCase()}:${symbol.replace('-', '/')}`]
+
+        if (!currentPrice || !selectedSymbol) return
+        let ROE = ''
+        let PNL = ''
+
+        let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
+        if (entry > currentPrice) {
+          ROE =
             '-' +
-            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
-            ` ${quoteAsset}`
-        }
-      } else {
-        ROE =
-          '+' +
-          scientificToDecimal(
-            (((currentPrice - entry) * 100) / entry).toFixed(2)
-          )
-        const PNLValue = (currentPrice - entry) * amount
-        if (twoDecimalArray.includes(quoteAsset)) {
-          PNL =
-            '+' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
+            scientificToDecimal(
+              (((entry - currentPrice) * 100) / entry).toFixed(2)
+            )
+          const PNLValue = (entry - currentPrice) * amount
+          if (twoDecimalArray.includes(quoteAsset)) {
+            PNL =
+              '-' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
+          } else {
+            PNL =
+              '-' +
+              scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+              ` ${quoteAsset}`
+          }
         } else {
-          PNL =
+          ROE =
             '+' +
-            scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
-            ` ${quoteAsset}`
+            scientificToDecimal(
+              (((currentPrice - entry) * 100) / entry).toFixed(2)
+            )
+          const PNLValue = (currentPrice - entry) * amount
+          if (twoDecimalArray.includes(quoteAsset)) {
+            PNL =
+              '+' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
+          } else {
+            PNL =
+              '+' +
+              scientificToDecimal(PNLValue.toFixed(selectedSymbol?.tickSize)) +
+              ` ${quoteAsset}`
+          }
         }
-      }
 
-      let modifiedOrders = orders.orders.map((order) => {
+        let modifiedOrders = orders.orders.map((order) => {
+          if (twoDecimalArray.includes(quoteAsset)) {
+            return {
+              ...order,
+              averageFillPrice: scientificToDecimal(
+                order.averageFillPrice.toFixed(2)
+              ),
+            }
+          } else {
+            return {
+              ...order,
+              averageFillPrice: scientificToDecimal(
+                order.averageFillPrice.toFixed(selectedSymbol?.tickSize)
+              ),
+            }
+          }
+        })
+
+        let positionValue = currentPrice * amount
+        if (quoteAsset !== 'USDT') {
+          const quotePrice = Number(
+            lastMessage.find(
+              (lastMessage) => lastMessage.symbol === `${quoteAsset}USDT`
+            )?.lastPrice
+          )
+          positionValue *= quotePrice
+        }
+
+        let entryPrice = null
         if (twoDecimalArray.includes(quoteAsset)) {
-          return {
-            ...order,
-            averageFillPrice: scientificToDecimal(
-              order.averageFillPrice.toFixed(2)
-            ),
-          }
+          entryPrice = scientificToDecimal(Number(entry.toFixed(2)))
         } else {
-          return {
-            ...order,
-            averageFillPrice: scientificToDecimal(
-              order.averageFillPrice.toFixed(selectedSymbol?.tickSize)
-            ),
-          }
+          entryPrice = scientificToDecimal(
+            Number(entry.toFixed(selectedSymbol?.tickSize))
+          )
         }
-      })
 
-      let positionValue = currentPrice * amount
-      if (quoteAsset !== 'USDT') {
-        const quotePrice = Number(
-          message.find((message) => message.s === `${quoteAsset}USDT`)?.c
-        )
-        positionValue *= quotePrice
+        const modifiedData = {
+          market: symbol,
+          ROE,
+          PNL,
+          entryPrice,
+          currentPrice,
+          units: amount,
+          date: dateOpened,
+          orders: modifiedOrders,
+          position: positionValue,
+        }
+        positionsData.push(modifiedData)
       }
-
-      let entryPrice = null
-      if (twoDecimalArray.includes(quoteAsset)) {
-        entryPrice = scientificToDecimal(Number(entry.toFixed(2)))
-      } else {
-        entryPrice = scientificToDecimal(
-          Number(entry.toFixed(selectedSymbol?.tickSize))
-        )
-      }
-
-      const modifiedData = {
-        market: symbol,
-        ROE,
-        PNL,
-        entryPrice,
-        currentPrice,
-        units: amount,
-        date: dateOpened,
-        orders: modifiedOrders,
-        position: positionValue,
-      }
-      positionsData.push(modifiedData)
+    } catch (error) {
+      Sentry.captureException(error)
+      throw new Error('Error occured while processing positions')
     }
 
     setData(positionsData)
-  }, [positions, message, symbolDetails])
+  }, [positions, lastMessage, symbolDetails, activeExchange])
 
   const { items, requestSort } = useSortableData(data)
 
@@ -160,10 +144,7 @@ const AccordionContainer = () => {
       style={{ minHeight: 'calc(100vh - 71px)' }}
     >
       <div className="container" style={{ paddingTop: '48px' }}>
-        <AccordionHeader
-          requestSort={requestSort}
-          liveUpdate={socketInstance && socketInstance.readyState === 1}
-        />
+        <AccordionHeader requestSort={requestSort} liveUpdate={liveUpdate} />
 
         <div className="flex-wrap mx-0 row align-items-center flex-lg-nowrap pr-md-6 d-none d-lg-block">
           <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap font-weight-bold">

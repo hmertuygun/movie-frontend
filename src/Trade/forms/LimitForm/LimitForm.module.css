@@ -22,6 +22,37 @@
   margin-bottom: 1rem;
 }
 
+.CallbackRateInput {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.CallbackRateBtn {
+  display: flex;
+  align-items: center;
+  justify-items: right;
+  text-align: right;
+  padding: 1px 2px;
+  margin-left: 5px;
+  font-size: 14px;
+  line-height: 28px;
+  width: 36px;
+  height: 32px;
+  background: var(--input-default-background);
+  border: 1px solid var(--input-default-border);
+  border-radius: 0.375rem;
+  color: var(--input-default-color);
+}
+
+.CallbackRateBtn span {
+  font-size: 14px;
+  line-height: 28px;
+  padding-left: 4px;
+  color: var(--label-default-color);
+}
+
 .InputDropdownContainer {
   margin-bottom: 1rem;
   display: flex;

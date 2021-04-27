@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { binanceSymbolPrice } from '../../../api/api'
+import ccxt from 'ccxt'
 
 import {
   addPrecisionToNumber,
@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 
 import { InlineInput, Button } from '../../../components'
 
@@ -36,6 +37,8 @@ const MarketForm = () => {
     selectedSymbol,
     refreshBalance,
   } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
+
   const { addMarketEntry } = useContext(TradeContext)
 
   const [values, setValues] = useState({
@@ -312,19 +315,50 @@ const MarketForm = () => {
         setBtnProc(true)
         setErrors({ price: '', quantity: '', total: '' })
         const symbol = selectedSymbolDetail['symbolpair']
-        const response = await binanceSymbolPrice(symbol)
-        setSelectedSymbolLastPrice(response?.price)
+
+        const { exchange } = activeExchange
+
+        let price = selectedSymbolLastPrice
+        switch (exchange) {
+          case 'binance': {
+            try {
+              const binance = new ccxt.binance()
+              const response = await binance.fetchTicker(symbol)
+              price = response.last
+            } catch (error) {
+              console.log(error)
+            }
+            break
+          }
+          case 'ftx': {
+            try {
+              const ftx = new ccxt.ftx({
+                proxy: 'https://nodejs-cors.herokuapp.com/',
+              })
+              const response = await ftx.fetchTicker(symbol)
+              price = response.last
+            } catch (error) {
+              console.log(error)
+            }
+            break
+          }
+
+          default:
+            break
+        }
+
+        setSelectedSymbolLastPrice(price)
         setBtnProc(false)
         const {
           quantityWithPrecision,
         } = calculateTotalAndQuantityFromSliderPercentage(
           values.quantityPercentage,
-          response?.price
+          price
         )
         setValues({ ...values, quantity: quantityWithPrecision })
 
         const payload = {
-          price: response?.price,
+          price: price,
           quantity: convertCommaNumberToDot(quantityWithPrecision),
           balance: selectedSymbolBalance,
           symbol,

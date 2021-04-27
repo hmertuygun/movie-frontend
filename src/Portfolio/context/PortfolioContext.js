@@ -32,24 +32,10 @@ const PortfolioCTXProvider = ({ children }) => {
   const { activeExchange } = useContext(UserContext)
 
   const fetchData = useCallback(async () => {
-    if (user) {
-      setLoading(true)
-      const cacheTicker = localStorage.getItem(
-        `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-      )
-
-      if (cacheTicker) {
-        const parsedTicker = JSON.parse(cacheTicker)
-        setTicker(parsedTicker)
-        setBalance(parsedTicker.BottomTable)
-        setChart(parsedTicker.Distribution)
-        setEstimate(parsedTicker.EstValue)
-        setLoading(false)
-      } else {
-        refreshData()
-      }
+    if (user && activeExchange.exchange) {
+      refreshData()
     }
-  }, [user])
+  }, [user, activeExchange])
 
   const refreshData = async () => {
     try {
@@ -61,10 +47,7 @@ const PortfolioCTXProvider = ({ children }) => {
         headers: await getHeaders(token),
         method: 'GET',
       })
-      localStorage.setItem(
-        `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`,
-        JSON.stringify(exchanges.data)
-      )
+      
       setTicker(exchanges.data)
       setBalance(exchanges.data.BottomTable)
       setChart(exchanges.data.Distribution)

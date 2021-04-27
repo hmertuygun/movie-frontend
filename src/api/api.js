@@ -21,8 +21,8 @@ async function getHeaders(token) {
   }
 }
 
-export async function binanceSymbolPrice(symbol) {
-  const result = await axios(`${binanceAPI}v3/ticker/price?symbol=${symbol}`, {
+export async function get24hrTickerPrice() {
+  const result = await axios(`${binanceAPI}v3/ticker/24hr`, {
     method: 'GET',
   })
   return result.data
@@ -114,7 +114,7 @@ export async function validateUser() {
 
 // make sure symbol list can be pulled
 export async function getExchanges() {
-  const apiUrl = process.env.REACT_APP_API + 'exchange'
+  const apiUrl = process.env.REACT_APP_API_V2 + 'exchange'
   const token = await firebase.auth().currentUser.getIdToken()
   const exchanges = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -124,8 +124,9 @@ export async function getExchanges() {
 }
 
 export async function getBalance({ symbol, apiKeyName, exchange }) {
-  const apiUrl = `${process.env.REACT_APP_API_V2
-    }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
+  const apiUrl = `${
+    process.env.REACT_APP_API_V2
+  }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -136,14 +137,14 @@ export async function getBalance({ symbol, apiKeyName, exchange }) {
   return response
 }
 
-export async function getLastPrice(symbol) {
+export async function getLastPrice(symbol, exchange) {
   const apiUrl =
-    process.env.REACT_APP_API + 'lastprice/' + symbol + '?symbol=' + symbol
+    `${process.env.REACT_APP_API_V2}lastprice?symbol=${symbol}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'GET',
+    method: 'POST',
   })
 
   return response
@@ -303,9 +304,21 @@ export async function verifyGoogleAuth2FA(auth_answer) {
   return response
 }
 
-export async function getOpenOrders({ timestamp, limit, trade_id, apiKeyName, exchange }) {
-  const apiUrl = `${process.env.REACT_APP_API_V2}orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${limit || 50}
-                  ${timestamp ? `&timestamp=${timestamp}` : ''}${trade_id ? `&trade_id=${trade_id}` : ''}`
+export async function getOpenOrders({
+  timestamp,
+  limit,
+  trade_id,
+  apiKeyName,
+  exchange,
+}) {
+  const apiUrl = `${
+    process.env.REACT_APP_API_V2
+  }orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${
+    limit || 50
+  }
+                  ${timestamp ? `&timestamp=${timestamp}` : ''}${
+    trade_id ? `&trade_id=${trade_id}` : ''
+  }`
 
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
@@ -315,7 +328,12 @@ export async function getOpenOrders({ timestamp, limit, trade_id, apiKeyName, ex
   return openOrders.data
 }
 
-export async function cancelTradeOrder({ trade_id, symbol, apiKeyName, exchange }) {
+export async function cancelTradeOrder({
+  trade_id,
+  symbol,
+  apiKeyName,
+  exchange,
+}) {
   const apiUrl = `${process.env.REACT_APP_API_V2}trade/cancel?exchange=${exchange}&apiKeyName=${apiKeyName}`
   const token = await firebase.auth().currentUser.getIdToken()
   const cancelTradeOrderResp = await axios(apiUrl, {
@@ -323,7 +341,7 @@ export async function cancelTradeOrder({ trade_id, symbol, apiKeyName, exchange 
     method: 'POST',
     data: {
       trade_id,
-      symbol
+      symbol,
     },
   })
   return cancelTradeOrderResp
@@ -367,7 +385,8 @@ export async function loadNotificationChannels() {
 }
 
 export async function setTelegramNotification(enable) {
-  const apiUrl = process.env.REACT_APP_API + `setTelegramNotification?enable=${enable}`
+  const apiUrl =
+    process.env.REACT_APP_API + `setTelegramNotification?enable=${enable}`
 
   const token = await firebase.auth().currentUser.getIdToken()
   const setTelegramNotification = await axios(apiUrl, {
@@ -378,7 +397,8 @@ export async function setTelegramNotification(enable) {
 }
 
 export async function setEmailNotification(enable) {
-  const apiUrl = process.env.REACT_APP_API + `setEmailNotification?enable=${enable}`
+  const apiUrl =
+    process.env.REACT_APP_API + `setEmailNotification?enable=${enable}`
 
   const token = await firebase.auth().currentUser.getIdToken()
   const setEmailNotification = await axios(apiUrl, {
@@ -411,7 +431,8 @@ export async function disconnectTelegram() {
 }
 
 export async function getChartDrawing(name) {
-  const apiUrl = process.env.REACT_APP_API + `chart/drawing?drawing_name=${name}`
+  const apiUrl =
+    process.env.REACT_APP_API + `chart/drawing?drawing_name=${name}`
   const token = await firebase.auth().currentUser.getIdToken()
   const chartDrawingData = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -421,11 +442,12 @@ export async function getChartDrawing(name) {
 }
 
 export async function deleteChartDrawing(name) {
-  const apiUrl = process.env.REACT_APP_API + `chart/drawing/drawing_name=${name}`
+  const apiUrl =
+    process.env.REACT_APP_API + `chart/drawing/drawing_name=${name}`
   const token = await firebase.auth().currentUser.getIdToken()
   const chartDrawingData = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'DELETE'
+    method: 'DELETE',
   })
   return chartDrawingData.data
 }
@@ -437,13 +459,15 @@ export async function saveChartDrawing(name, image) {
     method: 'POST',
     data: {
       name,
-      image
+      image,
     },
   })
   return chartDrawingData.data
 }
 export async function storeNotificationToken(fcmToken) {
-  const apiUrl = process.env.REACT_APP_API + `notification/token?notification_token=${fcmToken}`
+  const apiUrl =
+    process.env.REACT_APP_API +
+    `notification/token?notification_token=${fcmToken}`
   const token = await firebase.auth().currentUser.getIdToken()
   const notifData = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -481,10 +505,67 @@ export async function saveChartIntervals(cIntervals) {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { intervals: cIntervals }
+    data: { intervals: cIntervals },
   })
 
   return response?.data?.intervals || []
+}
+export async function createUserSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace(
+    'usercomp',
+    'subscriptions'
+  )}users`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return response?.data
+}
+export async function buySubscription(payment_id) {
+  const apiUrl = `${process.env.REACT_APP_API.replace(
+    'usercomp',
+    'subscriptions'
+  )}users/payment_status`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data: { id: payment_id },
+  })
+  return response?.data
+}
+export async function checkSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace(
+    'usercomp',
+    'subscriptions'
+  )}users/payment_status`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  }).catch((error) => {
+    return error?.response
+  })
+
+  return response?.data
+}
+export async function deleteSubscription() {
+  const apiUrl = `${process.env.REACT_APP_API.replace(
+    'usercomp',
+    'subscriptions'
+  )}users/payment_method`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE',
+  })
+
+  return response?.data
 }
 export async function createPriceAlert(data) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/create`
@@ -493,7 +574,7 @@ export async function createPriceAlert(data) {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data
+    data,
   })
 
   return response?.data
@@ -505,7 +586,7 @@ export async function updatePriceAlert(id, data) {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data
+    data,
   })
 
   return response?.data
@@ -516,7 +597,7 @@ export async function getPriceAlerts() {
 
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'GET'
+    method: 'GET',
   })
 
   return response?.data
@@ -527,7 +608,7 @@ export async function deletePriceAlert(id) {
 
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'DELETE'
+    method: 'DELETE',
   })
 
   return response?.data
@@ -538,7 +619,7 @@ export async function reactivatePriceAlert(id) {
 
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
-    method: 'POST'
+    method: 'POST',
   })
 
   return response?.data

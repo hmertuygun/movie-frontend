@@ -1,18 +1,22 @@
 import React, { Fragment } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams, useLocation } from 'react-router-dom'
 import { LogOut } from 'react-feather'
 
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
 import Notifications from '../Settings/Notifications'
+import Subscriptions from '../Settings/Subscription'
 
 const Settings = () => {
+  const { hash } = useLocation()
+  // const tabIndex = hash === "#subscription" ? 3 : 0
+  const tabIndex = 0
   return (
     <Fragment>
       <section
         className="pt-5 bg-section-secondary"
-        style={{ minHeight: 'calc(100vh - 71px)' }}
+        style={{ minHeight: 'calc(100vh - 72px)' }}
       >
         <div className="container">
           <div className="row justify-content-center">
@@ -34,11 +38,13 @@ const Settings = () => {
                 <div className="col-12">
                   <TabNavigator
                     labelArray={['Exchanges', 'Security', 'Notifications']}
-                    tabIndex={1}
+                    index={tabIndex}
+                    hadDropDown={false}
                   >
                     <Exchanges />
                     <Security />
                     <Notifications />
+                    {/* <Subscriptions /> */}
                   </TabNavigator>
                 </div>
               </div>

@@ -1,25 +1,27 @@
-import React, { useState, useEffect, useContext, Component } from 'react'
-import binanceAPI from '../../../api/binanceAPI'
+import React, { Component } from 'react'
+import binanceDataFeed from './binanceDataFeed'
+import ftxDataFeed from './ftxDataFeed'
+import dataFeed from './dataFeed'
+import precisionRound from '../../../helpers/precisionRound'
 import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
-import { UserContext } from '../../../contexts/UserContext'
+
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, chartReady }) {
     super()
-    this.bfAPI = new binanceAPI({ debug: false })
+    //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
+    this.dF = new dataFeed({ debug: false, exchange, marketSymbols }) // exchangeDataFeeds[exchange]
     this.widgetOptions = {
       container_id: "chart_container",
-      datafeed: this.bfAPI,
+      datafeed: this.dF,
       library_path: "/scripts/charting_library/",
       debug: false,
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      // save_chart_properties_to_local_storage: "off",
-      //interval: '1D', // '1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '3D', '1W', '1M'
       favorites: {
         intervals: intervals,
       },
@@ -28,6 +30,8 @@ export default class TradingViewChart extends Component {
     }
     this.tradingViewWidget = null
     this.chartObject = null
+    this.orderLinesDrawn = []
+    this.orderLineCount = 0
     this.state = {
       isChartReady: false,
       saveCount: 0,
@@ -44,10 +48,38 @@ export default class TradingViewChart extends Component {
 
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
-      this.getChartDrawingFromServer()
       this.chartObject = this.tradingViewWidget.activeChart()
+      this.onIntervalSelect()
+      this.getChartDrawingFromServer()
       this.chartEvent("drawing_event")
     })
+  }
+
+  onIntervalSelect = () => {
+    if (!this.chartObject) return
+    try {
+      this.chartObject.onIntervalChanged().subscribe(null, (interval, timeframeObj) => {
+        if (this.props.exchange === "binance") {
+          localStorage.setItem('selectedIntervalBinance', interval)
+        }
+        else if (this.props.exchange === "ftx") {
+          localStorage.setItem('selectedIntervalFtx', interval)
+        }
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  setLastSelectedInterval = () => {
+    if (!this.chartObject) return
+    if (this.props.exchange === "binance") {
+      this.chartObject.setResolution(localStorage.getItem('selectedIntervalBinance') || '1D')
+    }
+    else if (this.props.exchange === "ftx") {
+      this.chartObject.setResolution(localStorage.getItem('selectedIntervalFtx') || '1D')
+    }
   }
 
   chartEvent = (event) => {
@@ -65,16 +97,115 @@ export default class TradingViewChart extends Component {
   }
 
   changeSymbol = (newSymbol) => {
-    if (!newSymbol || !this.tradingViewWidget) return
+    if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
-      const symbObj = this.tradingViewWidget.symbolInterval()
-      if (!symbObj) return
-      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
-      //this.chartObject.setSymbol(newSymbol)
+      this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
       //console.log(e)
     }
+  }
+
+  drawOpenOrdersChartLines = async (openOrders) => {
+    if (!this.chartObject || !this.state.isChartReady || !openOrders) return
+    console.log(`Open Orders Received: `, openOrders)
+    console.log(`Orders Drawn: `, this.orderLinesDrawn)
+    const PlacedOrderTooltip = 'Order is on the exchange order book.'
+    const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
+    try {
+      const blue = "#008aff"
+      const green = "#3cb690"
+      const red = '#f25767'
+      if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
+      this.orderLineCount++
+      for (let i = 0; i < this.orderLinesDrawn.length; i++) {
+        const { trade_id, line_id } = this.orderLinesDrawn[i]
+        let fData = openOrders.find(item => item.trade_id === trade_id)
+        if (!fData) this.chartObject.setEntityVisibility(line_id, false)
+      }
+      openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      for (let i = 0; i < openOrders.length; i++) {
+        const { trade_id, orders, type } = openOrders[i]
+        const isFullTrade = type.includes("Full")
+        for (let j = 0; j < orders.length; j++) {
+          const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
+          const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
+          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
+          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
+          if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
+          let toolTipText
+          let orderPrice
+          if (isFullTrade) {
+            if (symbol.toLowerCase() === "entry") {
+              if (status.toLowerCase() !== "pending") {
+                toolTipText = PlacedOrderTooltip
+              }
+              else {
+                let toolTip = ''
+                for (let k = 1; k < orders.length; k++) {
+                  // Stop-loss, Target 1, Stop-market in symbol
+                  let symbolKey = orders[k].symbol
+                  symbolKey = symbolKey.replace('-', ' ')
+                  let splKey = symbolKey.split(" ")
+                  toolTip = toolTip + splKey[0].charAt(0).toUpperCase() + splKey[1].charAt(0).toUpperCase() + ' ' + orders[k].trigger + ', '
+                }
+                toolTipText = toolTip
+              }
+            }
+            else {
+              toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+            }
+            if (trigger && trigger.length) { // price === "Market"
+              if (showOnlyEntryOrder) {
+                orderPrice = trigger
+              }
+              else {
+                if (trigger.includes(">=")) {
+                  let split = trigger.split(">= ")
+                  orderPrice = split[1]
+                }
+                else if (trigger.includes("<=")) {
+                  let split = trigger.split("<= ")
+                  orderPrice = split[1]
+                }
+              }
+            }
+            else {
+              orderPrice = price
+            }
+          }
+          else {
+            orderPrice = price === "Market" ? trigger : price
+            toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+          }
+
+          let entity = this.chartObject.createOrderLine()
+            .setTooltip(toolTipText)
+            .setLineLength(60)
+            .setExtendLeft(false)
+            .setLineColor(orderColor)
+            .setBodyBorderColor(orderColor)
+            .setBodyTextColor(orderColor)
+            .setQuantityBackgroundColor(orderColor)
+            .setQuantityBorderColor(orderColor)
+            // .setQuantityTextColor("rgb(255,255,255)")
+            .setText(orderText)
+            .setQuantity(`${total} ${quote_asset}`)
+            .setPrice(orderPrice)
+          this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+          if (showOnlyEntryOrder) break
+        }
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  deleteOpenOrderLine = (trade_id) => {
+    if (!this.chartObject || !this.state.isChartReady || !trade_id) return
+    let fData = this.orderLinesDrawn.find(item => item.trade_id === trade_id)
+    if (fData && fData.line_id) this.chartObject.setEntityVisibility(fData.line_id, false)
   }
 
   removeAllDrawings = () => {
@@ -95,6 +226,7 @@ export default class TradingViewChart extends Component {
 
   getChartDrawingFromServer = async () => {
     try {
+      if (!this.tradingViewWidget) return
       const cData = await getChartDrawing(this.state.email)
       if (!cData) {
         this.chartEvent("study_event")
@@ -105,6 +237,7 @@ export default class TradingViewChart extends Component {
         const prep = { ...obj.charts[0], panes: pData }
         this.tradingViewWidget.load(prep)
       })
+      this.setLastSelectedInterval()
     }
     catch (e) {
       console.log(e)
@@ -114,6 +247,9 @@ export default class TradingViewChart extends Component {
         isChartReady: true
       })
       this.chartEvent("study_event")
+      setTimeout(() => {
+        this.props.chartReady(true)
+      }, 2500)
     }
   }
 
@@ -124,8 +260,10 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    console.log(`In Update`)
-    this.changeSymbol(this.state.symbol)
+    //console.log(`In Update`)
+    this.changeSymbol(this.props.symbol)
+    this.drawOpenOrdersChartLines(this.props.openOrders)
+    // this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
   componentWillUnmount() {
@@ -134,7 +272,10 @@ export default class TradingViewChart extends Component {
   render() {
     const { isChartReady } = this.state
     return (
-      <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+      <div id="chart_outer_container" className="d-flex justify-content-center align-items-center" style={{ width: "100%", height: "100%" }}>
+        <span className="spinner-border spinner-border-sm text-primary" style={{ display: isChartReady ? 'none' : 'block' }} />
+        <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+      </div>
     )
   }
 }

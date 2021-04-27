@@ -5,7 +5,6 @@ import { useMediaQuery } from 'react-responsive'
 import { firebase } from '../firebase/firebase'
 import TradePanel from './TradePanel'
 import TradeChart from './TradeChart'
-import { SymbolContextProvider } from './context/SymbolContext'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
@@ -13,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MarketStatistics from './components/MarketStatistics'
 import './TradeContainer.css'
 import TradeOrders from './components/TradeOrders/TradeOrders'
-
+import Modal from '../components/Modal/Modal'
 const db = firebase.firestore()
 
 const registerResizeObserver = (cb, elem) => {
@@ -78,7 +77,7 @@ const TradeContainer = () => {
   }
 
   return (
-    <SymbolContextProvider>
+    <>
       {!isMobile ? (
         <>
           <section className="TradeView-Panel">
@@ -136,7 +135,7 @@ const TradeContainer = () => {
           </section>
         </section>
       )}
-    </SymbolContextProvider>
+    </>
   )
 }
 

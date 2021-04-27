@@ -1,6 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react'
-import PositionCTXProvider from '../Position/context/PositionContext'
-import { SymbolContextProvider } from '../Trade/context/SymbolContext'
 import AccordionContainer from '../Position/components/Accordion/AccordionContainer'
 import { UserContext } from '../contexts/UserContext'
 import precisionRound from '../helpers/precisionRound'
@@ -16,7 +14,7 @@ const Position = () => {
   const ProgressBar = (
     <div className="progress-wrapper" style={{ maxWidth: '1200px', margin: '48px auto' }}>
       <span className="progress-label text-muted">
-        Processing Order History..
+        Processing positions on first launch..
       </span>
       <span className="progress-percentage text-muted">{`${orderHistoryProgressUC !== '100.00' ? orderHistoryProgressUC : orderHistoryProgressPV}%`}</span>
       <div className="mt-2 progress" style={{ height: `8px` }}>
@@ -77,11 +75,9 @@ const Position = () => {
   }
 
   return (
-    <PositionCTXProvider>
-      <SymbolContextProvider>
-        {toRender()}
-      </SymbolContextProvider>
-    </PositionCTXProvider>
+    <>
+      {toRender()}
+    </>
   )
 }
 

@@ -8,12 +8,15 @@ import {
   verifyGoogleAuth2FA,
   getUserExchanges,
   updateLastSelectedAPIKey,
-  storeNotificationToken
+  storeNotificationToken,
+  checkSubscription,
+  createUserSubscription
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
+
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
   const localStorageRemember = localStorage.getItem('remember')
@@ -38,6 +41,10 @@ const UserContextProvider = ({ children }) => {
   const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
+  const [hasSub, setHasSub] = useState(false)
+  const [subInfo, setSubInfo] = useState(null)
+  const [openOrdersUC, setOpenOrdersUC] = useState([])
+  const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
@@ -101,11 +108,13 @@ const UserContextProvider = ({ children }) => {
       const np = await Notification.requestPermission() // "granted", "denied", "default"
       if (np === "denied") return
       const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
+      console.log(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
-        console.log(payload)
+        console.log(`Received msg in UC onMessage`)
         const { data } = payload
-        let apiKey = data.message_3
+        let apiKey = data?.message_3
+        if (!apiKey) return
         apiKey = apiKey.split(":")[1]
         const description = (
           <>
@@ -117,7 +126,7 @@ const UserContextProvider = ({ children }) => {
         successNotification.open({ message: data.title, duration: 3, description })
       })
       navigator.serviceWorker.addEventListener("message", (message) => {
-        //console.log(message)
+        console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
     }
     catch (e) {
@@ -126,12 +135,28 @@ const UserContextProvider = ({ children }) => {
   }
 
   const getUserExchangesAfterFBInit = () => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const accValues = ["active", "trialing"]
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         // User is signed in.
+        let status
         setUserData(user)
+        try {
+          let response = await checkSubscription()
+          if (response?.status === "error" && response?.message === "User not found") {
+            response = await createUserSubscription()
+          }
+          setSubInfo(response)
+          if (response && Object.keys(response).length) {
+            status = response.status
+            setHasSub(new Date(response.current_period_end) > new Date())
+          }
+        }
+        catch (e) {
+          console.log(e)
+        }
         getExchanges()
-        if (firebase.messaging.isSupported()) {
+        if (firebase.messaging.isSupported() && accValues.includes(status)) {
           FCMSubscription()
         }
       } else {
@@ -256,10 +281,15 @@ const UserContextProvider = ({ children }) => {
 
   // LOGOUT
   function logout() {
-    localStorage.clear()
-    sessionStorage.clear()
-    setState({ user: null, has2FADetails: null, is2FAVerified: false })
-    return true
+    firebase.auth().signOut()
+      .then(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+        window.location = window.origin + '/login'
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   }
 
   // REGISTER NEW USER
@@ -342,8 +372,16 @@ const UserContextProvider = ({ children }) => {
         rememberCheck,
         setRememberCheck,
         devENV,
+        hasSub,
+        subInfo,
+        setSubInfo,
+        setHasSub,
         orderHistoryProgressUC,
-        setOrderHistoryProgressUC
+        setOrderHistoryProgressUC,
+        openOrdersUC,
+        setOpenOrdersUC,
+        delOpenOrders,
+        setDelOpenOrders
       }}
     >
       {children}
