@@ -13,7 +13,7 @@ steps:
   - name: 'ubuntu'
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
   - name: 'ubuntu'
-    args: ['mv', 'public/maintenance.html', 'public/index.html']
+    args: ['mv', 'public/maintainence.html', 'public/index.html']
   - name: node:12.10.0
     entrypoint: yarn
     args: ['install']
