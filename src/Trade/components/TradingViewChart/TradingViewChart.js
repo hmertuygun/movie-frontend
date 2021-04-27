@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import binanceDataFeed from './binanceDataFeed'
 import ftxDataFeed from './ftxDataFeed'
 import dataFeed from './dataFeed'
+import precisionRound from '../../../helpers/precisionRound'
 import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
 
 const getLocalLanguage = () => {
@@ -48,7 +49,6 @@ export default class TradingViewChart extends Component {
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
       this.chartObject = this.tradingViewWidget.activeChart()
-      this.onIntervalSelect()
       this.getChartDrawingFromServer()
       this.chartEvent("drawing_event")
     })
@@ -106,9 +106,11 @@ export default class TradingViewChart extends Component {
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
-    if (!this.chartObject || !this.state.isChartReady) return
-    // console.log(`Open Orders Received: `, openOrders)
-    // console.log(`Orders Drawn: `, this.orderLinesDrawn)
+    if (!this.chartObject || !this.state.isChartReady || !openOrders) return
+    console.log(`Open Orders Received: `, openOrders)
+    console.log(`Orders Drawn: `, this.orderLinesDrawn)
+    const PlacedOrderTooltip = 'Order is on the exchange order book.'
+    const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
     try {
       const blue = "#008aff"
       const green = "#3cb690"
@@ -129,10 +131,30 @@ export default class TradingViewChart extends Component {
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          // ? true : symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending" ? false : false
+          if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
+          let toolTipText
           let orderPrice
           if (isFullTrade) {
-            if (price === "Market") {
+            if (symbol.toLowerCase() === "entry") {
+              if (status.toLowerCase() !== "pending") {
+                toolTipText = PlacedOrderTooltip
+              }
+              else {
+                let toolTip = ''
+                for (let k = 1; k < orders.length; k++) {
+                  // Stop-loss, Target 1, Stop-market in symbol
+                  let symbolKey = orders[k].symbol
+                  symbolKey = symbolKey.replace('-', ' ')
+                  let splKey = symbolKey.split(" ")
+                  toolTip = toolTip + splKey[0].charAt(0).toUpperCase() + splKey[1].charAt(0).toUpperCase() + ' ' + orders[k].trigger + ', '
+                }
+                toolTipText = toolTip
+              }
+            }
+            else {
+              toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+            }
+            if (trigger && trigger.length) { // price === "Market"
               if (showOnlyEntryOrder) {
                 orderPrice = trigger
               }
@@ -153,10 +175,11 @@ export default class TradingViewChart extends Component {
           }
           else {
             orderPrice = price === "Market" ? trigger : price
+            toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
           }
 
           let entity = this.chartObject.createOrderLine()
-            .setTooltip(`${type} order ${status}`)
+            .setTooltip(toolTipText)
             .setLineLength(60)
             .setExtendLeft(false)
             .setLineColor(orderColor)
@@ -213,12 +236,13 @@ export default class TradingViewChart extends Component {
         const prep = { ...obj.charts[0], panes: pData }
         this.tradingViewWidget.load(prep)
       })
-      this.setLastSelectedInterval()
     }
     catch (e) {
       console.log(e)
     }
     finally {
+      this.setLastSelectedInterval()
+      this.onIntervalSelect()
       this.setState({
         isChartReady: true
       })

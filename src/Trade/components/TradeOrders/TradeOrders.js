@@ -4,6 +4,8 @@ import { useMediaQuery } from 'react-responsive';
 
 import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
+import { PositionContext } from '../../../Position/context/PositionContext'
+import { PortfolioContext } from '../../../Portfolio/context/PortfolioContext'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
@@ -35,6 +37,8 @@ const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
   const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
+  const { isLoading: isPositionLoading } = useContext(PositionContext);
+  const { loading: isPortfolioLoading } = useContext(PortfolioContext);
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtn, setLoadBtn] = useState(false)
@@ -249,10 +253,22 @@ const TradeOrders = () => {
   }, [activeExchange])
 
   useEffect(() => {
-    if (!isLoadingBalance && !isOpenOrderFetching && !isOrderHistoryFetching) {
+    if (
+      !isLoadingBalance &&
+      !isOpenOrderFetching &&
+      !isOrderHistoryFetching &&
+      !isPositionLoading &&
+      !isPortfolioLoading
+    ) {
       setLoaderVisibility(false)
     }
-  }, [isLoadingBalance, isOpenOrderFetching, isOrderHistoryFetching])
+  }, [
+    isLoadingBalance,
+    isOpenOrderFetching,
+    isOrderHistoryFetching,
+    isPositionLoading,
+    isPortfolioLoading,
+  ])
 
   useEffect(() => {
     setOpenOrdersUC(openOrderData)

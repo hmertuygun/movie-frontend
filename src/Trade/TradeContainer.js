@@ -10,9 +10,11 @@ import { UserContext } from '../contexts/UserContext'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MarketStatistics from './components/MarketStatistics'
-import './TradeContainer.css'
+import { getNotices, dismissNotice } from '../api/api'
+import { successNotification, errorNotification } from '../components/Notifications'
 import TradeOrders from './components/TradeOrders/TradeOrders'
-import Modal from '../components/Modal/Modal'
+import './TradeContainer.css'
+
 const db = firebase.firestore()
 
 const registerResizeObserver = (cb, elem) => {
@@ -22,7 +24,7 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys } = useContext(UserContext)
+  const { loadApiKeys, userData } = useContext(UserContext)
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const totalHeight = window.innerHeight // - 40 - 75
@@ -34,11 +36,24 @@ const TradeContainer = () => {
 
   useEffect(() => {
     callObserver()
+    getPendingNotices()
     const fBNotice = db.collection("platform_messages")
-      .where("type", "in", ['warning', 'danger', 'info'])
+      .where("publishNow", "==", true)
       .onSnapshot((doc) => {
         doc.docChanges().forEach(item => {
-          setFBNotice({ ...item.doc.data(), action: item.type }) // action = added , removed, modified
+          // item.type = added , removed, modified
+          // console.log(item.type, item.doc.id)
+          if (item.type === "removed") return
+          const { sendToEveryone, emails } = item.doc.data()
+          if (sendToEveryone) {
+            setFBNotice({ ...item.doc.data(), id: item.doc.id, action: item.type })
+          }
+          else {
+            const exists = emails.find(item => item === userData.email)
+            if (exists) {
+              setFBNotice({ ...item.doc.data(), action: item.type, id: item.doc.id })
+            }
+          }
         })
         setSnapShotCount(prevValue => prevValue + 1)
       })
@@ -49,7 +64,7 @@ const TradeContainer = () => {
 
   useEffect(() => {
     if (snapShotCount > 1 && fbNotice && fbNotice.action === "added") {
-      setNotices(prevState => [...prevState, fbNotice])
+      setNotices(prevState => [fbNotice, ...prevState])
     }
   }, [snapShotCount])
 
@@ -70,10 +85,29 @@ const TradeContainer = () => {
     setOrderHeight((totalHeight - contentRect.height) + 200 + "px")
   }
 
-  const removeNotice = (index) => {
-    let temp = [...notices]
-    temp.splice(index, 1)
-    setNotices([...temp])
+  const getPendingNotices = async () => {
+    try {
+      let notices = await getNotices(5)
+      notices = notices.map((item) => ({ id: item.id, ...item.data }))
+      console.log(notices)
+      setNotices(notices)
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  const removeNotice = async (item, index) => {
+    try {
+      let temp = [...notices]
+      temp.splice(index, 1)
+      setNotices([...temp])
+      await dismissNotice(item.id)
+    }
+    catch (e) {
+      errorNotification.open({ description: `Couldn't dismiss notice. Please try again later!` })
+      console.log(e)
+    }
   }
 
   return (
@@ -87,9 +121,9 @@ const TradeContainer = () => {
           <section className="TradeChart-Container" style={{ display: "unset" }}>
             <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
               {notices.map((item, index) => (
-                <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
-                  <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
-                  <button type="button" className="close" onClick={() => removeNotice(index)}>
+                <div className={`text-center my-1 alert alert-${item.noticeType || 'primary'}`} key={`notice-${index}`}>
+                  <FontAwesomeIcon color="white" icon={`${item.noticeType === 'danger' ? 'times-circle' : item.noticeType === 'warning' ? 'exclamation-triangle' : item.noticeType === 'info' ? 'exclamation-circle' : 'exclamation-circle'}`} /> {item.message}
+                  <button type="button" className="close" onClick={() => removeNotice(item, index)}>
                     <span>&times;</span>
                   </button>
                 </div>
@@ -115,8 +149,8 @@ const TradeContainer = () => {
         <section className="TradeChart-Container TradeChart-Container-Mobile">
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
-              <div className={`text-center my-1 alert alert-${item.type}`} key={`notice-${index}`}>
-                <FontAwesomeIcon color="white" icon={`${item.type === 'danger' ? 'times-circle' : item.type === 'warning' ? 'exclamation-triangle' : item.type === 'info' ? 'exclamation-circle' : ''}`} /> {item.message}
+              <div className={`text-center my-1 alert alert-${item.noticeType || 'primary'}`} key={`notice-${index}`}>
+                <FontAwesomeIcon color="white" icon={`${item.noticeType === 'danger' ? 'times-circle' : item.noticeType === 'warning' ? 'exclamation-triangle' : item.noticeType === 'info' ? 'exclamation-circle' : 'exclamation-circle'}`} /> {item.message}
                 <button type="button" className="close" onClick={() => removeNotice(index)}>
                   <span>&times;</span>
                 </button>

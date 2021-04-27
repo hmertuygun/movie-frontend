@@ -407,17 +407,6 @@ const EntryStopMarketForm = () => {
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
-              <PriceTriggerDropdown
-                options={[
-                  { value: 'b', label: 'Bid' },
-                  { value: 'a', label: 'Ask' },
-                  { value: 'p', label: 'Last' },
-                ]}
-                value={values.price_trigger}
-                onSelect={(selected) =>
-                  setValues({ ...values, price_trigger: selected })
-                }
-              />
               <InlineInput
                 label="Trigger Price"
                 type="text"
