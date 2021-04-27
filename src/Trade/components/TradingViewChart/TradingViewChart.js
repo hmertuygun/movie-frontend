@@ -49,7 +49,6 @@ export default class TradingViewChart extends Component {
   chartReady = () => {
     this.tradingViewWidget.onChartReady(() => {
       this.chartObject = this.tradingViewWidget.activeChart()
-      this.onIntervalSelect()
       this.getChartDrawingFromServer()
       this.chartEvent("drawing_event")
     })
@@ -237,12 +236,13 @@ export default class TradingViewChart extends Component {
         const prep = { ...obj.charts[0], panes: pData }
         this.tradingViewWidget.load(prep)
       })
-      this.setLastSelectedInterval()
     }
     catch (e) {
       console.log(e)
     }
     finally {
+      this.setLastSelectedInterval()
+      this.onIntervalSelect()
       this.setState({
         isChartReady: true
       })
