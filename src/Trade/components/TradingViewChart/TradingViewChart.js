@@ -124,14 +124,15 @@ export default class TradingViewChart extends Component {
       }
       // openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
-        const { trade_id, orders, type } = openOrders[i]
+        const { trade_id, orders, type, symbol } = openOrders[i]
+        if (this.props.symbol.replace('/', '-') !== symbol) continue // skip orders with symbol not equal to the one selected/shown in chart 
         const isFullTrade = type.includes("Full")
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
+          if ((symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending")) continue
           let toolTipText
           let orderPrice
           let orderLineId
@@ -181,15 +182,21 @@ export default class TradingViewChart extends Component {
             orderLineId = trade_id
           }
 
-          const fIndex = this.orderLinesDrawn.findIndex(item => item.orderLineId === orderLineId)
-          if (fIndex > -1) {
+          const fIndex = this.orderLinesDrawn.findIndex(item => item.id === orderLineId)
+          if (fIndex > -1) { // if order is already drawn
             const { line_id, trade_id, entity } = this.orderLinesDrawn[fIndex]
-            entity.setTooltip(toolTipText)
-              .setText(orderText)
-              .setQuantity(`${total} ${quote_asset}`)
-              .setPrice(orderPrice)
+            if (status.toLowerCase() === "filled") { // if order is already drawn and the status is 'filled' hide it.
+              this.chartObject.setEntityVisibility(line_id, false)
+            }
+            else {
+              entity.setTooltip(toolTipText)
+                .setText(orderText)
+                .setQuantity(`${total} ${quote_asset}`)
+                .setPrice(orderPrice)
+            }
           }
-          else {
+          else { // if order is not already drawn
+            if (status.toLowerCase() === "filled") continue // if order status is filled , don't draw it
             let entity = this.chartObject.createOrderLine()
               .setTooltip(toolTipText)
               .setLineLength(60)
