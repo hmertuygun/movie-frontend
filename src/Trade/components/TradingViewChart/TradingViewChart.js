@@ -99,6 +99,7 @@ export default class TradingViewChart extends Component {
     if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
       this.chartObject.setSymbol(newSymbol)
+      this.drawOpenOrdersChartLines(this.props.openOrders)
     }
     catch (e) {
       //console.log(e)
@@ -282,7 +283,6 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     //console.log(`In Update`)
     this.changeSymbol(this.props.symbol)
-    this.drawOpenOrdersChartLines(this.props.openOrders)
     // this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
