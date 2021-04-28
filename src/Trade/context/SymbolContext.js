@@ -54,6 +54,8 @@ const SymbolContextProvider = ({ children }) => {
   const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
+  const [binanceDD, setBinanceDD] = useState([])
+  const [ftxDD, setFtxDD] = useState([])
 
   const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
@@ -316,17 +318,30 @@ const SymbolContextProvider = ({ children }) => {
     try {
       const data = queryExchanges.data //await getExchanges()
       const symbolList = []
+      const ftxList = []
+      const binanceList = []
       const symbolDetails = {}
       if (queryExchanges.status === 'success' && data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
           // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
-            const value =
-              exchange['exchange'].toUpperCase() + ':' + symbol['value']
+            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
             symbolList.push({
               label: symbol['label'],
               value: value,
             })
+            if (exchange['exchange'] === "binance") {
+              binanceList.push({
+                label: symbol['label'],
+                value: value,
+              })
+            }
+            else if (exchange['exchange'] === "ftx") {
+              ftxList.push({
+                label: symbol['label'],
+                value: value,
+              })
+            }
             let tickSize = symbol['tickSize']
             for (let i = 1; i < 10; i++) {
               tickSize = tickSize * 10
@@ -372,6 +387,8 @@ const SymbolContextProvider = ({ children }) => {
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
         setSymbolFromExchangeOnLoad(symbolDetails)
+        setFtxDD(ftxList)
+        setBinanceDD(binanceList)
         loadBalance('USDT', 'BTC')
         loadLastPrice('BTCUSDT')
       } else {
@@ -451,7 +468,7 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshExchanges = async () => {
     try {
-      const response  = await getUserExchanges();
+      const response = await getUserExchanges();
       const apiKeys = response.data.apiKeys.map((item) => {
         return {
           ...item,
@@ -491,7 +508,9 @@ const SymbolContextProvider = ({ children }) => {
         lastMessage,
         liveUpdate: socketLiveUpdate || pollingLiveUpdate,
         exchangeType,
-        symbolType
+        symbolType,
+        binanceDD,
+        ftxDD
       }}
     >
       {children}

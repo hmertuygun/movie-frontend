@@ -16,25 +16,25 @@ const parseSymbol = (symbol) => {
   return symbol.split("-")[1]
 }
 
-const ADD_EDIT_INITIAL_STATE = {
-  exchange: { label: 'Binance', value: 'binance' },
-  symbol: { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' },
-  condition: { label: `Less and equal to ≤`, value: '<=' },
+const INITIAL_STATE = {
+  exchange: {}, // { label: 'Binance', value: 'binance' },
+  symbol: {}, // { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' },
+  condition: {},  // { label: `Less and equal to ≤`, value: '<=' },
   target_price: 0,
   status: '',
   note: '',
   fetchingSymbolPrice: true,
   saving: false,
 }
+const defaultSymbolLabel = "BTC-USDT"
+const defaultSymbolValue = "BINANCE:BTC/USDT"
+const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }]
+const conditionOptions = [{ label: `Less and equal to ≤`, value: '<=' }, { label: 'Greater and equal to ≥', value: '>=' }]
 
-const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, status, note, showAlertCard, cardOp, onCancel }) => {
-  const { symbols, symbolDetails } = useSymbolContext()
-  const [symbolDD, setSymbolDD] = useState([])
-  const [state, setState] = useState(ADD_EDIT_INITIAL_STATE)
-  const defaultSymbolLabel = "BTC-USDT"
-  const defaultSybolValue = "BINANCE:BTC/USDT"
-  const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }]
-  const conditionOptions = [{ label: `Less and equal to ≤`, value: '<=' }, { label: 'Greater and equal to ≥', value: '>=' }]
+const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, binanceSymbols, ftxSymbols, status, note, showAlertCard, cardOp, onCancel }) => {
+  const { symbols, symbolDetails, binanceDD, ftxDD } = useSymbolContext()
+  const [state, setState] = useState(INITIAL_STATE)
+  // const [symbolDD, setSymbolDD] = useState([])
 
   const roundOff = (price) => {
     if (parseFloat(price) >= 1) return precisionRound(price)
@@ -55,40 +55,28 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
     return (1 / Math.pow(10, zeroCount)).toString()
   }
 
-  const onCardOp = (type, alert_id, exchange, symbol, target_price, condition, status, note) => {
-    if (type === "edit") {
-      const fCond = conditionOptions.find((item) => item.value === condition)
-      console.log(exchange, symbol, status, target_price)
-      const editState = {
-        exchange: { label: capitalizeFirstLetter(exchange), value: exchange },
-        symbol: { label: symbol.replace("/", "-"), value: `${exchange.toUpperCase()}:${symbol}` },
-        condition: fCond,
-        target_price,
-        status
-      }
-      // console.log(editState)
-      // console.log(symbolDD)
-      setState({
-        ...ADD_EDIT_INITIAL_STATE,
-        fetchingSymbolPrice: false,
-        ...editState
-      })
+  const evalSymbolPrice = async (symbol, exchange) => {
+    setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: true }))
+    try {
+      const resp = await getLastPrice(symbol, exchange)
+      setState(prevVal => ({ ...prevVal, target_price: resp?.data?.last_price === "NA" ? "0.00" : roundOff(resp?.data?.last_price) }))
     }
-    else if (type === "add") {
+    catch (e) {
+      console.log(e)
     }
-    else {
-      console.error("Invalid Option")
+    finally {
+      setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: false }))
     }
   }
 
   useEffect(() => {
     if (type === "edit") {
-      if (exchange === "binance") {
-        setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
-      }
-      else if (exchange === "ftx") {
-        setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
-      }
+      // if (exchange === "binance") {
+      //   setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      // }
+      // else if (exchange === "ftx") {
+      //   setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
+      // }
       const fCond = conditionOptions.find((item) => item.value === condition)
       const editState = {
         exchange: { label: capitalizeFirstLetter(exchange), value: exchange },
@@ -98,53 +86,57 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
         status
       }
       setState({
-        ...ADD_EDIT_INITIAL_STATE,
+        ...INITIAL_STATE,
         fetchingSymbolPrice: false,
         ...editState
       })
     }
     else if (type === "add") {
-      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      setState({
+        ...INITIAL_STATE,
+        exchange: { label: 'Binance', value: 'binance' },
+        symbol: { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' },
+        condition: { label: `Less and equal to ≤`, value: '<=' },
+      })
+      // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
     }
     else {
       console.error("Invalid Option")
     }
+
   }, [])
 
   useEffect(() => {
-    if (!state.symbol?.label || type === "edit") return
+    if (!state.symbol?.label) return
     setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: true }))
-    getLastPrice(state.symbol.label.replace('-', '/'), state.exchange.value)
-      .then((res) => {
-        setState(prevVal => ({ ...prevVal, target_price: roundOff(res?.data?.last_price) }))
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-      .finally(() => {
-        setState(prevVal => ({ ...prevVal, fetchingSymbolPrice: false }))
-      })
-  }, [state.symbol, state.exchange])
+    evalSymbolPrice(state.symbol.label.replace('-', '/'), state.exchange.value)
+  }, [state.symbol])
 
   useEffect(() => {
+    if (!state?.exchange) return
     if (state.exchange.value === "binance") {
-      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
+      let key = `BINANCE:${state.symbol.label.replace('-', '/')}`
+      if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' } }))
     }
     else if (state.exchange.value === "ftx") {
-      setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
+      // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
+      let key = `FTX:${state.symbol.label.replace('-', '/')}`
+      if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'FTX:BTC/USDT' } }))
     }
   }, [state.exchange])
 
-  const handleSearch = ({ state }) => {
+  const handleSearch = (param) => {
+    const symbolDD = state.exchange === "binance" ? binanceDD : ftxDD
     const filteredData = symbolDD.filter((search) =>
       search.label
         .split('-')[0]
         .toLowerCase()
-        .includes(state.search.toLowerCase())
+        .includes(param.state.search.toLowerCase())
     )
     if (!filteredData.length) {
       return symbolDD.filter((search) =>
-        search.label.toLowerCase().includes(state.search.toLowerCase())
+        search.label.toLowerCase().includes(param.state.search.toLowerCase())
       )
     }
     return filteredData
@@ -200,8 +192,8 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   }
 
   return (
-    <div className={`${type === "edit" ? '' : 'card card-fluid'}`}>
-      <div className={`${type === "edit" ? '' : 'card-body'}`}>
+    <div className={`${type === 'edit' ? '' : 'card card-fluid'}`}>
+      <div className={`${type === 'edit' ? '' : 'card-body'}`}>
         <div className="row">
           <div className="col-lg-3 col-md-6">
             <label>Select exchange</label>
@@ -216,17 +208,33 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
             />
           </div>
           <div className="col-lg-3 col-md-6">
+            {/* <label className={`${!binanceDD.length || !ftxDD.length ? 'd-block' : 'd-none'}`}>Loading symbols.. <span className="spinner-border spinner-border-sm mb-1" /></label>
+            <label className={`${binanceDD.length && ftxDD.length ? 'd-block' : 'd-none'} `}>Select symbol</label> */}
             <label>Select symbol</label>
-            <DropDownSelect
-              options={symbolDD}
-              style={{ borderRadius: '4px', outline: '0', height: '44px' }}
-              placeholder="Select symbol"
-              values={[state.symbol]}
-              valueField="label"
-              disabled={!symbolDD || !symbolDD.length}
-              onChange={(val) => onInputChange('symbol', val[0])}
-              searchFn={handleSearch}
-            />
+            {state.exchange?.value === 'binance' ? (
+              <DropDownSelect
+                options={binanceDD}
+                style={{ borderRadius: '4px', outline: '0', height: '44px' }}
+                placeholder="Select symbol"
+                values={[state.symbol]}
+                valueField="label"
+                disabled={!binanceDD.length}
+                onChange={(val) => onInputChange('symbol', val[0])}
+                searchable={false}
+              />
+            ) : state.exchange?.value === 'ftx' ? (
+              <DropDownSelect
+                options={ftxDD}
+                style={{ borderRadius: '4px', outline: '0', height: '44px' }}
+                placeholder="Select symbol"
+                values={[state.symbol]}
+                valueField="label"
+                disabled={!ftxDD.length}
+                onChange={(val) => onInputChange('symbol', val[0])}
+                searchable={false}
+              />
+            ) : null}
+            {/* state.exchange?.value === "binance" ? binanceDD : ftxDD*/}
           </div>
           <div className="col-lg-3 col-md-6">
             <label>Select alert condition</label>
@@ -241,7 +249,9 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
             />
           </div>
           <div className="col-lg-3 col-md-6">
-            <label>Enter target price ({parseSymbol(state.symbol?.label)})</label>
+            <label>
+              Enter target price ({parseSymbol(state.symbol?.label)})
+            </label>
             {/* step={stepSize(state.target_price)} */}
             <input
               type="number"
@@ -255,10 +265,28 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
         </div>
         <div className="row mt-5">
           <div className="col-md-12 text-right">
-            <button className="btn btn-primary btn-sm" onClick={() => type === "edit" ? onUpdate() : onSave()} disabled={state.saving || state.fetchingSymbolPrice || !symbols.length}>
-              {state.saving ? <span className="spinner-border spinner-border-sm" /> : type === "edit" ? 'Update' : 'Save'}
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => (type === 'edit' ? onUpdate() : onSave())}
+              disabled={
+                state.saving || state.fetchingSymbolPrice || !symbols.length
+              }
+            >
+              {state.saving ? (
+                <span className="spinner-border spinner-border-sm" />
+              ) : type === 'edit' ? (
+                'Update'
+              ) : (
+                'Save'
+              )}
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={onCancel} disabled={state.saving}>Cancel</button>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onCancel}
+              disabled={state.saving}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>
@@ -266,7 +294,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, type, delClick, delId, isLast, alertUpdated, onReactivate }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, binanceSymbols, ftxSymbols, type, delClick, delId, isLast, alertUpdated, onReactivate }) => {
   const [editAlert, setEditAlert] = useState(false)
   const state = { alert_id, exchange, symbol, target_price, condition, status }
 
@@ -283,6 +311,8 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
             setEditAlert(false)
           }}
           onCancel={() => setEditAlert(false)}
+          binanceSymbols={binanceSymbols}
+          ftxSymbols={ftxSymbols}
           {...state}
         />
       )}
@@ -395,7 +425,9 @@ const PriceAlerts = () => {
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fBData, setFBData] = useState(null)
   const { userData } = useContext(UserContext)
-  const { symbolDetails } = useSymbolContext()
+  const { symbolDetails, symbols } = useSymbolContext()
+  const [binanceSymbols, setBinanceSymbols] = useState([])
+  const [ftxSymbols, setFtxSymbols] = useState([])
 
   useEffect(() => {
     getAllPriceAlerts()
@@ -469,8 +501,19 @@ const PriceAlerts = () => {
     }
   }, [fBData])
 
+  useEffect(() => {
+    // console.log(ftxSymbols)
+    // console.log(binanceSymbols)
+  }, [ftxSymbols, binanceSymbols])
+
   const getAllPriceAlerts = async () => {
     try {
+      // const binanceSym = Object.values(symbols).filter(item => item.value.includes("BINANCE"))
+      // const ftxSym = Object.values(symbols).filter(item => item.value.includes("FTX"))
+      // console.log(binanceSymbols)
+      // console.log(ftxSymbols)
+      // setBinanceSymbols(binanceSym)
+      // setFtxSymbols(ftxSym)
       setFetching(true)
       const resp = await getPriceAlerts()
       const { alerts } = resp
@@ -599,6 +642,8 @@ const PriceAlerts = () => {
             type="add"
             cardOp={onAdded}
             onCancel={() => { setShowCreateAlert(false) }}
+            binanceSymbols={binanceSymbols}
+            ftxSymbols={ftxSymbols}
           />
         )}
 
@@ -615,6 +660,8 @@ const PriceAlerts = () => {
                 isLast={index === priceAlertData.length - 1}
                 delClick={(del_id) => onAlertDelete(del_id)}
                 alertUpdated={onAlertUpdate}
+                binanceSymbols={binanceSymbols}
+                ftxSymbols={ftxSymbols}
                 {...item}
               />
             ))}
