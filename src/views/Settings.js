@@ -10,8 +10,7 @@ import Subscriptions from '../Settings/Subscription'
 
 const Settings = () => {
   const { hash } = useLocation()
-  // const tabIndex = hash === "#subscription" ? 3 : 0
-  const tabIndex = 0
+  const tabIndex = hash === "#subscription" ? 3 : 0
   return (
     <Fragment>
       <section

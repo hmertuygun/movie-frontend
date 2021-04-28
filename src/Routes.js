@@ -1,5 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { Switch, Route, Redirect, useHistory, useLocation } from 'react-router-dom'
+import {
+  Switch,
+  Route,
+  Redirect,
+  useHistory,
+  useLocation,
+} from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
@@ -26,7 +32,7 @@ import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 const Routes = () => {
   const history = useHistory()
   const { pathname } = useLocation()
-  const isSettingsPage = pathname === "/settings"
+  const isSettingsPage = pathname === '/settings'
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   useEffect(() => {
@@ -43,6 +49,7 @@ const Routes = () => {
     loaderVisible,
     loaderText,
   } = useContext(UserContext)
+
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
@@ -61,9 +68,9 @@ const Routes = () => {
           />
         )}
         {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
-        {/* {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
+        {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
           <SubscriptionModal />
-        )} */}
+        )}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
             {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
@@ -75,7 +82,9 @@ const Routes = () => {
             <Redirect to="/trade" />
           </CacheSwitch>
         )}
-        {userContextLoaded && <Route path="/login/verify2fa" component={LoginVerify2FA} />}
+        {userContextLoaded && (
+          <Route path="/login/verify2fa" component={LoginVerify2FA} />
+        )}
         <Route path="/login" component={Login} />
         <Route path="/recover-password" component={RecoverPassword} />
         <Route path="/new-password" component={NewPassword} />
