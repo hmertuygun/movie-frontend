@@ -37,14 +37,14 @@ const Settings = () => {
               <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security', 'Notifications']}
+                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions']}
                     index={tabIndex}
                     hadDropDown={false}
                   >
                     <Exchanges />
                     <Security />
                     <Notifications />
-                    {/* <Subscriptions /> */}
+                    <Subscriptions />
                   </TabNavigator>
                 </div>
               </div>
