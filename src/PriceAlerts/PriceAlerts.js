@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import Tooltip from '../components/Tooltip'
 import DropDownSelect from 'react-dropdown-select'
+import Select from 'react-select'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { getLastPrice, createPriceAlert, getPriceAlerts, deletePriceAlert, reactivatePriceAlert, updatePriceAlert } from '../api/api'
@@ -30,11 +31,56 @@ const defaultSymbolLabel = "BTC-USDT"
 const defaultSymbolValue = "BINANCE:BTC/USDT"
 const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }]
 const conditionOptions = [{ label: `Less and equal to ≤`, value: '<=' }, { label: 'Greater and equal to ≥', value: '>=' }]
+const customStyles = {
+  control: (styles, { }) => ({
+    ...styles,
+    boxShadow: 'none',
+    border: '1px solid rgb(204, 204, 204)',
+    borderRadius: '2px',
+    height: '45px',
+    minHeight: '45px',
+    color: '#718096',
 
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  }),
+
+  valueContainer: (styles) => ({
+    ...styles,
+    height: '41px',
+    padding: '0 5px'
+  }),
+
+  singleValue: (styles) => ({
+    ...styles,
+    textTransform: 'capitalize',
+    color: '#718096',
+  }),
+
+  option: (styles) => ({
+    ...styles,
+    textTransform: 'capitalize',
+    padding: '5px 5px',
+
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  }),
+
+  placeholder: (styles) => ({
+    ...styles,
+    textTransform: 'capitalize'
+  }),
+
+  indicatorsContainer: (styles) => ({
+    ...styles,
+    height: '41px'
+  }),
+}
 const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, binanceSymbols, ftxSymbols, status, note, showAlertCard, cardOp, onCancel }) => {
   const { symbols, symbolDetails, binanceDD, ftxDD } = useSymbolContext()
   const [state, setState] = useState(INITIAL_STATE)
-  // const [symbolDD, setSymbolDD] = useState([])
 
   const roundOff = (price) => {
     if (parseFloat(price) >= 1) return precisionRound(price)
@@ -71,12 +117,6 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
 
   useEffect(() => {
     if (type === "edit") {
-      // if (exchange === "binance") {
-      //   setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
-      // }
-      // else if (exchange === "ftx") {
-      //   setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
-      // }
       const fCond = conditionOptions.find((item) => item.value === condition)
       const editState = {
         exchange: { label: capitalizeFirstLetter(exchange), value: exchange },
@@ -115,12 +155,10 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   useEffect(() => {
     if (!state?.exchange) return
     if (state.exchange.value === "binance") {
-      // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
       let key = `BINANCE:${state.symbol.label.replace('-', '/')}`
       if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'BINANCE:BTC/USDT' } }))
     }
     else if (state.exchange.value === "ftx") {
-      // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("FTX")))
       let key = `FTX:${state.symbol.label.replace('-', '/')}`
       if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'FTX:BTC/USDT' } }))
     }
@@ -211,7 +249,31 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
             {/* <label className={`${!binanceDD.length || !ftxDD.length ? 'd-block' : 'd-none'}`}>Loading symbols.. <span className="spinner-border spinner-border-sm mb-1" /></label>
             <label className={`${binanceDD.length && ftxDD.length ? 'd-block' : 'd-none'} `}>Select symbol</label> */}
             <label>Select symbol</label>
-            {state.exchange?.value === 'binance' ? (
+            <Select
+              components={{
+                IndicatorSeparator: () => null,
+              }}
+              options={binanceDD}
+              placeholder="Select trading pair"
+              value={state.symbol}
+              onChange={(value) => onInputChange('symbol', value)}
+              isDisabled={!binanceDD.length}
+              styles={customStyles}
+              className={`${state.exchange.value === 'binance' ? 'd-block' : 'd-none'}`}
+            />
+            <Select
+              components={{
+                IndicatorSeparator: () => null,
+              }}
+              options={ftxDD}
+              placeholder="Select trading pair"
+              value={state.symbol}
+              onChange={(value) => onInputChange('symbol', value)}
+              isDisabled={!ftxDD.length}
+              styles={customStyles}
+              className={`${state.exchange.value === 'ftx' ? 'd-block' : 'd-none'}`}
+            />
+            {/* <div className={`${state.exchange.value === 'binance' ? 'd-flex' : 'd-none'}`}>
               <DropDownSelect
                 options={binanceDD}
                 style={{ borderRadius: '4px', outline: '0', height: '44px' }}
@@ -222,7 +284,8 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
                 onChange={(val) => onInputChange('symbol', val[0])}
                 searchable={false}
               />
-            ) : state.exchange?.value === 'ftx' ? (
+            </div>
+            <div className={`${state.exchange.value === 'ftx' ? 'd-flex' : 'd-none'}`}>
               <DropDownSelect
                 options={ftxDD}
                 style={{ borderRadius: '4px', outline: '0', height: '44px' }}
@@ -233,8 +296,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
                 onChange={(val) => onInputChange('symbol', val[0])}
                 searchable={false}
               />
-            ) : null}
-            {/* state.exchange?.value === "binance" ? binanceDD : ftxDD*/}
+            </div> */}
           </div>
           <div className="col-lg-3 col-md-6">
             <label>Select alert condition</label>
@@ -294,7 +356,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   )
 }
 
-const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, binanceSymbols, ftxSymbols, type, delClick, delId, isLast, alertUpdated, onReactivate }) => {
+const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition, status, note, type, delClick, delId, isLast, alertUpdated, onReactivate }) => {
   const [editAlert, setEditAlert] = useState(false)
   const state = { alert_id, exchange, symbol, target_price, condition, status }
 
@@ -311,8 +373,6 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
             setEditAlert(false)
           }}
           onCancel={() => setEditAlert(false)}
-          binanceSymbols={binanceSymbols}
-          ftxSymbols={ftxSymbols}
           {...state}
         />
       )}
@@ -337,7 +397,7 @@ const SinglePriceAlert = ({ alert_id, exchange, symbol, target_price, condition,
         </div>
         <div className="col pl-0">
           <span className="d-block h6 text-sm mb-0">
-            {state.symbol} [{capitalizeFirstLetter(state.exchange)}]
+            {state.symbol.replace('-', '/')} [{capitalizeFirstLetter(state.exchange)}]
           </span>
           <p className="mb-0 text-sm">
             price {state.condition === '>=' ? '≥' : '≤'} {state.target_price}{' '}
@@ -425,9 +485,7 @@ const PriceAlerts = () => {
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fBData, setFBData] = useState(null)
   const { userData } = useContext(UserContext)
-  const { symbolDetails, symbols } = useSymbolContext()
-  const [binanceSymbols, setBinanceSymbols] = useState([])
-  const [ftxSymbols, setFtxSymbols] = useState([])
+  const { symbolDetails } = useSymbolContext()
 
   useEffect(() => {
     getAllPriceAlerts()
@@ -451,9 +509,6 @@ const PriceAlerts = () => {
     if (snapShotCount === 0 || !symbolDetails || !Object.keys(symbolDetails).length) return
     if (!fBData || !fBData['status'] || !fBData['price_alert_details'] || !fBData['alert_id']) return
     const { status, price_alert_details, alert_id } = fBData
-    let { symbol } = price_alert_details
-    // let ext = symbolDetails[`BINANCE:${symbol}`]
-    // symbol = `${ext.base_asset}/${ext.quote_asset}`
     if (status === "active") {
       // if not exists put in active alerts section, and take out of past alerts section if it's there
       setPriceAlertData(prevState => {
@@ -462,7 +517,7 @@ const PriceAlerts = () => {
           return prevState
         }
         else {
-          return [{ alert_id, status, ...price_alert_details, symbol }, ...prevState]
+          return [{ alert_id, status, ...price_alert_details }, ...prevState]
         }
       })
       setCompletedAlerts(prevState => {
@@ -484,7 +539,7 @@ const PriceAlerts = () => {
           return prevState
         }
         else {
-          return [{ alert_id, status, ...price_alert_details, symbol }, ...prevState]
+          return [{ alert_id, status, ...price_alert_details }, ...prevState]
         }
       })
       setPriceAlertData(prevState => {
@@ -501,19 +556,8 @@ const PriceAlerts = () => {
     }
   }, [fBData])
 
-  useEffect(() => {
-    // console.log(ftxSymbols)
-    // console.log(binanceSymbols)
-  }, [ftxSymbols, binanceSymbols])
-
   const getAllPriceAlerts = async () => {
     try {
-      // const binanceSym = Object.values(symbols).filter(item => item.value.includes("BINANCE"))
-      // const ftxSym = Object.values(symbols).filter(item => item.value.includes("FTX"))
-      // console.log(binanceSymbols)
-      // console.log(ftxSymbols)
-      // setBinanceSymbols(binanceSym)
-      // setFtxSymbols(ftxSym)
       setFetching(true)
       const resp = await getPriceAlerts()
       const { alerts } = resp
@@ -642,8 +686,6 @@ const PriceAlerts = () => {
             type="add"
             cardOp={onAdded}
             onCancel={() => { setShowCreateAlert(false) }}
-            binanceSymbols={binanceSymbols}
-            ftxSymbols={ftxSymbols}
           />
         )}
 
@@ -660,8 +702,6 @@ const PriceAlerts = () => {
                 isLast={index === priceAlertData.length - 1}
                 delClick={(del_id) => onAlertDelete(del_id)}
                 alertUpdated={onAlertUpdate}
-                binanceSymbols={binanceSymbols}
-                ftxSymbols={ftxSymbols}
                 {...item}
               />
             ))}
