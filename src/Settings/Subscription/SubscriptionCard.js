@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 
 import { firebase, auth } from '../../firebase/firebase'
 import { Bell } from 'react-feather'
 
 const SubscriptionCard = ({ product }) => {
+  const [subscribing, setSubscribing] = useState(false)
   const currentUser = auth.currentUser
   const db = firebase.firestore()
   const { name, prices } = product
@@ -13,6 +14,7 @@ const SubscriptionCard = ({ product }) => {
   const price = prices[0]
   console.log(price)
   const subscribe = async (e) => {
+    setSubscribing(true)
     e.preventDefault()
     const selectedPrice = {
       price: price.id,
@@ -40,6 +42,7 @@ const SubscriptionCard = ({ product }) => {
         // Show an error to your customer and
         // inspect your Cloud Function logs in the Firebase console.
         alert(`An error occured: ${error.message}`)
+        setSubscribing(false)
       }
       if (sessionId) {
         // We have a session, let's redirect to Checkout
@@ -47,6 +50,7 @@ const SubscriptionCard = ({ product }) => {
         const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY)
         const stripe = await stripePromise
         stripe.redirectToCheckout({ sessionId })
+        setSubscribing(false)
       }
     })
   }
@@ -78,12 +82,22 @@ const SubscriptionCard = ({ product }) => {
             </div>
           </div>
           <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right">
-            <div
-              className="btn btn-sm btn-neutral rounded-pill"
-              onClick={subscribe}
-            >
-              Subscribe
-            </div>
+            {subscribing ? (
+              <div className="btn btn-sm btn-neutral rounded-pill">
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              </div>
+            ) : (
+              <div
+                className="btn btn-sm btn-neutral rounded-pill"
+                onClick={subscribe}
+              >
+                Subscribe
+              </div>
+            )}
           </div>
         </div>
       </div>

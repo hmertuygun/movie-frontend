@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Moment from 'react-moment'
 
 import { firebase, auth } from '../../firebase/firebase'
@@ -7,13 +7,17 @@ import { Bell } from 'react-feather'
 const SubscriptionActiveCard = ({ subscriptionData }) => {
   console.log(subscriptionData)
   const { subscription, priceData, plan } = subscriptionData
+  const [portalLoading, setPortalLoading] = useState(false)
+
   const toCustomerPortal = async () => {
+    setPortalLoading(true)
     const functionRef = firebase
       .app()
       .functions('europe-west1')
       .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink')
     const { data } = await functionRef({ returnUrl: window.location.origin })
     window.location.assign(data.url)
+    setPortalLoading(false)
   }
 
   function toDateTime(secs) {
@@ -50,20 +54,31 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
                   {subscription.status === 'trialing'
                     ? 'Your trial will end on '
                     : 'Your subscription will auto-renew on '}
-                  <Moment format="MMMM DD, YYYY">
+                  <Moment format="HH:MM:SS MMMM DD, YYYY">
                     {toDateTime(subscription.current_period_end.seconds)}
-                  </Moment>
+                  </Moment>{' '}
+                  - {subscription.current_period_end.seconds}
                 </p>
               </div>
             </div>
           </div>
           <div className="col-lg-5 flex-fill mt-4 mt-sm-0 text-sm-right">
-            <div
-              className="btn btn-sm btn-neutral rounded-pill"
-              onClick={toCustomerPortal}
-            >
-              Access customer portal
-            </div>
+            {portalLoading ? (
+              <div className="btn btn-sm btn-neutral rounded-pill">
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              </div>
+            ) : (
+              <div
+                className="btn btn-sm btn-neutral rounded-pill"
+                onClick={toCustomerPortal}
+              >
+                Access customer portal
+              </div>
+            )}
           </div>
         </div>
       </div>
