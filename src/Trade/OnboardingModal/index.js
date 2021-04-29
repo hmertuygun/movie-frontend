@@ -138,18 +138,25 @@ const OnboardingModal = () => {
     }
     else if (step === 3) {
       sessionStorage.clear()
-      const hasKeys = await getUserExchanges()
-      if (hasKeys?.data?.apiKeys) {
-        const { apiKeys } = hasKeys.data
-        setTotalExchanges(apiKeys)
-        setActiveExchange({
-          label: `${exchange.value} - ${apiName}`,
-          value: `${exchange.value} - ${apiName}`,
-          apiKeyName: apiName,
-          exchange: exchange.value
-        })
+      try {
+        const hasKeys = await getUserExchanges()
+        if (hasKeys?.data?.apiKeys) {
+          const { apiKeys } = hasKeys.data
+          setTotalExchanges(apiKeys)
+          setActiveExchange({
+            label: `${exchange.value} - ${apiName}`,
+            value: `${exchange.value} - ${apiName}`,
+            apiKeyName: apiName,
+            exchange: exchange.value
+          })
+        }
       }
-      setLoadApiKeys(true)
+      catch (e) {
+        console.log(e)
+      }
+      finally {
+        setLoadApiKeys(true)
+      }
     }
   }
 
@@ -167,28 +174,35 @@ const OnboardingModal = () => {
   }
 
   const addExchange = async () => {
-    setIsApiProc(true)
-    setError(false)
-    if (apiProc) return
+    try {
+      setIsApiProc(true)
+      setError(false)
+      if (apiProc) return
 
-    let result = await addUserExchange({
-      secret,
-      apiKey,
-      exchange: exchange.value,
-      name: apiName,
-    })
+      let result = await addUserExchange({
+        secret,
+        apiKey,
+        exchange: exchange.value,
+        name: apiName,
+      })
 
-    if (result.status !== 200) {
-      setError(true)
-    } else {
-      await updateLastSelectedAPIKey({apiKeyName: apiName, exchange: exchange.value})
-      refreshExchanges()
-      setStepNo(step + 1)
-      successNotification.open({ description: 'API key added!' })
-      analytics.logEvent('api_keys_added')
-      Event('user', 'api_keys_added', 'user')
+      if (result.status !== 200) {
+        setError(true)
+      } else {
+        await updateLastSelectedAPIKey({ apiKeyName: apiName, exchange: exchange.value })
+        refreshExchanges()
+        setStepNo(step + 1)
+        successNotification.open({ description: 'API key added!' })
+        analytics.logEvent('api_keys_added')
+        Event('user', 'api_keys_added', 'user')
+      }
     }
-    setIsApiProc(false)
+    catch (e) {
+      console.log(e)
+    }
+    finally {
+      setIsApiProc(false)
+    }
   }
 
   const modalVisibility = () => {
