@@ -89,7 +89,6 @@ const TradeContainer = () => {
     try {
       let notices = await getNotices(5)
       notices = notices.map((item) => ({ id: item.id, ...item.data }))
-      console.log(notices)
       setNotices(notices)
     }
     catch (e) {

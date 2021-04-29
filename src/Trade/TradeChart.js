@@ -77,8 +77,7 @@ const TradeChart = () => {
     setCount(prev => prev + 1)
   }, [activeExchange])
 
-  console.log(exchangeType, symbolType)
-  if (!symbolType) return null
+  if (!symbolType || !exchangeType) return null
 
   return (
     <TradingViewChart
@@ -88,7 +87,7 @@ const TradeChart = () => {
       openOrders={openOrdersUC}
       key={reRender}
       symbol={symbolType}
-      exchange={exchangeType || 'binance'}
+      exchange={exchangeType}
       marketSymbols={symbolDetails}
       chartReady={(e) => { setIsChartReady(e) }}
     />
