@@ -41,7 +41,7 @@ const Notifications = () => {
       }
     } catch (error) {
       errorNotification.open({
-        description: 'Please set up Telegram connection first!',
+        description: 'Please click Telegram settings to setup the bot first!',
       })
     } finally {
       notificationChannelsQuery.refetch()
