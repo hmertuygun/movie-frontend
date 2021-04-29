@@ -77,7 +77,8 @@ const TradeChart = () => {
     setCount(prev => prev + 1)
   }, [activeExchange])
 
-  if (!exchangeType || !symbolType || fecthingIntervals) return null
+  console.log(exchangeType, symbolType)
+  if (!symbolType) return null
 
   return (
     <TradingViewChart
@@ -85,10 +86,9 @@ const TradeChart = () => {
       theme={"light"}
       intervals={intervals}
       openOrders={openOrdersUC}
-      delOrderId={delOpenOrders?.trade_id}
       key={reRender}
       symbol={symbolType}
-      exchange={exchangeType}
+      exchange={exchangeType || 'binance'}
       marketSymbols={symbolDetails}
       chartReady={(e) => { setIsChartReady(e) }}
     />
