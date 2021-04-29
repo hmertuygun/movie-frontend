@@ -108,8 +108,6 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
-    console.log(`Open Orders Received: `, openOrders)
-    console.log(`Orders Drawn: `, this.orderLinesDrawn)
     const PlacedOrderTooltip = 'Order is on the exchange order book.'
     const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
     try {

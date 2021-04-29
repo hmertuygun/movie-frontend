@@ -12,10 +12,10 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
 
         <div className="col-md-4 text-center">
           <img
-            src="img/svg/exchange/binance.svg"
-            height="20px"
-            alt="biance"
-          ></img>
+            width="100"
+            src={`img/svg/exchange/${row.exchange === "binance" ? 'binance.svg' : 'ftx.png'}`}
+            alt={row.exchange}
+          />
         </div>
 
         <div className="col-md-4 text-right">
