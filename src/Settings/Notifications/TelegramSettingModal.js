@@ -55,6 +55,11 @@ const QuickModal = ({ onClose, connected }) => {
               <h5 className="modal-title" id="exampleModalLabel">
                 Telegram Bot Settings
               </h5>
+              <p className="mb-0 text-center">
+                Put this text above the telegram key please:
+                <br />
+                {`Write "/start" to <a href="https://t.me/coinpanelbot" target="_blank" >@coinpanelbot</a> on Telegram to set up your Telegram notifications.`}
+              </p>
               <button
                 onClick={onClose}
                 type="button"
