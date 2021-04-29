@@ -190,7 +190,7 @@ const UserContextProvider = ({ children }) => {
       const np = await Notification.requestPermission() // "granted", "denied", "default"
       if (np === 'denied') return
       const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
-      console.log(`FCM token: ${token}`)
+      // console.log(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
         console.log(`Received msg in UC onMessage`)
@@ -288,7 +288,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
