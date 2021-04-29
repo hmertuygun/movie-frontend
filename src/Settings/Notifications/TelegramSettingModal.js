@@ -55,9 +55,6 @@ const QuickModal = ({ onClose, connected }) => {
               <h5 className="modal-title" id="exampleModalLabel">
                 Telegram Bot Settings
               </h5>
-              <p className="mb-0">
-                Write "/start" to <a href="https://t.me/coinpanelbot" target="_blank">@coinpanelbot</a> on Telegram to set up your Telegram notifications.
-              </p>
               <button
                 onClick={onClose}
                 type="button"
@@ -70,6 +67,9 @@ const QuickModal = ({ onClose, connected }) => {
             </div>
             <div className="modal-body">
               <div className="form-group">
+                <p>
+                  Write "/start" to <a href="https://t.me/coinpanelbot" target="_blank">@coinpanelbot</a> on Telegram to set up your Telegram notifications.
+                </p>
                 {telegramKey && (
                   <div className="input-group">
                     <div className="input-group-prepend">
