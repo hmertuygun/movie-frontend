@@ -208,13 +208,13 @@ const OpenOrdersTableBody = ({
       key: 'cancel',
     },
   ]
-  const { selectedSymbolDetail } = useSymbolContext()
+  const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
     }
-    return order.symbol.replace('-', '') === selectedPair
+    return order.symbol.replace('-', '/') === symbolType
   }).filter(order => {
     return !deletedRows.includes(order.trade_id)
   })

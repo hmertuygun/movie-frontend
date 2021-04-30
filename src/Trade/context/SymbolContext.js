@@ -285,8 +285,9 @@ const SymbolContextProvider = ({ children }) => {
 
   function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
-    console.log('setting symbol')
+    console.log('setting symbol', symbol)
     setSelectedSymbol(symbol)
+    setSymbolType(symbol.label.replace('-', '/'))
   }
 
   async function setExchange(exchange) {
