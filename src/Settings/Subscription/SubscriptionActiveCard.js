@@ -5,7 +5,6 @@ import { firebase, auth } from '../../firebase/firebase'
 import { Bell } from 'react-feather'
 
 const SubscriptionActiveCard = ({ subscriptionData }) => {
-  console.log(subscriptionData)
   const { subscription, priceData, plan } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
 
@@ -20,12 +19,6 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
     setPortalLoading(false)
   }
 
-  function toDateTime(secs) {
-    var t = new Date(1970, 0, 1) // Epoch
-    t.setSeconds(secs)
-    return t
-  }
-
   return (
     <div className="card">
       <div className="card-body">
@@ -37,7 +30,7 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
               </span>
               <div className="media-body">
                 <h5 className="mb-0">{`${plan.toUpperCase()} ${
-                  subscription.status === 'trialing' ? '| Trial' : null
+                  subscription.status === 'trialing' ? '| Trial' : ''
                 }`}</h5>
                 <p className="text-muted lh-150 text-sm mb-0">
                   {subscription.status === 'trialing'
@@ -54,8 +47,8 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
                   {subscription.status === 'trialing'
                     ? 'Your trial will end on '
                     : 'Your subscription will auto-renew on '}
-                  <Moment format="HH:MM:SS MMMM DD, YYYY">
-                    {toDateTime(subscription.current_period_end.seconds)}
+                  <Moment unix format="hh:mm:ss MMMM DD, YYYY">
+                    {subscription.current_period_end.seconds}
                   </Moment>{' '}
                   - {subscription.current_period_end.seconds}
                 </p>
