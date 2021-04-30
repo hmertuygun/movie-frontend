@@ -70,15 +70,6 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbolDetail(symbolDetails[symbolVal])
     loadBalance(qouteAsset, baseAsset)
     loadLastPrice(getSymbolFromLS.replace('/', ''))
-    // const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
-    // localStorage.setItem('selectedExchange', exchange)
-    // localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-    // setExchangeType(exchange)
-    // setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
-    // setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
-    // setSelectedSymbolDetail(symbolDetails[symbolVal])
-    // loadBalance('USDT', 'BTC')
-    // loadLastPrice('BTCUSDT')
   }
 
   useEffect(() => {
@@ -275,6 +266,7 @@ const SymbolContextProvider = ({ children }) => {
 
   async function loadLastPrice(symbolpair) {
     try {
+      if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
       const { exchange } = activeExchange
       const response = await backOff(() => getLastPrice(symbolpair, exchange))
