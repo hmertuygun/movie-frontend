@@ -78,7 +78,6 @@ const TradeChart = () => {
   }, [activeExchange])
 
   if (!symbolType || !exchangeType) return null
-
   return (
     <TradingViewChart
       email={userData?.email}

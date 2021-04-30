@@ -65,7 +65,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   return (
     <>
       {entry.map((order, rowIndex) => {
-        const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
+        const tdStyle = rowIndex === 1 ? { border: 0 } : rowIndex === 0 ? { cursor: 'pointer' } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
           if (order.type === 'Full Trade') setShow(!show)

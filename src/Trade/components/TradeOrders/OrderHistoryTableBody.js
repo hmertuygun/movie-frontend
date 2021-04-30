@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import Tooltip from '../../../components/Tooltip'
 import useIntersectionObserver from './useIntersectionObserver'
@@ -6,6 +6,7 @@ import Moment from 'react-moment'
 import TradeOrdersStyle from './TradeOrders.module.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 import styles from './TradeOrders.module.css'
 const OrderHistoryTableBody = ({
   data,
@@ -65,22 +66,26 @@ const OrderHistoryTableBody = ({
       key: 'date',
     },
   ]
-
-  const {
-    setSymbol,
-  } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
+  const { symbolDetails, setSymbol } = useSymbolContext()
 
   const loadMoreButtonRef = React.useRef()
 
   useIntersectionObserver({
     target: loadMoreButtonRef,
     onIntersect: callOrderHistoryAPI,
-    enabled: lastFetchedData && !isFetching,
+    enabled: lastFetchedData && !isFetching && !isHideOtherPairs,
     threshold: 0.1,
   })
 
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
+
+  const onSymbolClick = (rowIndex, val) => {
+    const calcVal = `${activeExchange?.exchange.toUpperCase()}:${val.replace('-', '/')}`
+    if (!symbolDetails[calcVal]) return
+    setSymbol({ label: val, value: calcVal })
+  }
 
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
@@ -117,7 +122,7 @@ const OrderHistoryTableBody = ({
             return (
               <tr key={index} className={rowClass}>
                 <td></td>
-                <td style={{ cursor: 'pointer' }} onClick={() => { setSymbol({ label: order.symbol, value: `BINANCE:${order.symbol.replace('-', '')}` }) }}>{order.symbol}</td>
+                <td style={{ cursor: 'pointer' }} onClick={() => { onSymbolClick(index, order.symbol) }}>{order.symbol}</td>
                 <td>{order.type}</td>
                 <td
                   style={
