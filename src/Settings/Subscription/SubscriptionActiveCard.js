@@ -29,7 +29,7 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
                 <Bell size={16} strokeWidth="3" />
               </span>
               <div className="media-body">
-                <h5 className="mb-0">{`${plan.toUpperCase()} ${
+                <h5 className="mb-0">{`${plan? plan.toUpperCase(): subscription?.role?.toUpperCase()} ${
                   subscription.status === 'trialing' ? '| Trial' : ''
                 }`}</h5>
                 <p className="text-muted lh-150 text-sm mb-0">
