@@ -12,7 +12,6 @@ const SubscriptionCard = ({ product }) => {
 
   // only support one price
   const price = prices[0]
-  console.log(price)
   const subscribe = async (e) => {
     setSubscribing(true)
     e.preventDefault()
