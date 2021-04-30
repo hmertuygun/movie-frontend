@@ -79,14 +79,14 @@ const OrderHistoryTableBody = ({
     threshold: 0.1,
   })
 
-  const { selectedSymbolDetail } = useSymbolContext()
+  const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
 
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
     }
-    return order.symbol.replace('-', '') === selectedPair
+    return order.symbol.replace('-', '/') === symbolType
   })
 
   return (
