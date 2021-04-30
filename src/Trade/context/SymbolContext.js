@@ -60,13 +60,16 @@ const SymbolContextProvider = ({ children }) => {
   const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
-    const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
-    localStorage.setItem('selectedExchange', exchange)
-    localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-    setExchangeType(exchange)
-    setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
-    setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
+    const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
+    const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
+    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+    setExchangeType(getExchangeFromLS)
+    setSymbolType(getSymbolFromLS)
+    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
+    loadBalance(qouteAsset, baseAsset)
+    loadLastPrice(getSymbolFromLS.replace('/', ''))
   }
 
   useEffect(() => {
@@ -263,6 +266,7 @@ const SymbolContextProvider = ({ children }) => {
 
   async function loadLastPrice(symbolpair) {
     try {
+      if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
       const { exchange } = activeExchange
       const response = await backOff(() => getLastPrice(symbolpair, exchange))
@@ -285,8 +289,8 @@ const SymbolContextProvider = ({ children }) => {
 
   function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
-    console.log('setting symbol')
     setSelectedSymbol(symbol)
+    setSymbolType(symbol.label.replace('-', '/'))
   }
 
   async function setExchange(exchange) {
@@ -323,77 +327,74 @@ const SymbolContextProvider = ({ children }) => {
       const symbolDetails = {}
       // Process symbols
       if (queryExchanges.status === 'success' && data['exchanges']) {
-        setTimeout(() => {
-          data['exchanges'].forEach((exchange) => {
-            // exchangeList.push(exchange['exchange'])
-            exchange['symbols'].forEach((symbol) => {
-              const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
-              symbolList.push({
+
+        data['exchanges'].forEach((exchange) => {
+          // exchangeList.push(exchange['exchange'])
+          exchange['symbols'].forEach((symbol) => {
+            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
+            symbolList.push({
+              label: symbol['label'],
+              value: value,
+            })
+            if (exchange['exchange'] === "binance") {
+              binanceList.push({
                 label: symbol['label'],
                 value: value,
               })
-              if (exchange['exchange'] === "binance") {
-                binanceList.push({
-                  label: symbol['label'],
-                  value: value,
-                })
+            }
+            else if (exchange['exchange'] === "ftx") {
+              ftxList.push({
+                label: symbol['label'],
+                value: value,
+              })
+            }
+            let tickSize = symbol['tickSize']
+            for (let i = 1; i < 10; i++) {
+              tickSize = tickSize * 10
+              if (tickSize === 1) {
+                tickSize = i
+                break
               }
-              else if (exchange['exchange'] === "ftx") {
-                ftxList.push({
-                  label: symbol['label'],
-                  value: value,
-                })
-              }
-              let tickSize = symbol['tickSize']
-              for (let i = 1; i < 10; i++) {
-                tickSize = tickSize * 10
-                if (tickSize === 1) {
-                  tickSize = i
-                  break
-                }
-              }
+            }
 
-              let lotSize = symbol['stepSize']
-              for (let i = 1; i < 10; i++) {
-                lotSize = lotSize * 10
-                if (lotSize === 1) {
-                  lotSize = i
-                  break
-                }
+            let lotSize = symbol['stepSize']
+            for (let i = 1; i < 10; i++) {
+              lotSize = lotSize * 10
+              if (lotSize === 1) {
+                lotSize = i
+                break
               }
-              symbolDetails[value] = {
-                // BTCUSD
-                symbolpair: symbol['value'],
-                base_asset: symbol['base_asset'],
-                quote_asset: symbol['quote_asset'],
-                base_asset_precision: symbol['base_asset_precision'], // BTC
-                quote_asset_precision: symbol['quote_asset_precision'], // USD
-                maxPrice: symbol['maxPrice'],
-                maxQty: symbol['maxQty'],
-                minNotional: symbol['minNotional'],
-                minPrice: symbol['minPrice'],
-                minQty: symbol['minQty'],
-                originalTickSize: symbol['tickSize'],
-                tickSize: tickSize,
-                lotSize: lotSize,
-              }
-            })
+            }
+            symbolDetails[value] = {
+              // BTCUSD
+              symbolpair: symbol['value'],
+              base_asset: symbol['base_asset'],
+              quote_asset: symbol['quote_asset'],
+              base_asset_precision: symbol['base_asset_precision'], // BTC
+              quote_asset_precision: symbol['quote_asset_precision'], // USD
+              maxPrice: symbol['maxPrice'],
+              maxQty: symbol['maxQty'],
+              minNotional: symbol['minNotional'],
+              minPrice: symbol['minPrice'],
+              minQty: symbol['minQty'],
+              originalTickSize: symbol['tickSize'],
+              tickSize: tickSize,
+              lotSize: lotSize,
+            }
           })
-          // Set total user added exchanges in dropdown
-          let mapExchanges = totalExchanges.map((item) => ({
-            ...item,
-            label: `${item.exchange} - ${item.apiKeyName}`,
-            value: `${item.exchange} - ${item.apiKeyName}`,
-          }))
-          setExchanges(mapExchanges)
-          setSymbols(symbolList)
-          setSymbolDetails(symbolDetails)
-          setSymbolFromExchangeOnLoad(symbolDetails)
-          setFtxDD(ftxList)
-          setBinanceDD(binanceList)
-          loadBalance('USDT', 'BTC')
-          loadLastPrice('BTCUSDT')
-        }, 0)
+        })
+        // Set total user added exchanges in dropdown
+        let mapExchanges = totalExchanges.map((item) => ({
+          ...item,
+          label: `${item.exchange} - ${item.apiKeyName}`,
+          value: `${item.exchange} - ${item.apiKeyName}`,
+        }))
+        setExchanges(mapExchanges)
+        setSymbols(symbolList)
+        setSymbolDetails(symbolDetails)
+        setFtxDD(ftxList)
+        setBinanceDD(binanceList)
+        setSymbolFromExchangeOnLoad(symbolDetails)
       } else {
         setExchanges([])
         setSymbols([])
