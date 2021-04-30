@@ -60,13 +60,25 @@ const SymbolContextProvider = ({ children }) => {
   const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
-    const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
-    localStorage.setItem('selectedExchange', exchange)
-    localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-    setExchangeType(exchange)
-    setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
-    setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
+    const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
+    const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
+    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+    setExchangeType(getExchangeFromLS)
+    setSymbolType(getSymbolFromLS)
+    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
+    loadBalance(qouteAsset, baseAsset)
+    loadLastPrice(getSymbolFromLS.replace('/', ''))
+    // const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
+    // localStorage.setItem('selectedExchange', exchange)
+    // localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
+    // setExchangeType(exchange)
+    // setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
+    // setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
+    // setSelectedSymbolDetail(symbolDetails[symbolVal])
+    // loadBalance('USDT', 'BTC')
+    // loadLastPrice('BTCUSDT')
   }
 
   useEffect(() => {
@@ -285,7 +297,6 @@ const SymbolContextProvider = ({ children }) => {
 
   function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
-    console.log('setting symbol', symbol)
     setSelectedSymbol(symbol)
     setSymbolType(symbol.label.replace('-', '/'))
   }
@@ -389,12 +400,9 @@ const SymbolContextProvider = ({ children }) => {
         setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
-        setSymbolFromExchangeOnLoad(symbolDetails)
         setFtxDD(ftxList)
         setBinanceDD(binanceList)
-        loadBalance('USDT', 'BTC')
-        loadLastPrice('BTCUSDT')
-
+        setSymbolFromExchangeOnLoad(symbolDetails)
       } else {
         setExchanges([])
         setSymbols([])
