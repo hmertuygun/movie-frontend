@@ -8,6 +8,8 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
   const { subscription, priceData, plan } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
 
+  console.log(subscription, priceData)
+
   const toCustomerPortal = async () => {
     setPortalLoading(true)
     const functionRef = firebase
@@ -25,14 +27,14 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
         <div className="row row-grid align-items-center">
           <div className="col-lg-7">
             <div className="media align-items-center">
-              <span className="avatar bg-danger text-white rounded-circle mr-3">
+              <span className="mr-3 text-white avatar bg-danger rounded-circle">
                 <Bell size={16} strokeWidth="3" />
               </span>
               <div className="media-body">
-                <h5 className="mb-0">{`${plan? plan.toUpperCase(): subscription?.role?.toUpperCase()} ${
-                  subscription.status === 'trialing' ? '| Trial' : ''
-                }`}</h5>
-                <p className="text-muted lh-150 text-sm mb-0">
+                <h5 className="mb-0">
+                  {subscription.status === 'trialing' ? 'Monthly Subscription | Trial' : 'Monthly Subscription'}
+                </h5>
+                <p className="mb-0 text-sm text-muted lh-150">
                   {subscription.status === 'trialing'
                     ? 'You will pay '
                     : 'You are paying '}
@@ -43,11 +45,11 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
                   per {priceData.interval}{' '}
                   {subscription.status === 'trialing' ? 'after trial' : null}
                 </p>
-                <p className="text-muted lh-150 text-sm mb-0">
+                <p className="mb-0 text-sm text-muted lh-150">
                   {subscription.status === 'trialing'
                     ? 'Your trial will end on '
                     : 'Your subscription will auto-renew on '}
-                  <Moment unix format="hh:mm:ss MMMM DD, YYYY">
+                  <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
                     {subscription.current_period_end.seconds}
                   </Moment>{' '}
                   - {subscription.current_period_end.seconds}
@@ -55,7 +57,7 @@ const SubscriptionActiveCard = ({ subscriptionData }) => {
               </div>
             </div>
           </div>
-          <div className="col-lg-5 flex-fill mt-4 mt-sm-0 text-sm-right">
+          <div className="mt-4 col-lg-5 flex-fill mt-sm-0 text-sm-right">
             {portalLoading ? (
               <div className="btn btn-sm btn-neutral rounded-pill">
                 <span
