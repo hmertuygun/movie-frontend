@@ -402,7 +402,7 @@ const SymbolContextProvider = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [queryExchanges.data, queryExchanges.status])
+  }, [queryExchanges.data, queryExchanges.status, totalExchanges, activeExchange])
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
@@ -468,7 +468,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.status, loadExchanges, totalExchanges])
+  }, [queryExchanges.data, queryExchanges.status, loadExchanges, totalExchanges, activeExchange])
 
   const refreshExchanges = async () => {
     try {

@@ -149,6 +149,7 @@ const OnboardingModal = () => {
             apiKeyName: apiName,
             exchange: exchange.value
           })
+          refreshExchanges()
         }
       }
       catch (e) {
@@ -190,7 +191,6 @@ const OnboardingModal = () => {
         setError(true)
       } else {
         await updateLastSelectedAPIKey({ apiKeyName: apiName, exchange: exchange.value })
-        refreshExchanges()
         setStepNo(step + 1)
         successNotification.open({ description: 'API key added!' })
         analytics.logEvent('api_keys_added')
@@ -237,15 +237,15 @@ const OnboardingModal = () => {
           <div className="modal-header">
             <h5 className="modal-title h6">Exchange Setup</h5>
             <Link to="/logout">
-              <button type="button" className="btn btn-link py-0 px-0">
+              <button type="button" className="px-0 py-0 btn btn-link">
                 Logout
               </button>
             </Link>
           </div>
           <div className="modal-body">
-            <div className="row ml-0 text-center mb-3">
+            <div className="mb-3 ml-0 text-center row">
               {Object.entries(btnText).map((item, index) => (
-                <div className="col-4 pl-0" key={`progressbar-${item}`}>
+                <div className="pl-0 col-4" key={`progressbar-${item}`}>
                   <div className="rounded-sm progress" style={{ height: "12px" }}>
                     <div className={`progress-bar ${step >= index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
                   </div>
@@ -255,16 +255,16 @@ const OnboardingModal = () => {
             <h4>{btnText[step].heading}</h4>
             <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
               <p className="lead">You need a Binance Exchange account to use CoinPanel.</p>
-              <p className="lead mb-0">Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
+              <p className="mb-0 lead">Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
               <p>
-                <a className="text-muted text-underline pb-2" href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel" target="_blank" rel="noreferrer notarget">
+                <a className="pb-2 text-muted text-underline" href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel" target="_blank" rel="noreferrer notarget">
                   How to find my API keys?
                 </a>
               </p>
 
-              <div className="row mb-3">
+              <div className="mb-3 row">
                 <div className="col-md-4">
                   <Select
                     placeholder="Choose Exchange"
