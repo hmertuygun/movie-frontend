@@ -82,7 +82,12 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your free trial expired
+                    Your free trial expired. please add a payment method before {` `}
+                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                      {subscription.trial_end?.seconds + 86400}
+                    </Moment>
+                    {` `}
+                    to keep your subscription active.
                   </p>
                 </div>
               ) : (
