@@ -51,6 +51,7 @@ const UserContextProvider = ({ children }) => {
   const [rememberCheck, setRememberCheck] = useState(false)
   const [isCheckingSub, setIsCheckingSub] = useState(false)
   const [hasSub, setHasSub] = useState(true)
+  const [needPayment, setNeedPayment] = useState(false)
   const [products, setProducts] = useState([])
   const [subscriptionData, setSubscriptionData] = useState(null)
   const [subInfo, setSubInfo] = useState(null)
@@ -107,20 +108,42 @@ const UserContextProvider = ({ children }) => {
         return decodedToken.claims.stripeRole
       }
 
-      db.collection('stripe_users')
+      const subscriptionRef = db
+        .collection('stripe_users')
         .doc(currentUser.uid)
         .collection('subscriptions')
+      subscriptionRef
         .where('status', 'in', ['trialing', 'active'])
         .onSnapshot(async (snapshot) => {
           if (snapshot.empty) {
-            setIsCheckingSub(false)
-            setHasSub(false)
+            subscriptionRef
+              .where('status', 'in', ['past_due'])
+              .onSnapshot(async (snapshot) => {
+                if (snapshot.empty) {
+                  setIsCheckingSub(false)
+                  setHasSub(false)
+                }
+                const subscription = snapshot.docs[0].data()
+                const priceData = (await subscription.price.get()).data()
+                const plan = await getCustomClaimRole()
+                console.log('sub, priceData, plan ==>', subscription, priceData, plan)
+                setSubscriptionData({ subscription, priceData, plan })
+                setNeedPayment(true)
+                setIsCheckingSub(false)
+                setHasSub(true)      
+              })
             return
           }
 
           const subscription = snapshot.docs[0].data()
           const priceData = (await subscription.price.get()).data()
           const plan = await getCustomClaimRole()
+          if (subscription.status === 'active' && subscription.trial_end.seconds + 3600 > new Date()/1000) {
+            setNeedPayment(true)
+          } else {
+            setNeedPayment(false)
+          }
+          console.log('sub, priceData, plan ==>', subscription, priceData, plan)
           setSubscriptionData({ subscription, priceData, plan })
           setIsCheckingSub(false)
           setHasSub(true)
@@ -288,7 +311,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) { }
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -446,6 +469,7 @@ const UserContextProvider = ({ children }) => {
         devENV,
         isCheckingSub,
         hasSub,
+        needPayment,
         products,
         subscriptionData,
         subInfo,
