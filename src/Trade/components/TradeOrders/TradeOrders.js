@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useCallback } from 'react'
 import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
 import { useMediaQuery } from 'react-responsive';
 
-import { getOpenOrders, getOrdersHistory, getExchanges } from '../../../api/api'
+import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 import { PositionContext } from '../../../Position/context/PositionContext'
 import { PortfolioContext } from '../../../Portfolio/context/PortfolioContext'

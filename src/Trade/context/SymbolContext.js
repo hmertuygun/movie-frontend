@@ -31,7 +31,9 @@ const SymbolContextProvider = ({ children }) => {
     totalExchanges,
     loaderVisible,
     setLoaderVisibility,
-    setOpenOrdersUC
+    setOpenOrdersUC,
+    userData,
+    loadApiKeys
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
@@ -68,8 +70,8 @@ const SymbolContextProvider = ({ children }) => {
     setSymbolType(getSymbolFromLS)
     setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
-    loadBalance(qouteAsset, baseAsset)
-    loadLastPrice(getSymbolFromLS.replace('/', ''))
+    // loadBalance(qouteAsset, baseAsset)
+    // loadLastPrice(getSymbolFromLS.replace('/', ''))
   }
 
   useEffect(() => {
@@ -87,7 +89,7 @@ const SymbolContextProvider = ({ children }) => {
       default:
         break
     }
-
+    if (!socketURL) return
     const rws = new ReconnectingWebSocket(socketURL)
     rws.addEventListener('open', () => {
       setLastMessage([])
@@ -325,9 +327,14 @@ const SymbolContextProvider = ({ children }) => {
       const ftxList = []
       const binanceList = []
       const symbolDetails = {}
+      const pn = performance.now()
+      const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+      const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+      loadBalance(qouteAsset, baseAsset)
+      loadLastPrice(getSymbolFromLS.replace('/', ''))
+      setExchangesFromTotalExchanges()
       // Process symbols
       if (queryExchanges.status === 'success' && data['exchanges']) {
-
         data['exchanges'].forEach((exchange) => {
           // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
@@ -383,18 +390,12 @@ const SymbolContextProvider = ({ children }) => {
             }
           })
         })
-        // Set total user added exchanges in dropdown
-        let mapExchanges = totalExchanges.map((item) => ({
-          ...item,
-          label: `${item.exchange} - ${item.apiKeyName}`,
-          value: `${item.exchange} - ${item.apiKeyName}`,
-        }))
-        setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
         setFtxDD(ftxList)
         setBinanceDD(binanceList)
         setSymbolFromExchangeOnLoad(symbolDetails)
+        console.log(`Took ${parseFloat(performance.now() - pn).toFixed(2)} seconds to parse symbols`)
       } else {
         setExchanges([])
         setSymbols([])
@@ -402,7 +403,7 @@ const SymbolContextProvider = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [queryExchanges.data, queryExchanges.status, totalExchanges, activeExchange])
+  }, [queryExchanges.data, queryExchanges.status, activeExchange, totalExchanges])
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
@@ -468,7 +469,17 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.data, queryExchanges.status, loadExchanges, totalExchanges, activeExchange])
+  }, [queryExchanges.data, queryExchanges.status, loadExchanges, activeExchange, totalExchanges])
+
+  const setExchangesFromTotalExchanges = () => {
+    if (!totalExchanges || !totalExchanges.length) return
+    let mapExchanges = totalExchanges.map((item) => ({
+      ...item,
+      label: `${item.exchange} - ${item.apiKeyName}`,
+      value: `${item.exchange} - ${item.apiKeyName}`,
+    }))
+    setExchanges(mapExchanges)
+  }
 
   const refreshExchanges = async () => {
     try {
