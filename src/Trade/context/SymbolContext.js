@@ -196,6 +196,7 @@ const SymbolContextProvider = ({ children }) => {
             }
             const getFirstData = async () => {
               const response = await fetchTickers()
+              if (!response) return
               const message = Object.values(response).map((item) => {
                 return {
                   symbol: item.symbol,
@@ -239,6 +240,7 @@ const SymbolContextProvider = ({ children }) => {
 
   async function loadBalance(quote_asset, base_asset) {
     try {
+      if (!activeExchange?.exchange) return
       setIsLoadingBalance(true)
       const response = await Promise.all([
         await getBalance({
