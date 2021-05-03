@@ -122,7 +122,9 @@ const UserContextProvider = ({ children }) => {
                 if (snapshot.empty) {
                   setIsCheckingSub(false)
                   setHasSub(false)
+                  return
                 }
+                console.log('==>', currentUser.uid, snapshot.empty, snapshot)
                 const subscription = snapshot.docs[0].data()
                 const priceData = (await subscription.price.get()).data()
                 const plan = await getCustomClaimRole()
@@ -144,8 +146,9 @@ const UserContextProvider = ({ children }) => {
           const priceData = (await subscription.price.get()).data()
           const plan = await getCustomClaimRole()
           if (
-            subscription.status === 'active' &&
-            subscription.trial_end?.seconds + 3600 > new Date() / 1000
+            subscription.status === 'trialing' ||
+            (subscription.status === 'active' &&
+              subscription.trial_end?.seconds + 3600 > new Date() / 1000)
           ) {
             setNeedPayment(true)
           } else {
