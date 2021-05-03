@@ -58,7 +58,12 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               ) : subscription.status === 'past_due' ? (
                 <div className="media-body">
                   <h5 className="mb-0">Monthly Subscription</h5>
-                  <p className="mb-0 text-sm text-muted lh-150"></p>
+                  <p className="mb-0 text-sm text-muted lh-150">
+                    Your trial expired at {` `}
+                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                      {subscription.trial_end?.seconds}
+                    </Moment>
+                  </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
                     <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
