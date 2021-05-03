@@ -18,7 +18,7 @@ const SymbolSelect = () => {
   const { activeExchange } = useContext(UserContext)
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       boxShadow: 'none',
       border: '1px solid rgb(204, 204, 204)',
@@ -43,7 +43,7 @@ const SymbolSelect = () => {
       textTransform: 'capitalize',
       color: '#718096',
     }),
-    
+
     option: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
@@ -81,6 +81,7 @@ const SymbolSelect = () => {
             IndicatorSeparator: () => null,
           }}
           options={exchanges}
+          isSearchable={false}
           styles={customStyles}
           onChange={(value) => setExchange(value)}
           value={activeExchange}

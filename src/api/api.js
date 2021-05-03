@@ -116,7 +116,6 @@ export async function validateUser() {
 export async function getExchanges() {
   const apiUrl = process.env.REACT_APP_API_V2 + 'exchange'
   const token = await firebase.auth().currentUser?.getIdToken()
-  // if (!token) return []
   const exchanges = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'GET',
