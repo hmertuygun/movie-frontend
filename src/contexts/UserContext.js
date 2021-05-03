@@ -126,11 +126,16 @@ const UserContextProvider = ({ children }) => {
                 const subscription = snapshot.docs[0].data()
                 const priceData = (await subscription.price.get()).data()
                 const plan = await getCustomClaimRole()
-                console.log('sub, priceData, plan ==>', subscription, priceData, plan)
+                console.log(
+                  'sub, priceData, plan ==>',
+                  subscription,
+                  priceData,
+                  plan
+                )
                 setSubscriptionData({ subscription, priceData, plan })
                 setNeedPayment(true)
                 setIsCheckingSub(false)
-                setHasSub(true)      
+                setHasSub(true)
               })
             return
           }
@@ -138,7 +143,10 @@ const UserContextProvider = ({ children }) => {
           const subscription = snapshot.docs[0].data()
           const priceData = (await subscription.price.get()).data()
           const plan = await getCustomClaimRole()
-          if (subscription.status === 'active' && subscription.trial_end.seconds + 3600 > new Date()/1000) {
+          if (
+            subscription.status === 'active' &&
+            subscription.trial_end?.seconds + 3600 > new Date() / 1000
+          ) {
             setNeedPayment(true)
           } else {
             setNeedPayment(false)

@@ -61,7 +61,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
                     <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
-                      {subscription.trial_end.seconds + 86400}
+                      {subscription.trial_end?.seconds + 86400}
                     </Moment>
                     {` `}
                     to keep your subscription active.
@@ -76,7 +76,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
                     <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
-                      {subscription.trial_end.seconds + 3600}
+                      {subscription.trial_end?.seconds + 3600}
                     </Moment>
                     {` `}
                     to keep your subscription active.
