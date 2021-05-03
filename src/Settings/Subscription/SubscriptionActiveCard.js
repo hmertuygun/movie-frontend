@@ -49,10 +49,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial will end on {` `}
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
                     </Moment>
-                    {` `}- {subscription.current_period_end.seconds}
                   </p>
                 </div>
               ) : subscription.status === 'past_due' ? (
@@ -60,13 +59,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   <h5 className="mb-0">Monthly Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial expired at {` `}
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds + 86400}
                     </Moment>
                     {` `}
@@ -77,13 +76,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div className="media-body">
                   <h5 className="mb-0">Monthly Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your free trial expired. please add a payment method before {` `}
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds + 86400}
                     </Moment>
                     {` `}
@@ -105,10 +104,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your subscription will auto-renew on
-                    <Moment unix format="hh:mm:ss A MMMM DD, YYYY">
+                    <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
                     </Moment>
-                    {` `}- {subscription.current_period_end.seconds}
                   </p>
                 </div>
               )}
