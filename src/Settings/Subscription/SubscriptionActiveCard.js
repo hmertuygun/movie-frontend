@@ -74,13 +74,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div className="media-body">
                   <h5 className="mb-0">Monthly Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
+                    Your free trial expired on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your free trial expired. please add a payment method before{' '}
-                    {` `}
+                    Please add a payment method before {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds + 86400}
                     </Moment>
@@ -92,7 +92,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div className="media-body">
                   <h5 className="mb-0">Monthly Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    You are paying
+                    You are paying {` `}
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: priceData?.currency,
@@ -102,7 +102,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     {` `}
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your subscription will auto-renew on
+                    Your subscription will auto-renew on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
                     </Moment>
@@ -125,7 +125,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 className="btn btn-sm btn-neutral rounded-pill"
                 onClick={() => toCustomerPortal(needPayment)}
               >
-                {needPayment ? 'Add Payment' : 'Access customer portal'}
+                {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
               </div>
             )}
           </div>
