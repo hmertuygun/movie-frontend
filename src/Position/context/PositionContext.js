@@ -41,7 +41,7 @@ const PositionCTXProvider = ({ children }) => {
   }
 
   return (
-    <PositionContext.Provider value={{ isLoading, positions, refreshData }}>
+    <PositionContext.Provider value={{ isLoading, setIsLoading, positions, refreshData }}>
       {children}
     </PositionContext.Provider>
   )

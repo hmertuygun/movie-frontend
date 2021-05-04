@@ -18,8 +18,8 @@ const AccordionContainer = () => {
   const [data, setData] = useState([])
 
   useEffect(() => {
-    const positionsData = []
     try {
+      let positionsData = []
       for (const position of positions) {
         const { amount, dateOpened, entry, orders, symbol } = position
         const quoteAsset = symbol.split('-')?.[1]
@@ -124,20 +124,14 @@ const AccordionContainer = () => {
         }
         positionsData.push(modifiedData)
       }
+      setData(positionsData)
     } catch (error) {
       Sentry.captureException(error)
       throw new Error('Error occured while processing positions')
     }
-
-    setData(positionsData)
   }, [positions, lastMessage, symbolDetails, activeExchange])
 
   const { items, requestSort } = useSortableData(data)
-
-  let rows = items.map((item, idx) => {
-    return <Accordion key={idx} {...item} />
-  })
-
   return (
     <div
       className="bg-section-secondary"
@@ -196,14 +190,14 @@ const AccordionContainer = () => {
         </div>
         {/* Disable accordion by removing accordion class, to enable add again */}
         <div id="accordion" className="accordion-spaced">
-          {isLoading ? (
+          {isLoading || !items.length ? (
             <div className="pt-5 text-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="sr-only">Loading...</span>
               </div>
             </div>
           ) : positions.length > 0 ? (
-            rows
+            items.map((item, idx) => <Accordion key={idx} {...item} />)
           ) : (
             <div className="pt-5 text-center">No positions</div>
           )}
