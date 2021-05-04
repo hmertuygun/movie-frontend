@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
 import uniqid from 'uniqid'
+import { dropByCacheKey } from 'react-router-cache-route'
 
 const QuickRegister = () => {
   const { register } = useContext(UserContext)
@@ -49,9 +50,27 @@ const QuickRegister = () => {
           handleCodeInApp: true,
         }
 
-        response.user.sendEmailVerification(actionCodeSettings).then(() => {
-          setRedirect('/register/confirm')
-        })
+        response.user
+          .sendEmailVerification(actionCodeSettings)
+          .then(async () => {
+            const getFPTid = () => {
+              return window.FPROM && window.FPROM.data.tid
+            }
+
+            const refId = getFPTid()
+            if (refId && response?.user) {
+              try {
+                await firebase
+                  .firestore()
+                  .collection('stripe_users')
+                  .doc(response?.user?.uid)
+                  .set({ refId: refId }, { merge: true })
+              } catch (error) {
+                console.log('==>', error)
+              }
+            }
+            setRedirect('/register/confirm')
+          })
       } catch (error) {
         console.error(error)
         setIsLoading(false)
