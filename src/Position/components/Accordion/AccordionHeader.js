@@ -32,7 +32,9 @@ const AccordionHeader = (props) => {
       }
     }, [ref])
   }
-
+  const pollingProp = {
+    url: "https://jsonplaceholder.typicode.com/todos"
+  }
   return (
     <>
       <div className="mb-4 row align-items-center">
@@ -51,7 +53,7 @@ const AccordionHeader = (props) => {
           </button>
           {positions.length > 0 ? (
             <>
-              <Online>
+              <Online polling={pollingProp}>
                 <span
                   className="px-3 badge badge-dot"
                   data-for="position-connected-online-status"
@@ -69,7 +71,7 @@ const AccordionHeader = (props) => {
                 </span>
                 <Tooltip id="position-connected-online-status" />
               </Online>
-              <Offline>
+              <Offline polling={pollingProp}>
                 <span
                   className="px-3 badge badge-dot"
                   data-for="position-connected-offline-status"
@@ -99,9 +101,8 @@ const AccordionHeader = (props) => {
             </span>
           </button>
           <div
-            className={`collapse ${
-              isMenuOpen ? 'dropdown-menu show' : 'dropdown-menu'
-            }`}
+            className={`collapse ${isMenuOpen ? 'dropdown-menu show' : 'dropdown-menu'
+              }`}
             aria-labelledby="dropdownMenuButton"
             style={{
               position: 'absolute',

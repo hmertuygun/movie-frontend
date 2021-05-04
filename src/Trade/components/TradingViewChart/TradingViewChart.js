@@ -270,7 +270,6 @@ export default class TradingViewChart extends Component {
       console.log(e)
     }
     finally {
-      console.log(`In finally`)
       this.setLastSelectedInterval()
       this.onIntervalSelect()
       this.setState({
