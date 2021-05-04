@@ -14,6 +14,7 @@ import {
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
+import { ref } from 'yup'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -101,64 +102,117 @@ const UserContextProvider = ({ children }) => {
     if (userData) {
       const db = firebase.firestore()
       const currentUser = firebase.auth().currentUser
-      setIsCheckingSub(true)
+
       const getCustomClaimRole = async () => {
         await currentUser.getIdToken(true)
         const decodedToken = await currentUser.getIdTokenResult()
         return decodedToken.claims.stripeRole
       }
 
-      const subscriptionRef = db
-        .collection('stripe_users')
-        .doc(currentUser.uid)
-        .collection('subscriptions')
-      subscriptionRef
-        .where('status', 'in', ['trialing', 'active'])
-        .onSnapshot(async (snapshot) => {
-          if (snapshot.empty) {
-            subscriptionRef
-              .where('status', 'in', ['past_due'])
-              .onSnapshot(async (snapshot) => {
-                if (snapshot.empty) {
-                  setIsCheckingSub(false)
-                  setHasSub(false)
-                  return
-                }
-                console.log('==>', currentUser.uid, snapshot.empty, snapshot)
-                const subscription = snapshot.docs[0].data()
-                const priceData = (await subscription.price.get()).data()
-                const plan = await getCustomClaimRole()
-                console.log(
-                  'sub, priceData, plan ==>',
-                  subscription,
-                  priceData,
-                  plan
-                )
-                setSubscriptionData({ subscription, priceData, plan })
-                setNeedPayment(true)
-                setIsCheckingSub(false)
-                setHasSub(true)
-              })
-            return
-          }
+      const getSubscriptionsData = async () => {
+        setIsCheckingSub(true)
+        try {
+          const response = await db
+            .collection('stripe_users')
+            .doc(currentUser.uid)
+            .collection('subscriptions')
+            .orderBy('created', 'asc')
+            .get()
 
-          const subscription = snapshot.docs[0].data()
-          const priceData = (await subscription.price.get()).data()
-          const plan = await getCustomClaimRole()
+          const all = await Promise.all(
+            response.docs.map(async (doc) => {
+              const subscriptionData = doc.data()
+              const response = await db
+                .collection('stripe_users')
+                .doc(currentUser.uid)
+                .collection('subscriptions')
+                .doc(doc.id)
+                .collection('invoices')
+                .get()
+              const invoices = response.docs.map((doc) => doc.data())
+              return {
+                ...subscriptionData,
+                invoices,
+              }
+            })
+          )
+          console.log('==>', all)
+          if (all.length === 0) return
+          const activeSubscriptions = all.filter(
+            (sub) => sub.status === 'active'
+          )
+          const trialingSubscriptions = all.filter(
+            (sub) => sub.status === 'trialing'
+          )
+          const canceledSubscriptions = all.filter(
+            (sub) => sub.status === 'canceled'
+          )
+          const pastDueSubscriptions = all.filter(
+            (sub) => sub.status === 'past_due'
+          )
+          const lastSubscription = all[all.length - 1]
+          console.log('last ==>', lastSubscription)
+
+          const neverPaid = !lastSubscription.invoices.some(
+            (invoice) => invoice.amount_paid > 0
+          )
+          const NoneActive = !all.some((sub) => sub.status === 'active')
+          const NoDefaultPayment = !lastSubscription.invoices.some(
+            (invoice) => invoice.default_payment_method
+          )
+
+          // Add Payment Method case
           if (
-            subscription.status === 'trialing' ||
-            (subscription.status === 'active' &&
-              subscription.trial_end?.seconds + 3600 > new Date() / 1000)
+            (lastSubscription.status === 'active' &&
+              lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+              neverPaid) ||
+            (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
+            lastSubscription.status === 'past_due'
           ) {
             setNeedPayment(true)
+            console.log('==> need payment')
           } else {
             setNeedPayment(false)
           }
-          console.log('sub, priceData, plan ==>', subscription, priceData, plan)
-          setSubscriptionData({ subscription, priceData, plan })
+
+          // Subscribe button case
+          if (lastSubscription.status === 'canceled' && NoneActive) {
+            setHasSub(false)
+          }
+
+          // Manage subscription case
+          if (
+            (lastSubscription.status === 'active' &&
+              lastSubscription.trial_end?.seconds + 86400 <
+                new Date() / 1000) ||
+            ((lastSubscription.status === 'active' ||
+              lastSubscription.status === 'trialing') &&
+              lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+              !NoDefaultPayment)
+          ) {
+            console.log('has sub ==> true')
+            setHasSub(true)
+          }
+          const priceData = (await lastSubscription.price.get()).data()
+          const plan = await getCustomClaimRole()
+          console.log(
+            'sub, priceData, plan ==>',
+            lastSubscription,
+            priceData,
+            plan
+          )
+          setSubscriptionData({
+            subscription: lastSubscription,
+            priceData,
+            plan,
+          })
           setIsCheckingSub(false)
-          setHasSub(true)
-        })
+        } catch (error) {
+          console.log('==>', error)
+        }
+      }
+
+      getSubscriptionsData()
     }
   }, [userData])
 

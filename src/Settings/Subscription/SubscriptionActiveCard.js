@@ -8,8 +8,6 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData, plan } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
 
-  console.log(subscription, priceData)
-
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     const functionRef = firebase
@@ -17,7 +15,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
       .functions('europe-west1')
       .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink')
     const { data } = await functionRef({ returnUrl: window.location.origin })
-    console.log('Function Ref ==>', data.url)
+
     if (needPayment) {
       window.location.assign(data.url + '/payment-methods')
     } else {
@@ -42,10 +40,10 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     You will pay {` `}
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
-                      currency: priceData.currency,
-                    }).format((priceData.unit_amount / 100).toFixed(2))}
+                      currency: priceData?.currency,
+                    }).format((priceData?.unit_amount / 100).toFixed(2))}
                     {` `}
-                    per {priceData.interval} after trial
+                    per {priceData?.interval} after trial
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial will end on {` `}
@@ -81,7 +79,8 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your free trial expired. please add a payment method before {` `}
+                    Your free trial expired. please add a payment method before{' '}
+                    {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds + 86400}
                     </Moment>
@@ -96,10 +95,10 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     You are paying
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
-                      currency: priceData.currency,
-                    }).format((priceData.unit_amount / 100).toFixed(2))}
+                      currency: priceData?.currency,
+                    }).format((priceData?.unit_amount / 100).toFixed(2))}
                     {` `}
-                    per {priceData.interval}
+                    per {priceData?.interval}
                     {` `}
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
