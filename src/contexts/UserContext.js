@@ -136,7 +136,7 @@ const UserContextProvider = ({ children }) => {
               }
             })
           )
-          console.log('==>', all)
+          console.log('All ==>', all)
           if (all.length === 0) return
           const activeSubscriptions = all.filter(
             (sub) => sub.status === 'active'
@@ -157,9 +157,11 @@ const UserContextProvider = ({ children }) => {
             (invoice) => invoice.amount_paid > 0
           )
           const NoneActive = !all.some((sub) => sub.status === 'active')
-          
-          const stripeUser = await db.collection('stripe_users')
-          .doc(currentUser.uid).get()
+
+          const stripeUser = await db
+            .collection('stripe_users')
+            .doc(currentUser.uid)
+            .get()
           const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
           // const NoDefaultPayment = !lastSubscription.invoices.some(
           //   (invoice) => invoice.default_payment_method
@@ -169,7 +171,8 @@ const UserContextProvider = ({ children }) => {
           if (
             (lastSubscription.status === 'active' &&
               lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
-              neverPaid) ||
+              neverPaid &&
+              NoDefaultPayment) ||
             (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
             lastSubscription.status === 'past_due'
           ) {
