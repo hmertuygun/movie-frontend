@@ -157,9 +157,13 @@ const UserContextProvider = ({ children }) => {
             (invoice) => invoice.amount_paid > 0
           )
           const NoneActive = !all.some((sub) => sub.status === 'active')
-          const NoDefaultPayment = !lastSubscription.invoices.some(
-            (invoice) => invoice.default_payment_method
-          )
+          
+          const stripeUser = await db.collection('stripe_users')
+          .doc(currentUser.uid).get()
+          const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
+          // const NoDefaultPayment = !lastSubscription.invoices.some(
+          //   (invoice) => invoice.default_payment_method
+          // )
 
           // Add Payment Method case
           if (

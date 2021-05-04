@@ -74,12 +74,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div className="media-body">
                   <h5 className="mb-0">Monthly Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
+                    Your free trial expired on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your free trial expired. please add a payment method before{' '}
+                    Please add a payment method before{' '}
                     {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.trial_end?.seconds + 86400}
