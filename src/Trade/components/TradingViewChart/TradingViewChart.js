@@ -246,20 +246,31 @@ export default class TradingViewChart extends Component {
     try {
       if (!this.tradingViewWidget) return
       const cData = await getChartDrawing(this.state.email)
-      if (!cData) {
+      if (cData?.error) {
+        this.setLastSelectedInterval()
+        this.onIntervalSelect()
+        this.setState({
+          isChartReady: true
+        })
         this.chartEvent("study_event")
+        setTimeout(() => {
+          this.props.chartReady(true)
+        }, 2500)
         return
       }
-      const pData = JSON.parse(cData)
-      this.tradingViewWidget.save((obj) => {
-        const prep = { ...obj.charts[0], panes: pData }
-        this.tradingViewWidget.load(prep)
-      })
+      else {
+        const pData = JSON.parse(cData)
+        this.tradingViewWidget.save((obj) => {
+          const prep = { ...obj.charts[0], panes: pData }
+          this.tradingViewWidget.load(prep)
+        })
+      }
     }
     catch (e) {
       console.log(e)
     }
     finally {
+      console.log(`In finally`)
       this.setLastSelectedInterval()
       this.onIntervalSelect()
       this.setState({
