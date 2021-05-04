@@ -102,7 +102,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     {` `}
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your subscription will auto-renew on
+                    Your subscription will auto-renew on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
                     </Moment>
@@ -125,7 +125,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 className="btn btn-sm btn-neutral rounded-pill"
                 onClick={() => toCustomerPortal(needPayment)}
               >
-                {needPayment ? 'Add Payment' : 'Access customer portal'}
+                {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
               </div>
             )}
           </div>
