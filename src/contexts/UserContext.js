@@ -191,7 +191,7 @@ const UserContextProvider = ({ children }) => {
           if (
             (lastSubscription.status === 'active' &&
               lastSubscription.trial_end?.seconds + 86400 <
-                new Date() / 1000) ||
+              new Date() / 1000) ||
             ((lastSubscription.status === 'active' ||
               lastSubscription.status === 'trialing') &&
               lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
@@ -383,7 +383,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)

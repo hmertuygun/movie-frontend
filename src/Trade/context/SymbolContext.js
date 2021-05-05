@@ -58,6 +58,7 @@ const SymbolContextProvider = ({ children }) => {
   const [symbolType, setSymbolType] = useState(null)
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
+  const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
 
   const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
@@ -318,13 +319,15 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
-    refetchOnWindowFocus: false,
-  })
+  // const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
+  //   refetchOnWindowFocus: false,
+  // })
 
   const loadExchanges = useCallback(async () => {
     try {
-      const data = queryExchanges.data //await getExchanges()
+      if (!userData) return
+      setIsLoadingExchanges(true)
+      const data = await getExchanges() //queryExchanges.data
       const symbolList = []
       const ftxList = []
       const binanceList = []
@@ -336,7 +339,7 @@ const SymbolContextProvider = ({ children }) => {
       loadLastPrice(getSymbolFromLS.replace('/', ''))
       setExchangesFromTotalExchanges()
       // Process symbols
-      if (queryExchanges.status === 'success' && data['exchanges']) {
+      if (data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
           // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
@@ -405,7 +408,10 @@ const SymbolContextProvider = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [queryExchanges.data, queryExchanges.status, activeExchange, totalExchanges])
+    finally {
+      setIsLoadingExchanges(false)
+    }
+  }, [activeExchange, totalExchanges])
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
@@ -471,7 +477,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.data, queryExchanges.status, loadExchanges, activeExchange, totalExchanges])
+  }, [activeExchange, totalExchanges])
 
   const setExchangesFromTotalExchanges = () => {
     if (!totalExchanges || !totalExchanges.length) return
@@ -485,7 +491,7 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshExchanges = async () => {
     try {
-      const response = await getUserExchanges();
+      const response = await getUserExchanges()
       const apiKeys = response.data.apiKeys.map((item) => {
         return {
           ...item,
@@ -502,7 +508,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: queryExchanges.isLoading || !selectedSymbolDetail,
+        isLoading: !selectedSymbolDetail || isLoadingExchanges,
         exchanges,
         refreshExchanges,
         setExchange,
