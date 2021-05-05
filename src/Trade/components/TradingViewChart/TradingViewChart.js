@@ -82,9 +82,15 @@ export default class TradingViewChart extends Component {
   }
 
   chartEvent = (event) => {
-    this.tradingViewWidget.subscribe(event, (obj) => {
-      this.saveChartDrawingToServer(event)
-    })
+    if (!this.tradingViewWidget) return
+    try {
+      this.tradingViewWidget.subscribe(event, (obj) => {
+        this.saveChartDrawingToServer(event)
+      })
+    }
+    catch (e) {
+      console.log(`Error while subscribing to chart events!`)
+    }
   }
 
   saveChartDrawingToServer = (event) => {
@@ -293,6 +299,14 @@ export default class TradingViewChart extends Component {
   }
 
   componentWillUnmount() {
+    console.info(`Chart component unmounted`)
+  }
+
+  componentDidCatch() {
+    console.info(`Error while rendering chart`)
+    console.log(this.tradingViewWidget)
+    console.log(this.chartObject)
+    console.log(this.state.isChartReady)
   }
 
   render() {
