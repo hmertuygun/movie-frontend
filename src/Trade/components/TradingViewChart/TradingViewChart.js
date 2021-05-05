@@ -47,11 +47,17 @@ export default class TradingViewChart extends Component {
   }
 
   chartReady = () => {
-    this.tradingViewWidget.onChartReady(() => {
-      this.chartObject = this.tradingViewWidget.activeChart()
-      this.getChartDrawingFromServer()
-      this.chartEvent("drawing_event")
-    })
+    if (!this.tradingViewWidget) return
+    try {
+      this.tradingViewWidget.onChartReady(() => {
+        this.chartObject = this.tradingViewWidget.activeChart()
+        this.getChartDrawingFromServer()
+        this.chartEvent("drawing_event")
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
   onIntervalSelect = () => {
