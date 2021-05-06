@@ -5,14 +5,21 @@ import { tableConstants } from './Table/tableConstant'
 import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
+import { UserContext } from '../../contexts/UserContext'
+import {
+  get24hrTickerPrice,
+  getSymbolPriceTicker
+} from '../../api/api'
+import ccxt, { exchanges } from 'ccxt'
 
 const BalanceTable = () => {
   const { balance } = useContext(PortfolioContext)
-  const { lastMessage } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
+  // const { lastMessage } = useSymbolContext()
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-
+  let pricePolling = null
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   const ITEMS_PER_PAGE = 8
@@ -40,23 +47,47 @@ const BalanceTable = () => {
     }
   }, [balance, setTableData, getTableData])
 
-  const fetchLatestPrice = () => {
-    const tempBalance = balance
-    tempBalance.forEach((item, index, arr) => {
-      const fData = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}BTC`)
-      const fData1 = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}USD`)
-      console.log(`${item.SYMBOL}BTC`, fData)
-      console.log(`${item.SYMBOL}USD`, fData1)
-      if (fData) arr[index].BTC = (fData.lastPrice * item.TOTAL).toFixed(8)
-      if (fData1) arr[index].USD = (fData1.lastPrice * item.TOTAL).toFixed(8)
-    })
-    setTableData(tempBalance)
+  const fetchLatestPrice = async () => {
+    if (!activeExchange?.exchange) return
+    try {
+      const { exchange } = activeExchange
+      const tempBalance = balance
+      // const lastMessage = await getSymbolPriceTicker()
+      const proxy = window.location.hostname === "localhost" ? 'http://localhost:8080/' : 'https://nodejs-cors.herokuapp.com/'
+      const exchangeInit = exchange === "binance" ? new ccxt.binance() : new ccxt.ftx({ proxy: proxy })
+      const lastMessage = await exchangeInit.fetchTickers()
+      console.log(lastMessage)
+      const arrayData = Object.values(lastMessage)
+      tempBalance.forEach((item, index, arr) => {
+        const fData = arrayData.find((item1) => item1.symbol === `${item.SYMBOL}/BTC`)
+        const fData1 = arrayData.find((item1) => item1.symbol === `${item.SYMBOL}/USDT`)
+        // console.log(`${item.SYMBOL}/BTC`, fData)
+        // console.log(`${item.SYMBOL}/USDT`, fData1)
+        if (fData) arr[index].BTC = (fData.price * item.TOTAL).toFixed(8)
+        if (fData1) arr[index].USD = (fData1.price * item.TOTAL).toFixed(8)
+      })
+      setTableData(tempBalance)
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  // useEffect(() => {
+  //   if (!balance?.length || !lastMessage?.length) return
+  //   fetchLatestPrice()
+  // }, [lastMessage])
+
+  const latestPricePolling = () => {
+    clearInterval(pricePolling)
+    pricePolling = null
+    pricePolling = setInterval(fetchLatestPrice, 3000)
   }
 
   useEffect(() => {
-    if (!balance?.length || !lastMessage?.length) return
-    fetchLatestPrice()
-  }, [lastMessage])
+    if (!balance?.length) return
+    latestPricePolling()
+  }, [balance, activeExchange])
 
   return (
     <>
