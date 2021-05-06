@@ -25,6 +25,7 @@ const BalanceTable = () => {
   const ITEMS_PER_PAGE = 8
 
   const getTableData = useMemo(() => {
+
     if (tableData) {
       let data = tableData
 
@@ -56,17 +57,16 @@ const BalanceTable = () => {
       const proxy = window.location.hostname === "localhost" ? 'http://localhost:8080/' : 'https://nodejs-cors.herokuapp.com/'
       const exchangeInit = exchange === "binance" ? new ccxt.binance() : new ccxt.ftx({ proxy: proxy })
       const lastMessage = await exchangeInit.fetchTickers()
-      console.log(lastMessage)
       const arrayData = Object.values(lastMessage)
       tempBalance.forEach((item, index, arr) => {
         const fData = arrayData.find((item1) => item1.symbol === `${item.SYMBOL}/BTC`)
         const fData1 = arrayData.find((item1) => item1.symbol === `${item.SYMBOL}/USDT`)
         // console.log(`${item.SYMBOL}/BTC`, fData)
         // console.log(`${item.SYMBOL}/USDT`, fData1)
-        if (fData) arr[index].BTC = (fData.price * item.TOTAL).toFixed(8)
-        if (fData1) arr[index].USD = (fData1.price * item.TOTAL).toFixed(8)
+        if (fData) arr[index].BTC = (fData.close * item.TOTAL).toFixed(8)
+        if (fData1) arr[index].USD = (fData1.close * item.TOTAL).toFixed(8)
       })
-      setTableData(tempBalance)
+      setTableData(() => [...tempBalance])
     }
     catch (e) {
       console.log(e)
@@ -81,7 +81,9 @@ const BalanceTable = () => {
   const latestPricePolling = () => {
     clearInterval(pricePolling)
     pricePolling = null
-    pricePolling = setInterval(fetchLatestPrice, 3000)
+    pricePolling = setInterval(() => {
+      fetchLatestPrice()
+    }, 5000)
   }
 
   useEffect(() => {
