@@ -7,16 +7,19 @@
   width: 100%;
 }
 
-.TabNavigator-nav,
-.TradeTabNav {
+.TabNavigator-nav {
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid var(--border-color);
   font-weight: 500;
 }
 
-.TradeTabNav {
+.DropDownNav {
   justify-content: space-between;
+}
+
+.HorizontalNav {
+  overflow: auto;
 }
 
 .TabNavigator-link {

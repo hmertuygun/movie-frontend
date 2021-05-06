@@ -36,7 +36,7 @@ const Settings = () => {
               <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions']}
+                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions & Billing']}
                     index={tabIndex}
                     hadDropDown={false}
                   >
