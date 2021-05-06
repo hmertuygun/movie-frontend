@@ -55,7 +55,6 @@ const UserContextProvider = ({ children }) => {
   const [needPayment, setNeedPayment] = useState(false)
   const [products, setProducts] = useState([])
   const [subscriptionData, setSubscriptionData] = useState(null)
-  const [subInfo, setSubInfo] = useState(null)
   const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
@@ -100,128 +99,124 @@ const UserContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (userData) {
-      const db = firebase.firestore()
-      const currentUser = firebase.auth().currentUser
+      getSubscriptionsData()
+    }
+  }, [userData])
 
-      const getCustomClaimRole = async () => {
-        await currentUser.getIdToken(true)
-        const decodedToken = await currentUser.getIdTokenResult()
-        return decodedToken.claims.stripeRole
-      }
+  const getCustomClaimRole = async () => {
+    const db = firebase.firestore()
+    const currentUser = firebase.auth().currentUser
 
-      const getSubscriptionsData = async () => {
-        setIsCheckingSub(true)
-        try {
+    await currentUser.getIdToken(true)
+    const decodedToken = await currentUser.getIdTokenResult()
+    return decodedToken.claims.stripeRole
+  }
+
+  const getSubscriptionsData = async () => {
+    setIsCheckingSub(true)
+
+    const db = firebase.firestore()
+    const currentUser = firebase.auth().currentUser
+
+    try {
+      const response = await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .collection('subscriptions')
+        .orderBy('created', 'asc')
+        .get()
+
+      const all = await Promise.all(
+        response.docs.map(async (doc) => {
+          const subscriptionData = doc.data()
           const response = await db
             .collection('stripe_users')
             .doc(currentUser.uid)
             .collection('subscriptions')
-            .orderBy('created', 'asc')
+            .doc(doc.id)
+            .collection('invoices')
             .get()
-
-          const all = await Promise.all(
-            response.docs.map(async (doc) => {
-              const subscriptionData = doc.data()
-              const response = await db
-                .collection('stripe_users')
-                .doc(currentUser.uid)
-                .collection('subscriptions')
-                .doc(doc.id)
-                .collection('invoices')
-                .get()
-              const invoices = response.docs.map((doc) => doc.data())
-              return {
-                ...subscriptionData,
-                invoices,
-              }
-            })
-          )
-          console.log('All ==>', all)
-          if (all.length === 0) return
-          const activeSubscriptions = all.filter(
-            (sub) => sub.status === 'active'
-          )
-          const trialingSubscriptions = all.filter(
-            (sub) => sub.status === 'trialing'
-          )
-          const canceledSubscriptions = all.filter(
-            (sub) => sub.status === 'canceled'
-          )
-          const pastDueSubscriptions = all.filter(
-            (sub) => sub.status === 'past_due'
-          )
-          const lastSubscription = all[all.length - 1]
-          console.log('last ==>', lastSubscription)
-
-          const neverPaid = !lastSubscription.invoices.some(
-            (invoice) => invoice.amount_paid > 0
-          )
-          const NoneActive = !all.some((sub) => sub.status === 'active')
-
-          const stripeUser = await db
-            .collection('stripe_users')
-            .doc(currentUser.uid)
-            .get()
-          const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
-          // const NoDefaultPayment = !lastSubscription.invoices.some(
-          //   (invoice) => invoice.default_payment_method
-          // )
-
-          // Add Payment Method case
-          if (
-            (lastSubscription.status === 'active' &&
-              lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
-              neverPaid &&
-              NoDefaultPayment) ||
-            (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
-            lastSubscription.status === 'past_due'
-          ) {
-            setNeedPayment(true)
-            console.log('==> need payment')
-          } else {
-            setNeedPayment(false)
+          const invoices = response.docs.map((doc) => doc.data())
+          return {
+            ...subscriptionData,
+            invoices,
           }
+        })
+      )
+      console.log('All ==>', all)
+      if (all.length === 0) return
+      const activeSubscriptions = all.filter((sub) => sub.status === 'active')
+      const trialingSubscriptions = all.filter(
+        (sub) => sub.status === 'trialing'
+      )
+      const canceledSubscriptions = all.filter(
+        (sub) => sub.status === 'canceled'
+      )
+      const pastDueSubscriptions = all.filter(
+        (sub) => sub.status === 'past_due'
+      )
+      const lastSubscription = all[all.length - 1]
+      console.log('last ==>', lastSubscription)
 
-          // Subscribe button case
-          if (lastSubscription.status === 'canceled' && NoneActive) {
-            setHasSub(false)
-          }
+      const neverPaid = !lastSubscription.invoices.some(
+        (invoice) => invoice.amount_paid > 0
+      )
+      const NoneActive = !all.some((sub) => sub.status === 'active')
 
-          // Manage subscription case
-          if (
-            (lastSubscription.status === 'active' &&
-              lastSubscription.trial_end?.seconds + 86400 <
-              new Date() / 1000) ||
-            ((lastSubscription.status === 'active' ||
-              lastSubscription.status === 'trialing') &&
-              lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
-              !NoDefaultPayment)
-          ) {
-            console.log('has sub ==> true')
-            setHasSub(true)
-          }
-          const priceData = (await lastSubscription.price.get()).data()
-          const plan = await getCustomClaimRole()
-          console.log(
-            'sub, priceData, plan ==>',
-            lastSubscription,
-            priceData,
-            plan
-          )
-          setSubscriptionData({
-            subscription: lastSubscription,
-            priceData,
-            plan,
-          })
-          setIsCheckingSub(false)
-        } catch (error) {
-          console.log('==>', error)
-        }
+      const stripeUser = await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .get()
+      const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
+      // const NoDefaultPayment = !lastSubscription.invoices.some(
+      //   (invoice) => invoice.default_payment_method
+      // )
+
+      // Add Payment Method case
+      if (
+        (lastSubscription.status === 'active' &&
+          lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+          neverPaid &&
+          NoDefaultPayment) ||
+        (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
+        lastSubscription.status === 'past_due'
+      ) {
+        setNeedPayment(true)
+        console.log('==> need payment')
+      } else {
+        setNeedPayment(false)
       }
 
-      getSubscriptionsData()
+      // Subscribe button case
+      if (lastSubscription.status === 'canceled' && NoneActive) {
+        setHasSub(false)
+      }
+
+      // Manage subscription case
+      if (
+        (lastSubscription.status === 'active' &&
+          lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
+        ((lastSubscription.status === 'active' ||
+          lastSubscription.status === 'trialing') &&
+          lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+          !NoDefaultPayment)
+      ) {
+        console.log('has sub ==> true')
+        setHasSub(true)
+      }
+      const priceData = (await lastSubscription.price.get()).data()
+      const plan = await getCustomClaimRole()
+      console.log('sub, priceData, plan ==>', lastSubscription, priceData, plan)
+      setSubscriptionData({
+        subscription: lastSubscription,
+        priceData,
+        plan,
+      })
+      setIsCheckingSub(false)
+    } catch (error) {
+      console.log('==>', error)
     }
-  }, [userData])
+  }
 
   async function getExchanges() {
     try {
@@ -383,7 +378,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) { }
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -544,9 +539,7 @@ const UserContextProvider = ({ children }) => {
         needPayment,
         products,
         subscriptionData,
-        subInfo,
-        setSubInfo,
-        setHasSub,
+        getSubscriptionsData,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,
         openOrdersUC,
