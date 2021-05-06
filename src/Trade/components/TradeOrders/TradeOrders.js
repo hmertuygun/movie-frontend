@@ -225,14 +225,12 @@ const TradeOrders = () => {
     FBOrderUpdate = db.collection('order_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        console.log('Order Update at => ', new Date())
         setOrderUpdateFB(prevState => prevState + 1)
       })
 
     FBOrderHistory = db.collection('order_history_update')
       .doc(userData.email)
       .onSnapshot((doc) => {
-        console.log('Order History Update at => ', new Date())
         setOrderHistoryFB(prevState => prevState + 1)
       })
 
