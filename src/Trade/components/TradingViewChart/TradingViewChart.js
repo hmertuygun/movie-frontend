@@ -47,12 +47,17 @@ export default class TradingViewChart extends Component {
   }
 
   chartReady = () => {
-    this.tradingViewWidget.onChartReady(() => {
-      this.chartObject = this.tradingViewWidget.activeChart()
-      this.onIntervalSelect()
-      this.getChartDrawingFromServer()
-      this.chartEvent("drawing_event")
-    })
+    if (!this.tradingViewWidget) return
+    try {
+      this.tradingViewWidget.onChartReady(() => {
+        this.chartObject = this.tradingViewWidget.activeChart()
+        this.getChartDrawingFromServer()
+        this.chartEvent("drawing_event")
+      })
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
   onIntervalSelect = () => {
@@ -83,9 +88,15 @@ export default class TradingViewChart extends Component {
   }
 
   chartEvent = (event) => {
-    this.tradingViewWidget.subscribe(event, (obj) => {
-      this.saveChartDrawingToServer(event)
-    })
+    if (!this.tradingViewWidget) return
+    try {
+      this.tradingViewWidget.subscribe(event, (obj) => {
+        this.saveChartDrawingToServer(event)
+      })
+    }
+    catch (e) {
+      console.log(`Error while subscribing to chart events!`)
+    }
   }
 
   saveChartDrawingToServer = (event) => {
@@ -100,6 +111,7 @@ export default class TradingViewChart extends Component {
     if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
       this.chartObject.setSymbol(newSymbol)
+      this.drawOpenOrdersChartLines(this.props.openOrders)
     }
     catch (e) {
       //console.log(e)
@@ -108,8 +120,6 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
-    console.log(`Open Orders Received: `, openOrders)
-    console.log(`Orders Drawn: `, this.orderLinesDrawn)
     const PlacedOrderTooltip = 'Order is on the exchange order book.'
     const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
     try {
@@ -123,18 +133,20 @@ export default class TradingViewChart extends Component {
         let fData = openOrders.find(item => item.trade_id === trade_id)
         if (!fData) this.chartObject.setEntityVisibility(line_id, false)
       }
-      openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      // openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
       for (let i = 0; i < openOrders.length; i++) {
-        const { trade_id, orders, type } = openOrders[i]
+        const { trade_id, orders, type, symbol } = openOrders[i]
+        if (this.props.symbol.replace('/', '-') !== symbol) continue // skip orders with symbol not equal to the one selected/shown in chart 
         const isFullTrade = type.includes("Full")
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending") continue
+          if ((symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending")) continue
           let toolTipText
           let orderPrice
+          let orderLineId
           if (isFullTrade) {
             if (symbol.toLowerCase() === "entry") {
               if (status.toLowerCase() !== "pending") {
@@ -173,26 +185,44 @@ export default class TradingViewChart extends Component {
             else {
               orderPrice = price
             }
+            orderLineId = trade_id + '-' + symbol.toLowerCase().replace(' ', '-')
           }
           else {
             orderPrice = price === "Market" ? trigger : price
             toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+            orderLineId = trade_id
           }
 
-          let entity = this.chartObject.createOrderLine()
-            .setTooltip(toolTipText)
-            .setLineLength(60)
-            .setExtendLeft(false)
-            .setLineColor(orderColor)
-            .setBodyBorderColor(orderColor)
-            .setBodyTextColor(orderColor)
-            .setQuantityBackgroundColor(orderColor)
-            .setQuantityBorderColor(orderColor)
-            // .setQuantityTextColor("rgb(255,255,255)")
-            .setText(orderText)
-            .setQuantity(`${total} ${quote_asset}`)
-            .setPrice(orderPrice)
-          this.orderLinesDrawn.push({ line_id: entity?._line?._id, trade_id, entity })
+          const fIndex = this.orderLinesDrawn.findIndex(item => item.id === orderLineId)
+          if (fIndex > -1) { // if order is already drawn
+            const { line_id, trade_id, entity } = this.orderLinesDrawn[fIndex]
+            if (status.toLowerCase() === "filled") { // if order is already drawn and the status is 'filled' hide it.
+              this.chartObject.setEntityVisibility(line_id, false)
+            }
+            else {
+              entity.setTooltip(toolTipText)
+                .setText(orderText)
+                .setQuantity(`${total} ${quote_asset}`)
+                .setPrice(orderPrice)
+            }
+          }
+          else { // if order is not already drawn
+            if (status.toLowerCase() === "filled") continue // if order status is filled , don't draw it
+            let entity = this.chartObject.createOrderLine()
+              .setTooltip(toolTipText)
+              .setLineLength(60)
+              .setExtendLeft(false)
+              .setLineColor(orderColor)
+              .setBodyBorderColor(orderColor)
+              .setBodyTextColor(orderColor)
+              .setQuantityBackgroundColor(orderColor)
+              .setQuantityBorderColor(orderColor)
+              // .setQuantityTextColor("rgb(255,255,255)")
+              .setText(orderText)
+              .setQuantity(`${total} ${quote_asset}`)
+              .setPrice(orderPrice)
+            this.orderLinesDrawn.push({ line_id: entity?._line?._id, id: orderLineId, trade_id, entity })
+          }
           if (showOnlyEntryOrder) break
         }
       }
@@ -228,21 +258,32 @@ export default class TradingViewChart extends Component {
     try {
       if (!this.tradingViewWidget) return
       const cData = await getChartDrawing(this.state.email)
-      if (!cData) {
+      if (cData?.error) {
+        this.setLastSelectedInterval()
+        this.onIntervalSelect()
+        this.setState({
+          isChartReady: true
+        })
         this.chartEvent("study_event")
+        setTimeout(() => {
+          this.props.chartReady(true)
+        }, 2500)
         return
       }
-      const pData = JSON.parse(cData)
-      this.tradingViewWidget.save((obj) => {
-        const prep = { ...obj.charts[0], panes: pData }
-        this.tradingViewWidget.load(prep)
-      })
-      this.setLastSelectedInterval()
+      else {
+        const pData = JSON.parse(cData)
+        this.tradingViewWidget.save((obj) => {
+          const prep = { ...obj.charts[0], panes: pData }
+          this.tradingViewWidget.load(prep)
+        })
+      }
     }
     catch (e) {
       console.log(e)
     }
     finally {
+      this.setLastSelectedInterval()
+      this.onIntervalSelect()
       this.setState({
         isChartReady: true
       })
@@ -260,13 +301,18 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
-    //console.log(`In Update`)
     this.changeSymbol(this.props.symbol)
-    this.drawOpenOrdersChartLines(this.props.openOrders)
-    // this.deleteOpenOrderLine(this.props.delOrderId)
   }
 
   componentWillUnmount() {
+    console.info(`Chart component unmounted`)
+  }
+
+  componentDidCatch() {
+    console.info(`Error while rendering chart`)
+    console.log(this.tradingViewWidget)
+    console.log(this.chartObject)
+    console.log(this.state.isChartReady)
   }
 
   render() {

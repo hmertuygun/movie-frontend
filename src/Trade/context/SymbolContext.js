@@ -31,7 +31,9 @@ const SymbolContextProvider = ({ children }) => {
     totalExchanges,
     loaderVisible,
     setLoaderVisibility,
-    setOpenOrdersUC
+    setOpenOrdersUC,
+    userData,
+    loadApiKeys
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
@@ -54,17 +56,23 @@ const SymbolContextProvider = ({ children }) => {
   const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
+  const [binanceDD, setBinanceDD] = useState([])
+  const [ftxDD, setFtxDD] = useState([])
+  const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
 
   const setSymbolFromExchangeOnLoad = (symbolDetails) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
-    const symbolVal = `${exchange.toUpperCase()}:${INITIAL_SYMBOL_LOAD_SLASH}`
-    localStorage.setItem('selectedExchange', exchange)
-    localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-    setExchangeType(exchange)
-    setSymbolType(INITIAL_SYMBOL_LOAD_SLASH)
-    setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: symbolVal })
+    const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
+    const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
+    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+    setExchangeType(getExchangeFromLS)
+    setSymbolType(getSymbolFromLS)
+    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
+    // loadBalance(qouteAsset, baseAsset)
+    // loadLastPrice(getSymbolFromLS.replace('/', ''))
   }
 
   useEffect(() => {
@@ -82,7 +90,7 @@ const SymbolContextProvider = ({ children }) => {
       default:
         break
     }
-
+    if (!socketURL) return
     const rws = new ReconnectingWebSocket(socketURL)
     rws.addEventListener('open', () => {
       setLastMessage([])
@@ -189,6 +197,7 @@ const SymbolContextProvider = ({ children }) => {
             }
             const getFirstData = async () => {
               const response = await fetchTickers()
+              if (!response) return
               const message = Object.values(response).map((item) => {
                 return {
                   symbol: item.symbol,
@@ -232,6 +241,7 @@ const SymbolContextProvider = ({ children }) => {
 
   async function loadBalance(quote_asset, base_asset) {
     try {
+      if (!activeExchange?.exchange) return
       setIsLoadingBalance(true)
       const response = await Promise.all([
         await getBalance({
@@ -261,6 +271,7 @@ const SymbolContextProvider = ({ children }) => {
 
   async function loadLastPrice(symbolpair) {
     try {
+      if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
       const { exchange } = activeExchange
       const response = await backOff(() => getLastPrice(symbolpair, exchange))
@@ -283,8 +294,8 @@ const SymbolContextProvider = ({ children }) => {
 
   function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
-    console.log('setting symbol')
     setSelectedSymbol(symbol)
+    setSymbolType(symbol.label.replace('-', '/'))
   }
 
   async function setExchange(exchange) {
@@ -308,25 +319,47 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
-    refetchOnWindowFocus: false,
-  })
+  // const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
+  //   refetchOnWindowFocus: false,
+  // })
 
-  const loadExchanges = useCallback(async () => {
+  const loadExchanges = async () => {
     try {
-      const data = queryExchanges.data //await getExchanges()
+      if (!userData) return
+      setIsLoadingExchanges(true)
+      const data = await getExchanges() //queryExchanges.data
       const symbolList = []
+      const ftxList = []
+      const binanceList = []
       const symbolDetails = {}
-      if (queryExchanges.status === 'success' && data['exchanges']) {
+      const pn = performance.now()
+      const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+      const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+      loadBalance(qouteAsset, baseAsset)
+      loadLastPrice(getSymbolFromLS.replace('/', ''))
+      setExchangesFromTotalExchanges()
+      // Process symbols
+      if (data['exchanges']) {
         data['exchanges'].forEach((exchange) => {
           // exchangeList.push(exchange['exchange'])
           exchange['symbols'].forEach((symbol) => {
-            const value =
-              exchange['exchange'].toUpperCase() + ':' + symbol['value']
+            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
             symbolList.push({
               label: symbol['label'],
               value: value,
             })
+            if (exchange['exchange'] === "binance") {
+              binanceList.push({
+                label: symbol['label'],
+                value: value,
+              })
+            }
+            else if (exchange['exchange'] === "ftx") {
+              ftxList.push({
+                label: symbol['label'],
+                value: value,
+              })
+            }
             let tickSize = symbol['tickSize']
             for (let i = 1; i < 10; i++) {
               tickSize = tickSize * 10
@@ -362,18 +395,12 @@ const SymbolContextProvider = ({ children }) => {
             }
           })
         })
-        // Set total user added exchanges in dropdown
-        let mapExchanges = totalExchanges.map((item) => ({
-          ...item,
-          label: `${item.exchange} - ${item.apiKeyName}`,
-          value: `${item.exchange} - ${item.apiKeyName}`,
-        }))
-        setExchanges(mapExchanges)
         setSymbols(symbolList)
         setSymbolDetails(symbolDetails)
+        setFtxDD(ftxList)
+        setBinanceDD(binanceList)
         setSymbolFromExchangeOnLoad(symbolDetails)
-        loadBalance('USDT', 'BTC')
-        loadLastPrice('BTCUSDT')
+        console.log(`Took ${parseFloat(performance.now() - pn).toFixed(2)} seconds to parse symbols`)
       } else {
         setExchanges([])
         setSymbols([])
@@ -381,7 +408,10 @@ const SymbolContextProvider = ({ children }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [queryExchanges.data, queryExchanges.status])
+    finally {
+      setIsLoadingExchanges(false)
+    }
+  }
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
@@ -394,7 +424,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     const { exchange } = activeExchange
-    if (!exchange || !selectedSymbolDetail.base_asset) return
+    if (!exchange || !selectedSymbolDetail?.base_asset) return
     setOpenOrdersUC(null)
     const symbolLabel = `${selectedSymbolDetail.base_asset}-${selectedSymbolDetail.quote_asset}`
     switch (exchange) {
@@ -447,11 +477,21 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [queryExchanges.status, loadExchanges, totalExchanges])
+  }, [activeExchange.exchange])
+
+  const setExchangesFromTotalExchanges = () => {
+    if (!totalExchanges || !totalExchanges.length) return
+    let mapExchanges = totalExchanges.map((item) => ({
+      ...item,
+      label: `${item.exchange} - ${item.apiKeyName}`,
+      value: `${item.exchange} - ${item.apiKeyName}`,
+    }))
+    setExchanges(mapExchanges)
+  }
 
   const refreshExchanges = async () => {
     try {
-      const response  = await getUserExchanges();
+      const response = await getUserExchanges()
       const apiKeys = response.data.apiKeys.map((item) => {
         return {
           ...item,
@@ -468,7 +508,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: queryExchanges.isLoading || !selectedSymbolDetail,
+        isLoading: !selectedSymbolDetail || isLoadingExchanges,
         exchanges,
         refreshExchanges,
         setExchange,
@@ -491,7 +531,9 @@ const SymbolContextProvider = ({ children }) => {
         lastMessage,
         liveUpdate: socketLiveUpdate || pollingLiveUpdate,
         exchangeType,
-        symbolType
+        symbolType,
+        binanceDD,
+        ftxDD
       }}
     >
       {children}

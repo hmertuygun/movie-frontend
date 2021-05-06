@@ -278,3 +278,11 @@
   margin-left: 8px;
   margin-top: 2px;
 }
+@media (max-width: 767px) {
+  .chart-container {
+    flex-direction: column;
+  }
+  .custom-legend {
+    margin: 24px 0 0 0 !important;
+  }
+}

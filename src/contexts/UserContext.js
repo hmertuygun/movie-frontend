@@ -10,10 +10,11 @@ import {
   updateLastSelectedAPIKey,
   storeNotificationToken,
   checkSubscription,
-  createUserSubscription
+  createUserSubscription,
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
+import { ref } from 'yup'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -22,9 +23,12 @@ const UserContextProvider = ({ children }) => {
   const localStorageRemember = localStorage.getItem('remember')
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
-  localStorage.removeItem("tradingview.IntervalWidget.quicks")
+  localStorage.removeItem('tradingview.IntervalWidget.quicks')
   let initialState = {}
-  if (localStorageUser !== 'undefined' && (sessionStorageRemember === "true" || localStorageRemember === "true")) {
+  if (
+    localStorageUser !== 'undefined' &&
+    (sessionStorageRemember === 'true' || localStorageRemember === 'true')
+  ) {
     initialState = {
       user: JSON.parse(localStorageUser),
       ...JSON.parse(localStorage2faUserDetails),
@@ -37,19 +41,182 @@ const UserContextProvider = ({ children }) => {
   const [userData, setUserData] = useState(false)
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
-  const [activeExchange, setActiveExchange] = useState({ apiKeyName: '', exchange: '' })
-  const [loaderText, setLoaderText] = useState('Loading data from new exchange ...')
+  const [activeExchange, setActiveExchange] = useState({
+    apiKeyName: '',
+    exchange: '',
+  })
+  const [loaderText, setLoaderText] = useState(
+    'Loading data from new exchange ...'
+  )
   const [loaderVisible, setLoaderVisibility] = useState(false)
   const [rememberCheck, setRememberCheck] = useState(false)
-  const [hasSub, setHasSub] = useState(false)
-  const [subInfo, setSubInfo] = useState(null)
+  const [isCheckingSub, setIsCheckingSub] = useState(false)
+  const [hasSub, setHasSub] = useState(true)
+  const [needPayment, setNeedPayment] = useState(false)
+  const [products, setProducts] = useState([])
+  const [subscriptionData, setSubscriptionData] = useState(null)
   const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
+    getProducts()
   }, [])
+
+  const getProducts = async () => {
+    const db = firebase.firestore()
+    const plans = []
+    await db
+      .collection('stripe_plans')
+      .where('active', '==', true)
+      .get()
+      .then(async (querySnapshot) => {
+        querySnapshot.forEach(async (doc) => {
+          const priceSnap = await doc.ref
+            .collection('prices')
+            .where('active', '==', true)
+            .orderBy('unit_amount')
+            .get()
+          const productData = doc.data()
+          productData['id'] = doc.id
+          productData['prices'] = []
+          priceSnap.docs.forEach(async (doc) => {
+            const priceId = doc.id
+            const priceData = doc.data()
+
+            productData.prices.push({
+              price: (priceData.unit_amount / 100).toFixed(2),
+              currency: priceData.currency,
+              interval: priceData.interval,
+              id: priceId,
+            })
+          })
+          setProducts((products) => [...products, productData])
+        })
+      })
+  }
+
+  useEffect(() => {
+    if (userData) {
+      getSubscriptionsData()
+    }
+  }, [userData])
+
+  const getCustomClaimRole = async () => {
+    const db = firebase.firestore()
+    const currentUser = firebase.auth().currentUser
+
+    await currentUser.getIdToken(true)
+    const decodedToken = await currentUser.getIdTokenResult()
+    return decodedToken.claims.stripeRole
+  }
+
+  const getSubscriptionsData = async () => {
+    setIsCheckingSub(true)
+
+    const db = firebase.firestore()
+    const currentUser = firebase.auth().currentUser
+
+    try {
+      const response = await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .collection('subscriptions')
+        .orderBy('created', 'asc')
+        .get()
+
+      const all = await Promise.all(
+        response.docs.map(async (doc) => {
+          const subscriptionData = doc.data()
+          const response = await db
+            .collection('stripe_users')
+            .doc(currentUser.uid)
+            .collection('subscriptions')
+            .doc(doc.id)
+            .collection('invoices')
+            .get()
+          const invoices = response.docs.map((doc) => doc.data())
+          return {
+            ...subscriptionData,
+            invoices,
+          }
+        })
+      )
+      console.log('All ==>', all)
+      if (all.length === 0) return
+      const activeSubscriptions = all.filter((sub) => sub.status === 'active')
+      const trialingSubscriptions = all.filter(
+        (sub) => sub.status === 'trialing'
+      )
+      const canceledSubscriptions = all.filter(
+        (sub) => sub.status === 'canceled'
+      )
+      const pastDueSubscriptions = all.filter(
+        (sub) => sub.status === 'past_due'
+      )
+      const lastSubscription = all[all.length - 1]
+      console.log('last ==>', lastSubscription)
+
+      const neverPaid = !lastSubscription.invoices.some(
+        (invoice) => invoice.amount_paid > 0
+      )
+      const NoneActive = !all.some((sub) => sub.status === 'active')
+
+      const stripeUser = await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .get()
+      const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
+      // const NoDefaultPayment = !lastSubscription.invoices.some(
+      //   (invoice) => invoice.default_payment_method
+      // )
+
+      // Add Payment Method case
+      if (
+        (lastSubscription.status === 'active' &&
+          lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+          neverPaid &&
+          NoDefaultPayment) ||
+        (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
+        lastSubscription.status === 'past_due'
+      ) {
+        setNeedPayment(true)
+        console.log('==> need payment')
+      } else {
+        setNeedPayment(false)
+      }
+
+      // Subscribe button case
+      if (lastSubscription.status === 'canceled' && NoneActive) {
+        setHasSub(false)
+      }
+
+      // Manage subscription case
+      if (
+        (lastSubscription.status === 'active' &&
+          lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
+        ((lastSubscription.status === 'active' ||
+          lastSubscription.status === 'trialing') &&
+          lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
+          !NoDefaultPayment)
+      ) {
+        console.log('has sub ==> true')
+        setHasSub(true)
+      }
+      const priceData = (await lastSubscription.price.get()).data()
+      const plan = await getCustomClaimRole()
+      console.log('sub, priceData, plan ==>', lastSubscription, priceData, plan)
+      setSubscriptionData({
+        subscription: lastSubscription,
+        priceData,
+        plan,
+      })
+      setIsCheckingSub(false)
+    } catch (error) {
+      console.log('==>', error)
+    }
+  }
 
   async function getExchanges() {
     try {
@@ -62,31 +229,38 @@ const UserContextProvider = ({ children }) => {
       setTotalExchanges(apiKeys)
       let getSavedKey = sessionStorage.getItem('exchangeKey')
       const ssData = JSON.parse(getSavedKey)
-      if (ssData && (apiKeys.findIndex(item => item.apiKeyName === ssData.apiKeyName && item.exchange === ssData.exchange) > -1)) {
+      if (
+        ssData &&
+        apiKeys.findIndex(
+          (item) =>
+            item.apiKeyName === ssData.apiKeyName &&
+            item.exchange === ssData.exchange
+        ) > -1
+      ) {
         setActiveExchange({ ...ssData })
         setLoadApiKeys(true)
-      }
-      else {
-        let activeKey = apiKeys.find(item => item.isLastSelected === true && item.status === "Active")
+      } else {
+        let activeKey = apiKeys.find(
+          (item) => item.isLastSelected === true && item.status === 'Active'
+        )
         if (activeKey) {
           const data = {
             ...activeKey,
             label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`
+            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
           }
           setLoadApiKeys(true) // Only check active api exchange eventually
           setActiveExchange(data)
           sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-        }
-        else {
+        } else {
           // find the first one that is 'Active'
-          let active = apiKeys.find(item => item.status === "Active")
+          let active = apiKeys.find((item) => item.status === 'Active')
           if (active) {
             await updateLastSelectedAPIKey({ ...active })
             const data = {
               ...active,
               label: `${active.exchange} - ${active.apiKeyName}`,
-              value: `${active.exchange} - ${active.apiKeyName}`
+              value: `${active.exchange} - ${active.apiKeyName}`,
             }
             setActiveExchange(data)
             sessionStorage.setItem('exchangeKey', JSON.stringify(data))
@@ -94,11 +268,9 @@ const UserContextProvider = ({ children }) => {
           }
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
-    }
-    finally {
+    } finally {
       setUserContextLoaded(true)
     }
   }
@@ -106,57 +278,44 @@ const UserContextProvider = ({ children }) => {
   async function FCMSubscription() {
     try {
       const np = await Notification.requestPermission() // "granted", "denied", "default"
-      if (np === "denied") return
+      if (np === 'denied') return
       const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
-      console.log(`FCM token: ${token}`)
+      // console.log(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
         console.log(`Received msg in UC onMessage`)
         const { data } = payload
         let apiKey = data?.message_3
         if (!apiKey) return
-        apiKey = apiKey.split(":")[1]
+        apiKey = apiKey.split(':')[1]
         const description = (
           <>
-            <p className='mb-0'>{data.message_1}</p>
-            <p className='mb-0'>{data.message_2}</p>
-            <p className='mb-0'>API Key: {apiKey}</p>
+            <p className="mb-0">{data.message_1}</p>
+            <p className="mb-0">{data.message_2}</p>
+            <p className="mb-0">API Key: {apiKey}</p>
           </>
         )
-        successNotification.open({ message: data.title, duration: 3, description })
+        successNotification.open({
+          message: data.title,
+          duration: 3,
+          description,
+        })
       })
-      navigator.serviceWorker.addEventListener("message", (message) => {
+      navigator.serviceWorker.addEventListener('message', (message) => {
         console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
 
   const getUserExchangesAfterFBInit = () => {
-    const accValues = ["active", "trialing"]
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         // User is signed in.
-        let status
         setUserData(user)
-        try {
-          let response = await checkSubscription()
-          if (response?.status === "error" && response?.message === "User not found") {
-            response = await createUserSubscription()
-          }
-          setSubInfo(response)
-          if (response && Object.keys(response).length) {
-            status = response.status
-            setHasSub(new Date(response.current_period_end) > new Date())
-          }
-        }
-        catch (e) {
-          console.log(e)
-        }
         getExchanges()
-        if (firebase.messaging.isSupported() && accValues.includes(status)) {
+        if (firebase.messaging.isSupported()) {
           FCMSubscription()
         }
       } else {
@@ -219,7 +378,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) { }
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -281,7 +440,9 @@ const UserContextProvider = ({ children }) => {
 
   // LOGOUT
   function logout() {
-    firebase.auth().signOut()
+    firebase
+      .auth()
+      .signOut()
       .then(() => {
         localStorage.clear()
         sessionStorage.clear()
@@ -338,8 +499,9 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
-  const devENV = process.NODE_ENV !== "production" ? true : false
-  const isLoggedIn = state && state.user && (!state.has2FADetails || state.is2FAVerified)
+  const devENV = process.NODE_ENV !== 'production' ? true : false
+  const isLoggedIn =
+    state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
   if (isLoggedIn) sessionStorage.setItem('remember', true)
   return (
@@ -372,16 +534,18 @@ const UserContextProvider = ({ children }) => {
         rememberCheck,
         setRememberCheck,
         devENV,
+        isCheckingSub,
         hasSub,
-        subInfo,
-        setSubInfo,
-        setHasSub,
+        needPayment,
+        products,
+        subscriptionData,
+        getSubscriptionsData,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,
         openOrdersUC,
         setOpenOrdersUC,
         delOpenOrders,
-        setDelOpenOrders
+        setDelOpenOrders,
       }}
     >
       {children}

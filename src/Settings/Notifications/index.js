@@ -41,7 +41,7 @@ const Notifications = () => {
       }
     } catch (error) {
       errorNotification.open({
-        description: 'Please set up Telegram connection first!',
+        description: 'Please click Telegram settings to setup the bot first!',
       })
     } finally {
       notificationChannelsQuery.refetch()
@@ -74,9 +74,69 @@ const Notifications = () => {
 
   return (
     <div className="slice slice-sm bg-section-secondary">
-      <div className="justify-content-center">
-        <div className="row">
-          {!notificationChannelsQuery.isLoading && notificationChannels && (
+      {!notificationChannelsQuery.isLoading && notificationChannels && (
+        <div className="justify-content-center">
+          <div className="row justify-content-center">
+            <div className="col-lg-12">
+              <div>
+                <div className="mb-3 row align-items-center">
+                  <div className="col">
+                    <h5 className="mb-0">Notification Channels</h5>
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-xl-12">
+                  <div className="card card-fluid">
+                    <div className="card-body">
+                      {/* <OrderChannelCard
+                            channel="Desktop"
+                            channelId="card-notification-41"
+                            icon="fas fa-desktop"
+                          />
+                          <hr className="my-3" /> */}
+                      <OrderChannelCard
+                        channel="Telegram"
+                        channelId="card-notification-42"
+                        icon="fab fa-telegram"
+                        showTelegramSetting
+                        enabled={notificationChannels.telegram_activated}
+                        toggleChannelSetting={toggleTelegramNotification}
+                      />
+                      {/* <hr className="my-3" />
+                          <OrderChannelCard
+                            channel="Mobile App"
+                            channelId="card-notification-43"
+                            icon="fas fa-mobile"
+                          /> */}
+                      <hr className="my-3" />
+                      <OrderChannelCard
+                        channel="Email"
+                        channelId="card-notification-44"
+                        icon="fas fa-envelope"
+                        enabled={notificationChannels.email_activated}
+                        toggleChannelSetting={toggleEmailNotification}
+                      />
+                      {/* <hr className="my-3" />
+                          <OrderChannelCard
+                            channel="SMS"
+                            channelId="card-notification-45"
+                            icon="fas fa-sms"
+                          />
+                          <hr className="my-3" />
+                          <OrderChannelCard
+                            channel="Discord"
+                            channelId="card-notification-46"
+                            icon="fab fa-discord"
+                          /> */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="row">
             <div className="col-lg-12">
               <h5 className="mb-3">Order Notifications</h5>
               <div className="card">
@@ -108,71 +168,10 @@ const Notifications = () => {
                   />
                 </div>
               </div>
-
-              <div className="row justify-content-center">
-                <div className="col-lg-12">
-                  <div>
-                    <div className="mb-3 row align-items-center">
-                      <div className="col">
-                        <h5 className="mb-0">Notification Channels</h5>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-xl-12">
-                      <div className="card card-fluid">
-                        <div className="card-body">
-                          {/* <OrderChannelCard
-                            channel="Desktop"
-                            channelId="card-notification-41"
-                            icon="fas fa-desktop"
-                          />
-                          <hr className="my-3" /> */}
-                          <OrderChannelCard
-                            channel="Telegram"
-                            channelId="card-notification-42"
-                            icon="fab fa-telegram"
-                            showTelegramSetting
-                            enabled={notificationChannels.telegram_activated}
-                            toggleChannelSetting={toggleTelegramNotification}
-                          />
-                          {/* <hr className="my-3" />
-                          <OrderChannelCard
-                            channel="Mobile App"
-                            channelId="card-notification-43"
-                            icon="fas fa-mobile"
-                          /> */}
-                          <hr className="my-3" />
-                          <OrderChannelCard
-                            channel="Email"
-                            channelId="card-notification-44"
-                            icon="fas fa-envelope"
-                            enabled={notificationChannels.email_activated}
-                            toggleChannelSetting={toggleEmailNotification}
-                          />
-                          {/* <hr className="my-3" />
-                          <OrderChannelCard
-                            channel="SMS"
-                            channelId="card-notification-45"
-                            icon="fas fa-sms"
-                          />
-                          <hr className="my-3" />
-                          <OrderChannelCard
-                            channel="Discord"
-                            channelId="card-notification-46"
-                            icon="fab fa-discord"
-                          /> */}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

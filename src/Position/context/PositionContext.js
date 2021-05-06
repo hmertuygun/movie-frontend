@@ -17,16 +17,24 @@ const PositionCTXProvider = ({ children }) => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
-      console.log("positions: ", data.positions)
-      setPositions(data.positions)
-      setIsLoading(false)
+      if (data?.error) {
+        errorNotification.open({
+          description: 'Cannot fetch positions. Please try again later!',
+        })
+      }
+      else if (data?.positions) {
+        console.log("positions: ", data?.positions)
+        setPositions(data.positions)
+      }
     } catch (error) {
-      setIsLoading(false)
       errorNotification.open({
         description: 'Cannot fetch positions. Please try again later!',
       })
       Sentry.captureException(error)
       throw new Error('Cannot fetch positions')
+    }
+    finally {
+      setIsLoading(false)
     }
   }
 
@@ -41,7 +49,7 @@ const PositionCTXProvider = ({ children }) => {
   }
 
   return (
-    <PositionContext.Provider value={{ isLoading, positions, refreshData }}>
+    <PositionContext.Provider value={{ isLoading, setIsLoading, positions, refreshData }}>
       {children}
     </PositionContext.Provider>
   )

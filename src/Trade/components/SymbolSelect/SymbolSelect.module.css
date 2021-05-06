@@ -8,9 +8,27 @@
   .SymbolSelect-Container {
     display: flex;
     flex-direction: row;
-    width: 600px;
+    /* width: 500px; */
+    margin-right: 24px;
     align-items: flex-start;
     justify-content: space-between;
+  }
+}
+@media (min-width: 1400px) {
+  .SymbolSelect-Container {
+    width: 500px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .SymbolSelect-Container {
+    width: 400px;
+  }
+}
+
+@media (max-width: 1230px) {
+  .SymbolSelect-Container {
+    width: 100%;
   }
 }
 

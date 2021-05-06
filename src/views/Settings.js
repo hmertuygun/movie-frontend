@@ -10,8 +10,7 @@ import Subscriptions from '../Settings/Subscription'
 
 const Settings = () => {
   const { hash } = useLocation()
-  // const tabIndex = hash === "#subscription" ? 3 : 0
-  const tabIndex = 0
+  const tabIndex = hash === "#subscription" ? 3 : 0
   return (
     <Fragment>
       <section
@@ -37,14 +36,14 @@ const Settings = () => {
               <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security', 'Notifications']}
+                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions & Billing']}
                     index={tabIndex}
                     hadDropDown={false}
                   >
                     <Exchanges />
                     <Security />
                     <Notifications />
-                    {/* <Subscriptions /> */}
+                    <Subscriptions />
                   </TabNavigator>
                 </div>
               </div>

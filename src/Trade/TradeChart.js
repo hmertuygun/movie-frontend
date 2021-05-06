@@ -77,15 +77,13 @@ const TradeChart = () => {
     setCount(prev => prev + 1)
   }, [activeExchange])
 
-  if (!exchangeType || !symbolType || fecthingIntervals) return null
-
+  if (!symbolType || !exchangeType) return null
   return (
     <TradingViewChart
       email={userData?.email}
       theme={"light"}
       intervals={intervals}
       openOrders={openOrdersUC}
-      delOrderId={delOpenOrders?.trade_id}
       key={reRender}
       symbol={symbolType}
       exchange={exchangeType}

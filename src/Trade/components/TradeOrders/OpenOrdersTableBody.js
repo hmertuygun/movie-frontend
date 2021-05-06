@@ -65,7 +65,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   return (
     <>
       {entry.map((order, rowIndex) => {
-        const tdStyle = rowIndex === 1 ? { border: 0 } : undefined
+        const tdStyle = rowIndex === 1 ? { border: 0 } : rowIndex === 0 ? { cursor: 'pointer' } : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
           if (order.type === 'Full Trade') setShow(!show)
@@ -208,13 +208,13 @@ const OpenOrdersTableBody = ({
       key: 'cancel',
     },
   ]
-  const { selectedSymbolDetail } = useSymbolContext()
+  const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
     }
-    return order.symbol.replace('-', '') === selectedPair
+    return order.symbol.replace('-', '/') === symbolType
   }).filter(order => {
     return !deletedRows.includes(order.trade_id)
   })

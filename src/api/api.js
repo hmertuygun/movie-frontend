@@ -115,7 +115,7 @@ export async function validateUser() {
 // make sure symbol list can be pulled
 export async function getExchanges() {
   const apiUrl = process.env.REACT_APP_API_V2 + 'exchange'
-  const token = await firebase.auth().currentUser.getIdToken()
+  const token = await firebase.auth().currentUser?.getIdToken()
   const exchanges = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'GET',
@@ -124,9 +124,8 @@ export async function getExchanges() {
 }
 
 export async function getBalance({ symbol, apiKeyName, exchange }) {
-  const apiUrl = `${
-    process.env.REACT_APP_API_V2
-  }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
+  const apiUrl = `${process.env.REACT_APP_API_V2
+    }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -311,14 +310,11 @@ export async function getOpenOrders({
   apiKeyName,
   exchange,
 }) {
-  const apiUrl = `${
-    process.env.REACT_APP_API_V2
-  }orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${
-    limit || 50
-  }
-                  ${timestamp ? `&timestamp=${timestamp}` : ''}${
-    trade_id ? `&trade_id=${trade_id}` : ''
-  }`
+  const apiUrl = `${process.env.REACT_APP_API_V2
+    }orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${limit || 50
+    }
+                  ${timestamp ? `&timestamp=${timestamp}` : ''}${trade_id ? `&trade_id=${trade_id}` : ''
+    }`
 
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
@@ -623,4 +619,46 @@ export async function reactivatePriceAlert(id) {
   })
 
   return response?.data
+}
+export async function getNotices(limit) {
+  const apiUrl = process.env.REACT_APP_API + `notice/list/${limit}`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return noticeData?.data?.data || []
+}
+export async function dismissNotice(notice_id) {
+  const apiUrl = process.env.REACT_APP_API + `notice`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const resp = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { notice_id }
+  })
+  return resp?.data
+}
+export async function getEmails(str) {
+  const apiUrl = process.env.REACT_APP_API + `admin/getEmails/${str}`
+  let idTokenResult = await firebase.auth()?.currentUser?.getIdTokenResult()
+  const isAdmin = idTokenResult?.claims?.admin
+  if (!isAdmin) return []
+  const emailData = await axios(apiUrl, {
+    headers: await getHeaders(idTokenResult.token),
+    method: 'GET',
+  })
+  return emailData?.data?.data || []
+}
+export async function createNotice(data) {
+  const apiUrl = process.env.REACT_APP_API + `admin/notice/create`
+  let idTokenResult = await firebase.auth()?.currentUser?.getIdTokenResult()
+  const isAdmin = idTokenResult?.claims?.admin
+  if (!isAdmin) return { "error": "Not Admin" }
+  const respData = await axios(apiUrl, {
+    headers: await getHeaders(idTokenResult.token),
+    method: 'POST',
+    data: data
+  })
+  return respData.data
 }

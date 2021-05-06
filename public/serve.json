@@ -43,6 +43,10 @@
     {
       "source": "/register/**",
       "destination": "/index.html"
+    },
+    {
+      "source": "/referral/**",
+      "destination": "/index.html"
     }
   ]
 }
