@@ -4,8 +4,11 @@ import { PortfolioContext } from '../context/PortfolioContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const EstimateValue = () => {
-  const { estimate } = useContext(PortfolioContext)
-  useEffect(() => {}, [estimate])
+  const { estimate, marketData } = useContext(PortfolioContext)
+
+  useEffect(() => {
+    if (!marketData?.length || !estimate) return
+  }, [estimate, marketData])
 
   return (
     <>
