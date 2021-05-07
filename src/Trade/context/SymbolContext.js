@@ -492,6 +492,7 @@ const SymbolContextProvider = ({ children }) => {
   const refreshExchanges = async () => {
     try {
       const response = await getUserExchanges()
+      if (response?.data?.error) return
       const apiKeys = response.data.apiKeys.map((item) => {
         return {
           ...item,
