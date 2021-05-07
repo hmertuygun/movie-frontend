@@ -323,7 +323,7 @@ const SymbolContextProvider = ({ children }) => {
   //   refetchOnWindowFocus: false,
   // })
 
-  const loadExchanges = useCallback(async () => {
+  const loadExchanges = async () => {
     try {
       if (!userData) return
       setIsLoadingExchanges(true)
@@ -411,7 +411,7 @@ const SymbolContextProvider = ({ children }) => {
     finally {
       setIsLoadingExchanges(false)
     }
-  }, [activeExchange, totalExchanges])
+  }
 
   const refreshBalance = () => {
     if (selectedSymbolDetail?.quote_asset) {
@@ -477,7 +477,7 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     loadExchanges()
-  }, [activeExchange, totalExchanges])
+  }, [activeExchange.exchange])
 
   const setExchangesFromTotalExchanges = () => {
     if (!totalExchanges || !totalExchanges.length) return
@@ -492,6 +492,7 @@ const SymbolContextProvider = ({ children }) => {
   const refreshExchanges = async () => {
     try {
       const response = await getUserExchanges()
+      if (response?.data?.error) return
       const apiKeys = response.data.apiKeys.map((item) => {
         return {
           ...item,

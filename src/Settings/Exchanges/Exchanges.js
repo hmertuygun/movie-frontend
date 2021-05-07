@@ -35,7 +35,7 @@ const Exchanges = () => {
   }, [loadApiKeys])
 
   if (exchangeQuery.data) {
-    exchanges = exchangeQuery.data.data.apiKeys
+    exchanges = exchangeQuery.data?.data?.apiKeys
     setTotalExchanges(exchanges)
   } else {
     exchanges = false

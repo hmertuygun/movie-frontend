@@ -206,7 +206,7 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderHistoryFB > 0 && !showProgressBar) getOrderHistoryData(true, false)
+    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
   }, [orderHistoryFB, showProgressBar])
 
   useEffect(() => {

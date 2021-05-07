@@ -11,18 +11,25 @@ import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
   getUserExchanges,
-  updateLastSelectedAPIKey
+  updateLastSelectedAPIKey,
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
-  const { loadApiKeys, setLoadApiKeys, isLoggedIn, setTotalExchanges, setActiveExchange } = useContext(UserContext)
+  const {
+    loadApiKeys,
+    setLoadApiKeys,
+    isLoggedIn,
+    setTotalExchanges,
+    setActiveExchange,
+    getSubscriptionsData,
+  } = useContext(UserContext)
   let formData = {
     apiKey: '',
     secret: '',
     exchange: 'binance',
-    name: ''
+    name: '',
   }
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -45,9 +52,8 @@ const OnboardingModal = () => {
 
   const [errors, setErrors] = useState(errorInitialValues)
 
-
   const customStyles = {
-    control: (styles, { }) => ({
+    control: (styles, {}) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -120,23 +126,33 @@ const OnboardingModal = () => {
   }
 
   let btnText = {
-    1: { primaryBtn: 'Continue with existing Binance account', secBtn: 'Set up a new Binance account', heading: 'Welcome to CoinPanel!' },
-    2: { primaryBtn: 'Continue', secBtn: 'Go Back', heading: 'Connect your exchange account' },
-    3: { primaryBtn: 'Start the CoinPanel experience', secBtn: 'Checkout the tutorials', heading: 'Exchange integration complete!' }
+    1: {
+      primaryBtn: 'Continue with existing Binance account',
+      secBtn: 'Set up a new Binance account',
+      heading: 'Welcome to CoinPanel!',
+    },
+    2: {
+      primaryBtn: 'Continue',
+      secBtn: 'Go Back',
+      heading: 'Connect your exchange account',
+    },
+    3: {
+      primaryBtn: 'Start the CoinPanel experience',
+      secBtn: 'Checkout the tutorials',
+      heading: 'Exchange integration complete!',
+    },
   }
 
   const onPrimaryBtnClick = async () => {
     if (step === 1) {
       setStepNo(step + 1)
-    }
-    else if (step === 2) {
+    } else if (step === 2) {
       const isFormValid = await validateForm()
 
       if (isFormValid) {
         addExchange()
       }
-    }
-    else if (step === 3) {
+    } else if (step === 3) {
       sessionStorage.clear()
       try {
         const hasKeys = await getUserExchanges()
@@ -147,15 +163,14 @@ const OnboardingModal = () => {
             label: `${exchange.value} - ${apiName}`,
             value: `${exchange.value} - ${apiName}`,
             apiKeyName: apiName,
-            exchange: exchange.value
+            exchange: exchange.value,
           })
           refreshExchanges()
+          getSubscriptionsData()
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.log(e)
-      }
-      finally {
+      } finally {
         setLoadApiKeys(true)
       }
     }
@@ -163,14 +178,12 @@ const OnboardingModal = () => {
 
   const onSecondaryBtnClick = () => {
     if (step === 1) {
-      window.open("https://accounts.binance.com/en/register")
-    }
-    else if (step === 2) {
+      window.open('https://accounts.binance.com/en/register')
+    } else if (step === 2) {
       setError(false)
       setStepNo(step - 1)
-    }
-    else if (step === 3) {
-      window.open("https://support.coinpanel.com/hc/en-us")
+    } else if (step === 3) {
+      window.open('https://support.coinpanel.com/hc/en-us')
     }
   }
 
@@ -190,17 +203,18 @@ const OnboardingModal = () => {
       if (result.status !== 200) {
         setError(true)
       } else {
-        await updateLastSelectedAPIKey({ apiKeyName: apiName, exchange: exchange.value })
+        await updateLastSelectedAPIKey({
+          apiKeyName: apiName,
+          exchange: exchange.value,
+        })
         setStepNo(step + 1)
         successNotification.open({ description: 'API key added!' })
         analytics.logEvent('api_keys_added')
         Event('user', 'api_keys_added', 'user')
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
-    }
-    finally {
+    } finally {
       setIsApiProc(false)
     }
   }
@@ -209,15 +223,14 @@ const OnboardingModal = () => {
     if (isLoggedIn) {
       if (loadApiKeys) return 'none'
       else return 'block'
-    }
-    else {
+    } else {
       return 'none'
     }
   }
 
   const modalStyle = {
     background: 'rgba(0,0,0,.5)',
-    display: modalVisibility()
+    display: modalVisibility(),
   }
 
   const renderInputValidationError = (errorKey) => (
@@ -231,7 +244,10 @@ const OnboardingModal = () => {
   )
 
   return (
-    <div className={`modal fade docs-example-modal-lg pt-5 show`} style={modalStyle}>
+    <div
+      className={`modal fade docs-example-modal-lg pt-5 show`}
+      style={modalStyle}
+    >
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
@@ -246,20 +262,38 @@ const OnboardingModal = () => {
             <div className="mb-3 ml-0 text-center row">
               {Object.entries(btnText).map((item, index) => (
                 <div className="pl-0 col-4" key={`progressbar-${item}`}>
-                  <div className="rounded-sm progress" style={{ height: "12px" }}>
-                    <div className={`progress-bar ${step >= index + 1 ? 'w-100' : ''}`} role="progressbar"></div>
+                  <div
+                    className="rounded-sm progress"
+                    style={{ height: '12px' }}
+                  >
+                    <div
+                      className={`progress-bar ${
+                        step >= index + 1 ? 'w-100' : ''
+                      }`}
+                      role="progressbar"
+                    ></div>
                   </div>
                 </div>
               ))}
             </div>
             <h4>{btnText[step].heading}</h4>
             <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
-              <p className="lead">You need a Binance Exchange account to use CoinPanel.</p>
-              <p className="mb-0 lead">Do you have an existing account that you would like to connect, or would you like to create a new Binance account?</p>
+              <p className="lead">
+                You need a Binance Exchange account to use CoinPanel.
+              </p>
+              <p className="mb-0 lead">
+                Do you have an existing account that you would like to connect,
+                or would you like to create a new Binance account?
+              </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
               <p>
-                <a className="pb-2 text-muted text-underline" href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel" target="_blank" rel="noreferrer notarget">
+                <a
+                  className="pb-2 text-muted text-underline"
+                  href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+                  target="_blank"
+                  rel="noreferrer notarget"
+                >
                   How to find my API keys?
                 </a>
               </p>
@@ -310,7 +344,7 @@ const OnboardingModal = () => {
                   <div className="input-group-prepend">
                     <span className="input-group-text" id="basic-addon1">
                       Key
-                </span>
+                    </span>
                   </div>
                   <input
                     type="text"
@@ -336,7 +370,7 @@ const OnboardingModal = () => {
                   <div className="input-group-prepend">
                     <span className="input-group-text" id="basic-addon1">
                       Secret
-                </span>
+                    </span>
                   </div>
                   <input
                     type="text"
@@ -355,10 +389,13 @@ const OnboardingModal = () => {
                 </div>
                 {renderInputValidationError('secret')}
               </div>
-              <div className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'}`} role="alert">
-                <p>
-                  &#10005; Error connecting exchange!
-            </p>
+              <div
+                className={`alert alert-danger ${
+                  hasError ? 'd-show' : 'd-none'
+                }`}
+                role="alert"
+              >
+                <p>&#10005; Error connecting exchange!</p>
               </div>
             </div>
             <div className={`step3 ${step === 3 ? 'd-show' : 'd-none'}`}>
@@ -366,20 +403,35 @@ const OnboardingModal = () => {
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onSecondaryBtnClick} disabled={apiProc}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onSecondaryBtnClick}
+              disabled={apiProc}
+            >
               {btnText[step].secBtn}
             </button>
-            <button type="button" className="btn btn-primary" onClick={onPrimaryBtnClick} disabled={step === 2 && (apiProc)}>
-              {!apiProc ? btnText[step].primaryBtn : (<span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              />)}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={onPrimaryBtnClick}
+              disabled={step === 2 && apiProc}
+            >
+              {!apiProc ? (
+                btnText[step].primaryBtn
+              ) : (
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              )}
             </button>
           </div>
         </div>
       </div>
-    </div>)
+    </div>
+  )
 }
 
-export default OnboardingModal;
+export default OnboardingModal

@@ -63,7 +63,7 @@ const TabNavigator = ({
     <>
       <div className="TabNavigator-container">
         {hadDropDown ? (
-          <nav className="TabNavigator-nav TradeTabNav">
+          <nav className="TabNavigator-nav DropDownNav">
             {labelArray.slice(0, 2).map((label, labelIndex) => (
               <div
                 className={[
@@ -123,7 +123,7 @@ const TabNavigator = ({
             ) : null}
           </nav>
         ) : (
-          <nav className="TabNavigator-nav">
+          <nav className="TabNavigator-nav HorizontalNav">
             {labelArray.map((label, labelIndex) => (
               <div
                 className={[

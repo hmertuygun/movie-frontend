@@ -51,6 +51,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       {subscription.current_period_end.seconds}
                     </Moment>
                   </p>
+                  <p className="mb-0 text-sm text-muted lh-150">
+                    Please add a payment method to keep your account active.
+                  </p>
                 </div>
               ) : subscription.status === 'past_due' ? (
                 <div className="media-body">
