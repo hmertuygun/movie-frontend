@@ -434,11 +434,11 @@ const SymbolContextProvider = ({ children }) => {
         localStorage.setItem('selectedExchange', 'binance')
         if (details) {
           localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
-          setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+          setSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
           localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-          setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}` })
+          setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}` })
           setSelectedSymbolDetail(symbolDetails[`BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
         break

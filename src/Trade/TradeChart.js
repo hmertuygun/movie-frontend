@@ -61,8 +61,6 @@ const TradeChart = () => {
     if (!selectedSymbol || !selectedSymbol.value) return
     const [exchange, symbol] = selectedSymbol.value.split(":")
     localStorage.setItem('selectedSymbol', symbol)
-    // localStorage.setItem('selectedExchange', exchange.toLowerCase())
-    // setExchangeType(exchange.toLowerCase())
     setSymbolType(symbol)
   }, [selectedSymbol])
 
