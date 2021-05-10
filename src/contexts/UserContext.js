@@ -12,7 +12,7 @@ import {
   checkSubscription,
   createUserSubscription,
 } from '../api/api'
-import { successNotification } from '../components/Notifications'
+import { successNotification, warningNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
 import { ref } from 'yup'
 export const UserContext = createContext()
@@ -58,6 +58,7 @@ const UserContextProvider = ({ children }) => {
   const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
+  const [isAppOnline, setIsAppOnline] = useState(true)
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
@@ -217,6 +218,7 @@ const UserContextProvider = ({ children }) => {
       console.log('==>', error)
     }
   }
+
 
   async function getExchanges() {
     try {
@@ -546,6 +548,8 @@ const UserContextProvider = ({ children }) => {
         setOpenOrdersUC,
         delOpenOrders,
         setDelOpenOrders,
+        isAppOnline,
+        setIsAppOnline
       }}
     >
       {children}
