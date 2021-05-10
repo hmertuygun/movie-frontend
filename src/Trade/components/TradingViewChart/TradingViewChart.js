@@ -114,7 +114,7 @@ export default class TradingViewChart extends Component {
       this.drawOpenOrdersChartLines(this.props.openOrders)
     }
     catch (e) {
-      //console.log(e)
+      console.log(e)
     }
   }
 

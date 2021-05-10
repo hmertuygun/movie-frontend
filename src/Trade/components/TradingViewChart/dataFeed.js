@@ -48,43 +48,45 @@ export default class dataFeed {
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
-    let chosenSymbol = localStorage.getItem('selectedSymbol') || symbolName
-    this.selectedExchange = localStorage.getItem('selectedExchange')
-    this.debug && console.log(this.selectedExchange)
-    const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
-    const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
-
-    const calculatePriceScale = (tick) => {
-      if (parseFloat(tick) >= 1) return 100
-      else {
-        let spl = tick.split(".")[1]
-        // const zeroCount = (spl.match(/0/g)).length
-        let zeroCount = 1
-        let splitStr = spl.split("")
-        for (let i = 0; i < splitStr.length; i++) {
-          if (splitStr[i] === "0") zeroCount++
-          else break
+    try {
+      let chosenSymbol = symbolName // localStorage.getItem('selectedSymbol') ||
+      this.selectedExchange = localStorage.getItem('selectedExchange')
+      const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+      const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
+      const calculatePriceScale = (tick) => {
+        if (parseFloat(tick) >= 1) return 100
+        else {
+          let spl = tick.split(".")[1]
+          let zeroCount = 1
+          let splitStr = spl.split("")
+          for (let i = 0; i < splitStr.length; i++) {
+            if (splitStr[i] === "0") zeroCount++
+            else break
+          }
+          return Math.pow(10, zeroCount)
         }
-        return Math.pow(10, zeroCount)
       }
+      const priceTick = calculatePriceScale(selectedSymbolDetail?.originalTickSize || 1)
+      onSymbolResolvedCallback({
+        name: chosenSymbol,
+        description: chosenSymbol,
+        ticker: chosenSymbol,
+        exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+        listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+        type: 'crypto',
+        session: '24x7',
+        minmov: 1,
+        pricescale: priceTick, // parseFloat(selectedSymbolDetail.tickSize),
+        timezone: 'UTC',
+        currency_code: chosenSymbol.split("/")[1],
+        has_intraday: true,
+        has_daily: true,
+        has_weekly_and_monthly: true,
+      })
     }
-    const priceTick = calculatePriceScale(selectedSymbolDetail.originalTickSize)
-    onSymbolResolvedCallback({
-      name: chosenSymbol,
-      description: chosenSymbol,
-      ticker: chosenSymbol,
-      exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-      listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-      type: 'crypto',
-      session: '24x7',
-      minmov: 1,
-      pricescale: priceTick, // parseFloat(selectedSymbolDetail.tickSize),
-      timezone: 'UTC',
-      currency_code: chosenSymbol.split("/")[1],
-      has_intraday: true,
-      has_daily: true,
-      has_weekly_and_monthly: true,
-    })
+    catch (e) {
+      console.log(e)
+    }
   }
 
   getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
