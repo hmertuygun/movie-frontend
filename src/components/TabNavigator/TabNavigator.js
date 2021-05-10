@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
+import { UserContext } from '../../contexts/UserContext'
 import './TabNavigator.css'
 
 const TabInfo = () => {
@@ -48,10 +49,17 @@ const TabNavigator = ({
   children,
   hadDropDown = true,
 }) => {
+  const { showMarketItems, tour2CurrentStep } = useContext(UserContext);
   const [contentIndex, setContentIndex] = useState(index)
   const [selectedDropDownOption, setSelectedDropdownOption] = useState(
     labelArray[2]
   )
+
+  useEffect(() => {
+    if (tour2CurrentStep === 3) {
+      document.getElementById('cp-tour-2-4').click()
+    }
+  }, [tour2CurrentStep])
 
   const handleButtonClick = ({ target }) => {
     const index = labelArray.indexOf(target.id)
@@ -59,9 +67,22 @@ const TabNavigator = ({
     setSelectedDropdownOption(target.id)
   }
 
+  const getId = (label) => {
+    switch (label) {
+      case 'Place Order':
+        return 'cp-tour3'
+      case 'Full Trade':
+        return 'cp-tour7'
+      case 'Notifications':
+        return 'cp-tour-2-4'
+      default:
+        return ''
+    }
+  }
+
   return (
     <>
-      <div className="TabNavigator-container">
+      <div className="TabNavigator-container" id={labelArray[0] === 'Limit' ? 'cp-tour4' : ''}>
         {hadDropDown ? (
           <nav className="TabNavigator-nav DropDownNav">
             {labelArray.slice(0, 2).map((label, labelIndex) => (
@@ -94,13 +115,13 @@ const TabNavigator = ({
                 >
                   {selectedDropDownOption}
                 </button>
-                <div className="chevron-wrapper">
+                <div className={`chevron-wrapper ${showMarketItems && 'show'}`} id="cp-tour5-container" tabIndex="0">
                   <ChevronDown
                     size={15}
                     color="#718096"
                     className="chevron-down"
                   />
-                  <div className="market-items">
+                  <div className="market-items" id="cp-tour6">
                     {labelArray
                       .slice(2, labelArray.length)
                       .map((label, labelIndex) => (
@@ -126,6 +147,7 @@ const TabNavigator = ({
           <nav className="TabNavigator-nav HorizontalNav">
             {labelArray.map((label, labelIndex) => (
               <div
+                id={getId(label)}
                 className={[
                   'TabNavigator-link',
                   contentIndex === labelIndex

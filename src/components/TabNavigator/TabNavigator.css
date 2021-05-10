@@ -119,6 +119,10 @@
   display: flex;
 }
 
+.chevron-wrapper.show .market-items {
+  display: flex;
+}
+
 .tab-info-wrapper svg {
   color: var(--color);
 }

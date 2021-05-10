@@ -52,6 +52,12 @@ const UserContextProvider = ({ children }) => {
   const [rememberCheck, setRememberCheck] = useState(false)
   const [isCheckingSub, setIsCheckingSub] = useState(false)
   const [hasSub, setHasSub] = useState(true)
+  const [onTour, setOnTour] = useState(false)
+  const [isTourStep5, setIsTourStep5] = useState(false)
+  const [isTourFinished, setIsTourFinished] = useState(false)
+  const [onSecondTour, setOnSecondTour] = useState(false)
+  const [tour2CurrentStep, setTour2CurrentStep] = useState(0)
+  const [showMarketItems, setShowMarketItems] = useState(false)
   const [needPayment, setNeedPayment] = useState(false)
   const [products, setProducts] = useState([])
   const [subscriptionData, setSubscriptionData] = useState(null)
@@ -538,9 +544,24 @@ const UserContextProvider = ({ children }) => {
         devENV,
         isCheckingSub,
         hasSub,
+        onTour,
+        isTourStep5,
+        isTourFinished,
+        onSecondTour,
+        tour2CurrentStep,
+        showMarketItems,
         needPayment,
         products,
         subscriptionData,
+        // subInfo,
+        // setSubInfo,
+        setHasSub,
+        setOnTour,
+        setIsTourStep5,
+        setIsTourFinished,
+        setOnSecondTour,
+        setTour2CurrentStep,
+        setShowMarketItems,
         getSubscriptionsData,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,

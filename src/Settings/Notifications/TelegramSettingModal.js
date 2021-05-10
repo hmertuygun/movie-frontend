@@ -50,12 +50,13 @@ const QuickModal = ({ onClose, connected }) => {
         style={{ display: 'block' }}
       >
         <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
+          <div className="modal-content" id="cp-tour-2-6">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
                 Telegram Bot Settings
               </h5>
               <button
+                id="cp-tour-2-close"
                 onClick={onClose}
                 type="button"
                 className="close"

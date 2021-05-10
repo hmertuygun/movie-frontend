@@ -5,6 +5,7 @@ const Logo = () => {
   return (
     <>
       <Link
+        id="cp-tour1"
         className="navbar-brand"
         to="/trade"
         style={{ fontSize: '1.7rem', fontWeight: '700' }}
