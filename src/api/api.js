@@ -669,3 +669,23 @@ export async function createNotice(data) {
   })
   return respData.data
 }
+
+export async function getLastSelectedMarketSymbol() {
+  const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return noticeData?.data
+}
+export async function saveLastSelectedMarketSymbol(symbol) {
+  const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { "lastSelectedSymbol": symbol }
+  })
+  return noticeData?.data
+}
