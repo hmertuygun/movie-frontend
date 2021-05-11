@@ -16,6 +16,8 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   get24hrTickerPrice,
+  getLastSelectedMarketSymbol,
+  saveLastSelectedMarketSymbol
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
@@ -33,6 +35,7 @@ const SymbolContextProvider = ({ children }) => {
     setLoaderVisibility,
     setOpenOrdersUC,
     userData,
+    lastSelectedSymbol,
     loadApiKeys
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
@@ -60,11 +63,12 @@ const SymbolContextProvider = ({ children }) => {
   const [ftxDD, setFtxDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
 
-  const setSymbolFromExchangeOnLoad = (symbolDetails) => {
+  const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
+    const getLSS = await getLastSelectedMarketSymbol()
     const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
-    const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const getSymbolFromLS = getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
     const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
     const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
     setExchangeType(getExchangeFromLS)
@@ -292,10 +296,16 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  function setSymbol(symbol) {
+  async function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
     setSelectedSymbol(symbol)
     setSymbolType(symbol.label.replace('-', '/'))
+    try {
+      await saveLastSelectedMarketSymbol(symbol.label.replace('-', '/'))
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
   async function setExchange(exchange) {

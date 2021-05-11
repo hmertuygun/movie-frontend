@@ -5,14 +5,14 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
-  const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail } = useSymbolContext()
+  const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail, symbolType } = useSymbolContext()
   const { userData, openOrdersUC, setOpenOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeType, setExchangeType] = useState(null)
-  const [symbolType, setSymbolType] = useState(null)
+  // const [symbolType, setSymbolType] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
@@ -57,12 +57,12 @@ const TradeChart = () => {
     if (lsValue && lsValue.length) saveChartIntervals(lsValue)
   }, [lsValue])
 
-  useEffect(() => {
-    if (!selectedSymbol || !selectedSymbol.value) return
-    const [exchange, symbol] = selectedSymbol.value.split(":")
-    localStorage.setItem('selectedSymbol', symbol)
-    setSymbolType(symbol)
-  }, [selectedSymbol])
+  // useEffect(() => {
+  //   if (!selectedSymbol || !selectedSymbol.value) return
+  //   // const [exchange, symbol] = selectedSymbol.value.split(":")
+  //   // localStorage.setItem('selectedSymbol', symbol)
+  //   setSymbolType(symbol)
+  // }, [selectedSymbol])
 
   useEffect(() => {
     if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
