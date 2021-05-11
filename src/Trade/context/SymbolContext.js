@@ -35,6 +35,7 @@ const SymbolContextProvider = ({ children }) => {
     setLoaderVisibility,
     setOpenOrdersUC,
     userData,
+    lastSelectedSymbol,
     loadApiKeys
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
@@ -66,8 +67,8 @@ const SymbolContextProvider = ({ children }) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
     const getLSS = await getLastSelectedMarketSymbol()
-    const getExchangeFromLS = getLSS?.lastSelectedSymbol || localStorage.getItem('selectedExchange') || exchange
-    const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
+    const getSymbolFromLS = getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
     const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
     const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
     setExchangeType(getExchangeFromLS)

@@ -11,6 +11,7 @@ import {
   storeNotificationToken,
   checkSubscription,
   createUserSubscription,
+  getLastSelectedMarketSymbol
 } from '../api/api'
 import { successNotification, warningNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
@@ -65,6 +66,7 @@ const UserContextProvider = ({ children }) => {
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
   const [isAppOnline, setIsAppOnline] = useState(true)
+  const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
@@ -225,7 +227,6 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
-
   async function getExchanges() {
     try {
       const hasKeys = await getUserExchanges()
@@ -276,6 +277,8 @@ const UserContextProvider = ({ children }) => {
           }
         }
       }
+      // const getLSS = await getLastSelectedMarketSymbol()
+      // setLastSelectedSymbol(getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol'))
     } catch (e) {
       console.log(e)
     } finally {
@@ -386,7 +389,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -570,7 +573,9 @@ const UserContextProvider = ({ children }) => {
         delOpenOrders,
         setDelOpenOrders,
         isAppOnline,
-        setIsAppOnline
+        setIsAppOnline,
+        lastSelectedSymbol,
+        setLastSelectedSymbol
       }}
     >
       {children}
