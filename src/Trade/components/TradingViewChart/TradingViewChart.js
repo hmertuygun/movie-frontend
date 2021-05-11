@@ -110,8 +110,10 @@ export default class TradingViewChart extends Component {
   changeSymbol = (newSymbol) => {
     if (!newSymbol || !this.tradingViewWidget || !this.chartObject) return
     try {
-      this.chartObject.setSymbol(newSymbol)
-      this.drawOpenOrdersChartLines(this.props.openOrders)
+      const symbObj = this.tradingViewWidget.symbolInterval()
+      if (!symbObj) return
+      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+      // this.chartObject.setSymbol(newSymbol)
     }
     catch (e) {
       console.log(e)
@@ -302,6 +304,7 @@ export default class TradingViewChart extends Component {
   componentDidUpdate() {
     if (!this.tradingViewWidget) return
     this.changeSymbol(this.props.symbol)
+    this.drawOpenOrdersChartLines(this.props.openOrders)
   }
 
   componentWillUnmount() {
