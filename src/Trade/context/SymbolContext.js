@@ -71,6 +71,9 @@ const SymbolContextProvider = ({ children }) => {
     const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') || exchange
     const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
     const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
+    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+    // loadBalance(qouteAsset, baseAsset)
+    // loadLastPrice(getSymbolFromLS.replace('/', ''))
     setExchangeType(getExchangeFromLS)
     setSymbolType(getSymbolFromLS)
     setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
@@ -341,10 +344,10 @@ const SymbolContextProvider = ({ children }) => {
       const binanceList = []
       const symbolDetails = {}
       const pn = performance.now()
-      const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
-      const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
-      loadBalance(qouteAsset, baseAsset)
-      loadLastPrice(getSymbolFromLS.replace('/', ''))
+      // const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+      // const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
+      // loadBalance(qouteAsset, baseAsset)
+      // loadLastPrice(getSymbolFromLS.replace('/', ''))
       setExchangesFromTotalExchanges()
       // Process symbols
       if (data['exchanges']) {
