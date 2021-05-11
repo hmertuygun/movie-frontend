@@ -15,10 +15,6 @@ const EstimateValue = () => {
     fetchLatestPrice()
   }, [marketData])
 
-  // useEffect(() => {
-  //   latestPricePolling()
-  // }, [activeExchange])
-
   const fetchLatestPrice = () => {
     if (!estData?.length) return
     let tempArr = estData
@@ -34,14 +30,6 @@ const EstimateValue = () => {
     })
     setEstData(() => [...mapData])
   }
-
-  // const latestPricePolling = () => {
-  //   clearInterval(pricePolling)
-  //   pricePolling = null
-  //   pricePolling = setInterval(() => {
-  //     fetchLatestPrice()
-  //   }, 5000)
-  // }
 
   return (
     <>
