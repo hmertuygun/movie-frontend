@@ -67,16 +67,14 @@ const SymbolContextProvider = ({ children }) => {
     if (!activeExchange?.exchange) return
     const { exchange } = activeExchange
     const getLSS = await getLastSelectedMarketSymbol()
-    const getExchangeFromLS = localStorage.getItem('selectedExchange') || exchange
-    const getSymbolFromLS = getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    const [exchangeAPI, symbolAPI] = getLSS?.lastSelectedSymbol.split(":")
+    const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') || exchange
+    const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
     const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
-    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
     setExchangeType(getExchangeFromLS)
     setSymbolType(getSymbolFromLS)
     setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
     setSelectedSymbolDetail(symbolDetails[symbolVal])
-    // loadBalance(qouteAsset, baseAsset)
-    // loadLastPrice(getSymbolFromLS.replace('/', ''))
   }
 
   useEffect(() => {
@@ -301,7 +299,7 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbol(symbol)
     setSymbolType(symbol.label.replace('-', '/'))
     try {
-      await saveLastSelectedMarketSymbol(symbol.label.replace('-', '/'))
+      await saveLastSelectedMarketSymbol(symbol.value)
     }
     catch (e) {
       console.log(e)
@@ -458,11 +456,11 @@ const SymbolContextProvider = ({ children }) => {
         const details = symbolDetails[symbolValue]
         if (details) {
           localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
-          setSelectedSymbol({ label: symbolLabel, value: symbolValue })
+          setSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
           localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
-          setSelectedSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `FTX:${INITIAL_SYMBOL_LOAD_SLASH}` })
+          setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `FTX:${INITIAL_SYMBOL_LOAD_SLASH}` })
           setSelectedSymbolDetail(symbolDetails[`FTX:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
         break
