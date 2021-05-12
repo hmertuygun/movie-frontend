@@ -62,6 +62,7 @@ const SymbolContextProvider = ({ children }) => {
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
+  const [watchListOpen, setWatchListOpen] = useState(false)
 
   const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
     if (!activeExchange?.exchange) return
@@ -539,7 +540,9 @@ const SymbolContextProvider = ({ children }) => {
         exchangeType,
         symbolType,
         binanceDD,
-        ftxDD
+        ftxDD,
+        watchListOpen,
+        setWatchListOpen,
       }}
     >
       {children}

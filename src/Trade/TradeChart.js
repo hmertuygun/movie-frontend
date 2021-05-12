@@ -5,7 +5,16 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
-  const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail, symbolType } = useSymbolContext()
+  const {
+    selectedSymbol,
+    symbols,
+    symbolDetails,
+    isLoading,
+    selectedSymbolDetail,
+    symbolType,
+    watchListOpen,
+    setWatchListOpen,
+  } = useSymbolContext()
   const { userData, openOrdersUC, setOpenOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
@@ -69,7 +78,7 @@ const TradeChart = () => {
   }, [activeExchange])
 
   const onSniperBtnClick = (e) => {
-    console.log(e)
+    setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
   if (!symbolType || !exchangeType) return null
