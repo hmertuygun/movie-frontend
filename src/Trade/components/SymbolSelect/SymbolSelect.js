@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useMemo, useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
-import { matchSorter } from 'match-sorter'
-
 const SymbolSelect = () => {
   const {
     exchanges,
@@ -18,10 +16,9 @@ const SymbolSelect = () => {
   } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
-  const [options, setOptions] = useState([])
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       boxShadow: 'none',
       border: '1px solid rgb(204, 204, 204)',
@@ -38,7 +35,7 @@ const SymbolSelect = () => {
     valueContainer: (styles) => ({
       ...styles,
       height: '41px',
-      padding: '0 5px',
+      padding: '0 5px'
     }),
 
     singleValue: (styles) => ({
@@ -59,22 +56,22 @@ const SymbolSelect = () => {
 
     placeholder: (styles) => ({
       ...styles,
-      textTransform: 'capitalize',
+      textTransform: 'capitalize'
     }),
 
     indicatorsContainer: (styles) => ({
       ...styles,
-      height: '41px',
+      height: '41px'
     }),
   }
 
-  useEffect(() => {
+  const selectedSymbols = useMemo(() => {
     const { exchange } = activeExchange
     const selected = symbols.filter((symbol) =>
       symbol.value.toLowerCase().includes(exchange.toLowerCase())
     )
-    setOptions(selected)
-  }, [symbols, activeExchange.exchange])
+    return selected
+  }, [symbols, activeExchange])
 
   return (
     <div className={styles['SymbolSelect-Container']}>
@@ -97,15 +94,12 @@ const SymbolSelect = () => {
           components={{
             IndicatorSeparator: () => null,
           }}
-          options={options}
+          options={Object.values(selectedSymbols)}
           placeholder="Select trading pair"
           value={selectedSymbol}
           onChange={(value) => setSymbol(value)}
           isDisabled={isLoadingBalance || isLoading}
           styles={customStyles}
-          onInputChange={(inputValue) => {
-            setOptions(matchSorter(options, inputValue, { keys: ['label'] }))
-          }}
         />
       </div>
     </div>
