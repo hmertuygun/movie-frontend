@@ -1,0 +1,22 @@
+.container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f3fa;
+  padding: 5px 1rem;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.container:hover {
+  background-color: #f0f3fa;
+}
+
+.removeBtn {
+  background-color: #f0f3fa;
+  position: absolute;
+  top: 4px;
+  right: 0;
+  padding: 0 5px;
+  cursor: pointer;
+}
