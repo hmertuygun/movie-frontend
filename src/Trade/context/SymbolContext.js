@@ -297,6 +297,7 @@ const SymbolContextProvider = ({ children }) => {
   async function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
     setSelectedSymbol(symbol)
+    localStorage.setItem('selectedSymbol', symbol.label.replace('-', '/'))
     setSymbolType(symbol.label.replace('-', '/'))
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
@@ -441,11 +442,9 @@ const SymbolContextProvider = ({ children }) => {
         const details = symbolDetails[symbolValue]
         localStorage.setItem('selectedExchange', 'binance')
         if (details) {
-          localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
           setSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
-          localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
           setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}` })
           setSelectedSymbolDetail(symbolDetails[`BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
@@ -455,11 +454,9 @@ const SymbolContextProvider = ({ children }) => {
         const symbolValue = `FTX:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
         const details = symbolDetails[symbolValue]
         if (details) {
-          localStorage.setItem('selectedSymbol', `${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`)
           setSymbol({ label: symbolLabel, value: symbolValue })
           setSelectedSymbolDetail(details)
         } else {
-          localStorage.setItem('selectedSymbol', INITIAL_SYMBOL_LOAD_SLASH)
           setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `FTX:${INITIAL_SYMBOL_LOAD_SLASH}` })
           setSelectedSymbolDetail(symbolDetails[`FTX:${INITIAL_SYMBOL_LOAD_SLASH}`])
         }
