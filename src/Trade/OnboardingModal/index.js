@@ -24,6 +24,8 @@ const OnboardingModal = () => {
     setTotalExchanges,
     setActiveExchange,
     getSubscriptionsData,
+    onTour,
+    setOnTour
   } = useContext(UserContext)
   let formData = {
     apiKey: '',
@@ -166,6 +168,7 @@ const OnboardingModal = () => {
             exchange: exchange.value,
           })
           refreshExchanges()
+          setOnTour(!onTour)
           getSubscriptionsData()
         }
       } catch (e) {

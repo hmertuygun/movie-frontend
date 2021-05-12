@@ -199,9 +199,9 @@ const Trade = () => {
                     <FontAwesomeIcon icon={faChevronLeft} /> Back
                   </button>
                 </div>
-                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={1}>
+                <ButtonNavigator labelArray={['Target', 'Stop-loss']} index={0}>
                   <TabNavigator
-                    labelArray={['Stop-market', 'Limit']}
+                    labelArray={['Stop-market']}
                     key="exit-target-order"
                     hadDropDown={false}
                   >

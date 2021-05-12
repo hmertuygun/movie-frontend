@@ -28,6 +28,13 @@ export async function get24hrTickerPrice() {
   return result.data
 }
 
+export async function getSymbolPriceTicker(symbols) {
+  const result = await axios(`${binanceAPI}v3/ticker/price`, {
+    method: 'GET',
+  })
+  return result.data
+}
+
 export async function placeOrder({
   entry,
   targets,
@@ -661,4 +668,24 @@ export async function createNotice(data) {
     data: data
   })
   return respData.data
+}
+
+export async function getLastSelectedMarketSymbol() {
+  const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return noticeData?.data
+}
+export async function saveLastSelectedMarketSymbol(symbol) {
+  const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { "lastSelectedSymbol": symbol }
+  })
+  return noticeData?.data
 }

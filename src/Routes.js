@@ -28,6 +28,8 @@ import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
+import { Detector, Offline, Online } from 'react-detect-offline'
+import { successNotification, warningNotification } from './components/Notifications'
 
 const Routes = () => {
   const history = useHistory()
@@ -48,11 +50,29 @@ const Routes = () => {
     hasSub,
     loaderVisible,
     loaderText,
+    setIsAppOnline
   } = useContext(UserContext)
+
+  const showNotifOnNetworkChange = (online) => {
+    if (online) {
+      successNotification.open({ description: "You are back online!" })
+    }
+    else {
+      warningNotification.open({ description: "You don't seem to be online anymore!" })
+    }
+    return null
+  }
 
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
+      <Detector
+        polling={{ url: "https://ipv4.icanhazip.com" }}
+        onChange={(e) => { showNotifOnNetworkChange(e) }}
+        render={({ online }) => {
+          return null
+        }}
+      />
       <Switch>
         {isLoggedIn && userContextLoaded && (
           <Route

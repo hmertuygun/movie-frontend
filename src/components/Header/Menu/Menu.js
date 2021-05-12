@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
   return (
     <div
+      id="cp-tour-b-2"
       onMouseOver={() => setSettingToggle(true)}
       onMouseOut={() => setSettingToggle(false)}
     >

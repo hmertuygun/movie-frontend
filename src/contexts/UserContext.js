@@ -11,8 +11,9 @@ import {
   storeNotificationToken,
   checkSubscription,
   createUserSubscription,
+  getLastSelectedMarketSymbol
 } from '../api/api'
-import { successNotification } from '../components/Notifications'
+import { successNotification, warningNotification } from '../components/Notifications'
 import capitalize from '../helpers/capitalizeFirstLetter'
 import { ref } from 'yup'
 export const UserContext = createContext()
@@ -52,12 +53,20 @@ const UserContextProvider = ({ children }) => {
   const [rememberCheck, setRememberCheck] = useState(false)
   const [isCheckingSub, setIsCheckingSub] = useState(false)
   const [hasSub, setHasSub] = useState(true)
+  const [onTour, setOnTour] = useState(false)
+  const [isTourStep5, setIsTourStep5] = useState(false)
+  const [isTourFinished, setIsTourFinished] = useState(false)
+  const [onSecondTour, setOnSecondTour] = useState(false)
+  const [tour2CurrentStep, setTour2CurrentStep] = useState(0)
+  const [showMarketItems, setShowMarketItems] = useState(false)
   const [needPayment, setNeedPayment] = useState(false)
   const [products, setProducts] = useState([])
   const [subscriptionData, setSubscriptionData] = useState(null)
   const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
+  const [isAppOnline, setIsAppOnline] = useState(true)
+  const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
 
   useEffect(() => {
     getUserExchangesAfterFBInit()
@@ -268,6 +277,8 @@ const UserContextProvider = ({ children }) => {
           }
         }
       }
+      // const getLSS = await getLastSelectedMarketSymbol()
+      // setLastSelectedSymbol(getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol'))
     } catch (e) {
       console.log(e)
     } finally {
@@ -378,7 +389,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) {}
+      } catch (error) { }
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -536,9 +547,24 @@ const UserContextProvider = ({ children }) => {
         devENV,
         isCheckingSub,
         hasSub,
+        onTour,
+        isTourStep5,
+        isTourFinished,
+        onSecondTour,
+        tour2CurrentStep,
+        showMarketItems,
         needPayment,
         products,
         subscriptionData,
+        // subInfo,
+        // setSubInfo,
+        setHasSub,
+        setOnTour,
+        setIsTourStep5,
+        setIsTourFinished,
+        setOnSecondTour,
+        setTour2CurrentStep,
+        setShowMarketItems,
         getSubscriptionsData,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,
@@ -546,6 +572,10 @@ const UserContextProvider = ({ children }) => {
         setOpenOrdersUC,
         delOpenOrders,
         setDelOpenOrders,
+        isAppOnline,
+        setIsAppOnline,
+        lastSelectedSymbol,
+        setLastSelectedSymbol
       }}
     >
       {children}

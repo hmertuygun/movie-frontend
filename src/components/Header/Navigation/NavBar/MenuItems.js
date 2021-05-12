@@ -12,6 +12,7 @@ const MenuItems = () => (
         >
           {item.externalLink ? (
             <a
+              id={item.id}
               className="nav-link"
               href={item.url}
               target="_blank"
@@ -21,6 +22,7 @@ const MenuItems = () => (
             </a>
           ) : (
             <NavLink
+              id={item.id}
               activeClassName="nav-link active"
               className="nav-link btn"
               to={item.url}
