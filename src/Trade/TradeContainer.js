@@ -35,7 +35,7 @@ const TradeContainer = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = watchListOpen
-    ? window.innerHeight - 71 + 'px'
+    ? window.innerHeight + 'px'
     : window.innerHeight * 0.6 + 'px'
   const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
   const [snapShotCount, setSnapShotCount] = useState(0)
