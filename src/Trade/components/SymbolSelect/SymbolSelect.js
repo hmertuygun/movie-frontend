@@ -26,9 +26,12 @@ const SymbolSelect = () => {
       ...styles,
       boxShadow: 'none',
       border: '1px solid #F5F5F5',
+      borderLeft: 0,
+      borderTop: 0,
+      borderBottom: 0,
       borderRadius: '2px',
-      height: '45px',
-      minHeight: '45px',
+      height: '48px',
+      minHeight: '48px',
       color: '#718096',
 
       '&:hover': {
