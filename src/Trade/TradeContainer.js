@@ -19,6 +19,7 @@ import {
 import TradeOrders from './components/TradeOrders/TradeOrders'
 import './TradeContainer.css'
 import { useSymbolContext } from './context/SymbolContext'
+import Logo from '../components/Header/Logo/Logo'
 
 const db = firebase.firestore()
 
@@ -130,9 +131,14 @@ const TradeContainer = () => {
       {!isMobile ? (
         <>
           {watchListOpen ? (
-            <section className="WatchList-Panel">
-              <WatchListPanel />
-            </section>
+            <div className="WatchListContainer">
+              <div className="Logo-In-WatchList">
+                <Logo />
+              </div>
+              <section className="WatchList-Panel">
+                <WatchListPanel />
+              </section>
+            </div>
           ) : (
             <section className="TradeView-Panel">
               <Route path="/trade/" component={TradePanel} />
@@ -190,11 +196,11 @@ const TradeContainer = () => {
             >
               <TradeChart />
             </section>
-            {!watchListOpen && (
-              <section className="TradeOrders" style={{ height: orderHeight }}>
-                <TradeOrders />
-              </section>
-            )}
+            
+            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen? "none": "" }}>
+              <TradeOrders />
+            </section>
+            
           </section>
         </>
       ) : isTradePanelOpen ? (

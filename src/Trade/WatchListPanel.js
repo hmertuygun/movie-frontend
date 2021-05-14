@@ -20,9 +20,10 @@ const WatchListPanel = () => {
       try {
         const response = await getWatchLists()
         setWatchSymbols(response.data.data)
-        setLoading(false)
       } catch (error) {
         console.log('Cannot fetch watch lists')
+      } finally {
+        setLoading(false)
       }
     }
     getWatchListsData()
