@@ -266,7 +266,7 @@ export default class TradingViewChart extends Component {
     button.addEventListener('click', this.props.sniperBtnClicked)
     let img = document.createElement("img")
     img.setAttribute("src", "/img/icons/sniper.png")
-    img.setAttribute("width", "30")
+    img.setAttribute("width", "20")
     button.append(img)
   }
 
