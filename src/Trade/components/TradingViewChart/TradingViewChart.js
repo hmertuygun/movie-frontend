@@ -261,7 +261,7 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
     let button = this.tradingViewWidget.createButton()
-    button.setAttribute('title', 'Sniper mode, toggles watchlist symbols display')
+    button.setAttribute('title', 'Sniper Mode')
     button.setAttribute('style', 'margin-top: 3px')
     button.addEventListener('click', this.props.sniperBtnClicked)
     let img = document.createElement("img")
@@ -337,7 +337,7 @@ export default class TradingViewChart extends Component {
     return (
       <div id="chart_outer_container" className="d-flex justify-content-center align-items-center" style={{ width: "100%", height: "100%" }}>
         <span className="spinner-border spinner-border-sm text-primary" style={{ display: isChartReady ? 'none' : 'block' }} />
-        <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+        <div id='chart_container' style={{ width: "100%", height: "100%", display: isChartReady ? 'block' : 'none' }}></div>
       </div>
     )
   }

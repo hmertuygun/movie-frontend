@@ -29,7 +29,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
         <div
           className={styles.removeBtn}
           onClick={(e) => {
-            e.stopPropagation();
+            e.stopPropagation()
             removeWatchList(symbol)
           }}
         >
@@ -37,7 +37,9 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
         </div>
       )}
       <div>{symbol.label}</div>
-      <div>{percentage ? `${percentage}%` : ''}</div>
+      <div className={Math.sign(percentage) > 0 ? styles.plus : styles.minus}>
+        {percentage ? `${percentage}%` : ''}
+      </div>
     </div>
   )
 }

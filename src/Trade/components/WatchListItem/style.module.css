@@ -20,3 +20,11 @@
   padding: 0 5px;
   cursor: pointer;
 }
+
+.plus {
+  color: var(--buy);
+}
+
+.minus {
+  color: var(--sell);
+}
