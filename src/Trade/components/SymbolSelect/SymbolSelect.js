@@ -25,7 +25,7 @@ const SymbolSelect = () => {
     control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '1px solid rgb(204, 204, 204)',
+      border: '1px solid #F5F5F5',
       borderRadius: '2px',
       height: '45px',
       minHeight: '45px',
