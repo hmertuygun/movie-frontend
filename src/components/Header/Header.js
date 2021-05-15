@@ -1,4 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react'
+import {
+  faTwitter,
+  faTelegram,
+  faMediumM,
+} from '@fortawesome/free-brands-svg-icons'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import Menu from './Menu/Menu'
 import Logo from './Logo/Logo'
@@ -108,6 +115,45 @@ const Header = () => {
                 >
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="https://coin-panel.medium.com/"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                </a>
+              </li>{' '}
+              <li className="nav-item">
+                <a
+                  href="https://twitter.com/coin_panel"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="https://t.me/coinpanelsupport"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faTelegram} className="mt-2" />
                 </a>
               </li>
               <Menu
