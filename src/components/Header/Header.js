@@ -1,4 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react'
+import {
+  faTwitter,
+  faTelegram,
+  faMediumM,
+} from '@fortawesome/free-brands-svg-icons'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import Menu from './Menu/Menu'
 import Logo from './Logo/Logo'
@@ -6,13 +13,20 @@ import MenuItems from './Navigation/NavBar/MenuItems'
 import MobileTab from './MobileTab/MobileTab'
 
 import { UserContext } from '../../contexts/UserContext'
+import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from '../../helpers/tourSteps'
 
 const Header = () => {
   const [settingToggle, setSettingToggle] = useState(false)
-  const { isLoggedIn, onSecondTour, tour2CurrentStep, setTour2CurrentStep } = useContext(UserContext)
+  const {
+    isLoggedIn,
+    onSecondTour,
+    tour2CurrentStep,
+    setTour2CurrentStep,
+  } = useContext(UserContext)
+  const { watchListOpen } = useSymbolContext()
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
   const [stepsSecondTour] = useState(secondTourSteps)
@@ -30,10 +44,9 @@ const Header = () => {
       setRun2(false)
       setTimeout(() => {
         setRun2(true)
-      }, 1000);
+      }, 1000)
     }
   }, [stepIndex2])
-
 
   if (!isLoggedIn) {
     return null
@@ -61,6 +74,8 @@ const Header = () => {
       zIndex: 999999,
     },
   }
+
+  if (watchListOpen) return null
 
   return (
     <header className="" id="header-main">
@@ -100,6 +115,45 @@ const Header = () => {
                 >
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="https://coin-panel.medium.com/"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                </a>
+              </li>{' '}
+              <li className="nav-item">
+                <a
+                  href="https://twitter.com/coin_panel"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="https://t.me/coinpanelsupport"
+                  type="button"
+                  id="btnSwitchMode"
+                  data-mode="light"
+                  class="nav-link nav-link-icon px-2"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <FontAwesomeIcon icon={faTelegram} className="mt-2" />
                 </a>
               </li>
               <Menu

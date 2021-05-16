@@ -1,8 +1,10 @@
-import React, { useMemo, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
+import { matchSorter } from 'match-sorter'
+
 const SymbolSelect = () => {
   const {
     exchanges,
@@ -16,15 +18,20 @@ const SymbolSelect = () => {
   } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
+  const [options, setOptions] = useState([])
+  const [initialOptions, setInitialOptions] = useState([])
 
   const customStyles = {
-    control: (styles, { }) => ({
+    control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '1px solid rgb(204, 204, 204)',
-      borderRadius: '2px',
-      height: '45px',
-      minHeight: '45px',
+      border: '4px solid #F5F5F5',
+      borderLeft: 0,
+      borderTop: 0,
+      borderBottom: 0,
+      borderRadius: 0,
+      height: '48px',
+      minHeight: '48px',
       color: '#718096',
 
       '&:hover': {
@@ -35,7 +42,7 @@ const SymbolSelect = () => {
     valueContainer: (styles) => ({
       ...styles,
       height: '41px',
-      padding: '0 5px'
+      padding: '0 5px',
     }),
 
     singleValue: (styles) => ({
@@ -56,22 +63,23 @@ const SymbolSelect = () => {
 
     placeholder: (styles) => ({
       ...styles,
-      textTransform: 'capitalize'
+      textTransform: 'capitalize',
     }),
 
     indicatorsContainer: (styles) => ({
       ...styles,
-      height: '41px'
+      height: '41px',
     }),
   }
 
-  const selectedSymbols = useMemo(() => {
+  useEffect(() => {
     const { exchange } = activeExchange
     const selected = symbols.filter((symbol) =>
       symbol.value.toLowerCase().includes(exchange.toLowerCase())
     )
-    return selected
-  }, [symbols, activeExchange])
+    setInitialOptions(selected)
+    setOptions(selected)
+  }, [symbols, activeExchange.exchange])
 
   return (
     <div className={styles['SymbolSelect-Container']}>
@@ -94,12 +102,15 @@ const SymbolSelect = () => {
           components={{
             IndicatorSeparator: () => null,
           }}
-          options={Object.values(selectedSymbols)}
+          options={options}
           placeholder="Select trading pair"
           value={selectedSymbol}
           onChange={(value) => setSymbol(value)}
           isDisabled={isLoadingBalance || isLoading}
           styles={customStyles}
+          onInputChange={(inputValue) => {
+            setOptions(matchSorter(initialOptions, inputValue, { keys: ['label'] }))
+          }}
         />
       </div>
     </div>

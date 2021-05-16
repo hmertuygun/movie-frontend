@@ -10,7 +10,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, chartReady }) {
+  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked }) {
     super()
     //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols }) // exchangeDataFeeds[exchange]
@@ -53,6 +53,7 @@ export default class TradingViewChart extends Component {
         this.chartObject = this.tradingViewWidget.activeChart()
         this.getChartDrawingFromServer()
         this.chartEvent("drawing_event")
+        this.addSniperModeButton()
       })
     }
     catch (e) {
@@ -240,20 +241,33 @@ export default class TradingViewChart extends Component {
     if (fData && fData.line_id) this.chartObject.setEntityVisibility(fData.line_id, false)
   }
 
-  removeAllDrawings = () => {
+  removeAllDrawingsCB = () => {
     if (!this.chartObject) return
     this.chartObject.removeAllShapes()
     localStorage.removeItem('savedDrawing')
   }
 
-  addButtonToHeader = async () => {
+  addRemoveDrawingsButton = async () => {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
     var button = this.tradingViewWidget.createButton()
     button.setAttribute('title', 'Clear all Drawings')
     button.setAttribute('class', 'btn btn-primary')
-    button.addEventListener('click', this.removeAllDrawings);
+    button.addEventListener('click', this.removeAllDrawingsCB)
     button.textContent = 'Clear Drawings'
+  }
+
+  addSniperModeButton = async () => {
+    if (!this.tradingViewWidget) return
+    await this.tradingViewWidget.headerReady()
+    let button = this.tradingViewWidget.createButton()
+    button.setAttribute('title', 'Sniper Mode')
+    button.setAttribute('style', 'margin-top: 3px')
+    button.addEventListener('click', this.props.sniperBtnClicked)
+    let img = document.createElement("img")
+    img.setAttribute("src", "/img/icons/sniper.png")
+    img.setAttribute("width", "20")
+    button.append(img)
   }
 
   getChartDrawingFromServer = async () => {
@@ -323,7 +337,7 @@ export default class TradingViewChart extends Component {
     return (
       <div id="chart_outer_container" className="d-flex justify-content-center align-items-center" style={{ width: "100%", height: "100%" }}>
         <span className="spinner-border spinner-border-sm text-primary" style={{ display: isChartReady ? 'none' : 'block' }} />
-        <div id='chart_container' style={{ width: "100%", height: "100%", borderTop: '1px solid #bbb', display: isChartReady ? 'block' : 'none' }}></div>
+        <div id='chart_container' style={{ width: "100%", height: "100%", display: isChartReady ? 'block' : 'none' }}></div>
       </div>
     )
   }

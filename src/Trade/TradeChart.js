@@ -5,7 +5,16 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
-  const { selectedSymbol, symbols, symbolDetails, isLoading, selectedSymbolDetail, symbolType } = useSymbolContext()
+  const {
+    selectedSymbol,
+    symbols,
+    symbolDetails,
+    isLoading,
+    selectedSymbolDetail,
+    symbolType,
+    watchListOpen,
+    setWatchListOpen,
+  } = useSymbolContext()
   const { userData, openOrdersUC, setOpenOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
   const [fecthingIntervals, setFetchingIntervals] = useState(true)
   const [intervals, setIntervals] = useState([])
@@ -44,7 +53,7 @@ const TradeChart = () => {
   useEffect(() => {
     if (!count) return
     const savedTime = localStorage.getItem('lastSocketData')
-    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 10000) {
+    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 30000) {
       setReRender(new Date().getTime())
     }
   }, [docVisibility])
@@ -57,13 +66,6 @@ const TradeChart = () => {
     if (lsValue && lsValue.length) saveChartIntervals(lsValue)
   }, [lsValue])
 
-  // useEffect(() => {
-  //   if (!selectedSymbol || !selectedSymbol.value) return
-  //   // const [exchange, symbol] = selectedSymbol.value.split(":")
-  //   // localStorage.setItem('selectedSymbol', symbol)
-  //   setSymbolType(symbol)
-  // }, [selectedSymbol])
-
   useEffect(() => {
     if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
     localStorage.setItem('selectedExchange', activeExchange.exchange)
@@ -74,6 +76,10 @@ const TradeChart = () => {
     }
     setCount(prev => prev + 1)
   }, [activeExchange])
+
+  const onSniperBtnClick = (e) => {
+    setWatchListOpen(watchListOpen => !watchListOpen)
+  }
 
   if (!symbolType || !exchangeType) return null
   return (
@@ -86,6 +92,7 @@ const TradeChart = () => {
       symbol={symbolType}
       exchange={exchangeType}
       marketSymbols={symbolDetails}
+      sniperBtnClicked={(e) => { onSniperBtnClick(e) }}
       chartReady={(e) => { setIsChartReady(e) }}
     />
   )

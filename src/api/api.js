@@ -689,3 +689,26 @@ export async function saveLastSelectedMarketSymbol(symbol) {
   })
   return noticeData?.data
 }
+
+export async function saveWatchLists(symbols) {
+  const apiUrl = `${process.env.REACT_APP_API}chart/watchlist`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const watchLists = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { "symbols": symbols }
+  })
+  return watchLists?.data
+}
+
+export async function getWatchLists() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/watchlist`
+  const token = await firebase.auth().currentUser?.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response
+}

@@ -1,0 +1,29 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  font-size: 16px;
+}
+
+.header svg {
+  cursor: pointer;
+}
+
+.modal {
+  background: white;
+  width: 200px;
+  padding: 2px;
+  box-shadow: rgba(92, 201, 167, .25);
+}
+
+.contentHeader {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #eff2f7;
+  border-bottom: 1px solid #eff2f7;
+  padding: 5px 1rem;
+  cursor: pointer;
+  color: #718096;
+  font-size: 0.875rem;
+}
