@@ -19,15 +19,19 @@ const SymbolSelect = () => {
 
   const { activeExchange } = useContext(UserContext)
   const [options, setOptions] = useState([])
+  const [initialOptions, setInitialOptions] = useState([])
 
   const customStyles = {
     control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '1px solid rgb(204, 204, 204)',
-      borderRadius: '2px',
-      height: '45px',
-      minHeight: '45px',
+      border: '4px solid #F5F5F5',
+      borderLeft: 0,
+      borderTop: 0,
+      borderBottom: 0,
+      borderRadius: 0,
+      height: '48px',
+      minHeight: '48px',
       color: '#718096',
 
       '&:hover': {
@@ -73,6 +77,7 @@ const SymbolSelect = () => {
     const selected = symbols.filter((symbol) =>
       symbol.value.toLowerCase().includes(exchange.toLowerCase())
     )
+    setInitialOptions(selected)
     setOptions(selected)
   }, [symbols, activeExchange.exchange])
 
@@ -104,7 +109,7 @@ const SymbolSelect = () => {
           isDisabled={isLoadingBalance || isLoading}
           styles={customStyles}
           onInputChange={(inputValue) => {
-            setOptions(matchSorter(options, inputValue, { keys: ['label'] }))
+            setOptions(matchSorter(initialOptions, inputValue, { keys: ['label'] }))
           }}
         />
       </div>
