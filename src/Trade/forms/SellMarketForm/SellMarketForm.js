@@ -28,7 +28,6 @@ import {
 import styles from '../LimitForm/LimitForm.module.css'
 
 const errorInitialValues = {
-  price: '',
   quantity: '',
   total: '',
 }
@@ -60,7 +59,6 @@ const SellMarketForm = () => {
   const minNotional = Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
-    price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
     quantity: '',
     quantityPercentage: '',
     total: '',
@@ -105,7 +103,7 @@ const SellMarketForm = () => {
   })
 
   const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
-    const price = Number(values.price)
+    const price = Number(selectedSymbolLastPrice)
     const total = Number(value)
 
     const quantity = total / price
@@ -204,7 +202,7 @@ const SellMarketForm = () => {
       if (inputLength > maxLength) return
 
       const total = addPrecisionToNumber(
-        Number(value) * Number(values.price),
+        Number(value) * Number(selectedSymbolLastPrice),
         totalPrecision
       )
 
@@ -268,7 +266,7 @@ const SellMarketForm = () => {
       )
 
       const total = addPrecisionToNumber(
-        derivedQuantity * Number(values.price),
+        derivedQuantity * Number(selectedSymbolLastPrice),
         totalPrecision
       )
 
@@ -283,7 +281,7 @@ const SellMarketForm = () => {
         value: derivedQuantity,
       })
 
-      if (values.price && values.quantity) {
+      if (values.quantity) {
         validateInput({
           name: 'total',
           value: total,
@@ -311,7 +309,7 @@ const SellMarketForm = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      setErrors({ price: '', quantity: '', total: '' })
+      setErrors({ quantity: '', total: '' })
       try {
         if (isBtnDisabled) return
         setBtnVisibility(true)
