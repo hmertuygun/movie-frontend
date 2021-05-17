@@ -123,7 +123,7 @@ const Header = () => {
                   type="button"
                   id="btnSwitchMode"
                   data-mode="light"
-                  class="nav-link nav-link-icon px-2"
+                  className="nav-link nav-link-icon px-2"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -136,7 +136,7 @@ const Header = () => {
                   type="button"
                   id="btnSwitchMode"
                   data-mode="light"
-                  class="nav-link nav-link-icon px-2"
+                  className="nav-link nav-link-icon px-2"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -149,7 +149,7 @@ const Header = () => {
                   type="button"
                   id="btnSwitchMode"
                   data-mode="light"
-                  class="nav-link nav-link-icon px-2"
+                  className="nav-link nav-link-icon px-2"
                   target="_blank"
                   rel="noreferrer"
                 >
