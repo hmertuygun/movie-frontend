@@ -245,196 +245,6 @@ const SymbolContextProvider = ({ children }) => {
     }
   }, [socketLiveUpdate, activeExchange])
 
-  async function loadBalance(quote_asset, base_asset) {
-    try {
-      if (!activeExchange?.exchange) return
-      setIsLoadingBalance(true)
-      const response = await Promise.all([
-        await getBalance({
-          symbol: quote_asset,
-          ...activeExchange,
-        }),
-        await getBalance({
-          symbol: base_asset,
-          ...activeExchange,
-        }),
-      ])
-      if ('balance' in response[0].data && 'balance' in response[1].data) {
-        setSelectedSymbolBalance(response[0].data['balance'])
-        setSelectedBaseSymbolBalance(response[1].data['balance'])
-      } else {
-        console.log('no balance found for ' + quote_asset)
-        setSelectedSymbolBalance(0)
-        setSelectedBaseSymbolBalance(0)
-      }
-    } catch (err) {
-      setSelectedSymbolBalance(0)
-      setSelectedBaseSymbolBalance(0)
-    } finally {
-      setIsLoadingBalance(false)
-    }
-  }
-
-  async function loadLastPrice(symbolpair) {
-    try {
-      if (!activeExchange?.exchange) return
-      setIsLoadingLastPrice(true)
-      const { exchange } = activeExchange
-      const response = await backOff(() => getLastPrice(symbolpair, exchange))
-      if (
-        'last_price' in response.data &&
-        response.data['last_price'] !== 'NA'
-      ) {
-        console.log('setting last price for ' + symbolpair)
-        setSelectedSymbolLastPrice(response.data['last_price'])
-      } else {
-        console.log('no last price found for ' + symbolpair)
-        setSelectedSymbolLastPrice(0)
-      }
-    } catch (Exception) {
-      setSelectedSymbolLastPrice(0)
-    } finally {
-      setIsLoadingLastPrice(false)
-    }
-  }
-
-  async function setSymbol(symbol) {
-    if (!symbol || symbol?.value === selectedSymbol?.value) return
-    setSelectedSymbol(symbol)
-    localStorage.setItem('selectedSymbol', symbol.label.replace('-', '/'))
-    setSymbolType(symbol.label.replace('-', '/'))
-    try {
-      await saveLastSelectedMarketSymbol(symbol.value)
-    }
-    catch (e) {
-      console.log(e)
-    }
-  }
-
-  async function setExchange(exchange) {
-    try {
-      // if user selects the selected option again in the dropdown
-      if (
-        activeExchange.apiKeyName === exchange.apiKeyName &&
-        activeExchange.exchange === exchange.exchange
-      ) {
-        return
-      }
-      setLoaderVisibility(true)
-      await updateLastSelectedAPIKey({ ...exchange })
-      setActiveExchange(exchange)
-      sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
-    } catch (e) {
-      errorNotification.open({
-        description: `Error activating this exchange key!`,
-      })
-    } finally {
-    }
-  }
-
-  // const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
-  //   refetchOnWindowFocus: false,
-  // })
-
-  const loadExchanges = async () => {
-    try {
-      if (!userData) return
-      setIsLoadingExchanges(true)
-      const data = await getExchanges() //queryExchanges.data
-      const symbolList = []
-      const ftxList = []
-      const binanceList = []
-      const symbolDetails = {}
-      const pn = performance.now()
-      // const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
-      // const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
-      // loadBalance(qouteAsset, baseAsset)
-      // loadLastPrice(getSymbolFromLS.replace('/', ''))
-      setExchangesFromTotalExchanges()
-      // Process symbols
-      if (data['exchanges']) {
-        data['exchanges'].forEach((exchange) => {
-          // exchangeList.push(exchange['exchange'])
-          exchange['symbols'].forEach((symbol) => {
-            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
-            symbolList.push({
-              label: symbol['label'],
-              value: value,
-            })
-            if (exchange['exchange'] === "binance") {
-              binanceList.push({
-                label: symbol['label'],
-                value: value,
-              })
-            }
-            else if (exchange['exchange'] === "ftx") {
-              ftxList.push({
-                label: symbol['label'],
-                value: value,
-              })
-            }
-            let tickSize = symbol['tickSize']
-            for (let i = 1; i < 10; i++) {
-              tickSize = tickSize * 10
-              if (tickSize === 1) {
-                tickSize = i
-                break
-              }
-            }
-
-            let lotSize = symbol['stepSize']
-            for (let i = 1; i < 10; i++) {
-              lotSize = lotSize * 10
-              if (lotSize === 1) {
-                lotSize = i
-                break
-              }
-            }
-            symbolDetails[value] = {
-              // BTCUSD
-              symbolpair: symbol['value'],
-              base_asset: symbol['base_asset'],
-              quote_asset: symbol['quote_asset'],
-              base_asset_precision: symbol['base_asset_precision'], // BTC
-              quote_asset_precision: symbol['quote_asset_precision'], // USD
-              maxPrice: symbol['maxPrice'],
-              maxQty: symbol['maxQty'],
-              minNotional: symbol['minNotional'],
-              minPrice: symbol['minPrice'],
-              minQty: symbol['minQty'],
-              originalTickSize: symbol['tickSize'],
-              tickSize: tickSize,
-              lotSize: lotSize,
-            }
-          })
-        })
-        setSymbols(symbolList)
-        setSymbolDetails(symbolDetails)
-        setFtxDD(ftxList)
-        setBinanceDD(binanceList)
-        setSymbolFromExchangeOnLoad(symbolDetails)
-        console.log(`Took ${parseFloat(performance.now() - pn).toFixed(2)} seconds to parse symbols`)
-      } else {
-        setExchanges([])
-        setSymbols([])
-      }
-    } catch (error) {
-      console.error(error)
-    }
-    finally {
-      setIsLoadingExchanges(false)
-    }
-  }
-
-  const refreshBalance = () => {
-    if (selectedSymbolDetail?.quote_asset) {
-      loadBalance(
-        selectedSymbolDetail.quote_asset,
-        selectedSymbolDetail.base_asset
-      )
-    }
-  }
-
   useEffect(() => {
     const { exchange } = activeExchange
     if (!exchange || !selectedSymbolDetail?.base_asset) return
@@ -487,6 +297,126 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     loadExchanges()
   }, [activeExchange.exchange])
+
+  const loadBalance = async (quote_asset, base_asset) => {
+    try {
+      if (!activeExchange?.exchange) return
+      setIsLoadingBalance(true)
+      const response = await Promise.all([
+        await getBalance({
+          symbol: quote_asset,
+          ...activeExchange,
+        }),
+        await getBalance({
+          symbol: base_asset,
+          ...activeExchange,
+        }),
+      ])
+      if ('balance' in response[0].data && 'balance' in response[1].data) {
+        setSelectedSymbolBalance(response[0].data['balance'])
+        setSelectedBaseSymbolBalance(response[1].data['balance'])
+      } else {
+        console.log('no balance found for ' + quote_asset)
+        setSelectedSymbolBalance(0)
+        setSelectedBaseSymbolBalance(0)
+      }
+    } catch (err) {
+      setSelectedSymbolBalance(0)
+      setSelectedBaseSymbolBalance(0)
+    } finally {
+      setIsLoadingBalance(false)
+    }
+  }
+
+  const loadLastPrice = async (symbolpair) => {
+    try {
+      if (!activeExchange?.exchange) return
+      setIsLoadingLastPrice(true)
+      const { exchange } = activeExchange
+      const response = await backOff(() => getLastPrice(symbolpair, exchange))
+      if (
+        'last_price' in response.data &&
+        response.data['last_price'] !== 'NA'
+      ) {
+        console.log('setting last price for ' + symbolpair)
+        setSelectedSymbolLastPrice(response.data['last_price'])
+      } else {
+        console.log('no last price found for ' + symbolpair)
+        setSelectedSymbolLastPrice(0)
+      }
+    } catch (Exception) {
+      setSelectedSymbolLastPrice(0)
+    } finally {
+      setIsLoadingLastPrice(false)
+    }
+  }
+
+  const setSymbol = async (symbol) => {
+    if (!symbol || symbol?.value === selectedSymbol?.value) return
+    const symbolT = symbol.label.replace('-', '/')
+    setSymbolType(symbolT)
+    setSelectedSymbol(symbol)
+    localStorage.setItem('selectedSymbol', symbolT)
+    try {
+      await saveLastSelectedMarketSymbol(symbol.value)
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  const setExchange = async (exchange) => {
+    try {
+      // if user selects the selected option again in the dropdown
+      if (
+        activeExchange.apiKeyName === exchange.apiKeyName &&
+        activeExchange.exchange === exchange.exchange
+      ) {
+        return
+      }
+      setLoaderVisibility(true)
+      await updateLastSelectedAPIKey({ ...exchange })
+      setActiveExchange(exchange)
+      sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+    } catch (e) {
+      errorNotification.open({
+        description: `Error activating this exchange key!`,
+      })
+    } finally {
+    }
+  }
+
+  const loadExchanges = async () => {
+    try {
+      if (!userData) return
+      setIsLoadingExchanges(true)
+      setExchangesFromTotalExchanges()
+      const data = await getExchanges()
+      if (!data?.exchanges?.length || !data?.keyValues) {
+        return
+      }
+      const [binance, ftx] = data.exchanges
+      setSymbols(() => [...binance.symbols, ...ftx.symbols])
+      setSymbolDetails(data.keyValues)
+      setBinanceDD(() => binance.symbols)
+      setFtxDD(() => ftx.symbols)
+      setSymbolFromExchangeOnLoad(data.keyValues)
+    } catch (error) {
+      console.error(error)
+    }
+    finally {
+      setIsLoadingExchanges(false)
+    }
+  }
+
+  const refreshBalance = () => {
+    if (selectedSymbolDetail?.quote_asset) {
+      loadBalance(
+        selectedSymbolDetail.quote_asset,
+        selectedSymbolDetail.base_asset
+      )
+    }
+  }
 
   const setExchangesFromTotalExchanges = () => {
     if (!totalExchanges || !totalExchanges.length) return
