@@ -66,23 +66,7 @@ const SymbolContextProvider = ({ children }) => {
   const [ftxDD, setFtxDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
-
-  const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
-    // if (!activeExchange?.exchange) return
-    // const { exchange } = activeExchange
-    const getLSS = await getLastSelectedMarketSymbol()
-    const [exchangeAPI, symbolAPI] = getLSS?.lastSelectedSymbol.split(":")
-    const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') // || exchange
-    const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || DEFAULT_SYMBOL_LOAD_SLASH
-    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
-    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
-    // loadBalance(qouteAsset, baseAsset)
-    // loadLastPrice(getSymbolFromLS.replace('/', ''))
-    setExchangeType(getExchangeFromLS)
-    setSymbolType(getSymbolFromLS)
-    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
-    setSelectedSymbolDetail(symbolDetails[symbolVal])
-  }
+  const [chartData, setChartData] = useState(null)
 
   useEffect(() => {
     const { exchange } = activeExchange
@@ -170,7 +154,6 @@ const SymbolContextProvider = ({ children }) => {
     const { exchange } = activeExchange
     if (!socketLiveUpdate) {
       if (timer) clearInterval(timer)
-      console.log(exchange)
       switch (exchange) {
         case 'binance':
           {
@@ -276,19 +259,12 @@ const SymbolContextProvider = ({ children }) => {
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
   }, [selectedSymbol])
 
-  // useEffect(() => {
-  //   if (!symbolType || !Object.keys(symbolDetails).length) return
-  //   setSelectedSymbolDetail()
-  // }, [symbolDetails, symbolType])
-
   useEffect(() => {
-    // loadExchanges()
     if (!symbolType || !activeExchange?.exchange) return
     const [baseAsset, qouteAsset] = symbolType.split('/')
     setBaseAsset(baseAsset)
     setQuoteAsset(qouteAsset)
     loadBalance(qouteAsset, baseAsset)
-    // setSelectedSymbol({ label: symbolType.replace('/', '-'), value: `${activeExchange.exchange}:${symbolType}` })
   }, [activeExchange.exchange, symbolType])
 
   useEffect(() => {
@@ -307,8 +283,17 @@ const SymbolContextProvider = ({ children }) => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
-      const getLSS = await getLastSelectedMarketSymbol()
-      let [exchangeVal, symbolVal] = getLSS?.lastSelectedSymbol.split(":")
+      const { data } = await getAllChartData()
+      let { drawings, intervals, watchlist, lastSelectedSymbol } = data
+      // console.log(drawings)
+      // console.log(intervals)
+      // console.log(watchlist)
+      // console.log(lastSelectedSymbol)
+      drawings = drawings && drawings[userData?.email]
+      lastSelectedSymbol = lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      intervals = intervals || []
+      setChartData({ drawings, lastSelectedSymbol, intervals })
+      let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
       exchangeVal = exchangeVal.toLowerCase() || localStorage.getItem('selectedExchange') || DEFAULT_EXCHANGE
       symbolVal = symbolVal || localStorage.getItem('selectedSymbol') || DEFAULT_SYMBOL_LOAD_SLASH
       const [baseAsset, qouteAsset] = symbolVal.split('/')
@@ -500,6 +485,7 @@ const SymbolContextProvider = ({ children }) => {
         ftxDD,
         watchListOpen,
         setWatchListOpen,
+        chartData
       }}
     >
       {children}

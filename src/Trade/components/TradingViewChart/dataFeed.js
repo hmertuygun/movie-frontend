@@ -126,7 +126,6 @@ export default class dataFeed {
           await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) :
           this.selectedExchange === this.ftxStr ?
             await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) : []
-        // if (data === null) return
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
