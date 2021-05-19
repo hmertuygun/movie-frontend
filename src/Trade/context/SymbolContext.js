@@ -14,6 +14,7 @@ import {
   getBalance,
   getLastPrice,
   getUserExchanges,
+  getAllChartData,
   updateLastSelectedAPIKey,
   get24hrTickerPrice,
   getLastSelectedMarketSymbol,
@@ -21,7 +22,6 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
-import { useQuery } from 'react-query'
 import ccxt from 'ccxt'
 
 export const SymbolContext = createContext()
@@ -252,9 +252,9 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     let { exchange } = activeExchange
     if (!exchange || !selectedSymbol?.label || !Object.keys(symbolDetails).length) return
+    localStorage.setItem('selectedExchange', exchange)
     exchange = exchange.toUpperCase()
     setOpenOrdersUC(null)
-    localStorage.setItem('selectedExchange', exchange)
     const key = `${exchange}:${selectedSymbol.label.replace('-', '/')}`
     const details = symbolDetails[key]
     if (details) {

@@ -12,6 +12,7 @@ const TradeChart = () => {
     isLoading,
     selectedSymbolDetail,
     symbolType,
+    exchangeType,
     watchListOpen,
     setWatchListOpen,
   } = useSymbolContext()
@@ -20,8 +21,7 @@ const TradeChart = () => {
   const [intervals, setIntervals] = useState([])
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [reRender, setReRender] = useState(new Date().getTime())
-  const [exchangeType, setExchangeType] = useState(null)
-  // const [symbolType, setSymbolType] = useState(null)
+  const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
@@ -67,9 +67,9 @@ const TradeChart = () => {
   }, [lsValue])
 
   useEffect(() => {
-    if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
+    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange) return
     // localStorage.setItem('selectedExchange', activeExchange.exchange)
-    setExchangeType(activeExchange.exchange)
+    seExchangeName(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
       setReRender(new Date().getTime())
@@ -81,7 +81,7 @@ const TradeChart = () => {
     setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
-  if (!symbolType || !exchangeType || !Object.keys(symbolDetails).length) return null
+  if (!symbolType || !exchangeType) return null // || !Object.keys(symbolDetails).length
 
   return (
     <TradingViewChart

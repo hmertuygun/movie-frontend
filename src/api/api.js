@@ -712,3 +712,14 @@ export async function getWatchLists() {
 
   return response
 }
+export async function getAllChartData() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/data`
+  const token = await firebase.auth().currentUser?.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data
+}
