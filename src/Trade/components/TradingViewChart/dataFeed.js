@@ -124,7 +124,9 @@ export default class dataFeed {
         const fromTime = this.selectedExchange === this.binanceStr ? from : undefined
         const data = this.selectedExchange === this.binanceStr ?
           await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) :
-          await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit)
+          this.selectedExchange === this.ftxStr ?
+            await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) : []
+        // if (data === null) return
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -134,7 +136,7 @@ export default class dataFeed {
         }
       }
       catch (e) {
-        console.log(e)
+        console.error(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }
     }
@@ -150,7 +152,7 @@ export default class dataFeed {
     if (this.selectedExchange === this.binanceStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
-    else {
+    else if (this.selectedExchange === this.ftxStr) {
       const pollingAPI = async () => {
         try {
           const klines = await this.ftxAPI.getKlines(symbolInfo.name, this.mappedResolutions[resolution], undefined, null, 500)
@@ -182,7 +184,7 @@ export default class dataFeed {
     if (this.selectedExchange === this.binanceStr) {
       this.ws.unsubscribeFromStream(subscriberUID)
     }
-    else {
+    else if (this.selectedExchange === this.ftxStr) {
       clearInterval(this.pollingInterval)
     }
   }

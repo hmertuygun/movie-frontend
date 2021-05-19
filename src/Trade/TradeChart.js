@@ -68,7 +68,7 @@ const TradeChart = () => {
 
   useEffect(() => {
     if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
-    localStorage.setItem('selectedExchange', activeExchange.exchange)
+    // localStorage.setItem('selectedExchange', activeExchange.exchange)
     setExchangeType(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
@@ -81,7 +81,8 @@ const TradeChart = () => {
     setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
-  if (!symbolType || !exchangeType) return null
+  if (!symbolType || !exchangeType || !Object.keys(symbolDetails).length) return null
+
   return (
     <TradingViewChart
       email={userData?.email}

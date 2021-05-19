@@ -55,7 +55,8 @@ const BalanceTable = () => {
       const tempBalance = balance
       // const lastMessage = await getSymbolPriceTicker()
       const proxy = window.location.hostname === "localhost" ? 'http://localhost:8080/' : 'https://nodejs-cors.herokuapp.com/'
-      const exchangeInit = exchange === "binance" ? new ccxt.binance() : new ccxt.ftx({ proxy: proxy })
+      const exchangeInit = exchange === "binance" ? new ccxt.binance() : exchange === "ftx" ? new ccxt.ftx({ proxy: proxy }) : null
+      if (!exchangeInit) return
       const lastMessage = await exchangeInit.fetchTickers()
       const arrayData = Object.values(lastMessage)
       setMarketData(arrayData)
