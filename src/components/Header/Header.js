@@ -13,43 +13,41 @@ import MenuItems from './Navigation/NavBar/MenuItems'
 import MobileTab from './MobileTab/MobileTab'
 
 import { UserContext } from '../../contexts/UserContext'
+import { ThemeContext } from '../../contexts/ThemeContext'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from '../../helpers/tourSteps'
+import { Moon } from 'react-feather'
 
 const Header = () => {
-  const [settingToggle, setSettingToggle] = useState(false)
   const {
     isLoggedIn,
     onSecondTour,
     tour2CurrentStep,
     setTour2CurrentStep,
   } = useContext(UserContext)
+  const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen } = useSymbolContext()
+
+  const [settingToggle, setSettingToggle] = useState(false)
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
   const [stepsSecondTour] = useState(secondTourSteps)
   const history = useHistory()
 
-  const toggleSetting = () => {
-    setSettingToggle(!settingToggle)
+  const styles = {
+    options: {
+      overlayColor: 'rgba(0, 0, 0, 0.6)',
+      spotlightShadow: '#b8b8b885',
+      primaryColor: '#1976D2',
+      textColor: '#333',
+      zIndex: 999999,
+    },
   }
 
-  useEffect(() => {
-    if (stepIndex2 === 2) {
-      history.push('/settings')
-    }
-    if (tour2CurrentStep === 5) {
-      setRun2(false)
-      setTimeout(() => {
-        setRun2(true)
-      }, 1000)
-    }
-  }, [stepIndex2])
-
-  if (!isLoggedIn) {
-    return null
+  const toggleSetting = () => {
+    setSettingToggle(!settingToggle)
   }
 
   const handleJoyrideCallback2 = (data) => {
@@ -65,22 +63,81 @@ const Header = () => {
     }
   }
 
-  const styles = {
-    options: {
-      overlayColor: 'rgba(0, 0, 0, 0.6)',
-      spotlightShadow: '#b8b8b885',
-      primaryColor: '#1976D2',
-      textColor: '#333',
-      zIndex: 999999,
-    },
+  const toggleTheme = () => {
+    setTheme((theme) => {
+      let newTheme = ''
+      switch (theme) {
+        case 'LIGHT_MODE':
+          newTheme = 'DARK_MODE'
+          break
+        case 'DARK_MODE':
+          newTheme = 'LIGHT_MODE'
+          break
+        default:
+          newTheme = 'LIGHT_MODE'
+          break
+      }
+      localStorage.setItem('theme', newTheme)
+
+      return newTheme
+    })
   }
 
-  if (watchListOpen) return null
+  const switchAppStyleSheet = () => {
+    const appStylesheet = document.getElementById('app-stylesheet')
+    if (appStylesheet) {
+      const params = appStylesheet.getAttribute('href').split('/')
+
+      const file = params[params.length - 1]
+      let newFile
+
+      switch (theme) {
+        case 'LIGHT_MODE':
+          newFile = 'quick-website.css'
+          break
+        case 'DARK_MODE':
+          newFile = 'quick-website-dark.css'
+          break
+        default:
+          newFile = 'quick-website.css'
+          break
+      }
+
+      newFile = appStylesheet.getAttribute('href').replace(file, newFile)
+
+      appStylesheet.setAttribute('href', newFile)
+    }
+  }
+  
+  useEffect(() => {
+    switchAppStyleSheet();
+  }, [theme])
+
+  useEffect(() => {
+    if (stepIndex2 === 2) {
+      history.push('/settings')
+    }
+    if (tour2CurrentStep === 5) {
+      setRun2(false)
+      setTimeout(() => {
+        setRun2(true)
+      }, 1000)
+    }
+  }, [stepIndex2])
+
+
+  if (!isLoggedIn || watchListOpen) {
+    return null
+  }
 
   return (
     <header className="" id="header-main">
       <nav
-        className="navbar navbar-main navbar-expand-lg shadow navbar-light"
+        className={`shadow navbar navbar-main navbar-expand-lg ${
+          theme === 'LIGHT_MODE'
+            ? 'navbar-light bg-whtie'
+            : 'navbar-dark bg-dark'
+        }`}
         id="navbar-main"
       >
         <div className="container">
@@ -109,7 +166,7 @@ const Header = () => {
               <li className="nav-item">
                 <a
                   href="https://support.coinpanel.com/hc/en-us/requests/new"
-                  className="btn btn-xs btn-primary btn-icon mr-3"
+                  className="mr-3 btn btn-xs btn-primary btn-icon"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -121,9 +178,7 @@ const Header = () => {
                 <a
                   href="https://coin-panel.medium.com/"
                   type="button"
-                  id="btnSwitchMode"
-                  data-mode="light"
-                  className="nav-link nav-link-icon px-2"
+                  className="px-2 nav-link nav-link-icon"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -134,9 +189,7 @@ const Header = () => {
                 <a
                   href="https://twitter.com/coin_panel"
                   type="button"
-                  id="btnSwitchMode"
-                  data-mode="light"
-                  className="nav-link nav-link-icon px-2"
+                  className="px-2 nav-link nav-link-icon"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -147,14 +200,24 @@ const Header = () => {
                 <a
                   href="https://t.me/coinpanelsupport"
                   type="button"
-                  id="btnSwitchMode"
-                  data-mode="light"
-                  className="nav-link nav-link-icon px-2"
+                  className="px-2 nav-link nav-link-icon"
                   target="_blank"
                   rel="noreferrer"
                 >
                   <FontAwesomeIcon icon={faTelegram} className="mt-2" />
                 </a>
+              </li>
+              <li className="nav-item">
+                <span
+                  type="button"
+                  id="btnSwitchMode"
+                  className={`nav-link nav-link-icon px-2 ${
+                    theme === 'DARK_MODE' ? 'text-warning' : ''
+                  }`}
+                  onClick={toggleTheme}
+                >
+                  <Moon size={15} className="chevron-down" strokeWidth="3" />
+                </span>
               </li>
               <Menu
                 settingToggle={settingToggle}

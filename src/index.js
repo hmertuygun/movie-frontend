@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom'
 import {firebase} from './firebase/firebase'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import './styles/theme.css'
-import './styles/styles.css'
-import './styles/quick-website.css'
 
 if ("serviceWorker" in navigator && firebase.messaging.isSupported()) {
   navigator.serviceWorker

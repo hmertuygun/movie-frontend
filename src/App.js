@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import * as Sentry from '@sentry/react'
 import { Integrations } from '@sentry/tracing'
 import Routes from './Routes'
+import ThemeContextProvider from './contexts/ThemeContext'
 import UserContextProvider from './contexts/UserContext'
 import TabContextProvider from './contexts/TabContext'
 import SymbolContextProvider from './Trade/context/SymbolContext'
@@ -37,22 +38,24 @@ export default function App() {
     // <Sentry.ErrorBoundary fallback={'An error has occurred'}>
     <QueryClientProvider client={queryClient}>
       <Router>
-        <UserContextProvider>
-          <SymbolContextProvider>
-            <TabContextProvider>
-              <PositionCTXProvider>
-                <PortfolioCTXProvider>
-                  <ErrorBoundary componentName="Header">
-                    <Suspense fallback={<div></div>}>
-                      <Header />
-                    </Suspense>
-                  </ErrorBoundary>
-                  <Routes />
-                </PortfolioCTXProvider>
-              </PositionCTXProvider>
-            </TabContextProvider>
-          </SymbolContextProvider>
-        </UserContextProvider>
+        <ThemeContextProvider>
+          <UserContextProvider>
+            <SymbolContextProvider>
+              <TabContextProvider>
+                <PositionCTXProvider>
+                  <PortfolioCTXProvider>
+                    <ErrorBoundary componentName="Header">
+                      <Suspense fallback={<div></div>}>
+                        <Header />
+                      </Suspense>
+                    </ErrorBoundary>
+                    <Routes />
+                  </PortfolioCTXProvider>
+                </PositionCTXProvider>
+              </TabContextProvider>
+            </SymbolContextProvider>
+          </UserContextProvider>
+        </ThemeContextProvider>
       </Router>
       {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
     </QueryClientProvider>

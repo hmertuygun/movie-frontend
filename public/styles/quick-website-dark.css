@@ -17339,11 +17339,6 @@ button.bg-black:focus
     filter: saturate(150%);
 }
 
-.img-back-shape img
-{
-    background: url('/img/svg/backgrounds/bg-circles-1.svg') no-repeat scroll center center00% 100% border-box;
-}
-
 .opacity-0,
 .hover-opacity-0:hover,
 .opacity-container:hover .hover-opacity-0
