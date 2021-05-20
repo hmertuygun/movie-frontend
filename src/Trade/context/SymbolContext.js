@@ -407,6 +407,7 @@ const SymbolContextProvider = ({ children }) => {
       const [binance, ftx] = data.exchanges
       setSymbols(() => [...binance.symbols, ...ftx.symbols])
       setSymbolDetails(data.keyValues)
+      localStorage.setItem('symbolsKeyValue', JSON.stringify(data.keyValues))
       setBinanceDD(() => binance.symbols)
       setFtxDD(() => ftx.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`

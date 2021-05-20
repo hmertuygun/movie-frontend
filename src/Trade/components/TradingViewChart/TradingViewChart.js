@@ -272,8 +272,6 @@ export default class TradingViewChart extends Component {
   initChart = () => {
     try {
       if (!this.tradingViewWidget) return
-      // console.log(this.props.drawings)
-      // console.log(this.props.drawings.includes('ETH'))
       if (this.props.drawings) {
         const pData = JSON.parse(this.props.drawings)
         this.tradingViewWidget.save((obj) => {
@@ -291,7 +289,7 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      this.props.drawingRendered(true)
+      // this.props.drawingRendered(true)
       this.chartEvent("study_event")
       setTimeout(() => {
         this.props.chartReady(true)

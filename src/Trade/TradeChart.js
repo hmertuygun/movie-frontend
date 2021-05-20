@@ -64,7 +64,9 @@ const TradeChart = () => {
     setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
-  let showChart = chartData && symbolType && exchangeType
+  const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
+  const symbolDetailsKeyValue = getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails
+  let showChart = chartData && symbolType && exchangeType && (getSymbolsLS || Object.keys(symbolDetails).length)
   const { drawings, intervals } = chartData || {}
 
   return (
@@ -83,8 +85,7 @@ const TradeChart = () => {
           key={reRender}
           symbol={symbolType}
           exchange={exchangeType}
-          marketSymbols={symbolDetails}
-          drawingRendered={(e) => { setDrawingShown(e) }}
+          marketSymbols={symbolDetailsKeyValue}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
           }}
