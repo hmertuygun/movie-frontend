@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "coinpanel-prod"
+    "default": "coinpanel-prod",
+    "develop": "coinpanel-dev"
   }
 }
