@@ -20,6 +20,7 @@ const TradeChart = () => {
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
+  const [drawingShown, setDrawingShown] = useState(false)
   const [theme, setTheme] = useState('light')
 
   const reconnectWSOnWindowFocus = () => {
@@ -72,7 +73,7 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      {showChart ? (
+      {showChart && drawingShown ? (
         <TradingViewChart
           email={userData?.email}
           theme={theme}
@@ -83,6 +84,7 @@ const TradeChart = () => {
           symbol={symbolType}
           exchange={exchangeType}
           marketSymbols={symbolDetails}
+          drawingRendered={(e) => { setDrawingShown(e) }}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
           }}

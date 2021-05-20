@@ -50,7 +50,7 @@ export default class dataFeed {
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
     try {
       let chosenSymbol = symbolName // localStorage.getItem('selectedSymbol') ||
-      this.selectedExchange = localStorage.getItem('selectedExchange')
+      this.selectedExchange = this.selectedExchange || localStorage.getItem('selectedExchange')
       const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
       const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
       const calculatePriceScale = (tick) => {

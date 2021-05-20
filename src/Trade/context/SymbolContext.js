@@ -278,7 +278,6 @@ const SymbolContextProvider = ({ children }) => {
 
   }, [userData])
 
-
   const getChartDataOnInit = async () => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
@@ -294,8 +293,10 @@ const SymbolContextProvider = ({ children }) => {
       intervals = intervals || []
       setChartData({ drawings, lastSelectedSymbol, intervals })
       let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
-      exchangeVal = exchangeVal.toLowerCase() || localStorage.getItem('selectedExchange') || DEFAULT_EXCHANGE
-      symbolVal = symbolVal || localStorage.getItem('selectedSymbol') || DEFAULT_SYMBOL_LOAD_SLASH
+      exchangeVal = exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+      localStorage.setItem('selectedExchange', exchangeVal)
+      localStorage.setItem('selectedSymbol', symbolVal)
       const [baseAsset, qouteAsset] = symbolVal.split('/')
       setSelectedSymbolDetail({ base_asset: baseAsset, quote_asset: qouteAsset }) // to show balance in trade panel quickly
       setSymbolType(symbolVal)

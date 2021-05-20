@@ -10,10 +10,9 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked }) {
+  constructor({ symbol, theme, email, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
     super()
-    //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
-    this.dF = new dataFeed({ debug: false, exchange, marketSymbols }) // exchangeDataFeeds[exchange]
+    this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.dF,
@@ -129,8 +128,8 @@ export default class TradingViewChart extends Component {
       const blue = "#008aff"
       const green = "#3cb690"
       const red = '#f25767'
-      if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
-      this.orderLineCount++
+      // if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
+      // this.orderLineCount++
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
         const { trade_id, line_id } = this.orderLinesDrawn[i]
         let fData = openOrders.find(item => item.trade_id === trade_id)
@@ -273,6 +272,8 @@ export default class TradingViewChart extends Component {
   initChart = () => {
     try {
       if (!this.tradingViewWidget) return
+      // console.log(this.props.drawings)
+      // console.log(this.props.drawings.includes('ETH'))
       if (this.props.drawings) {
         const pData = JSON.parse(this.props.drawings)
         this.tradingViewWidget.save((obj) => {
@@ -287,9 +288,10 @@ export default class TradingViewChart extends Component {
     finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
-      this.setState({
-        isChartReady: true
-      })
+      // this.setState({
+      //   isChartReady: true
+      // })
+      this.props.drawingRendered(true)
       this.chartEvent("study_event")
       setTimeout(() => {
         this.props.chartReady(true)
