@@ -8,7 +8,7 @@ import uniqid from 'uniqid'
 import { dropByCacheKey } from 'react-router-cache-route'
 
 const QuickRegister = () => {
-  const { register } = useContext(UserContext)
+  const { register, isLoggedIn } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -18,6 +18,14 @@ const QuickRegister = () => {
   const [type, setType] = useState('password')
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
+
+  useEffect(() => {
+    if (isLoggedIn) return <Redirect to="/trade" />
+    else {
+      window.location.href = 'https://coinpanel.com/'
+      return null
+    }
+  }, [])
 
   // clear errors
   useEffect(() => {
