@@ -20,7 +20,7 @@ steps:
   - name: node:12.10.0
     entrypoint: yarn
     args: ['run', 'build']
-  - name: gcr.io/project-id/firebase
+  - name: gcr.io/${PROJECT_ID}/firebase
     args: [ 'deploy', '--project=coinpanel-${_CLUSTER_TYPE}',]
 substitutions:
   _CLUSTER_TYPE: ${PROJECT_ID:10}
