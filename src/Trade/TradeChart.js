@@ -73,7 +73,7 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      {showChart && drawingShown ? (
+      {showChart ? (
         <TradingViewChart
           email={userData?.email}
           theme={theme}

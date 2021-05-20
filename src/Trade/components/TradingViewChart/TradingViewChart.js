@@ -288,9 +288,9 @@ export default class TradingViewChart extends Component {
     finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
-      // this.setState({
-      //   isChartReady: true
-      // })
+      this.setState({
+        isChartReady: true
+      })
       this.props.drawingRendered(true)
       this.chartEvent("study_event")
       setTimeout(() => {
@@ -323,7 +323,7 @@ export default class TradingViewChart extends Component {
 
   render() {
     return (
-      <div id='chart_container' style={{ width: "100%", height: "100%" }}></div>
+      <div id='chart_container' style={{ width: "100%", height: "100%", display: this.state.isChartReady ? 'block' : 'none' }}></div>
     )
   }
 }
