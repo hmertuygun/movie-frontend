@@ -55,7 +55,7 @@ const OnboardingModal = () => {
   const [errors, setErrors] = useState(errorInitialValues)
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -270,9 +270,8 @@ const OnboardingModal = () => {
                     style={{ height: '12px' }}
                   >
                     <div
-                      className={`progress-bar ${
-                        step >= index + 1 ? 'w-100' : ''
-                      }`}
+                      className={`progress-bar ${step >= index + 1 ? 'w-100' : ''
+                        }`}
                       role="progressbar"
                     ></div>
                   </div>
@@ -284,9 +283,12 @@ const OnboardingModal = () => {
               <p className="lead">
                 You need a Binance Exchange account to use CoinPanel.
               </p>
-              <p className="mb-0 lead">
+              <p className="lead">
                 Do you have an existing account that you would like to connect,
                 or would you like to create a new Binance account?
+              </p>
+              <p className="lead">
+                Only <a href="https://www.binance.com" target="_blank" rel="noopener noreferrer">Binance.com</a> is supported for now. <a href="https://www.binance.us" target="_blank" rel="noopener noreferrer">Binance.us</a> exchange support is coming soon!
               </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
@@ -393,9 +395,8 @@ const OnboardingModal = () => {
                 {renderInputValidationError('secret')}
               </div>
               <div
-                className={`alert alert-danger ${
-                  hasError ? 'd-show' : 'd-none'
-                }`}
+                className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'
+                  }`}
                 role="alert"
               >
                 <p>&#10005; Error connecting exchange!</p>
