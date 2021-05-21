@@ -1,17 +1,19 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import onClickOutside from 'react-onclickoutside'
 
 function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
+  Menu.handleClickOutside = () => {
+    setSettingToggle(false)
+  }
   return (
     <div
       id="cp-tour-b-2"
-      onMouseOver={() => setSettingToggle(true)}
-      onMouseOut={() => setSettingToggle(false)}
+      onClick={() => toggleSetting()}
     >
       <li className="nav-item dropdown dropdown-animate">
         <button
           className="px-2 nav-link nav-link-icon btn btn-plain"
-          onClick={() => toggleSetting()}
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
@@ -90,4 +92,8 @@ function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
   )
 }
 
-export default Menu
+const clickOutsideConfig = {
+  handleClickOutside: () => Menu.handleClickOutside,
+}
+
+export default onClickOutside(Menu, clickOutsideConfig)
