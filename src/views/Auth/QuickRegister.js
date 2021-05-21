@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Key, AtSign } from 'react-feather'
-import { Link, Redirect } from 'react-router-dom'
+import { Link, Redirect, useLocation } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
@@ -18,10 +18,11 @@ const QuickRegister = () => {
   const [type, setType] = useState('password')
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (isLoggedIn) return <Redirect to="/trade" />
-    else {
+    else if (pathname === "/register") {
       window.location.href = 'https://coinpanel.com/'
       return null
     }
