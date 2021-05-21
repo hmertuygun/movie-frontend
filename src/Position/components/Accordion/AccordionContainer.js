@@ -127,7 +127,8 @@ const AccordionContainer = () => {
       setData(positionsData)
     } catch (error) {
       Sentry.captureException(error)
-      throw new Error('Error occured while processing positions')
+      console.warn(error)
+      // throw new Error('Error occured while processing positions')
     }
   }, [positions, lastMessage, symbolDetails, activeExchange])
 

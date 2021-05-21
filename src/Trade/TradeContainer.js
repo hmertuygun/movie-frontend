@@ -50,10 +50,14 @@ const TradeContainer = () => {
       .collection('platform_messages')
       .where('publishNow', '==', true)
       .onSnapshot((doc) => {
+        let shouldReturn = false
         doc.docChanges().forEach((item) => {
           // item.type = added , removed, modified
           // console.log(item.type, item.doc.id)
-          if (item.type === 'removed') return
+          if (item.type === 'removed') {
+            shouldReturn = true
+            return
+          }
           const { sendToEveryone, emails } = item.doc.data()
           if (sendToEveryone) {
             setFBNotice({
@@ -72,6 +76,7 @@ const TradeContainer = () => {
             }
           }
         })
+        if (shouldReturn) return
         setSnapShotCount((prevValue) => prevValue + 1)
       })
     return () => {
@@ -151,22 +156,20 @@ const TradeContainer = () => {
             <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
               {notices.map((item, index) => (
                 <div
-                  className={`text-center my-1 alert alert-${
-                    item.noticeType || 'primary'
-                  }`}
+                  className={`text-center my-1 alert alert-${item.noticeType || 'primary'
+                    }`}
                   key={`notice-${index}`}
                 >
                   <FontAwesomeIcon
                     color="white"
-                    icon={`${
-                      item.noticeType === 'danger'
+                    icon={`${item.noticeType === 'danger'
                         ? 'times-circle'
                         : item.noticeType === 'warning'
-                        ? 'exclamation-triangle'
-                        : item.noticeType === 'info'
-                        ? 'exclamation-circle'
-                        : 'exclamation-circle'
-                    }`}
+                          ? 'exclamation-triangle'
+                          : item.noticeType === 'info'
+                            ? 'exclamation-circle'
+                            : 'exclamation-circle'
+                      }`}
                   />{' '}
                   {item.message}
                   <button
@@ -196,11 +199,11 @@ const TradeContainer = () => {
             >
               <TradeChart />
             </section>
-            
-            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen? "none": "" }}>
+
+            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen ? "none" : "" }}>
               <TradeOrders />
             </section>
-            
+
           </section>
         </>
       ) : isTradePanelOpen ? (
@@ -212,22 +215,20 @@ const TradeContainer = () => {
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div
-                className={`text-center my-1 alert alert-${
-                  item.noticeType || 'primary'
-                }`}
+                className={`text-center my-1 alert alert-${item.noticeType || 'primary'
+                  }`}
                 key={`notice-${index}`}
               >
                 <FontAwesomeIcon
                   color="white"
-                  icon={`${
-                    item.noticeType === 'danger'
+                  icon={`${item.noticeType === 'danger'
                       ? 'times-circle'
                       : item.noticeType === 'warning'
-                      ? 'exclamation-triangle'
-                      : item.noticeType === 'info'
-                      ? 'exclamation-circle'
-                      : 'exclamation-circle'
-                  }`}
+                        ? 'exclamation-triangle'
+                        : item.noticeType === 'info'
+                          ? 'exclamation-circle'
+                          : 'exclamation-circle'
+                    }`}
                 />{' '}
                 {item.message}
                 <button
