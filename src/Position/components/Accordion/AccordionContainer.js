@@ -5,7 +5,6 @@ import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
-// import { data } from '../../utils/mock-data'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
@@ -191,7 +190,7 @@ const AccordionContainer = () => {
         </div>
         {/* Disable accordion by removing accordion class, to enable add again */}
         <div id="accordion" className="accordion-spaced">
-          {isLoading || (positions.length > 0 && !items.length) ? (
+          {isLoading || !items.length ? (
             <div className="pt-5 text-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="sr-only">Loading...</span>

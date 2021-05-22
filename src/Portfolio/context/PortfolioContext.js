@@ -30,7 +30,6 @@ const PortfolioCTXProvider = ({ children }) => {
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
   const { activeExchange } = useContext(UserContext)
-  const [marketData, setMarketData] = useState([])
 
   const fetchData = useCallback(async () => {
     if (user && activeExchange.exchange) {
@@ -48,7 +47,7 @@ const PortfolioCTXProvider = ({ children }) => {
         headers: await getHeaders(token),
         method: 'GET',
       })
-
+      
       setTicker(exchanges.data)
       setBalance(exchanges.data.BottomTable)
       setChart(exchanges.data.Distribution)
@@ -84,8 +83,6 @@ const PortfolioCTXProvider = ({ children }) => {
         tickers,
         refreshData,
         error,
-        marketData,
-        setMarketData
       }}
     >
       {children}

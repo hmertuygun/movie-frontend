@@ -28,13 +28,6 @@ export async function get24hrTickerPrice() {
   return result.data
 }
 
-export async function getSymbolPriceTicker(symbols) {
-  const result = await axios(`${binanceAPI}v3/ticker/price`, {
-    method: 'GET',
-  })
-  return result.data
-}
-
 export async function placeOrder({
   entry,
   targets,
