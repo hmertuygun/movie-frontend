@@ -93,7 +93,6 @@ const Routes = () => {
         )}
         {isLoggedIn && userContextLoaded && (
           <CacheSwitch>
-            {/* className={`${!hasSub ? 'grayscale' : ''}`} */}
             <CacheRoute exact path="/trade" component={TradeView} />
             <Route path="/settings" component={Settings} />
             <CacheRoute path="/portfolio" component={Portfolio} />
