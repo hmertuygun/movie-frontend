@@ -6,11 +6,13 @@ import { PortfolioContext } from './context/PortfolioContext'
 import { UserContext } from '../contexts/UserContext'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useSymbolContext } from '../Trade/context/SymbolContext'
 
 function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
   const { loading, refreshData } = useContext(PortfolioContext)
   const { activeExchange } = useContext(UserContext)
+  const { onRefreshBtnClicked, disablePortfolioRefreshBtn } = useSymbolContext()
 
   const onUnload = () => {
     localStorage.removeItem(`portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`)
@@ -59,7 +61,8 @@ function PortfolioContainer() {
                     <button
                       type="button"
                       className="btn btn-sm btn-neutral btn-icon"
-                      onClick={refreshData}
+                      onClick={() => { refreshData(); onRefreshBtnClicked('portfolio') }}
+                      disabled={disablePortfolioRefreshBtn}
                     >
                       <span className="btn-inner--text">Refresh</span>
                       <span className="btn-inner--icon">

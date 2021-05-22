@@ -40,6 +40,10 @@ const SymbolContextProvider = ({ children }) => {
   } = useContext(UserContext)
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
+  const [disableOrderHistoryRefreshBtn, setDisableOrderHistoryRefreshBtn] = useState(false)
+  const [disableOpenOrdersRefreshBtn, setDisableOpenOrdesrRefreshBtn] = useState(false)
+  const [disablePortfolioRefreshBtn, setDisablePortfolioRefreshBtn] = useState(false)
+  const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] = useState(false)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -63,6 +67,57 @@ const SymbolContextProvider = ({ children }) => {
   const [ftxDD, setFtxDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
+  const orderHistoryTimeInterval = 10000
+  const openOrdersTimeInterval = 5000
+  const portfolioTimeInterval = 20000
+  const positionTimeInterval = 20000
+  let disableBtnInterval = null
+
+  useEffect(() => {
+    checkDisableBtnStatus()
+  }, [])
+
+  const checkDisableBtnStatus = () => {
+    disableBtnInterval = setInterval(() => {
+      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
+      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
+      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
+      const positionLS = localStorage.getItem('positionRefreshBtn')
+
+      if (orderHistoryLS && (Date.now() - orderHistoryLS < orderHistoryTimeInterval)) setDisableOrderHistoryRefreshBtn(true)
+      else setDisableOrderHistoryRefreshBtn(false)
+
+      if (openOrdersLS && (Date.now() - openOrdersLS < openOrdersTimeInterval)) setDisableOpenOrdesrRefreshBtn(true)
+      else setDisableOpenOrdesrRefreshBtn(false)
+
+      if (portfolioLS && (Date.now() - portfolioLS < portfolioTimeInterval)) setDisablePortfolioRefreshBtn(true)
+      else setDisablePortfolioRefreshBtn(false)
+
+      if (positionLS && (Date.now() - positionLS < positionTimeInterval)) setDisablePositionRefreshBtn(true)
+      else setDisablePositionRefreshBtn(false)
+
+    }, 1000)
+  }
+
+  const onRefreshBtnClicked = (type) => {
+    const dateNow = Date.now()
+    if (type === "order-history") {
+      setDisableOrderHistoryRefreshBtn(true)
+      localStorage.setItem('orderHistoryRefreshBtn', dateNow)
+    }
+    else if (type === "open-order") {
+      setDisableOpenOrdesrRefreshBtn(true)
+      localStorage.setItem('openOrdersRefreshBtn', dateNow)
+    }
+    else if (type === "portfolio") {
+      setDisablePortfolioRefreshBtn(true)
+      localStorage.setItem('portfolioRefreshBtn', dateNow)
+    }
+    else if (type === "position") {
+      setDisablePositionRefreshBtn(true)
+      localStorage.setItem('positionRefreshBtn', dateNow)
+    }
+  }
 
   const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
     if (!activeExchange?.exchange) return
@@ -520,6 +575,11 @@ const SymbolContextProvider = ({ children }) => {
       value={{
         isLoading: !selectedSymbolDetail || isLoadingExchanges,
         exchanges,
+        disableOrderHistoryRefreshBtn,
+        disableOpenOrdersRefreshBtn,
+        disablePortfolioRefreshBtn,
+        disablePositionRefreshBtn,
+        onRefreshBtnClicked,
         refreshExchanges,
         setExchange,
         symbols,

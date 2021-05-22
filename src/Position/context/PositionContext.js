@@ -32,7 +32,7 @@ const PositionCTXProvider = ({ children }) => {
         description: 'Cannot fetch positions. Please try again later!',
       })
       Sentry.captureException(error)
-      throw new Error('Cannot fetch positions')
+      console.warn('Cannot fetch positions')
     }
     finally {
       setIsLoading(false)
