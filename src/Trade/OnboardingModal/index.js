@@ -181,7 +181,7 @@ const OnboardingModal = () => {
 
   const onSecondaryBtnClick = () => {
     if (step === 1) {
-      window.open('https://accounts.binance.com/en/register')
+      window.open('https://www.binance.com/en/register?ref=UR7ZCKEJ')
     } else if (step === 2) {
       setError(false)
       setStepNo(step - 1)
@@ -288,7 +288,7 @@ const OnboardingModal = () => {
                 or would you like to create a new Binance account?
               </p>
               <p className="lead">
-                Only <a href="https://www.binance.com" target="_blank" rel="noopener noreferrer">Binance.com</a> is supported for now. <a href="https://www.binance.us" target="_blank" rel="noopener noreferrer">Binance.us</a> exchange support is coming soon!
+                Only Binance.com is supported for now. Binance.us exchange support is coming soon!
               </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
