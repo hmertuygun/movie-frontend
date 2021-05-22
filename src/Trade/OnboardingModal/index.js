@@ -287,9 +287,9 @@ const OnboardingModal = () => {
                 Do you have an existing account that you would like to connect,
                 or would you like to create a new Binance account?
               </p>
-              {/* <p className="lead">
-                Only <a href="https://www.binance.com" target="_blank" rel="noopener noreferrer">Binance.com</a> is supported for now. <a href="https://www.binance.us" target="_blank" rel="noopener noreferrer">Binance.us</a> exchange support is coming soon!
-              </p> */}
+              <p className="lead">
+                Only Binance.com is supported for now. Binance.us exchange support is coming soon!
+              </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
               <p>
