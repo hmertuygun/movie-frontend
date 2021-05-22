@@ -5,12 +5,15 @@ import { tableConstants } from './Table/tableConstant'
 
 import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
+import { useSymbolContext } from '../../Trade/context/SymbolContext'
 
 const BalanceTable = () => {
   const { balance } = useContext(PortfolioContext)
+  const { lastMessage } = useSymbolContext()
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   const ITEMS_PER_PAGE = 8
@@ -42,6 +45,24 @@ const BalanceTable = () => {
       setTableData(balance)
     }
   }, [balance, setTableData, getTableData])
+
+  const fetchLatestPrice = () => {
+    const tempBalance = balance
+    tempBalance.forEach((item, index, arr) => {
+      const fData = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}BTC`)
+      const fData1 = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}USD`)
+      console.log(`${item.SYMBOL}BTC`, fData)
+      console.log(`${item.SYMBOL}USD`, fData1)
+      if (fData) arr[index].BTC = (fData.lastPrice * item.TOTAL).toFixed(8)
+      if (fData1) arr[index].USD = (fData1.lastPrice * item.TOTAL).toFixed(8)
+    })
+    setTableData(tempBalance)
+  }
+
+  useEffect(() => {
+    if (!balance?.length || !lastMessage?.length) return
+    fetchLatestPrice()
+  }, [lastMessage])
 
   return (
     <>
