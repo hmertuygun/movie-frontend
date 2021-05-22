@@ -5,11 +5,11 @@ import { tableConstants } from './Table/tableConstant'
 
 import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
-import { useSymbolContext } from '../../Trade/context/SymbolContext'
 
 const BalanceTable = () => {
   const { balance } = useContext(PortfolioContext)
-  const { lastMessage } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
+  // const { lastMessage } = useSymbolContext()
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -61,8 +61,8 @@ const BalanceTable = () => {
         const fData1 = arrayData.find((item1) => item1.symbol === `${item.SYMBOL}/USDT`)
         // console.log(`${item.SYMBOL}/BTC`, fData)
         // console.log(`${item.SYMBOL}/USDT`, fData1)
-        if (fData) arr[index].BTC = (fData.price * item.TOTAL).toFixed(8)
-        if (fData1) arr[index].USD = (fData1.price * item.TOTAL).toFixed(8)
+        if (fData) arr[index].BTC = (fData.close * item.TOTAL).toFixed(8)
+        if (fData1) arr[index].USD = (fData1.close * item.TOTAL).toFixed(8)
       })
       setTableData(tempBalance)
     }
