@@ -3,11 +3,13 @@ import AccordionContainer from '../Position/components/Accordion/AccordionContai
 import { UserContext } from '../contexts/UserContext'
 import precisionRound from '../helpers/precisionRound'
 import { firebase } from '../firebase/firebase'
+import { useSymbolContext } from '../Trade/context/SymbolContext'
 const db = firebase.firestore()
 
 const Position = () => {
   const [checkProgress, setCheckProgress] = useState(false)
   const { userData, activeExchange, orderHistoryProgressUC } = useContext(UserContext)
+  const { onRefreshBtnClicked } = useSymbolContext()
   const [orderHistoryProgressPV, setOrderHistoryProgressPV] = useState('100.00')
   let FBOrderHistoryLoad
 
@@ -70,7 +72,9 @@ const Position = () => {
 
   const toRender = () => {
     if (checkProgress && (orderHistoryProgressPV !== '100.00' || orderHistoryProgressUC !== '100.00')) return ProgressBar
-    else return <AccordionContainer />
+    else {
+      return <AccordionContainer />
+    }
   }
 
   return (
