@@ -249,6 +249,7 @@ const SymbolContextProvider = ({ children }) => {
     try {
       if (!activeExchange?.exchange) return
       setIsLoadingBalance(true)
+      console.log(`${selectedSymbol.value} -- ${symbolType} -- ${base_asset}/${quote_asset} -- ${response[1].data['asset']} -- ${localStorage.getItem('selectedSymbol')}`)
       const response = await Promise.all([
         await getBalance({
           symbol: quote_asset,
@@ -259,6 +260,7 @@ const SymbolContextProvider = ({ children }) => {
           ...activeExchange,
         }),
       ])
+      console.log(`${selectedSymbol.value} -- ${symbolType} -- ${base_asset}/${quote_asset} -- ${response[1].data['asset']} -- ${localStorage.getItem('selectedSymbol')}`)
       if ('balance' in response[0].data && 'balance' in response[1].data) {
         setSelectedSymbolBalance(response[0].data['balance'])
         setSelectedBaseSymbolBalance(response[1].data['balance'])

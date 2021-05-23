@@ -83,13 +83,13 @@ const Routes = () => {
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
-      <Detector
+      {/* <Detector
         polling={{ url: "https://ipv4.icanhazip.com", enabled: isLoggedIn }}
         onChange={(e) => { showNotifOnNetworkChange(e) }}
         render={({ online }) => {
           return null
         }}
-      />
+      /> */}
       <Suspense fallback={<div></div>}>
         <Switch>
           {isLoggedIn && userContextLoaded && (
