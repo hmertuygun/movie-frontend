@@ -304,7 +304,6 @@ const SymbolContextProvider = ({ children }) => {
     try {
       if (!activeExchange?.exchange) return
       setIsLoadingBalance(true)
-      //console.log(`${selectedSymbol.value} -- ${symbolType} -- ${base_asset}/${quote_asset} -- ${localStorage.getItem('selectedSymbol')}`)
       const response = await Promise.all([
         await getBalance({
           symbol: quote_asset,
@@ -315,7 +314,6 @@ const SymbolContextProvider = ({ children }) => {
           ...activeExchange,
         }),
       ])
-      //console.log(`${selectedSymbol.value} -- ${symbolType} -- ${base_asset}/${quote_asset} -- ${response[1].data['asset']} -- ${localStorage.getItem('selectedSymbol')}`)
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly 
       if (`${base_asset}/${quote_asset}` !== localStorage.getItem('selectedSymbol')) return
       if ('balance' in response[0].data && 'balance' in response[1].data) {
@@ -340,7 +338,6 @@ const SymbolContextProvider = ({ children }) => {
       setIsLoadingLastPrice(true)
       const { exchange } = activeExchange
       const response = await backOff(() => getLastPrice(symbolpair, exchange))
-      //console.log(`${symbolpair} -- ${localStorage.getItem('selectedSymbol')}`)
       if (symbolpair !== localStorage.getItem('selectedSymbol')) return
       if (
         'last_price' in response.data &&
