@@ -4,40 +4,8 @@ import { PortfolioContext } from '../context/PortfolioContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const EstimateValue = () => {
-  const { estimate, marketData } = useContext(PortfolioContext)
-
-  useEffect(() => {
-    if (!marketData?.length) return
-    fetchLatestPrice()
-  }, [marketData])
-
-  // useEffect(() => {
-  //   latestPricePolling()
-  // }, [activeExchange])
-
-  const fetchLatestPrice = () => {
-    if (!estData?.length) return
-    let tempArr = estData
-    const BTC = tempArr[0].value
-    const mapData = tempArr.map((item) => {
-      const fData = marketData.find((item1) => item1.symbol === `BTC/${item.symbol.toUpperCase()}`)
-      if (fData) {
-        return { symbol: item.symbol, value: (fData.close * BTC).toFixed(2) }
-      }
-      else {
-        return { symbol: item?.symbol, value: item?.value }
-      }
-    })
-    setEstData(() => [...mapData])
-  }
-
-  // const latestPricePolling = () => {
-  //   clearInterval(pricePolling)
-  //   pricePolling = null
-  //   pricePolling = setInterval(() => {
-  //     fetchLatestPrice()
-  //   }, 5000)
-  // }
+  const { estimate } = useContext(PortfolioContext)
+  useEffect(() => {}, [estimate])
 
   return (
     <>
