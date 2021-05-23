@@ -1,6 +1,6 @@
 export default class binanceAPI {
   constructor() {
-    this.binanceHost = 'https://api.binance.com'
+    this.binanceHost = 'https://api1.binance.com'
   }
 
   getServerTime() {
