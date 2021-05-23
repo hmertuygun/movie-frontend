@@ -5,6 +5,7 @@ import { Offline, Online } from 'react-detect-offline'
 
 import Tooltip from '../../../components/Tooltip'
 import { PositionContext } from '../../context/PositionContext'
+import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
@@ -12,7 +13,7 @@ const AccordionHeader = (props) => {
 
   const { requestSort, liveUpdate } = props
   const { positions, isLoading, refreshData } = useContext(PositionContext)
-
+  const { onRefreshBtnClicked, disablePositionRefreshBtn } = useSymbolContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const ToggleMenu = () => {
@@ -181,7 +182,8 @@ const AccordionHeader = (props) => {
             <button
               type="button"
               className="ml-2 btn btn-sm btn-neutral btn-icon"
-              onClick={refreshData}
+              onClick={() => { refreshData(); onRefreshBtnClicked('position') }}
+              disabled={disablePositionRefreshBtn}
             >
               <span className="btn-inner--text">Refresh</span>
               <span className="btn-inner--icon">

@@ -35,7 +35,8 @@ const ORDER_HISTORY_INITIAL_STATE = {
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
-  const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance } = useSymbolContext()
+  const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance, onRefreshBtnClicked, disableOrderHistoryRefreshBtn,
+    disableOpenOrdersRefreshBtn, } = useSymbolContext()
   const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext);
   const { loading: isPortfolioLoading } = useContext(PortfolioContext);
@@ -126,8 +127,14 @@ const TradeOrders = () => {
   }
 
   const onRefreshBtnClick = () => {
-    if (isOpenOrders) getOpenOrdersData(true)
-    else getOrderHistoryData(true, false, true)
+    if (isOpenOrders) {
+      onRefreshBtnClicked('open-order')
+      getOpenOrdersData(true)
+    }
+    else {
+      onRefreshBtnClicked('order-history')
+      getOrderHistoryData(true, false, true)
+    }
   }
 
   const orderHistoryLoadedFBCallback = (doc) => {
@@ -206,7 +213,12 @@ const TradeOrders = () => {
   }
 
   useEffect(() => {
-    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) getOrderHistoryData(true, false)
+    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) {
+      onRefreshBtnClicked('order-history')
+      onRefreshBtnClicked('position')
+      onRefreshBtnClicked('portfolio')
+      getOrderHistoryData(true, false)
+    }
   }, [orderHistoryFB, showProgressBar])
 
   useEffect(() => {
@@ -332,7 +344,7 @@ const TradeOrders = () => {
                   className="btn btn-xs btn-neutral btn-icon"
                   type="button"
                   onClick={onRefreshBtnClick}
-                  disabled={loadBtn}
+                  disabled={loadBtn || (isOpenOrders ? disableOpenOrdersRefreshBtn : disableOrderHistoryRefreshBtn)}
                 >
                   {!isMobile && (
                     <span className="btn-inner--text">Refresh</span>
