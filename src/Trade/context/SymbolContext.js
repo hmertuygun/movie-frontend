@@ -606,6 +606,10 @@ const SymbolContextProvider = ({ children }) => {
         ftxDD,
         watchListOpen,
         setWatchListOpen,
+        orderHistoryTimeInterval,
+        openOrdersTimeInterval,
+        portfolioTimeInterval,
+        positionTimeInterval
       }}
     >
       {children}

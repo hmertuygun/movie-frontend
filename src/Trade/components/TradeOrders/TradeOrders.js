@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react'
-import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
 import { useMediaQuery } from 'react-responsive';
 
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
@@ -14,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
+import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './TradeOrders.css'
 const db = firebase.firestore()
@@ -36,7 +36,7 @@ const ORDER_HISTORY_INITIAL_STATE = {
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance, onRefreshBtnClicked, disableOrderHistoryRefreshBtn,
-    disableOpenOrdersRefreshBtn, } = useSymbolContext()
+    disableOpenOrdersRefreshBtn, orderHistoryTimeInterval, openOrdersTimeInterval, portfolioTimeInterval, positionTimeInterval } = useSymbolContext()
   const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext);
   const { loading: isPortfolioLoading } = useContext(PortfolioContext);
@@ -50,6 +50,7 @@ const TradeOrders = () => {
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
+  const [openOrdersBtnHover, setOpenOrdersBtnHover] = useState(false)
   /////////////////////////////////////////////////////////
   const [openOrderData, setOpenOrderData] = useState([])
   const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(true)
@@ -296,35 +297,49 @@ const TradeOrders = () => {
   )
 
   const refreshButtons = isOpenOrders ? (
-    <button
-      className="btn btn-xs btn-neutral btn-icon"
-      type="button"
-      onClick={() => { onOrdersRefreshBtnClick('open-order') }}
-      disabled={
-        disableOpenOrdersRefreshBtn || loadBtnOO
-      }
-    >
-      {!isMobile && <span className="btn-inner--text">Refresh</span>}
-      {loadBtnOO ? (
-        <span
-          className="spinner-border spinner-border-sm"
-          role="status"
-          aria-hidden="true"
-        ></span>
-      ) : (
-        <span className="btn-inner--icon">
-          <FontAwesomeIcon icon={faSync} />
-        </span>
-      )}
-    </button>
+    <div>
+      {/* {openOrdersBtnHover && disableOpenOrdersRefreshBtn && <Tooltip id={`open-orders`} />} */}
+      {/* <div>
+        {disableOpenOrdersRefreshBtn && openOrdersBtnHover ? 'Hello' : ''}
+      </div> */}
+      {/* <div className={disableOpenOrdersRefreshBtn && openOrdersBtnHover ? 'd-block w-100' : 'd-none'}>
+        
+      </div> */}
+      {disableOpenOrdersRefreshBtn && <Tooltip id="open-orders" />}
+      <button
+        className="btn btn-xs btn-neutral btn-icon refresh-btn disabled"
+        type="button"
+        data-for="open-orders"
+        data-tip={`You can only use this button every ${openOrdersTimeInterval / 1000} seconds`}
+        onClick={() => {
+          onOrdersRefreshBtnClick('open-order')
+        }}
+        onMouseEnter={() => setOpenOrdersBtnHover(true)}
+        onMouseLeave={() => setOpenOrdersBtnHover(false)}
+      >
+        {/* disabled={disableOpenOrdersRefreshBtn || loadBtnOO} */}
+        {!isMobile && <span className="btn-inner--text">Refresh</span>}
+        {loadBtnOO ? (
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        ) : (
+          <span className="btn-inner--icon">
+            <FontAwesomeIcon icon={faSync} />
+          </span>
+        )}
+      </button>
+    </div>
   ) : (
     <button
       className="btn btn-xs btn-neutral btn-icon"
       type="button"
-      onClick={() => { onOrdersRefreshBtnClick('order-history') }}
-      disabled={
-        disableOrderHistoryRefreshBtn || loadBtnOH
-      }
+      onClick={() => {
+        onOrdersRefreshBtnClick('order-history')
+      }}
+      disabled={disableOrderHistoryRefreshBtn || loadBtnOH}
     >
       {!isMobile && <span className="btn-inner--text">Refresh</span>}
       {loadBtnOH ? (
