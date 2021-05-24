@@ -213,7 +213,7 @@ const TradeContainer = () => {
                 </ErrorBoundary>
               </section>
             )}
-            {/* <section
+            <section
               className="TradeView-Chart"
               style={{
                 resize: 'vertical',
@@ -227,9 +227,9 @@ const TradeContainer = () => {
                   <TradeChart />
                 </Suspense>
               </ErrorBoundary>
-            </section> */}
+            </section>
 
-            <section className="TradeOrders" style={{ height: orderHeight, paddingTop: '150px', display: watchListOpen ? "none" : "" }}>
+            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen ? "none" : "" }}>
               <ErrorBoundary componentName="TradeOrders">
                 <Suspense fallback={<div></div>}>
                   <TradeOrders />

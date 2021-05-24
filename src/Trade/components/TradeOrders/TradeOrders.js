@@ -297,27 +297,17 @@ const TradeOrders = () => {
   )
 
   const refreshButtons = isOpenOrders ? (
-    <div>
-      {/* {openOrdersBtnHover && disableOpenOrdersRefreshBtn && <Tooltip id={`open-orders`} />} */}
-      {/* <div>
-        {disableOpenOrdersRefreshBtn && openOrdersBtnHover ? 'Hello' : ''}
-      </div> */}
-      {/* <div className={disableOpenOrdersRefreshBtn && openOrdersBtnHover ? 'd-block w-100' : 'd-none'}>
-        
-      </div> */}
-      {disableOpenOrdersRefreshBtn && <Tooltip id="open-orders" />}
+    <div >
+      {disableOpenOrdersRefreshBtn && loadBtnOO && <Tooltip id="open-orders" event="click" />}
+      {/* <Tooltip id="open-orders" disable={!disableOpenOrdersRefreshBtn && !loadBtnOO} /> */}
       <button
-        className="btn btn-xs btn-neutral btn-icon refresh-btn disabled"
+        className={`btn btn-xs btn-neutral btn-icon ${disableOpenOrdersRefreshBtn || loadBtnOO ? 'disabled' : ''}`}
         type="button"
         data-for="open-orders"
         data-tip={`You can only use this button every ${openOrdersTimeInterval / 1000} seconds`}
-        onClick={() => {
-          onOrdersRefreshBtnClick('open-order')
-        }}
-        onMouseEnter={() => setOpenOrdersBtnHover(true)}
-        onMouseLeave={() => setOpenOrdersBtnHover(false)}
+        data-event="click"
+        onClick={() => disableOpenOrdersRefreshBtn || loadBtnOO ? null : onOrdersRefreshBtnClick('open-order')}
       >
-        {/* disabled={disableOpenOrdersRefreshBtn || loadBtnOO} */}
         {!isMobile && <span className="btn-inner--text">Refresh</span>}
         {loadBtnOO ? (
           <span
