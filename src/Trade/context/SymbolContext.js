@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useEffect,
   useState,
   useContext,
@@ -21,9 +20,8 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
-import { useQuery } from 'react-query'
 import ccxt from 'ccxt'
-
+import { useLocalStorage } from '@rehooks/local-storage'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -38,6 +36,7 @@ const SymbolContextProvider = ({ children }) => {
     lastSelectedSymbol,
     loadApiKeys
   } = useContext(UserContext)
+  // const [lsFetchingBalance] = useLocalStorage('fetchingBalance')
   const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const [disableOrderHistoryRefreshBtn, setDisableOrderHistoryRefreshBtn] = useState(false)
@@ -126,6 +125,8 @@ const SymbolContextProvider = ({ children }) => {
     const [exchangeAPI, symbolAPI] = getLSS?.lastSelectedSymbol.split(":")
     const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') || exchange
     const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
+    if (!localStorage.getItem('selectedExchange')) localStorage.setItem('selectedExchange', getExchangeFromLS.toLowerCase())
+    if (!localStorage.getItem('selectedSymbol')) localStorage.setItem('selectedSymbol', getSymbolFromLS)
     const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
     const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
     // loadBalance(qouteAsset, baseAsset)
@@ -304,6 +305,7 @@ const SymbolContextProvider = ({ children }) => {
     try {
       if (!activeExchange?.exchange) return
       setIsLoadingBalance(true)
+      //localStorage.setItem('fetchingBalance', true)
       const response = await Promise.all([
         await getBalance({
           symbol: quote_asset,
@@ -314,8 +316,11 @@ const SymbolContextProvider = ({ children }) => {
           ...activeExchange,
         }),
       ])
-      // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly 
-      if (`${base_asset}/${quote_asset}` !== localStorage.getItem('selectedSymbol')) return
+      // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
+      const getSymbolFromLS = localStorage.getItem('selectedSymbol')
+      console.log(getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS)
+      if (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS) return
+      else setIsLoadingBalance(true)
       if ('balance' in response[0].data && 'balance' in response[1].data) {
         setSelectedSymbolBalance(response[0].data['balance'])
         setSelectedBaseSymbolBalance(response[1].data['balance'])
@@ -329,6 +334,7 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedBaseSymbolBalance(0)
     } finally {
       setIsLoadingBalance(false)
+      //localStorage.setItem('fetchingBalance', false)
     }
   }
 
@@ -358,8 +364,8 @@ const SymbolContextProvider = ({ children }) => {
 
   async function setSymbol(symbol) {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
-    setSelectedSymbol(symbol)
     localStorage.setItem('selectedSymbol', symbol.label.replace('-', '/'))
+    setSelectedSymbol(symbol)
     setSymbolType(symbol.label.replace('-', '/'))
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
