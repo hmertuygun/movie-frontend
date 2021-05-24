@@ -303,7 +303,7 @@ const TradeOrders = () => {
       {/* globalEventOff="click" isCapture={false} */}
       {(disableOpenOrdersRefreshBtn || loadBtnOO) && <Tooltip id="open-orders" />}
       <button
-        className={`btn btn-xs btn-neutral btn-icon ${disableOpenOrdersRefreshBtn || loadBtnOO ? 'disabled' : ''}`}
+        className={`btn btn-xs btn-neutral btn-icon btn-neutral-disable ${disableOpenOrdersRefreshBtn || loadBtnOO ? 'disabled' : ''}`}
         type="button"
         data-for="open-orders"
         data-tip={`You can only use this button every ${openOrdersTimeInterval / 1000} seconds`}
@@ -327,7 +327,7 @@ const TradeOrders = () => {
     <div>
       {(disableOrderHistoryRefreshBtn || loadBtnOH) && <Tooltip id="order-history" />}
       <button
-        className={`btn btn-xs btn-neutral btn-icon ${disableOrderHistoryRefreshBtn || loadBtnOH ? 'disabled' : ''}`}
+        className={`btn btn-xs btn-neutral btn-icon btn-neutral-disable ${disableOrderHistoryRefreshBtn || loadBtnOH ? 'disabled' : ''}`}
         type="button"
         onClick={() => disableOrderHistoryRefreshBtn || loadBtnOH ? null : onOrdersRefreshBtnClick('order-history')}
         data-for="order-history"

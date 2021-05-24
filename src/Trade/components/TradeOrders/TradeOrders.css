@@ -2,9 +2,3 @@
   background-color: transparent !important;
   color: var(--dark-dark) !important;
 }
-.btn-neutral:not(.disabled):active,
-.btn-neutral:not(.disabled):focus {
-  color: #273444 !important;
-  border: 2px solid #e2e8f0 !important;
-  background-color: transparent !important;
-}
