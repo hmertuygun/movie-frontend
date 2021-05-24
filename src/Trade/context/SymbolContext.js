@@ -318,7 +318,6 @@ const SymbolContextProvider = ({ children }) => {
       ])
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
       const getSymbolFromLS = localStorage.getItem('selectedSymbol')
-      console.log(getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS)
       if (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS) return
       else setIsLoadingBalance(true)
       if ('balance' in response[0].data && 'balance' in response[1].data) {
