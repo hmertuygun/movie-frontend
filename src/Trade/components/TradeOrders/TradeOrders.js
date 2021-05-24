@@ -42,7 +42,8 @@ const TradeOrders = () => {
   const { loading: isPortfolioLoading } = useContext(PortfolioContext);
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
-  const [loadBtn, setLoadBtn] = useState(false)
+  const [loadBtnOO, setLoadBtnOO] = useState(false)
+  const [loadBtnOH, setLoadBtnOH] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const [deletedRows, setDeletedRows] = useState(null)
@@ -66,7 +67,7 @@ const TradeOrders = () => {
 
   const getOpenOrdersData = (refBtn) => {
     if (deletedRows) return
-    if (refBtn) setLoadBtn(true)
+    if (refBtn) setLoadBtnOO(true)
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
       .then(res => {
@@ -82,14 +83,14 @@ const TradeOrders = () => {
       })
       .then(() => {
         setIsOpenOrderFetching(false)
-        setLoadBtn(false)
+        setLoadBtnOO(false)
       })
   }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (isOrderHistoryFetching) return
-      if (refBtn) setLoadBtn(true)
+      if (refBtn) setLoadBtnOH(true)
       if (refreshTable) setOrderHistoryData([])
       if (!hideTableLoader) setIsOrderHistoryFetching(true)
       const params = refreshTable ? { ...activeExchange, orderHistoryLimit } : orderHistoryLastFetchedData && !refreshTable ? {
@@ -122,16 +123,16 @@ const TradeOrders = () => {
     }
     finally {
       setIsOrderHistoryFetching(false)
-      setLoadBtn(false)
+      setLoadBtnOH(false)
     }
   }
 
-  const onRefreshBtnClick = () => {
-    if (isOpenOrders) {
+  const onOrdersRefreshBtnClick = (type) => {
+    if (type === 'open-order') {
       onRefreshBtnClicked('open-order')
       getOpenOrdersData(true)
     }
-    else {
+    else if (type === 'order-history') {
       onRefreshBtnClicked('order-history')
       getOrderHistoryData(true, false, true)
     }
@@ -205,12 +206,6 @@ const TradeOrders = () => {
       clearTimeout(timeOut)
     }
   }, [deletedRows])
-
-  const setStateSynchronous = (setState, stateUpdate) => {
-    return new Promise(resolve => {
-      setState(stateUpdate, () => resolve())
-    })
-  }
 
   useEffect(() => {
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) {
@@ -300,6 +295,52 @@ const TradeOrders = () => {
     </div>
   )
 
+  const refreshButtons = isOpenOrders ? (
+    <button
+      className="btn btn-xs btn-neutral btn-icon"
+      type="button"
+      onClick={() => { onOrdersRefreshBtnClick('open-order') }}
+      disabled={
+        disableOpenOrdersRefreshBtn || loadBtnOO
+      }
+    >
+      {!isMobile && <span className="btn-inner--text">Refresh</span>}
+      {loadBtnOO ? (
+        <span
+          className="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+      ) : (
+        <span className="btn-inner--icon">
+          <FontAwesomeIcon icon={faSync} />
+        </span>
+      )}
+    </button>
+  ) : (
+    <button
+      className="btn btn-xs btn-neutral btn-icon"
+      type="button"
+      onClick={() => { onOrdersRefreshBtnClick('order-history') }}
+      disabled={
+        disableOrderHistoryRefreshBtn || loadBtnOH
+      }
+    >
+      {!isMobile && <span className="btn-inner--text">Refresh</span>}
+      {loadBtnOH ? (
+        <span
+          className="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+      ) : (
+        <span className="btn-inner--icon">
+          <FontAwesomeIcon icon={faSync} />
+        </span>
+      )}
+    </button>
+  )
+
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="pb-2">
@@ -339,32 +380,7 @@ const TradeOrders = () => {
                   Hide Other Pairs
                 </label>
               </div>
-              {(
-                <button
-                  className="btn btn-xs btn-neutral btn-icon"
-                  type="button"
-                  onClick={onRefreshBtnClick}
-                  disabled={loadBtn || (isOpenOrders ? disableOpenOrdersRefreshBtn : disableOrderHistoryRefreshBtn)}
-                >
-                  {!isMobile && (
-                    <span className="btn-inner--text">Refresh</span>
-                  )}
-                  {
-                    loadBtn ? (
-                      <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                    ) : (
-                      <span className="btn-inner--icon">
-                        <FontAwesomeIcon icon={faSync} />
-                      </span>
-                    )
-                  }
-                </button>
-              )
-              }
+              {refreshButtons}
             </div>
           </div>
         </div>
