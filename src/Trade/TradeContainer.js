@@ -169,9 +169,10 @@ const TradeContainer = () => {
             className="TradeChart-Container"
             style={{ display: 'unset' }}
           >
-            <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
+            <div className={`${notices.length ? 'alert-messages' : ''}`} style={{ margin: '0' }}>
               {notices.map((item, index) => (
                 <div
+                  style={{ padding: '10px' }}
                   className={`text-center my-1 alert alert-${item.noticeType || 'primary'
                     }`}
                   key={`notice-${index}`}
