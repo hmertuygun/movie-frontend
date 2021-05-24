@@ -172,6 +172,11 @@ const TradeOrders = () => {
       setOrderHistoryProgress(progress)
       setOrderHistoryProgressUC(progress)
       setShowProgressBar(progress !== '100.00')
+      if (progress !== '100') {
+        onRefreshBtnClicked('order-history')
+        onRefreshBtnClicked('position')
+        onRefreshBtnClicked('portfolio')
+      }
       sessionStorage.setItem('showProgressBar', progress !== '100.00')
     }
   }
@@ -210,9 +215,6 @@ const TradeOrders = () => {
 
   useEffect(() => {
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) {
-      onRefreshBtnClicked('order-history')
-      onRefreshBtnClicked('position')
-      onRefreshBtnClicked('portfolio')
       getOrderHistoryData(true, false)
     }
   }, [orderHistoryFB, showProgressBar])
@@ -297,15 +299,14 @@ const TradeOrders = () => {
   )
 
   const refreshButtons = isOpenOrders ? (
-    <div >
-      {disableOpenOrdersRefreshBtn && loadBtnOO && <Tooltip id="open-orders" event="click" />}
-      {/* <Tooltip id="open-orders" disable={!disableOpenOrdersRefreshBtn && !loadBtnOO} /> */}
+    <div>
+      {/* globalEventOff="click" isCapture={false} */}
+      {(disableOpenOrdersRefreshBtn || loadBtnOO) && <Tooltip id="open-orders" />}
       <button
         className={`btn btn-xs btn-neutral btn-icon ${disableOpenOrdersRefreshBtn || loadBtnOO ? 'disabled' : ''}`}
         type="button"
         data-for="open-orders"
         data-tip={`You can only use this button every ${openOrdersTimeInterval / 1000} seconds`}
-        data-event="click"
         onClick={() => disableOpenOrdersRefreshBtn || loadBtnOO ? null : onOrdersRefreshBtnClick('open-order')}
       >
         {!isMobile && <span className="btn-inner--text">Refresh</span>}
@@ -323,27 +324,29 @@ const TradeOrders = () => {
       </button>
     </div>
   ) : (
-    <button
-      className="btn btn-xs btn-neutral btn-icon"
-      type="button"
-      onClick={() => {
-        onOrdersRefreshBtnClick('order-history')
-      }}
-      disabled={disableOrderHistoryRefreshBtn || loadBtnOH}
-    >
-      {!isMobile && <span className="btn-inner--text">Refresh</span>}
-      {loadBtnOH ? (
-        <span
-          className="spinner-border spinner-border-sm"
-          role="status"
-          aria-hidden="true"
-        ></span>
-      ) : (
-        <span className="btn-inner--icon">
-          <FontAwesomeIcon icon={faSync} />
-        </span>
-      )}
-    </button>
+    <div>
+      {(disableOrderHistoryRefreshBtn || loadBtnOH) && <Tooltip id="order-history" />}
+      <button
+        className={`btn btn-xs btn-neutral btn-icon ${disableOrderHistoryRefreshBtn || loadBtnOH ? 'disabled' : ''}`}
+        type="button"
+        onClick={() => disableOrderHistoryRefreshBtn || loadBtnOH ? null : onOrdersRefreshBtnClick('order-history')}
+        data-for="order-history"
+        data-tip={`You can only use this button every ${orderHistoryTimeInterval / 1000} seconds`}
+      >
+        {!isMobile && <span className="btn-inner--text">Refresh</span>}
+        {loadBtnOH ? (
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        ) : (
+          <span className="btn-inner--icon">
+            <FontAwesomeIcon icon={faSync} />
+          </span>
+        )}
+      </button>
+    </div>
   )
 
   return (
