@@ -4,8 +4,6 @@ import { Link, Redirect, useLocation } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
-import uniqid from 'uniqid'
-import { dropByCacheKey } from 'react-router-cache-route'
 
 const QuickRegister = () => {
   const { register } = useContext(UserContext)
