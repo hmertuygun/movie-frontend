@@ -55,7 +55,7 @@ const OnboardingModal = () => {
   const [errors, setErrors] = useState(errorInitialValues)
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -181,7 +181,7 @@ const OnboardingModal = () => {
 
   const onSecondaryBtnClick = () => {
     if (step === 1) {
-      window.open('https://accounts.binance.com/en/register')
+      window.open('https://www.binance.com/en/register?ref=UR7ZCKEJ')
     } else if (step === 2) {
       setError(false)
       setStepNo(step - 1)
@@ -270,9 +270,8 @@ const OnboardingModal = () => {
                     style={{ height: '12px' }}
                   >
                     <div
-                      className={`progress-bar ${
-                        step >= index + 1 ? 'w-100' : ''
-                      }`}
+                      className={`progress-bar ${step >= index + 1 ? 'w-100' : ''
+                        }`}
                       role="progressbar"
                     ></div>
                   </div>
@@ -284,9 +283,12 @@ const OnboardingModal = () => {
               <p className="lead">
                 You need a Binance Exchange account to use CoinPanel.
               </p>
-              <p className="mb-0 lead">
+              <p className="lead">
                 Do you have an existing account that you would like to connect,
                 or would you like to create a new Binance account?
+              </p>
+              <p className="lead">
+                Only Binance.com is supported for now. Binance.us exchange support is coming soon!
               </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
@@ -393,9 +395,8 @@ const OnboardingModal = () => {
                 {renderInputValidationError('secret')}
               </div>
               <div
-                className={`alert alert-danger ${
-                  hasError ? 'd-show' : 'd-none'
-                }`}
+                className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'
+                  }`}
                 role="alert"
               >
                 <p>&#10005; Error connecting exchange!</p>

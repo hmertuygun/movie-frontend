@@ -183,9 +183,7 @@ const OrderHistoryTableBody = ({
         role="alert"
       >
         <strong>
-          {' '}
-          <FontAwesomeIcon icon="exclamation-triangle" /> You have no order
-          history.
+          <FontAwesomeIcon icon="info-circle" /> Order history will appear as you trade the markets on CoinPanel.
         </strong>
       </div>
     </div>

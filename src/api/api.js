@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
-const binanceAPI = `https://api.binance.com/api/`
+const binanceAPI = `https://api1.binance.com/api/`
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')

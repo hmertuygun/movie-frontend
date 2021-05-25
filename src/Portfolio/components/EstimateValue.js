@@ -1,34 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { PortfolioContext } from '../context/PortfolioContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
+import { useSymbolContext } from '../../Trade/context/SymbolContext'
 const EstimateValue = () => {
   const { estimate, marketData } = useContext(PortfolioContext)
   const [estData, setEstData] = useState([])
-
+  const { lastMessage } = useSymbolContext()
   useEffect(() => {
     setEstData(estimate)
   }, [estimate])
 
   useEffect(() => {
-    if (!marketData?.length) return
+    if (!estData?.length || !lastMessage?.length) return
     fetchLatestPrice()
-  }, [marketData])
+  }, [lastMessage])
 
   const fetchLatestPrice = () => {
-    if (!estData?.length) return
-    let tempArr = estData
-    const BTC = tempArr[0].value
-    const mapData = tempArr.map((item) => {
-      const fData = marketData.find((item1) => item1.symbol === `BTC/${item.symbol.toUpperCase()}`)
-      if (fData) {
-        return { symbol: item.symbol, value: (fData.close * BTC).toFixed(2) }
-      }
-      else {
-        return { symbol: item?.symbol, value: item?.value }
-      }
+    let tempBalance = []
+    const BTC = estData[0].value
+    estData.forEach((item) => {
+      const fData = lastMessage.find((item1) => item1.symbol === `BTC${item.symbol.toUpperCase()}`)
+      const data = fData ? { symbol: item.symbol, value: (fData.lastPrice * BTC).toFixed(2) } : { symbol: item?.symbol, value: item?.value }
+      tempBalance.push(data)
     })
-    setEstData(() => [...mapData])
+    setEstData(() => [...tempBalance])
   }
 
   return (
