@@ -81,48 +81,6 @@ const SymbolContextProvider = ({ children }) => {
     checkDisableBtnStatus()
   }, [])
 
-  const checkDisableBtnStatus = () => {
-    disableBtnInterval = setInterval(() => {
-      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
-      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
-      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
-      const positionLS = localStorage.getItem('positionRefreshBtn')
-
-      if (orderHistoryLS && (Date.now() - orderHistoryLS < orderHistoryTimeInterval)) setDisableOrderHistoryRefreshBtn(true)
-      else setDisableOrderHistoryRefreshBtn(false)
-
-      if (openOrdersLS && (Date.now() - openOrdersLS < openOrdersTimeInterval)) setDisableOpenOrdesrRefreshBtn(true)
-      else setDisableOpenOrdesrRefreshBtn(false)
-
-      if (portfolioLS && (Date.now() - portfolioLS < portfolioTimeInterval)) setDisablePortfolioRefreshBtn(true)
-      else setDisablePortfolioRefreshBtn(false)
-
-      if (positionLS && (Date.now() - positionLS < positionTimeInterval)) setDisablePositionRefreshBtn(true)
-      else setDisablePositionRefreshBtn(false)
-
-    }, 1000)
-  }
-
-  const onRefreshBtnClicked = (type) => {
-    const dateNow = Date.now()
-    if (type === "order-history") {
-      setDisableOrderHistoryRefreshBtn(true)
-      localStorage.setItem('orderHistoryRefreshBtn', dateNow)
-    }
-    else if (type === "open-order") {
-      setDisableOpenOrdesrRefreshBtn(true)
-      localStorage.setItem('openOrdersRefreshBtn', dateNow)
-    }
-    else if (type === "portfolio") {
-      setDisablePortfolioRefreshBtn(true)
-      localStorage.setItem('portfolioRefreshBtn', dateNow)
-    }
-    else if (type === "position") {
-      setDisablePositionRefreshBtn(true)
-      localStorage.setItem('positionRefreshBtn', dateNow)
-    }
-  }
-
   useEffect(() => {
     const { exchange } = activeExchange
 
@@ -333,6 +291,48 @@ const SymbolContextProvider = ({ children }) => {
 
   }, [userData])
 
+  const checkDisableBtnStatus = () => {
+    disableBtnInterval = setInterval(() => {
+      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
+      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
+      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
+      const positionLS = localStorage.getItem('positionRefreshBtn')
+
+      if (orderHistoryLS && (Date.now() - orderHistoryLS < orderHistoryTimeInterval)) setDisableOrderHistoryRefreshBtn(true)
+      else setDisableOrderHistoryRefreshBtn(false)
+
+      if (openOrdersLS && (Date.now() - openOrdersLS < openOrdersTimeInterval)) setDisableOpenOrdesrRefreshBtn(true)
+      else setDisableOpenOrdesrRefreshBtn(false)
+
+      if (portfolioLS && (Date.now() - portfolioLS < portfolioTimeInterval)) setDisablePortfolioRefreshBtn(true)
+      else setDisablePortfolioRefreshBtn(false)
+
+      if (positionLS && (Date.now() - positionLS < positionTimeInterval)) setDisablePositionRefreshBtn(true)
+      else setDisablePositionRefreshBtn(false)
+
+    }, 1000)
+  }
+
+  const onRefreshBtnClicked = (type) => {
+    const dateNow = Date.now()
+    if (type === "order-history") {
+      setDisableOrderHistoryRefreshBtn(true)
+      localStorage.setItem('orderHistoryRefreshBtn', dateNow)
+    }
+    else if (type === "open-order") {
+      setDisableOpenOrdesrRefreshBtn(true)
+      localStorage.setItem('openOrdersRefreshBtn', dateNow)
+    }
+    else if (type === "portfolio") {
+      setDisablePortfolioRefreshBtn(true)
+      localStorage.setItem('portfolioRefreshBtn', dateNow)
+    }
+    else if (type === "position") {
+      setDisablePositionRefreshBtn(true)
+      localStorage.setItem('positionRefreshBtn', dateNow)
+    }
+  }
+
   const getChartDataOnInit = async () => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
@@ -363,18 +363,6 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const onExchangeChange = async () => {
-    try {
-
-    }
-    catch (e) {
-      console.error(e)
-    }
-    finally {
-
-    }
-  }
-
   const loadBalance = async (quote_asset, base_asset) => {
     try {
       if (!activeExchange?.exchange || !quote_asset || !base_asset) return
@@ -399,7 +387,6 @@ const SymbolContextProvider = ({ children }) => {
 
   const loadLastPrice = async (symbolpair, exchangeParam) => {
     try {
-      //if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
       const response = await backOff(() => getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange))
       if (response?.data?.last_price !== 'NA') setSelectedSymbolLastPrice(response.data.last_price)
