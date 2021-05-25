@@ -351,7 +351,8 @@ const SymbolContextProvider = ({ children }) => {
       //if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
       const response = await backOff(() => getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange))
-      if (response?.data?.lastPrice !== 'NA') setSelectedSymbolLastPrice(response.data.lastPrice)
+      console.log(response)
+      if (response?.data?.last_price !== 'NA') setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
     } catch (err) {
       console.error(err)
