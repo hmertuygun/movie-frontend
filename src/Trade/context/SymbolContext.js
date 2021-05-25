@@ -482,6 +482,7 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const refreshBalance = async () => {
+    setIsLoadingBalance(true)
     await new Promise(resolve => setTimeout(resolve, 1500))
     if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
