@@ -179,7 +179,7 @@ const OrderHistoryTableBody = ({
       <div
         className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'
           }`}
-        style={{ maxWidth: '400px' }}
+        style={{ maxWidth: '500px' }}
         role="alert"
       >
         <strong>
