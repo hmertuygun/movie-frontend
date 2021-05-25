@@ -255,7 +255,7 @@ const SymbolContextProvider = ({ children }) => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
     setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
     const [baseAsset, qouteAsset] = selectedSymbol.label.split("-")
-    loadBalance(qouteAsset, baseAsset)
+    //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
   }, [selectedSymbol])
 
