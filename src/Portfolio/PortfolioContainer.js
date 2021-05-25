@@ -33,13 +33,19 @@ function PortfolioContainer() {
 
   return (
     <>
-      <section className="slice py-5 bg-section-secondary">
+      <section className="py-5 slice bg-section-secondary">
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
-              <div className="row align-items-center mb-4">
+              <div class="text-center">
+                We are aware that for some users, some coins are missing in the
+                portfolio, please use the Report a Problem button and attach a
+                screenshot of the coin that is missing from your portfolio. We
+                apologize for the inconvenience.
+              </div>
+              <div className="mb-4 row align-items-center">
                 <div className="col">
-                  <h1 className="h4 mb-0">Portfolio</h1>
+                  <h1 className="mb-0 h4">Portfolio</h1>
                 </div>{' '}
                 <div className="col-auto">
                   {refreshBtn ? (
