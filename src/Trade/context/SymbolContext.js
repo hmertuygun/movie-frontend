@@ -339,10 +339,6 @@ const SymbolContextProvider = ({ children }) => {
     try {
       const { data } = await getAllChartData()
       let { drawings, intervals, watchlist, lastSelectedSymbol } = data
-      // console.log(drawings)
-      // console.log(intervals)
-      // console.log(watchlist)
-      // console.log(lastSelectedSymbol)
       drawings = drawings && drawings[userData?.email]
       lastSelectedSymbol = lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       intervals = intervals || []
