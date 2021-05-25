@@ -123,23 +123,6 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
-    if (!activeExchange?.exchange) return
-    const { exchange } = activeExchange
-    const getLSS = await getLastSelectedMarketSymbol()
-    const [exchangeAPI, symbolAPI] = getLSS?.lastSelectedSymbol.split(":")
-    const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') || exchange
-    const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
-    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
-    const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
-    // loadBalance(qouteAsset, baseAsset)
-    // loadLastPrice(getSymbolFromLS.replace('/', ''))
-    setExchangeType(getExchangeFromLS)
-    setSymbolType(getSymbolFromLS)
-    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
-    setSelectedSymbolDetail(symbolDetails[symbolVal])
-  }
-
   useEffect(() => {
     const { exchange } = activeExchange
 
