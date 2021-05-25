@@ -4,11 +4,9 @@ import { Link, Redirect, useLocation } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
-import uniqid from 'uniqid'
-import { dropByCacheKey } from 'react-router-cache-route'
 
 const QuickRegister = () => {
-  const { register, isLoggedIn } = useContext(UserContext)
+  const { register } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -18,15 +16,6 @@ const QuickRegister = () => {
   const [type, setType] = useState('password')
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
-  const { pathname } = useLocation()
-
-  useEffect(() => {
-    if (isLoggedIn) return <Redirect to="/trade" />
-    else if (pathname === "/register") {
-      window.location.href = 'https://coinpanel.com/'
-      return null
-    }
-  }, [])
 
   // clear errors
   useEffect(() => {

@@ -109,14 +109,13 @@ const Routes = () => {
         <Route path="/new-password" component={NewPassword} />
         <Route path="/action" component={HandleEmailActions} />
         <Route exact path="/register" component={Register} />
-        <Route exact path="/register2" component={Register} />
         <Route exact path="/register/confirm" component={RegisterConfirm} />
         <Route
           exact
           path="/register/confirm/recieved"
           component={RegisterFinal}
         />
-        {!isLoggedIn && <Redirect to="/login" />}
+        {!isLoggedIn && <Redirect to="/register" />}
       </Switch>
     </div>
   )
