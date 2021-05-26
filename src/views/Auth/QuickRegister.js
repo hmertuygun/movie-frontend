@@ -57,8 +57,7 @@ const QuickRegister = () => {
               return window.FPROM && window.FPROM.data.tid
             }
 
-            // const refId = getFPTid()
-            const refId = "3a865b42-6317-4710-a14a-7bcbf11dbcb5"
+            const refId = getFPTid()
             if (refId && response?.user) {
               try {
                 await firebase
