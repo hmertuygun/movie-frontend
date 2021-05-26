@@ -25,18 +25,24 @@ const SymbolSelect = () => {
     control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '4px solid #F5F5F5',
+      border: '4px solid var(--trade-borders)',
+      backgroundColor: 'var(--trade-background)',
       borderLeft: 0,
       borderTop: 0,
       borderBottom: 0,
       borderRadius: 0,
       height: '48px',
       minHeight: '48px',
-      color: '#718096',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
       },
+    }),
+
+    input: (styles) => ({
+      ...styles,
+      color: 'var(--grey)',
     }),
 
     valueContainer: (styles) => ({
@@ -48,13 +54,15 @@ const SymbolSelect = () => {
     singleValue: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
-      color: '#718096',
+      color: 'var(--grey)',
     }),
 
     option: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
       padding: '5px 5px',
+      backgroundColor: 'var(--trade-background)',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
