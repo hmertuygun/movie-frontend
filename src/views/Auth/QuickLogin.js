@@ -188,9 +188,9 @@ const QuickLogin = () => {
 
               <div className="mt-4 text-center">
                 <small>Not registered? </small>
-                <Link to={{pathname: "/register", search: "?ref=cryptobanter"}} className="small font-weight-bold">
+                <a href="https://dev.coinpanel.com/?ref=cryptobanter" className="small font-weight-bold">
                   Create account
-                </Link>
+                </a>
               </div>
 
               <div className="mt-4 text-center">
