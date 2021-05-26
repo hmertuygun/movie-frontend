@@ -121,7 +121,7 @@ export async function validateUser() {
 
 // make sure symbol list can be pulled
 export async function getExchanges() {
-  const apiUrl = process.env.REACT_APP_API + 'exchange'
+  const apiUrl = process.env.REACT_APP_API_V2 + 'exchange'
   const token = await firebase.auth().currentUser?.getIdToken()
   const exchanges = await axios(apiUrl, {
     headers: await getHeaders(token),
