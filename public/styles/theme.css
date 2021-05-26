@@ -1,53 +1,90 @@
 :root {
-  --blue: #0088ff;
-  --light-blue: #78c0ff;
-  --dark-blue: #152c5b;
+  /* color */
+  --trade-red: #f84960;
+  --trade-border-color: #f5f5f5;
+  --trade-border-danger-color: #e35b66;
+  --trade-text-color: #666666;
+  --trade-text-secondary-color: #515252;
+  --trade-text-danger-color: #cc3340;
+  --border-color: #e2e8f0;
+  --border-color-active: var(--primary);
+  --tab-color: var(--gray);
+  --tab-color-hover: #4a5568;
+  --dark-color: #000000;
+  --light-color: var(--white);
 
-  --red: #f25767;
-  --orange: #ffbe3d;
-  --gold: #e6ba41;
-  --grey: rgb(234, 234, 234);
-  --white: #fff;
-
-  --green: #56bd7c;
-  --red-trade: #f84960;
-
-  --light: #eff2f7;
-  --dark: #273444;
-  --dark-black: #171317;
-  --neutral: #fff;
-  --muted: #718096;
-
-  --warning: var(--orange);
-  --danger: var(--red);
-  --primary: var(--blue);
-  --success: var(--green);
-
-  --buy: var(--green);
-  --sell: var(--red-trade);
-
+  /* Typography */
   --default-color: var(--light);
   --warning-color: var(--warning);
   --error-color: var(--danger);
   --primary-color: var(--primary);
-  --secondary-color: var(--muted);
+  --secondary-color: var(--secondary);
 
-  --breakpoint-xs: 0;
-  --breakpoint-sm: 576px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 992px;
-  --breakpoint-xl: 1200px;
-
-  --body-background: var(--white);
-  --body-color: var(--light);
-
-  --trade-background: rgb(255, 255, 255);
-  --trade-color: #939aa4;
-  --trade-borders: #424951;
-
-  --trade-confirm-background: var(--gold);
+  /* Trade */
+  --trade-background: var(--light-color);
+  --trade-borders: var(--trade-border-color);
   --trade-cancel-background: var(--red);
-
-  --trade-modal-background: white;
   --trade-box-background: var(--light);
+  --buy: var(--green);
+  --sell: var(--trade-red);
+
+  /* Inline Input */
+  --input-default-background: rgba(255, 255, 255, 0.9);
+  --input-default-color: var(--dark-color);
+  --input-default-border: rgba(151, 158, 168);
+  --label-default-color: rgb(60, 60, 60);
+  --input-border-active-color: rgb(0, 138, 255);
+  --input-default-disabled-background: rgb(212, 212, 212);
+  --input-default-disabled-color: rgba(255, 255, 255, 0.8);
+
+  /* Button */
+  --button-primary-background: #008aff;
+  --button-primary-color: #fff;
+  --button-primary-background-hover: #0075d9;
+  --button-defualt-border-color: #c1c9d4;
+  --button-default-color: #273444;
+  --button-default-background: transparent;
+  --button-default-disabled: #a4a6a8;
+}
+
+:root .dark {
+  /* Color */
+  --trade-red: #f84960;
+  --trade-border-color: rgb(24, 26, 32);
+  --trade-border-danger-color: #e35b66;
+  --trade-text-color: #bbbbbb;
+  --trade-text-secondary-color: #a0a0a0;
+  --trade-text-danger-color: #ff969f;
+  --border-color: #2c4056;
+  --border-color-active: var(--primary);
+  --tab-color: var(--gray);
+  --tab-color-hover: #8492a6;
+  --dark-color: #ffffff;
+  --light-color: #1c2938;
+
+  /* Trade */
+  --trade-background: var(--light-color);
+  --trade-borders: var(--trade-border-color);
+  --trade-cancel-background: var(--red);
+  --trade-box-background: var(--light);
+  --buy: var(--green);
+  --sell: var(--trade-red);
+
+  /* Inline Input */
+  --input-default-background: #2c4056;
+  --input-default-color: var(--dark-color);
+  --input-default-border: rgba(151, 158, 168);
+  --label-default-color: #848e9c
+  --input-border-active-color: rgb(0, 138, 255);
+  --input-default-disabled-background: #2c4056;
+  --input-default-disabled-color: rgba(255, 255, 255, 0.8);
+
+  /* Button */
+  --button-primary-background: #008aff;
+  --button-primary-color: #fff;
+  --button-primary-background-hover: #0075d9;
+  --button-defualt-border-color: #c1c9d4;
+  --button-default-color: #273444;
+  --button-default-background: transparent;
+  --button-default-disabled: #a4a6a8;
 }

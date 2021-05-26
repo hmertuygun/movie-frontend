@@ -108,9 +108,24 @@ const Header = () => {
       appStylesheet.setAttribute('href', newFile)
     }
   }
-  
+
+  const addDarkClassToBody = () => {
+    const element = document.body
+    switch (theme) {
+      case 'LIGHT_MODE':
+        element.classList.remove('dark')
+        break
+      case 'DARK_MODE':
+        element.classList.add('dark')
+        break
+      default:
+        break
+    }
+  }
+
   useEffect(() => {
-    switchAppStyleSheet();
+    switchAppStyleSheet()
+    addDarkClassToBody()
   }, [theme])
 
   useEffect(() => {
@@ -124,7 +139,6 @@ const Header = () => {
       }, 1000)
     }
   }, [stepIndex2])
-
 
   if (!isLoggedIn || watchListOpen) {
     return null

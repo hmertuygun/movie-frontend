@@ -1,15 +1,3 @@
-:root {
-  --input-default-background: rgba(255, 255, 255, 0.9);
-  --input-default-color: #000000;
-  --input-default-border: rgba(151, 158, 168);
-
-  --label-default-color: rgb(60, 60, 60);
-
-  --input-border-active-color: rgb(0, 138, 255);
-  --input-default-disabled-background: rgb(212, 212, 212);
-  --input-default-disabled-color: rgba(255, 255, 255, 0.8);
-}
-
 :global input:disabled,
 :global input {
   background: transparent;
