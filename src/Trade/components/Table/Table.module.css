@@ -8,8 +8,6 @@
 
   --table-dot-size: 0.5rem;
 
-  --table-header: #666666;
-
   border-collapse: collapse;
   display: table;
   width: 100%;
@@ -20,7 +18,7 @@
 
 .Table-headings {
   cursor: pointer;
-  color: var(--table-header);
+  color: var(--trade-text-color);
 }
 
 .Table-headings > th > span {
@@ -90,7 +88,7 @@
 .trade-overview > h1 {
   font-weight: 700;;
   font-size: 1rem;
-  color: #666666;
+  color: var(--trade-text-color);
   margin-bottom: 1.5rem;
 }
 
@@ -110,13 +108,13 @@
 }
 
 .overview-container > div > span:nth-child(2) {
-  color: #515252;
+  color: var(--trade-text-secondary-color);
   font-weight: 600;
 }
 
 .top-right {
   font-size: 0.7rem;
-  color: #515252;
+  color: var(--trade-text-secondary-color);
   width: 30%;
   word-break: break-word;
   text-transform: capitalize;
