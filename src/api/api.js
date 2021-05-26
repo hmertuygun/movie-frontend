@@ -121,7 +121,7 @@ export async function validateUser() {
 
 // make sure symbol list can be pulled
 export async function getExchanges() {
-  const apiUrl = process.env.REACT_APP_API_V2 + 'exchange'
+  const apiUrl = process.env.REACT_APP_API + 'exchange'
   const token = await firebase.auth().currentUser?.getIdToken()
   const exchanges = await axios(apiUrl, {
     headers: await getHeaders(token),
@@ -711,4 +711,15 @@ export async function getWatchLists() {
   })
 
   return response
+}
+export async function getAllChartData() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/data`
+  const token = await firebase.auth().currentUser?.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data
 }
