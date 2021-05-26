@@ -188,7 +188,7 @@ const QuickLogin = () => {
 
               <div className="mt-4 text-center">
                 <small>Not registered? </small>
-                <Link to="/register" className="small font-weight-bold">
+                <Link to={{pathname: "/register", search: "?ref=cryptobanter"}} className="small font-weight-bold">
                   Create account
                 </Link>
               </div>
