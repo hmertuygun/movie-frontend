@@ -39,6 +39,7 @@ export default class dataFeed {
   }
   onReady(callback) {
     //console.log(`onReady`)
+    // this.marketSymbols = JSON.parse(this.marketSymbols)
     callback({
       supports_marks: false,
       supports_timescale_marks: false,
@@ -50,23 +51,10 @@ export default class dataFeed {
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
     try {
       let chosenSymbol = symbolName // localStorage.getItem('selectedSymbol') ||
-      this.selectedExchange = localStorage.getItem('selectedExchange')
+      this.selectedExchange = this.selectedExchange || localStorage.getItem('selectedExchange')
       const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
       const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
-      const calculatePriceScale = (tick) => {
-        if (parseFloat(tick) >= 1) return 100
-        else {
-          let spl = tick.split(".")[1]
-          let zeroCount = 1
-          let splitStr = spl.split("")
-          for (let i = 0; i < splitStr.length; i++) {
-            if (splitStr[i] === "0") zeroCount++
-            else break
-          }
-          return Math.pow(10, zeroCount)
-        }
-      }
-      const priceTick = calculatePriceScale(selectedSymbolDetail?.originalTickSize || 1)
+      // console.log(selectedSymbolDetail)
       onSymbolResolvedCallback({
         name: chosenSymbol,
         description: chosenSymbol,
@@ -76,7 +64,7 @@ export default class dataFeed {
         type: 'crypto',
         session: '24x7',
         minmov: 1,
-        pricescale: priceTick, // parseFloat(selectedSymbolDetail.tickSize),
+        pricescale: Math.pow(10, selectedSymbolDetail?.tickSize || 2),
         timezone: 'UTC',
         currency_code: chosenSymbol.split("/")[1],
         has_intraday: true,
@@ -125,6 +113,7 @@ export default class dataFeed {
         const data = this.selectedExchange === this.binanceStr ?
           await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) :
           await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit)
+
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -134,23 +123,21 @@ export default class dataFeed {
         }
       }
       catch (e) {
-        console.log(e)
+        console.error(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }
     }
 
     from *= 1000
     to *= 1000
-
     getKlines(from, to)
   }
 
-  async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    this.debug && console.log(`Sub`, this.selectedExchange)
+  subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
     if (this.selectedExchange === this.binanceStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
-    else {
+    else if (this.selectedExchange === this.ftxStr) {
       const pollingAPI = async () => {
         try {
           const klines = await this.ftxAPI.getKlines(symbolInfo.name, this.mappedResolutions[resolution], undefined, null, 500)
@@ -182,7 +169,7 @@ export default class dataFeed {
     if (this.selectedExchange === this.binanceStr) {
       this.ws.unsubscribeFromStream(subscriberUID)
     }
-    else {
+    else if (this.selectedExchange === this.ftxStr) {
       clearInterval(this.pollingInterval)
     }
   }

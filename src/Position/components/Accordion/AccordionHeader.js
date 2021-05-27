@@ -38,6 +38,7 @@ const AccordionHeader = (props) => {
   }
   return (
     <>
+      <div class="text-center">Positions will start appearing as you trade on CoinPanel.</div>
       <div className="mb-4 row align-items-center">
         <div className="col">
           <h1 className="mb-0 h4">Positions</h1>

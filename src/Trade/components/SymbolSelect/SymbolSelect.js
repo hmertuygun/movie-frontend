@@ -15,6 +15,8 @@ const SymbolSelect = () => {
     selectedExchange,
     isLoading,
     isLoadingBalance,
+    binanceDD,
+    ftxDD,
   } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
@@ -22,7 +24,7 @@ const SymbolSelect = () => {
   const [initialOptions, setInitialOptions] = useState([])
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       boxShadow: 'none',
       border: '4px solid #F5F5F5',
@@ -73,13 +75,16 @@ const SymbolSelect = () => {
   }
 
   useEffect(() => {
-    const { exchange } = activeExchange
-    const selected = symbols.filter((symbol) =>
-      symbol.value.toLowerCase().includes(exchange.toLowerCase())
-    )
+    if (!activeExchange?.exchange) return
+    let { exchange } = activeExchange
+    // const selected = symbols.filter((symbol) =>
+    //   symbol.value.toLowerCase().includes(exchange.toLowerCase())
+    // )
+    exchange = exchange.toLowerCase()
+    const selected = exchange === "binance" ? binanceDD : exchange === "ftx" ? ftxDD : null
     setInitialOptions(selected)
     setOptions(selected)
-  }, [symbols, activeExchange.exchange])
+  }, [binanceDD, ftxDD, activeExchange.exchange])
 
   return (
     <div className={styles['SymbolSelect-Container']}>

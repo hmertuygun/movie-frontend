@@ -6,38 +6,22 @@ import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
 const TradeChart = () => {
   const {
-    selectedSymbol,
-    symbols,
     symbolDetails,
-    isLoading,
-    selectedSymbolDetail,
     symbolType,
-    watchListOpen,
+    exchangeType,
     setWatchListOpen,
+    chartData
   } = useSymbolContext()
-  const { userData, openOrdersUC, setOpenOrdersUC, delOpenOrders, activeExchange } = useContext(UserContext)
-  const [fecthingIntervals, setFetchingIntervals] = useState(true)
-  const [intervals, setIntervals] = useState([])
+
+  const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [reRender, setReRender] = useState(new Date().getTime())
-  const [exchangeType, setExchangeType] = useState(null)
-  // const [symbolType, setSymbolType] = useState(null)
+  const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
-
-  const getSavedIntervals = async () => {
-    try {
-      const data = await getChartIntervals()
-      setIntervals(data)
-    }
-    catch (e) {
-      console.log(e)
-    }
-    finally {
-      setFetchingIntervals(false)
-    }
-  }
+  const [drawingShown, setDrawingShown] = useState(false)
+  const [theme, setTheme] = useState('light')
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', (ev) => {
@@ -46,7 +30,6 @@ const TradeChart = () => {
   }
 
   useEffect(() => {
-    getSavedIntervals()
     reconnectWSOnWindowFocus()
   }, [])
 
@@ -67,9 +50,9 @@ const TradeChart = () => {
   }, [lsValue])
 
   useEffect(() => {
-    if (!activeExchange?.exchange || exchangeType === activeExchange.exchange) return
-    localStorage.setItem('selectedExchange', activeExchange.exchange)
-    setExchangeType(activeExchange.exchange)
+    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange) return
+    // localStorage.setItem('selectedExchange', activeExchange.exchange)
+    seExchangeName(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
       setReRender(new Date().getTime())
@@ -81,20 +64,39 @@ const TradeChart = () => {
     setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
-  if (!symbolType || !exchangeType) return null
+  const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
+  const symbolDetailsKeyValue = getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails
+  let showChart = chartData && symbolType && exchangeType && (getSymbolsLS || Object.keys(symbolDetails).length)
+  const { drawings, intervals } = chartData || {}
+
   return (
-    <TradingViewChart
-      email={userData?.email}
-      theme={"light"}
-      intervals={intervals}
-      openOrders={openOrdersUC}
-      key={reRender}
-      symbol={symbolType}
-      exchange={exchangeType}
-      marketSymbols={symbolDetails}
-      sniperBtnClicked={(e) => { onSniperBtnClick(e) }}
-      chartReady={(e) => { setIsChartReady(e) }}
-    />
+    <div
+      id="chart_outer_container"
+      className="d-flex justify-content-center align-items-center"
+      style={{ width: '100%', height: '100%' }}
+    >
+      {showChart ? (
+        <TradingViewChart
+          email={userData?.email}
+          theme={theme}
+          intervals={intervals}
+          drawings={drawings}
+          openOrders={openOrdersUC}
+          key={reRender}
+          symbol={symbolType}
+          exchange={exchangeType}
+          marketSymbols={symbolDetailsKeyValue}
+          sniperBtnClicked={(e) => {
+            onSniperBtnClick(e)
+          }}
+          chartReady={(e) => {
+            setIsChartReady(e)
+          }}
+        />
+      ) : (
+        <span className="spinner-border spinner-border-sm text-primary" />
+      )}
+    </div>
   )
 }
 

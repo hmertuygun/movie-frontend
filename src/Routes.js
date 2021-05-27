@@ -80,13 +80,12 @@ const Routes = () => {
     return null
   }
 
-  const isLocalHost = window.location.hostname === "localhost"
-
+  const isLocalEnv = window.location.hostname === "localhost"
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
       <Detector
-        polling={{ url: "https://ipv4.icanhazip.com", enabled: isLoggedIn && !isLocalHost }}
+        polling={{ url: "https://ipv4.icanhazip.com", enabled: isLoggedIn && !isLocalEnv }}
         onChange={(e) => { showNotifOnNetworkChange(e) }}
         render={({ online }) => {
           return null
