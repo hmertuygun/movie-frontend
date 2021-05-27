@@ -439,17 +439,17 @@ const SymbolContextProvider = ({ children }) => {
       //if (!userData) return
       setIsLoadingExchanges(true)
       const data = await getExchanges()
-      if (!data?.exchanges?.length || !data?.keyValues) {
+      if (!data?.exchanges?.length || !data?.symbolsChange) {
         return
       }
       const [binance, ftx] = data.exchanges
       setSymbols(() => [...binance.symbols, ...ftx.symbols])
-      setSymbolDetails(data.keyValues)
-      localStorage.setItem('symbolsKeyValue', JSON.stringify(data.keyValues))
+      setSymbolDetails(data.symbolsChange)
+      localStorage.setItem('symbolsKeyValue', JSON.stringify(data.symbolsChange))
       setBinanceDD(() => binance.symbols)
       setFtxDD(() => ftx.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
-      setSelectedSymbolDetail(data.keyValues[val])
+      setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
       console.error(error)
     }
