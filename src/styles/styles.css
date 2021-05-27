@@ -123,6 +123,11 @@ hr {
 .text-bold {
   font-weight: 600;
 }
+/* iframe[id*='tradingview'] .layout__area--center {
+  width: 100% !important;
+  height: 100% !important;
+} */
+
 .disable-element {
   opacity: 0.5 !important;
   pointer-events: none !important;
