@@ -203,6 +203,27 @@ const AccordionContainer = () => {
             <div className="pt-5 text-center">No positions</div>
           )}
         </div>
+        <p className="mt-5">
+          Positions will start appearing as you trade on CoinPanel. There are 3
+          reasons why some of your positions might be missing.
+        </p>
+        <ul>
+          <li style={{listStyleType: ''}}>
+            When you trade with Limit orders on Place Order tab, the order
+            history doesn’t update, so you need to trade either with Full Trade,
+            or with automation order types(Stop/Take-Profit) to see your
+            positions appear.
+          </li>
+          <li>
+            If you trade the same coin with multiple markets (e.g. ETH-BTC &
+            ETH-USDT) your positions cannot be calculated
+          </li>
+          <li>
+            If you are holding bags from before (e.g. you have BTC balance that
+            you are holding, and you open a new trade with BTC-USDT, your
+            position cannot be calculated)
+          </li>
+        </ul>
       </div>
     </div>
   )
