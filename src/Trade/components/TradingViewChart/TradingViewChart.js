@@ -145,7 +145,7 @@ export default class TradingViewChart extends Component {
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          if ((symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending")) continue
+          if ((symbol.toLowerCase() === "entry" && type !== "LIMIT" && status.toLowerCase() === "filled")) continue
           let toolTipText
           let orderPrice
           let orderLineId
