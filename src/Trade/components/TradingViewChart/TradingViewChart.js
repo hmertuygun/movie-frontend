@@ -298,6 +298,24 @@ export default class TradingViewChart extends Component {
     }
   }
 
+  changeIframeCSS = () => {
+    const getIFrame = document.querySelector("iframe[id*='tradingview']")
+    console.log(getIFrame)
+    var cssLink = document.createElement("link")
+    cssLink.href = "chart.css"
+    cssLink.rel = "stylesheet"
+    cssLink.type = "text/css"
+    getIFrame?.contentDocument.head.appendChild(cssLink)
+    // const getElement = getIFrame?.contentDocument?.body?.querySelector(".layout__area--center")
+    // if (getElement) {
+    //   setInterval(() => {
+    //     getElement.style.width = '100% !important'
+    //     getElement.style.height = '100% !important'
+    //     console.log(getElement)
+    //   }, 2000)
+    // }
+  }
+
   componentDidMount() {
     this.tradingViewWidget = (window.tvWidget = new window.TradingView.widget(this.widgetOptions))
     this.chartReady()
