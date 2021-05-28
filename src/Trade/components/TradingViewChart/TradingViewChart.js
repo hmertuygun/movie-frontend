@@ -127,7 +127,8 @@ export default class TradingViewChart extends Component {
     try {
       const blue = "#008aff"
       const green = "#3cb690"
-      const red = '#f25767'
+      const red = "rgba(242, 87, 103, 1)"
+      const redOpaque = "rgba(242, 87, 103, 0.75)"
       // if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
       // this.orderLineCount++
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
@@ -142,10 +143,21 @@ export default class TradingViewChart extends Component {
         const isFullTrade = type.includes("Full")
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
-          const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
-          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
-          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
           if ((symbol.toLowerCase() === "entry" && type !== "LIMIT" && status.toLowerCase() === "filled")) continue
+          //const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
+          let orderColor
+          if (side === "Sell") {
+            const condition = (symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending" && type !== "LIMIT") || (symbol.toLowerCase() === "entry" && status.toLowerCase() === "placed" && type === "LIMIT")
+            orderColor = condition ? redOpaque : red
+          }
+          else if (side === "Buy") {
+            orderColor = green
+          }
+          else {
+            orderColor = "#000"
+          }
+          const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : symbol.toLowerCase() === "entry" ? 'Entry Price' : type
+          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
           let toolTipText
           let orderPrice
           let orderLineId
