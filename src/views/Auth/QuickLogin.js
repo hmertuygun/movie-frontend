@@ -188,7 +188,9 @@ const QuickLogin = () => {
 
               <div className="mt-4 text-center">
                 <small>Not registered? </small>
-                <a href="https://dev.coinpanel.com/?ref=cryptobanter" className="small font-weight-bold">
+                <a href="#" className="small font-weight-bold" onClick={() => {
+                  window.location.href = "/register?ref=cryptobanter"
+                }}>
                   Create account
                 </a>
               </div>
