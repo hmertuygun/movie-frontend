@@ -51,7 +51,7 @@
 :root .dark {
   /* Color */
   --trade-red: #f84960;
-  --trade-border-color: rgb(24, 26, 32);
+  --trade-border-color: var(--border-color);
   --trade-border-danger-color: #e35b66;
   --trade-text-color: #bbbbbb;
   --trade-text-secondary-color: #a0a0a0;
