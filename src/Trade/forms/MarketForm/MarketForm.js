@@ -407,102 +407,100 @@ const MarketForm = () => {
           />
         )}
       </div>
-      <section>
-        <form onSubmit={handleSubmit}>
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Price"
-              type="number"
-              name="price"
-              placeholder="Market"
-              disabled
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+      <form onSubmit={handleSubmit}>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Price"
+            type="number"
+            name="price"
+            placeholder="Market"
+            disabled
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+        </div>
+
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Amount"
+            type="text"
+            name="quantity"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, quantityPrecision)}
+            value={values.quantity}
+            placeholder="Amount"
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+          {renderInputValidationError('quantity')}
+        </div>
+
+        <div className={styles['SliderRow']}>
+          <div className={styles['SliderSlider']}>
+            <Slider
+              defaultValue={0}
+              step={1}
+              marks={marks}
+              min={0}
+              max={100}
+              onChange={handleSlider}
+              value={values.quantityPercentage}
+              disabled={isLoadingLastPrice}
             />
           </div>
 
-          <div className={styles['Input']}>
+          <div className={styles['SliderInput']}>
             <InlineInput
-              label="Amount"
+              value={values.quantityPercentage}
+              margin="dense"
+              onChange={handleSliderInputChange}
+              postLabel={'%'}
+              name="quantityPercentage"
+              small
               type="text"
-              name="quantity"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, quantityPrecision)}
-              value={values.quantity}
-              placeholder="Amount"
-              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
             />
-            {renderInputValidationError('quantity')}
           </div>
-
-          <div className={styles['SliderRow']}>
-            <div className={styles['SliderSlider']}>
-              <Slider
-                defaultValue={0}
-                step={1}
-                marks={marks}
-                min={0}
-                max={100}
-                onChange={handleSlider}
-                value={values.quantityPercentage}
-                disabled={isLoadingLastPrice}
-              />
-            </div>
-
-            <div className={styles['SliderInput']}>
-              <InlineInput
-                value={values.quantityPercentage}
-                margin="dense"
-                onChange={handleSliderInputChange}
-                postLabel={'%'}
-                name="quantityPercentage"
-                small
-                type="text"
-              />
-            </div>
-          </div>
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Total"
-              type="text"
-              name="total"
-              value={values.total}
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, totalPrecision)}
-              placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+        </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Total"
+            type="text"
+            name="total"
+            value={values.total}
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, totalPrecision)}
+            placeholder=""
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+          {renderInputValidationError('total')}
+        </div>
+        <Button variant="exits" type="submit" disabled={btnProc}>
+          {btnProc ? (
+            <span
+              style={{ marginTop: '8px' }}
+              className="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
             />
-            {renderInputValidationError('total')}
-          </div>
-          <Button variant="exits" type="submit" disabled={btnProc}>
-            {btnProc ? (
-              <span
-                style={{ marginTop: '8px' }}
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : (
-              <span>
-                Next: Exits
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="1em"
-                  height="1em"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="feather feather-chevron-right"
-                >
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </span>
-            )}
-          </Button>
-        </form>
-      </section>
+          ) : (
+            <span>
+              Next: Exits
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-chevron-right"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </span>
+          )}
+        </Button>
+      </form>
     </Fragment>
   )
 }

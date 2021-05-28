@@ -426,7 +426,7 @@ const ExitTarget = () => {
   )
 
   return (
-    <section style={{ marginTop: '2rem' }}>
+    <div style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
           <InlineInput
@@ -518,7 +518,7 @@ const ExitTarget = () => {
           Add Target {(state?.targets?.length || 0) + 1}
         </Button>
       </form>
-    </section>
+    </div>
   )
 }
 
