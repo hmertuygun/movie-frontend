@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import ccxt from 'ccxt'
+import ccxt, { exchanges } from 'ccxt'
 
 import {
   addPrecisionToNumber,
@@ -317,7 +317,6 @@ const MarketForm = () => {
         const symbol = selectedSymbolDetail['symbolpair']
 
         const { exchange } = activeExchange
-
         let price = selectedSymbolLastPrice
         switch (exchange) {
           case 'binance': {

@@ -58,10 +58,14 @@ const TradeContainer = () => {
       .collection('platform_messages')
       .where('publishNow', '==', true)
       .onSnapshot((doc) => {
+        let shouldReturn = false
         doc.docChanges().forEach((item) => {
           // item.type = added , removed, modified
           // console.log(item.type, item.doc.id)
-          if (item.type === 'removed') return
+          if (item.type === 'removed') {
+            shouldReturn = true
+            return
+          }
           const { sendToEveryone, emails } = item.doc.data()
           if (sendToEveryone) {
             setFBNotice({
@@ -80,6 +84,7 @@ const TradeContainer = () => {
             }
           }
         })
+        if (shouldReturn) return
         setSnapShotCount((prevValue) => prevValue + 1)
       })
     return () => {

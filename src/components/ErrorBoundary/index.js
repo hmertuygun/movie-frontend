@@ -21,8 +21,8 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className='container'>
-          <div className='row'>
-            <div className='col-12'>
+          <div className='row mt-2'>
+            <div className='col-8'>
               <div className='alert alert-info text-center'>
                 Please make sure your internet connection is stable. Then refresh the page.
               </div>

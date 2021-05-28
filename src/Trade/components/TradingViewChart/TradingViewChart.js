@@ -10,14 +10,13 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked }) {
+  constructor({ symbol, theme, email, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
     super()
-    //const exchangeDataFeeds = { "binance": new binanceDataFeed({ selectedSymbolDetail, marketSymbols }), "ftx": new ftxDataFeed({ selectedSymbolDetail, marketSymbols }) }
-    this.dF = new dataFeed({ debug: false, exchange, marketSymbols }) // exchangeDataFeeds[exchange]
+    this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
     this.widgetOptions = {
       container_id: "chart_container",
       datafeed: this.dF,
-      library_path: "/scripts/charting_library/",
+      library_path: "/scripts/charting/charting_library/",
       debug: false,
       fullscreen: false,
       language: getLocalLanguage(),
@@ -51,7 +50,7 @@ export default class TradingViewChart extends Component {
     try {
       this.tradingViewWidget.onChartReady(() => {
         this.chartObject = this.tradingViewWidget.activeChart()
-        this.getChartDrawingFromServer()
+        this.initChart()
         this.chartEvent("drawing_event")
         this.addSniperModeButton()
       })
@@ -129,8 +128,8 @@ export default class TradingViewChart extends Component {
       const blue = "#008aff"
       const green = "#3cb690"
       const red = '#f25767'
-      if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
-      this.orderLineCount++
+      // if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
+      // this.orderLineCount++
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
         const { trade_id, line_id } = this.orderLinesDrawn[i]
         let fData = openOrders.find(item => item.trade_id === trade_id)
@@ -146,7 +145,7 @@ export default class TradingViewChart extends Component {
           const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
           const orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : `${type}`
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          if ((symbol.toLowerCase() === "entry" && status.toLowerCase() !== "pending")) continue
+          if ((symbol.toLowerCase() === "entry" && type !== "LIMIT" && status.toLowerCase() === "filled")) continue
           let toolTipText
           let orderPrice
           let orderLineId
@@ -270,24 +269,12 @@ export default class TradingViewChart extends Component {
     button.append(img)
   }
 
-  getChartDrawingFromServer = async () => {
+  initChart = () => {
     try {
       if (!this.tradingViewWidget) return
-      const cData = await getChartDrawing(this.state.email)
-      if (cData?.error) {
-        this.setLastSelectedInterval()
-        this.onIntervalSelect()
-        this.setState({
-          isChartReady: true
-        })
-        this.chartEvent("study_event")
-        setTimeout(() => {
-          this.props.chartReady(true)
-        }, 2500)
-        return
-      }
-      else {
-        const pData = JSON.parse(cData)
+      if (this.props.drawings) {
+        //loading drawings sends extra kLines API and gives 'subscribeBars of undefined' error
+        const pData = JSON.parse(this.props.drawings)
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
@@ -295,7 +282,7 @@ export default class TradingViewChart extends Component {
       }
     }
     catch (e) {
-      console.log(e)
+      console.error(e)
     }
     finally {
       this.setLastSelectedInterval()
@@ -303,11 +290,30 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
+      // this.props.drawingRendered(true)
       this.chartEvent("study_event")
       setTimeout(() => {
         this.props.chartReady(true)
       }, 2500)
     }
+  }
+
+  changeIframeCSS = () => {
+    const getIFrame = document.querySelector("iframe[id*='tradingview']")
+    console.log(getIFrame)
+    var cssLink = document.createElement("link")
+    cssLink.href = "chart.css"
+    cssLink.rel = "stylesheet"
+    cssLink.type = "text/css"
+    getIFrame?.contentDocument.head.appendChild(cssLink)
+    // const getElement = getIFrame?.contentDocument?.body?.querySelector(".layout__area--center")
+    // if (getElement) {
+    //   setInterval(() => {
+    //     getElement.style.width = '100% !important'
+    //     getElement.style.height = '100% !important'
+    //     console.log(getElement)
+    //   }, 2000)
+    // }
   }
 
   componentDidMount() {
@@ -333,12 +339,8 @@ export default class TradingViewChart extends Component {
   }
 
   render() {
-    const { isChartReady } = this.state
     return (
-      <div id="chart_outer_container" className="d-flex justify-content-center align-items-center" style={{ width: "100%", height: "100%" }}>
-        <span className="spinner-border spinner-border-sm text-primary" style={{ display: isChartReady ? 'none' : 'block' }} />
-        <div id='chart_container' style={{ width: "100%", height: "100%", display: isChartReady ? 'block' : 'none' }}></div>
-      </div>
+      <div id='chart_container' style={{ width: "100%", height: "100%", display: this.state.isChartReady ? 'block' : 'none' }}></div>
     )
   }
 }

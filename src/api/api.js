@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
-const binanceAPI = `https://api.binance.com/api/`
+const binanceAPI = `https://api1.binance.com/api/`
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -711,4 +711,15 @@ export async function getWatchLists() {
   })
 
   return response
+}
+export async function getAllChartData() {
+  const apiUrl = `${process.env.REACT_APP_API}chart/data`
+  const token = await firebase.auth().currentUser?.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data
 }
