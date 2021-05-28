@@ -3,7 +3,7 @@ export const ThemeContext = createContext()
 
 const ThemeContextProvider = ({ children }) => {
   const [theme, setTheme] = useState(
-    localStorage.getItem('theme') || 'LIGHT_MODE'
+    localStorage.getItem('theme') || 'LIGHT'
   )
 
   return (

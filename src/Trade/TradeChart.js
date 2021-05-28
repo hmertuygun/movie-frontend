@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
+import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { getChartIntervals, saveChartIntervals } from '../api/api'
@@ -12,6 +13,7 @@ const TradeChart = () => {
     setWatchListOpen,
     chartData
   } = useSymbolContext()
+  const { theme } = useContext(ThemeContext);
 
   const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
   const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
@@ -21,7 +23,6 @@ const TradeChart = () => {
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
   const [drawingShown, setDrawingShown] = useState(false)
-  const [theme, setTheme] = useState('light')
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', (ev) => {

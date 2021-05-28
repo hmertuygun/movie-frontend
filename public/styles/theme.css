@@ -22,6 +22,7 @@
 
   /* Trade */
   --trade-background: var(--light-color);
+  --trade-chart-background: var(--light-color);
   --trade-borders: var(--trade-border-color);
   --trade-cancel-background: var(--red);
   --trade-box-background: var(--light);
@@ -64,6 +65,7 @@
 
   /* Trade */
   --trade-background: var(--light-color);
+  --trade-chart-background: var(--tv-color-pane-background,#131722);
   --trade-borders: var(--trade-border-color);
   --trade-cancel-background: var(--red);
   --trade-box-background: var(--light);

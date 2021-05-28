@@ -61,7 +61,7 @@
 }
 
 .TradeView-Chart {
-  background: var(--trade-background);
+  background: var(--trade-chart-background);
   flex-grow: 2;
 }
 

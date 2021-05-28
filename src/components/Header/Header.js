@@ -67,14 +67,14 @@ const Header = () => {
     setTheme((theme) => {
       let newTheme = ''
       switch (theme) {
-        case 'LIGHT_MODE':
-          newTheme = 'DARK_MODE'
+        case 'LIGHT':
+          newTheme = 'DARK'
           break
-        case 'DARK_MODE':
-          newTheme = 'LIGHT_MODE'
+        case 'DARK':
+          newTheme = 'LIGHT'
           break
         default:
-          newTheme = 'LIGHT_MODE'
+          newTheme = 'LIGHT'
           break
       }
       localStorage.setItem('theme', newTheme)
@@ -92,10 +92,10 @@ const Header = () => {
       let newFile
 
       switch (theme) {
-        case 'LIGHT_MODE':
+        case 'LIGHT':
           newFile = 'quick-website.css'
           break
-        case 'DARK_MODE':
+        case 'DARK':
           newFile = 'quick-website-dark.css'
           break
         default:
@@ -112,10 +112,10 @@ const Header = () => {
   const addDarkClassToBody = () => {
     const element = document.body
     switch (theme) {
-      case 'LIGHT_MODE':
+      case 'LIGHT':
         element.classList.remove('dark')
         break
-      case 'DARK_MODE':
+      case 'DARK':
         element.classList.add('dark')
         break
       default:
@@ -148,7 +148,7 @@ const Header = () => {
     <header className="" id="header-main">
       <nav
         className={`shadow navbar navbar-main navbar-expand-lg ${
-          theme === 'LIGHT_MODE'
+          theme === 'LIGHT'
             ? 'navbar-light bg-whtie'
             : 'navbar-dark bg-dark'
         }`}
@@ -226,7 +226,7 @@ const Header = () => {
                   type="button"
                   id="btnSwitchMode"
                   className={`nav-link nav-link-icon px-2 ${
-                    theme === 'DARK_MODE' ? 'text-warning' : ''
+                    theme === 'DARK' ? 'text-warning' : ''
                   }`}
                   onClick={toggleTheme}
                 >
