@@ -394,7 +394,7 @@ const ExitTargetStopMarket = () => {
 
     const isFormValid = await validateForm()
 
-    const isLimit = Number(values.quantity) + totalQuantity >= entry.quantity
+    const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
 
     if (isFormValid && !isLimit) {
       addStopMarketTarget({
