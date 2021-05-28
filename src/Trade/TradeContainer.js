@@ -240,15 +240,15 @@ const TradeContainer = () => {
           </section>
         </>
       ) : isTradePanelOpen ? (
-        <section className="TradeView-Panel TradeView-Panel-Mobile">
+        <div className="TradeView-Panel TradeView-Panel-Mobile">
           <ErrorBoundary componentName="TradePanel">
             <Suspense fallback={<div></div>}>
               <Route path="/trade/" component={TradePanel} />
             </Suspense>
           </ErrorBoundary>
-        </section>
+        </div>
       ) : (
-        <section className="TradeChart-Container TradeChart-Container-Mobile">
+        <div className="TradeChart-Container TradeChart-Container-Mobile">
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div
@@ -305,7 +305,7 @@ const TradeContainer = () => {
               </Suspense>
             </ErrorBoundary>
           </section>
-        </section>
+        </div>
       )}
     </>
   )

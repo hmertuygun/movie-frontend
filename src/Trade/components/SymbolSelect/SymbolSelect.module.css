@@ -4,34 +4,6 @@
   grid-template-columns: 55% 45%;
 }
 
-@media (min-width: 767.98px) {
-  .SymbolSelect-Container {
-    display: flex;
-    flex-direction: row;
-    /* width: 500px; */
-    margin-right: 24px;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-}
-@media (min-width: 1400px) {
-  .SymbolSelect-Container {
-    width: 500px;
-  }
-}
-
-@media (max-width: 1400px) {
-  .SymbolSelect-Container {
-    width: 400px;
-  }
-}
-
-@media (max-width: 1230px) {
-  .SymbolSelect-Container {
-    width: 100%;
-  }
-}
-
 .Select-Container {
   position: relative;
   width: 100%;

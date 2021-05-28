@@ -30,6 +30,9 @@
   --buy: var(--green);
   --sell: var(--trade-red);
 
+  /* Tab */
+  --tab-background: var(--light-color);
+
   /* Inline Input */
   --input-default-background: rgba(255, 255, 255, 0.9);
   --input-default-color: var(--dark-color);
@@ -73,6 +76,9 @@
   --trade-box-background: var(--light);
   --buy: var(--green);
   --sell: var(--trade-red);
+
+  /* Tab */
+  --tab-background: #253649;
 
   /* Inline Input */
   --input-default-background: #2c4056;

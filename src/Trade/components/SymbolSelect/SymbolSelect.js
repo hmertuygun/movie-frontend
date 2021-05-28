@@ -4,6 +4,7 @@ import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
 import { matchSorter } from 'match-sorter'
+import { useMediaQuery } from 'react-responsive'
 
 const SymbolSelect = () => {
   const {
@@ -23,18 +24,18 @@ const SymbolSelect = () => {
   const [options, setOptions] = useState([])
   const [initialOptions, setInitialOptions] = useState([])
 
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+
   const customStyles = {
     control: (styles, { }) => ({
       ...styles,
       boxShadow: 'none',
       border: '4px solid var(--trade-borders)',
       backgroundColor: 'var(--trade-background)',
-      borderLeft: 0,
-      borderTop: 0,
-      borderBottom: 0,
+      borderLeft: !isMobile ? 0 : '',
       borderRadius: 0,
-      height: '48px',
-      minHeight: '48px',
+      height: '56px',
+      minHeight: '56px',
       color: 'var(--grey)',
 
       '&:hover': {
