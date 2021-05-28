@@ -7,6 +7,7 @@
   --trade-text-secondary-color: #515252;
   --trade-text-danger-color: #cc3340;
   --border-color: #e2e8f0;
+  --table-border-color: #eff2f7;
   --border-color-active: var(--primary);
   --tab-color: var(--gray);
   --tab-color-hover: #4a5568;
@@ -57,6 +58,7 @@
   --trade-text-secondary-color: #a0a0a0;
   --trade-text-danger-color: #ff969f;
   --border-color: #2c4056;
+  --table-border-color: #1f2d3d;
   --border-color-active: var(--primary);
   --tab-color: var(--gray);
   --tab-color-hover: #8492a6;
