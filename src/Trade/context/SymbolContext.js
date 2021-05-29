@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useEffect,
   useState,
   useContext,
@@ -23,7 +22,6 @@ import {
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
 import ccxt from 'ccxt'
-
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -365,7 +363,9 @@ const SymbolContextProvider = ({ children }) => {
 
   const loadBalance = async (quote_asset, base_asset) => {
     try {
-      if (!activeExchange?.exchange || !quote_asset || !base_asset) return
+      // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
+      const getSymbolFromLS = localStorage.getItem('selectedSymbol')
+      if (!activeExchange?.exchange || !quote_asset || !base_asset && (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS)) return
       setIsLoadingBalance(true)
 
       const quoteBalance = await getBalance({ symbol: quote_asset, ...activeExchange })
@@ -402,9 +402,9 @@ const SymbolContextProvider = ({ children }) => {
   const setSymbol = async (symbol) => {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
     const symbolT = symbol.label.replace('-', '/')
+    localStorage.setItem('selectedSymbol', symbolT)
     setSymbolType(symbolT)
     setSelectedSymbol(symbol)
-    localStorage.setItem('selectedSymbol', symbolT)
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
     }
