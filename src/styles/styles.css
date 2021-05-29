@@ -132,6 +132,12 @@ hr {
   opacity: 0.5 !important;
   pointer-events: none !important;
 }
+.btn-neutral-disable:not(.disabled):active,
+.btn-neutral-disable:not(.disabled):focus {
+  color: #273444 !important;
+  border: 2px solid #e2e8f0 !important;
+  background-color: transparent !important;
+}
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,
