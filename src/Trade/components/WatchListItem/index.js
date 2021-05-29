@@ -20,7 +20,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
 
   return (
     <div
-      className={'container'}
+      className={'watch-container'}
       onClick={() => setSymbol(symbol)}
       onMouseOver={() => setShowRemoveBtn(true)}
       onMouseLeave={() => setShowRemoveBtn(false)}

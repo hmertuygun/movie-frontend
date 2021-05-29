@@ -1,14 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { ThemeContext } from '../../../contexts/ThemeContext'
 
 const Logo = () => {
+  const { theme } = useContext(ThemeContext);
+
   return (
     <>
       <Link
         id="cp-tour1"
         className="navbar-brand"
         to="/trade"
-        style={{ fontSize: '1.7rem', fontWeight: '700' }}
+        style={{ fontSize: '1.7rem', fontWeight: '700', color: theme === 'DARK' ? 'white' : '' }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
