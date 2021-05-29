@@ -18,7 +18,7 @@ const Logo = () => {
       />
       <img
         alt="Part one logo"
-        src="/img/svg/icons/Coinpanel_Color.svg"
+        src="/img/svg/icons/Coinpanel_White.svg"
         className="whitelogo"
       />
       CoinPanel
