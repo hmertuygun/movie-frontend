@@ -38,6 +38,7 @@ const useStyles = makeStyles({
   input: {
     width: 45,
     textAlign: 'right',
+    color: 'var(--input-default-color)',
   },
 })
 
@@ -525,6 +526,7 @@ const ExitStoplossStopLimit = () => {
                 onChange={handleQPInputChange}
                 name="quantityPercentage"
                 postLabel={'%'}
+                type="text"
               />
             </Grid>
           </Grid>

@@ -54,19 +54,19 @@
 
 :root .dark {
   /* Color */
-  --trade-red: #f84960;
+  --trade-red: #EA4A5F;
   --trade-border-color: var(--border-color);
   --trade-border-danger-color: #e35b66;
   --trade-text-color: #bbbbbb;
   --trade-text-secondary-color: #a0a0a0;
   --trade-text-danger-color: #ff969f;
-  --border-color: #2c4056;
+  --border-color: rgb(9, 11, 16);
   --table-border-color: #1f2d3d;
   --border-color-active: var(--primary);
   --tab-color: var(--gray);
   --tab-color-hover: #8492a6;
-  --dark-color: #ffffff;
-  --light-color: #1c2938;
+  --dark-color: rgb(205, 211,220);
+  --light-color: rgb(19,23,34);
 
   /* Trade */
   --trade-background: var(--light-color);
@@ -74,24 +74,24 @@
   --trade-borders: var(--trade-border-color);
   --trade-cancel-background: var(--red);
   --trade-box-background: var(--light);
-  --buy: var(--green);
+  --buy: #2BB58A;
   --sell: var(--trade-red);
 
   /* Tab */
   --tab-background: #253649;
 
   /* Inline Input */
-  --input-default-background: #2c4056;
+  --input-default-background: rgb(33, 36, 45);
   --input-default-color: var(--dark-color);
-  --input-default-border: rgba(151, 158, 168);
-  --label-default-color: #848e9c
+  --input-default-border: rgb(38, 48, 62);
+  --label-default-color: rgb(162, 170, 181);
   --input-border-active-color: rgb(0, 138, 255);
   --input-default-disabled-background: #2c4056;
   --input-default-disabled-color: rgba(255, 255, 255, 0.8);
 
   /* Button */
   --button-primary-background: #008aff;
-  --button-primary-color: #fff;
+  --button-primary-color: #E5E9F2;
   --button-primary-background-hover: #0075d9;
   --button-defualt-border-color: #c1c9d4;
   --button-default-color: #273444;

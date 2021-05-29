@@ -46,11 +46,13 @@ hr {
 :root {
   --rc-dark-color: #848e9c;
   --rc-light-color: #e9e9e9;
+  --rc-dot-color: #e9e9e9;
 }
 
 :root .dark {
   --rc-dark-color: #e9e9e9;
-  --rc-light-color: #848e9c;
+  --rc-light-color: #353C45;
+  --rc-dot-color: #454E5A;
 }
 
 /*slider*/
@@ -108,7 +110,7 @@ hr {
   margin-left: -4px;
   width: 8px;
   height: 8px;
-  border: 4px solid #e9e9e9;
+  border: 4px solid var(--rc-dot-color);
   background-color: var(--light-color) !important;
   cursor: pointer;
   border-radius: 50%;

@@ -179,7 +179,7 @@ const AccordionHeader = (props) => {
               ></span>
             </button>
           ) : (
-            <div>
+            <>
               {disablePositionRefreshBtn && <Tooltip id="position" />}
               <button
                 type="button"
@@ -196,7 +196,7 @@ const AccordionHeader = (props) => {
                   <FontAwesomeIcon icon={faSync} />
                 </span>
               </button>
-            </div>
+            </>
           )}
         </div>
       </div>

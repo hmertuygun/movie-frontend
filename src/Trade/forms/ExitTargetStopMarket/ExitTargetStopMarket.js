@@ -36,6 +36,7 @@ const useStyles = makeStyles({
   input: {
     width: 45,
     textAlign: 'right',
+    color: 'var(--input-default-color)',
   },
 })
 

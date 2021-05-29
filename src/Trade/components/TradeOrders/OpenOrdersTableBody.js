@@ -7,6 +7,7 @@ import useIntersectionObserver from './useIntersectionObserver'
 import Moment from 'react-moment'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
+import { ThemeContext } from '../../../contexts/ThemeContext'
 import {
   errorNotification,
   successNotification,
@@ -25,6 +26,7 @@ const deleteDuplicateRows = (data, key) => {
 const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [show, setShow] = useState(false)
   const { activeExchange } = useContext(UserContext)
+  const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const { symbolDetails, setSymbol } = useSymbolContext()
 
@@ -77,7 +79,14 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
           ) : null
         const sideColumnStyle = {
           ...tdStyle,
-          color: order.side?.toLowerCase() === 'buy' ? 'green' : 'red',
+          color:
+            order.side?.toLowerCase() === 'buy'
+              ? theme === 'DARK'
+                ? '#58AB58'
+                : 'green'
+              : theme === 'DARK'
+              ? '#D23D3D'
+              : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -89,7 +98,11 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         const cancelColumn =
           rowIndex === 0 ? (
             <td
-              style={{ ...tdStyle, color: 'red', cursor: 'pointer' }}
+              style={{
+                ...tdStyle,
+                color: theme === 'DARK' ? '#D23D3D' : 'red',
+                cursor: 'pointer',
+              }}
               onClick={() =>
                 cancelOrderRow?.trade_id === order.trade_id
                   ? null
