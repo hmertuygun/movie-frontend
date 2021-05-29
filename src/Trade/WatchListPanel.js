@@ -41,15 +41,21 @@ const WatchListPanel = () => {
     control: (styles, {}) => ({
       ...styles,
       boxShadow: 'none',
-      border: '1px solid rgb(204, 204, 204)',
+      border: '4px solid var(--trade-borders)',
+      backgroundColor: 'var(--trade-background)',
       borderRadius: '2px',
       height: '45px',
       minHeight: '45px',
-      color: '#718096',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
       },
+    }),
+
+    input: (styles) => ({
+      ...styles,
+      color: 'var(--grey)',
     }),
 
     valueContainer: (styles) => ({
@@ -61,13 +67,15 @@ const WatchListPanel = () => {
     singleValue: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
-      color: '#718096',
+      color: 'var(--grey)',
     }),
 
     option: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
       padding: '5px 5px',
+      backgroundColor: 'var(--trade-background)',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
