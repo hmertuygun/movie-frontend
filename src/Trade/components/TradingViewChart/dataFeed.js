@@ -38,14 +38,14 @@ export default class dataFeed {
     this.pollingInterval = null
   }
   onReady(callback) {
-    setTimeout(() => {
-      callback({
-        supports_marks: false,
-        supports_timescale_marks: false,
-        supports_time: true,
-        supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
-      })
-    }, 0)
+    //console.log(`onReady`)
+    // this.marketSymbols = JSON.parse(this.marketSymbols)
+    callback({
+      supports_marks: false,
+      supports_timescale_marks: false,
+      supports_time: true,
+      supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
+    })
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
@@ -54,24 +54,23 @@ export default class dataFeed {
       this.selectedExchange = this.selectedExchange || localStorage.getItem('selectedExchange')
       const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
       const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
-      setTimeout(() => {
-        onSymbolResolvedCallback({
-          name: chosenSymbol,
-          description: chosenSymbol,
-          ticker: chosenSymbol,
-          exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-          listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-          type: 'crypto',
-          session: '24x7',
-          minmov: 1,
-          pricescale: Math.pow(10, selectedSymbolDetail?.tickSize || 2),
-          timezone: 'UTC',
-          currency_code: chosenSymbol.split("/")[1],
-          has_intraday: true,
-          has_daily: true,
-          has_weekly_and_monthly: true,
-        })
-      }, 0)
+      // console.log(selectedSymbolDetail)
+      onSymbolResolvedCallback({
+        name: chosenSymbol,
+        description: chosenSymbol,
+        ticker: chosenSymbol,
+        exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+        listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+        type: 'crypto',
+        session: '24x7',
+        minmov: 1,
+        pricescale: Math.pow(10, selectedSymbolDetail?.tickSize || 2),
+        timezone: 'UTC',
+        currency_code: chosenSymbol.split("/")[1],
+        has_intraday: true,
+        has_daily: true,
+        has_weekly_and_monthly: true,
+      })
     }
     catch (e) {
       console.log(e)
