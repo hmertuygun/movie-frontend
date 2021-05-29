@@ -36,7 +36,7 @@
 .Logo-In-WatchList {
   background: var(--trade-background);
   border-right: 4px solid var(--trade-borders);
-  min-height: 71px;
+  min-height: 75px;
   display: flex;
   align-items: center;
   padding: 0.5rem 31px;
