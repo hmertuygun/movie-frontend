@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 
 import { useSymbolContext } from '../../context/SymbolContext'
-import styles from './style.module.css'
+import './style.css'
 
 const WatchListItem = ({ symbol, removeWatchList }) => {
   const { setSymbol, lastMessage } = useSymbolContext()
@@ -20,14 +20,14 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
 
   return (
     <div
-      className={styles.container}
+      className={'container'}
       onClick={() => setSymbol(symbol)}
       onMouseOver={() => setShowRemoveBtn(true)}
       onMouseLeave={() => setShowRemoveBtn(false)}
     >
       {showRemoveBtn && (
         <div
-          className={styles.removeBtn}
+          className={'removeBtn'}
           onClick={(e) => {
             e.stopPropagation()
             removeWatchList(symbol)
@@ -37,7 +37,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
         </div>
       )}
       <div>{symbol.label}</div>
-      <div className={Math.sign(percentage) > 0 ? styles.plus : styles.minus}>
+      <div className={Math.sign(percentage) > 0 ? 'plus' : 'minus'}>
         {percentage ? `${Number(percentage).toFixed(2)}%` : ''}
       </div>
     </div>

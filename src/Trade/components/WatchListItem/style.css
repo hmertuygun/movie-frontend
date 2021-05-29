@@ -2,18 +2,18 @@
   position: relative;
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #f0f3fa;
+  border-bottom: 1px solid var(--watch-list-border-color);
   padding: 5px 1rem;
   cursor: pointer;
   font-size: 14px;
 }
 
 .container:hover {
-  background-color: #f0f3fa;
+  background-color: var(--watch-list-border-color);
 }
 
 .removeBtn {
-  background-color: #f0f3fa;
+  background-color: var(--watch-list-border-color);
   position: absolute;
   top: 4px;
   right: 0;

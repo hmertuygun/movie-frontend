@@ -26,20 +26,20 @@
   width: 288px;
   min-width: 288px;
   background: var(--trade-background);
+  border-top: 4px solid var(--trade-borders);
+  border-right: 4px solid var(--trade-borders);
   color: var(--dark-color);
   height: 100%;
   flex-grow: 0;
-  margin-right: 4px;
-  margin-top: 4px;
 }
 
 .Logo-In-WatchList {
   background: var(--trade-background);
+  border-right: 4px solid var(--trade-borders);
   min-height: 71px;
   display: flex;
   align-items: center;
   padding: 0.5rem 31px;
-  margin-right: 4px;
   box-shadow: 0 0 1.25rem rgb(31 45 61 / 5%);
 }
 

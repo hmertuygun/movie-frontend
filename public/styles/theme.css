@@ -14,6 +14,8 @@
   --dark-color: #000000;
   --light-color: var(--white);
 
+  --watch-list-border-color: #f0f3fa;
+
   /* Typography */
   --default-color: var(--light);
   --warning-color: var(--warning);
@@ -63,10 +65,12 @@
   --border-color: rgb(9, 11, 16);
   --table-border-color: #1f2d3d;
   --border-color-active: var(--primary);
-  --tab-color: var(--gray);
-  --tab-color-hover: #8492a6;
-  --dark-color: rgb(205, 211,220);
+  --tab-color: rgb(191, 199, 209);
+  --tab-color-hover: rgb(226, 231, 236);
+  --dark-color: rgb(191, 199, 209);
   --light-color: rgb(19,23,34);
+
+  --watch-list-border-color: rgb(37, 43, 56);
 
   /* Trade */
   --trade-background: var(--light-color);
@@ -81,12 +85,12 @@
   --tab-background: #253649;
 
   /* Inline Input */
-  --input-default-background: rgb(33, 36, 45);
+  --input-default-background: rgb(27, 32, 45);
   --input-default-color: var(--dark-color);
-  --input-default-border: rgb(38, 48, 62);
-  --label-default-color: rgb(162, 170, 181);
+  --input-default-border: rgb(29, 34, 45);
+  --label-default-color: rgb(186, 191, 199);
   --input-border-active-color: rgb(0, 138, 255);
-  --input-default-disabled-background: #2c4056;
+  --input-default-disabled-background: rgb(14, 17, 24);
   --input-default-disabled-color: rgba(255, 255, 255, 0.8);
 
   /* Button */

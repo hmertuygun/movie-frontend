@@ -8771,7 +8771,7 @@ button.bg-white:focus
 
 .border-dark
 {
-    border-color: #253649 !important;
+    border-color: rgb(19, 23, 34) !important
 }
 
 .border-neutral

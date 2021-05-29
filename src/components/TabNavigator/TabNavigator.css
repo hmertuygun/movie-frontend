@@ -86,13 +86,21 @@
   width: max-content;
   border-radius: 2px;
   overflow: hidden;
-  background-color: var(--border-color);
 }
 
 .market-items > .dropdown-btn,
 .market-items > .btn-active {
   border: none;
   font-size: 14px;
+  background-color: var(--border-color);
+  color: var(--tab-color);
+  padding: 3px 10px;
+}
+.dark .market-items > .dropdown-btn,
+.market-items > .btn-active {
+  border: none;
+  font-size: 14px;
+  background-color: rgb(37, 54, 73);
   color: var(--tab-color);
   padding: 3px 10px;
 }

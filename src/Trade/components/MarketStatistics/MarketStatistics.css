@@ -4,7 +4,7 @@
   align-items: center;
   border-top: 4px solid var(--trade-borders);
   border-bottom: 4px solid var(--trade-borders);
-  padding-left: 24px;
+  padding-left: 14px;
 }
 .marketData {
   display: flex;
