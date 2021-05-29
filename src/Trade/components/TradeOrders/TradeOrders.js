@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react'
-import { useInfiniteQuery, useQueryClient, useQuery } from 'react-query'
 import { useMediaQuery } from 'react-responsive';
 
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
@@ -14,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
+import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './TradeOrders.css'
 const db = firebase.firestore()
@@ -36,19 +36,21 @@ const ORDER_HISTORY_INITIAL_STATE = {
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance, onRefreshBtnClicked, disableOrderHistoryRefreshBtn,
-    disableOpenOrdersRefreshBtn, } = useSymbolContext()
+    disableOpenOrdersRefreshBtn, orderHistoryTimeInterval, openOrdersTimeInterval, portfolioTimeInterval, positionTimeInterval } = useSymbolContext()
   const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext);
   const { loading: isPortfolioLoading } = useContext(PortfolioContext);
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
-  const [loadBtn, setLoadBtn] = useState(false)
+  const [loadBtnOO, setLoadBtnOO] = useState(false)
+  const [loadBtnOH, setLoadBtnOH] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
   const [isHideOtherPairs, setIsHideOtherPairs] = useState(false)
   const [deletedRows, setDeletedRows] = useState(null)
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
+  const [openOrdersBtnHover, setOpenOrdersBtnHover] = useState(false)
   /////////////////////////////////////////////////////////
   const [openOrderData, setOpenOrderData] = useState([])
   const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(true)
@@ -66,7 +68,7 @@ const TradeOrders = () => {
 
   const getOpenOrdersData = (refBtn) => {
     if (deletedRows) return
-    if (refBtn) setLoadBtn(true)
+    if (refBtn) setLoadBtnOO(true)
     setIsOpenOrderFetching(true)
     getOpenOrders({ ...activeExchange, limit: openOrdersLimit })
       .then(res => {
@@ -82,14 +84,14 @@ const TradeOrders = () => {
       })
       .then(() => {
         setIsOpenOrderFetching(false)
-        setLoadBtn(false)
+        setLoadBtnOO(false)
       })
   }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
       if (isOrderHistoryFetching) return
-      if (refBtn) setLoadBtn(true)
+      if (refBtn) setLoadBtnOH(true)
       if (refreshTable) setOrderHistoryData([])
       if (!hideTableLoader) setIsOrderHistoryFetching(true)
       const params = refreshTable ? { ...activeExchange, orderHistoryLimit } : orderHistoryLastFetchedData && !refreshTable ? {
@@ -122,16 +124,16 @@ const TradeOrders = () => {
     }
     finally {
       setIsOrderHistoryFetching(false)
-      setLoadBtn(false)
+      setLoadBtnOH(false)
     }
   }
 
-  const onRefreshBtnClick = () => {
-    if (isOpenOrders) {
+  const onOrdersRefreshBtnClick = (type) => {
+    if (type === 'open-order') {
       onRefreshBtnClicked('open-order')
       getOpenOrdersData(true)
     }
-    else {
+    else if (type === 'order-history') {
       onRefreshBtnClicked('order-history')
       getOrderHistoryData(true, false, true)
     }
@@ -170,6 +172,11 @@ const TradeOrders = () => {
       setOrderHistoryProgress(progress)
       setOrderHistoryProgressUC(progress)
       setShowProgressBar(progress !== '100.00')
+      if (progress !== '100') {
+        onRefreshBtnClicked('order-history')
+        onRefreshBtnClicked('position')
+        onRefreshBtnClicked('portfolio')
+      }
       sessionStorage.setItem('showProgressBar', progress !== '100.00')
     }
   }
@@ -206,17 +213,8 @@ const TradeOrders = () => {
     }
   }, [deletedRows])
 
-  const setStateSynchronous = (setState, stateUpdate) => {
-    return new Promise(resolve => {
-      setState(stateUpdate, () => resolve())
-    })
-  }
-
   useEffect(() => {
     if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) {
-      onRefreshBtnClicked('order-history')
-      onRefreshBtnClicked('position')
-      onRefreshBtnClicked('portfolio')
       getOrderHistoryData(true, false)
     }
   }, [orderHistoryFB, showProgressBar])
@@ -300,6 +298,57 @@ const TradeOrders = () => {
     </div>
   )
 
+  const refreshButtons = isOpenOrders ? (
+    <div>
+      {/* globalEventOff="click" isCapture={false} */}
+      {(disableOpenOrdersRefreshBtn || loadBtnOO) && <Tooltip id="open-orders" />}
+      <button
+        className={`btn btn-xs btn-neutral btn-icon btn-neutral-disable ${disableOpenOrdersRefreshBtn || loadBtnOO ? 'disabled' : ''}`}
+        type="button"
+        data-for="open-orders"
+        data-tip={`You can only use this button every ${openOrdersTimeInterval / 1000} seconds`}
+        onClick={() => disableOpenOrdersRefreshBtn || loadBtnOO ? null : onOrdersRefreshBtnClick('open-order')}
+      >
+        {!isMobile && <span className="btn-inner--text">Refresh</span>}
+        {loadBtnOO ? (
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        ) : (
+          <span className="btn-inner--icon">
+            <FontAwesomeIcon icon={faSync} />
+          </span>
+        )}
+      </button>
+    </div>
+  ) : (
+    <div>
+      {(disableOrderHistoryRefreshBtn || loadBtnOH) && <Tooltip id="order-history" />}
+      <button
+        className={`btn btn-xs btn-neutral btn-icon btn-neutral-disable ${disableOrderHistoryRefreshBtn || loadBtnOH ? 'disabled' : ''}`}
+        type="button"
+        onClick={() => disableOrderHistoryRefreshBtn || loadBtnOH ? null : onOrdersRefreshBtnClick('order-history')}
+        data-for="order-history"
+        data-tip={`You can only use this button every ${orderHistoryTimeInterval / 1000} seconds`}
+      >
+        {!isMobile && <span className="btn-inner--text">Refresh</span>}
+        {loadBtnOH ? (
+          <span
+            className="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        ) : (
+          <span className="btn-inner--icon">
+            <FontAwesomeIcon icon={faSync} />
+          </span>
+        )}
+      </button>
+    </div>
+  )
+
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="pb-2">
@@ -339,32 +388,7 @@ const TradeOrders = () => {
                   Hide Other Pairs
                 </label>
               </div>
-              {(
-                <button
-                  className="btn btn-xs btn-neutral btn-icon"
-                  type="button"
-                  onClick={onRefreshBtnClick}
-                  disabled={loadBtn || (isOpenOrders ? disableOpenOrdersRefreshBtn : disableOrderHistoryRefreshBtn)}
-                >
-                  {!isMobile && (
-                    <span className="btn-inner--text">Refresh</span>
-                  )}
-                  {
-                    loadBtn ? (
-                      <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                    ) : (
-                      <span className="btn-inner--icon">
-                        <FontAwesomeIcon icon={faSync} />
-                      </span>
-                    )
-                  }
-                </button>
-              )
-              }
+              {refreshButtons}
             </div>
           </div>
         </div>

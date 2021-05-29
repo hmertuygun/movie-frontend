@@ -13,7 +13,7 @@ const AccordionHeader = (props) => {
 
   const { requestSort, liveUpdate } = props
   const { positions, isLoading, refreshData } = useContext(PositionContext)
-  const { onRefreshBtnClicked, disablePositionRefreshBtn } = useSymbolContext()
+  const { onRefreshBtnClicked, disablePositionRefreshBtn, positionTimeInterval } = useSymbolContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const ToggleMenu = () => {
@@ -179,17 +179,24 @@ const AccordionHeader = (props) => {
               ></span>
             </button>
           ) : (
-            <button
-              type="button"
-              className="ml-2 btn btn-sm btn-neutral btn-icon"
-              onClick={() => { refreshData(); onRefreshBtnClicked('position') }}
-              disabled={disablePositionRefreshBtn}
-            >
-              <span className="btn-inner--text">Refresh</span>
-              <span className="btn-inner--icon">
-                <FontAwesomeIcon icon={faSync} />
-              </span>
-            </button>
+            <div>
+              {disablePositionRefreshBtn && <Tooltip id="position" />}
+              <button
+                type="button"
+                data-for="portfolio"
+                data-tip={`You can only use this button every ${positionTimeInterval / 1000} seconds`}
+                className={`ml-2 btn btn-sm btn-neutral btn-icon btn-neutral-disable ${disablePositionRefreshBtn ? 'disabled' : ''}`}
+                onClick={() => disablePositionRefreshBtn ? null : () => {
+                  refreshData()
+                  onRefreshBtnClicked('position')
+                }}
+              >
+                <span className="btn-inner--text">Refresh</span>
+                <span className="btn-inner--icon">
+                  <FontAwesomeIcon icon={faSync} />
+                </span>
+              </button>
+            </div>
           )}
         </div>
       </div>

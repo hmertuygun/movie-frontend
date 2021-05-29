@@ -49,10 +49,10 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
           {state.entry.type === 'market' ? (
             <Typography>Market Price</Typography>
           ) : (
-              <Typography>
-                {state.entry.price || state.entry.trigger} {selectedSymbolDetail['quote_asset']}
-              </Typography>
-            )}
+            <Typography>
+              {state.entry.price || state.entry.trigger} {selectedSymbolDetail['quote_asset']}
+            </Typography>
+          )}
         </div>
         <div className={styles['TradeModal-Main__entry']}>
           <Typography>Order Qty</Typography>
@@ -83,10 +83,10 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                       {target.triggerPrice} {selectedSymbolDetail['quote_asset']}
                     </td>
                   ) : (
-                      <td>
-                        {target.price} {selectedSymbolDetail['quote_asset']}
-                      </td>
-                    )}
+                    <td>
+                      {target.price} {selectedSymbolDetail['quote_asset']}
+                    </td>
+                  )}
                 </tr>
               ))}
               {state.stoploss.map((stoploss, index) => (
@@ -129,20 +129,13 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
           {!btnDisabled ? (
             'Confirm'
           ) : (
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              />
-            )}
+            <span
+              className="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            />
+          )}
         </button>
-        {/* <Button onClick={onClose} variant="cancel">Cancel</Button> */}
-        {/* <Button variant="confirm" onClick={placeOrder} disabled={btnDisabled}>
-          { btnDisabled ? (<span
-            className="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"/>) : 'Confirm'}
-        </Button> */}
       </footer>
     </article>
   )
