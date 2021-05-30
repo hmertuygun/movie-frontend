@@ -121,7 +121,7 @@ const Trade = () => {
 
   return (
     <Fragment>
-      <section>
+      <>
         <div
           className="TradeView-Panel-Mobile-Close"
           onClick={() => setIsTradePanelOpen(false)}
@@ -235,7 +235,7 @@ const Trade = () => {
             <TradeTableContainer />
           </div>
         </TabNavigator>
-      </section>
+      </>
 
       {isModalVisible && (
         <Modal onClose={() => setIsModalVisible(false)}>

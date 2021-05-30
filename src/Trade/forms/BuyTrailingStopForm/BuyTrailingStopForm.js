@@ -467,117 +467,115 @@ const SellTrailingStopForm = () => {
         )}
       </div>
 
-      <section>
-        <form onSubmit={handleSubmit}>
-          <div className={styles['Input']}>
-            <div className={styles['CallbackRateInput']}>
-              <InlineInput
-                label="Callback Rate"
-                type="text"
-                name="callback_rate"
-                onChange={handleChange}
-                onBlur={(e) => handleBlur(e, 1)}
-                value={values.callback_rate}
-                placeholder=""
-                postLabel={'%'}
-              />
-              <button
-                className={styles['CallbackRateBtn']}
-                type="button"
-                onClick={() => {
-                  setValues({ ...values, callback_rate: '1' })
-                  validateInput({ name: 'callback_rate', value: 1 })
-                }}
-              >
-                1 <span>%</span>
-              </button>
-              <button
-                className={styles['CallbackRateBtn']}
-                type="button"
-                onClick={() => {
-                  setValues({ ...values, callback_rate: '2' })
-                  validateInput({ name: 'callback_rate', value: 2 })
-                }}
-              >
-                2 <span>%</span>
-              </button>
-            </div>
-            {renderInputValidationError('callback_rate')}
-          </div>
-
-          <div className={styles['Input']}>
+      <form onSubmit={handleSubmit}>
+        <div className={styles['Input']}>
+          <div className={styles['CallbackRateInput']}>
             <InlineInput
-              label="Activation Price"
+              label="Callback Rate"
               type="text"
-              name="activation_price"
+              name="callback_rate"
               onChange={handleChange}
-              onBlur={(e) => handleBlur(e, pricePrecision)}
-              value={values.activation_price}
+              onBlur={(e) => handleBlur(e, 1)}
+              value={values.callback_rate}
               placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+              postLabel={'%'}
             />
-            {renderInputValidationError('activation_price')}
+            <button
+              className={styles['CallbackRateBtn']}
+              type="button"
+              onClick={() => {
+                setValues({ ...values, callback_rate: '1' })
+                validateInput({ name: 'callback_rate', value: 1 })
+              }}
+            >
+              1 <span>%</span>
+            </button>
+            <button
+              className={styles['CallbackRateBtn']}
+              type="button"
+              onClick={() => {
+                setValues({ ...values, callback_rate: '2' })
+                validateInput({ name: 'callback_rate', value: 2 })
+              }}
+            >
+              2 <span>%</span>
+            </button>
           </div>
-          <div className={styles['Input']}>
+          {renderInputValidationError('callback_rate')}
+        </div>
+
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Activation Price"
+            type="text"
+            name="activation_price"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, pricePrecision)}
+            value={values.activation_price}
+            placeholder=""
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+          {renderInputValidationError('activation_price')}
+        </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Order Qty"
+            type="text"
+            name="quantity"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, quantityPrecision)}
+            value={values.quantity}
+            placeholder=""
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+          {renderInputValidationError('quantity')}
+        </div>
+
+        <div className={styles['SliderRow']}>
+          <div className={styles['SliderSlider']}>
+            <Slider
+              defaultValue={0}
+              step={1}
+              marks={sliderMarks}
+              min={0}
+              max={100}
+              value={values.quantityPercentage}
+              onChange={handleSlider}
+              disabled={values.activation_price > selectedSymbolLastPrice}
+            />
+          </div>
+
+          <div className={styles['SliderInput']}>
             <InlineInput
-              label="Order Qty"
+              value={values.quantityPercentage}
+              margin="dense"
+              onChange={handleSliderInputChange}
+              postLabel={'%'}
+              disabled={values.activation_price > selectedSymbolLastPrice}
+              small
+              name="quantityPercentage"
               type="text"
-              name="quantity"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, quantityPrecision)}
-              value={values.quantity}
-              placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
             />
-            {renderInputValidationError('quantity')}
           </div>
+        </div>
 
-          <div className={styles['SliderRow']}>
-            <div className={styles['SliderSlider']}>
-              <Slider
-                defaultValue={0}
-                step={1}
-                marks={sliderMarks}
-                min={0}
-                max={100}
-                value={values.quantityPercentage}
-                onChange={handleSlider}
-                disabled={values.activation_price > selectedSymbolLastPrice}
-              />
-            </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Total"
+            type="text"
+            name="total"
+            value={values.total}
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, totalPrecision)}
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+          {renderInputValidationError('total')}
+        </div>
 
-            <div className={styles['SliderInput']}>
-              <InlineInput
-                value={values.quantityPercentage}
-                margin="dense"
-                onChange={handleSliderInputChange}
-                postLabel={'%'}
-                disabled={values.activation_price > selectedSymbolLastPrice}
-                small
-                name="quantityPercentage"
-                type="text"
-              />
-            </div>
-          </div>
-
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Total"
-              type="text"
-              name="total"
-              value={values.total}
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, totalPrecision)}
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
-            {renderInputValidationError('total')}
-          </div>
-
-          <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-            <span>Buy {selectedSymbolDetail['base_asset']}</span>
-          </Button>
-        </form>
-      </section>
+        <Button type="submit" variant="buy" disabled={isBtnDisabled}>
+          <span>Buy {selectedSymbolDetail['base_asset']}</span>
+        </Button>
+      </form>
     </Fragment>
   )
 }

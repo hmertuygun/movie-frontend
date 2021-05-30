@@ -1,5 +1,4 @@
 import Button from './Button/Button'
-import Input from './Input/Input'
 import InlineInput from './Input/InlineInput'
 import Typography from './Typography/Typography'
 import Logo from './Logo/Logo'
@@ -12,7 +11,6 @@ import Icon from './Icon/Icon'
 
 export {
   Button,
-  Input,
   Typography,
   Logo,
   Link,

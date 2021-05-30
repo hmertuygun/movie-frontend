@@ -59,9 +59,9 @@
 }
 
 .Error {
-  background-color: #fff0f1;
-  border: 1px solid #e35b66;
-  color: #cc3340;
+  background-color: var(--trade-background);
+  border: 1px solid var(--trade-border-danger-color);
+  color: var(--trade-text-danger-color);
   margin-top: 5px;
   font-size: 12px;
   text-align: center;

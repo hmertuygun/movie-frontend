@@ -36,6 +36,7 @@ const useStyles = makeStyles({
   input: {
     width: 45,
     textAlign: 'right',
+    color: 'var(--input-default-color)',
   },
 })
 
@@ -390,7 +391,7 @@ const ExitStoplossStopMarket = () => {
 
   return (
     <div style={{ marginTop: '2rem' }}>
-      <section style={{ marginTop: '2rem' }}>
+      <div style={{ marginTop: '2rem' }}>
         <form onSubmit={handleSubmit}>
           <div className={styles['Input']}>
             <div className={styles['InputDropdownContainer']}>
@@ -487,7 +488,7 @@ const ExitStoplossStopMarket = () => {
             Add Stop-loss
           </Button>
         </form>
-      </section>
+      </div>
     </div>
   )
 }

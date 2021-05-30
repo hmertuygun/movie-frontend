@@ -36,6 +36,7 @@ const useStyles = makeStyles({
   input: {
     width: 45,
     textAlign: 'right',
+    color: 'var(--input-default-color)',
   },
 })
 
@@ -434,7 +435,7 @@ const ExitTargetStopMarket = () => {
   )
 
   return (
-    <section style={{ marginTop: '2rem' }}>
+    <div style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
           <div className={styles['InputDropdownContainer']}>
@@ -528,7 +529,7 @@ const ExitTargetStopMarket = () => {
           Add Target {(state?.targets?.length || 0) + 1}
         </Button>
       </form>
-    </section>
+    </div>
   )
 }
 

@@ -1,7 +1,7 @@
+
 .table {
   width: 100%;
   margin-bottom: 1rem;
-  color: #718096;
   background-color: transparent;
 }
 
@@ -14,7 +14,7 @@ table thead th {
   border-bottom-width: 1px;
   background-color: transparent;
   font-weight: 600;
-  border-bottom: 1px solid #e2e2e2;
+  border-bottom: 1px solid var(--table-border-color);
 }
 
 .card .table td,
@@ -33,7 +33,7 @@ table thead th {
 .table td {
   padding: 1rem;
   vertical-align: top;
-  border-top: 1px solid #eff2f7;
+  border-top: 1px solid var(--table-border-color);
 }
 
 @media only screen and (max-width: 990px) {

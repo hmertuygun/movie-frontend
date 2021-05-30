@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import styles from './Pagination.module.css'
+import './Pagination.css'
 import Button from '../../Button/Button'
 import { NavLink } from 'react-router-dom'
 
@@ -73,11 +73,11 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
   ) */
 
   return (
-    <nav className={styles['navigation']}>
+    <nav className={'navigation'}>
       <ul className="pagination">
         {currentPage === 1 ? (
           <li className="page-item disabled">
-            <span className={`page-link ${styles['disabled-page-link']}`}>Previous</span>
+            <span className={`page-link disabled-page-link`}>Previous</span>
           </li>
         ) : (
           <li className="page-item">
@@ -116,7 +116,7 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }) => {
         })}
         {currentPage > pageNumbers.length - 1 ? (
           <li className="page-item disabled">
-            <span className={`page-link ${styles['disabled-page-link']}`}>Next</span>
+            <span className={`page-link disabled-page-link`}>Next</span>
           </li>
         ) : (
           <li className="page-item">

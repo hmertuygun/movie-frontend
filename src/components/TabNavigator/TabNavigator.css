@@ -1,9 +1,4 @@
 .TabNavigator-container {
-  --border-color: #ddd;
-  --border-color-active: var(--primary);
-  --color: #718096;
-  --color-hover: #4a5568;
-  --color-highlighted: #5a6677;
   width: 100%;
 }
 
@@ -28,21 +23,21 @@
   line-height: 1rem;
   padding: 15px 0;
   cursor: pointer;
-  color: var(--color);
+  color: var(--tab-color);
 }
 
 .TabNavigator-link:hover {
-  color: var(--color-hover);
+  color: var(--tab-color-hover);
 }
 
 .TabNavigator-link--active {
   border-bottom: 1px solid var(--border-color-active);
-  color: var(--color-highlighted);
+  color: var(--tab-color);
   font-weight: 600;
 }
 
 .TabNavigator-link--active:hover {
-  color: var(--color);
+  color: var(--tab-color);
 }
 
 .custom-dropdown-wrapper {
@@ -58,17 +53,17 @@
   font-size: 0.875rem;
   cursor: pointer;
   background: none;
-  color: var(--color);
+  color: var(--tab-color);
   height: 100%;
 }
 
 .custom-dropdown-wrapper > button:hover {
-  color: var(--color-hover);
+  color: var(--tab-color-hover);
 }
 
 .custom-dropdown-wrapper > button.btn-active {
   border-bottom: 1px solid var(--border-color-active);
-  color: var(--color-highlighted);
+  color: var(--tab-color);
   font-weight: 500;
   transition: all 0.3s ease-in-out;
 }
@@ -91,14 +86,22 @@
   width: max-content;
   border-radius: 2px;
   overflow: hidden;
-  background-color: rgb(239, 239, 239);
 }
 
 .market-items > .dropdown-btn,
 .market-items > .btn-active {
   border: none;
   font-size: 14px;
-  color: var(--color);
+  background-color: var(--border-color);
+  color: var(--tab-color);
+  padding: 3px 10px;
+}
+.dark .market-items > .dropdown-btn,
+.market-items > .btn-active {
+  border: none;
+  font-size: 14px;
+  background-color: rgb(37, 54, 73);
+  color: var(--tab-color);
   padding: 3px 10px;
 }
 
@@ -111,7 +114,7 @@
 }
 
 .market-items > .btn-active {
-  color: var(--color-highlighted);
+  color: var(--tab-color);
   font-weight: 500;
 }
 
@@ -124,7 +127,7 @@
 }
 
 .tab-info-wrapper svg {
-  color: var(--color);
+  color: var(--tab-color);
 }
 
 .tab-info-wrapper:hover svg {
@@ -138,12 +141,12 @@
   bottom: 9px;
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent rgb(239, 239, 239)  transparent;
+  border-color: transparent transparent var(--border-color)  transparent;
 }
 
 .tab-info {
   position: absolute;
-  background-color: rgb(239, 239, 239);
+  background-color: var(--border-color);
   width: 600px;
   border-radius: 4px;
   padding: 1rem 0.75rem 0 0.5rem;

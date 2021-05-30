@@ -1,5 +1,5 @@
 .Typography {
-  color: #666666;
+  color: var(--trade-text-color);
 }
 
 .Typography--warning {
@@ -52,7 +52,6 @@ h2,
 }
 
 .Slider-Text {
-  color: #3c3c3c;
   font: 'Nunito Sans';
   font-size: 14px;
 }
