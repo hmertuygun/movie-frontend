@@ -33,6 +33,12 @@ const AccordionHeader = (props) => {
       }
     }, [ref])
   }
+
+  const onRefreshBtn = () => {
+    refreshData()
+    onRefreshBtnClicked('position')
+  }
+
   const pollingProp = {
     url: "https://jsonplaceholder.typicode.com/todos"
   }
@@ -183,13 +189,10 @@ const AccordionHeader = (props) => {
               {disablePositionRefreshBtn && <Tooltip id="position" />}
               <button
                 type="button"
-                data-for="portfolio"
+                data-for="position"
                 data-tip={`You can only use this button every ${positionTimeInterval / 1000} seconds`}
-                className={`ml-2 btn btn-sm btn-neutral btn-icon btn-neutral-disable ${disablePositionRefreshBtn ? 'disabled' : ''}`}
-                onClick={() => disablePositionRefreshBtn ? null : () => {
-                  refreshData()
-                  onRefreshBtnClicked('position')
-                }}
+                className={`ml-2 btn btn-sm btn-neutral btn-icon ${disablePositionRefreshBtn ? 'disabled' : ''}`}
+                onClick={() => disablePositionRefreshBtn ? null : onRefreshBtn()}
               >
                 <span className="btn-inner--text">Refresh</span>
                 <span className="btn-inner--icon">
