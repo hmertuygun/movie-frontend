@@ -384,77 +384,75 @@ const BuyMarketForm = () => {
             />
           )}
       </div>
-      <section>
-        <form onSubmit={handleSubmit}>
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Price"
-              type="number"
-              name="price"
-              placeholder="Market"
-              disabled
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+      <form onSubmit={handleSubmit}>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Price"
+            type="number"
+            name="price"
+            placeholder="Market"
+            disabled
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+        </div>
+
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Amount"
+            type="text"
+            name="quantity"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, quantityPrecision)}
+            value={values.quantity}
+            placeholder="Amount"
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+          {renderInputValidationError('quantity')}
+        </div>
+
+        <div className={styles['SliderRow']}>
+          <div className={styles['SliderSlider']}>
+            <Slider
+              defaultValue={0}
+              step={1}
+              marks={marks}
+              min={0}
+              max={100}
+              onChange={handleSlider}
+              value={values.quantityPercentage}
+              disabled={isLoadingLastPrice}
             />
           </div>
 
-          <div className={styles['Input']}>
+          <div className={styles['SliderInput']}>
             <InlineInput
-              label="Amount"
+              value={values.quantityPercentage}
+              margin="dense"
+              onChange={handleSliderInputChange}
+              postLabel={'%'}
+              name="quantityPercentage"
+              small
               type="text"
-              name="quantity"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, quantityPrecision)}
-              value={values.quantity}
-              placeholder="Amount"
-              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
             />
-            {renderInputValidationError('quantity')}
           </div>
-
-          <div className={styles['SliderRow']}>
-            <div className={styles['SliderSlider']}>
-              <Slider
-                defaultValue={0}
-                step={1}
-                marks={marks}
-                min={0}
-                max={100}
-                onChange={handleSlider}
-                value={values.quantityPercentage}
-                disabled={isLoadingLastPrice}
-              />
-            </div>
-
-            <div className={styles['SliderInput']}>
-              <InlineInput
-                value={values.quantityPercentage}
-                margin="dense"
-                onChange={handleSliderInputChange}
-                postLabel={'%'}
-                name="quantityPercentage"
-                small
-                type="text"
-              />
-            </div>
-          </div>
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Total"
-              type="text"
-              name="total"
-              value={values.total}
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, totalPrecision)}
-              placeholder=""
-              postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
-            />
-            {renderInputValidationError('total')}
-          </div>
-          <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-            <span>Buy {selectedSymbolDetail['base_asset']}</span>
-          </Button>
-        </form>
-      </section>
+        </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Total"
+            type="text"
+            name="total"
+            value={values.total}
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, totalPrecision)}
+            placeholder=""
+            postLabel={isLoading ? '' : selectedSymbolDetail['quote_asset']}
+          />
+          {renderInputValidationError('total')}
+        </div>
+        <Button type="submit" variant="buy" disabled={isBtnDisabled}>
+          <span>Buy {selectedSymbolDetail['base_asset']}</span>
+        </Button>
+      </form>
     </Fragment>
   )
 }

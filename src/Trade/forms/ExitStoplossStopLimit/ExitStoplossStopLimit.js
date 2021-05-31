@@ -38,6 +38,7 @@ const useStyles = makeStyles({
   input: {
     width: 45,
     textAlign: 'right',
+    color: 'var(--input-default-color)',
   },
 })
 
@@ -431,7 +432,7 @@ const ExitStoplossStopLimit = () => {
   )
 
   return (
-    <section style={{ marginTop: '2rem' }}>
+    <div style={{ marginTop: '2rem' }}>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
           <div className={styles['InputDropdownContainer']}>
@@ -525,6 +526,7 @@ const ExitStoplossStopLimit = () => {
                 onChange={handleQPInputChange}
                 name="quantityPercentage"
                 postLabel={'%'}
+                type="text"
               />
             </Grid>
           </Grid>
@@ -541,7 +543,7 @@ const ExitStoplossStopLimit = () => {
           Add Stop-loss
         </Button>
       </form>
-    </section>
+    </div>
   )
 }
 

@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useEffect,
   useState,
   useContext,
@@ -14,6 +13,7 @@ import {
   getBalance,
   getLastPrice,
   getUserExchanges,
+  getAllChartData,
   updateLastSelectedAPIKey,
   get24hrTickerPrice,
   getLastSelectedMarketSymbol,
@@ -21,9 +21,7 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
-import { useQuery } from 'react-query'
 import ccxt from 'ccxt'
-
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -38,8 +36,13 @@ const SymbolContextProvider = ({ children }) => {
     lastSelectedSymbol,
     loadApiKeys
   } = useContext(UserContext)
-  const INITIAL_SYMBOL_LOAD_SLASH = 'BTC/USDT'
-  const INITIAL_SYMBOL_LOAD_DASH = 'BTC-USDT'
+  const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
+  const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
+  const DEFAULT_EXCHANGE = 'BINANCE'
+  const [disableOrderHistoryRefreshBtn, setDisableOrderHistoryRefreshBtn] = useState(false)
+  const [disableOpenOrdersRefreshBtn, setDisableOpenOrdesrRefreshBtn] = useState(false)
+  const [disablePortfolioRefreshBtn, setDisablePortfolioRefreshBtn] = useState(false)
+  const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] = useState(false)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -59,24 +62,22 @@ const SymbolContextProvider = ({ children }) => {
   const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
+  const [baseAsset, setBaseAsset] = useState('')
+  const [qouteAsset, setQuoteAsset] = useState('')
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
+  const [chartData, setChartData] = useState(null)
+  const orderHistoryTimeInterval = 10000
+  const openOrdersTimeInterval = 5000
+  const portfolioTimeInterval = 20000
+  const positionTimeInterval = 20000
+  let disableBtnInterval = null
 
-  const setSymbolFromExchangeOnLoad = async (symbolDetails) => {
-    if (!activeExchange?.exchange) return
-    const { exchange } = activeExchange
-    const getLSS = await getLastSelectedMarketSymbol()
-    const [exchangeAPI, symbolAPI] = getLSS?.lastSelectedSymbol.split(":")
-    const getExchangeFromLS = exchangeAPI || localStorage.getItem('selectedExchange') || exchange
-    const getSymbolFromLS = symbolAPI || localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
-    const symbolVal = `${getExchangeFromLS.toUpperCase()}:${getSymbolFromLS}`
-    setExchangeType(getExchangeFromLS)
-    setSymbolType(getSymbolFromLS)
-    setSelectedSymbol({ label: getSymbolFromLS.replace('/', '-'), value: symbolVal })
-    setSelectedSymbolDetail(symbolDetails[symbolVal])
-  }
+  useEffect(() => {
+    checkDisableBtnStatus()
+  }, [])
 
   useEffect(() => {
     const { exchange } = activeExchange
@@ -242,29 +243,141 @@ const SymbolContextProvider = ({ children }) => {
     }
   }, [socketLiveUpdate, activeExchange])
 
-  async function loadBalance(quote_asset, base_asset) {
+  useEffect(() => {
+    let { exchange } = activeExchange
+    if (!exchange || !selectedSymbol?.label || !Object.keys(symbolDetails).length) return
+    localStorage.setItem('selectedExchange', exchange)
+    exchange = exchange.toUpperCase()
+    setOpenOrdersUC(null)
+    const key = `${exchange}:${selectedSymbol.label.replace('-', '/')}`
+    const details = symbolDetails[key]
+    if (details) {
+      setSymbol({ label: selectedSymbol.label, value: key })
+      setSelectedSymbolDetail(details)
+    }
+    else {
+      const val = `${exchange}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
+      setSelectedSymbolDetail(symbolDetails[val])
+    }
+  }, [activeExchange])
+
+  useEffect(() => {
+    if (!selectedSymbol || !Object.keys(symbolDetails).length) return
+    setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
+    const [baseAsset, qouteAsset] = selectedSymbol.label.split("-")
+    //loadBalance(qouteAsset, baseAsset)
+    loadLastPrice(selectedSymbol.label.replace('-', '/'))
+  }, [selectedSymbol])
+
+  useEffect(() => {
+    if (!symbolType || !activeExchange?.exchange) return
+    const [baseAsset, qouteAsset] = symbolType.split('/')
+    setBaseAsset(baseAsset)
+    setQuoteAsset(qouteAsset)
+    loadBalance(qouteAsset, baseAsset)
+  }, [activeExchange.exchange, symbolType])
+
+  useEffect(() => {
+    setExchangesFromTotalExchanges()
+  }, [totalExchanges])
+
+  // On mounted, make sure userData has been filled to avoid any FB token errors
+  useEffect(() => {
+    if (!userData) return
+    getChartDataOnInit()
+
+  }, [userData])
+
+  const checkDisableBtnStatus = () => {
+    disableBtnInterval = setInterval(() => {
+      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
+      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
+      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
+      const positionLS = localStorage.getItem('positionRefreshBtn')
+
+      if (orderHistoryLS && (Date.now() - orderHistoryLS < orderHistoryTimeInterval)) setDisableOrderHistoryRefreshBtn(true)
+      else setDisableOrderHistoryRefreshBtn(false)
+
+      if (openOrdersLS && (Date.now() - openOrdersLS < openOrdersTimeInterval)) setDisableOpenOrdesrRefreshBtn(true)
+      else setDisableOpenOrdesrRefreshBtn(false)
+
+      if (portfolioLS && (Date.now() - portfolioLS < portfolioTimeInterval)) setDisablePortfolioRefreshBtn(true)
+      else setDisablePortfolioRefreshBtn(false)
+
+      if (positionLS && (Date.now() - positionLS < positionTimeInterval)) setDisablePositionRefreshBtn(true)
+      else setDisablePositionRefreshBtn(false)
+
+    }, 1000)
+  }
+
+  const onRefreshBtnClicked = (type) => {
+    const dateNow = Date.now()
+    if (type === "order-history") {
+      setDisableOrderHistoryRefreshBtn(true)
+      localStorage.setItem('orderHistoryRefreshBtn', dateNow)
+    }
+    else if (type === "open-order") {
+      setDisableOpenOrdesrRefreshBtn(true)
+      localStorage.setItem('openOrdersRefreshBtn', dateNow)
+    }
+    else if (type === "portfolio") {
+      setDisablePortfolioRefreshBtn(true)
+      localStorage.setItem('portfolioRefreshBtn', dateNow)
+    }
+    else if (type === "position") {
+      setDisablePositionRefreshBtn(true)
+      localStorage.setItem('positionRefreshBtn', dateNow)
+    }
+  }
+
+  const getChartDataOnInit = async () => {
+    // get chart data, like last selected symbols, fav chart intervals & drawings
+    // get market symbols
     try {
-      if (!activeExchange?.exchange) return
+      const { data } = await getAllChartData()
+      let { drawings, intervals, watchlist, lastSelectedSymbol } = data
+      drawings = drawings && drawings[userData?.email]
+      lastSelectedSymbol = lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      intervals = intervals || []
+      setChartData({ drawings, lastSelectedSymbol, intervals })
+      let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
+      exchangeVal = exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+      localStorage.setItem('selectedExchange', exchangeVal)
+      localStorage.setItem('selectedSymbol', symbolVal)
+      const [baseAsset, qouteAsset] = symbolVal.split('/')
+      setSelectedSymbolDetail({ base_asset: baseAsset, quote_asset: qouteAsset }) // to show balance in trade panel quickly
+      setSymbolType(symbolVal)
+      setExchangeType(exchangeVal.toLowerCase())
+      loadExchanges(symbolVal, exchangeVal)
+      setSelectedSymbol({ label: symbolVal.replace('/', '-'), value: `${exchangeVal}:${symbolType}` })
+      loadLastPrice(symbolVal, exchangeVal)
+    }
+    catch (e) {
+      console.error(e)
+    }
+    finally {
+    }
+  }
+
+  const loadBalance = async (quote_asset, base_asset) => {
+    try {
+      // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
+      const getSymbolFromLS = localStorage.getItem('selectedSymbol')
+      if (!activeExchange?.exchange || !quote_asset || !base_asset && (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS)) return
       setIsLoadingBalance(true)
-      const response = await Promise.all([
-        await getBalance({
-          symbol: quote_asset,
-          ...activeExchange,
-        }),
-        await getBalance({
-          symbol: base_asset,
-          ...activeExchange,
-        }),
-      ])
-      if ('balance' in response[0].data && 'balance' in response[1].data) {
-        setSelectedSymbolBalance(response[0].data['balance'])
-        setSelectedBaseSymbolBalance(response[1].data['balance'])
-      } else {
-        console.log('no balance found for ' + quote_asset)
-        setSelectedSymbolBalance(0)
-        setSelectedBaseSymbolBalance(0)
-      }
+
+      const quoteBalance = await getBalance({ symbol: quote_asset, ...activeExchange })
+      if (quoteBalance?.data?.balance) setSelectedSymbolBalance(quoteBalance.data.balance)
+      else setSelectedSymbolBalance(0)
+
+      const baseBalance = await getBalance({ symbol: base_asset, ...activeExchange })
+      if (baseBalance?.data?.balance) setSelectedBaseSymbolBalance(baseBalance.data.balance)
+      else setSelectedBaseSymbolBalance(0)
+
     } catch (err) {
+      console.error(err)
       setSelectedSymbolBalance(0)
       setSelectedBaseSymbolBalance(0)
     } finally {
@@ -272,34 +385,26 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  async function loadLastPrice(symbolpair) {
+  const loadLastPrice = async (symbolpair, exchangeParam) => {
     try {
-      if (!activeExchange?.exchange) return
       setIsLoadingLastPrice(true)
-      const { exchange } = activeExchange
-      const response = await backOff(() => getLastPrice(symbolpair, exchange))
-      if (
-        'last_price' in response.data &&
-        response.data['last_price'] !== 'NA'
-      ) {
-        console.log('setting last price for ' + symbolpair)
-        setSelectedSymbolLastPrice(response.data['last_price'])
-      } else {
-        console.log('no last price found for ' + symbolpair)
-        setSelectedSymbolLastPrice(0)
-      }
-    } catch (Exception) {
+      const response = await backOff(() => getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange))
+      if (response?.data?.last_price !== 'NA') setSelectedSymbolLastPrice(response.data.last_price)
+      else setSelectedSymbolLastPrice(0)
+    } catch (err) {
+      console.error(err)
       setSelectedSymbolLastPrice(0)
     } finally {
       setIsLoadingLastPrice(false)
     }
   }
 
-  async function setSymbol(symbol) {
+  const setSymbol = async (symbol) => {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
+    const symbolT = symbol.label.replace('-', '/')
+    localStorage.setItem('selectedSymbol', symbolT)
+    setSymbolType(symbolT)
     setSelectedSymbol(symbol)
-    localStorage.setItem('selectedSymbol', symbol.label.replace('-', '/'))
-    setSymbolType(symbol.label.replace('-', '/'))
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
     }
@@ -308,7 +413,7 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  async function setExchange(exchange) {
+  const setExchange = async (exchange) => {
     try {
       // if user selects the selected option again in the dropdown
       if (
@@ -329,92 +434,22 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  // const queryExchanges = useQuery('exchangeSymbols', getExchanges, {
-  //   refetchOnWindowFocus: false,
-  // })
-
-  const loadExchanges = async () => {
+  const loadExchanges = async (symbol, exchange) => {
     try {
-      if (!userData) return
+      //if (!userData) return
       setIsLoadingExchanges(true)
-      const data = await getExchanges() //queryExchanges.data
-      const symbolList = []
-      const ftxList = []
-      const binanceList = []
-      const symbolDetails = {}
-      const pn = performance.now()
-      const getSymbolFromLS = localStorage.getItem('selectedSymbol') || INITIAL_SYMBOL_LOAD_SLASH
-      const [baseAsset, qouteAsset] = getSymbolFromLS.split('/')
-      loadBalance(qouteAsset, baseAsset)
-      loadLastPrice(getSymbolFromLS.replace('/', ''))
-      setExchangesFromTotalExchanges()
-      // Process symbols
-      if (data['exchanges']) {
-        data['exchanges'].forEach((exchange) => {
-          // exchangeList.push(exchange['exchange'])
-          exchange['symbols'].forEach((symbol) => {
-            const value = exchange['exchange'].toUpperCase() + ':' + symbol['value']
-            symbolList.push({
-              label: symbol['label'],
-              value: value,
-            })
-            if (exchange['exchange'] === "binance") {
-              binanceList.push({
-                label: symbol['label'],
-                value: value,
-              })
-            }
-            else if (exchange['exchange'] === "ftx") {
-              ftxList.push({
-                label: symbol['label'],
-                value: value,
-              })
-            }
-            let tickSize = symbol['tickSize']
-            for (let i = 1; i < 10; i++) {
-              tickSize = tickSize * 10
-              if (tickSize === 1) {
-                tickSize = i
-                break
-              }
-            }
-
-            let lotSize = symbol['stepSize']
-            for (let i = 1; i < 10; i++) {
-              lotSize = lotSize * 10
-              if (lotSize === 1) {
-                lotSize = i
-                break
-              }
-            }
-            symbolDetails[value] = {
-              // BTCUSD
-              symbolpair: symbol['value'],
-              base_asset: symbol['base_asset'],
-              quote_asset: symbol['quote_asset'],
-              base_asset_precision: symbol['base_asset_precision'], // BTC
-              quote_asset_precision: symbol['quote_asset_precision'], // USD
-              maxPrice: symbol['maxPrice'],
-              maxQty: symbol['maxQty'],
-              minNotional: symbol['minNotional'],
-              minPrice: symbol['minPrice'],
-              minQty: symbol['minQty'],
-              originalTickSize: symbol['tickSize'],
-              tickSize: tickSize,
-              lotSize: lotSize,
-            }
-          })
-        })
-        setSymbols(symbolList)
-        setSymbolDetails(symbolDetails)
-        setFtxDD(ftxList)
-        setBinanceDD(binanceList)
-        setSymbolFromExchangeOnLoad(symbolDetails)
-        console.log(`Took ${parseFloat(performance.now() - pn).toFixed(2)} seconds to parse symbols`)
-      } else {
-        setExchanges([])
-        setSymbols([])
+      const data = await getExchanges()
+      if (!data?.exchanges?.length || !data?.symbolsChange) {
+        return
       }
+      const [binance, ftx] = data.exchanges
+      setSymbols(() => [...binance.symbols, ...ftx.symbols])
+      setSymbolDetails(data.symbolsChange)
+      localStorage.setItem('symbolsKeyValue', JSON.stringify(data.symbolsChange))
+      setBinanceDD(() => binance.symbols)
+      setFtxDD(() => ftx.symbols)
+      const val = `${exchange.toUpperCase()}:${symbol}`
+      setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
       console.error(error)
     }
@@ -423,7 +458,9 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const refreshBalance = () => {
+  const refreshBalance = async () => {
+    setIsLoadingBalance(true)
+    await new Promise(resolve => setTimeout(resolve, 1500))
     if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
         selectedSymbolDetail.quote_asset,
@@ -431,59 +468,6 @@ const SymbolContextProvider = ({ children }) => {
       )
     }
   }
-
-  useEffect(() => {
-    const { exchange } = activeExchange
-    if (!exchange || !selectedSymbolDetail?.base_asset) return
-    setOpenOrdersUC(null)
-    const symbolLabel = `${selectedSymbolDetail.base_asset}-${selectedSymbolDetail.quote_asset}`
-    switch (exchange) {
-      case 'binance': {
-        const symbolValue = `BINANCE:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
-        const details = symbolDetails[symbolValue]
-        localStorage.setItem('selectedExchange', 'binance')
-        if (details) {
-          setSymbol({ label: symbolLabel, value: symbolValue })
-          setSelectedSymbolDetail(details)
-        } else {
-          setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}` })
-          setSelectedSymbolDetail(symbolDetails[`BINANCE:${INITIAL_SYMBOL_LOAD_SLASH}`])
-        }
-        break
-      }
-      case 'ftx': {
-        const symbolValue = `FTX:${selectedSymbolDetail.base_asset}/${selectedSymbolDetail.quote_asset}`
-        const details = symbolDetails[symbolValue]
-        if (details) {
-          setSymbol({ label: symbolLabel, value: symbolValue })
-          setSelectedSymbolDetail(details)
-        } else {
-          setSymbol({ label: INITIAL_SYMBOL_LOAD_DASH, value: `FTX:${INITIAL_SYMBOL_LOAD_SLASH}` })
-          setSelectedSymbolDetail(symbolDetails[`FTX:${INITIAL_SYMBOL_LOAD_SLASH}`])
-        }
-        break
-      }
-      default:
-        break
-    }
-  }, [activeExchange])
-
-  useEffect(() => {
-    if (!selectedSymbol) return
-    setSelectedSymbolDetail(symbolDetails[selectedSymbol['value']])
-    setSelectedSymbolBalance('')
-    if (selectedSymbol['value'] in symbolDetails) {
-      loadBalance(
-        symbolDetails[selectedSymbol['value']]['quote_asset'],
-        symbolDetails[selectedSymbol['value']]['base_asset']
-      )
-      loadLastPrice(symbolDetails[selectedSymbol['value']]['symbolpair'])
-    }
-  }, [selectedSymbol])
-
-  useEffect(() => {
-    loadExchanges()
-  }, [activeExchange.exchange])
 
   const setExchangesFromTotalExchanges = () => {
     if (!totalExchanges || !totalExchanges.length) return
@@ -517,6 +501,15 @@ const SymbolContextProvider = ({ children }) => {
       value={{
         isLoading: !selectedSymbolDetail || isLoadingExchanges,
         exchanges,
+        disableOrderHistoryRefreshBtn,
+        disableOpenOrdersRefreshBtn,
+        disablePortfolioRefreshBtn,
+        disablePositionRefreshBtn,
+        orderHistoryTimeInterval,
+        openOrdersTimeInterval,
+        positionTimeInterval,
+        portfolioTimeInterval,
+        onRefreshBtnClicked,
         refreshExchanges,
         setExchange,
         symbols,
@@ -543,6 +536,7 @@ const SymbolContextProvider = ({ children }) => {
         ftxDD,
         watchListOpen,
         setWatchListOpen,
+        chartData
       }}
     >
       {children}

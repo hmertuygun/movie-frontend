@@ -10,3 +10,7 @@
   border: none;
   background-color: #e2e2e2 !important;
 }
+
+.dark .disabled-page-link {
+  background-color: #929292 !important
+}

@@ -1,14 +1,4 @@
 .Button {
-  --button-primary-background: #008aff;
-  --button-primary-color: #fff;
-  --button-primary-background-hover: #0075d9;
-  --button-defualt-border-color: #c1c9d4;
-  --button-default-color: #273444;
-  --button-default-background: transparent;
-  --button-default-disabled: #a4a6a8;
-}
-
-.Button {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -142,22 +132,6 @@
   background: #2b2f36;
   color: rgb(146, 154, 165);
   border: 2px solid transparent;
-}
-
-.Button-confirm {
-  composes: Button;
-  cursor: pointer;
-  background: var(--trade-confirm-background);
-  color: var(--dark);
-  font-weight: bold;
-  line-height: 20px;
-  height: 40px;
-}
-
-.Button-confirm:hover {
-  cursor: pointer;
-  background: var(--trade-confirm-background);
-  color: var(--dark);
 }
 
 .Button-cancel {

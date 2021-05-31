@@ -4,6 +4,7 @@ import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
 import { matchSorter } from 'match-sorter'
+import { useMediaQuery } from 'react-responsive'
 
 const SymbolSelect = () => {
   const {
@@ -15,28 +16,36 @@ const SymbolSelect = () => {
     selectedExchange,
     isLoading,
     isLoadingBalance,
+    binanceDD,
+    ftxDD,
   } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
   const [options, setOptions] = useState([])
   const [initialOptions, setInitialOptions] = useState([])
 
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       boxShadow: 'none',
-      border: '4px solid #F5F5F5',
-      borderLeft: 0,
-      borderTop: 0,
-      borderBottom: 0,
+      border: '4px solid var(--trade-borders)',
+      backgroundColor: 'var(--trade-background)',
+      borderLeft: !isMobile ? 0 : '',
       borderRadius: 0,
-      height: '48px',
-      minHeight: '48px',
-      color: '#718096',
+      height: '56px',
+      minHeight: '56px',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
       },
+    }),
+
+    input: (styles) => ({
+      ...styles,
+      color: 'var(--grey)',
     }),
 
     valueContainer: (styles) => ({
@@ -48,13 +57,15 @@ const SymbolSelect = () => {
     singleValue: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
-      color: '#718096',
+      color: 'var(--grey)',
     }),
 
     option: (styles) => ({
       ...styles,
       textTransform: 'capitalize',
       padding: '5px 5px',
+      backgroundColor: 'var(--trade-background)',
+      color: 'var(--grey)',
 
       '&:hover': {
         cursor: 'pointer',
@@ -73,13 +84,16 @@ const SymbolSelect = () => {
   }
 
   useEffect(() => {
-    const { exchange } = activeExchange
-    const selected = symbols.filter((symbol) =>
-      symbol.value.toLowerCase().includes(exchange.toLowerCase())
-    )
+    if (!activeExchange?.exchange) return
+    let { exchange } = activeExchange
+    // const selected = symbols.filter((symbol) =>
+    //   symbol.value.toLowerCase().includes(exchange.toLowerCase())
+    // )
+    exchange = exchange.toLowerCase()
+    const selected = exchange === "binance" ? binanceDD : exchange === "ftx" ? ftxDD : null
     setInitialOptions(selected)
     setOptions(selected)
-  }, [symbols, activeExchange.exchange])
+  }, [binanceDD, ftxDD, activeExchange.exchange])
 
   return (
     <div className={styles['SymbolSelect-Container']}>

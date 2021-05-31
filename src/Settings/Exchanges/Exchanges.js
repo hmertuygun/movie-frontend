@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
+import { ThemeContext } from '../../contexts/ThemeContext'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
@@ -22,6 +23,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const Exchanges = () => {
   const { refreshExchanges } = useSymbolContext()
+  const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges, activeExchange, setActiveExchange } = useContext(UserContext)
@@ -173,7 +175,7 @@ const Exchanges = () => {
             href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
             target="_blank"
             rel="noreferrer"
-            style={{ color: '#718096' }}
+            style={{ color: theme === 'LIGHT' ? '#718096' : '#c0ccda'}}
           >
             <ExternalLink size={16} className="mr-1" />
             <label

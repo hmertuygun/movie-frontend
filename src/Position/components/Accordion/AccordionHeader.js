@@ -5,6 +5,7 @@ import { Offline, Online } from 'react-detect-offline'
 
 import Tooltip from '../../../components/Tooltip'
 import { PositionContext } from '../../context/PositionContext'
+import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
@@ -12,7 +13,7 @@ const AccordionHeader = (props) => {
 
   const { requestSort, liveUpdate } = props
   const { positions, isLoading, refreshData } = useContext(PositionContext)
-
+  const { onRefreshBtnClicked, disablePositionRefreshBtn, positionTimeInterval } = useSymbolContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const ToggleMenu = () => {
@@ -32,6 +33,12 @@ const AccordionHeader = (props) => {
       }
     }, [ref])
   }
+
+  const onRefreshBtn = () => {
+    refreshData()
+    onRefreshBtnClicked('position')
+  }
+
   const pollingProp = {
     url: "https://jsonplaceholder.typicode.com/todos"
   }
@@ -178,16 +185,21 @@ const AccordionHeader = (props) => {
               ></span>
             </button>
           ) : (
-            <button
-              type="button"
-              className="ml-2 btn btn-sm btn-neutral btn-icon"
-              onClick={refreshData}
-            >
-              <span className="btn-inner--text">Refresh</span>
-              <span className="btn-inner--icon">
-                <FontAwesomeIcon icon={faSync} />
-              </span>
-            </button>
+            <>
+              {disablePositionRefreshBtn && <Tooltip id="position" />}
+              <button
+                type="button"
+                data-for="position"
+                data-tip={`You can only use this button every ${positionTimeInterval / 1000} seconds`}
+                className={`ml-2 btn btn-sm btn-neutral btn-icon ${disablePositionRefreshBtn ? 'disabled' : ''}`}
+                onClick={() => disablePositionRefreshBtn ? null : onRefreshBtn()}
+              >
+                <span className="btn-inner--text">Refresh</span>
+                <span className="btn-inner--icon">
+                  <FontAwesomeIcon icon={faSync} />
+                </span>
+              </button>
+            </>
           )}
         </div>
       </div>

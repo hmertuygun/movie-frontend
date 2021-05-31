@@ -1,5 +1,5 @@
 .TradeModal-Container {
-  background: var(--trade-modal-background);
+  background: var(--trade-background);
   padding: 15px;
   width: max-content;
   min-width: 390px;
@@ -48,7 +48,7 @@
 
 .TradeModal-Main-Table td {
   padding: 5px 15px;
-  color: #666666;
+  color: var(--trade-text-color);
   white-space: nowrap;
 }
 
@@ -77,7 +77,7 @@
     flex-direction: row;
     justify-content: space-between;
   }
-  .TradeModal-Footer * {
+  .TradeModal-Footer button {
     width: 175px;
   }
 }

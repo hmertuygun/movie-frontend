@@ -1,7 +1,10 @@
 .marketDataContainer {
-  height: 48px;
+  height: 56px;
   display: flex;
   align-items: center;
+  border-top: 4px solid var(--trade-borders);
+  border-bottom: 4px solid var(--trade-borders);
+  padding-left: 14px;
 }
 .marketData {
   display: flex;
@@ -16,13 +19,13 @@
 }
 .marketDataLastPrice {
   font-size: 16px;
-  color: black;
+  color: var(--dark-color);
   line-height: 20px;
 }
 .marketDataWorth {
   font-size: 12px;
   line-height: 15px;
-  color: black;
+  color: rgb(132, 142, 156);
 }
 .marketDataBlock {
   display: inline-block;
@@ -36,9 +39,24 @@
   margin-bottom: 2px;
 }
 .marketDataBlockValue {
-  color: black;
+  color: var(--dark-color);
   font-size: 12px;
   line-height: 15px;
+}
+
+
+@media (max-width: 1230px) {
+  .marketDataContainer {
+    height: 52px;
+    border-top: none;
+    border-right: 4px solid var(--trade-borders);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .marketDataContainer {
+    border-left: 4px solid var(--trade-borders);
+  }
 }
 
 @media (max-width: 575.98px) {

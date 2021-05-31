@@ -1,28 +1,36 @@
-import React, { useEffect, useContext, useState } from 'react'
+import React, { useEffect, useContext, useState, lazy, Suspense } from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { firebase } from '../firebase/firebase'
-import WatchListPanel from './WatchListPanel'
-import TradePanel from './TradePanel'
-import TradeChart from './TradeChart'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
-import SymbolSelect from './components/SymbolSelect/SymbolSelect'
+import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import MarketStatistics from './components/MarketStatistics'
 import { getNotices, dismissNotice } from '../api/api'
 import {
   successNotification,
   errorNotification,
 } from '../components/Notifications'
-import TradeOrders from './components/TradeOrders/TradeOrders'
 import './TradeContainer.css'
-import { useSymbolContext } from './context/SymbolContext'
 import Logo from '../components/Header/Logo/Logo'
+import ErrorBoundary from '../components/ErrorBoundary'
+
+// import WatchListPanel from './WatchListPanel'
+// import TradePanel from './TradePanel'
+// import TradeChart from './TradeChart'
+// import TradeOrders from './components/TradeOrders/TradeOrders'
+// import MarketStatistics from './components/MarketStatistics'
+// import SymbolSelect from './components/SymbolSelect/SymbolSelect'
+
+const WatchListPanel = lazy(() => import('./WatchListPanel'))
+const TradePanel = lazy(() => import('./TradePanel'))
+const TradeChart = lazy(() => import('./TradeChart'))
+const TradeOrders = lazy(() => import('./components/TradeOrders/TradeOrders'))
+const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
+const SymbolSelect = lazy(() => import('./components/SymbolSelect/SymbolSelect'))
 
 const db = firebase.firestore()
-
 const registerResizeObserver = (cb, elem) => {
   const resizeObserver = new ResizeObserver(cb)
   resizeObserver.observe(elem)
@@ -141,21 +149,30 @@ const TradeContainer = () => {
                 <Logo />
               </div>
               <section className="WatchList-Panel">
-                <WatchListPanel />
+                <ErrorBoundary componentName="WatchListPanel">
+                  <Suspense fallback={<div></div>}>
+                    <WatchListPanel />
+                  </Suspense>
+                </ErrorBoundary>
               </section>
             </div>
           ) : (
             <section className="TradeView-Panel">
-              <Route path="/trade/" component={TradePanel} />
+              <ErrorBoundary componentName="TradePanel">
+                <Suspense fallback={<div></div>}>
+                  <Route path="/trade/" component={TradePanel} />
+                </Suspense>
+              </ErrorBoundary>
             </section>
           )}
           <section
             className="TradeChart-Container"
             style={{ display: 'unset' }}
           >
-            <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
+            <div className={`${notices.length ? 'alert-messages' : ''}`} style={{ margin: '0' }}>
               {notices.map((item, index) => (
                 <div
+                  style={{ padding: '10px' }}
                   className={`text-center my-1 alert alert-${item.noticeType || 'primary'
                     }`}
                   key={`notice-${index}`}
@@ -184,8 +201,17 @@ const TradeContainer = () => {
             </div>
             {!watchListOpen && (
               <section className="TradeView-Symbol">
-                <SymbolSelect />
-                <MarketStatistics />
+                <ErrorBoundary componentName="SymbolSelect">
+                  <Suspense fallback={<div></div>}>
+                    <SymbolSelect />
+                  </Suspense>
+                </ErrorBoundary>
+
+                <ErrorBoundary componentName="MarketStatistics">
+                  <Suspense fallback={<div></div>}>
+                    <MarketStatistics />
+                  </Suspense>
+                </ErrorBoundary>
               </section>
             )}
             <section
@@ -197,21 +223,33 @@ const TradeContainer = () => {
                 paddingBottom: '10px',
               }}
             >
-              <TradeChart />
+              <ErrorBoundary componentName="TradeChart">
+                <Suspense fallback={<div></div>}>
+                  <TradeChart />
+                </Suspense>
+              </ErrorBoundary>
             </section>
 
             <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen ? "none" : "" }}>
-              <TradeOrders />
+              <ErrorBoundary componentName="TradeOrders">
+                <Suspense fallback={<div></div>}>
+                  <TradeOrders />
+                </Suspense>
+              </ErrorBoundary>
             </section>
 
           </section>
         </>
       ) : isTradePanelOpen ? (
-        <section className="TradeView-Panel TradeView-Panel-Mobile">
-          <Route path="/trade/" component={TradePanel} />
-        </section>
+        <div className="TradeView-Panel TradeView-Panel-Mobile">
+          <ErrorBoundary componentName="TradePanel">
+            <Suspense fallback={<div></div>}>
+              <Route path="/trade/" component={TradePanel} />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       ) : (
-        <section className="TradeChart-Container TradeChart-Container-Mobile">
+        <div className="TradeChart-Container TradeChart-Container-Mobile">
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div
@@ -242,16 +280,33 @@ const TradeContainer = () => {
             ))}
           </div>
           <section className="TradeView-Symbol">
-            <SymbolSelect />
-            <MarketStatistics />
+            <ErrorBoundary componentName="SymbolSelect">
+              <Suspense fallback={<div></div>}>
+                <SymbolSelect />
+              </Suspense>
+            </ErrorBoundary>
+
+            <ErrorBoundary componentName="MarketStatistics">
+              <Suspense fallback={<div></div>}>
+                <MarketStatistics />
+              </Suspense>
+            </ErrorBoundary>
           </section>
           <section className="TradeView-Chart TradeView-Chart-Mobile">
-            <TradeChart />
+            <ErrorBoundary componentName="TradeChart">
+              <Suspense fallback={<div></div>}>
+                <TradeChart />
+              </Suspense>
+            </ErrorBoundary>
           </section>
           <section className="TradeOrders">
-            <TradeOrders />
+            <ErrorBoundary componentName="TradeOrders">
+              <Suspense fallback={<div></div>}>
+                <TradeOrders />
+              </Suspense>
+            </ErrorBoundary>
           </section>
-        </section>
+        </div>
       )}
     </>
   )
