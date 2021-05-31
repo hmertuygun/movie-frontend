@@ -2,13 +2,20 @@ import React, { useContext, useEffect, useState } from 'react'
 import { PortfolioContext } from '../context/PortfolioContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
+
 const EstimateValue = () => {
   const { estimate, marketData } = useContext(PortfolioContext)
   const [estData, setEstData] = useState([])
   const { lastMessage } = useSymbolContext()
+
   useEffect(() => {
     setEstData(estimate)
   }, [estimate])
+
+  // useEffect(() => {
+  //   if (!marketData?.length) return
+  //   fetchLatestPrice()
+  // }, [marketData])
 
   useEffect(() => {
     if (!estData?.length || !lastMessage?.length) return
