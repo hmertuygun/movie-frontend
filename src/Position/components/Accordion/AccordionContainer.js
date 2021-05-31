@@ -223,6 +223,10 @@ const AccordionContainer = () => {
             position cannot be calculated)
           </li>
         </ul>
+        <p>
+          We are working around the clock to improve this. Please bear with us,
+          we are just getting started
+        </p>
       </div>
     </div>
   )
