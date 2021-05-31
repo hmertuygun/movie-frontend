@@ -48,7 +48,6 @@ const BalanceTable = () => {
     }
   }, [balance, setTableData, getTableData])
 
-
   const fetchLatestPrice = () => {
     const tempBalance = balance
     tempBalance.forEach((item, index, arr) => {

@@ -180,12 +180,12 @@ const TradeContainer = () => {
                   <FontAwesomeIcon
                     color="white"
                     icon={`${item.noticeType === 'danger'
-                      ? 'times-circle'
-                      : item.noticeType === 'warning'
-                        ? 'exclamation-triangle'
-                        : item.noticeType === 'info'
-                          ? 'exclamation-circle'
-                          : 'exclamation-circle'
+                        ? 'times-circle'
+                        : item.noticeType === 'warning'
+                          ? 'exclamation-triangle'
+                          : item.noticeType === 'info'
+                            ? 'exclamation-circle'
+                            : 'exclamation-circle'
                       }`}
                   />{' '}
                   {item.message}
@@ -260,12 +260,12 @@ const TradeContainer = () => {
                 <FontAwesomeIcon
                   color="white"
                   icon={`${item.noticeType === 'danger'
-                    ? 'times-circle'
-                    : item.noticeType === 'warning'
-                      ? 'exclamation-triangle'
-                      : item.noticeType === 'info'
-                        ? 'exclamation-circle'
-                        : 'exclamation-circle'
+                      ? 'times-circle'
+                      : item.noticeType === 'warning'
+                        ? 'exclamation-triangle'
+                        : item.noticeType === 'info'
+                          ? 'exclamation-circle'
+                          : 'exclamation-circle'
                     }`}
                 />{' '}
                 {item.message}
