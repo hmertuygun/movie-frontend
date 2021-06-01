@@ -92,6 +92,7 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
+        console.log(event)
         this.saveChartDrawingToServer(event)
       })
     }
@@ -326,12 +327,19 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      // this.props.drawingRendered(true)
       this.chartEvent("study_event")
+      this.chartEvent("onAutoSaveNeeded")
+      // this.chartShortCutSave()
       setTimeout(() => {
         this.props.chartReady(true)
       }, 2500)
     }
+  }
+
+  chartShortCutSave = () => {
+    this.tradingViewWidget.onShortcut("ctrl+s", () => {
+      console.log("shortcut saved")
+    })
   }
 
   changeIframeCSS = () => {
