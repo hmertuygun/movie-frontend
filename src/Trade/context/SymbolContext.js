@@ -276,7 +276,7 @@ const SymbolContextProvider = ({ children }) => {
     setBaseAsset(baseAsset)
     setQuoteAsset(qouteAsset)
     loadBalance(qouteAsset, baseAsset)
-  }, [activeExchange.exchange, symbolType])
+  }, [activeExchange, symbolType])
 
   useEffect(() => {
     setExchangesFromTotalExchanges()

@@ -23,7 +23,7 @@ class ErrorBoundary extends Component {
         <div className='container'>
           <div className='row mt-2'>
             <div className='col-8'>
-              <div className='alert alert-info text-center'>
+              <div className='alert alert-secondary text-center'>
                 Please make sure your internet connection is stable. Then refresh the page.
               </div>
             </div>
