@@ -70,11 +70,17 @@ const WatchListPanel = () => {
       color: 'var(--grey)',
     }),
 
-    option: (styles) => ({
+    option: (styles, { isDisabled, isFocused, isSelected }) => ({
       ...styles,
       textTransform: 'capitalize',
       padding: '5px 5px',
-      backgroundColor: 'var(--trade-background)',
+      backgroundColor: isDisabled
+        ? 'var(--trade-background)'
+        : isSelected
+        ? 'var(--symbol-select-background-selected)'
+        : isFocused
+        ? 'var(--symbol-select-background-focus)'
+        : 'var(--trade-background)',
       color: 'var(--grey)',
 
       '&:hover': {
