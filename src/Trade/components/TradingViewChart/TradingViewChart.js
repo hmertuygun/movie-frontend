@@ -21,6 +21,7 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
+      auto_save_delay: 20,
       timezone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       favorites: {
         intervals: intervals,
@@ -53,7 +54,7 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget.onChartReady(() => {
         this.chartObject = this.tradingViewWidget.activeChart()
         this.initChart()
-        this.chartEvent("drawing_event")
+        // this.chartEvent("drawing_event")
         this.addSniperModeButton()
       })
     }
@@ -93,7 +94,6 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
-        console.log(event)
         this.saveChartDrawingToServer(event)
       })
     }
@@ -328,8 +328,7 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      // this.props.drawingRendered(true)
-      this.chartEvent("study_event")
+      // this.chartEvent("study_event")
       this.chartEvent("onAutoSaveNeeded")
       // this.chartShortCutSave()
       setTimeout(() => {
