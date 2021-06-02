@@ -328,7 +328,6 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      // this.props.drawingRendered(true)
       this.chartEvent("study_event")
       this.chartEvent("onAutoSaveNeeded")
       // this.chartShortCutSave()
