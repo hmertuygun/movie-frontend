@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
-import binanceDataFeed from './binanceDataFeed'
-import ftxDataFeed from './ftxDataFeed'
 import dataFeed from './dataFeed'
-import precisionRound from '../../../helpers/precisionRound'
-import { getChartDrawing, saveChartDrawing, deleteChartDrawing } from '../../../api/api'
+import { saveChartDrawing } from '../../../api/api'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -21,7 +18,7 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      auto_save_delay: 20,
+      auto_save_delay: 10,
       timezone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       favorites: {
         intervals: intervals,

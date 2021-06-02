@@ -7,22 +7,29 @@ export default class socketClient {
     this._createSocket()
   }
 
+  openWS() {
+    this._ws = null
+    this._ws = new WebSocket(this.binanceWS)
+  }
+
   _createSocket() {
     try {
       this._ws = null
       this._ws = new WebSocket(this.binanceWS)
-
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
+        localStorage.setItem("WS", 1)
       }
 
       this._ws.onclose = () => {
         this.isDisconnected = true
+        localStorage.setItem("WS", 0)
         console.warn('Binance WS Closed')
       }
 
       this._ws.onerror = (err) => {
         this.isDisconnected = true
+        localStorage.setItem("WS", 0)
         console.warn('WS Error', err)
       }
 
@@ -46,6 +53,7 @@ export default class socketClient {
             }
             if (Object.keys(this.streams).length) {
               localStorage.setItem('lastSocketData', new Date().getTime())
+              localStorage.setItem("WS", 1)
               this.streams[s].data = lastSocketData
               this.streams[s].listener(lastSocketData)
             }
@@ -59,6 +67,10 @@ export default class socketClient {
     catch (e) {
       console.log(e)
     }
+  }
+
+  checkIfSocketOpen() {
+
   }
 
   subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback, lastDailyBar) {
