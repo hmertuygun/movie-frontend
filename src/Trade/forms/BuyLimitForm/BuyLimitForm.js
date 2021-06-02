@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import { createBasicTrade } from '../../../api/api'
@@ -78,6 +78,15 @@ const BuyLimitForm = () => {
     quantity: '',
     total: '',
   })
+
+  useEffect(() => {
+    if (selectedSymbolDetail?.tickSize) {
+      setValues(prevVal => ({
+        ...prevVal,
+        'price': addPrecisionToNumber(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize'])
+      }))
+    }
+  }, [selectedSymbolLastPrice, selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder
@@ -184,7 +193,7 @@ const BuyLimitForm = () => {
   }
 
   const handleChange = ({ target }) => {
-    if (!allowOnlyNumberDecimalAndComma(target.value)) return
+    if (!allowOnlyNumberDecimalAndComma(target?.value)) return
 
     if (target.name === 'total') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
@@ -427,14 +436,14 @@ const BuyLimitForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
 
       <form onSubmit={handleSubmit}>
