@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import Moment from 'react-moment'
+import { Bell } from 'react-feather'
 
 import { firebase, auth } from '../../firebase/firebase'
-import { Bell } from 'react-feather'
+import { errorNotification } from '../../components/Notifications'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData, plan } = subscriptionData
@@ -10,18 +11,26 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
 
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
-    const functionRef = firebase
-      .app()
-      .functions('europe-west1')
-      .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink')
-    const { data } = await functionRef({ returnUrl: window.location.origin })
+    try {
+      const functionRef = firebase
+        .app()
+        .functions('europe-west1')
+        .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink')
+      const { data } = await functionRef({ returnUrl: window.location.origin })
 
-    if (needPayment) {
-      window.location.assign(data.url + '/payment-methods')
-    } else {
-      window.location.assign(data.url)
+      if (needPayment) {
+        window.location.assign(data.url + '/payment-methods')
+      } else {
+        window.location.assign(data.url)
+      }
+    } catch (error) {
+      errorNotification.open({
+        description: error,
+      })
+      console.log("CustomerPortal Error: ", error)
+    } finally {
+      setPortalLoading(false)
     }
-    setPortalLoading(false)
   }
 
   return (

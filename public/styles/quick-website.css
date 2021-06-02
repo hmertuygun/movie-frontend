@@ -5534,7 +5534,7 @@ input[type='button'].btn-block
 
     display: flex;
 
-    padding: .5rem 1rem; 
+    padding: 6px 16px;
 
     flex-wrap: wrap;
     align-items: center;

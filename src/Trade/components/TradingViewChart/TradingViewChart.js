@@ -10,7 +10,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
+  constructor({ symbol, theme, email, timeZone, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
     this.widgetOptions = {
@@ -21,6 +21,8 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
+      auto_save_delay: 20,
+      timezone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       favorites: {
         intervals: intervals,
       },
@@ -52,7 +54,7 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget.onChartReady(() => {
         this.chartObject = this.tradingViewWidget.activeChart()
         this.initChart()
-        this.chartEvent("drawing_event")
+        // this.chartEvent("drawing_event")
         this.addSniperModeButton()
       })
     }
@@ -144,10 +146,13 @@ export default class TradingViewChart extends Component {
         const isFullTrade = type.includes("Full")
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
-          //const orderColor = side === "Sell" ? red : side === "Buy" ? green : '#000'
+          let entryStatus
+          if (isFullTrade) {
+            entryStatus = orders[0]?.status?.toLowerCase()
+          }
           let orderColor
           if (side === "Sell") {
-            const condition = (symbol.toLowerCase() === "entry" && (status.toLowerCase() === "pending" || status.toLowerCase() === "placed"))
+            const condition = ((entryStatus && entryStatus !== "filled"))
             orderColor = condition ? redOpaque : red
           }
           else if (side === "Buy") {
@@ -164,14 +169,16 @@ export default class TradingViewChart extends Component {
             orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : type
           }
           const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
-          //if ((symbol.toLowerCase() === "entry" && type !== "LIMIT" && status.toLowerCase() === "filled")) continue
           let toolTipText
           let orderPrice
           let orderLineId
           if (isFullTrade) {
             if (symbol.toLowerCase() === "entry") {
-              if (status.toLowerCase() !== "pending") {
+              if (status.toLowerCase() === "placed") {
                 toolTipText = PlacedOrderTooltip
+              }
+              else if (status.toLowerCase() === "filled") {
+                toolTipText = "Entry is filled"
               }
               else {
                 let toolTip = ''
@@ -217,7 +224,7 @@ export default class TradingViewChart extends Component {
           const fIndex = this.orderLinesDrawn.findIndex(item => item.id === orderLineId)
           if (fIndex > -1) { // if order is already drawn
             const { line_id, trade_id, entity } = this.orderLinesDrawn[fIndex]
-            if (status.toLowerCase() === "filled") { // if order is already drawn and the status is 'filled' hide it.
+            if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") { // if order is already drawn and the status is 'filled' hide it.
               this.chartObject.setEntityVisibility(line_id, false)
             }
             else {
@@ -228,7 +235,7 @@ export default class TradingViewChart extends Component {
             }
           }
           else { // if order is not already drawn
-            if (status.toLowerCase() === "filled") continue // if order status is filled , don't draw it
+            if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue // if order status is filled , don't draw it
             let entity = this.chartObject.createOrderLine()
               .setTooltip(toolTipText)
               .setLineLength(60)
@@ -280,15 +287,24 @@ export default class TradingViewChart extends Component {
     await this.tradingViewWidget.headerReady()
     let button = this.tradingViewWidget.createButton()
     button.setAttribute('title', 'Sniper Mode')
-    button.setAttribute('style', 'margin-top: 3px')
     button.addEventListener('click', this.props.sniperBtnClicked)
-    let div = document.createElement('div')
-    div.setAttribute(
-      'style',
-      'background-color: currentColor;height: 20px;width: 20px;margin-top: -3px;-webkit-mask: url(/img/icons/sniper.png) no-repeat center / contain;'
-    )
-    div.setAttribute('width', '20')
-    button.append(div)
+    let img = document.createElement("img")
+    img.setAttribute("src", "/img/icons/sniper.png")
+    img.setAttribute("width", "20")
+    img.setAttribute("style", "margin-right: 6px")
+    let text = document.createElement("div")
+    text.innerText = "Sniper Mode"
+    text.setAttribute("style", "display:flex;align-items:center")
+    text.prepend(img)
+    button.append(text)
+    // let div = document.createElement('div')
+    // div.setAttribute(
+    //   'style',
+    //   'background-color: currentColor;height: 20px;width: 20px;margin-top: -3px;-webkit-mask: url(/img/icons/sniper.png) no-repeat center / contain;'
+    // )
+    // div.innerText = "Sniper Mode"
+    // div.setAttribute('width', '20')
+    // button.append(div)
   }
 
   initChart = () => {
@@ -312,12 +328,19 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      // this.props.drawingRendered(true)
-      this.chartEvent("study_event")
+      // this.chartEvent("study_event")
+      this.chartEvent("onAutoSaveNeeded")
+      // this.chartShortCutSave()
       setTimeout(() => {
         this.props.chartReady(true)
       }, 2500)
     }
+  }
+
+  chartShortCutSave = () => {
+    this.tradingViewWidget.onShortcut("ctrl+s", () => {
+      console.log("shortcut saved")
+    })
   }
 
   changeIframeCSS = () => {

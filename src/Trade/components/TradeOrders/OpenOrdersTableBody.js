@@ -85,8 +85,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 ? '#58AB58'
                 : 'green'
               : theme === 'DARK'
-              ? '#D23D3D'
-              : 'red',
+                ? '#D23D3D'
+                : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -153,7 +153,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
             </td>
             <td style={tdStyle}>
               {order.timestamp === 0 ? null : (
-                <Moment unix format="YYYY-MM-DD hh:mm:ss">
+                <Moment unix format="YYYY-MM-DD hh:mm:ss A">
                   {order.timestamp / 1000}
                 </Moment>
               )}

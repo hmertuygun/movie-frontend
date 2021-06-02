@@ -160,7 +160,7 @@ const OrderHistoryTableBody = ({
                   )}
                 </td>
                 <td>
-                  <Moment unix format="YYYY-MM-DD HH:mm:ss">
+                  <Moment unix format="YYYY-MM-DD hh:mm:ss A">
                     {order.update_time / 1000}
                   </Moment>
                 </td>

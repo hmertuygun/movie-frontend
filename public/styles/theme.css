@@ -14,7 +14,12 @@
   --dark-color: #000000;
   --light-color: var(--white);
 
+  /* Watch List */
   --watch-list-border-color: #f0f3fa;
+
+  /* Symbol Select */
+  --symbol-select-background-selected: #B2D4FF;
+  --symbol-select-background-focus: #f0f3fa;
 
   /* Typography */
   --default-color: var(--light);
@@ -70,7 +75,12 @@
   --dark-color: rgb(191, 199, 209);
   --light-color: rgb(19,23,34);
 
+  /* Watch List */
   --watch-list-border-color: rgb(37, 43, 56);
+
+  /* Symbol Select */
+  --symbol-select-background-selected: #475369;
+  --symbol-select-background-focus: #2e3644;
 
   /* Trade */
   --trade-background: var(--light-color);
