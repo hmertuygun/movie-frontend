@@ -18,6 +18,7 @@ const TradeChart = () => {
   const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
+  const [lsWS] = useLocalStorage('WS')
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
@@ -34,10 +35,17 @@ const TradeChart = () => {
     reconnectWSOnWindowFocus()
   }, [])
 
+  // useEffect(() => {
+  //   if (!count) return
+  //   const savedTime = localStorage.getItem('lastSocketData')
+  //   if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 30000) {
+  //     setReRender(new Date().getTime())
+  //   }
+  // }, [docVisibility])
+
   useEffect(() => {
     if (!count) return
-    const savedTime = localStorage.getItem('lastSocketData')
-    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 30000) {
+    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && localStorage.getItem("WS") === "0") {
       setReRender(new Date().getTime())
     }
   }, [docVisibility])

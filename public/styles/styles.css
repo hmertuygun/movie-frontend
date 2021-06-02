@@ -110,7 +110,7 @@ hr {
   margin-left: -4px;
   width: 8px;
   height: 8px;
-  border: 2px solid var(--rc-dot-color);
+  border: 2px solid var(--rc-dot-color) !important;
   background-color: var(--light-color) !important;
   cursor: pointer;
   border-radius: 50%;
