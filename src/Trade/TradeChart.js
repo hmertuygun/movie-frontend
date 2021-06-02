@@ -4,7 +4,7 @@ import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
-import { getChartIntervals, saveChartIntervals } from '../api/api'
+import { saveChartIntervals, saveTimeZone } from '../api/api'
 const TradeChart = () => {
   const {
     symbolDetails,
@@ -16,13 +16,13 @@ const TradeChart = () => {
   const { theme } = useContext(ThemeContext);
 
   const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
-  const [lsValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
+  const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
+  const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
-  const [drawingShown, setDrawingShown] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', (ev) => {
@@ -47,12 +47,17 @@ const TradeChart = () => {
   }, [reRender])
 
   useEffect(() => {
-    if (lsValue && lsValue.length) saveChartIntervals(lsValue)
-  }, [lsValue])
+    if (lsIntervalValue && lsIntervalValue.length) saveChartIntervals(lsIntervalValue)
+  }, [lsIntervalValue])
+
+  useEffect(() => {
+    if (lsTimeZoneValue?.timezone && lsTimeZoneValue?.timezone !== chartData?.timeZone && count > 0) {
+      saveTimeZone(lsTimeZoneValue?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)
+    }
+  }, [lsTimeZoneValue])
 
   useEffect(() => {
     if (!activeExchange?.exchange || exchangeName === activeExchange.exchange) return
-    // localStorage.setItem('selectedExchange', activeExchange.exchange)
     seExchangeName(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
@@ -87,6 +92,7 @@ const TradeChart = () => {
           symbol={symbolType}
           exchange={exchangeType}
           marketSymbols={symbolDetailsKeyValue}
+          timeZone={chartData?.timeZone}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
           }}

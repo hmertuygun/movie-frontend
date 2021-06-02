@@ -690,6 +690,17 @@ export async function saveLastSelectedMarketSymbol(symbol) {
   return noticeData?.data
 }
 
+export async function saveTimeZone(timezone) {
+  const apiUrl = process.env.REACT_APP_API + `chart/timezone`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const noticeData = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { "timeZone": timezone }
+  })
+  return noticeData?.data
+}
+
 export async function saveWatchLists(symbols) {
   const apiUrl = `${process.env.REACT_APP_API}chart/watchlist`
   const token = await firebase.auth().currentUser?.getIdToken()

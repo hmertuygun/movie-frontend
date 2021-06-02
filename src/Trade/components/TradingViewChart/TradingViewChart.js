@@ -10,7 +10,7 @@ const getLocalLanguage = () => {
 }
 export default class TradingViewChart extends Component {
 
-  constructor({ symbol, theme, email, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
+  constructor({ symbol, theme, email, timeZone, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
     this.widgetOptions = {
@@ -21,6 +21,7 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
+      timezone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       favorites: {
         intervals: intervals,
       },
