@@ -288,23 +288,17 @@ export default class TradingViewChart extends Component {
     let button = this.tradingViewWidget.createButton()
     button.setAttribute('title', 'Sniper Mode')
     button.addEventListener('click', this.props.sniperBtnClicked)
-    let img = document.createElement("img")
-    img.setAttribute("src", "/img/icons/sniper.png")
-    img.setAttribute("width", "20")
-    img.setAttribute("style", "margin-right: 6px")
+    let img = document.createElement('div')
+    img.setAttribute(
+      'style',
+      'background-color: currentColor;height: 20px;width: 20px;margin-right: 6px;-webkit-mask: url(/img/icons/sniper.svg) no-repeat center / contain;'
+    )
     let text = document.createElement("div")
     text.innerText = "Sniper Mode"
-    text.setAttribute("style", "display:flex;align-items:center")
+    text.setAttribute("class", "button-2ioYhFEY")
+    text.setAttribute("style", "display:flex;align-items:center;")
     text.prepend(img)
     button.append(text)
-    // let div = document.createElement('div')
-    // div.setAttribute(
-    //   'style',
-    //   'background-color: currentColor;height: 20px;width: 20px;margin-top: -3px;-webkit-mask: url(/img/icons/sniper.png) no-repeat center / contain;'
-    // )
-    // div.innerText = "Sniper Mode"
-    // div.setAttribute('width', '20')
-    // button.append(div)
   }
 
   initChart = () => {
