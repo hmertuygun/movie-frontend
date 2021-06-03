@@ -7,7 +7,7 @@ import { errorNotification } from '../../components/Notifications'
 export const PositionContext = createContext()
 
 const PositionCTXProvider = ({ children }) => {
-  const { activeExchange, userData } = useContext(UserContext)
+  const { activeExchange, userData, isLoggedIn } = useContext(UserContext)
   const { exchange, apiKeyName } = activeExchange
 
   const [isLoading, setIsLoading] = useState(false)
@@ -15,7 +15,6 @@ const PositionCTXProvider = ({ children }) => {
 
   const fetchPositionsList = async () => {
     try {
-      if (!userData) return
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
       if (data?.error) {
@@ -41,7 +40,7 @@ const PositionCTXProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    if (exchange && apiKeyName) {
+    if (userData && isLoggedIn && exchange && apiKeyName) {
       fetchPositionsList()
     }
   }, [activeExchange])
