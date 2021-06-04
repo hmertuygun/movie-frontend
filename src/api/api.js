@@ -734,3 +734,15 @@ export async function getAllChartData() {
 
   return response?.data
 }
+export async function callCloudFunction(funcName) {
+  const apiUrl = `https://europe-west1-${process.env.REACT_APP_FIREBASE_PROJECT_ID}.cloudfunctions.net/${funcName}`
+  const token = await firebase.auth().currentUser?.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: { data: { returnUrl: window.location.origin } }
+  })
+
+  return response?.data
+}

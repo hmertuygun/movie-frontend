@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
 
-import { firebase, auth } from '../../firebase/firebase'
+import { firebase, auth, functions } from '../../firebase/firebase'
 import { errorNotification } from '../../components/Notifications'
-
+import { callCloudFunction } from '../../api/api'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData, plan } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
@@ -12,17 +12,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
-      const functionRef = firebase
-        .app()
-        .functions('europe-west1')
-        .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink')
-      const { data } = await functionRef({ returnUrl: window.location.origin })
-
+      const response = await callCloudFunction('ext-firestore-stripe-subscriptions-createPortalLink')
       if (needPayment) {
-        window.location.assign(data.url + '/payment-methods')
+        window.location.assign(response?.result?.url + '/payment-methods')
       } else {
-        window.location.assign(data.url)
+        window.location.assign(response?.result?.url)
       }
+
     } catch (error) {
       errorNotification.open({
         description: error,
