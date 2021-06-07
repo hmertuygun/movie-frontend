@@ -175,12 +175,12 @@ const OpenOrdersTableBody = ({
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
 
-  const sortAlphabet = (key, order) => {
-    console.log(key, order)
-    if (!data?.length) return
-    let findColumnIndex = columns.findIndex(item => item.key === key)
-    columns[findColumnIndex].order = Math.abs()
-    return data.sort((a, b) => order === 0 ? a[key] - b[key] : b[key] - a[key])
+  const sortAlphabet = (key) => {
+    console.log(key)
+    // if (!data?.length) return
+    // let findColumnIndex = columns.findIndex(item => item.key === key)
+    // columns[findColumnIndex].order = Math.abs(order - 1)
+    // return data.sort((a, b) => order === 0 ? a[key] - b[key] : b[key] - a[key])
   }
 
   const sortNumber = (key, order) => {
@@ -192,7 +192,7 @@ const OpenOrdersTableBody = ({
       title: 'Pair',
       key: 'pair',
       order: 0,
-      onClick: sortAlphabet(this.key, this.order)
+      onClick: sortAlphabet('pair')
     },
     {
       title: 'Type',
@@ -261,8 +261,8 @@ const OpenOrdersTableBody = ({
           <tr>
             <th scope="col"></th>
             {columns.map((item) => (
-              <th scope="col" key={item.key}>
-                {item.title} <span className="fa fa-sort-alpha-up"></span>
+              <th scope="col" key={item.key} onClick={item.onClick}>
+                {item.title} {item.onClick && <span className="fa fa-sort-alpha-up"></span>}
               </th>
             ))}
           </tr>
