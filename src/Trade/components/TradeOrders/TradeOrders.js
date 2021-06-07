@@ -350,7 +350,6 @@ const TradeOrders = () => {
   )
 
   const sortTable = (key, type, orderVal) => {
-    console.log(key, type, orderVal)
     let tempData = [...openOrderData]
     if (type === "number") {
       tempData.sort((a, b) => orderVal === 0 ? a[key] - b[key] : b[key] - a[key])
