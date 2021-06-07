@@ -18,6 +18,9 @@
   border-top: 2px solid var(--trade-borders);
   border-bottom: 2px solid var(--trade-borders);
 }
+.table tbody tr:hover {
+  background: var(--table-row-hover);
+}
 
 .canceled {
   color: rgb(174, 180, 188);

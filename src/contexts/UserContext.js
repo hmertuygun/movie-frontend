@@ -152,7 +152,7 @@ const UserContextProvider = ({ children }) => {
           }
         })
       )
-      console.log('All ==>', all)
+      // console.log('All ==>', all)
       if (all.length === 0) return
       const activeSubscriptions = all.filter((sub) => sub.status === 'active')
       const trialingSubscriptions = all.filter(
@@ -165,7 +165,7 @@ const UserContextProvider = ({ children }) => {
         (sub) => sub.status === 'past_due'
       )
       const lastSubscription = all[all.length - 1]
-      console.log('last ==>', lastSubscription)
+      // console.log('last ==>', lastSubscription)
 
       const neverPaid = !lastSubscription.invoices.some(
         (invoice) => invoice.amount_paid > 0
@@ -215,7 +215,7 @@ const UserContextProvider = ({ children }) => {
       }
       const priceData = (await lastSubscription.price.get()).data()
       const plan = await getCustomClaimRole()
-      console.log('sub, priceData, plan ==>', lastSubscription, priceData, plan)
+      // console.log('sub, priceData, plan ==>', lastSubscription, priceData, plan)
       setSubscriptionData({
         subscription: lastSubscription,
         priceData,
@@ -294,7 +294,7 @@ const UserContextProvider = ({ children }) => {
       // console.log(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
-        console.log(`Received msg in UC onMessage`)
+        // console.log(`Received msg in UC onMessage`)
         const { data } = payload
         let apiKey = data?.message_3
         if (!apiKey) return
@@ -313,7 +313,7 @@ const UserContextProvider = ({ children }) => {
         })
       })
       navigator.serviceWorker.addEventListener('message', (message) => {
-        console.log(`Received msg in UC serviceWorker.addEventListener`)
+        // console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
     } catch (e) {
       console.log(e)

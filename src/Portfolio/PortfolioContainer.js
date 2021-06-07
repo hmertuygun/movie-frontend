@@ -13,10 +13,16 @@ function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
   const { loading, refreshData } = useContext(PortfolioContext)
   const { activeExchange } = useContext(UserContext)
-  const { onRefreshBtnClicked, disablePortfolioRefreshBtn, portfolioTimeInterval } = useSymbolContext()
+  const {
+    onRefreshBtnClicked,
+    disablePortfolioRefreshBtn,
+    portfolioTimeInterval,
+  } = useSymbolContext()
 
   const onUnload = () => {
-    localStorage.removeItem(`portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`)
+    localStorage.removeItem(
+      `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
+    )
   }
 
   useEffect(() => {
@@ -45,12 +51,12 @@ function PortfolioContainer() {
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
-              <div class="text-center">
+              {/* <div class="text-center">
                 We are aware that for some users, some coins are missing in the
                 portfolio, please use the Report a Problem button and attach a
                 screenshot of the coin that is missing from your portfolio. We
                 apologize for the inconvenience.
-              </div>
+              </div> */}
               <div className="mb-4 row align-items-center">
                 <div className="col">
                   <h1 className="mb-0 h4">Portfolio</h1>
@@ -75,9 +81,17 @@ function PortfolioContainer() {
                       <button
                         type="button"
                         data-for="portfolio"
-                        data-tip={`You can only use this button every ${portfolioTimeInterval / 1000} seconds`}
-                        className={`btn btn-sm btn-neutral btn-icon btn-neutral-disable ${disablePortfolioRefreshBtn ? 'disabled' : ''}`}
-                        onClick={() => disablePortfolioRefreshBtn ? null : onPortfolioRefresh()}
+                        data-tip={`You can only use this button every ${
+                          portfolioTimeInterval / 1000
+                        } seconds`}
+                        className={`btn btn-sm btn-neutral btn-icon btn-neutral-disable ${
+                          disablePortfolioRefreshBtn ? 'disabled' : ''
+                        }`}
+                        onClick={() =>
+                          disablePortfolioRefreshBtn
+                            ? null
+                            : onPortfolioRefresh()
+                        }
                       >
                         <span className="btn-inner--text">Refresh</span>
                         <span className="btn-inner--icon">

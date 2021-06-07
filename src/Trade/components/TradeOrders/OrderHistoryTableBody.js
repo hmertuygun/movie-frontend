@@ -87,6 +87,15 @@ const OrderHistoryTableBody = ({
     setSymbol({ label: val, value: calcVal })
   }
 
+  const parseErrorToolTip = (text) => {
+    if (text.includes("IP banned until")) {
+      let date = text.match(/\d/g).join("")
+      let formattedDate = new Date(Number(date)).toLocaleString()
+      return text.replace(date, formattedDate)
+    }
+    else return text
+  }
+
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
       return true
@@ -151,7 +160,8 @@ const OrderHistoryTableBody = ({
                 >
                   <div
                     data-for={`order-history-${order.order_id}`}
-                    data-tip={order.error}
+                    data-tip={parseErrorToolTip(order.error)}
+                    data-class={order?.error ? 'order-history-error-tooltip' : ''}
                   >
                     {order.status}
                   </div>

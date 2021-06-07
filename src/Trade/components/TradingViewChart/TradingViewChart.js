@@ -101,7 +101,6 @@ export default class TradingViewChart extends Component {
 
   saveChartDrawingToServer = (event) => {
     this.tradingViewWidget.save((obj) => {
-      console.log(`Saving Chart`)
       const str = JSON.stringify(obj.charts[0].panes)
       saveChartDrawing(this.state.email, str)
     })

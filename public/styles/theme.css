@@ -8,6 +8,7 @@
   --trade-text-danger-color: #cc3340;
   --border-color: #e2e8f0;
   --table-border-color: #eff2f7;
+  --table-row-hover: var(--secondary);
   --border-color-active: var(--primary);
   --tab-color: var(--gray);
   --tab-color-hover: #4a5568;
@@ -18,7 +19,7 @@
   --watch-list-border-color: #f0f3fa;
 
   /* Symbol Select */
-  --symbol-select-background-selected: #B2D4FF;
+  --symbol-select-background-selected: #b2d4ff;
   --symbol-select-background-focus: #f0f3fa;
 
   /* Typography */
@@ -61,7 +62,7 @@
 
 :root .dark {
   /* Color */
-  --trade-red: #EA4A5F;
+  --trade-red: #ea4a5f;
   --trade-border-color: var(--border-color);
   --trade-border-danger-color: #e35b66;
   --trade-text-color: #bbbbbb;
@@ -69,11 +70,12 @@
   --trade-text-danger-color: #ff969f;
   --border-color: rgb(9, 11, 16);
   --table-border-color: #1f2d3d;
+  --table-row-hover: #475369;
   --border-color-active: var(--primary);
   --tab-color: rgb(191, 199, 209);
   --tab-color-hover: rgb(226, 231, 236);
   --dark-color: rgb(191, 199, 209);
-  --light-color: rgb(19,23,34);
+  --light-color: rgb(19, 23, 34);
 
   /* Watch List */
   --watch-list-border-color: rgb(37, 43, 56);
@@ -84,11 +86,11 @@
 
   /* Trade */
   --trade-background: var(--light-color);
-  --trade-chart-background: var(--tv-color-pane-background,#131722);
+  --trade-chart-background: var(--tv-color-pane-background, #131722);
   --trade-borders: var(--trade-border-color);
   --trade-cancel-background: var(--red);
   --trade-box-background: var(--light);
-  --buy: #2BB58A;
+  --buy: #2bb58a;
   --sell: var(--trade-red);
 
   /* Tab */
@@ -105,7 +107,7 @@
 
   /* Button */
   --button-primary-background: #008aff;
-  --button-primary-color: #E5E9F2;
+  --button-primary-color: #e5e9f2;
   --button-primary-background-hover: #0075d9;
   --button-defualt-border-color: #c1c9d4;
   --button-default-color: #273444;

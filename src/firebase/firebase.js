@@ -30,9 +30,9 @@ if (!firebase.apps.length) {
 }
 const analytics = firebase.analytics()
 let messaging = null;
-if(firebase.messaging.isSupported()) {
+if (firebase.messaging.isSupported()) {
   messaging = firebase.messaging()
 }
 const auth = firebase.auth()
-
-export { auth, analytics, messaging, firebase }
+const functions = firebase.functions()
+export { auth, analytics, messaging, functions, firebase }
