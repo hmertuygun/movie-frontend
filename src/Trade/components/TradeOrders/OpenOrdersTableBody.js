@@ -14,6 +14,58 @@ import {
 } from '../../../components/Notifications'
 import styles from './TradeOrders.module.css'
 
+const openOrdersColumns = [
+  {
+    title: 'Pair',
+    key: 'pair',
+    type: 'alphabet',
+    field: 'symbol',
+    order: 0
+  },
+  {
+    title: 'Type',
+    key: 'type',
+  },
+  {
+    title: 'Side',
+    key: 'side',
+  },
+  {
+    title: 'Price',
+    key: 'price',
+  },
+  {
+    title: 'Amount',
+    key: 'amount',
+  },
+  {
+    title: 'Filled',
+    key: 'filled',
+  },
+  {
+    title: 'Total',
+    key: 'total',
+  },
+  {
+    title: 'Trigger Condition',
+    key: 'trigger-conditions',
+  },
+  {
+    title: 'Status',
+    key: 'status',
+  },
+  {
+    title: 'Date',
+    key: 'date',
+    type: 'number',
+    field: 'timestamp',
+    order: 0
+  },
+  {
+    title: 'Cancel',
+    key: 'cancel',
+  },
+]
 
 const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
@@ -174,70 +226,48 @@ const OpenOrdersTableBody = ({
 }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
-
-  const sortAlphabet = (key) => {
-    console.log(key)
-    // if (!data?.length) return
-    // let findColumnIndex = columns.findIndex(item => item.key === key)
-    // columns[findColumnIndex].order = Math.abs(order - 1)
-    // return data.sort((a, b) => order === 0 ? a[key] - b[key] : b[key] - a[key])
-  }
-
-  const sortNumber = (key, order) => {
-
-  }
-
-  let columns = [
-    {
-      title: 'Pair',
-      key: 'pair',
-      order: 0,
-      onClick: sortAlphabet('pair')
-    },
-    {
-      title: 'Type',
-      key: 'type',
-    },
-    {
-      title: 'Side',
-      key: 'side',
-    },
-    {
-      title: 'Price',
-      key: 'price',
-    },
-    {
-      title: 'Amount',
-      key: 'amount',
-    },
-    {
-      title: 'Filled',
-      key: 'filled',
-    },
-    {
-      title: 'Total',
-      key: 'total',
-    },
-    {
-      title: 'Trigger Condition',
-      key: 'trigger-conditions',
-    },
-    {
-      title: 'Status',
-      key: 'status',
-    },
-    {
-      title: 'Date',
-      key: 'date',
-    },
-    {
-      title: 'Cancel',
-      key: 'cancel',
-    },
-  ]
+  const [columns, setColumns] = useState(openOrdersColumns)
 
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
+
+  const sortAlphabet = (key) => {
+    if (!data?.length) return
+    let tempOrderData = [...data]
+    let tempColumnData = [...columns]
+    let columnIndex = tempColumnData.findIndex(item => item.key === key)
+    let columnData = tempColumnData[columnIndex]
+    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
+    data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
+    setColumns(() => [...tempColumnData])
+  }
+
+  const sortNumber = (key) => {
+    if (!data?.length) return
+    let tempOrderData = [...data]
+    let tempColumnData = [...columns]
+    let columnIndex = tempColumnData.findIndex(item => item.key === key)
+    let columnData = tempColumnData[columnIndex]
+    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
+    data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
+    setColumns(() => [...tempColumnData])
+  }
+
+  const sortColumn = (key, type) => {
+    if (!data?.length) return
+    let tempOrderData = [...data]
+    let tempColumnData = [...columns]
+    let columnIndex = tempColumnData.findIndex(item => item.key === key)
+    let columnData = tempColumnData[columnIndex]
+    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
+    if (type === "number") {
+      data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
+    }
+    else if (type === "alphabet") {
+      data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
+    }
+    setColumns(() => [...tempColumnData])
+  }
 
   data = data.filter((order) => {
     if (!isHideOtherPairs) {
@@ -261,8 +291,8 @@ const OpenOrdersTableBody = ({
           <tr>
             <th scope="col"></th>
             {columns.map((item) => (
-              <th scope="col" key={item.key} onClick={item.onClick}>
-                {item.title} {item.onClick && <span className="fa fa-sort-alpha-up"></span>}
+              <th scope="col" key={item.key} onClick={() => item?.type === 'alphabet' ? sortColumn(item.field, item.type) : item?.type === 'number' ? sortColumn(item.field, item.type) : null}>
+                {item.title} {item?.type && (item.order ? <span className="fa fa-sort-alpha-up" /> : <span className="fa fa-sort-alpha-down" />)}
               </th>
             ))}
           </tr>
