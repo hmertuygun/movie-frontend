@@ -17,9 +17,8 @@ import styles from './TradeOrders.module.css'
 const openOrdersColumns = [
   {
     title: 'Pair',
-    key: 'pair',
+    key: 'symbol',
     type: 'alphabet',
-    field: 'symbol',
     order: 0
   },
   {
@@ -56,9 +55,8 @@ const openOrdersColumns = [
   },
   {
     title: 'Date',
-    key: 'date',
+    key: 'timestamp',
     type: 'number',
-    field: 'timestamp',
     order: 0
   },
   {
@@ -223,6 +221,7 @@ const OpenOrdersTableBody = ({
   data,
   isHideOtherPairs,
   deleteRow,
+  sortColumn
 }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
@@ -231,41 +230,28 @@ const OpenOrdersTableBody = ({
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
 
-  const sortAlphabet = (key) => {
-    if (!data?.length) return
-    let tempOrderData = [...data]
-    let tempColumnData = [...columns]
-    let columnIndex = tempColumnData.findIndex(item => item.key === key)
-    let columnData = tempColumnData[columnIndex]
-    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
-    data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
-    setColumns(() => [...tempColumnData])
-  }
+  // const sortColumn = (key, type, index) => {
+  //   // if (!data?.length) return
+  //   let tempOrderData = [...data]
+  //   let tempColumnData = [...columns]
+  //   // let columnIndex = tempColumnData.findIndex(item => item.key === key)
+  //   let columnData = tempColumnData[index]
+  //   tempColumnData[index].order = Math.abs(columnData.order - 1)
+  //   if (type === "number") {
+  //     data = data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
+  //   }
+  //   else if (type === "alphabet") {
+  //     data = data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
+  //   }
+  //   setColumns(() => [...tempColumnData])
+  // }
 
-  const sortNumber = (key) => {
-    if (!data?.length) return
-    let tempOrderData = [...data]
+  const onTableHeadClick = (key, type, index) => {
+    if (!type) return
     let tempColumnData = [...columns]
-    let columnIndex = tempColumnData.findIndex(item => item.key === key)
-    let columnData = tempColumnData[columnIndex]
-    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
-    data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
-    setColumns(() => [...tempColumnData])
-  }
-
-  const sortColumn = (key, type) => {
-    if (!data?.length) return
-    let tempOrderData = [...data]
-    let tempColumnData = [...columns]
-    let columnIndex = tempColumnData.findIndex(item => item.key === key)
-    let columnData = tempColumnData[columnIndex]
-    tempColumnData[columnIndex].order = Math.abs(columnData.order - 1)
-    if (type === "number") {
-      data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
-    }
-    else if (type === "alphabet") {
-      data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
-    }
+    let columnData = tempColumnData[index]
+    tempColumnData[index].order = Math.abs(columnData.order - 1)
+    sortColumn(key, type, tempColumnData[index].order)
     setColumns(() => [...tempColumnData])
   }
 
@@ -290,9 +276,10 @@ const OpenOrdersTableBody = ({
         <thead>
           <tr>
             <th scope="col"></th>
-            {columns.map((item) => (
-              <th scope="col" key={item.key} onClick={() => item?.type === 'alphabet' ? sortColumn(item.field, item.type) : item?.type === 'number' ? sortColumn(item.field, item.type) : null}>
-                {item.title} {item?.type && (item.order ? <span className="fa fa-sort-alpha-up" /> : <span className="fa fa-sort-alpha-down" />)}
+            {columns.map((item, index) => (
+              <th scope="col" key={item.key} onClick={() => onTableHeadClick(item.key, item?.type, index)}>
+                {/* item?.type === 'alphabet' ? sortColumn(item.key, item.type, index) : item?.type === 'number' ? sortColumn(item.key, item.type, index) : null */}
+                {item.title} {item?.type && (item.order ? <span className="fa fa-sort-amount-up" /> : <span className="fa fa-sort-amount-down" />)}
               </th>
             ))}
           </tr>
