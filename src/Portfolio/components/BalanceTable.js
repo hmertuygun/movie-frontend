@@ -6,10 +6,7 @@ import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { UserContext } from '../../contexts/UserContext'
-import {
-  get24hrTickerPrice,
-  getSymbolPriceTicker
-} from '../../api/api'
+import { get24hrTickerPrice, getSymbolPriceTicker } from '../../api/api'
 import ccxt, { exchanges } from 'ccxt'
 
 const BalanceTable = () => {
@@ -25,12 +22,13 @@ const BalanceTable = () => {
   const ITEMS_PER_PAGE = 8
 
   const getTableData = useMemo(() => {
-
     if (tableData) {
       let data = tableData
 
       if (search) {
-        data = data.filter((items) => items.SYMBOL.toLowerCase().includes(search.toLowerCase()))
+        data = data.filter((items) =>
+          items.SYMBOL.toLowerCase().includes(search.toLowerCase())
+        )
       }
 
       return data.slice(
@@ -51,8 +49,12 @@ const BalanceTable = () => {
   const fetchLatestPrice = () => {
     const tempBalance = balance
     tempBalance.forEach((item, index, arr) => {
-      const fData = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}BTC`)
-      const fData1 = lastMessage.find((item1) => item1.symbol === `${item.SYMBOL}USDT`)
+      const fData = lastMessage.find(
+        (item1) => item1.symbol === `${item.SYMBOL}BTC`
+      )
+      const fData1 = lastMessage.find(
+        (item1) => item1.symbol === `${item.SYMBOL}USDT`
+      )
       // console.log(`${item.SYMBOL}BTC`, fData)
       // console.log(`${item.SYMBOL}USD`, fData1)
       if (fData) arr[index].BTC = (fData.lastPrice * item.TOTAL).toFixed(8)
