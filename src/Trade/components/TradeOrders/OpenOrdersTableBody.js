@@ -19,7 +19,7 @@ const openOrdersColumns = [
     title: 'Pair',
     key: 'symbol',
     type: 'alphabet',
-    order: 0
+    order: 2
   },
   {
     title: 'Type',
@@ -57,7 +57,7 @@ const openOrdersColumns = [
     title: 'Date',
     key: 'timestamp',
     type: 'number',
-    order: 0
+    order: 1
   },
   {
     title: 'Cancel',
@@ -230,29 +230,13 @@ const OpenOrdersTableBody = ({
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
 
-  // const sortColumn = (key, type, index) => {
-  //   // if (!data?.length) return
-  //   let tempOrderData = [...data]
-  //   let tempColumnData = [...columns]
-  //   // let columnIndex = tempColumnData.findIndex(item => item.key === key)
-  //   let columnData = tempColumnData[index]
-  //   tempColumnData[index].order = Math.abs(columnData.order - 1)
-  //   if (type === "number") {
-  //     data = data.sort((a, b) => columnData.order === 0 ? a[key] - b[key] : b[key] - a[key])
-  //   }
-  //   else if (type === "alphabet") {
-  //     data = data.sort((a, b) => columnData.order === 0 ? a[key].toLocaleCompare() - b[key].toLocaleCompare() : b[key].toLocaleCompare() - a[key].toLocaleCompare())
-  //   }
-  //   setColumns(() => [...tempColumnData])
-  // }
-
   const onTableHeadClick = (key, type, index) => {
     if (!type) return
     let tempColumnData = [...columns]
     let columnData = tempColumnData[index]
     tempColumnData[index].order = Math.abs(columnData.order - 1)
     sortColumn(key, type, tempColumnData[index].order)
-    setColumns(() => [...tempColumnData])
+    setColumns([...tempColumnData])
   }
 
   data = data.filter((order) => {
@@ -279,7 +263,7 @@ const OpenOrdersTableBody = ({
             {columns.map((item, index) => (
               <th scope="col" key={item.key} onClick={() => onTableHeadClick(item.key, item?.type, index)}>
                 {/* item?.type === 'alphabet' ? sortColumn(item.key, item.type, index) : item?.type === 'number' ? sortColumn(item.key, item.type, index) : null */}
-                {item.title} {item?.type && (item.order ? <span className="fa fa-sort-amount-up" /> : <span className="fa fa-sort-amount-down" />)}
+                {item.title} {item?.type && (item.order === 0 ? <span className="fa fa-sort-amount-up-alt" /> : item.order === 1 ? <span className="fa fa-sort-amount-down" /> : null)}
               </th>
             ))}
           </tr>
