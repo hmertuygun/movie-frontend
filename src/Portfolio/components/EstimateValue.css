@@ -1,0 +1,29 @@
+.card-content-left {
+  width: 50%;
+}
+
+.card-content-right {
+  width: 50%;
+}
+
+.card-content-right .card-body {
+  padding: 0;
+  margin-top: 40px;
+}
+
+.card-content-right .gauge-chart text {
+  font-size: 19px !important;
+}
+
+@media (max-width: 767px) {
+  .card {
+    flex-direction: column !important;
+  }
+  .card-content-left {
+    width: 100%;
+  }
+
+  .card-content-right {
+    width: 100%;
+  }
+}
