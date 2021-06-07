@@ -20,8 +20,8 @@ import { UserContext } from './contexts/UserContext'
 
 // import TradeView from './views/TradeView'
 // import Settings from './views/Settings'
-// import Positions from './views/PositionView'
-// import Portfolio from './views/PortfolioView'
+import Positions from './views/PositionView'
+import Portfolio from './views/PortfolioView'
 // import PriceAlerts from './views/PriceAlertView'
 
 
@@ -44,8 +44,8 @@ const HandleEmailActions = lazy(() => import('./views/Auth/HandleEmailActions'))
 
 const TradeView = lazy(() => import('./views/TradeView'))
 const Settings = lazy(() => import('./views/Settings'))
-const Positions = lazy(() => import('./views/PositionView'))
-const Portfolio = lazy(() => import('./views/PortfolioView'))
+// const Positions = lazy(() => import('./views/PositionView'))
+// const Portfolio = lazy(() => import('./views/PortfolioView'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
 
 const Routes = () => {
