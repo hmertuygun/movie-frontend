@@ -27,6 +27,8 @@ import {
 } from '../../../helpers/tradeForm'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 const errorInitialValues = {
   price: '',
@@ -361,6 +363,12 @@ const SellStopMarketForm = () => {
           })
         } else {
           successNotification.open({ description: `Order Created!` })
+          analytics.logEvent('placed_sell_stop_market_order')
+          Event(
+            'user',
+            'placed_sell_stop_market_order',
+            'placed_sell_stop_market_order'
+          )
         }
         setValues({
           ...values,

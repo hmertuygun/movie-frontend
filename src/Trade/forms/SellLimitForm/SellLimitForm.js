@@ -27,6 +27,8 @@ import {
 } from '../../../helpers/tradeForm'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 const errorInitialValues = {
   price: '',
@@ -484,7 +486,6 @@ const SellLimitForm = () => {
               value={values.quantityPercentage}
             />
           </div>
-
           <div className={styles['SliderInput']}>
             <InlineInput
               value={values.quantityPercentage}

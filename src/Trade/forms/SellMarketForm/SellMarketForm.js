@@ -26,6 +26,8 @@ import {
 } from '../../../helpers/tradeForm'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 const errorInitialValues = {
   quantity: '',
@@ -328,11 +330,12 @@ const SellMarketForm = () => {
           },
         }
         const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
+        if (data?.status === 'error') {
           errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
+        } else {
           successNotification.open({ description: `Order Created!` })
+          analytics.logEvent('placed_sell_market_order')
+          Event('user', 'placed_sell_market_order', 'placed_sell_market_order')
           refreshBalance()
         }
         setValues({
@@ -342,7 +345,7 @@ const SellMarketForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>)})
       } finally {
         setBtnVisibility(false)
       }
@@ -376,14 +379,14 @@ const SellMarketForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
       <form onSubmit={handleSubmit}>
         <div className={styles['Input']}>
@@ -423,7 +426,6 @@ const SellMarketForm = () => {
               disabled={isLoadingLastPrice}
             />
           </div>
-          
           <div className={styles['SliderInput']}>
             <InlineInput
               value={values.quantityPercentage}

@@ -28,6 +28,9 @@ import * as yup from 'yup'
 
 import styles from '../LimitForm/LimitForm.module.css'
 
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
+
 const BuyStopLimitForm = () => {
   const {
     isLoading,
@@ -415,6 +418,12 @@ const BuyStopLimitForm = () => {
           })
         } else {
           successNotification.open({ description: `Order Created!` })
+          analytics.logEvent('placed_buy_stop_limit_order')
+          Event(
+            'user',
+            'placed_buy_stop_limit_order',
+            'placed_buy_stop_limit_order'
+          )
         }
         setValues({
           ...values,

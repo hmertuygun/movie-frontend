@@ -27,6 +27,8 @@ import {
 } from '../../../components/Notifications'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 const errorInitialValues = {
   triggerPrice: '',
@@ -384,6 +386,12 @@ const SellStopLimitForm = () => {
           })
         } else {
           successNotification.open({ description: `Order Created!` })
+          analytics.logEvent('placed_sell_stop_limit_order')
+          Event(
+            'user',
+            'placed_sell_stop_limit_order',
+            'placed_sell_stop_limit_order'
+          )
         }
         setValues({
           ...values,

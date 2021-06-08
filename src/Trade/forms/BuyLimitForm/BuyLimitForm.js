@@ -16,6 +16,8 @@ import {
   convertCommaNumberToDot,
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -85,7 +87,7 @@ const BuyLimitForm = () => {
     if (selectedSymbolDetail?.tickSize) {
       setValues(prevVal => ({
         ...prevVal,
-        'price': addPrecisionToNumber(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize'])
+        price: addPrecisionToNumber(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']),
       }))
     }
   }, [selectedSymbolLastPrice, selectedSymbolDetail])
@@ -389,6 +391,8 @@ const BuyLimitForm = () => {
       }
       else {
         successNotification.open({ description: `Order Created!` })
+        analytics.logEvent('placed_buy_limit_order')
+        Event('user', 'placed_buy_limit_order', 'placed_buy_limit_order')
         refreshBalance()
       }
       setValues({
