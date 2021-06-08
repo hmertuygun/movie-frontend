@@ -80,7 +80,6 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
     const { orderSymbol, trigger: triggerCondition, price } = selectedOrder
     const modifiedSymbol = orderSymbol.split('-').join('/')
     const selectedSymbolDetail = symbolDetails[`BINANCE:${modifiedSymbol}`]
-    console.log(selectedSymbolDetail)
     setselectedSymbolDetail(selectedSymbolDetail)
 
     if (!selectedSymbolDetail) return

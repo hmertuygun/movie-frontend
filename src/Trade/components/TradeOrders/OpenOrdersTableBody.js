@@ -197,24 +197,28 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         }
 
         const editColumn =
-          order.type === 'Full Trade' ? (
-            order.status === '"Pending"' && rowIndex !== 0 ? (
+          order.status === 'Pending' && order.type !== 'LIMIT' ? (
+            order.type === 'Full Trade' ? (
+              rowIndex !== 0 ? (
+                <td
+                  style={{ ...tdStyle, cursor: 'pointer' }}
+                  onClick={() => handleEdit(order)}
+                >
+                  Edit
+                </td>
+              ) : (
+                <td style={tdStyle}></td>
+              )
+            ) : (
               <td
                 style={{ ...tdStyle, cursor: 'pointer' }}
                 onClick={() => handleEdit(order)}
               >
                 Edit
               </td>
-            ) : (
-              <td style={tdStyle}></td>
             )
           ) : (
-            <td
-              style={{ ...tdStyle, cursor: 'pointer' }}
-              onClick={() => handleEdit(order)}
-            >
-              Edit
-            </td>
+            <td style={tdStyle}></td>
           )
 
         const cancelColumn =
