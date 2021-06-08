@@ -31,6 +31,10 @@ const CashoMeter = () => {
 
   let textColor = theme === 'LIGHT' ? '#718096' : '#a2aab5'
 
+  const style = {
+    height: 121.05
+  }
+
   return (
     <>
       {!isNaN(resultPercentage) ? (
@@ -44,6 +48,7 @@ const CashoMeter = () => {
           arcsLength={[0.1, 0.5, 0.4]}
           colors={colors}
           className="gauge-chart"
+          style={style}
         />
       ) : null}
     </>
