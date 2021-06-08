@@ -33,43 +33,43 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
     {
       triggerPrice: showTriggerPrice
         ? yup
-            .number()
-            .required('Trigger price is required')
-            .typeError('Trigger price is required')
-            .min(
+          .number()
+          .required('Trigger price is required')
+          .typeError('Trigger price is required')
+          .min(
+            minPrice,
+            `Trigger price needs to meet min-price: ${addPrecisionToNumber(
               minPrice,
-              `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-                minPrice,
-                pricePrecision
-              )}`
-            )
-            .max(
+              pricePrecision
+            )}`
+          )
+          .max(
+            maxPrice,
+            `Trigger price needs to meet max-price: ${addPrecisionToNumber(
               maxPrice,
-              `Trigger price needs to meet max-price: ${addPrecisionToNumber(
-                maxPrice,
-                pricePrecision
-              )}`
-            )
+              pricePrecision
+            )}`
+          )
         : null,
       price: showPrice
         ? yup
-            .number()
-            .required('Price is required')
-            .typeError('Price is required')
-            .min(
+          .number()
+          .required('Price is required')
+          .typeError('Price is required')
+          .min(
+            minPrice,
+            `Price needs to meet min-price: ${addPrecisionToNumber(
               minPrice,
-              `Price needs to meet min-price: ${addPrecisionToNumber(
-                minPrice,
-                pricePrecision
-              )}`
-            )
-            .max(
+              pricePrecision
+            )}`
+          )
+          .max(
+            maxPrice,
+            `Price needs to meet max-price: ${addPrecisionToNumber(
               maxPrice,
-              `Price needs to meet max-price: ${addPrecisionToNumber(
-                maxPrice,
-                pricePrecision
-              )}`
-            )
+              pricePrecision
+            )}`
+          )
         : null,
     },
     [minPrice, maxPrice, pricePrecision, showPrice, showTriggerPrice]
@@ -211,7 +211,7 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span aria-hidden="true">&times;</span>
+                <span className="modal-cross" aria-hidden="true">&times;</span>
               </button>
             </div>
             <div className="modal-body">

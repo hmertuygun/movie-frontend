@@ -19,7 +19,7 @@ export default class TradingViewChart extends Component {
       language: getLocalLanguage(),
       autosize: true,
       auto_save_delay: 10,
-      timezone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezone: timeZone,
       favorites: {
         intervals: intervals,
       },

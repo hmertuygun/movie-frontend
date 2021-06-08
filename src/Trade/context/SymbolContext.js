@@ -336,11 +336,11 @@ const SymbolContextProvider = ({ children }) => {
     // get market symbols
     try {
       const { data } = await getAllChartData()
-      let { drawings, intervals, watchlist, lastSelectedSymbol } = data
+      let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } = data
       drawings = drawings && drawings[userData?.email]
       lastSelectedSymbol = lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       intervals = intervals || []
-      setChartData({ drawings, lastSelectedSymbol, intervals })
+      setChartData({ drawings, lastSelectedSymbol, intervals, timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone })
       let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
       exchangeVal = exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
       symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
