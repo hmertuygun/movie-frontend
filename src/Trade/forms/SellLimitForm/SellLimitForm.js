@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -15,6 +15,7 @@ import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
+import OrderWarningModal from '../../components/OrderWarningModal'
 
 import {
   addPrecisionToNumber,
@@ -45,6 +46,7 @@ const SellLimitForm = () => {
   const { activeExchange } = useContext(UserContext)
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
+  const [showWarning, setShowWarning] = useState(false)
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
@@ -380,8 +382,16 @@ const SellLimitForm = () => {
     </>
   )
 
+  useEffect(() => {
+    const percent = ((selectedSymbolLastPrice - values.price)/selectedSymbolLastPrice) * 100
+    if (percent !== 0 && percent > 0.5) {
+      setShowWarning(true)
+    }
+  }, [values.price])
+
   return (
     <Fragment>
+      {showWarning ? (<OrderWarningModal onClose={() => setShowWarning(false)} />) : null}
       <div className="d-flex align-items-center justify-content-between">
         <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
           <FontAwesomeIcon icon={faWallet} />
