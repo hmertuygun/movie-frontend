@@ -62,6 +62,10 @@ const openOrdersColumns = [
     order: 1
   },
   {
+    title: 'Edit',
+    key: 'edit',
+  },
+  {
     title: 'Cancel',
     key: 'cancel',
   },
