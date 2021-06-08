@@ -38,8 +38,8 @@ const TradeOrders = () => {
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance, onRefreshBtnClicked, disableOrderHistoryRefreshBtn,
     disableOpenOrdersRefreshBtn, orderHistoryTimeInterval, openOrdersTimeInterval, portfolioTimeInterval, positionTimeInterval } = useSymbolContext()
   const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
-  const { isLoading: isPositionLoading } = useContext(PositionContext);
-  const { loading: isPortfolioLoading } = useContext(PortfolioContext);
+  const { isLoading: isPositionLoading } = useContext(PositionContext)
+  const { loading: isPortfolioLoading } = useContext(PortfolioContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtnOO, setLoadBtnOO] = useState(false)
@@ -349,6 +349,17 @@ const TradeOrders = () => {
     </div>
   )
 
+  const sortTable = (key, type, orderVal) => {
+    let tempData = [...openOrderData]
+    if (type === "number") {
+      tempData.sort((a, b) => orderVal === 0 ? a[key] - b[key] : b[key] - a[key])
+    }
+    else if (type === "alphabet") {
+      tempData.sort((a, b) => orderVal === 0 ? a[key].localeCompare(b[key]) : b[key].localeCompare(a[key]))
+    }
+    setOpenOrderData(() => [...tempData])
+  }
+
   return (
     <div className="d-flex flex-column" style={{ height: '100%' }}>
       <div className="pb-2">
@@ -397,6 +408,7 @@ const TradeOrders = () => {
         isOpenOrders ? (
           <OpenOrdersTableBody
             data={openOrderData}
+            sortColumn={sortTable}
             deleteRow={(rData) => deleteOpenOrdersRow(rData)}
             isHideOtherPairs={isHideOtherPairs}
           />

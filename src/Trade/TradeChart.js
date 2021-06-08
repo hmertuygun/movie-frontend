@@ -35,14 +35,6 @@ const TradeChart = () => {
     reconnectWSOnWindowFocus()
   }, [])
 
-  // useEffect(() => {
-  //   if (!count) return
-  //   const savedTime = localStorage.getItem('lastSocketData')
-  //   if (docVisibility && isChartReady && activeExchange.exchange === "binance" && (new Date().getTime() - savedTime) > 30000) {
-  //     setReRender(new Date().getTime())
-  //   }
-  // }, [docVisibility])
-
   useEffect(() => {
     if (!count) return
     if (docVisibility && isChartReady && activeExchange.exchange === "binance" && localStorage.getItem("WS") === "0") {

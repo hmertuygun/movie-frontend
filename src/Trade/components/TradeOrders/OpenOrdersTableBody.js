@@ -16,6 +16,57 @@ import styles from './TradeOrders.module.css'
 import { Modal } from '../../../components'
 import OrderEditModal from './OrderEditModal'
 
+const openOrdersColumns = [
+  {
+    title: 'Pair',
+    key: 'symbol',
+    type: 'alphabet',
+    order: 2
+  },
+  {
+    title: 'Type',
+    key: 'type',
+  },
+  {
+    title: 'Side',
+    key: 'side',
+  },
+  {
+    title: 'Price',
+    key: 'price',
+  },
+  {
+    title: 'Amount',
+    key: 'amount',
+  },
+  {
+    title: 'Filled',
+    key: 'filled',
+  },
+  {
+    title: 'Total',
+    key: 'total',
+  },
+  {
+    title: 'Trigger Condition',
+    key: 'trigger-conditions',
+  },
+  {
+    title: 'Status',
+    key: 'status',
+  },
+  {
+    title: 'Date',
+    key: 'timestamp',
+    type: 'number',
+    order: 1
+  },
+  {
+    title: 'Cancel',
+    key: 'cancel',
+  },
+]
+
 const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
   const uniqueData = Array.from(new Set(data.map((a) => a[key]))).map((id) =>
@@ -115,8 +166,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
           rowIndex === 1
             ? { border: 0 }
             : rowIndex === 0
-            ? { cursor: 'pointer' }
-            : undefined
+              ? { cursor: 'pointer' }
+              : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
           if (order.type === 'Full Trade') setShow(!show)
@@ -134,8 +185,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 ? '#58AB58'
                 : 'green'
               : theme === 'DARK'
-              ? '#D23D3D'
-              : 'red',
+                ? '#D23D3D'
+                : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -259,62 +310,24 @@ const OpenOrdersTableBody = ({
   data,
   isHideOtherPairs,
   deleteRow,
+  sortColumn
 }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
+  const [columns, setColumns] = useState(openOrdersColumns)
 
-  const columns = [
-    {
-      title: 'Pair',
-      key: 'pair',
-    },
-    {
-      title: 'Type',
-      key: 'type',
-    },
-    {
-      title: 'Side',
-      key: 'side',
-    },
-    {
-      title: 'Price',
-      key: 'price',
-    },
-    {
-      title: 'Amount',
-      key: 'amount',
-    },
-    {
-      title: 'Filled',
-      key: 'filled',
-    },
-    {
-      title: 'Total',
-      key: 'total',
-    },
-    {
-      title: 'Trigger Condition',
-      key: 'trigger-conditions',
-    },
-    {
-      title: 'Status',
-      key: 'status',
-    },
-    {
-      title: 'Date',
-      key: 'date',
-    },
-    {
-      title: 'Edit',
-      key: 'edit',
-    },
-    {
-      title: 'Cancel',
-      key: 'cancel',
-    },
-  ]
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
+
+  const onTableHeadClick = (key, type, index) => {
+    if (!type) return
+    let tempColumnData = [...columns]
+    let columnData = tempColumnData[index]
+    tempColumnData[index].order = Math.abs(columnData.order - 1)
+    sortColumn(key, type, tempColumnData[index].order)
+    setColumns([...tempColumnData])
+  }
+
   data = data
     .filter((order) => {
       if (!isHideOtherPairs) {
@@ -325,6 +338,7 @@ const OpenOrdersTableBody = ({
     .filter((order) => {
       return !deletedRows.includes(order.trade_id)
     })
+
   return (
     <div
       style={{
@@ -337,9 +351,10 @@ const OpenOrdersTableBody = ({
         <thead>
           <tr>
             <th scope="col"></th>
-            {columns.map((item) => (
-              <th scope="col" key={item.key}>
-                {item.title}
+            {columns.map((item, index) => (
+              <th scope="col" key={item.key} onClick={() => onTableHeadClick(item.key, item?.type, index)}>
+                {/* item?.type === 'alphabet' ? sortColumn(item.key, item.type, index) : item?.type === 'number' ? sortColumn(item.key, item.type, index) : null */}
+                {item.title} {item?.type && (item.order === 0 ? <span className="fa fa-sort-amount-up-alt" /> : item.order === 1 ? <span className="fa fa-sort-amount-down" /> : null)}
               </th>
             ))}
           </tr>
