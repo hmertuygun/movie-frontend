@@ -23,7 +23,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [errors, setErrors] = useState(errorInitialValues)
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles, { }) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -141,7 +141,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span aria-hidden="true">&times;</span>
+                <span aria-hidden="true" className="modal-cross">&times;</span>
               </button>
             </div>
             <div className="modal-body">

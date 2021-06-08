@@ -63,7 +63,7 @@ const QuickModal = ({ onClose, connected }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span aria-hidden="true">&times;</span>
+                <span className="modal-cross" aria-hidden="true">&times;</span>
               </button>
             </div>
             <div className="modal-body">
