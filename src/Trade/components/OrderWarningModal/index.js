@@ -1,6 +1,6 @@
 import React from 'react'
 
-const OrderWarningModal = ({ onClose, placeOrder }) => {
+const OrderWarningModal = ({ isLoading, onClose, placeOrder }) => {
   return (
     <div className="modal-open">
       <div
@@ -24,11 +24,20 @@ const OrderWarningModal = ({ onClose, placeOrder }) => {
             </div>
             <div className="modal-footer">
               <button
+                disabled={isLoading}
                 type="button"
                 className="btn btn-sm text-danger btn-zoom--hover font-weight-600"
                 onClick={placeOrder}
               >
-                Confirm
+                {!isLoading ? (
+                  'Confirm'
+                ) : (
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                )}
               </button>
               <button
                 type="button"

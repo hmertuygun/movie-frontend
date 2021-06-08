@@ -435,6 +435,7 @@ const BuyLimitForm = () => {
     <Fragment>
       {showWarning ? (
         <OrderWarningModal
+          isLoading={isBtnDisabled}
           onClose={() => setShowWarning(false)}
           placeOrder={() => placeOrder()}
         />

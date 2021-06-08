@@ -413,6 +413,7 @@ const SellLimitForm = () => {
     <Fragment>
       {showWarning ? (
         <OrderWarningModal
+          isLoading={isBtnDisabled}
           onClose={() => setShowWarning(false)}
           placeOrder={() => placeOrder()}
         />
