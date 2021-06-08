@@ -87,17 +87,29 @@ const OrderHistoryTableBody = ({
     setSymbol({ label: val, value: calcVal })
   }
 
-  // const addToolTipBreakPoints = (text) => {
-  //   return text.replaceAll('.', '. <br>')
-  // }
+  const addToolTipBreakPoints = (text) => {
+    return text.replaceAll('.', '. <br>')
+  }
 
   const parseErrorToolTip = (text) => {
     if (text.includes("IP banned until")) {
       let date = text.match(/\d/g).join("")
       let formattedDate = new Date(Number(date)).toLocaleString()
-      return text.replace(date, formattedDate)
+      return addToolTipBreakPoints(text.replace(date, formattedDate))
     }
-    else return text
+    else if (text.includes("Your trade failed to execute, because you did not have enough available balance.")) {
+      return `
+      Your trade failed to execute, because you did not have enough available balance. <br> No need to panic. This can be caused by:
+      <ul>
+      <li>
+      You had a SL&TP. One of them triggered and used your balance, so the other one could not execute because you don't have the order amount available.
+      </li>
+      <li>
+      You used the same balance to place multiple orders, one of them triggered and used your balance, therefore not enough left for the second order.
+      </li>
+      </ul>`
+    }
+    else return addToolTipBreakPoints(text)
   }
 
   data = data.filter((order) => {
@@ -164,14 +176,17 @@ const OrderHistoryTableBody = ({
                 >
                   <div
                     data-for={`order-history-${order.order_id}`}
-                    data-html={true}
+                    data-place={`${order?.error?.length > 75 ? "left" : "top"}`}
                     data-tip={parseErrorToolTip(order.error)}
+                    data-html={true}
                     data-class={order?.error ? 'order-history-error-tooltip' : ''}
                   >
                     {order.status}
                   </div>
                   {order.error && (
-                    <Tooltip id={`order-history-${order.order_id}`} />
+                    <Tooltip
+                      id={`order-history-${order.order_id}`}
+                    />
                   )}
                 </td>
                 <td>
