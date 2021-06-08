@@ -87,6 +87,10 @@ const OrderHistoryTableBody = ({
     setSymbol({ label: val, value: calcVal })
   }
 
+  // const addToolTipBreakPoints = (text) => {
+  //   return text.replaceAll('.', '. <br>')
+  // }
+
   const parseErrorToolTip = (text) => {
     if (text.includes("IP banned until")) {
       let date = text.match(/\d/g).join("")
@@ -160,6 +164,7 @@ const OrderHistoryTableBody = ({
                 >
                   <div
                     data-for={`order-history-${order.order_id}`}
+                    data-html={true}
                     data-tip={parseErrorToolTip(order.error)}
                     data-class={order?.error ? 'order-history-error-tooltip' : ''}
                   >
