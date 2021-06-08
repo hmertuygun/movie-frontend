@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useEffect, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -15,6 +15,7 @@ import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
+import OrderWarningModal from '../../components/OrderWarningModal'
 
 import {
   addPrecisionToNumber,
@@ -45,6 +46,7 @@ const SellLimitForm = () => {
   const { activeExchange } = useContext(UserContext)
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
+  const [showWarning, setShowWarning] = useState(false)
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
@@ -325,6 +327,62 @@ const SellLimitForm = () => {
     })
   }
 
+  const placeOrder = async () => {
+    try {
+      if (isBtnDisabled) return
+      setBtnVisibility(true)
+
+      const symbol = selectedSymbolDetail['symbolpair']
+      const { exchange, apiKeyName } = activeExchange
+
+      const payload = {
+        apiKeyName,
+        exchange,
+        order: {
+          type: 'limit',
+          side: 'SELL',
+          symbol,
+          quantity: convertCommaNumberToDot(values.quantity),
+          price: convertCommaNumberToDot(values.price),
+        },
+      }
+      const { data, status } = await createBasicTrade(payload)
+      if (data?.status === 'error') {
+        errorNotification.open({
+          description:
+            data?.error || `Order couldn't be created. Please try again later!`,
+        })
+      } else {
+        successNotification.open({ description: `Order Created!` })
+        refreshBalance()
+      }
+      setValues({
+        ...values,
+        quantity: '',
+        total: '',
+        quantityPercentage: '',
+      })
+    } catch (error) {
+      errorNotification.open({
+        description: (
+          <p>
+            Order couldn’t be created. Unknown error. Please report at:{' '}
+            <a
+              rel="noopener noreferrer"
+              target="_blank"
+              href="https://support.coinpanel.com"
+            >
+              <b>support.coinpanel.com</b>
+            </a>
+          </p>
+        ),
+      })
+    } finally {
+      setBtnVisibility(false)
+      setShowWarning(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -332,43 +390,14 @@ const SellLimitForm = () => {
 
     if (isFormValid) {
       setErrors({ price: '', quantity: '', total: '' })
-      try {
-        if (isBtnDisabled) return
-        setBtnVisibility(true)
-
-        const symbol = selectedSymbolDetail['symbolpair']
-        const { exchange, apiKeyName } = activeExchange
-
-        const payload = {
-          apiKeyName,
-          exchange,
-          order: {
-            type: 'limit',
-            side: 'SELL',
-            symbol,
-            quantity: convertCommaNumberToDot(values.quantity),
-            price: convertCommaNumberToDot(values.price),
-          },
-        }
-        const { data, status } = await createBasicTrade(payload)
-        if (data?.status === "error") {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-        }
-        else {
-          successNotification.open({ description: `Order Created!` })
-          refreshBalance()
-        }
-        setValues({
-          ...values,
-          quantity: '',
-          total: '',
-          quantityPercentage: '',
-        })
-      } catch (error) {
-        errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
-      } finally {
-        setBtnVisibility(false)
+      const percent =
+        ((selectedSymbolLastPrice - values.price) / selectedSymbolLastPrice) *
+        100
+      if (percent !== 0 && percent > 0.5) {
+        setShowWarning(true)
+        return
       }
+      placeOrder()
     }
   }
 
@@ -382,6 +411,12 @@ const SellLimitForm = () => {
 
   return (
     <Fragment>
+      {showWarning ? (
+        <OrderWarningModal
+          onClose={() => setShowWarning(false)}
+          placeOrder={() => placeOrder()}
+        />
+      ) : null}
       <div className="d-flex align-items-center justify-content-between">
         <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
           <FontAwesomeIcon icon={faWallet} />
@@ -399,14 +434,14 @@ const SellLimitForm = () => {
             style={{ marginRight: '10px', color: '#5A6677' }}
           ></span>
         ) : (
-            <FontAwesomeIcon
-              icon={faSync}
-              onClick={refreshBalance}
-              style={{ cursor: 'pointer', marginRight: '10px' }}
-              color="#5A6677"
-              size="sm"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={faSync}
+            onClick={refreshBalance}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+            color="#5A6677"
+            size="sm"
+          />
+        )}
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -448,7 +483,7 @@ const SellLimitForm = () => {
               value={values.quantityPercentage}
             />
           </div>
-          
+
           <div className={styles['SliderInput']}>
             <InlineInput
               value={values.quantityPercentage}
