@@ -122,7 +122,7 @@ export default class TradingViewChart extends Component {
     const blue = "#008aff"
     const green = "#3cb690"
     const red = "rgba(242, 87, 103, 1)"
-    const redOpaque = "rgba(242, 87, 103, 0.75)"
+    const redOpaque = "rgba(242, 87, 103, 0.6)"
     try {
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
         const { trade_id, line_id } = this.orderLinesDrawn[i]
@@ -320,6 +320,7 @@ export default class TradingViewChart extends Component {
   }
 
   isArrayEqual(newOrders, oldOrders) {
+    if (!newOrders) return true
     let newArray = []
     for (let i = 0; i < newOrders.length; i++) {
       const { trade_id, orders, type, symbol } = newOrders[i]
