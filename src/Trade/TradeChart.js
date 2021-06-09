@@ -70,6 +70,10 @@ const TradeChart = () => {
     setWatchListOpen(watchListOpen => !watchListOpen)
   }
 
+  const filterOrders = (order, symbol) => {
+    return order.filter((item) => item.symbol.replace('-', '/') === symbol)
+  }
+
   const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
   const symbolDetailsKeyValue = getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails
   let showChart = chartData && symbolType && exchangeType && (getSymbolsLS || Object.keys(symbolDetails).length)
@@ -87,7 +91,7 @@ const TradeChart = () => {
           theme={theme}
           intervals={intervals}
           drawings={drawings}
-          openOrders={openOrdersUC}
+          openOrders={filterOrders(openOrdersUC, symbolType)}
           key={reRender}
           symbol={symbolType}
           exchange={exchangeType}
