@@ -380,6 +380,11 @@ const TradeOrders = () => {
             >
               Order History
             </span>
+            { !isOpenOrders && !showProgressBar && 
+              <span className='message pl-4'>
+                Order history sometimes does not update properly. We are aware of the issue and it will be fixed soon.
+              </span>
+            }
           </div>
           <div className="col-auto">
             <div className="d-flex justify-content-between align-items-center">
