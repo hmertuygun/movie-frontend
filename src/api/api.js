@@ -756,6 +756,5 @@ export async function editOrder(payload) {
     method: 'PATCH',
     data: { ...payload },
   })
-  
   return response?.data
 }
