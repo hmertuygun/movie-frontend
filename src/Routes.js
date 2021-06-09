@@ -85,7 +85,7 @@ const Routes = () => {
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
       <Detector
-        polling={{ url: "https://ipv4.icanhazip.com", enabled: isLoggedIn && !isLocalEnv }}
+        polling={{ url: "https://jsonplaceholder.typicode.com/posts/1", enabled: isLoggedIn && !isLocalEnv }}
         onChange={(e) => { showNotifOnNetworkChange(e) }}
         render={({ online }) => {
           return null

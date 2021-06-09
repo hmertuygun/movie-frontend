@@ -45,6 +45,9 @@ import SellStopMarketForm from './forms/SellStopMarketForm/SellStopMarketForm'
 import TakeProfitLimitForm from './forms/TakeProfitLimitForm/TakeProfitLimitForm'
 import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketForm'
 
+import { analytics } from '../firebase/firebase'
+import { Event } from '../Tracking'
+
 const TradePanel = () => (
   <SimpleTradeContext>
     <Trade />
@@ -95,6 +98,8 @@ const Trade = () => {
       } else {
         successNotification.open({ description: `Order Created!` })
         const { entry } = state
+        analytics.logEvent(`placed_full_trade_${entry.type}_order`)
+        Event('user', `placed_full_trade_${entry.type}_order`, `placed_full_trade_${entry.type}_order`)
         if (entry.type !== 'stop-limit' && entry.type !== 'stop-market') {
           refreshBalance()
         }
@@ -137,10 +142,10 @@ const Trade = () => {
               <TabNavigator
                 key="buy-tab-nav"
                 labelArray={[
-                  'Limit',
-                  'Market',
-                  'Stop-limit',
-                  'Stop-market',
+                  'Limit', 
+                  'Market', 
+                  'Stop-limit', 
+                  'Stop-market'
                 ]}
               >
                 <BuyLimitForm />

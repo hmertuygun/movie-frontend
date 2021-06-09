@@ -28,6 +28,8 @@ import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTri
 import * as yup from 'yup'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { Event } from '../../../Tracking'
+import { analytics } from '../../../firebase/firebase'
 
 const BuyStopMarketForm = () => {
   const {
@@ -386,6 +388,12 @@ const BuyStopMarketForm = () => {
           })
         } else {
           successNotification.open({ description: `Order Created!` })
+          analytics.logEvent('placed_buy_stop_market_order')
+          Event(
+            'user',
+            'placed_buy_stop_market_order',
+            'placed_buy_stop_market_order'
+          )
         }
         setValues({
           ...values,

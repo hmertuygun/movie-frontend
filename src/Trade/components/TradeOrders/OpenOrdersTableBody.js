@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Tooltip from '../../../components/Tooltip'
-import { cancelTradeOrder } from '../../../api/api'
+import { cancelTradeOrder, editOrder } from '../../../api/api'
 import { Icon } from '../../../components'
 import useIntersectionObserver from './useIntersectionObserver'
 import Moment from 'react-moment'
@@ -13,7 +13,63 @@ import {
   successNotification,
 } from '../../../components/Notifications'
 import styles from './TradeOrders.module.css'
+import { Modal } from '../../../components'
+import OrderEditModal from './OrderEditModal'
 
+const openOrdersColumns = [
+  {
+    title: 'Pair',
+    key: 'symbol',
+    type: 'alphabet',
+    order: 2
+  },
+  {
+    title: 'Type',
+    key: 'type',
+  },
+  {
+    title: 'Side',
+    key: 'side',
+  },
+  {
+    title: 'Price',
+    key: 'price',
+  },
+  {
+    title: 'Amount',
+    key: 'amount',
+  },
+  {
+    title: 'Filled',
+    key: 'filled',
+  },
+  {
+    title: 'Total',
+    key: 'total',
+  },
+  {
+    title: 'Trigger Condition',
+    key: 'trigger-conditions',
+  },
+  {
+    title: 'Status',
+    key: 'status',
+  },
+  {
+    title: 'Date',
+    key: 'timestamp',
+    type: 'number',
+    order: 1
+  },
+  // {
+  //   title: 'Edit',
+  //   key: 'edit',
+  // },
+  {
+    title: 'Cancel',
+    key: 'cancel',
+  },
+]
 
 const deleteDuplicateRows = (data, key) => {
   if (!data?.length) return []
@@ -25,6 +81,9 @@ const deleteDuplicateRows = (data, key) => {
 
 const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [show, setShow] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editLoading, setEditLoading] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
   const { activeExchange } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
@@ -59,15 +118,60 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
 
   const onSymbolClick = (rowIndex, val) => {
     if (rowIndex !== 0) return
-    const calcVal = `${activeExchange.exchange.toUpperCase()}:${val.replace('-', '/')}`
+    const calcVal = `${activeExchange.exchange.toUpperCase()}:${val.replace(
+      '-',
+      '/'
+    )}`
     if (!symbolDetails[calcVal]) return
     setSymbol({ label: val, value: calcVal })
+  }
+
+  const handleEdit = async (order) => {
+    setSelectedOrder(order)
+    setEditModalOpen(true)
+  }
+
+  const handleOnSave = async (formData) => {
+    try {
+      setEditLoading(true)
+      const { order_id } = selectedOrder
+      const payload = {}
+      payload.order_id = order_id
+      if (formData.triggerPrice) {
+        payload.trigger = formData.triggerPrice
+      }
+      if (formData.price) {
+        payload.price = formData.price
+      }
+      const { data, status } = await editOrder(payload)
+      if (data?.status === 'error') {
+        errorNotification.open({
+          description:
+            data?.error || `Order couldn't be edited. Please try again later`,
+        })
+      } else {
+        successNotification.open({ description: `Order Edited!` })
+        setEditModalOpen(false)
+      }
+    } catch (error) {
+      errorNotification.open({
+        description:
+          error || `Order couldn't be edited. Please try again later`,
+      })
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   return (
     <>
       {entry.map((order, rowIndex) => {
-        const tdStyle = rowIndex === 1 ? { border: 0 } : rowIndex === 0 ? { cursor: 'pointer' } : undefined
+        const tdStyle =
+          rowIndex === 1
+            ? { border: 0 }
+            : rowIndex === 0
+              ? { cursor: 'pointer' }
+              : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
           if (order.type === 'Full Trade') setShow(!show)
@@ -95,6 +199,32 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
               ? 'transparent'
               : undefined,
         }
+
+        const editColumn =
+          order.status === 'Pending' && order.type !== 'LIMIT' ? (
+            order.type === 'Full Trade' ? (
+              rowIndex !== 0 ? (
+                <td
+                  style={{ ...tdStyle, cursor: 'pointer' }}
+                  onClick={() => handleEdit(order)}
+                >
+                  Edit
+                </td>
+              ) : (
+                <td style={tdStyle}></td>
+              )
+            ) : (
+              <td
+                style={{ ...tdStyle, cursor: 'pointer' }}
+                onClick={() => handleEdit(order)}
+              >
+                Edit
+              </td>
+            )
+          ) : (
+            <td style={tdStyle}></td>
+          )
+
         const cancelColumn =
           rowIndex === 0 ? (
             <td
@@ -121,14 +251,22 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
           ) : null
 
         const PlacedOrderTooltip = 'Order is on the exchange order book.'
-        const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
+        const PendingOrderTooltip =
+          'Order is waiting to be placed in the order book.'
 
         return (
           <tr className={rowClass} key={rowIndex}>
             <td style={firstColumnIconStyle} onClick={rowClick}>
               {firstColumnIcon}
             </td>
-            <td style={tdStyle} onClick={() => { onSymbolClick(rowIndex, order.symbol) }}>{order.symbol}</td>
+            <td
+              style={tdStyle}
+              onClick={() => {
+                onSymbolClick(rowIndex, order.symbol)
+              }}
+            >
+              {order.symbol}
+            </td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
             <td style={hideFirst}>{order.price}</td>
@@ -158,10 +296,19 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 </Moment>
               )}
             </td>
+            {/* {editColumn} */}
             {cancelColumn}
           </tr>
         )
       })}
+      {editModalOpen ? (
+        <OrderEditModal
+          onClose={() => setEditModalOpen(false)}
+          onSave={handleOnSave}
+          isLoading={editLoading}
+          selectedOrder={selectedOrder}
+        />
+      ) : null}
     </>
   )
 }
@@ -171,66 +318,35 @@ const OpenOrdersTableBody = ({
   data,
   isHideOtherPairs,
   deleteRow,
+  sortColumn
 }) => {
   const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
+  const [columns, setColumns] = useState(openOrdersColumns)
 
-  const columns = [
-    {
-      title: 'Pair',
-      key: 'pair',
-    },
-    {
-      title: 'Type',
-      key: 'type',
-    },
-    {
-      title: 'Side',
-      key: 'side',
-    },
-    {
-      title: 'Price',
-      key: 'price',
-    },
-    {
-      title: 'Amount',
-      key: 'amount',
-    },
-    {
-      title: 'Filled',
-      key: 'filled',
-    },
-    {
-      title: 'Total',
-      key: 'total',
-    },
-    {
-      title: 'Trigger Condition',
-      key: 'trigger-conditions',
-    },
-    {
-      title: 'Status',
-      key: 'status',
-    },
-    {
-      title: 'Date',
-      key: 'date',
-    },
-    {
-      title: 'Cancel',
-      key: 'cancel',
-    },
-  ]
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
   const selectedPair = selectedSymbolDetail['symbolpair']
-  data = data.filter((order) => {
-    if (!isHideOtherPairs) {
-      return true
-    }
-    return order.symbol.replace('-', '/') === symbolType
-  }).filter(order => {
-    return !deletedRows.includes(order.trade_id)
-  })
+
+  const onTableHeadClick = (key, type, index) => {
+    if (!type) return
+    let tempColumnData = [...columns]
+    let columnData = tempColumnData[index]
+    tempColumnData[index].order = Math.abs(columnData.order - 1)
+    sortColumn(key, type, tempColumnData[index].order)
+    setColumns([...tempColumnData])
+  }
+
+  data = data
+    .filter((order) => {
+      if (!isHideOtherPairs) {
+        return true
+      }
+      return order.symbol.replace('-', '/') === symbolType
+    })
+    .filter((order) => {
+      return !deletedRows.includes(order.trade_id)
+    })
+
   return (
     <div
       style={{
@@ -243,16 +359,28 @@ const OpenOrdersTableBody = ({
         <thead>
           <tr>
             <th scope="col"></th>
-            {columns.map((item) => (
-              <th scope="col" key={item.key}>
-                {item.title}
+            {columns.map((item, index) => (
+              <th scope="col" key={item.key} onClick={() => onTableHeadClick(item.key, item?.type, index)}>
+                {/* item?.type === 'alphabet' ? sortColumn(item.key, item.type, index) : item?.type === 'number' ? sortColumn(item.key, item.type, index) : null */}
+                {item.title} {item?.type && (item.order === 0 ? <span className="fa fa-sort-amount-up-alt" /> : item.order === 1 ? <span className="fa fa-sort-amount-down" /> : null)}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {data.map((item, index) => {
-            const orders = [item, ...item.orders]
+            const { trade_id, symbol } = item
+            // Order Symbol for all orders.
+            const orderArray = item.orders.map((order) => ({
+              trade_id,
+              orderSymbol: symbol,
+              ...order,
+            }))
+            // Order ID for Basic Trade
+            if (item.type !== 'Full Trade') {
+              item.order_id = item.orders[0].order_id
+            }
+            const orders = [{ orderSymbol: symbol, ...item }, ...orderArray]
             return (
               <Expandable
                 entry={orders}
@@ -260,7 +388,7 @@ const OpenOrdersTableBody = ({
                 setDeletedRows={(row) => {
                   setDeletedRows((rows) => [...rows, row])
                   setTimeout(() => {
-                    setDeletedRows(rows => rows.splice(0, 1))
+                    setDeletedRows((rows) => rows.splice(0, 1))
                   }, 3600000)
                 }}
                 deletedRow={(row) => deleteRow(row)}

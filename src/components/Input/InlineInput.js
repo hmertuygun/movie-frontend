@@ -47,6 +47,7 @@ const InlineInput = ({
         value={value}
         name={name}
         {...props}
+        autoComplete="off"
       ></input>
       <span
         className={small ? styles.InputPostLabelSmall : styles.InputPostLabel}

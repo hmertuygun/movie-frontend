@@ -317,11 +317,13 @@ export async function getOpenOrders({
   apiKeyName,
   exchange,
 }) {
-  const apiUrl = `${process.env.REACT_APP_API_V2
-    }orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${limit || 50
-    }
-                  ${timestamp ? `&timestamp=${timestamp}` : ''}${trade_id ? `&trade_id=${trade_id}` : ''
-    }`
+  let apiUrl = `${
+    process.env.REACT_APP_API_V2
+  }orders?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}&limit=${
+    limit || 50
+  }`
+  apiUrl += timestamp ? `&timestamp=${timestamp}` : ''
+  apiUrl += trade_id ? `&trade_id=${trade_id}` : ''
 
   const token = await firebase.auth().currentUser.getIdToken()
   const openOrders = await axios(apiUrl, {
@@ -743,6 +745,17 @@ export async function callCloudFunction(funcName) {
     method: 'POST',
     data: { data: { returnUrl: window.location.origin } }
   })
+  return response?.data
+}
+export async function editOrder(payload) {
+  const apiUrl = `${process.env.REACT_APP_API}orders`
+  const token = await firebase.auth().currentUser.getIdToken()
 
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data: { ...payload },
+  })
+  
   return response?.data
 }
