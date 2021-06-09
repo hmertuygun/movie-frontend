@@ -296,7 +296,6 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 </Moment>
               )}
             </td>
-            {editColumn}
             {/* {editColumn} */}
             {cancelColumn}
           </tr>
