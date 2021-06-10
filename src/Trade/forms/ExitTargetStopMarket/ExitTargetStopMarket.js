@@ -77,7 +77,7 @@ const ExitTargetStopMarket = () => {
   )
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
-  const previousTargetPrice = targets.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice;
+  const previousTargetPrice = targets?.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice;
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -117,7 +117,7 @@ const ExitTargetStopMarket = () => {
       )
       .test(
         'Trigger Price',
-        `Trigger Price must be higher than the Target ${targets.length} Price: ${addPrecisionToNumber(
+        `Trigger Price must be higher than the Target ${targets?.length} Price: ${addPrecisionToNumber(
           previousTargetPrice,
           pricePrecision
         )}`,
@@ -417,6 +417,7 @@ const ExitTargetStopMarket = () => {
 
       setValues((values) => ({
         ...values,
+        quantity: '',
         quantityPercentage: '',
         profit: '',
       }))
