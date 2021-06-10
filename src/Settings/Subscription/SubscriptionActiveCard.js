@@ -33,7 +33,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
     <div className="card">
       <div className="card-body">
         <div className="row row-grid align-items-center">
-          <div className="col-lg-7">
+          <div className="col-lg-8">
             <div className="media align-items-center">
               <span className="mr-3 text-white avatar bg-danger rounded-circle">
                 <Bell size={16} strokeWidth="3" />
@@ -48,16 +48,20 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       currency: priceData?.currency,
                     }).format((priceData?.unit_amount / 100).toFixed(2))}
                     {` `}
-                    per {priceData?.interval} after trial
+                    per {priceData?.interval} after trial.
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial will end on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
-                    </Moment>
+                    </Moment>.
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method to keep your account active.
+                  </p>
+                  <p className="mb-0 text-sm text-muted lh-150">
+                    If you don’t have a payment method added, your subscription
+                    will be cancelled automatically.
                   </p>
                 </div>
               ) : subscription.status === 'past_due' ? (
@@ -119,7 +123,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               )}
             </div>
           </div>
-          <div className="mt-4 col-lg-5 flex-fill mt-sm-0 text-sm-right">
+          <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right">
             {portalLoading ? (
               <div className="btn btn-sm btn-neutral rounded-pill">
                 <span
