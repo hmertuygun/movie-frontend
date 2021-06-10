@@ -277,8 +277,6 @@ const UserContextProvider = ({ children }) => {
           }
         }
       }
-      // const getLSS = await getLastSelectedMarketSymbol()
-      // setLastSelectedSymbol(getLSS?.lastSelectedSymbol || localStorage.getItem('selectedSymbol'))
     } catch (e) {
       console.log(e)
     } finally {
