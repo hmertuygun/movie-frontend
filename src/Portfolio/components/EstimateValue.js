@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { PortfolioContext } from '../context/PortfolioContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
@@ -9,6 +9,9 @@ const EstimateValue = () => {
   const { estimate, marketData } = useContext(PortfolioContext)
   const [estData, setEstData] = useState([])
   const { lastMessage } = useSymbolContext()
+  const [currentCurrency, setCurrentCurrency] = useState('USDT')
+  const [showOptions, setShowOptions] = useState(false)
+  const closeDropDownRef = useRef();
 
   useEffect(() => {
     setEstData(estimate)
@@ -19,10 +22,49 @@ const EstimateValue = () => {
   //   fetchLatestPrice()
   // }, [marketData])
 
+  const currencySymbols = {
+    USDT: 'dollar-sign',
+    EUR: 'euro-sign',
+    GBP: 'pound-sign',
+    AUD: 'dollar-sign'
+  }
+
+  const options = [
+    { value: 'USDT', label: 'USD' },
+    { value: 'EUR', label: 'EUR' },
+    { value: 'GBP', label: 'GBP' },
+  ]
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [])
+
   useEffect(() => {
     if (!estData?.length || !lastMessage?.length) return
     fetchLatestPrice()
   }, [lastMessage])
+
+  useEffect(() => {
+    let value = localStorage.getItem('selectedCurrency')
+    if(value) {
+      setCurrentCurrency(value)
+    }
+  },[])
+
+  const handleClickOutside = e => {
+    if(closeDropDownRef.current) {
+      if (!closeDropDownRef.current.contains(e.target)) {
+        setShowOptions(false);
+      }
+    }
+  };
+
+  const handleCurrencyChange = (value) => {
+    setShowOptions(false)
+    setCurrentCurrency(value)
+    localStorage.setItem('selectedCurrency', value)
+  }
 
   const fetchLatestPrice = () => {
     let tempBalance = []
@@ -38,6 +80,9 @@ const EstimateValue = () => {
     })
     setEstData(() => [...tempBalance])
   }
+
+  let BTC = estData && estData.find(data => data.symbol === "BTC");
+  let currency = estData && estData.find(data => data.symbol === currentCurrency);
   return (
     <>
       <div className="card card-fluid d-flex flex-row">
@@ -48,34 +93,40 @@ const EstimateValue = () => {
             </div>
           </div>
           <div className="card-body">
-            {estData &&
-              estData.map((item, idx) => {
-                return (
-                  <div className="d-flex align-items-center mb-2" key={idx}>
-                    <div>
-                      <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm">
-                        {item.symbol === 'BTC' ? (
-                          <FontAwesomeIcon icon={['fab', 'bitcoin']} />
-                        ) : item.symbol === 'USDT' ? (
-                          <FontAwesomeIcon icon={['fas', 'dollar-sign']} />
-                        ) : item.symbol === 'EUR' ? (
-                          <FontAwesomeIcon icon={['fas', 'euro-sign']} />
-                        ) : item.symbol === 'GBP' ? (
-                          <FontAwesomeIcon icon={['fas', 'pound-sign']} />
-                        ) : (
-                          item.symbol
-                        )}
-                      </span>
-                    </div>
-
-                    <div className="pl-2">
-                      <span className="text-muted text-sm font-weight-bold">
-                        {item.value} {item.symbol}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
+            {BTC && 
+              <div className="d-flex align-items-center mb-2">
+                <div>
+                  <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm">
+                      <FontAwesomeIcon icon={['fab', 'bitcoin']} />
+                  </span>
+                </div>
+                <div className="pl-2">
+                  <span className="text-muted text-sm font-weight-bold">
+                    {BTC.value} {BTC.symbol}
+                  </span>
+                </div>
+              </div>
+            }     
+            {currency && 
+              <div className="d-flex align-items-center mb-2">
+                <div>
+                  <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm icon-wrapper">
+                      <FontAwesomeIcon icon={['fas', currencySymbols[currency.symbol]]} />
+                      <FontAwesomeIcon icon={['fas', 'chevron-down']} onClick={() => setShowOptions(true)}/>
+                      {showOptions &&
+                        <div className="custom-dropdown" ref={closeDropDownRef}>
+                          {options.map(option => <p onClick={() => handleCurrencyChange(option.value)} ref={closeDropDownRef}>{option.label}</p>)}
+                        </div>
+                      } 
+                  </span>
+                </div>
+                <div className="pl-2">
+                  <span className="text-muted text-sm font-weight-bold">
+                    {currency.value} {currency.symbol}
+                  </span>
+                </div>
+              </div>
+            }
           </div>
         </div>
         <div className="card-content-right">
