@@ -54,7 +54,7 @@ const ExitTargetStopMarket = () => {
   } = useSymbolContext()
 
   const { addStopMarketTarget, state } = useContext(TradeContext)
-  const { entry } = state
+  const { entry, targets } = state
 
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
@@ -77,6 +77,7 @@ const ExitTargetStopMarket = () => {
   )
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
+  const previousTargetPrice = targets.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice;
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -114,6 +115,14 @@ const ExitTargetStopMarket = () => {
         )}`,
         (value) => value > entryPrice
       )
+      .test(
+        'Trigger Price',
+        `Trigger Price must be higher than the Target ${targets.length} Price: ${addPrecisionToNumber(
+          previousTargetPrice,
+          pricePrecision
+        )}`,
+        (value) => value > previousTargetPrice
+      )
       .max(
         maxPrice,
         `Price needs to meet max-price: ${addPrecisionToNumber(
@@ -147,7 +156,7 @@ const ExitTargetStopMarket = () => {
           totalPrecision
         )}`
       ),
-  })
+  }, [previousTargetPrice])
 
   const handleSliderChange = (newValue) => {
     setValues((values) => ({
