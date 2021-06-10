@@ -24,6 +24,8 @@ const CashoMeter = () => {
 
   let resultPercentage = Number(percentageCalculation.toFixed(3))
 
+  let value = (resultPercentage * 100).toFixed(1)
+
   let colors =
     theme === 'LIGHT'
       ? ['#5cc9a7', '#ffbe3d', '#f25767']
@@ -52,7 +54,7 @@ const CashoMeter = () => {
           style={style}
           hideText={true}
         />
-        <p className="text-muted text-sm font-weight-bold text-center">{resultPercentage * 100}%</p>
+        <p className="text-muted text-sm font-weight-bold text-center">{value}%</p>
         </>
       ) : null}
     </>
