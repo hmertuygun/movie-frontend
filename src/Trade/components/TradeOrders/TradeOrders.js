@@ -80,8 +80,8 @@ const TradeOrders = () => {
     await new Promise((resolve) => {
       setTimeout(resolve, 5500)
     })
-    dummyData[0].orders[0].status = "Filled"
-    dummyData[0].orders[1].status = "Filled"
+    // dummyData[0].orders[0].status = "Filled"
+    // dummyData[0].orders[1].status = "Filled"
     setOpenOrderData([...dummyData])
   }
 

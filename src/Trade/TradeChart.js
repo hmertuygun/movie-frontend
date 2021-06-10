@@ -71,7 +71,7 @@ const TradeChart = () => {
   }
 
   const filterOrders = (order, symbol) => {
-    if (!order?.length || !symbol) return
+    if (!order?.length || !symbol) return []
     return order.filter((item) => item.symbol.replace('-', '/') === symbol)
   }
 

@@ -75,13 +75,13 @@ export const openOrders = [
     "orders": [
       {
         "symbol": "Entry",
-        "type": "LIMIT",
+        "type": "STOP-MARKET",
         "side": "Buy",
         "price": "37000.00000000",
         "amount": "0.00067500",
         "filled": "0.00000000",
         "total": "24.97500000",
-        "trigger": "",
+        "trigger": "36035.0000",
         "status": "Filled",
         "label": "Entry",
         "timestamp": 1622812592835,
@@ -89,7 +89,7 @@ export const openOrders = [
       },
       {
         "symbol": "Stop-loss",
-        "type": "STOP-LIMIT",
+        "type": "STOP-MARKET",
         "side": "Sell",
         "price": "34040.00000000",
         "amount": "0.00051249",

@@ -158,7 +158,6 @@ export default class TradingViewChart extends Component {
           else {
             orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : type
           }
-          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
           let toolTipText
           let orderPrice
           let orderLineId
@@ -185,9 +184,12 @@ export default class TradingViewChart extends Component {
             else {
               toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
             }
-            if (trigger && trigger.length) { // price === "Market"
-              if (showOnlyEntryOrder) {
+            if (trigger && trigger.length) { // price can be "Market"
+              if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "filled") {
                 orderPrice = trigger
+              }
+              else if (symbol.toLowerCase() === "entry" && status.toLowerCase() === "filled") {
+                orderPrice = price
               }
               else {
                 if (trigger.includes(">=")) {
