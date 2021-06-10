@@ -38,6 +38,7 @@ const CashoMeter = () => {
   return (
     <>
       {!isNaN(resultPercentage) ? (
+        <>
         <GaugeChart
           id="gauge-chart1"
           nrOfLevels={20}
@@ -49,7 +50,10 @@ const CashoMeter = () => {
           colors={colors}
           className="gauge-chart"
           style={style}
+          hideText={true}
         />
+        <p className="text-muted text-sm font-weight-bold text-center">{resultPercentage * 100}%</p>
+        </>
       ) : null}
     </>
   )

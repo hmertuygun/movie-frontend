@@ -106,7 +106,7 @@ const Routes = () => {
               }}
             />
           )}
-          {isLoggedIn && userContextLoaded && !loadApiKeys && <OnboardingModal />}
+          {isLoggedIn && userContextLoaded && !loadApiKeys && !isSettingsPage && <OnboardingModal />}
           {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
             <SubscriptionModal />
           )}

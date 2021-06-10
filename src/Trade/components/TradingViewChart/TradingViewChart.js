@@ -36,13 +36,9 @@ export default class TradingViewChart extends Component {
       saveCount: 0,
       symbol,
       theme,
-      email
+      email,
+      openOrderLines: []
     }
-  }
-
-  static getDerivedStateFromProps(newProps, prevState) {
-    if (prevState.symbol !== newProps.symbol || prevState.theme !== newProps.theme) return { ...prevState, ...newProps }
-    else return { ...prevState }
   }
 
   chartReady = () => {
@@ -121,27 +117,29 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
-    const PlacedOrderTooltip = 'Order is on the exchange order book.'
-    const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
+
+    const PlacedOrderTooltip = "Order is on the exchange order book."
+    const PendingOrderTooltip = "Order is waiting to be placed in the order book."
+    const entryNotFilledToolTip = "Order will be activated after entry is completed."
+
+    const blue = "#008aff"
+    const green = "#3cb690"
+    const red = "rgba(242, 87, 103, 1)"
+    const redOpaque = "rgba(242, 87, 103, 0.6)"
+
     try {
-      const blue = "#008aff"
-      const green = "#3cb690"
-      const red = "rgba(242, 87, 103, 1)"
-      const redOpaque = "rgba(242, 87, 103, 0.75)"
-      // if (!this.orderLineCount) await new Promise(resolve => setTimeout(resolve, 2000))
-      // this.orderLineCount++
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
         const { trade_id, line_id } = this.orderLinesDrawn[i]
-        let fData = openOrders.find(item => item.trade_id === trade_id)
-        if (!fData) this.chartObject.setEntityVisibility(line_id, false)
+        this.chartObject.setEntityVisibility(line_id, false)
       }
-      // openOrders = openOrders.filter(item => this.orderLinesDrawn.findIndex(item1 => item1.trade_id === item.trade_id) === -1)
+      this.orderLinesDrawn = []
       for (let i = 0; i < openOrders.length; i++) {
         const { trade_id, orders, type, symbol } = openOrders[i]
-        if (this.props.symbol.replace('/', '-') !== symbol) continue // skip orders with symbol not equal to the one selected/shown in chart 
         const isFullTrade = type.includes("Full")
         for (let j = 0; j < orders.length; j++) {
           const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
+          // if order status is filled , don't draw it
+          if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue
           let entryStatus
           if (isFullTrade) {
             entryStatus = orders[0]?.status?.toLowerCase()
@@ -164,7 +162,6 @@ export default class TradingViewChart extends Component {
           else {
             orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : type
           }
-          const showOnlyEntryOrder = symbol.toLowerCase() === "entry" && status.toLowerCase() === "pending"
           let toolTipText
           let orderPrice
           let orderLineId
@@ -189,11 +186,22 @@ export default class TradingViewChart extends Component {
               }
             }
             else {
-              toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+              if (orderColor === redOpaque) {
+                toolTipText = entryNotFilledToolTip
+              }
+              else if (status.toLowerCase() === "pending") {
+                toolTipText = PendingOrderTooltip
+              }
+              else if (status.toLowerCase() !== "pending") {
+                toolTipText = PlacedOrderTooltip
+              }
             }
-            if (trigger && trigger.length) { // price === "Market"
-              if (showOnlyEntryOrder) {
+            if (trigger && trigger.length) { // price can be "Market"
+              if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "filled") {
                 orderPrice = trigger
+              }
+              else if (symbol.toLowerCase() === "entry" && status.toLowerCase() === "filled") {
+                orderPrice = price
               }
               else {
                 if (trigger.includes(">=")) {
@@ -216,38 +224,20 @@ export default class TradingViewChart extends Component {
             toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
             orderLineId = trade_id
           }
-
-          const fIndex = this.orderLinesDrawn.findIndex(item => item.id === orderLineId)
-          if (fIndex > -1) { // if order is already drawn
-            const { line_id, trade_id, entity } = this.orderLinesDrawn[fIndex]
-            if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") { // if order is already drawn and the status is 'filled' hide it.
-              this.chartObject.setEntityVisibility(line_id, false)
-            }
-            else {
-              entity.setTooltip(toolTipText)
-                .setText(orderText)
-                .setQuantity(`${total} ${quote_asset}`)
-                .setPrice(orderPrice)
-            }
-          }
-          else { // if order is not already drawn
-            if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue // if order status is filled , don't draw it
-            let entity = this.chartObject.createOrderLine()
-              .setTooltip(toolTipText)
-              .setLineLength(60)
-              .setExtendLeft(false)
-              .setLineColor(orderColor)
-              .setBodyBorderColor(orderColor)
-              .setBodyTextColor(orderColor)
-              .setQuantityBackgroundColor(orderColor)
-              .setQuantityBorderColor(orderColor)
-              // .setQuantityTextColor("rgb(255,255,255)")
-              .setText(orderText)
-              .setQuantity(`${total} ${quote_asset}`)
-              .setPrice(orderPrice)
-            this.orderLinesDrawn.push({ line_id: entity?._line?._id, id: orderLineId, trade_id, entity })
-          }
-          //if (showOnlyEntryOrder) break
+          let entity = this.chartObject.createOrderLine()
+            .setTooltip(toolTipText)
+            .setLineLength(60)
+            .setExtendLeft(false)
+            .setLineColor(orderColor)
+            .setBodyBorderColor(orderColor)
+            .setBodyTextColor(orderColor)
+            .setQuantityBackgroundColor(orderColor)
+            .setQuantityBorderColor(orderColor)
+            .setQuantityTextColor("rgb(255,255,255)")
+            .setText(orderText)
+            .setQuantity(`${total} ${quote_asset}`)
+            .setPrice(orderPrice)
+          this.orderLinesDrawn.push({ line_id: entity?._line?._id, id: orderLineId, status: status.toLowerCase(), trade_id, entity })
         }
       }
     }
@@ -318,9 +308,9 @@ export default class TradingViewChart extends Component {
       this.setState({
         isChartReady: true
       })
-      // this.chartEvent("study_event")
       this.chartEvent("onAutoSaveNeeded")
       // this.chartShortCutSave()
+      // this.chartEvent("study_event")
       setTimeout(() => {
         this.props.chartReady(true)
       }, 2500)
@@ -341,14 +331,27 @@ export default class TradingViewChart extends Component {
     cssLink.rel = "stylesheet"
     cssLink.type = "text/css"
     getIFrame?.contentDocument.head.appendChild(cssLink)
-    // const getElement = getIFrame?.contentDocument?.body?.querySelector(".layout__area--center")
-    // if (getElement) {
-    //   setInterval(() => {
-    //     getElement.style.width = '100% !important'
-    //     getElement.style.height = '100% !important'
-    //     console.log(getElement)
-    //   }, 2000)
-    // }
+  }
+
+  isArrayEqual(newOrders, oldOrders) {
+    if (!newOrders) return true
+    let newArray = []
+    for (let i = 0; i < newOrders.length; i++) {
+      const { trade_id, orders, type, symbol } = newOrders[i]
+      const isFullTrade = type.includes("Full")
+      for (let j = 0; j < orders.length; j++) {
+        const { symbol, status } = orders[j]
+        const id = isFullTrade ? trade_id + '-' + symbol.toLowerCase().replace(' ', '-') : trade_id
+        if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue
+        newArray.push({ id, status: status.toLowerCase() })
+      }
+    }
+    const mappedDrawnLines = this.orderLinesDrawn.map((item) => ({ id: item.id, status: item.status }))
+    return JSON.stringify(newArray) === JSON.stringify(mappedDrawnLines)
+  }
+
+  static getDerivedStateFromProps(newProps, prevState) {
+    return { ...prevState, theme: newProps.theme, symbol: newProps.symbol, openOrderLines: newProps.openOrders }
   }
 
   componentDidMount() {
@@ -357,12 +360,10 @@ export default class TradingViewChart extends Component {
   }
 
   componentDidUpdate(prevProps, props) {
-    if (props.theme !== this.state.theme) {
-      this.tradingViewWidget.changeTheme(this.state.theme);
-    }
     if (!this.tradingViewWidget) return
-    this.changeSymbol(this.props.symbol)
-    this.drawOpenOrdersChartLines(this.props.openOrders)
+    if (props.theme !== this.state.theme) this.tradingViewWidget.changeTheme(this.state.theme)
+    this.changeSymbol(this.state.symbol)
+    if (!this.isArrayEqual(this.state.openOrderLines, props.openOrderLines)) this.drawOpenOrdersChartLines(this.state.openOrderLines)
   }
 
   componentWillUnmount() {

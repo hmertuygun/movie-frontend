@@ -21,7 +21,7 @@ const openOrdersColumns = [
     title: 'Pair',
     key: 'symbol',
     type: 'alphabet',
-    order: 2
+    order: 0
   },
   {
     title: 'Type',

@@ -67,10 +67,10 @@ const SymbolSelect = () => {
       backgroundColor: isDisabled
         ? 'var(--trade-background)'
         : isSelected
-        ? 'var(--symbol-select-background-selected)'
-        : isFocused
-        ? 'var(--symbol-select-background-focus)'
-        : 'var(--trade-background)',
+          ? 'var(--symbol-select-background-selected)'
+          : isFocused
+            ? 'var(--symbol-select-background-focus)'
+            : 'var(--trade-background)',
       color: 'var(--grey)',
 
       '&:hover': {
@@ -92,9 +92,6 @@ const SymbolSelect = () => {
   useEffect(() => {
     if (!activeExchange?.exchange) return
     let { exchange } = activeExchange
-    // const selected = symbols.filter((symbol) =>
-    //   symbol.value.toLowerCase().includes(exchange.toLowerCase())
-    // )
     exchange = exchange.toLowerCase()
     const selected = exchange === "binance" ? binanceDD : exchange === "ftx" ? ftxDD : null
     setInitialOptions(selected)
@@ -126,7 +123,7 @@ const SymbolSelect = () => {
           placeholder="Select trading pair"
           value={selectedSymbol}
           onChange={(value) => setSymbol(value)}
-          isDisabled={isLoadingBalance || isLoading}
+          isDisabled={isLoading}
           styles={customStyles}
           onInputChange={(inputValue) => {
             setOptions(matchSorter(initialOptions, inputValue, { keys: ['label'] }))

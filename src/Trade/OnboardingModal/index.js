@@ -255,11 +255,18 @@ const OnboardingModal = () => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title h6">Exchange Setup</h5>
-            <Link to="/logout">
-              <button type="button" className="px-0 py-0 btn btn-link">
-                Logout
-              </button>
-            </Link>
+            <div>
+              <Link to="/settings">
+                <button type="button" className="px-0 py-0 mr-3 btn btn-link">
+                  Settings
+                </button>
+              </Link>
+              <Link to="/logout">
+                <button type="button" className="px-0 py-0 btn btn-link">
+                  Logout
+                </button>
+              </Link>
+            </div>
           </div>
           <div className="modal-body">
             <div className="mb-3 ml-0 text-center row">

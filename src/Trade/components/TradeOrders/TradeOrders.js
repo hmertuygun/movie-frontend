@@ -15,23 +15,9 @@ import precisionRound from '../../../helpers/precisionRound'
 import { errorNotification } from '../../../components/Notifications'
 import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { openOrders as dummyOpenOrderData } from '../../../api/dummyData'
 import './TradeOrders.css'
 const db = firebase.firestore()
-
-const OPEN_ORDERS_INITIAL_STATE = {
-  isFetching: false,
-  lastFetchedData: null,
-  limit: 50,
-  page: 1,
-  data: []
-}
-const ORDER_HISTORY_INITIAL_STATE = {
-  isFetching: false,
-  lastFetchedData: null,
-  limit: 50,
-  page: 1,
-  data: []
-}
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
@@ -86,6 +72,17 @@ const TradeOrders = () => {
         setIsOpenOrderFetching(false)
         setLoadBtnOO(false)
       })
+  }
+
+  const setDummyOOData = async () => {
+    let dummyData = [...dummyOpenOrderData]
+    setOpenOrderData([...dummyOpenOrderData])
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5500)
+    })
+    // dummyData[0].orders[0].status = "Filled"
+    // dummyData[0].orders[1].status = "Filled"
+    setOpenOrderData([...dummyData])
   }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
