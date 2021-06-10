@@ -117,12 +117,16 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
-    const PlacedOrderTooltip = 'Order is on the exchange order book.'
-    const PendingOrderTooltip = 'Order is waiting to be placed in the order book.'
+
+    const PlacedOrderTooltip = "Order is on the exchange order book."
+    const PendingOrderTooltip = "Order is waiting to be placed in the order book."
+    const entryNotFilledToolTip = "Order will be activated after entry is completed."
+
     const blue = "#008aff"
     const green = "#3cb690"
     const red = "rgba(242, 87, 103, 1)"
     const redOpaque = "rgba(242, 87, 103, 0.6)"
+
     try {
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
         const { trade_id, line_id } = this.orderLinesDrawn[i]
@@ -182,7 +186,15 @@ export default class TradingViewChart extends Component {
               }
             }
             else {
-              toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+              if (orderColor === redOpaque) {
+                toolTipText = entryNotFilledToolTip
+              }
+              else if (status.toLowerCase() === "pending") {
+                toolTipText = PendingOrderTooltip
+              }
+              else if (status.toLowerCase() !== "pending") {
+                toolTipText = PlacedOrderTooltip
+              }
             }
             if (trigger && trigger.length) { // price can be "Market"
               if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "filled") {
