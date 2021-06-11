@@ -188,11 +188,9 @@ const QuickLogin = () => {
 
               <div className="mt-4 text-center">
                 <small>Not registered? </small>
-                <a href="#" className="small font-weight-bold" onClick={() => {
-                  window.location.href = "/register?ref=cryptobanter"
-                }}>
+                <Link to="/register" className="small font-weight-bold">
                   Create account
-                </a>
+                </Link>
               </div>
 
               <div className="mt-4 text-center">
