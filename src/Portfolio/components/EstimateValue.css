@@ -11,6 +11,10 @@
   margin-top: 27px;
 }
 
+.card-content-right .card-body p {
+  width: 92%
+}
+
 .card-content-right .gauge-chart text {
   font-size: 19px !important;
 }
