@@ -41,7 +41,7 @@ const SubscriptionModal = () => {
                 {showSubModalIfLessThan7Days ? `You have less than ${Math.ceil(trialDaysLeft)} days left. Click on the button below to add payment method to keep your subscription active. ` : 'Uh oh! Looks like your CoinPanel subscription has expired. Click on the button below to renew your subscription.'}
               </p>
               <button type="button" className="btn btn-primary btn-sm" onClick={onBuySubClick}>
-                Add Payment Method
+                {showSubModalIfLessThan7Days ? `Add Payment Method` : 'Buy Subscription'}
                 <FontAwesomeIcon icon="external-link-alt" color="#ffffff" className="ml-1" />
               </button>
             </div>
