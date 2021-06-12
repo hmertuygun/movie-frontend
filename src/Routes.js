@@ -67,7 +67,8 @@ const Routes = () => {
     hasSub,
     loaderVisible,
     loaderText,
-    setIsAppOnline
+    setIsAppOnline,
+    showSubModalIfLessThan7Days
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
@@ -107,7 +108,7 @@ const Routes = () => {
             />
           )}
           {isLoggedIn && userContextLoaded && !loadApiKeys && !isSettingsPage && <OnboardingModal />}
-          {isLoggedIn && userContextLoaded && !hasSub && !isSettingsPage && (
+          {isLoggedIn && userContextLoaded && !isSettingsPage && (!hasSub || showSubModalIfLessThan7Days) && (
             <SubscriptionModal />
           )}
           {isLoggedIn && userContextLoaded && (

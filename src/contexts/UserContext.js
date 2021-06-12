@@ -67,7 +67,8 @@ const UserContextProvider = ({ children }) => {
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
   const [isAppOnline, setIsAppOnline] = useState(true)
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
-
+  const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
+  const [trialDaysLeft, setDaysLeft] = useState(0)
   useEffect(() => {
     getUserExchangesAfterFBInit()
     getProducts()
@@ -180,8 +181,27 @@ const UserContextProvider = ({ children }) => {
       // const NoDefaultPayment = !lastSubscription.invoices.some(
       //   (invoice) => invoice.default_payment_method
       // )
+      console.log(lastSubscription)
+    // Show days left on sub modal if less than 7 days on trial
 
-      // Add Payment Method case
+      let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
+      getSubModalShownLastTime = getSubModalShownLastTime ? Number(getSubModalShownLastTime) : true
+
+      let trialDays = lastSubscription?.trial_end?.seconds * 1000 - Date.now()
+      trialDays = (trialDays / 1000 / 60 / 60 / 24)
+
+      let showSubModal = lastSubscription?.status === 'trialing' && 
+      (trialDays < 7) &&
+      (getSubModalShownLastTime + 86400 < (Date.now() / 1000))
+
+      setShowSubModal(showSubModal)
+      setDaysLeft(trialDays)
+
+      if (showSubModal) {
+        localStorage.setItem('lastSubModal', parseInt(Date.now() / 1000))
+      }
+
+    // Add Payment Method case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
@@ -196,12 +216,11 @@ const UserContextProvider = ({ children }) => {
         setNeedPayment(false)
       }
 
-      // Subscribe button case
+    // Subscribe button case
       if (lastSubscription.status === 'canceled' && NoneActive) {
         setHasSub(false)
       }
-
-      // Manage subscription case
+    // Manage subscription case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
@@ -573,7 +592,10 @@ const UserContextProvider = ({ children }) => {
         isAppOnline,
         setIsAppOnline,
         lastSelectedSymbol,
-        setLastSelectedSymbol
+        setLastSelectedSymbol,
+        showSubModalIfLessThan7Days,
+        setShowSubModal,
+        trialDaysLeft
       }}
     >
       {children}

@@ -34,7 +34,8 @@ const CashoMeter = () => {
   let textColor = theme === 'LIGHT' ? '#718096' : '#a2aab5'
 
   const style = {
-    height: 121.05
+    height: 121.05,
+    width: "92%"
   }
 
   return (
