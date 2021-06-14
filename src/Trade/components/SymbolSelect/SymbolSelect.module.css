@@ -32,3 +32,19 @@
   border: 1px solid var(--primary-color);
   outline: 1px solid var(--primary-color);
 }
+
+.Mobile-Symbol-Container {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .Mobile-Symbol-Container {
+    grid-template-columns: 100%;
+    display: block; 
+    width: 80%;
+  }
+
+  .Mobile-Select-Container-Type {
+    display: none;
+  }
+}

@@ -6,7 +6,7 @@ import Select from 'react-select'
 import { matchSorter } from 'match-sorter'
 import { useMediaQuery } from 'react-responsive'
 
-const SymbolSelect = () => {
+const SymbolSelect = ({ showOnlyMarketSelection }) => {
   const {
     exchanges,
     symbols,
@@ -99,21 +99,20 @@ const SymbolSelect = () => {
   }, [binanceDD, ftxDD, activeExchange.exchange])
 
   return (
-    <div className={styles['SymbolSelect-Container']}>
-      <div className={styles['Select-Container']}>
-        <Select
-          components={{
-            IndicatorSeparator: () => null,
-          }}
-          options={exchanges}
-          isSearchable={false}
-          styles={customStyles}
-          onChange={(value) => setExchange(value)}
-          value={activeExchange}
-          isDisabled={isLoading}
-        />
-      </div>
-
+    <div className={`${styles['SymbolSelect-Container']} ${showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''}`}>
+        <div className={`${styles['Select-Container']} ${showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''}`}>
+          <Select
+            components={{
+              IndicatorSeparator: () => null,
+            }}
+            options={exchanges}
+            isSearchable={false}
+            styles={customStyles}
+            onChange={(value) => setExchange(value)}
+            value={activeExchange}
+            isDisabled={isLoading}
+          />
+        </div>
       <div className={styles['Select-Container']}>
         <Select
           components={{
