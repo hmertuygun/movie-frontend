@@ -9,8 +9,8 @@ import Notifications from '../Settings/Notifications'
 import Subscriptions from '../Settings/Subscription'
 
 const Settings = () => {
-  const { hash, pathname } = useLocation()
-  const tabIndex = hash === "#subscription" || pathname === "/settings/billing" ? 3 : 0
+  const { hash } = useLocation()
+  const tabIndex = hash === "#subscription" ? 3 : 0
   return (
     <Fragment>
       <section

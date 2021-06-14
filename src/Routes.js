@@ -44,7 +44,6 @@ const HandleEmailActions = lazy(() => import('./views/Auth/HandleEmailActions'))
 
 const TradeView = lazy(() => import('./views/TradeView'))
 const Settings = lazy(() => import('./views/Settings'))
-const Billing = lazy(() => import('./views/Settings'))
 // const Positions = lazy(() => import('./views/PositionView'))
 // const Portfolio = lazy(() => import('./views/PortfolioView'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
@@ -115,8 +114,7 @@ const Routes = () => {
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <CacheRoute exact path="/trade" component={TradeView} />
-              <Route exact path="/settings" component={Settings} />
-              <Route exact path="/settings/billing" component={Billing} />
+              <Route path="/settings" component={Settings} />
               <CacheRoute path="/portfolio" component={Portfolio} />
               <CacheRoute path="/alerts" component={PriceAlerts} />
               <CacheRoute path="/positions" component={Positions} />
