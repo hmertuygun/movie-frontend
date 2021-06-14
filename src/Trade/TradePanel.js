@@ -19,6 +19,7 @@ import {
   Button,
   Modal,
 } from '../components'
+import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
 import TradeTableContainer from './components/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
@@ -127,6 +128,7 @@ const Trade = () => {
   return (
     <Fragment>
       <>
+        <SymbolSelect showOnlyMarketSelection={true}/>
         <div
           className="TradeView-Panel-Mobile-Close"
           onClick={() => setIsTradePanelOpen(false)}
