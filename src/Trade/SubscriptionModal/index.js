@@ -3,11 +3,11 @@ import { Link, useHistory } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const SubscriptionModal = () => {
-  const { hasSub, isLoggedIn, showSubModalIfLessThan7Days, trialDaysLeft, setShowSubModal } = useContext(UserContext)
+  const { hasSub, isLoggedIn, showSubModalIfLessThan7Days, trialDaysLeft, setShowSubModal, needPayment } = useContext(UserContext)
 
   const modalVisibility = () => {
     if (isLoggedIn) {
-      if (!hasSub || showSubModalIfLessThan7Days) return 'block'
+      if (!hasSub || (showSubModalIfLessThan7Days && needPayment)) return 'block'
       else return 'none'
     }
     else {
