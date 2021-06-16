@@ -1,12 +1,30 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { MenuData } from './MenuData'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
 
-
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext);
 
+  useEffect(() => {
+    let button = document.getElementsByClassName('button-close')[0];
+    button.addEventListener('click', handleCommunityModalClose)
+  }, [])
+
+  const handleCommunityModalOpen = () => {
+    let modal = document.getElementsByClassName('circle-widget-overlay')[0]
+    modal.classList.remove('hidden');
+    modal.classList.add('shown');
+    modal.style.visibility = "visible"
+  }
+
+  const handleCommunityModalClose = () => {
+    let modal = document.getElementsByClassName('circle-widget-overlay')[0]
+    modal.classList.add('hidden');
+    modal.classList.remove('shown');
+    modal.style.visibility = "hidden"
+  }
+  
   return (
     <ul className="navbar-nav ml-lg-auto mr-3">
       {MenuData.map((item) => {
@@ -22,6 +40,15 @@ const MenuItems = () => {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
+              >
+                {item.title}
+              </a>
+            ) : item.modal ? (
+              <a
+                id={item.id}
+                className="nav-link"
+                href="#"
+                onClick={handleCommunityModalOpen}
               >
                 {item.title}
               </a>

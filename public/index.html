@@ -51,6 +51,22 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+    <script>
+      (function (w,d,s,o,f,js,fjs) {
+        w['circleWidget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+        js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+        js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+      }(window, document, 'script', 'mw', 'https://community.coinpanel.com/external/widget.js'));
+      mw('init', {
+        community_public_uid: '7e322801',
+        brand_color: '#506CF0'
+      });
+      // Optional: pass in a default space slug and/or post slug
+      // mw('setDefaults', {
+      //   space_slug: '',
+      //   post_slug: ''
+      // });
+  </script>
   <!--polyfill for safari 12.0 and older-->
   <script
     src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CResizeObserver%2Cdocument.visibilityState%2CPageVisibility"></script>
