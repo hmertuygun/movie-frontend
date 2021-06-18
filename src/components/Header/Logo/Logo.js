@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeContext } from '../../../contexts/ThemeContext'
+import '../../Logo/Logo.css'
 
 const Logo = () => {
   const { theme } = useContext(ThemeContext);

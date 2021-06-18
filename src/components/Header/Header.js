@@ -83,32 +83,6 @@ const Header = () => {
     })
   }
 
-  const switchAppStyleSheet = () => {
-    const appStylesheet = document.getElementById('app-stylesheet')
-    if (appStylesheet) {
-      const params = appStylesheet.getAttribute('href').split('/')
-
-      const file = params[params.length - 1]
-      let newFile
-
-      switch (theme) {
-        case 'LIGHT':
-          newFile = 'quick-website.css'
-          break
-        case 'DARK':
-          newFile = 'quick-website-dark.css'
-          break
-        default:
-          newFile = 'quick-website.css'
-          break
-      }
-
-      newFile = appStylesheet.getAttribute('href').replace(file, newFile)
-
-      appStylesheet.setAttribute('href', newFile)
-    }
-  }
-
   const addDarkClassToBody = () => {
     const element = document.body
     switch (theme) {
@@ -124,7 +98,6 @@ const Header = () => {
   }
 
   useEffect(() => {
-    switchAppStyleSheet()
     addDarkClassToBody()
   }, [theme])
 
