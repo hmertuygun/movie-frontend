@@ -111,7 +111,7 @@ const MarketForm = () => {
   })
 
   const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
-    const price = Number(values.price)
+    const price = selectedSymbolLastPrice
     const total = Number(value)
 
     const quantity = total / price

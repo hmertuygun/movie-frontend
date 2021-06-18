@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Proper crypto trading." />
-  <meta http-equiv='cache-control' content='no-cache'>
+  <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv='expires' content='0'>
-  <meta http-equiv='pragma' content='no-cache'>
+  <meta http-equiv="Pragma" content="no-cache">
   <script src="scripts/charting/charting_library/charting_library.js?v=1.1"></script>
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet" />
@@ -51,6 +51,22 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+    <script>
+      (function (w,d,s,o,f,js,fjs) {
+        w['circleWidget']=o;w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+        js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+        js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+      }(window, document, 'script', 'mw', 'https://community.coinpanel.com/external/widget.js'));
+      mw('init', {
+        community_public_uid: '7e322801',
+        brand_color: '#506CF0'
+      });
+      // Optional: pass in a default space slug and/or post slug
+      // mw('setDefaults', {
+      //   space_slug: '',
+      //   post_slug: ''
+      // });
+  </script>
   <!--polyfill for safari 12.0 and older-->
   <script
     src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CResizeObserver%2Cdocument.visibilityState%2CPageVisibility"></script>

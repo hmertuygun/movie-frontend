@@ -179,6 +179,17 @@ _:future,
   height: 100% !important;
 }
 
+/* To hide community icon */
+.circle-widget-trigger {
+  display: none !important;
+}
+
+.circle-widget-overlay .button-close {
+  display: flex !important;
+  width: 95% !important;
+  justify-content: flex-end !important;
+}
+
 @media (max-width: 992px) {
   _::-webkit-full-page-media,
   _:future,

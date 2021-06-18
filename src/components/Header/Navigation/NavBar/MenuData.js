@@ -25,4 +25,9 @@ export const MenuData = [
     externalLink: true,
     id: 'cp-tour8'
   },
+  {
+    title: 'Community',
+    modal: true,
+    id: 'cp-community'
+  }
 ]

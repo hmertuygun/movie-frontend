@@ -2,6 +2,7 @@ import React, { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
+import ChunkLoadErrorBoundary from './components/ChunkLoadErrorBoundary'
 import ErrorBoundary from './components/ErrorBoundary'
 import * as Sentry from '@sentry/react'
 import { Integrations } from '@sentry/tracing'
@@ -36,29 +37,31 @@ const queryClient = new QueryClient()
 export default function App() {
   return (
     // <Sentry.ErrorBoundary fallback={'An error has occurred'}>
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <ThemeContextProvider>
-          <UserContextProvider>
-            <SymbolContextProvider>
-              <TabContextProvider>
-                <PositionCTXProvider>
-                  <PortfolioCTXProvider>
-                    <ErrorBoundary componentName="Header">
-                      <Suspense fallback={<div></div>}>
-                        <Header />
-                      </Suspense>
-                    </ErrorBoundary>
-                    <Routes />
-                  </PortfolioCTXProvider>
-                </PositionCTXProvider>
-              </TabContextProvider>
-            </SymbolContextProvider>
-          </UserContextProvider>
-        </ThemeContextProvider>
-      </Router>
-      {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
-    </QueryClientProvider>
+    <ChunkLoadErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <ThemeContextProvider>
+            <UserContextProvider>
+              <SymbolContextProvider>
+                <TabContextProvider>
+                  <PositionCTXProvider>
+                    <PortfolioCTXProvider>
+                      <ErrorBoundary componentName="Header">
+                        <Suspense fallback={<div></div>}>
+                          <Header />
+                        </Suspense>
+                      </ErrorBoundary>
+                      <Routes />
+                    </PortfolioCTXProvider>
+                  </PositionCTXProvider>
+                </TabContextProvider>
+              </SymbolContextProvider>
+            </UserContextProvider>
+          </ThemeContextProvider>
+        </Router>
+        {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+      </QueryClientProvider>
+    </ChunkLoadErrorBoundary>
     // </Sentry.ErrorBoundary>
   )
 }
