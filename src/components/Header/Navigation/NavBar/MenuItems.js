@@ -8,7 +8,9 @@ const MenuItems = () => {
 
   useEffect(() => {
     let button = document.getElementsByClassName('button-close')[0];
-    button.addEventListener('click', handleCommunityModalClose)
+      if(button) {
+        button.addEventListener('click', handleCommunityModalClose)
+      }
   }, [])
 
   const handleCommunityModalOpen = () => {
