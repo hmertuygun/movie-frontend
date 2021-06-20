@@ -272,7 +272,7 @@ const TradeContainer = () => {
                 <button
                   type="button"
                   className="close"
-                  onClick={() => removeNotice(index)}
+                  onClick={() => removeNotice(item, index)}
                 >
                   <span>&times;</span>
                 </button>
