@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import dataFeed from './dataFeed'
 import { saveChartDrawing } from '../../../api/api'
+import { errorNotification } from '../../../components/Notifications'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -95,10 +96,17 @@ export default class TradingViewChart extends Component {
     }
   }
 
-  saveChartDrawingToServer = (event) => {
-    this.tradingViewWidget.save((obj) => {
-      const str = JSON.stringify(obj.charts[0].panes)
-      saveChartDrawing(this.state.email, str)
+  saveChartDrawingToServer =  (event) => {
+    this.tradingViewWidget.save(async(obj) => {
+      try {
+        const str = JSON.stringify(obj.charts[0].panes)
+        await saveChartDrawing(this.state.email, str)
+      } 
+      catch(e) {
+        errorNotification.open({
+          description: e.message,
+        })
+      }
     })
   }
 

@@ -131,8 +131,9 @@ export async function getExchanges() {
 }
 
 export async function getBalance({ symbol, apiKeyName, exchange }) {
-  const apiUrl = `${process.env.REACT_APP_API_V2
-    }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
+  const apiUrl = `${
+    process.env.REACT_APP_API_V2
+  }balance/${symbol}?apiKeyName=${apiKeyName}&exchange=${capitalize(exchange)}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
@@ -144,8 +145,7 @@ export async function getBalance({ symbol, apiKeyName, exchange }) {
 }
 
 export async function getLastPrice(symbol, exchange) {
-  const apiUrl =
-    `${process.env.REACT_APP_API_V2}lastprice?symbol=${symbol}&exchange=${exchange}`
+  const apiUrl = `${process.env.REACT_APP_API_V2}lastprice?symbol=${symbol}&exchange=${exchange}`
   const token = await firebase.auth().currentUser.getIdToken()
 
   const response = await axios(apiUrl, {
