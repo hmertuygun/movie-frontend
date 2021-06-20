@@ -377,7 +377,7 @@ const TradeOrders = () => {
             >
               Order History
             </span>
-            { !isOpenOrders && !showProgressBar && 
+            { !isOpenOrders && 
               <span className='message pl-4'>
                 Order history sometimes does not update properly. We are aware of the issue and it will be fixed soon.
               </span>
@@ -413,9 +413,9 @@ const TradeOrders = () => {
             sortColumn={sortTable}
             deleteRow={(rData) => deleteOpenOrdersRow(rData)}
             isHideOtherPairs={isHideOtherPairs}
-          />
-        ) : !isOpenOrders && showProgressBar ? ProgressBar : (
-          <OrderHistoryTableBody
+          />) :
+        // ) : !isOpenOrders && showProgressBar ? ProgressBar : (
+          (<OrderHistoryTableBody
             isFetching={isOrderHistoryFetching}
             lastFetchedData={orderHistoryLastFetchedData}
             data={orderHistoryData}
