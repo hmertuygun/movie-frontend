@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext, useState, useEffect } from 'react'
 import Tooltip from '../components/Tooltip'
 import DropDownSelect from 'react-dropdown-select'

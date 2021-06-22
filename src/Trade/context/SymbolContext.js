@@ -365,7 +365,7 @@ const SymbolContextProvider = ({ children }) => {
     try {
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
       const getSymbolFromLS = localStorage.getItem('selectedSymbol')
-      if (!activeExchange?.exchange || !quote_asset || !base_asset && (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS)) return
+      if (!activeExchange?.exchange || !quote_asset || (!base_asset && (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS))) return
       setIsLoadingBalance(true)
 
       const quoteBalance = await getBalance({ symbol: quote_asset, ...activeExchange })

@@ -40,12 +40,14 @@ export default class dataFeed {
   onReady(callback) {
     //console.log(`onReady`)
     // this.marketSymbols = JSON.parse(this.marketSymbols)
-    callback({
-      supports_marks: false,
-      supports_timescale_marks: false,
-      supports_time: true,
-      supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
-    })
+    setTimeout(() => {
+      callback({
+        supports_marks: false,
+        supports_timescale_marks: false,
+        supports_time: true,
+        supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
+      })
+    }, 0);
   }
 
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
@@ -55,22 +57,24 @@ export default class dataFeed {
       const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
       const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
       // console.log(selectedSymbolDetail)
-      onSymbolResolvedCallback({
-        name: chosenSymbol,
-        description: chosenSymbol,
-        ticker: chosenSymbol,
-        exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-        listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-        type: 'crypto',
-        session: '24x7',
-        minmov: 1,
-        pricescale: Math.pow(10, selectedSymbolDetail?.tickSize || 2),
-        timezone: 'UTC',
-        currency_code: chosenSymbol.split("/")[1],
-        has_intraday: true,
-        has_daily: true,
-        has_weekly_and_monthly: true,
-      })
+      setTimeout(() => {
+        onSymbolResolvedCallback({
+          name: chosenSymbol,
+          description: chosenSymbol,
+          ticker: chosenSymbol,
+          exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+          listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+          type: 'crypto',
+          session: '24x7',
+          minmov: 1,
+          pricescale: Math.pow(10, selectedSymbolDetail?.tickSize || 2),
+          timezone: 'UTC',
+          currency_code: chosenSymbol.split("/")[1],
+          has_intraday: true,
+          has_daily: true,
+          has_weekly_and_monthly: true,
+        })
+      }, 0);
     }
     catch (e) {
       console.log(e)
