@@ -71,10 +71,10 @@ const Position = () => {
   }, [])
 
   const toRender = () => {
-    if (checkProgress && (orderHistoryProgressPV !== '100.00' || orderHistoryProgressUC !== '100.00')) return ProgressBar
-    else {
+    // if (checkProgress && (orderHistoryProgressPV !== '100.00' || orderHistoryProgressUC !== '100.00')) return ProgressBar
+    // else {
       return <AccordionContainer />
-    }
+    // }
   }
 
   return (

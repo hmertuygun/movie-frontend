@@ -253,6 +253,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         const PlacedOrderTooltip = 'Order is on the exchange order book.'
         const PendingOrderTooltip =
           'Order is waiting to be placed in the order book.'
+        const FilledorderTooltip = 'Order is filled.'  
 
         return (
           <tr className={rowClass} key={rowIndex}>
@@ -282,6 +283,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 data-tip={
                   order.status?.toLowerCase() === 'pending'
                     ? PendingOrderTooltip
+                    : order.status?.toLowerCase() === 'filled' 
+                    ? FilledorderTooltip 
                     : PlacedOrderTooltip
                 }
               >
