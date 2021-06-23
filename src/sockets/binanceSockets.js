@@ -1,8 +1,8 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import tvIntervals from '../helpers/tvIntervals'
 export default class socketClient {
-  constructor() {
-    this.binanceWS = 'wss://stream.binance.com:9443/ws'
+  constructor({ exchange }) {
+    this.binanceWS = exchange === 'binance' ? 'wss://stream.binance.com:9443/ws' : 'wss://stream.binance.us:9443/ws'
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
     this._createSocket()
   }

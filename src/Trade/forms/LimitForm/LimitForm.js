@@ -46,22 +46,20 @@ const LimitForm = () => {
     total: '',
   })
 
-  const minNotional = Number(selectedSymbolDetail.minNotional)
-  const maxPrice = Number(selectedSymbolDetail.maxPrice)
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const maxQty = Number(selectedSymbolDetail.maxQty)
-  const minQty = Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
 
-  const quantityPrecision = selectedSymbolDetail['lotSize']
-
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
     0: '',
@@ -352,7 +350,7 @@ const LimitForm = () => {
 
     if (isFormValid) {
       setErrors({ price: '', quantity: '', total: '' })
-      const symbol = selectedSymbolDetail['symbolpair']
+      const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
       const payload = {
         price: convertCommaNumberToDot(values.price),
@@ -381,7 +379,7 @@ const LimitForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['quote_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (

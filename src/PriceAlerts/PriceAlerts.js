@@ -80,9 +80,13 @@ const customStyles = {
   }),
 }
 const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, condition, binanceSymbols, ftxSymbols, status, note, showAlertCard, cardOp, onCancel }) => {
-  const { symbols, symbolDetails, binanceDD, ftxDD } = useSymbolContext()
+  const { symbols, symbolDetails, binanceDD, ftxDD, binanceUSDD } = useSymbolContext()
+  const EXCHANGES = {
+    binance: binanceDD,
+    binanceus: binanceUSDD,
+    ftx: ftxDD
+  }
   const [state, setState] = useState(INITIAL_STATE)
-
   const roundOff = (price) => {
     if (parseFloat(price) >= 1) return precisionRound(price)
     else return parseFloat(price)
@@ -166,7 +170,7 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
   }, [state.exchange])
 
   const handleSearch = (param) => {
-    const symbolDD = state.exchange === "binance" ? binanceDD : ftxDD
+    const symbolDD = EXCHANGES[state.exchange]
     const filteredData = symbolDD.filter((search) =>
       search.label
         .split('-')[0]
@@ -273,6 +277,18 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
               isDisabled={!ftxDD.length}
               styles={customStyles}
               className={`${state.exchange.value === 'ftx' ? 'd-block' : 'd-none'}`}
+            />
+            <Select
+              components={{
+                IndicatorSeparator: () => null,
+              }}
+              options={binanceUSDD}
+              placeholder="Select trading pair"
+              value={state.symbol}
+              onChange={(value) => onInputChange('symbol', value)}
+              isDisabled={!binanceUSDD.length}
+              styles={customStyles}
+              className={`${state.exchange.value === 'binanceUSDD' ? 'd-block' : 'd-none'}`}
             />
             {/* <div className={`${state.exchange.value === 'binance' ? 'd-flex' : 'd-none'}`}>
               <DropDownSelect

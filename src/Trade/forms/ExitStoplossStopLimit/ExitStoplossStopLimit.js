@@ -72,9 +72,9 @@ const ExitStoplossStopLimit = () => {
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const minQty = Number(selectedSymbolDetail.minQty)
-  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
@@ -417,7 +417,7 @@ const ExitStoplossStopLimit = () => {
         profit: convertCommaNumberToDot(values.profit),
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
-        symbol: selectedSymbolDetail['symbolpair'],
+        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
       })
     }
@@ -444,7 +444,7 @@ const ExitStoplossStopLimit = () => {
               name="triggerPrice"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
+              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
             />
           </div>
           {renderInputValidationError('triggerPrice')}
@@ -458,7 +458,7 @@ const ExitStoplossStopLimit = () => {
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
-            postLabel={selectedSymbolDetail['quote_asset']}
+            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           />
           {renderInputValidationError('price')}
         </div>

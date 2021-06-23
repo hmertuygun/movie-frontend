@@ -54,16 +54,15 @@ const MarketForm = () => {
 
   const [btnProc, setBtnProc] = useState(false)
 
-  const minNotional = Number(selectedSymbolDetail.minNotional)
-  const maxQty = Number(selectedSymbolDetail.maxQty)
-  const minQty = Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const marks = {
     0: '',
@@ -314,7 +313,7 @@ const MarketForm = () => {
       if (isFormValid) {
         setBtnProc(true)
         setErrors({ price: '', quantity: '', total: '' })
-        const symbol = selectedSymbolDetail['symbolpair']
+        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
         const { exchange } = activeExchange
         let price = selectedSymbolLastPrice
@@ -386,7 +385,7 @@ const MarketForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['quote_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (

@@ -17,8 +17,16 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     isLoading,
     isLoadingBalance,
     binanceDD,
+    binanceUSDD,
     ftxDD,
   } = useSymbolContext()
+
+  const EXCHANGES = {
+    binance: binanceDD,
+    binanceus: binanceUSDD,
+    ftx: ftxDD
+  }
+  
 
   const { activeExchange } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -93,11 +101,11 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     if (!activeExchange?.exchange) return
     let { exchange } = activeExchange
     exchange = exchange.toLowerCase()
-    const selected = exchange === "binance" ? binanceDD : exchange === "ftx" ? ftxDD : null
+    const selected = EXCHANGES[exchange]
     setInitialOptions(selected)
     setOptions(selected)
-  }, [binanceDD, ftxDD, activeExchange.exchange])
-
+  }, [binanceDD, ftxDD, activeExchange.exchange, binanceUSDD])
+  
   return (
     <div className={`${styles['SymbolSelect-Container']} ${showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''}`}>
         <div className={`${styles['Select-Container']} ${showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''}`}>

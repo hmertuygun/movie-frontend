@@ -44,23 +44,20 @@ const BuyLimitForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
-
-  const minNotional = Number(selectedSymbolDetail.minNotional)
-  const maxPrice = Number(selectedSymbolDetail.maxPrice)
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const maxQty = Number(selectedSymbolDetail.maxQty)
-  const minQty = Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const ticketSize = selectedSymbolDetail && selectedSymbolDetail['tickSize'] 
+  const pricePrecision = ticketSize > 8 ? '' : ticketSize
 
-  const quantityPrecision = selectedSymbolDetail['lotSize']
-
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const symbolPairAvailable = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPairAvailable === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
     0: '',
@@ -85,9 +82,14 @@ const BuyLimitForm = () => {
 
   useEffect(() => {
     if (selectedSymbolDetail?.tickSize) {
-      setValues(prevVal => ({
+      setValues((prevVal) => ({
         ...prevVal,
-        price: addPrecisionToNumber(selectedSymbolLastPrice, selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']),
+        price: addPrecisionToNumber(
+          selectedSymbolLastPrice,
+          selectedSymbolDetail['tickSize'] > 8
+            ? ''
+            : selectedSymbolDetail['tickSize']
+        ),
       }))
     }
   }, [selectedSymbolLastPrice, selectedSymbolDetail])
@@ -386,10 +388,12 @@ const BuyLimitForm = () => {
         },
       }
       const { data, status } = await createBasicTrade(payload)
-      if (data?.status === "error") {
-        errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
-      }
-      else {
+      if (data?.status === 'error') {
+        errorNotification.open({
+          description:
+            data?.error || `Order couldn't be created. Please try again later!`,
+        })
+      } else {
         successNotification.open({ description: `Order Created!` })
         analytics.logEvent('placed_buy_limit_order')
         Event('user', 'placed_buy_limit_order', 'placed_buy_limit_order')
@@ -402,7 +406,20 @@ const BuyLimitForm = () => {
         quantityPercentage: '',
       })
     } catch (error) {
-      errorNotification.open({ description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+      errorNotification.open({
+        description: (
+          <p>
+            Order couldn’t be created. Unknown error. Please report at:{' '}
+            <a
+              rel="noopener noreferrer"
+              target="_blank"
+              href="https://support.coinpanel.com"
+            >
+              <b>support.coinpanel.com</b>
+            </a>
+          </p>
+        ),
+      })
     } finally {
       setBtnVisibility(false)
       setShowWarning(false)
@@ -421,7 +438,7 @@ const BuyLimitForm = () => {
         100
       if (percent !== 0 && percent > 0.5) {
         setShowWarning(true)
-        return;
+        return
       }
       placeOrder()
     }
@@ -450,7 +467,7 @@ const BuyLimitForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['quote_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (
@@ -540,7 +557,7 @@ const BuyLimitForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-          <span>Buy {selectedSymbolDetail['base_asset']}</span>
+          <span>Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
         </Button>
       </form>
     </Fragment>

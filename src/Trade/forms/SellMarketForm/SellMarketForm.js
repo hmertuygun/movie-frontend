@@ -48,17 +48,16 @@ const SellMarketForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
 
-  const minQty = Number(selectedSymbolDetail.minQty)
-  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
     quantity: '',
@@ -316,7 +315,7 @@ const SellMarketForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail['symbolpair']
+        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -368,7 +367,7 @@ const SellMarketForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedBaseSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['base_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (
@@ -450,7 +449,7 @@ const SellMarketForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail['base_asset']}</span>
+          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
         </Button>
       </form>
     </Fragment>

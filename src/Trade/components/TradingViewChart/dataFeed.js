@@ -2,10 +2,12 @@ import binanceAPI from '../../../api/binanceAPI'
 import ftxAPI from '../../../api/ftxAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
 import precisionRound from '../../../helpers/precisionRound'
+import { EXCHANGE_SYMBOL } from '../../../constants/ExchangesList'
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
-    this.binanceStr = "binance"
+    this.binanceStr = 'binance'
     this.ftxStr = "ftx"
+    this.binanceUSStr = 'binanceus'
     this.selectedExchange = exchange
     this.symbolList = symbolList
     this.ftxResolutions = ['1', '5', '15', '60', '240', '1D']
@@ -31,9 +33,9 @@ export default class dataFeed {
       '1M': '1M',
     }
     this.debug = debug
-    this.binanceAPI = new binanceAPI()
+    this.binanceAPI = new binanceAPI({ exchange })
     this.ftxAPI = new ftxAPI()
-    this.ws = new binanceSockets()
+    this.ws = new binanceSockets({ exchange })
     this.marketSymbols = marketSymbols
     this.pollingInterval = null
   }
@@ -53,8 +55,8 @@ export default class dataFeed {
   resolveSymbol(symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
     try {
       let chosenSymbol = symbolName // localStorage.getItem('selectedSymbol') ||
-      this.selectedExchange = this.selectedExchange || localStorage.getItem('selectedExchange')
-      const selectedSymbol = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+      this.selectedExchange = localStorage.getItem('selectedExchange')
+      const selectedSymbol = `${EXCHANGE_SYMBOL[this.selectedExchange]}:${chosenSymbol}`
       const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
       // console.log(selectedSymbolDetail)
       setTimeout(() => {
@@ -112,11 +114,9 @@ export default class dataFeed {
 
     const getKlines = async (from, to) => {
       try {
-        const symbolAPI = this.selectedExchange === this.binanceStr ? symbolInfo.name.replace('/', '') : symbolInfo.name
-        const fromTime = this.selectedExchange === this.binanceStr ? from : undefined
-        const data = this.selectedExchange === this.binanceStr ?
-          await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) :
-          await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit)
+        const symbolAPI = this.selectedExchange === this.binanceStr || this.selectedExchange === this.binanceUSStr ? symbolInfo.name.replace('/', '') : symbolInfo.name
+        const fromTime = this.selectedExchange === this.binanceStr || this.selectedExchange === this.binanceUSStr ? from : undefined
+        const data = await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) 
 
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
@@ -138,7 +138,7 @@ export default class dataFeed {
   }
 
   subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    if (this.selectedExchange === this.binanceStr) {
+    if (this.selectedExchange === this.binanceStr || this.selectedExchange === this.binanceUSStr) {
       this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
     }
     else if (this.selectedExchange === this.ftxStr) {
@@ -170,7 +170,7 @@ export default class dataFeed {
 
   unsubscribeBars(subscriberUID) {
     this.debug && console.log(`UnSub`, this.selectedExchange)
-    if (this.selectedExchange === this.binanceStr) {
+    if (this.selectedExchange === this.binanceStr || this.selectedExchange === this.binanceUSStr) {
       this.ws.unsubscribeFromStream(subscriberUID)
     }
     else if (this.selectedExchange === this.ftxStr) {
@@ -189,7 +189,7 @@ export default class dataFeed {
           full_name: symbol.symbol,
           description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
           ticker: symbol.symbol,
-          exchange: 'Binance',
+          exchange: EXCHANGE_SYMBOL[this.selectedExchange],
           type: 'crypto'
         }
       })
