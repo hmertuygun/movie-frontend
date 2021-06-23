@@ -47,7 +47,7 @@ export default class dataFeed {
         supports_marks: false,
         supports_timescale_marks: false,
         supports_time: true,
-        supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
+        supported_resolutions: this.selectedExchange === this.binanceStr || this.selectedExchange === this.binanceUSStr ? this.binanceResolutions : this.ftxResolutions
       })
     }, 0);
   }
@@ -64,8 +64,8 @@ export default class dataFeed {
           name: chosenSymbol,
           description: chosenSymbol,
           ticker: chosenSymbol,
-          exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-          listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+          exchange: EXCHANGE_SYMBOL[this.selectedExchange],
+          listed_exchange: EXCHANGE_SYMBOL[this.selectedExchange],
           type: 'crypto',
           session: '24x7',
           minmov: 1,
