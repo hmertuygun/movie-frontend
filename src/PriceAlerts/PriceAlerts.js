@@ -30,7 +30,7 @@ const INITIAL_STATE = {
 }
 const defaultSymbolLabel = "BTC-USDT"
 const defaultSymbolValue = "BINANCE:BTC/USDT"
-const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }]
+const exchangeOptions = [{ label: 'Binance', value: 'binance' }, { label: 'FTX', value: 'ftx' }, { label: 'Binance.us', value: 'binanceus' }]
 const conditionOptions = [{ label: `Less and equal to ≤`, value: '<=' }, { label: 'Greater and equal to ≥', value: '>=' }]
 const customStyles = {
   control: (styles, { }) => ({
@@ -166,6 +166,10 @@ const AddOrEditPriceAlert = ({ type, alert_id, exchange, symbol, target_price, c
     else if (state.exchange.value === "ftx") {
       let key = `FTX:${state.symbol.label.replace('-', '/')}`
       if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'FTX:BTC/USDT' } }))
+    }
+    else if (state.exchange.value === "binanceus") {
+      let key = `BINANCEUS:${state.symbol.label.replace('-', '/')}`
+      if (!symbolDetails[key]) setState(prevVal => ({ ...prevVal, symbol: { label: 'BTC-USDT', value: 'BINANCEUS:BTC/USDT' } }))
     }
   }, [state.exchange])
 

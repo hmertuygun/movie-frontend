@@ -328,6 +328,16 @@ const MarketForm = () => {
             }
             break
           }
+          case 'binanceus': {
+            try {
+              const binanceus = new ccxt.binanceus()
+              const response = await binanceus.fetchTicker(symbol)
+              price = response.last
+            } catch (error) {
+              console.log(error)
+            }
+            break
+          }
           case 'ftx': {
             try {
               const ftx = new ccxt.ftx({
