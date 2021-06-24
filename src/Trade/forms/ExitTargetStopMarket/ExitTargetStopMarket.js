@@ -56,19 +56,18 @@ const ExitTargetStopMarket = () => {
   const { addStopMarketTarget, state } = useContext(TradeContext)
   const { entry, targets } = state
 
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
-  const maxPrice = Number(selectedSymbolDetail.maxPrice)
-  const minQty = Number(selectedSymbolDetail.minQty)
-  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const sumQuantity = state.targets?.map((item) => item.quantity)
   const totalQuantity = sumQuantity?.reduce(
@@ -411,7 +410,7 @@ const ExitTargetStopMarket = () => {
         triggerPrice: convertCommaNumberToDot(values.price),
         quantity: convertCommaNumberToDot(values.quantity),
         profit: convertCommaNumberToDot(values.profit),
-        symbol: selectedSymbolDetail['symbolpair'],
+        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
       })
 
@@ -457,7 +456,7 @@ const ExitTargetStopMarket = () => {
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail['quote_asset']}
+              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
             />
           </div>
           {renderInputValidationError('price')}

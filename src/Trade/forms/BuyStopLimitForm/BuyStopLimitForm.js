@@ -59,22 +59,21 @@ const BuyStopLimitForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
-  const minNotional = Number(selectedSymbolDetail.minNotional)
-  const maxPrice = Number(selectedSymbolDetail.maxPrice)
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const maxQty = Number(selectedSymbolDetail.maxQty)
-  const minQty = Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
 
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const symbolpair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
 
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolpair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
     0: '',
@@ -393,7 +392,7 @@ const BuyStopLimitForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail['symbolpair']
+        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -468,7 +467,7 @@ const BuyStopLimitForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['quote_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (
@@ -573,7 +572,7 @@ const BuyStopLimitForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-          <span>Buy {selectedSymbolDetail['base_asset']}</span>
+          <span>Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
         </Button>
       </form>
     </Fragment>

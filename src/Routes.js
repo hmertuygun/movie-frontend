@@ -82,6 +82,7 @@ const Routes = () => {
   }
 
   const isLocalEnv = window.location.hostname === "localhost"
+  
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />

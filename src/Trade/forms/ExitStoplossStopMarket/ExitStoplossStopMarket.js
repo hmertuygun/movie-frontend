@@ -56,19 +56,18 @@ const ExitStoplossStopMarket = () => {
   const { state, addStoplossMarket } = useContext(TradeContext)
   const { entry } = state
 
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const tickSize =  selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const minQty = Number(selectedSymbolDetail.minQty)
-  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
@@ -375,7 +374,7 @@ const ExitStoplossStopMarket = () => {
         profit: convertCommaNumberToDot(values.profit),
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
-        symbol: selectedSymbolDetail['symbolpair'],
+        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
       })
     }
@@ -403,7 +402,7 @@ const ExitStoplossStopMarket = () => {
                 name="triggerPrice"
                 onChange={handleChange}
                 onBlur={(e) => handleBlur(e, pricePrecision)}
-                postLabel={selectedSymbolDetail['quote_asset']}
+                postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
               />
             </div>
             {renderInputValidationError('triggerPrice')}

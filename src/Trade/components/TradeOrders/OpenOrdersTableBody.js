@@ -328,7 +328,7 @@ const OpenOrdersTableBody = ({
   const [columns, setColumns] = useState(openOrdersColumns)
 
   const { selectedSymbolDetail, symbolType } = useSymbolContext()
-  const selectedPair = selectedSymbolDetail['symbolpair']
+  const selectedPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
   const onTableHeadClick = (key, type, index) => {
     if (!type) return

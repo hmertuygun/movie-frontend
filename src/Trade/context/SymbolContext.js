@@ -66,6 +66,7 @@ const SymbolContextProvider = ({ children }) => {
   const [qouteAsset, setQuoteAsset] = useState('')
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
+  const [binanceUSDD, setBinanceUSDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
@@ -87,9 +88,12 @@ const SymbolContextProvider = ({ children }) => {
       case 'binance':
         socketURL = 'wss://stream.binance.com:9443/stream'
         break
+      case 'binanceus':
+        socketURL = 'wss://stream.binance.us:9443/stream'
+        break  
       case 'ftx':
         socketURL = 'wss://ftx.com/ws/'
-        break
+        break  
 
       default:
         break
@@ -109,6 +113,17 @@ const SymbolContextProvider = ({ children }) => {
             })
           )
           break
+          case 'binanceus':
+            setSocketLiveUpdate(true)
+            rws.send(
+              JSON.stringify({
+                id: 1,
+                method: 'SUBSCRIBE',
+                params: ['!ticker@arr'],
+              })
+            )
+            break
+
         case 'ftx':
           setSocketLiveUpdate(false)
           break
@@ -141,6 +156,9 @@ const SymbolContextProvider = ({ children }) => {
         case 'binance':
           onBinanceMessage(lastMessage)
           break
+        case 'binanceus':
+          onBinanceMessage(lastMessage)
+          break  
 
         default:
           break
@@ -169,7 +187,7 @@ const SymbolContextProvider = ({ children }) => {
         case 'binance':
           {
             const getFirstData = async () => {
-              const data = await get24hrTickerPrice()
+              const data = await get24hrTickerPrice('binance')
               setLastMessage(data)
             }
             getFirstData()
@@ -186,6 +204,26 @@ const SymbolContextProvider = ({ children }) => {
             )
           }
           break
+        case 'binanceus':
+          {
+            const getFirstData = async () => {
+              const data = await get24hrTickerPrice('binanceus')
+              setLastMessage(data)
+            }
+            getFirstData()
+            setTimer(
+              setInterval(async () => {
+                try {
+                  getFirstData()
+                  setPollingLiveUpdate(true)
+                } catch (error) {
+                  setPollingLiveUpdate(false)
+                  Sentry.captureException(error)
+                }
+              }, 5000)
+            )
+          }
+          break  
         case 'ftx':
           {
             const fetchTickers = async () => {
@@ -286,7 +324,6 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-
   }, [userData])
 
   const checkDisableBtnStatus = () => {
@@ -443,12 +480,13 @@ const SymbolContextProvider = ({ children }) => {
       if (!data?.exchanges?.length || !data?.symbolsChange) {
         return
       }
-      const [binance, ftx] = data.exchanges
-      setSymbols(() => [...binance.symbols, ...ftx.symbols])
+      const [binance, ftx, binanceus] = data.exchanges
+      setSymbols(() => [...binance.symbols, ...ftx.symbols, ...binanceus.symbols])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem('symbolsKeyValue', JSON.stringify(data.symbolsChange))
       setBinanceDD(() => binance.symbols)
       setFtxDD(() => ftx.symbols)
+      setBinanceUSDD(() => binanceus.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -534,6 +572,7 @@ const SymbolContextProvider = ({ children }) => {
         exchangeType,
         symbolType,
         binanceDD,
+        binanceUSDD,
         ftxDD,
         watchListOpen,
         setWatchListOpen,

@@ -6,8 +6,8 @@ import './MarketStatistics.css'
 function MarketStatistics() {
   const [message, setMessage] = useState(null)
   const { selectedSymbolDetail, lastMessage } = useSymbolContext()
-  const baseAsset = selectedSymbolDetail.base_asset
-  const quoteAsset = selectedSymbolDetail.quote_asset
+  const baseAsset = selectedSymbolDetail && selectedSymbolDetail.base_asset
+  const quoteAsset = selectedSymbolDetail && selectedSymbolDetail.quote_asset
   const symbolPair = `${baseAsset}${quoteAsset}`
 
   useEffect(() => {

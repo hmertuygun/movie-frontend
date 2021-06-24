@@ -1,7 +1,11 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
-const binanceAPI = `https://api1.binance.com/api/`
+
+const EXCHANGE_API = {
+  binance: `https://api1.binance.com/api/`,
+  binanceus: `https://api.binance.us/api/`,
+}
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -21,15 +25,17 @@ async function getHeaders(token) {
   }
 }
 
-export async function get24hrTickerPrice() {
-  const result = await axios(`${binanceAPI}v3/ticker/24hr`, {
+export async function get24hrTickerPrice(exchange) {
+  let type = EXCHANGE_API[exchange]
+  const result = await axios(`${type}v3/ticker/24hr`, {
     method: 'GET',
   })
   return result.data
 }
 
-export async function getSymbolPriceTicker(symbols) {
-  const result = await axios(`${binanceAPI}v3/ticker/price`, {
+export async function getSymbolPriceTicker(exchange, symbols) {
+  let type = EXCHANGE_API[exchange]
+  const result = await axios(`${type}v3/ticker/price`, {
     method: 'GET',
   })
   return result.data
@@ -152,7 +158,6 @@ export async function getLastPrice(symbol, exchange) {
     headers: await getHeaders(token),
     method: 'POST',
   })
-
   return response
 }
 
@@ -644,7 +649,7 @@ export async function dismissNotice(notice_id) {
   const resp = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { notice_id }
+    data: { notice_id },
   })
   return resp?.data
 }
@@ -663,11 +668,11 @@ export async function createNotice(data) {
   const apiUrl = process.env.REACT_APP_API + `admin/notice/create`
   let idTokenResult = await firebase.auth()?.currentUser?.getIdTokenResult()
   const isAdmin = idTokenResult?.claims?.admin
-  if (!isAdmin) return { "error": "Not Admin" }
+  if (!isAdmin) return { error: 'Not Admin' }
   const respData = await axios(apiUrl, {
     headers: await getHeaders(idTokenResult.token),
     method: 'POST',
-    data: data
+    data: data,
   })
   return respData.data
 }
@@ -687,7 +692,7 @@ export async function saveLastSelectedMarketSymbol(symbol) {
   const noticeData = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { "lastSelectedSymbol": symbol }
+    data: { lastSelectedSymbol: symbol },
   })
   return noticeData?.data
 }
@@ -698,7 +703,7 @@ export async function saveTimeZone(timezone) {
   const noticeData = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { "timeZone": timezone }
+    data: { timeZone: timezone },
   })
   return noticeData?.data
 }
@@ -709,7 +714,7 @@ export async function saveWatchLists(symbols) {
   const watchLists = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { "symbols": symbols }
+    data: { symbols: symbols },
   })
   return watchLists?.data
 }
@@ -743,7 +748,7 @@ export async function callCloudFunction(funcName) {
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: { data: { returnUrl: window.location.origin } }
+    data: { data: { returnUrl: window.location.origin } },
   })
   return response?.data
 }

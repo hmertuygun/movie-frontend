@@ -50,19 +50,18 @@ const SellLimitForm = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
 
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail['lotSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize'] 
+  const pricePrecision = tickSize > 8 ? '' : tickSize
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : selectedSymbolDetail['quote_asset_precision']
+  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
 
-  const maxPrice = Number(selectedSymbolDetail.maxPrice)
-  const minPrice = Number(selectedSymbolDetail.minPrice)
-  const minQty = Number(selectedSymbolDetail.minQty)
-  const minNotional = Number(selectedSymbolDetail.minNotional)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
+  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
+  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
@@ -334,7 +333,7 @@ const SellLimitForm = () => {
       if (isBtnDisabled) return
       setBtnVisibility(true)
 
-      const symbol = selectedSymbolDetail['symbolpair']
+      const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
       const { exchange, apiKeyName } = activeExchange
 
       const payload = {
@@ -426,7 +425,7 @@ const SellLimitForm = () => {
           {'  '}
           {isLoadingBalance ? ' ' : selectedBaseSymbolBalance}
           {'  '}
-          {selectedSymbolDetail['base_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (
@@ -457,7 +456,7 @@ const SellLimitForm = () => {
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
             placeholder="Price"
-            postLabel={selectedSymbolDetail['quote_asset']}
+            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
           />
           {renderInputValidationError('price')}
         </div>
@@ -511,7 +510,7 @@ const SellLimitForm = () => {
         </div>
 
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail['base_asset']}</span>
+          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
         </Button>
       </form>
     </Fragment>

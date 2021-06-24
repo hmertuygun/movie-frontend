@@ -66,6 +66,8 @@ export default class TradingViewChart extends Component {
         }
         else if (this.props.exchange === "ftx") {
           localStorage.setItem('selectedIntervalFtx', interval)
+        } else if (this.props.exchange === "binanceus") {
+          localStorage.setItem('selectedIntervalBinanceus', interval)
         }
       })
     }
@@ -81,6 +83,9 @@ export default class TradingViewChart extends Component {
     }
     else if (this.props.exchange === "ftx") {
       this.chartObject.setResolution(localStorage.getItem('selectedIntervalFtx') || '1D')
+    }
+    else if (this.props.exchange === "binanceus") {
+      this.chartObject.setResolution(localStorage.getItem('selectedIntervalBinanceus') || '1D')
     }
   }
 

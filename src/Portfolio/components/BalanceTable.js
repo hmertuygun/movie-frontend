@@ -6,7 +6,6 @@ import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { UserContext } from '../../contexts/UserContext'
-import { get24hrTickerPrice, getSymbolPriceTicker } from '../../api/api'
 import ccxt, { exchanges } from 'ccxt'
 
 const BalanceTable = () => {
