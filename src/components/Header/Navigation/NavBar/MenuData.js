@@ -27,7 +27,9 @@ export const MenuData = [
   },
   {
     title: 'Community',
-    modal: true,
+    url:
+    'https://community.coinpanel.com/',
+    externalLink: true,
     id: 'cp-community'
   }
 ]
