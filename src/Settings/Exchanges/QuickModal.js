@@ -8,6 +8,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState({
     value: 'binance',
     label: 'Binance',
+    placeholder: 'Binance'
   })
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
@@ -193,7 +194,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                       })
                       setApiName(event.target.value)
                     }}
-                    placeholder={`${exchange.label}1`}
+                    placeholder={`${exchange.placeholder}1`}
                   />
                 </div>
                 {renderInputValidationError('apiName')}
