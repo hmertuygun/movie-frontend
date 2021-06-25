@@ -7,27 +7,6 @@ import { ThemeContext } from '../../../../contexts/ThemeContext'
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext);
 
-  // useEffect(() => {
-  //   let button = document.getElementsByClassName('button-close')[0];
-  //     if(button) {
-  //       button.addEventListener('click', handleCommunityModalClose)
-  //     }
-  // }, [])
-
-  // const handleCommunityModalOpen = () => {
-  //   let modal = document.getElementsByClassName('circle-widget-overlay')[0]
-  //   modal.classList.remove('hidden');
-  //   modal.classList.add('shown');
-  //   modal.style.visibility = "visible"
-  // }
-
-  // const handleCommunityModalClose = () => {
-  //   let modal = document.getElementsByClassName('circle-widget-overlay')[0]
-  //   modal.classList.add('hidden');
-  //   modal.classList.remove('shown');
-  //   modal.style.visibility = "hidden"
-  // }
-  
   return (
     <ul className="navbar-nav ml-lg-auto mr-3">
       {MenuData.map((item) => {
