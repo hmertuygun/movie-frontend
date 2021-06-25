@@ -37,10 +37,7 @@ const OnboardingModal = () => {
   const [apiProc, setIsApiProc] = useState(false)
   const [hasError, setError] = useState(false)
   const [startExp, setStartExp] = useState(false)
-  const [exchange, setExchange] = useState({
-    value: 'binance',
-    label: 'Binance',
-  })
+  const [exchange, setExchange] = useState({ value: 'binanceus', label: 'Binance.US', placeholder: 'BinanceUS' })
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [secret, setSecret] = useState('')
@@ -294,9 +291,6 @@ const OnboardingModal = () => {
                 Do you have an existing account that you would like to connect,
                 or would you like to create a new Binance account?
               </p>
-              <p className="lead">
-                Only Binance.com is supported for now. Binance.us exchange support is coming soon!
-              </p>
             </div>
             <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
               <p>
@@ -346,7 +340,7 @@ const OnboardingModal = () => {
                       })
                       setApiName(event.target.value)
                     }}
-                    placeholder={`${exchange.label}1`}
+                    placeholder={`${exchange.placeholder}1`}
                   />
                 </div>
                 {renderInputValidationError('apiName')}
