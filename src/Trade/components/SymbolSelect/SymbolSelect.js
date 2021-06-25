@@ -105,22 +105,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     setInitialOptions(selected)
     setOptions(selected)
   }, [binanceDD, ftxDD, activeExchange.exchange, binanceUSDD])
-
-  useEffect(() => {
-    handleDefaultSymbol()
-  }, [activeExchange.exchange])
-
-  const handleDefaultSymbol = () => {
-    if (!activeExchange?.exchange) return
-    let { exchange } = activeExchange
-    let currentExchange = exchange.toUpperCase()
-    const selected = EXCHANGES[exchange]
-    let defaultValue = selected.find(item => item.value === `${currentExchange}:BTC/USDT`)
-    setTimeout(() => {
-      setSymbol(defaultValue)
-    }, 0)
-  }
-
+  
   return (
     <div className={`${styles['SymbolSelect-Container']} ${showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''}`}>
         <div className={`${styles['Select-Container']} ${showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''}`}>
