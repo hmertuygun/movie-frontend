@@ -78,8 +78,8 @@ const OnboardingModal = () => {
       .string()
       .required('API Name is required')
       .min(3, 'Must be at least 3 characters')
-      .matches(/^\w+$/, {
-        message: 'Accepted characters are A-Z, a-z, 0-9 and underscore.',
+      .matches(/^[a-zA-Z0-9]+$/, {
+        message: 'Accepted characters are A-Z, a-z and 0-9.',
         excludeEmptyString: true,
       }),
     apiKey: yup
