@@ -19,7 +19,7 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      auto_save_delay: 10,
+      auto_save_delay: 5,
       timezone: timeZone,
       favorites: {
         intervals: intervals,
