@@ -61,10 +61,10 @@ const openOrdersColumns = [
     type: 'number',
     order: 1
   },
-  // {
-  //   title: 'Edit',
-  //   key: 'edit',
-  // },
+  {
+    title: 'Edit',
+    key: 'edit',
+  },
   {
     title: 'Cancel',
     key: 'cancel',
@@ -299,7 +299,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 </Moment>
               )}
             </td>
-            {/* {editColumn} */}
+            {editColumn}
             {cancelColumn}
           </tr>
         )
