@@ -324,7 +324,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-  }, [userData])
+  }, [userData, activeExchange])
 
   const checkDisableBtnStatus = () => {
     disableBtnInterval = setInterval(() => {
@@ -372,6 +372,7 @@ const SymbolContextProvider = ({ children }) => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
+      const { exchange } = activeExchange
       const { data } = await getAllChartData()
       let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } = data
       drawings = drawings && drawings[userData?.email]
@@ -379,7 +380,7 @@ const SymbolContextProvider = ({ children }) => {
       intervals = intervals || []
       setChartData({ drawings, lastSelectedSymbol, intervals, timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone })
       let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
-      exchangeVal = exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
       symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
       localStorage.setItem('selectedSymbol', symbolVal)

@@ -39,6 +39,7 @@ const UserContextProvider = ({ children }) => {
   }
   const [state, setState] = useState(initialState)
   const [loadApiKeys, setLoadApiKeys] = useState(false)
+  const [loadApiKeysError, setLoadApiKeysError] = useState(false)
   const [userData, setUserData] = useState(false)
   const [userContextLoaded, setUserContextLoaded] = useState(false)
   const [totalExchanges, setTotalExchanges] = useState([])
@@ -249,9 +250,13 @@ const UserContextProvider = ({ children }) => {
   async function getExchanges() {
     try {
       const hasKeys = await getUserExchanges()
-      if (!hasKeys?.data?.apiKeys?.length) {
-        setUserContextLoaded(true)
-        return
+      if(hasKeys) {
+        if (!hasKeys?.data?.apiKeys?.length) {
+          setUserContextLoaded(true)
+          return
+        }
+      } else {
+        setLoadApiKeysError(true)
       }
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
@@ -298,6 +303,7 @@ const UserContextProvider = ({ children }) => {
       }
     } catch (e) {
       console.log(e)
+      setLoadApiKeysError(true)
     } finally {
       setUserContextLoaded(true)
     }
@@ -548,6 +554,8 @@ const UserContextProvider = ({ children }) => {
         sendEmailAgain,
         setLoadApiKeys,
         loadApiKeys,
+        loadApiKeysError,
+        setLoadApiKeysError,
         activeExchange,
         setActiveExchange,
         userContextLoaded,

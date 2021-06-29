@@ -1,0 +1,12 @@
+.lead-warning {
+    font-size: 22px;
+    margin-bottom: 0;
+}
+
+.error-close {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    cursor: pointer;
+    z-index: 1;
+}
