@@ -14,18 +14,21 @@ import {
   updateLastSelectedAPIKey,
 } from '../../api/api'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
+import "./index.css"
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
   const {
     loadApiKeys,
     setLoadApiKeys,
+    loadApiKeysError,
     isLoggedIn,
     setTotalExchanges,
     setActiveExchange,
     getSubscriptionsData,
     onTour,
-    setOnTour
+    setOnTour,
+    setLoadApiKeysError
   } = useContext(UserContext)
   let formData = {
     apiKey: '',
@@ -221,8 +224,19 @@ const OnboardingModal = () => {
 
   const modalVisibility = () => {
     if (isLoggedIn) {
-      if (loadApiKeys) return 'none'
-      else return 'block'
+      if(!loadApiKeysError) {
+        if (loadApiKeys) return 'none'
+        else return 'block'
+      }  
+    } else {
+      return 'none'
+    }
+  }
+
+  const errorModalVisibility = () => {
+    if (isLoggedIn) {
+      if (loadApiKeysError) return 'block'
+      else return 'none'
     } else {
       return 'none'
     }
@@ -231,6 +245,11 @@ const OnboardingModal = () => {
   const modalStyle = {
     background: 'rgba(0,0,0,.5)',
     display: modalVisibility(),
+  }
+
+  const errorModalStyle = {
+    background: 'rgba(0,0,0,.5)',
+    display: errorModalVisibility(),
   }
 
   const renderInputValidationError = (errorKey) => (
@@ -243,199 +262,217 @@ const OnboardingModal = () => {
     </>
   )
 
+  console.log(loadApiKeysError)
+
   return (
-    <div
-      className={`modal fade docs-example-modal-lg pt-5 show`}
-      style={modalStyle}
-    >
-      <div className="modal-dialog modal-lg">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title h6">Exchange Setup</h5>
-            <div>
-              <Link to="/settings">
-                <button type="button" className="px-0 py-0 mr-3 btn btn-link">
-                  Settings
-                </button>
-              </Link>
-              <Link to="/logout">
-                <button type="button" className="px-0 py-0 btn btn-link">
-                  Logout
-                </button>
-              </Link>
-            </div>
-          </div>
-          <div className="modal-body">
-            <div className="mb-3 ml-0 text-center row">
-              {Object.entries(btnText).map((item, index) => (
-                <div className="pl-0 col-4" key={`progressbar-${item}`}>
+    <>
+      <div
+        className={`modal fade docs-example-modal-lg pt-5 show`}
+        style={modalStyle}
+      >
+        <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title h6">Exchange Setup</h5>
+                <div>
+                  <Link to="/settings">
+                    <button type="button" className="px-0 py-0 mr-3 btn btn-link">
+                      Settings
+                    </button>
+                  </Link>
+                  <Link to="/logout">
+                    <button type="button" className="px-0 py-0 btn btn-link">
+                      Logout
+                    </button>
+                  </Link>
+                </div>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3 ml-0 text-center row">
+                  {Object.entries(btnText).map((item, index) => (
+                    <div className="pl-0 col-4" key={`progressbar-${item}`}>
+                      <div
+                        className="rounded-sm progress"
+                        style={{ height: '12px' }}
+                      >
+                        <div
+                          className={`progress-bar ${step >= index + 1 ? 'w-100' : ''
+                            }`}
+                          role="progressbar"
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <h4>{btnText[step].heading}</h4>
+                <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
+                  <p className="lead">
+                    You need a Binance Exchange account to use CoinPanel.
+                  </p>
+                  <p className="lead">
+                    Do you have an existing account that you would like to connect,
+                    or would you like to create a new Binance account?
+                  </p>
+                </div>
+                <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
+                  <p>
+                    <a
+                      className="pb-2 text-muted text-underline"
+                      href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+                      target="_blank"
+                      rel="noreferrer notarget"
+                    >
+                      How to find my API keys?
+                    </a>
+                  </p>
+
+                  <div className="mb-3 row">
+                    <div className="col-md-4">
+                      <Select
+                        placeholder="Choose Exchange"
+                        value={exchange}
+                        components={{
+                          IndicatorSeparator: () => null,
+                        }}
+                        onChange={(exchange) => {
+                          setExchange(exchange)
+                          validateInput({ name: 'exchange', value: exchange.value })
+                        }}
+                        styles={customStyles}
+                        options={options}
+                      />
+                    </div>
+                    {renderInputValidationError('exchange')}
+                  </div>
+
+                  <div className="form-group">
+                    <div className="input-group">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">Name</span>
+                      </div>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="apiName"
+                        value={apiName}
+                        onChange={(event) => {
+                          validateInput({
+                            name: event.target.name,
+                            value: event.target.value,
+                          })
+                          setApiName(event.target.value)
+                        }}
+                        placeholder={`${exchange.placeholder}1`}
+                      />
+                    </div>
+                    {renderInputValidationError('apiName')}
+                  </div>
+                  <div className="form-group">
+                    <div className="input-group">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text" id="basic-addon1">
+                          Key
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="API Key"
+                        name="apiKey"
+                        value={apiKey}
+                        onChange={(event) => {
+                          validateInput({
+                            name: event.target.name,
+                            value: event.target.value,
+                          })
+                          setApiKey(event.target.value)
+                        }}
+                        aria-label="apikey"
+                        aria-describedby="basic-addon1"
+                      />
+                    </div>
+                    {renderInputValidationError('apiKey')}
+                  </div>
+                  <div className="form-group">
+                    <div className="input-group">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text" id="basic-addon1">
+                          Secret
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="secret"
+                        value={secret}
+                        onChange={(event) => {
+                          validateInput({
+                            name: event.target.name,
+                            value: event.target.value,
+                          })
+                          setSecret(event.target.value)
+                        }}
+                        placeholder="Secret"
+                      />
+                    </div>
+                    {renderInputValidationError('secret')}
+                  </div>
                   <div
-                    className="rounded-sm progress"
-                    style={{ height: '12px' }}
+                    className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'
+                      }`}
+                    role="alert"
                   >
-                    <div
-                      className={`progress-bar ${step >= index + 1 ? 'w-100' : ''
-                        }`}
-                      role="progressbar"
-                    ></div>
+                    <p>&#10005; Error connecting exchange!</p>
                   </div>
                 </div>
-              ))}
-            </div>
-            <h4>{btnText[step].heading}</h4>
-            <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
-              <p className="lead">
-                You need a Binance Exchange account to use CoinPanel.
-              </p>
-              <p className="lead">
-                Do you have an existing account that you would like to connect,
-                or would you like to create a new Binance account?
-              </p>
-            </div>
-            <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
-              <p>
-                <a
-                  className="pb-2 text-muted text-underline"
-                  href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
-                  target="_blank"
-                  rel="noreferrer notarget"
+                <div className={`step3 ${step === 3 ? 'd-show' : 'd-none'}`}>
+                  <p>Your account is good to go.</p>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onSecondaryBtnClick}
+                  disabled={apiProc}
                 >
-                  How to find my API keys?
-                </a>
-              </p>
-
-              <div className="mb-3 row">
-                <div className="col-md-4">
-                  <Select
-                    placeholder="Choose Exchange"
-                    value={exchange}
-                    components={{
-                      IndicatorSeparator: () => null,
-                    }}
-                    onChange={(exchange) => {
-                      setExchange(exchange)
-                      validateInput({ name: 'exchange', value: exchange.value })
-                    }}
-                    styles={customStyles}
-                    options={options}
-                  />
-                </div>
-                {renderInputValidationError('exchange')}
-              </div>
-
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">Name</span>
-                  </div>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="apiName"
-                    value={apiName}
-                    onChange={(event) => {
-                      validateInput({
-                        name: event.target.name,
-                        value: event.target.value,
-                      })
-                      setApiName(event.target.value)
-                    }}
-                    placeholder={`${exchange.placeholder}1`}
-                  />
-                </div>
-                {renderInputValidationError('apiName')}
-              </div>
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Key
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="API Key"
-                    name="apiKey"
-                    value={apiKey}
-                    onChange={(event) => {
-                      validateInput({
-                        name: event.target.name,
-                        value: event.target.value,
-                      })
-                      setApiKey(event.target.value)
-                    }}
-                    aria-label="apikey"
-                    aria-describedby="basic-addon1"
-                  />
-                </div>
-                {renderInputValidationError('apiKey')}
-              </div>
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Secret
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="secret"
-                    value={secret}
-                    onChange={(event) => {
-                      validateInput({
-                        name: event.target.name,
-                        value: event.target.value,
-                      })
-                      setSecret(event.target.value)
-                    }}
-                    placeholder="Secret"
-                  />
-                </div>
-                {renderInputValidationError('secret')}
-              </div>
-              <div
-                className={`alert alert-danger ${hasError ? 'd-show' : 'd-none'
-                  }`}
-                role="alert"
-              >
-                <p>&#10005; Error connecting exchange!</p>
+                  {btnText[step].secBtn}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onPrimaryBtnClick}
+                  disabled={step === 2 && apiProc}
+                >
+                  {!apiProc ? (
+                    btnText[step].primaryBtn
+                  ) : (
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
               </div>
             </div>
-            <div className={`step3 ${step === 3 ? 'd-show' : 'd-none'}`}>
-              <p>Your account is good to go.</p>
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onSecondaryBtnClick}
-              disabled={apiProc}
-            >
-              {btnText[step].secBtn}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={onPrimaryBtnClick}
-              disabled={step === 2 && apiProc}
-            >
-              {!apiProc ? (
-                btnText[step].primaryBtn
-              ) : (
-                <span
-                  className="spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              )}
-            </button>
-          </div>
         </div>
       </div>
-    </div>
+      <div
+        className={`modal fade docs-example-modal-lg pt-5 show`}
+        style={errorModalStyle}
+      >
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-body">
+              <p className="lead lead-warning">
+                We are having difficulty reaching to CoinPanel servers. Your trades are safe. Please refresh the page and try again.
+              </p>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </>
   )
 }
 
