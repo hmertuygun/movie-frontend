@@ -152,12 +152,11 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
       } else {
         successNotification.open({ description: `Order Edited!` })
         setEditModalOpen(false)
+        setOrderEdited(true);
       }
-      setOrderEdited(true);
     } catch (error) {
       errorNotification.open({
-        description:
-          error || `Order couldn't be edited. Please try again later`,
+        description: "Order couldn't be edited. Please try again later",
       })
     } finally {
       setEditLoading(false)
