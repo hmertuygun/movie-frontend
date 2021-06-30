@@ -151,7 +151,7 @@ const Header = () => {
             <ul className="navbar-nav align-items-lg-center d-none d-lg-flex ml-lg-auto">
               {/* menu report a problem button */}
               <li className="nav-item">
-                <a
+                {/* <a
                   href="https://support.coinpanel.com/hc/en-us/requests/new"
                   className="mr-3 btn btn-xs btn-primary btn-icon"
                   target="_blank"
@@ -159,7 +159,7 @@ const Header = () => {
                 >
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
-                </a>
+                </a> */}
               </li>
               <li className="nav-item">
                 <a
