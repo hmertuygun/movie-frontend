@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import _ from 'lodash'
 import dataFeed from './dataFeed'
 import { saveChartDrawing } from '../../../api/api'
 import { errorNotification } from '../../../components/Notifications'
@@ -376,7 +377,13 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     if (props.theme !== this.state.theme) this.tradingViewWidget.changeTheme(this.state.theme)
     this.changeSymbol(this.state.symbol)
-    if (!this.isArrayEqual(this.state.openOrderLines, props.openOrderLines)) this.drawOpenOrdersChartLines(this.state.openOrderLines)
+
+    if (!this.isArrayEqual(this.state.openOrderLines, props.openOrderLines)) {
+      this.drawOpenOrdersChartLines(this.state.openOrderLines)
+    }
+    if (!_.isEqual(this.state.openOrderLines, props.openOrderLines)) {
+      this.drawOpenOrdersChartLines(this.state.openOrderLines)
+    }
   }
 
   componentWillUnmount() {

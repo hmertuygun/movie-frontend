@@ -84,7 +84,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
-  const { activeExchange } = useContext(UserContext)
+  const { activeExchange, orderEdited, setOrderEdited } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const { symbolDetails, setSymbol } = useSymbolContext()
@@ -153,6 +153,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         successNotification.open({ description: `Order Edited!` })
         setEditModalOpen(false)
       }
+      setOrderEdited(true);
     } catch (error) {
       errorNotification.open({
         description:

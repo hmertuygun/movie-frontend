@@ -230,6 +230,7 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
                         ? ''
                         : selectedSymbolDetail['quote_asset']
                     }
+                    autoFocus
                   />
                   {renderInputValidationError('price')}
                 </div>
@@ -249,6 +250,7 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
                         ? ''
                         : selectedSymbolDetail['quote_asset']
                     }
+                    autoFocus
                   />
                   {renderInputValidationError('triggerPrice')}
                 </div>
