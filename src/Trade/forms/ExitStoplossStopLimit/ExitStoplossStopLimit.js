@@ -188,10 +188,9 @@ const ExitStoplossStopLimit = () => {
       : -Math.abs(removeTrailingZeroFromInput(target.value))
 
     const validatedValue = Math.abs(value) > 99 ? -99 : value
-
     setValues((values) => ({
       ...values,
-      profit: validatedValue,
+      profit: Number.isNaN(validatedValue) ? '' : validatedValue,
     }))
 
     priceAndProfitSync(target.name, validatedValue)

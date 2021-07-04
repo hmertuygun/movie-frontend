@@ -172,7 +172,7 @@ const ExitStoplossStopMarket = () => {
 
     setValues((values) => ({
       ...values,
-      profit: validatedValue,
+      profit: Number.isNaN(validatedValue) ? '' : validatedValue,
     }))
 
     priceAndProfitSync(target.name, validatedValue)
