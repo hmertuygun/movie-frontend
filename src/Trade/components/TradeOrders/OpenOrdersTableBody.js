@@ -143,21 +143,15 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
       if (formData.price) {
         payload.price = formData.price
       }
-      const { data, status } = await editOrder(payload)
-      if (data?.status === 'error') {
-        errorNotification.open({
-          description:
-            data?.error || `Order couldn't be edited. Please try again later`,
-        })
-      } else {
-        successNotification.open({ description: `Order Edited!` })
-        setEditModalOpen(false)
-      }
-      setOrderEdited(true);
+      await editOrder(payload)
+      successNotification.open({ description: `Order Edited!` })
+      setOrderEdited(true)
+      setEditModalOpen(false)
     } catch (error) {
+      const { data } = error.response
       errorNotification.open({
         description:
-          error || `Order couldn't be edited. Please try again later`,
+          data?.detail || `Order couldn't be edited. Please try again later`,
       })
     } finally {
       setEditLoading(false)
