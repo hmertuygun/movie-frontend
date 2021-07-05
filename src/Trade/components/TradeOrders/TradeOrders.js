@@ -23,7 +23,7 @@ const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` });
   const { isLoadingBalance, isOrderPlaced, isOrderCancelled, refreshBalance, onRefreshBtnClicked, disableOrderHistoryRefreshBtn,
     disableOpenOrdersRefreshBtn, orderHistoryTimeInterval, openOrdersTimeInterval, portfolioTimeInterval, positionTimeInterval } = useSymbolContext()
-  const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders } = useContext(UserContext)
+  const { activeExchange, setLoaderVisibility, userData, totalExchanges, setOrderHistoryProgressUC, setOpenOrdersUC, delOpenOrders, setDelOpenOrders, orderEdited, setOrderEdited } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext)
   const { loading: isPortfolioLoading } = useContext(PortfolioContext)
   const [isOpenOrders, setIsOpenOrders,] = useState(true)
@@ -217,8 +217,12 @@ const TradeOrders = () => {
   }, [orderHistoryFB, showProgressBar])
 
   useEffect(() => {
+    if (orderEdited) {
+      getOpenOrdersData()
+      setOrderEdited(false)
+    }
     if (orderUpdateFB > 0) getOpenOrdersData()
-  }, [orderUpdateFB])
+  }, [orderUpdateFB, orderEdited])
 
   useEffect(() => {
     // if (orderUpdateFB > 0) setOrderUpdateFB(0)

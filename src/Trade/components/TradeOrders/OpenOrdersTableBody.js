@@ -61,10 +61,10 @@ const openOrdersColumns = [
     type: 'number',
     order: 1
   },
-  // {
-  //   title: 'Edit',
-  //   key: 'edit',
-  // },
+  {
+    title: 'Edit',
+    key: 'edit',
+  },
   {
     title: 'Cancel',
     key: 'cancel',
@@ -84,7 +84,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
-  const { activeExchange } = useContext(UserContext)
+  const { activeExchange, orderEdited, setOrderEdited } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const { symbolDetails, setSymbol } = useSymbolContext()
@@ -143,20 +143,15 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
       if (formData.price) {
         payload.price = formData.price
       }
-      const { data, status } = await editOrder(payload)
-      if (data?.status === 'error') {
-        errorNotification.open({
-          description:
-            data?.error || `Order couldn't be edited. Please try again later`,
-        })
-      } else {
-        successNotification.open({ description: `Order Edited!` })
-        setEditModalOpen(false)
-      }
+      await editOrder(payload)
+      successNotification.open({ description: `Order Edited!` })
+      setOrderEdited(true)
+      setEditModalOpen(false)
     } catch (error) {
+      const { data } = error.response
       errorNotification.open({
         description:
-          error || `Order couldn't be edited. Please try again later`,
+          data?.detail || `Order couldn't be edited. Please try again later`,
       })
     } finally {
       setEditLoading(false)
@@ -299,7 +294,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 </Moment>
               )}
             </td>
-            {/* {editColumn} */}
+            {editColumn}
             {cancelColumn}
           </tr>
         )

@@ -33,6 +33,7 @@ const EstimateValue = () => {
     { value: 'USDT', label: 'USD' },
     { value: 'EUR', label: 'EUR' },
     { value: 'GBP', label: 'GBP' },
+    { value: 'AUD', label: 'AUD' },
   ]
 
   useEffect(() => {
@@ -83,6 +84,7 @@ const EstimateValue = () => {
 
   let BTC = estData && estData.find(data => data.symbol === "BTC");
   let currency = estData && estData.find(data => data.symbol === currentCurrency);
+  
   return (
     <>
       <div className="card card-fluid d-flex flex-row">

@@ -66,6 +66,7 @@ const UserContextProvider = ({ children }) => {
   const [openOrdersUC, setOpenOrdersUC] = useState([])
   const [delOpenOrders, setDelOpenOrders] = useState(null)
   const [orderHistoryProgressUC, setOrderHistoryProgressUC] = useState('100.00')
+  const [orderEdited, setOrderEdited] = useState(false)
   const [isAppOnline, setIsAppOnline] = useState(true)
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
@@ -593,6 +594,8 @@ const UserContextProvider = ({ children }) => {
         getSubscriptionsData,
         orderHistoryProgressUC,
         setOrderHistoryProgressUC,
+        orderEdited,
+        setOrderEdited,
         openOrdersUC,
         setOpenOrdersUC,
         delOpenOrders,
