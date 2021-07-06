@@ -1,6 +1,6 @@
 export default class binanceAPI {
   constructor({ exchange }) {
-    this.binanceHost = exchange === 'binance' ? 'https://api1.binance.com' : 'https://api.binance.us'
+    this.binanceHost = exchange === 'binance' ? 'https://api2.binance.com' : 'https://api.binance.us'
   }
 
   getServerTime() {
