@@ -43,7 +43,8 @@ const OrderEditModal = ({
   const isStoploss = isFullTrade
     ? selectedOrder.order_id === stoplossOrder.order_id
     : false
-  const entryPrice = entryOrder?.price
+  const entryPrice =
+    entryOrder.type === 'STOP-MARKET' ? entryOrder?.trigger : entryOrder?.price
 
   const { symbolDetails } = useSymbolContext()
 
