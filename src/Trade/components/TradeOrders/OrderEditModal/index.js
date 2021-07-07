@@ -126,17 +126,6 @@ const OrderEditModal = ({
             )
             .test(
               'Trigger Price',
-              `Trigger Price must be lower than the Entry Price: ${addPrecisionToNumber(
-                entryPrice,
-                pricePrecision
-              )}`,
-              (value) =>
-                isFullTrade && isStoploss && !isEntry
-                  ? value < entryPrice
-                  : true
-            )
-            .test(
-              'Trigger Price',
               `Trigger Price must be lower than the Target ${
                 activeIndex + 2
               } Price: ${addPrecisionToNumber(
