@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import * as yup from 'yup'
 
 import { useSymbolContext } from '../../../context/SymbolContext'
@@ -10,8 +10,18 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../../helpers/tradeForm'
 import styles from '../../../forms/LimitForm/LimitForm.module.css'
+import { findIndex } from 'lodash'
 
-const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
+const OrderEditModal = ({
+  onClose,
+  onSave,
+  isLoading,
+  selectedOrder,
+  isFullTrade,
+  entryOrder,
+  stoplossOrder,
+  targetOrders,
+}) => {
   const [values, setValues] = useState({
     triggerPrice: '',
     price: '',
@@ -20,59 +30,169 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
     triggerPrice: '',
     price: '',
   })
+
   const [pricePrecision, setPricePrecision] = useState(0)
   const [showPrice, setShowPrice] = useState(false)
   const [showTriggerPrice, setShowTriggerPrice] = useState(true)
   const [selectedSymbolDetail, setselectedSymbolDetail] = useState(null)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState(0)
+  const isEntry = isFullTrade
+    ? selectedOrder.order_id === entryOrder.order_id
+    : false
+  const isStoploss = isFullTrade
+    ? selectedOrder.order_id === stoplossOrder.order_id
+    : false
+  const entryPrice =
+    entryOrder.type === 'STOP-MARKET' ? entryOrder?.trigger : entryOrder?.price
 
   const { symbolDetails } = useSymbolContext()
+
+  const activeIndex = findIndex(targetOrders, {
+    order_id: selectedOrder.order_id,
+  })
+
+  const nextTriggerPrice = useMemo(() => {
+    const nextTarget =
+      activeIndex === targetOrders?.length - 1
+        ? null
+        : targetOrders?.[activeIndex + 1]
+
+    if (!nextTarget) return null
+    const { trigger: triggerCondition } = nextTarget
+
+    let trigger = ''
+    if (triggerCondition.split(' ').length > 1) {
+      trigger = triggerCondition.split(' ')[1]
+    } else {
+      trigger = triggerCondition
+    }
+    return trigger
+  }, [targetOrders, selectedOrder, activeIndex])
+
+  const prevTriggerPrice = useMemo(() => {
+    const prevTarget =
+      activeIndex === 0 ? null : targetOrders?.[activeIndex - 1]
+
+    if (!prevTarget) return null
+    const { trigger: triggerCondition } = prevTarget
+
+    let trigger = ''
+    if (triggerCondition.split(' ').length > 1) {
+      trigger = triggerCondition.split(' ')[1]
+    } else {
+      trigger = triggerCondition
+    }
+    return trigger
+  }, [targetOrders, selectedOrder, activeIndex])
 
   const formSchema = yup.object().shape(
     {
       triggerPrice: showTriggerPrice
         ? yup
-          .number()
-          .required('Trigger price is required')
-          .typeError('Trigger price is required')
-          .min(
-            minPrice,
-            `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+            .number()
+            .required('Trigger price is required')
+            .typeError('Trigger price is required')
+            .min(
               minPrice,
-              pricePrecision
-            )}`
-          )
-          .max(
-            maxPrice,
-            `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+              `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+                minPrice,
+                pricePrecision
+              )}`
+            )
+            .test(
+              'Trigger Price',
+              `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
+                entryPrice,
+                pricePrecision
+              )}`,
+              (value) =>
+                isFullTrade && !isStoploss && !isEntry
+                  ? value > entryPrice
+                  : true
+            )
+            .test(
+              'Trigger Price',
+              `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
+                prevTriggerPrice,
+                pricePrecision
+              )}`,
+              (value) =>
+                prevTriggerPrice
+                  ? isFullTrade && !isStoploss && !isEntry
+                    ? value > prevTriggerPrice
+                    : true
+                  : true
+            )
+            .test(
+              'Trigger Price',
+              `Trigger Price must be lower than the Entry Price: ${addPrecisionToNumber(
+                entryPrice,
+                pricePrecision
+              )}`,
+              (value) =>
+                isFullTrade && isStoploss && !isEntry
+                  ? value < entryPrice
+                  : true
+            )
+            .test(
+              'Trigger Price',
+              `Trigger Price must be lower than the Target ${
+                activeIndex + 2
+              } Price: ${addPrecisionToNumber(
+                nextTriggerPrice,
+                pricePrecision
+              )}`,
+              (value) =>
+                nextTriggerPrice
+                  ? isFullTrade && !isStoploss && !isEntry
+                    ? value < nextTriggerPrice
+                    : true
+                  : true
+            )
+            .max(
               maxPrice,
-              pricePrecision
-            )}`
-          )
+              `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+                maxPrice,
+                pricePrecision
+              )}`
+            )
         : null,
       price: showPrice
         ? yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required')
-          .min(
-            minPrice,
-            `Price needs to meet min-price: ${addPrecisionToNumber(
+            .number()
+            .required('Price is required')
+            .typeError('Price is required')
+            .min(
               minPrice,
-              pricePrecision
-            )}`
-          )
-          .max(
-            maxPrice,
-            `Price needs to meet max-price: ${addPrecisionToNumber(
+              `Price needs to meet min-price: ${addPrecisionToNumber(
+                minPrice,
+                pricePrecision
+              )}`
+            )
+            .max(
               maxPrice,
-              pricePrecision
-            )}`
-          )
+              `Price needs to meet max-price: ${addPrecisionToNumber(
+                maxPrice,
+                pricePrecision
+              )}`
+            )
         : null,
     },
-    [minPrice, maxPrice, pricePrecision, showPrice, showTriggerPrice]
+    [
+      minPrice,
+      maxPrice,
+      pricePrecision,
+      showPrice,
+      showTriggerPrice,
+      prevTriggerPrice,
+      nextTriggerPrice,
+      activeIndex,
+      isFullTrade,
+      isEntry,
+      isStoploss,
+      entryPrice,
+    ]
   )
 
   useEffect(() => {
@@ -211,7 +331,9 @@ const OrderEditModal = ({ onClose, onSave, isLoading, selectedOrder }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span className="modal-cross" aria-hidden="true">&times;</span>
+                <span className="modal-cross" aria-hidden="true">
+                  &times;
+                </span>
               </button>
             </div>
             <div className="modal-body">

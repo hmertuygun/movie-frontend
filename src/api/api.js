@@ -3,7 +3,7 @@ import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
 
 const EXCHANGE_API = {
-  binance: `https://api1.binance.com/api/`,
+  binance: `https://api2.binance.com/api/`,
   binanceus: `https://api.binance.us/api/`,
 }
 

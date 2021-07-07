@@ -89,6 +89,11 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const { symbolDetails, setSymbol } = useSymbolContext()
 
+  const isFullTrade = entry.length > 2
+  const entryOrder = isFullTrade ? entry?.[1] : null
+  const targetOrders = isFullTrade ? entry.filter(entry => entry.label.includes('Target')) : null
+  const stoplossOrder = isFullTrade ? entry?.[2] : null
+
   const onCancelOrderClick = async (order, index) => {
     setCancelOrderRow({ ...order })
     try {
@@ -305,6 +310,10 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
           onSave={handleOnSave}
           isLoading={editLoading}
           selectedOrder={selectedOrder}
+          targetOrders={targetOrders}
+          stoplossOrder={stoplossOrder}
+          entryOrder={entryOrder}
+          isFullTrade={isFullTrade}
         />
       ) : null}
     </>
