@@ -44,7 +44,7 @@ const OrderEditModal = ({
     ? selectedOrder.order_id === stoplossOrder.order_id
     : false
   const entryPrice =
-    entryOrder.type === 'STOP-MARKET' ? entryOrder?.trigger : entryOrder?.price
+    entryOrder?.type === 'STOP-MARKET' ? entryOrder?.trigger : entryOrder?.price
 
   const { symbolDetails } = useSymbolContext()
 
