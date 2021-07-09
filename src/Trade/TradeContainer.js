@@ -1,4 +1,11 @@
-import React, { useEffect, useContext, useState, lazy, Suspense } from 'react'
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useState,
+  lazy,
+  Suspense,
+} from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
@@ -8,10 +15,7 @@ import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getNotices, dismissNotice } from '../api/api'
-import {
-  successNotification,
-  errorNotification,
-} from '../components/Notifications'
+import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -28,7 +32,9 @@ const TradePanel = lazy(() => import('./TradePanel'))
 const TradeChart = lazy(() => import('./TradeChart'))
 const TradeOrders = lazy(() => import('./components/TradeOrders/TradeOrders'))
 const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
-const SymbolSelect = lazy(() => import('./components/SymbolSelect/SymbolSelect'))
+const SymbolSelect = lazy(() =>
+  import('./components/SymbolSelect/SymbolSelect')
+)
 
 const db = firebase.firestore()
 const registerResizeObserver = (cb, elem) => {
@@ -50,6 +56,20 @@ const TradeContainer = () => {
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
+
+  const resizeCallBack = useCallback(
+    (entries, observer) => {
+      const { contentRect } = entries[0]
+      setOrderHeight(totalHeight - contentRect.height + 200 + 'px')
+    },
+    [totalHeight]
+  )
+
+  const callObserver = useCallback(() => {
+    const elem = document.querySelector('.TradeView-Chart')
+    if (!elem) return
+    registerResizeObserver(resizeCallBack, elem)
+  }, [resizeCallBack])
 
   useEffect(() => {
     callObserver()
@@ -90,30 +110,19 @@ const TradeContainer = () => {
     return () => {
       fBNotice()
     }
-  }, [])
+  }, [callObserver, userData.email])
 
   useEffect(() => {
     if (snapShotCount > 1 && fbNotice && fbNotice.action === 'added') {
       setNotices((prevState) => [fbNotice, ...prevState])
     }
-  }, [snapShotCount])
+  }, [fbNotice, snapShotCount])
 
   useEffect(() => {
     if (!loadApiKeys) {
       history.push('/settings')
     }
   }, [loadApiKeys, history])
-
-  const callObserver = () => {
-    const elem = document.querySelector('.TradeView-Chart')
-    if (!elem) return
-    registerResizeObserver(resizeCallBack, elem)
-  }
-
-  const resizeCallBack = (entries, observer) => {
-    const { contentRect } = entries[0]
-    setOrderHeight(totalHeight - contentRect.height + 200 + 'px')
-  }
 
   const getPendingNotices = async () => {
     try {
@@ -169,24 +178,29 @@ const TradeContainer = () => {
             className="TradeChart-Container"
             style={{ display: 'unset' }}
           >
-            <div className={`${notices.length ? 'alert-messages' : ''}`} style={{ margin: '0' }}>
+            <div
+              className={`${notices.length ? 'alert-messages' : ''}`}
+              style={{ margin: '0' }}
+            >
               {notices.map((item, index) => (
                 <div
                   style={{ padding: '10px' }}
-                  className={`text-center my-1 alert alert-${item.noticeType || 'primary'
-                    }`}
+                  className={`text-center my-1 alert alert-${
+                    item.noticeType || 'primary'
+                  }`}
                   key={`notice-${index}`}
                 >
                   <FontAwesomeIcon
                     color="white"
-                    icon={`${item.noticeType === 'danger'
-                      ? 'times-circle'
-                      : item.noticeType === 'warning'
+                    icon={`${
+                      item.noticeType === 'danger'
+                        ? 'times-circle'
+                        : item.noticeType === 'warning'
                         ? 'exclamation-triangle'
                         : item.noticeType === 'info'
-                          ? 'exclamation-circle'
-                          : 'exclamation-circle'
-                      }`}
+                        ? 'exclamation-circle'
+                        : 'exclamation-circle'
+                    }`}
                   />{' '}
                   {item.message}
                   <button
@@ -230,14 +244,19 @@ const TradeContainer = () => {
               </ErrorBoundary>
             </section>
 
-            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen ? "none" : "" }}>
+            <section
+              className="TradeOrders"
+              style={{
+                height: orderHeight,
+                display: watchListOpen ? 'none' : '',
+              }}
+            >
               <ErrorBoundary componentName="TradeOrders">
                 <Suspense fallback={<div></div>}>
                   <TradeOrders />
                 </Suspense>
               </ErrorBoundary>
             </section>
-
           </section>
         </>
       ) : isTradePanelOpen ? (
@@ -253,20 +272,22 @@ const TradeContainer = () => {
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div
-                className={`text-center my-1 alert alert-${item.noticeType || 'primary'
-                  }`}
+                className={`text-center my-1 alert alert-${
+                  item.noticeType || 'primary'
+                }`}
                 key={`notice-${index}`}
               >
                 <FontAwesomeIcon
                   color="white"
-                  icon={`${item.noticeType === 'danger'
-                    ? 'times-circle'
-                    : item.noticeType === 'warning'
+                  icon={`${
+                    item.noticeType === 'danger'
+                      ? 'times-circle'
+                      : item.noticeType === 'warning'
                       ? 'exclamation-triangle'
                       : item.noticeType === 'info'
-                        ? 'exclamation-circle'
-                        : 'exclamation-circle'
-                    }`}
+                      ? 'exclamation-circle'
+                      : 'exclamation-circle'
+                  }`}
                 />{' '}
                 {item.message}
                 <button

@@ -1,10 +1,13 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
 import { ThemeContext } from '../../contexts/ThemeContext'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { errorNotification, successNotification, infoNotification } from '../../components/Notifications'
+import {
+  errorNotification,
+  successNotification,
+} from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import ExchangeRow from './ExchangeRow'
@@ -14,7 +17,6 @@ import {
   activateUserExchange,
   updateLastSelectedAPIKey,
   deleteUserExchange,
-  validateUser
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
@@ -26,7 +28,13 @@ const Exchanges = () => {
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { loadApiKeys, setLoadApiKeys, totalExchanges, setTotalExchanges, activeExchange, setActiveExchange } = useContext(UserContext)
+  const {
+    loadApiKeys,
+    setLoadApiKeys,
+    setTotalExchanges,
+    activeExchange,
+    setActiveExchange,
+  } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   let exchanges = []
@@ -34,7 +42,7 @@ const Exchanges = () => {
 
   useEffect(() => {
     exchangeQuery.refetch()
-  }, [loadApiKeys])
+  }, [exchangeQuery, loadApiKeys])
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data?.data?.apiKeys
@@ -44,7 +52,7 @@ const Exchanges = () => {
   }
 
   const addExchangeMutation = useMutation(addUserExchange, {
-    onSuccess: async (res, param) => {
+    onSuccess: async (res) => {
       if (res.status !== 200) {
         errorNotification.open({ description: res.data.detail })
         return
@@ -57,8 +65,10 @@ const Exchanges = () => {
       refreshExchanges()
     },
     onError: () => {
-      errorNotification.open({ description: `Couldn't add API key. Please try again later!` })
-    }
+      errorNotification.open({
+        description: `Couldn't add API key. Please try again later!`,
+      })
+    },
   })
 
   const onAddExchange = async ({ name, apiKey, exchange, secret }) => {
@@ -75,23 +85,31 @@ const Exchanges = () => {
   }
 
   const deleteExchangeMutation = useMutation(deleteUserExchange, {
-    onSuccess: async (response, param) => {
+    onSuccess: async () => {
       // check exchanges var here, its not the updated one tho
       if (exchanges && exchanges.length) {
         if (exchanges.length - 1 === 0) {
           setLoadApiKeys(false)
           sessionStorage.clear()
-        }
-        else {
+        } else {
           // What if we just deleted an active exchange key, set first one as active by default
-          if (selectedExchange.apiKeyName === activeExchange.apiKeyName && selectedExchange.exchange === activeExchange.exchange) {
+          if (
+            selectedExchange.apiKeyName === activeExchange.apiKeyName &&
+            selectedExchange.exchange === activeExchange.exchange
+          ) {
             sessionStorage.clear()
             // ignore the element that we just deleted
-            let newActiveKey = exchanges.find(item => item.apiKeyName !== selectedExchange.apiKeyName)
+            let newActiveKey = exchanges.find(
+              (item) => item.apiKeyName !== selectedExchange.apiKeyName
+            )
             if (newActiveKey) {
               await refreshExchanges()
               await updateLastSelectedAPIKey({ ...newActiveKey })
-              setActiveExchange({ ...newActiveKey, label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`, value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}` })
+              setActiveExchange({
+                ...newActiveKey,
+                label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
+                value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
+              })
             }
           }
         }
@@ -103,8 +121,10 @@ const Exchanges = () => {
       refreshExchanges()
     },
     onError: () => {
-      errorNotification.open({ description: `Couldn't delete API key. Please try again later!` })
-    }
+      errorNotification.open({
+        description: `Couldn't delete API key. Please try again later!`,
+      })
+    },
   })
 
   const onDelete = async (name, exchange) => {
@@ -143,7 +163,9 @@ const Exchanges = () => {
             setSelectedExchange(null)
             setIsDeletionModalVisible(false)
           }}
-          onDelete={() => onDelete(selectedExchange.apiKeyName, selectedExchange.exchange)}
+          onDelete={() =>
+            onDelete(selectedExchange.apiKeyName, selectedExchange.exchange)
+          }
         />
       )}
 
@@ -175,7 +197,7 @@ const Exchanges = () => {
             href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
             target="_blank"
             rel="noreferrer"
-            style={{ color: theme === 'LIGHT' ? '#718096' : '#c0ccda'}}
+            style={{ color: theme === 'LIGHT' ? '#718096' : '#c0ccda' }}
           >
             <ExternalLink size={16} className="mr-1" />
             <label

@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import ccxt, { exchanges } from 'ccxt'
+import ccxt from 'ccxt'
 
 import {
   addPrecisionToNumber,
@@ -23,6 +23,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 
 const MarketForm = () => {
@@ -34,7 +35,6 @@ const MarketForm = () => {
     isLoadingLastPrice,
     selectedSymbolLastPrice,
     setSelectedSymbolLastPrice,
-    selectedSymbol,
     refreshBalance,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
@@ -54,14 +54,17 @@ const MarketForm = () => {
 
   const [btnProc, setBtnProc] = useState(false)
 
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const marks = {
@@ -169,10 +172,8 @@ const MarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -185,10 +186,8 @@ const MarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        totalWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value)
+      const { totalWithPrecision, percentageQuantityWithPrecision } =
+        calculateTotalAndPercentageQuantity(target.value)
 
       setValues((values) => ({
         ...values,
@@ -239,10 +238,8 @@ const MarketForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -271,10 +268,8 @@ const MarketForm = () => {
 
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
     setValues((values) => ({
       ...values,
       [target.name]: validatedValue,
@@ -313,7 +308,8 @@ const MarketForm = () => {
       if (isFormValid) {
         setBtnProc(true)
         setErrors({ price: '', quantity: '', total: '' })
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
         const { exchange } = activeExchange
         let price = selectedSymbolLastPrice
@@ -357,12 +353,11 @@ const MarketForm = () => {
 
         setSelectedSymbolLastPrice(price)
         setBtnProc(false)
-        const {
-          quantityWithPrecision,
-        } = calculateTotalAndQuantityFromSliderPercentage(
-          values.quantityPercentage,
-          price
-        )
+        const { quantityWithPrecision } =
+          calculateTotalAndQuantityFromSliderPercentage(
+            values.quantityPercentage,
+            price
+          )
         setValues({ ...values, quantity: quantityWithPrecision })
 
         const payload = {

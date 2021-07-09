@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import uniqid from 'uniqid'
-import { convertCommaNumberToDot } from '../../helpers/tradeForm'
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from './InlineInput.module.css'
 
 const InlineInput = ({
@@ -16,14 +16,9 @@ const InlineInput = ({
   name,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false)
   const inputId = uniqid()
 
   let InputContainerStyle = () => {
-    if (isFocused) {
-      return styles['InputContainer--isFocused']
-    }
-
     if (disabled) {
       return styles['InputContainer--disabled']
     }

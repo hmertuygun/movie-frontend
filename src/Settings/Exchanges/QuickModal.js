@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
@@ -8,7 +8,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState({
     value: 'binance',
     label: 'Binance',
-    placeholder: 'Binance'
+    placeholder: 'Binance',
   })
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
@@ -24,7 +24,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [errors, setErrors] = useState(errorInitialValues)
 
   const customStyles = {
-    control: (styles, { }) => ({
+    control: (styles) => ({
       ...styles,
       backgroundColor: '#eff2f7',
       padding: '5px 5px',
@@ -142,7 +142,9 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span aria-hidden="true" className="modal-cross">&times;</span>
+                <span aria-hidden="true" className="modal-cross">
+                  &times;
+                </span>
               </button>
             </div>
             <div className="modal-body">

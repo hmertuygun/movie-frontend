@@ -32,13 +32,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const { activeExchange } = useContext(UserContext)
   const [marketData, setMarketData] = useState([])
 
-  const fetchData = useCallback(async () => {
-    if (user && activeExchange.exchange) {
-      refreshData()
-    }
-  }, [user, activeExchange])
-
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     try {
       setLoading(true)
       const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
@@ -60,7 +54,13 @@ const PortfolioCTXProvider = ({ children }) => {
       setLoading(false)
       setErrorLoading(true)
     }
-  }
+  }, [activeExchange.apiKeyName, activeExchange.exchange])
+
+  const fetchData = useCallback(async () => {
+    if (user && activeExchange.exchange) {
+      refreshData()
+    }
+  }, [user, activeExchange.exchange, refreshData])
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
@@ -85,7 +85,7 @@ const PortfolioCTXProvider = ({ children }) => {
         refreshData,
         error,
         marketData,
-        setMarketData
+        setMarketData,
       }}
     >
       {children}

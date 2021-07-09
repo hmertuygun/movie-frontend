@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from './Table.module.css'
 
 const Table = ({ cols, data }) => {

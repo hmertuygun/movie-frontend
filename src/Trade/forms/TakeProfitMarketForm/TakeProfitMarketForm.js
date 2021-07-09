@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
@@ -26,6 +25,7 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { Event } from '../../../Tracking'
 import { analytics } from '../../../firebase/firebase'
@@ -51,15 +51,18 @@ const TakeProfitMarketForm = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail &&  selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
 
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
@@ -243,10 +246,8 @@ const TakeProfitMarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -337,7 +338,8 @@ const TakeProfitMarketForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -352,7 +354,7 @@ const TakeProfitMarketForm = () => {
             price_trigger: values.price_trigger.value,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
+        const { data } = await createBasicTrade(payload)
         if (data?.status === 'error') {
           errorNotification.open({
             description:
@@ -442,7 +444,9 @@ const TakeProfitMarketForm = () => {
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+              postLabel={
+                selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+              }
             />
           </div>
           {renderInputValidationError('price')}
@@ -498,7 +502,9 @@ const TakeProfitMarketForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

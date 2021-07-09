@@ -52,67 +52,65 @@ const HeaderStep = ({ step: active }) => (
   </div>
 )
 
-const withCard = (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) => ({
-  next,
-  onBack,
-  ...props
-}) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const onNext = useRef()
-  const onClickNext = async () => {
-    try {
-      setIsLoading(true)
-      if (typeof onNext.current === 'function') {
-        const data = await onNext.current()
-        next(data)
-      } else {
-        next()
+const withCard =
+  (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) =>
+  ({ next, onBack, ...props }) => {
+    const [isLoading, setIsLoading] = useState(false)
+    const onNext = useRef()
+    const onClickNext = async () => {
+      try {
+        setIsLoading(true)
+        if (typeof onNext.current === 'function') {
+          const data = await onNext.current()
+          next(data)
+        } else {
+          next()
+        }
+      } catch (error) {
+        throw error
+      } finally {
+        setIsLoading(false)
       }
-    } catch (error) {
-      throw error
-    } finally {
-      setIsLoading(false)
     }
-  }
-  return (
-    <div className="card container">
-      {step < ADD_2FA_FLOW.length ? (
-        <div className="card-header">
-          <HeaderStep step={step} />
+    return (
+      <div className="card container">
+        {step < ADD_2FA_FLOW.length ? (
+          <div className="card-header">
+            <HeaderStep step={step} />
+          </div>
+        ) : null}
+        <div className="card-body d-flex flex-column justify-content-center">
+          <ReactNode {...props} onNext={onNext} />
         </div>
-      ) : null}
-      <div className="card-body d-flex flex-column justify-content-center">
-        <ReactNode {...props} onNext={onNext} />
-      </div>
-      <div className="card-footer">
-        <div className="row">
-          <div className="col-12 d-flex justify-content-center">
-            {hasPrev && (
-              <button type="button" className="btn" onClick={onBack}>
-                {'<'} Prev
+        <div className="card-footer">
+          <div className="row">
+            <div className="col-12 d-flex justify-content-center">
+              {hasPrev && (
+                <button type="button" className="btn" onClick={onBack}>
+                  {'<'} Prev
+                </button>
+              )}
+              <button
+                type="button"
+                className="d-flex btn btn-primary align-items-center"
+                onClick={onClickNext}
+                disabled={isLoading}
+              >
+                {step < ADD_2FA_FLOW.length - 1 ? 'Next' : 'Complete'}
+                {isLoading ? (
+                  <span
+                    className="ml-2 spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                ) : null}
               </button>
-            )}
-            <button
-              type="button"
-              className="d-flex btn btn-primary align-items-center"
-              onClick={onClickNext}
-              disabled={isLoading}
-            >
-              {step < ADD_2FA_FLOW.length - 1 ? 'Next' : 'Complete'}
-              {isLoading ? (
-                <span
-                  className="ml-2 spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-              ) : null}
-            </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
 
 export const DownloadApp = withCard(
   0,

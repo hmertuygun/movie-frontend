@@ -7,10 +7,7 @@ function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
     setSettingToggle(false)
   }
   return (
-    <div
-      id="cp-tour-b-2"
-      onClick={() => toggleSetting()}
-    >
+    <div id="cp-tour-b-2" onClick={() => toggleSetting()}>
       <li className="nav-item dropdown dropdown-animate">
         <button
           className="px-2 nav-link nav-link-icon btn btn-plain"

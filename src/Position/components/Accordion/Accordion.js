@@ -6,23 +6,12 @@ import style from './Accordion.module.css'
 import AccordionContent from './AccordionContent'
 
 const Accordion = (props) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   const [isPositionSuccess, setIsPositionSuccess] = useState(true)
-  const toggleRow = () => {
-    setIsOpen(!isOpen)
-  }
 
-  const {
-    market,
-    ROE,
-    PNL,
-    entryPrice,
-    orders,
-    currentPrice,
-    units,
-    date,
-  } = props
+  const { market, ROE, PNL, entryPrice, orders, currentPrice, units, date } =
+    props
 
   useEffect(() => {
     const { ROE } = props
@@ -43,7 +32,7 @@ const Accordion = (props) => {
           data-target="#collapse"
           aria-expanded="false"
           aria-controls="collapse"
-        // onClick={toggleRow}
+          // onClick={toggleRow}
         >
           <div className="flex-wrap py-0 pr-0 card-body d-flex align-items-center flex-lg-nowrap">
             <div className="col-auto px-0 pt-3 mr-3 col-lg-2 d-flex align-items-center pt-lg-0 zindex-100">
@@ -52,14 +41,16 @@ const Accordion = (props) => {
               </span>
               <div className="">
                 <span
-                  className={`icon icon-shape icon-sm bg-soft-success ${isPositionSuccess
-                    ? 'bg-soft-success text-success'
-                    : 'bg-soft-danger text-danger'
-                    }`}
+                  className={`icon icon-shape icon-sm bg-soft-success ${
+                    isPositionSuccess
+                      ? 'bg-soft-success text-success'
+                      : 'bg-soft-danger text-danger'
+                  }`}
                 >
                   <i
-                    className={`fas ${isPositionSuccess ? 'fa-caret-up' : 'fa-caret-down'
-                      }`}
+                    className={`fas ${
+                      isPositionSuccess ? 'fa-caret-up' : 'fa-caret-down'
+                    }`}
                   ></i>
                 </span>
               </div>
@@ -67,8 +58,9 @@ const Accordion = (props) => {
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-1 px-md-0 ml-md-0 pt-lg-0">
               <div className="mb-0 text-center align-items-center">
                 <span
-                  className={`${isPositionSuccess ? 'text-success' : 'text-danger'
-                    } text-success text-md font-weight-bold`}
+                  className={`${
+                    isPositionSuccess ? 'text-success' : 'text-danger'
+                  } text-success text-md font-weight-bold`}
                 >
                   {ROE} %
                 </span>
@@ -77,8 +69,9 @@ const Accordion = (props) => {
             <div className="col-auto px-0 pt-3 pl-0 ml-2 col-lg-2 pl-md-2 ml-md-0 pt-lg-0">
               <div className="mb-0 text-center align-items-center">
                 <span
-                  className={`${isPositionSuccess ? 'text-success' : 'text-danger'
-                    } text-md font-weight-bold`}
+                  className={`${
+                    isPositionSuccess ? 'text-success' : 'text-danger'
+                  } text-md font-weight-bold`}
                 >
                   {PNL}
                 </span>
@@ -131,10 +124,11 @@ const Accordion = (props) => {
                                 .map((order, index) => (
                                   <tr
                                     key={index}
-                                    className={`${order.side === 'BUY'
-                                      ? 'bg-light-success'
-                                      : 'bg-light-danger'
-                                      }`}
+                                    className={`${
+                                      order.side === 'BUY'
+                                        ? 'bg-light-success'
+                                        : 'bg-light-danger'
+                                    }`}
                                     style={{
                                       color: 'white',
                                     }}
@@ -142,8 +136,9 @@ const Accordion = (props) => {
                                     <td className="px-2">
                                       {order.executedQty}
                                     </td>
-                                    <td className="px-2">{`${order.averageFillPrice
-                                      } ${market.split('-')?.[1]}`}</td>
+                                    <td className="px-2">{`${
+                                      order.averageFillPrice
+                                    } ${market.split('-')?.[1]}`}</td>
                                   </tr>
                                 ))}
                             </tbody>

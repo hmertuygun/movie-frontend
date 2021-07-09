@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, Suspense, lazy } from 'react'
+import React, { useContext, useEffect, Suspense, lazy } from 'react'
 import {
   Switch,
   Route,
@@ -9,29 +9,16 @@ import {
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
-// import Login from './views/Auth/QuickLogin'
-// import LoginVerify2FA from './views/Auth/QuickLoginVerify2FA'
-// import Register from './views/Auth/QuickRegister'
-// import RegisterConfirm from './views/Auth/QuickRegisterConfirm'
-// import RegisterFinal from './views/Auth/QuickFinal'
-// import RecoverPassword from './views/Auth/RecoverPassword'
-// import NewPassword from './views/Auth/NewPassword'
-// import HandleEmailActions from './views/Auth/HandleEmailActions'
-
-// import TradeView from './views/TradeView'
-// import Settings from './views/Settings'
-// import Positions from './views/PositionView'
-// import Portfolio from './views/PortfolioView'
-// import PriceAlerts from './views/PriceAlertView'
-
-
 import OnboardingModal from './Trade/OnboardingModal'
 import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
-import { Detector, Offline, Online } from 'react-detect-offline'
-import { successNotification, warningNotification } from './components/Notifications'
+import { Detector } from 'react-detect-offline'
+import {
+  successNotification,
+  warningNotification,
+} from './components/Notifications'
 
 const Login = lazy(() => import('./views/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('./views/Auth/QuickLoginVerify2FA'))
@@ -65,31 +52,34 @@ const Routes = () => {
     userContextLoaded,
     loadApiKeys,
     hasSub,
-    loaderVisible,
-    loaderText,
-    setIsAppOnline,
-    showSubModalIfLessThan7Days
+    showSubModalIfLessThan7Days,
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
-      successNotification.open({ description: "You are back online!" })
-    }
-    else {
-      warningNotification.open({ description: "You don't seem to be online anymore!" })
+      successNotification.open({ description: 'You are back online!' })
+    } else {
+      warningNotification.open({
+        description: "You don't seem to be online anymore!",
+      })
     }
     return null
   }
 
-  const isLocalEnv = window.location.hostname === "localhost"
-  
+  const isLocalEnv = window.location.hostname === 'localhost'
+
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
       <Detector
-        polling={{ url: "https://jsonplaceholder.typicode.com/posts/1", enabled: isLoggedIn && !isLocalEnv }}
-        onChange={(e) => { showNotifOnNetworkChange(e) }}
-        render={({ online }) => {
+        polling={{
+          url: 'https://jsonplaceholder.typicode.com/posts/1',
+          enabled: isLoggedIn && !isLocalEnv,
+        }}
+        onChange={(e) => {
+          showNotifOnNetworkChange(e)
+        }}
+        render={() => {
           return null
         }}
       />
@@ -108,10 +98,14 @@ const Routes = () => {
               }}
             />
           )}
-          {isLoggedIn && userContextLoaded && !loadApiKeys && !isSettingsPage && <OnboardingModal />}
-          {isLoggedIn && userContextLoaded && !isSettingsPage && (!hasSub || showSubModalIfLessThan7Days) && (
-            <SubscriptionModal />
-          )}
+          {isLoggedIn &&
+            userContextLoaded &&
+            !loadApiKeys &&
+            !isSettingsPage && <OnboardingModal />}
+          {isLoggedIn &&
+            userContextLoaded &&
+            !isSettingsPage &&
+            (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <CacheRoute exact path="/trade" component={TradeView} />

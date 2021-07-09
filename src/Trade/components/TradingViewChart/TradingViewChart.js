@@ -8,14 +8,27 @@ const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
 }
 export default class TradingViewChart extends Component {
-
-  constructor({ symbol, theme, email, timeZone, intervals, drawings, openOrders, delOrderId, exchange, marketSymbols, chartReady, sniperBtnClicked, drawingRendered }) {
+  constructor({
+    symbol,
+    theme,
+    email,
+    timeZone,
+    intervals,
+    drawings,
+    openOrders,
+    delOrderId,
+    exchange,
+    marketSymbols,
+    chartReady,
+    sniperBtnClicked,
+    drawingRendered,
+  }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
     this.widgetOptions = {
-      container_id: "chart_container",
+      container_id: 'chart_container',
       datafeed: this.dF,
-      library_path: "/scripts/charting/charting_library/",
+      library_path: '/scripts/charting/charting_library/',
       debug: false,
       fullscreen: false,
       language: getLocalLanguage(),
@@ -25,7 +38,11 @@ export default class TradingViewChart extends Component {
       favorites: {
         intervals: intervals,
       },
-      disabled_features: ["header_symbol_search", "timeframes_toolbar", "header_undo_redo"],
+      disabled_features: [
+        'header_symbol_search',
+        'timeframes_toolbar',
+        'header_undo_redo',
+      ],
       symbol,
       theme,
     }
@@ -39,7 +56,7 @@ export default class TradingViewChart extends Component {
       symbol,
       theme,
       email,
-      openOrderLines: []
+      openOrderLines: [],
     }
   }
 
@@ -52,8 +69,7 @@ export default class TradingViewChart extends Component {
         // this.chartEvent("drawing_event")
         this.addSniperModeButton()
       })
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -61,32 +77,36 @@ export default class TradingViewChart extends Component {
   onIntervalSelect = () => {
     if (!this.chartObject) return
     try {
-      this.chartObject.onIntervalChanged().subscribe(null, (interval, timeframeObj) => {
-        if (this.props.exchange === "binance") {
-          localStorage.setItem('selectedIntervalBinance', interval)
-        }
-        else if (this.props.exchange === "ftx") {
-          localStorage.setItem('selectedIntervalFtx', interval)
-        } else if (this.props.exchange === "binanceus") {
-          localStorage.setItem('selectedIntervalBinanceus', interval)
-        }
-      })
-    }
-    catch (e) {
+      this.chartObject
+        .onIntervalChanged()
+        .subscribe(null, (interval, timeframeObj) => {
+          if (this.props.exchange === 'binance') {
+            localStorage.setItem('selectedIntervalBinance', interval)
+          } else if (this.props.exchange === 'ftx') {
+            localStorage.setItem('selectedIntervalFtx', interval)
+          } else if (this.props.exchange === 'binanceus') {
+            localStorage.setItem('selectedIntervalBinanceus', interval)
+          }
+        })
+    } catch (e) {
       console.log(e)
     }
   }
 
   setLastSelectedInterval = () => {
     if (!this.chartObject) return
-    if (this.props.exchange === "binance") {
-      this.chartObject.setResolution(localStorage.getItem('selectedIntervalBinance') || '1D')
-    }
-    else if (this.props.exchange === "ftx") {
-      this.chartObject.setResolution(localStorage.getItem('selectedIntervalFtx') || '1D')
-    }
-    else if (this.props.exchange === "binanceus") {
-      this.chartObject.setResolution(localStorage.getItem('selectedIntervalBinanceus') || '1D')
+    if (this.props.exchange === 'binance') {
+      this.chartObject.setResolution(
+        localStorage.getItem('selectedIntervalBinance') || '1D'
+      )
+    } else if (this.props.exchange === 'ftx') {
+      this.chartObject.setResolution(
+        localStorage.getItem('selectedIntervalFtx') || '1D'
+      )
+    } else if (this.props.exchange === 'binanceus') {
+      this.chartObject.setResolution(
+        localStorage.getItem('selectedIntervalBinanceus') || '1D'
+      )
     }
   }
 
@@ -96,19 +116,17 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget.subscribe(event, (obj) => {
         this.saveChartDrawingToServer(event)
       })
-    }
-    catch (e) {
+    } catch (e) {
       console.log(`Error while subscribing to chart events!`)
     }
   }
 
-  saveChartDrawingToServer =  (event) => {
-    this.tradingViewWidget.save(async(obj) => {
+  saveChartDrawingToServer = (event) => {
+    this.tradingViewWidget.save(async (obj) => {
       try {
         const str = JSON.stringify(obj.charts[0].panes)
         await saveChartDrawing(this.state.email, str)
-      } 
-      catch(e) {
+      } catch (e) {
         errorNotification.open({
           description: e.message,
         })
@@ -121,10 +139,9 @@ export default class TradingViewChart extends Component {
     try {
       const symbObj = this.tradingViewWidget.symbolInterval()
       if (!symbObj) return
-      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => { })
+      this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -132,113 +149,137 @@ export default class TradingViewChart extends Component {
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
 
-    const PlacedOrderTooltip = "Order is on the exchange order book."
-    const PendingOrderTooltip = "Order is waiting to be placed in the order book."
-    const entryNotFilledToolTip = "Order will be activated after entry is completed."
+    const PlacedOrderTooltip = 'Order is on the exchange order book.'
+    const PendingOrderTooltip =
+      'Order is waiting to be placed in the order book.'
+    const entryNotFilledToolTip =
+      'Order will be activated after entry is completed.'
 
-    const blue = "#008aff"
-    const green = "#3cb690"
-    const red = "rgba(242, 87, 103, 1)"
-    const redOpaque = "rgba(242, 87, 103, 0.6)"
+    const green = '#3cb690'
+    const red = 'rgba(242, 87, 103, 1)'
+    const redOpaque = 'rgba(242, 87, 103, 0.6)'
 
     try {
       for (let i = 0; i < this.orderLinesDrawn.length; i++) {
-        const { trade_id, line_id } = this.orderLinesDrawn[i]
+        const { line_id } = this.orderLinesDrawn[i]
         this.chartObject.setEntityVisibility(line_id, false)
       }
       this.orderLinesDrawn = []
       for (let i = 0; i < openOrders.length; i++) {
-        const { trade_id, orders, type, symbol } = openOrders[i]
-        const isFullTrade = type.includes("Full")
+        const { trade_id, orders, type } = openOrders[i]
+        const isFullTrade = type.includes('Full')
         for (let j = 0; j < orders.length; j++) {
-          const { type, total, side, quote_asset, status, price, trigger, symbol } = orders[j]
+          const {
+            type,
+            total,
+            side,
+            quote_asset,
+            status,
+            price,
+            trigger,
+            symbol,
+          } = orders[j]
           // if order status is filled , don't draw it
-          if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue
+          if (
+            status.toLowerCase() === 'filled' &&
+            symbol.toLowerCase() !== 'entry'
+          )
+            continue
           let entryStatus
           if (isFullTrade) {
             entryStatus = orders[0]?.status?.toLowerCase()
           }
           let orderColor
-          if (side === "Sell") {
-            const condition = ((entryStatus && entryStatus !== "filled"))
+          if (side === 'Sell') {
+            const condition = entryStatus && entryStatus !== 'filled'
             orderColor = condition ? redOpaque : red
-          }
-          else if (side === "Buy") {
+          } else if (side === 'Buy') {
             orderColor = green
-          }
-          else {
-            orderColor = "#000"
+          } else {
+            orderColor = '#000'
           }
           let orderText
-          if (symbol.toLowerCase() === "entry" && status.toLowerCase() === "filled") {
+          if (
+            symbol.toLowerCase() === 'entry' &&
+            status.toLowerCase() === 'filled'
+          ) {
             orderText = 'Entry'
-          }
-          else {
-            orderText = type.includes("STOP") ? `${type.replace('-', ' ')} Trigger ${trigger}` : type
+          } else {
+            orderText = type.includes('STOP')
+              ? `${type.replace('-', ' ')} Trigger ${trigger}`
+              : type
           }
           let toolTipText
           let orderPrice
           let orderLineId
           if (isFullTrade) {
-            if (symbol.toLowerCase() === "entry") {
-              if (status.toLowerCase() === "placed") {
+            if (symbol.toLowerCase() === 'entry') {
+              if (status.toLowerCase() === 'placed') {
                 toolTipText = PlacedOrderTooltip
-              }
-              else if (status.toLowerCase() === "filled") {
-                toolTipText = "Entry is filled"
-              }
-              else {
+              } else if (status.toLowerCase() === 'filled') {
+                toolTipText = 'Entry is filled'
+              } else {
                 let toolTip = ''
                 for (let k = 1; k < orders.length; k++) {
                   // Stop-loss, Target 1, Stop-market in symbol
                   let symbolKey = orders[k].symbol
                   symbolKey = symbolKey.replace('-', ' ')
-                  let splKey = symbolKey.split(" ")
-                  toolTip = toolTip + splKey[0].charAt(0).toUpperCase() + splKey[1].charAt(0).toUpperCase() + ' ' + orders[k].trigger + ', '
+                  let splKey = symbolKey.split(' ')
+                  toolTip =
+                    toolTip +
+                    splKey[0].charAt(0).toUpperCase() +
+                    splKey[1].charAt(0).toUpperCase() +
+                    ' ' +
+                    orders[k].trigger +
+                    ', '
                 }
                 toolTipText = toolTip
               }
-            }
-            else {
+            } else {
               if (orderColor === redOpaque) {
                 toolTipText = entryNotFilledToolTip
-              }
-              else if (status.toLowerCase() === "pending") {
+              } else if (status.toLowerCase() === 'pending') {
                 toolTipText = PendingOrderTooltip
-              }
-              else if (status.toLowerCase() !== "pending") {
+              } else if (status.toLowerCase() !== 'pending') {
                 toolTipText = PlacedOrderTooltip
               }
             }
-            if (trigger && trigger.length) { // price can be "Market"
-              if (symbol.toLowerCase() === "entry" && status.toLowerCase() !== "filled") {
+            if (trigger && trigger.length) {
+              // price can be "Market"
+              if (
+                symbol.toLowerCase() === 'entry' &&
+                status.toLowerCase() !== 'filled'
+              ) {
                 orderPrice = trigger
-              }
-              else if (symbol.toLowerCase() === "entry" && status.toLowerCase() === "filled") {
+              } else if (
+                symbol.toLowerCase() === 'entry' &&
+                status.toLowerCase() === 'filled'
+              ) {
                 orderPrice = price
-              }
-              else {
-                if (trigger.includes(">=")) {
-                  let split = trigger.split(">= ")
+              } else {
+                if (trigger.includes('>=')) {
+                  let split = trigger.split('>= ')
                   orderPrice = split[1]
-                }
-                else if (trigger.includes("<=")) {
-                  let split = trigger.split("<= ")
+                } else if (trigger.includes('<=')) {
+                  let split = trigger.split('<= ')
                   orderPrice = split[1]
                 }
               }
-            }
-            else {
+            } else {
               orderPrice = price
             }
-            orderLineId = trade_id + '-' + symbol.toLowerCase().replace(' ', '-')
-          }
-          else {
-            orderPrice = price === "Market" ? trigger : price
-            toolTipText = status.toLowerCase() === "pending" ? PendingOrderTooltip : PlacedOrderTooltip
+            orderLineId =
+              trade_id + '-' + symbol.toLowerCase().replace(' ', '-')
+          } else {
+            orderPrice = price === 'Market' ? trigger : price
+            toolTipText =
+              status.toLowerCase() === 'pending'
+                ? PendingOrderTooltip
+                : PlacedOrderTooltip
             orderLineId = trade_id
           }
-          let entity = this.chartObject.createOrderLine()
+          let entity = this.chartObject
+            .createOrderLine()
             .setTooltip(toolTipText)
             .setLineLength(60)
             .setExtendLeft(false)
@@ -247,23 +288,29 @@ export default class TradingViewChart extends Component {
             .setBodyTextColor(orderColor)
             .setQuantityBackgroundColor(orderColor)
             .setQuantityBorderColor(orderColor)
-            .setQuantityTextColor("rgb(255,255,255)")
+            .setQuantityTextColor('rgb(255,255,255)')
             .setText(orderText)
             .setQuantity(`${total} ${quote_asset}`)
             .setPrice(orderPrice)
-          this.orderLinesDrawn.push({ line_id: entity?._line?._id, id: orderLineId, status: status.toLowerCase(), trade_id, entity })
+          this.orderLinesDrawn.push({
+            line_id: entity?._line?._id,
+            id: orderLineId,
+            status: status.toLowerCase(),
+            trade_id,
+            entity,
+          })
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
 
   deleteOpenOrderLine = (trade_id) => {
     if (!this.chartObject || !this.state.isChartReady || !trade_id) return
-    let fData = this.orderLinesDrawn.find(item => item.trade_id === trade_id)
-    if (fData && fData.line_id) this.chartObject.setEntityVisibility(fData.line_id, false)
+    let fData = this.orderLinesDrawn.find((item) => item.trade_id === trade_id)
+    if (fData && fData.line_id)
+      this.chartObject.setEntityVisibility(fData.line_id, false)
   }
 
   removeAllDrawingsCB = () => {
@@ -293,10 +340,10 @@ export default class TradingViewChart extends Component {
       'style',
       'background-color: currentColor;height: 20px;width: 20px;margin-right: 6px;-webkit-mask: url(/img/icons/sniper.svg) no-repeat center / contain;'
     )
-    let text = document.createElement("div")
-    text.innerText = "Sniper Mode"
-    text.setAttribute("class", "button-2ioYhFEY")
-    text.setAttribute("style", "display:flex;align-items:center;")
+    let text = document.createElement('div')
+    text.innerText = 'Sniper Mode'
+    text.setAttribute('class', 'button-2ioYhFEY')
+    text.setAttribute('style', 'display:flex;align-items:center;')
     text.prepend(img)
     button.append(text)
   }
@@ -312,17 +359,15 @@ export default class TradingViewChart extends Component {
           this.tradingViewWidget.load(prep)
         })
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.error(e)
-    }
-    finally {
+    } finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
       this.setState({
-        isChartReady: true
+        isChartReady: true,
       })
-      this.chartEvent("onAutoSaveNeeded")
+      this.chartEvent('onAutoSaveNeeded')
       // this.chartShortCutSave()
       // this.chartEvent("study_event")
       setTimeout(() => {
@@ -332,18 +377,18 @@ export default class TradingViewChart extends Component {
   }
 
   chartShortCutSave = () => {
-    this.tradingViewWidget.onShortcut("ctrl+s", () => {
-      console.log("shortcut saved")
+    this.tradingViewWidget.onShortcut('ctrl+s', () => {
+      console.log('shortcut saved')
     })
   }
 
   changeIframeCSS = () => {
     const getIFrame = document.querySelector("iframe[id*='tradingview']")
     console.log(getIFrame)
-    var cssLink = document.createElement("link")
-    cssLink.href = "chart.css"
-    cssLink.rel = "stylesheet"
-    cssLink.type = "text/css"
+    var cssLink = document.createElement('link')
+    cssLink.href = 'chart.css'
+    cssLink.rel = 'stylesheet'
+    cssLink.type = 'text/css'
     getIFrame?.contentDocument.head.appendChild(cssLink)
   }
 
@@ -351,31 +396,48 @@ export default class TradingViewChart extends Component {
     if (!newOrders) return true
     let newArray = []
     for (let i = 0; i < newOrders.length; i++) {
-      const { trade_id, orders, type, symbol } = newOrders[i]
-      const isFullTrade = type.includes("Full")
+      const { trade_id, orders, type } = newOrders[i]
+      const isFullTrade = type.includes('Full')
       for (let j = 0; j < orders.length; j++) {
         const { symbol, status } = orders[j]
-        const id = isFullTrade ? trade_id + '-' + symbol.toLowerCase().replace(' ', '-') : trade_id
-        if (status.toLowerCase() === "filled" && symbol.toLowerCase() !== "entry") continue
+        const id = isFullTrade
+          ? trade_id + '-' + symbol.toLowerCase().replace(' ', '-')
+          : trade_id
+        if (
+          status.toLowerCase() === 'filled' &&
+          symbol.toLowerCase() !== 'entry'
+        )
+          continue
         newArray.push({ id, status: status.toLowerCase() })
       }
     }
-    const mappedDrawnLines = this.orderLinesDrawn.map((item) => ({ id: item.id, status: item.status }))
+    const mappedDrawnLines = this.orderLinesDrawn.map((item) => ({
+      id: item.id,
+      status: item.status,
+    }))
     return JSON.stringify(newArray) === JSON.stringify(mappedDrawnLines)
   }
 
   static getDerivedStateFromProps(newProps, prevState) {
-    return { ...prevState, theme: newProps.theme, symbol: newProps.symbol, openOrderLines: newProps.openOrders }
+    return {
+      ...prevState,
+      theme: newProps.theme,
+      symbol: newProps.symbol,
+      openOrderLines: newProps.openOrders,
+    }
   }
 
   componentDidMount() {
-    this.tradingViewWidget = (window.tvWidget = new window.TradingView.widget(this.widgetOptions))
+    this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
+      this.widgetOptions
+    )
     this.chartReady()
   }
 
   componentDidUpdate(prevProps, props) {
     if (!this.tradingViewWidget) return
-    if (props.theme !== this.state.theme) this.tradingViewWidget.changeTheme(this.state.theme)
+    if (props.theme !== this.state.theme)
+      this.tradingViewWidget.changeTheme(this.state.theme)
     this.changeSymbol(this.state.symbol)
 
     if (!this.isArrayEqual(this.state.openOrderLines, props.openOrderLines)) {
@@ -399,7 +461,14 @@ export default class TradingViewChart extends Component {
 
   render() {
     return (
-      <div id='chart_container' style={{ width: "100%", height: "100%", display: this.state.isChartReady ? 'block' : 'none' }}></div>
+      <div
+        id="chart_container"
+        style={{
+          width: '100%',
+          height: '100%',
+          display: this.state.isChartReady ? 'block' : 'none',
+        }}
+      ></div>
     )
   }
 }

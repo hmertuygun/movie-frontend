@@ -1,8 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
-import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
@@ -52,11 +50,8 @@ const errorInitialValues = {
 }
 
 const ExitStoplossStopLimit = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolLastPrice,
-  } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
+    useSymbolContext()
 
   const { state, addStoplossLimit } = useContext(TradeContext)
   const { entry } = state
@@ -74,7 +69,8 @@ const ExitStoplossStopLimit = () => {
 
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
@@ -443,7 +439,9 @@ const ExitStoplossStopLimit = () => {
               name="triggerPrice"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+              postLabel={
+                selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+              }
             />
           </div>
           {renderInputValidationError('triggerPrice')}
@@ -457,7 +455,9 @@ const ExitStoplossStopLimit = () => {
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
-            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+            postLabel={
+              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+            }
           />
           {renderInputValidationError('price')}
         </div>

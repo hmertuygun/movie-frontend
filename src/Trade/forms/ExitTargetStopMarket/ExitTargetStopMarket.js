@@ -1,8 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
-import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
@@ -47,11 +45,8 @@ const errorInitialValues = {
 }
 
 const ExitTargetStopMarket = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolLastPrice,
-  } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
+    useSymbolContext()
 
   const { addStopMarketTarget, state } = useContext(TradeContext)
   const { entry, targets } = state
@@ -59,15 +54,18 @@ const ExitTargetStopMarket = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const sumQuantity = state.targets?.map((item) => item.quantity)
   const totalQuantity = sumQuantity?.reduce(
@@ -76,7 +74,8 @@ const ExitTargetStopMarket = () => {
   )
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
-  const previousTargetPrice = targets?.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice;
+  const previousTargetPrice =
+    targets?.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(entryPrice, pricePrecision),
@@ -101,61 +100,66 @@ const ExitTargetStopMarket = () => {
 
   // @TODO
   // Move schema to a different folder
-  const formSchema = yup.object().shape({
-    price: yup
-      .number()
-      .required('Trigger Price is required')
-      .typeError('Trigger Price is required')
-      .test(
-        'Trigger Price',
-        `Trigger Price must be higher than the Entry Price: ${addPrecisionToNumber(
-          entryPrice,
-          pricePrecision
-        )}`,
-        (value) => value > entryPrice
-      )
-      .test(
-        'Trigger Price',
-        `Trigger Price must be higher than the Target ${targets?.length} Price: ${addPrecisionToNumber(
-          previousTargetPrice,
-          pricePrecision
-        )}`,
-        (value) => value > previousTargetPrice
-      )
-      .max(
-        maxPrice,
-        `Price needs to meet max-price: ${addPrecisionToNumber(
+  const formSchema = yup.object().shape(
+    {
+      price: yup
+        .number()
+        .required('Trigger Price is required')
+        .typeError('Trigger Price is required')
+        .test(
+          'Trigger Price',
+          `Trigger Price must be higher than the Entry Price: ${addPrecisionToNumber(
+            entryPrice,
+            pricePrecision
+          )}`,
+          (value) => value > entryPrice
+        )
+        .test(
+          'Trigger Price',
+          `Trigger Price must be higher than the Target ${
+            targets?.length
+          } Price: ${addPrecisionToNumber(
+            previousTargetPrice,
+            pricePrecision
+          )}`,
+          (value) => value > previousTargetPrice
+        )
+        .max(
           maxPrice,
-          pricePrecision
-        )}`
-      ),
-    quantity: yup
-      .number()
-      .required('Amount is required')
-      .typeError('Amount is required')
-      .min(
-        minQty,
-        `Amount needs to meet min-amount: ${addPrecisionToNumber(
+          `Price needs to meet max-price: ${addPrecisionToNumber(
+            maxPrice,
+            pricePrecision
+          )}`
+        ),
+      quantity: yup
+        .number()
+        .required('Amount is required')
+        .typeError('Amount is required')
+        .min(
           minQty,
-          quantityPrecision
-        )}`
-      )
-      .max(
-        entry.quantity,
-        `Amount cannot be higher than entry amount: ${entry.quantity}`
-      ),
-    total: yup
-      .number()
-      .required('Total is required')
-      .typeError('Total is required')
-      .min(
-        minNotional,
-        `Total needs to meet min-trading: ${addPrecisionToNumber(
+          `Amount needs to meet min-amount: ${addPrecisionToNumber(
+            minQty,
+            quantityPrecision
+          )}`
+        )
+        .max(
+          entry.quantity,
+          `Amount cannot be higher than entry amount: ${entry.quantity}`
+        ),
+      total: yup
+        .number()
+        .required('Total is required')
+        .typeError('Total is required')
+        .min(
           minNotional,
-          totalPrecision
-        )}`
-      ),
-  }, [previousTargetPrice])
+          `Total needs to meet min-trading: ${addPrecisionToNumber(
+            minNotional,
+            totalPrecision
+          )}`
+        ),
+    },
+    [previousTargetPrice]
+  )
 
   const handleSliderChange = (newValue) => {
     setValues((values) => ({
@@ -456,7 +460,9 @@ const ExitTargetStopMarket = () => {
               name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+              postLabel={
+                selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+              }
             />
           </div>
           {renderInputValidationError('price')}

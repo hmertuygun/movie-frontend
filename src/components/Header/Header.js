@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useCallback } from 'react'
 import {
   faTwitter,
   faTelegram,
@@ -21,12 +21,8 @@ import { secondTourSteps } from '../../helpers/tourSteps'
 import { Moon } from 'react-feather'
 
 const Header = () => {
-  const {
-    isLoggedIn,
-    onSecondTour,
-    tour2CurrentStep,
-    setTour2CurrentStep,
-  } = useContext(UserContext)
+  const { isLoggedIn, onSecondTour, tour2CurrentStep, setTour2CurrentStep } =
+    useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen } = useSymbolContext()
 
@@ -83,7 +79,7 @@ const Header = () => {
     })
   }
 
-  const addDarkClassToBody = () => {
+  const addDarkClassToBody = useCallback(() => {
     const element = document.body
     switch (theme) {
       case 'LIGHT':
@@ -95,11 +91,11 @@ const Header = () => {
       default:
         break
     }
-  }
+  }, [theme])
 
   useEffect(() => {
     addDarkClassToBody()
-  }, [theme])
+  }, [addDarkClassToBody, theme])
 
   useEffect(() => {
     if (stepIndex2 === 2) {
@@ -111,7 +107,7 @@ const Header = () => {
         setRun2(true)
       }, 1000)
     }
-  }, [stepIndex2])
+  }, [history, stepIndex2, tour2CurrentStep])
 
   if (!isLoggedIn || watchListOpen) {
     return null

@@ -11,14 +11,13 @@ const TradeChart = () => {
     symbolType,
     exchangeType,
     setWatchListOpen,
-    chartData
+    chartData,
   } = useSymbolContext()
-  const { theme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext)
 
   const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
-  const [lsWS] = useLocalStorage('WS')
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
@@ -26,8 +25,8 @@ const TradeChart = () => {
   const [isChartReady, setIsChartReady] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
-    document.addEventListener('visibilitychange', (ev) => {
-      setDocVisibility(document.visibilityState === "visible" ? true : false)
+    document.addEventListener('visibilitychange', () => {
+      setDocVisibility(document.visibilityState === 'visible' ? true : false)
     })
   }
 
@@ -37,37 +36,51 @@ const TradeChart = () => {
 
   useEffect(() => {
     if (!count) return
-    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && localStorage.getItem("WS") === "0") {
+    if (
+      docVisibility &&
+      isChartReady &&
+      activeExchange.exchange === 'binance' &&
+      localStorage.getItem('WS') === '0'
+    ) {
       setReRender(new Date().getTime())
     }
-  }, [docVisibility])
+  }, [activeExchange.exchange, count, docVisibility, isChartReady])
 
   useEffect(() => {
     setIsChartReady(false)
   }, [reRender])
 
   useEffect(() => {
-    if (lsIntervalValue && lsIntervalValue.length) saveChartIntervals(lsIntervalValue)
+    if (lsIntervalValue && lsIntervalValue.length)
+      saveChartIntervals(lsIntervalValue)
   }, [lsIntervalValue])
 
   useEffect(() => {
-    if (lsTimeZoneValue?.timezone && lsTimeZoneValue?.timezone !== chartData?.timeZone && count > 0) {
-      saveTimeZone(lsTimeZoneValue?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)
+    if (
+      lsTimeZoneValue?.timezone &&
+      lsTimeZoneValue?.timezone !== chartData?.timeZone &&
+      count > 0
+    ) {
+      saveTimeZone(
+        lsTimeZoneValue?.timezone ||
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+      )
     }
-  }, [lsTimeZoneValue])
+  }, [chartData?.timeZone, count, lsTimeZoneValue])
 
   useEffect(() => {
-    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange) return
+    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange)
+      return
     seExchangeName(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
       setReRender(new Date().getTime())
     }
-    setCount(prev => prev + 1)
-  }, [activeExchange])
+    setCount((prev) => prev + 1)
+  }, [activeExchange, count, exchangeName])
 
-  const onSniperBtnClick = (e) => {
-    setWatchListOpen(watchListOpen => !watchListOpen)
+  const onSniperBtnClick = () => {
+    setWatchListOpen((watchListOpen) => !watchListOpen)
   }
 
   const filterOrders = (order, symbol) => {
@@ -76,8 +89,14 @@ const TradeChart = () => {
   }
 
   const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
-  const symbolDetailsKeyValue = getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails
-  let showChart = chartData && symbolType && exchangeType && (getSymbolsLS || Object.keys(symbolDetails).length)
+  const symbolDetailsKeyValue = getSymbolsLS
+    ? JSON.parse(getSymbolsLS)
+    : symbolDetails
+  let showChart =
+    chartData &&
+    symbolType &&
+    exchangeType &&
+    (getSymbolsLS || Object.keys(symbolDetails).length)
   const { drawings, intervals } = chartData || {}
 
   return (

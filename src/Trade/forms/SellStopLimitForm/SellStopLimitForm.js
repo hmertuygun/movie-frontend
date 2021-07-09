@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
@@ -26,6 +25,7 @@ import {
   successNotification,
 } from '../../../components/Notifications'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { Event } from '../../../Tracking'
 import { analytics } from '../../../firebase/firebase'
@@ -53,17 +53,20 @@ const SellStopLimitForm = () => {
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
-  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair'] 
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
 
   const amountPercentagePrecision = 1
 
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
     triggerPrice: '',
@@ -266,10 +269,8 @@ const SellStopLimitForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -360,7 +361,8 @@ const SellStopLimitForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -376,7 +378,7 @@ const SellStopLimitForm = () => {
             price_trigger: values.price_trigger.value,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
+        const { data } = await createBasicTrade(payload)
         if (data?.status === 'error') {
           errorNotification.open({
             description:
@@ -466,7 +468,9 @@ const SellStopLimitForm = () => {
               name="triggerPrice"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
-              postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+              postLabel={
+                selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+              }
             />
           </div>
           {renderInputValidationError('triggerPrice')}
@@ -480,7 +484,9 @@ const SellStopLimitForm = () => {
             onChange={handleChange}
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
-            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+            postLabel={
+              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+            }
           />
           {renderInputValidationError('price')}
         </div>
@@ -536,7 +542,9 @@ const SellStopLimitForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

@@ -39,31 +39,39 @@ export default class socketClient {
             this.streams[sData.market].data = lastSocketData
             this.streams[sData.market].listener(lastSocketData)
           }
-        }
-        catch (e) {
+        } catch (e) {
           console.log(e)
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
 
-  subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback, lastDailyBar) {
+  subscribeOnStream(
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    subscribeUID,
+    onResetCacheNeededCallback,
+    lastDailyBar
+  ) {
     console.log(symbolInfo)
     try {
-      let paramStr = { 'op': 'subscribe', 'channel': 'ticker', 'market': symbolInfo.name }
+      let paramStr = {
+        op: 'subscribe',
+        channel: 'ticker',
+        market: symbolInfo.name,
+      }
       if (this._ws.readyState === 1) {
         console.log(`Send`)
         this._ws.send(JSON.stringify(paramStr))
         this.streams[symbolInfo.name] = {
           paramStr,
-          listener: onRealtimeCallback
+          listener: onRealtimeCallback,
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -71,15 +79,14 @@ export default class socketClient {
   unsubscribeFromStream(subscriberUID) {
     console.log(subscriberUID)
     try {
-      let id = subscriberUID.split("_")[0]
+      let id = subscriberUID.split('_')[0]
       if (!this.streams[id]) return
-      let paramStr = { 'op': 'unsubscribe', 'channel': 'ticker', 'market': id }
+      let paramStr = { op: 'unsubscribe', channel: 'ticker', market: id }
       if (this._ws.readyState === 1) {
         this._ws.send(JSON.stringify(paramStr))
         delete this.streams[id]
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }

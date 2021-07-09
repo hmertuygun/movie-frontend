@@ -25,6 +25,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { Event } from '../../../Tracking'
 import { analytics } from '../../../firebase/firebase'
@@ -54,14 +55,17 @@ const BuyMarketForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
   const symbolpair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolpair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const marks = {
@@ -169,10 +173,8 @@ const BuyMarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -185,10 +187,8 @@ const BuyMarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        totalWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value)
+      const { totalWithPrecision, percentageQuantityWithPrecision } =
+        calculateTotalAndPercentageQuantity(target.value)
 
       setValues((values) => ({
         ...values,
@@ -235,10 +235,8 @@ const BuyMarketForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -267,10 +265,8 @@ const BuyMarketForm = () => {
 
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
     setValues((values) => ({
       ...values,
       [target.name]: validatedValue,
@@ -313,7 +309,8 @@ const BuyMarketForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -326,9 +323,13 @@ const BuyMarketForm = () => {
             quantity: values.quantity,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
+        const { data } = await createBasicTrade(payload)
         if (data?.status === 'error') {
-          errorNotification.open({ description: data?.error || `Order couldn't be created. Please try again later!` })
+          errorNotification.open({
+            description:
+              data?.error ||
+              `Order couldn't be created. Please try again later!`,
+          })
         } else {
           successNotification.open({ description: `Order Created!` })
           analytics.logEvent('placed_buy_market_order')
@@ -342,7 +343,20 @@ const BuyMarketForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({description: (<p>Order couldn’t be created. Unknown error. Please report at: <a rel="noopener noreferrer" target="_blank" href="https://support.coinpanel.com"><b>support.coinpanel.com</b></a></p>) })
+        errorNotification.open({
+          description: (
+            <p>
+              Order couldn’t be created. Unknown error. Please report at:{' '}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href="https://support.coinpanel.com"
+              >
+                <b>support.coinpanel.com</b>
+              </a>
+            </p>
+          ),
+        })
       } finally {
         setBtnVisibility(false)
       }
@@ -451,7 +465,9 @@ const BuyMarketForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-          <span>Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

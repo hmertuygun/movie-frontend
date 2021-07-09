@@ -1,0 +1,14 @@
+{
+  "plugins": ["react", "react-hooks", "css-modules", "prettier"],
+  "extends": [
+    "react-app",
+    "plugin:react-hooks/recommended",
+    "plugin:css-modules/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "css-modules/no-unused-class": [1, { "camelCase": true }]
+  }
+}

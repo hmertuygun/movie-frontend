@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Link, useParams, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { LogOut } from 'react-feather'
 
 import { TabNavigator } from '../components'
@@ -10,7 +10,7 @@ import Subscriptions from '../Settings/Subscription'
 
 const Settings = () => {
   const { hash } = useLocation()
-  const tabIndex = hash === "#subscription" ? 3 : 0
+  const tabIndex = hash === '#subscription' ? 3 : 0
   return (
     <Fragment>
       <section
@@ -36,7 +36,12 @@ const Settings = () => {
               <div className="mt-4 row align-items-center">
                 <div className="col-12">
                   <TabNavigator
-                    labelArray={['Exchanges', 'Security', 'Notifications', 'Subscriptions & Billing']}
+                    labelArray={[
+                      'Exchanges',
+                      'Security',
+                      'Notifications',
+                      'Subscriptions & Billing',
+                    ]}
                     index={tabIndex}
                     hadDropDown={false}
                   >

@@ -20,11 +20,12 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className='container'>
-          <div className='row mt-2'>
-            <div className='col-8'>
-              <div className='alert alert-secondary text-center'>
-                Please make sure your internet connection is stable. Then refresh the page.
+        <div className="container">
+          <div className="row mt-2">
+            <div className="col-8">
+              <div className="alert alert-secondary text-center">
+                Please make sure your internet connection is stable. Then
+                refresh the page.
               </div>
             </div>
           </div>

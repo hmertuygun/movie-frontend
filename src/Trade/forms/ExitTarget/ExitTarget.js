@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
 import { TradeContext } from '../../context/SimpleTradeContext'
-import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
@@ -20,6 +19,7 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
 const useStyles = makeStyles({
@@ -46,11 +46,8 @@ const errorInitialValues = {
 }
 
 const ExitTarget = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolLastPrice,
-  } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
+    useSymbolContext()
 
   const { addTarget, state } = useContext(TradeContext)
   const { entry } = state
@@ -58,15 +55,18 @@ const ExitTarget = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const sumQuantity = state.targets?.map((item) => item.quantity)
   const totalQuantity = sumQuantity?.reduce(
@@ -380,7 +380,12 @@ const ExitTarget = () => {
         }))
       }
     }
-  }, [totalQuantity, values.quantity, values.quantityPercentage])
+  }, [
+    entry.quantity,
+    totalQuantity,
+    values.quantity,
+    values.quantityPercentage,
+  ])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -437,7 +442,9 @@ const ExitTarget = () => {
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
             placeholder="Target price"
-            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+            postLabel={
+              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+            }
           />
           {renderInputValidationError('price')}
         </div>

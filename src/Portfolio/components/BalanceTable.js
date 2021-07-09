@@ -5,17 +5,14 @@ import { tableConstants } from './Table/tableConstant'
 import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
-import { UserContext } from '../../contexts/UserContext'
-import ccxt, { exchanges } from 'ccxt'
+import { useCallback } from 'react'
 
 const BalanceTable = () => {
-  const { balance, setMarketData } = useContext(PortfolioContext)
-  const { activeExchange } = useContext(UserContext)
+  const { balance } = useContext(PortfolioContext)
   const { lastMessage } = useSymbolContext()
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  let pricePolling = null
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   const ITEMS_PER_PAGE = 8
@@ -45,7 +42,7 @@ const BalanceTable = () => {
     }
   }, [balance, setTableData, getTableData])
 
-  const fetchLatestPrice = () => {
+  const fetchLatestPrice = useCallback(() => {
     const tempBalance = balance
     tempBalance.forEach((item, index, arr) => {
       const fData = lastMessage.find(
@@ -54,18 +51,17 @@ const BalanceTable = () => {
       const fData1 = lastMessage.find(
         (item1) => item1.symbol === `${item.SYMBOL}USDT`
       )
-      // console.log(`${item.SYMBOL}BTC`, fData)
-      // console.log(`${item.SYMBOL}USD`, fData1)
+
       if (fData) arr[index].BTC = (fData.lastPrice * item.TOTAL).toFixed(8)
       if (fData1) arr[index].USD = (fData1.lastPrice * item.TOTAL).toFixed(2)
     })
     setTableData(tempBalance)
-  }
+  }, [balance, lastMessage])
 
   useEffect(() => {
     if (!balance?.length || !lastMessage?.length) return
     fetchLatestPrice()
-  }, [lastMessage])
+  }, [balance, lastMessage, fetchLatestPrice])
 
   return (
     <>

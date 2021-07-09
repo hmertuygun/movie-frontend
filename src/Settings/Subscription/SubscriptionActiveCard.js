@@ -2,28 +2,28 @@ import React, { useState } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
 
-import { firebase, auth, functions } from '../../firebase/firebase'
 import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
-  const { subscription, priceData, plan } = subscriptionData
+  const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
 
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
-      const response = await callCloudFunction('ext-firestore-stripe-subscriptions-createPortalLink')
+      const response = await callCloudFunction(
+        'ext-firestore-stripe-subscriptions-createPortalLink'
+      )
       if (needPayment) {
         window.location.assign(response?.result?.url + '/payment-methods')
       } else {
         window.location.assign(response?.result?.url)
       }
-
     } catch (error) {
       errorNotification.open({
         description: error,
       })
-      console.log("CustomerPortal Error: ", error)
+      console.log('CustomerPortal Error: ', error)
     } finally {
       setPortalLoading(false)
     }
@@ -54,7 +54,8 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     Your trial will end on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
-                    </Moment>.
+                    </Moment>
+                    .
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method to keep your account active.

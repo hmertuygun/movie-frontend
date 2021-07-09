@@ -6,7 +6,7 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './Table.module.css'
 import { UserContext } from '../../../contexts/UserContext'
 const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
-  const { selectedSymbolDetail, exchanges } = useSymbolContext()
+  const { selectedSymbolDetail } = useSymbolContext()
   const { removeEntry, removeStoploss, removeTarget } = useContext(TradeContext)
   const totalPrecision =
     selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
@@ -68,23 +68,15 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               </span>
             </div>
           </div>
-          <div className={styles['top-right']}>
-            {activeExchange.label}
-          </div>
+          <div className={styles['top-right']}>{activeExchange.label}</div>
         </div>
       </div>
       <table className={styles['Table']}>
         <thead>
           <tr className={styles['Table-headings']}>
             {labels.map((label, index) => (
-              <th
-                key={index}
-                className={styles['Table-headings-container']}
-                onClick={() => label.onClick}
-              >
-                <span className={styles['Table-headings-text']}>
-                  {label.text}
-                </span>
+              <th key={index} onClick={() => label.onClick}>
+                <span>{label.text}</span>
               </th>
             ))}
           </tr>
@@ -143,8 +135,8 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
               {target.type === 'stop-market' ? (
                 <td>{target.triggerPrice}</td>
               ) : (
-                  <td>{target.price}</td>
-                )}
+                <td>{target.price}</td>
+              )}
 
               <td className={styles['Table-Row-target-profit']}>
                 {target.profit}%
@@ -198,8 +190,8 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
                 {type === 'stop-limit' ? (
                   <td>{price}</td>
                 ) : (
-                    <td>{triggerPrice}</td>
-                  )}
+                  <td>{triggerPrice}</td>
+                )}
 
                 <td className={styles['Table-Row-stoploss-profit']}>
                   {profit}%

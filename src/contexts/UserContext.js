@@ -9,13 +9,8 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   storeNotificationToken,
-  checkSubscription,
-  createUserSubscription,
-  getLastSelectedMarketSymbol
 } from '../api/api'
-import { successNotification, warningNotification } from '../components/Notifications'
-import capitalize from '../helpers/capitalizeFirstLetter'
-import { ref } from 'yup'
+import { successNotification } from '../components/Notifications'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -78,7 +73,6 @@ const UserContextProvider = ({ children }) => {
 
   const getProducts = async () => {
     const db = firebase.firestore()
-    const plans = []
     await db
       .collection('stripe_plans')
       .where('active', '==', true)
@@ -116,7 +110,6 @@ const UserContextProvider = ({ children }) => {
   }, [userData])
 
   const getCustomClaimRole = async () => {
-    const db = firebase.firestore()
     const currentUser = firebase.auth().currentUser
 
     await currentUser.getIdToken(true)
@@ -157,16 +150,6 @@ const UserContextProvider = ({ children }) => {
       )
       // console.log('All ==>', all)
       if (all.length === 0) return
-      const activeSubscriptions = all.filter((sub) => sub.status === 'active')
-      const trialingSubscriptions = all.filter(
-        (sub) => sub.status === 'trialing'
-      )
-      const canceledSubscriptions = all.filter(
-        (sub) => sub.status === 'canceled'
-      )
-      const pastDueSubscriptions = all.filter(
-        (sub) => sub.status === 'past_due'
-      )
       const lastSubscription = all[all.length - 1]
       // console.log('last ==>', lastSubscription)
 
@@ -184,17 +167,20 @@ const UserContextProvider = ({ children }) => {
       //   (invoice) => invoice.default_payment_method
       // )
       console.log(lastSubscription)
-    // Show days left on sub modal if less than 7 days on trial
+      // Show days left on sub modal if less than 7 days on trial
 
       let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
-      getSubModalShownLastTime = getSubModalShownLastTime ? Number(getSubModalShownLastTime) : true
+      getSubModalShownLastTime = getSubModalShownLastTime
+        ? Number(getSubModalShownLastTime)
+        : true
 
       let trialDays = lastSubscription?.trial_end?.seconds * 1000 - Date.now()
-      trialDays = (trialDays / 1000 / 60 / 60 / 24)
+      trialDays = trialDays / 1000 / 60 / 60 / 24
 
-      let showSubModal = lastSubscription?.status === 'trialing' && 
-      (trialDays < 7) &&
-      (getSubModalShownLastTime + 86400 < (Date.now() / 1000))
+      let showSubModal =
+        lastSubscription?.status === 'trialing' &&
+        trialDays < 7 &&
+        getSubModalShownLastTime + 86400 < Date.now() / 1000
 
       setShowSubModal(showSubModal)
       setDaysLeft(trialDays)
@@ -203,7 +189,7 @@ const UserContextProvider = ({ children }) => {
         localStorage.setItem('lastSubModal', parseInt(Date.now() / 1000))
       }
 
-    // Add Payment Method case
+      // Add Payment Method case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
@@ -218,11 +204,11 @@ const UserContextProvider = ({ children }) => {
         setNeedPayment(false)
       }
 
-    // Subscribe button case
+      // Subscribe button case
       if (lastSubscription.status === 'canceled' && NoneActive) {
         setHasSub(false)
       }
-    // Manage subscription case
+      // Manage subscription case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
@@ -251,7 +237,7 @@ const UserContextProvider = ({ children }) => {
   async function getExchanges() {
     try {
       const hasKeys = await getUserExchanges()
-      if(hasKeys) {
+      if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
           setUserContextLoaded(true)
           return
@@ -336,7 +322,7 @@ const UserContextProvider = ({ children }) => {
           description,
         })
       })
-      navigator.serviceWorker.addEventListener('message', (message) => {
+      navigator.serviceWorker.addEventListener('message', () => {
         // console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
     } catch (e) {
@@ -413,7 +399,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) { }
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -606,7 +592,7 @@ const UserContextProvider = ({ children }) => {
         setLastSelectedSymbol,
         showSubModalIfLessThan7Days,
         setShowSubModal,
-        trialDaysLeft
+        trialDaysLeft,
       }}
     >
       {children}

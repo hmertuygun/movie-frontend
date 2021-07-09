@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from './Button.module.css'
 
 const Button = ({

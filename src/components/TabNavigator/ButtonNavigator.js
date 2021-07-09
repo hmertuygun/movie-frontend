@@ -9,10 +9,10 @@ const ButtonNavigator = ({
   labelArray = ['Target', 'Stop-loss'],
 }) => {
   const [viewIndex, setViewIndex] = useState(index)
-  const { isTourStep5, isTourFinished} = useContext(UserContext);
+  const { isTourStep5, isTourFinished } = useContext(UserContext)
 
   useEffect(() => {
-    if (isTourStep5) { 
+    if (isTourStep5) {
       document.getElementById('sell-btn').click()
     }
   }, [isTourStep5])
@@ -25,7 +25,10 @@ const ButtonNavigator = ({
 
   return (
     <Fragment>
-      <nav className="ButtonNavigator-container" id={labelArray[0] === 'BUY' ? 'cp-tour5' : ''}>
+      <nav
+        className="ButtonNavigator-container"
+        id={labelArray[0] === 'BUY' ? 'cp-tour5' : ''}
+      >
         <Button
           variant={viewIndex === 0 ? 'buy' : 'trade-nav'}
           onClick={() => setViewIndex(0)}

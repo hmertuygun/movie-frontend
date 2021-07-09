@@ -35,27 +35,29 @@ const CashoMeter = () => {
 
   const style = {
     height: 121.05,
-    width: "92%"
+    width: '92%',
   }
 
   return (
     <>
       {!isNaN(resultPercentage) ? (
         <>
-        <GaugeChart
-          id="gauge-chart1"
-          nrOfLevels={20}
-          percent={resultPercentage}
-          textColor={textColor}
-          animate={false}
-          arcPadding={0.03}
-          arcsLength={[0.1, 0.5, 0.4]}
-          colors={colors}
-          className="gauge-chart"
-          style={style}
-          hideText={true}
-        />
-        <p className="text-muted text-sm font-weight-bold text-center">{value}%</p>
+          <GaugeChart
+            id="gauge-chart1"
+            nrOfLevels={20}
+            percent={resultPercentage}
+            textColor={textColor}
+            animate={false}
+            arcPadding={0.03}
+            arcsLength={[0.1, 0.5, 0.4]}
+            colors={colors}
+            className="gauge-chart"
+            style={style}
+            hideText={true}
+          />
+          <p className="text-muted text-sm font-weight-bold text-center">
+            {value}%
+          </p>
         </>
       ) : null}
     </>

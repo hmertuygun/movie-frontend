@@ -5,7 +5,7 @@ import { MenuData } from './MenuData'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
 
 const MenuItems = () => {
-  const { theme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext)
 
   return (
     <ul className="navbar-nav ml-lg-auto mr-3">
@@ -35,7 +35,9 @@ const MenuItems = () => {
                 {item.title}
                 {item.title === 'Positions' && (
                   <span
-                    className={`mt-3 badge badge-sm badge-danger badge-pill badge-floating ${theme === "DARK" ? 'border-dark' : 'border-white'}`}
+                    className={`mt-3 badge badge-sm badge-danger badge-pill badge-floating ${
+                      theme === 'DARK' ? 'border-dark' : 'border-white'
+                    }`}
                     style={{ fontSize: '0.4rem', padding: '3px 5px' }}
                   >
                     BETA

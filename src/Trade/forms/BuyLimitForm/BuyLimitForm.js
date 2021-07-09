@@ -29,6 +29,7 @@ import { InlineInput, Button } from '../../../components'
 
 import * as yup from 'yup'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 
 const BuyLimitForm = () => {
@@ -44,20 +45,25 @@ const BuyLimitForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
-  const ticketSize = selectedSymbolDetail && selectedSymbolDetail['tickSize'] 
+  const ticketSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = ticketSize > 8 ? '' : ticketSize
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
-  const symbolPairAvailable = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
-  const totalPrecision = symbolPairAvailable === 'ETHUSDT' ? 7 : quoteAssetPrecision
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const symbolPairAvailable =
+    selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision =
+    symbolPairAvailable === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
     0: '',
@@ -206,10 +212,8 @@ const BuyLimitForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -248,10 +252,8 @@ const BuyLimitForm = () => {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
-      const {
-        totalWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value, 'price')
+      const { totalWithPrecision, percentageQuantityWithPrecision } =
+        calculateTotalAndPercentageQuantity(target.value, 'price')
 
       setValues((values) => ({
         ...values,
@@ -299,10 +301,8 @@ const BuyLimitForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -332,10 +332,8 @@ const BuyLimitForm = () => {
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,
@@ -387,7 +385,7 @@ const BuyLimitForm = () => {
           price: convertCommaNumberToDot(values.price),
         },
       }
-      const { data, status } = await createBasicTrade(payload)
+      const { data } = await createBasicTrade(payload)
       if (data?.status === 'error') {
         errorNotification.open({
           description:
@@ -557,7 +555,9 @@ const BuyLimitForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-          <span>Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

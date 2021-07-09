@@ -29,16 +29,12 @@ const WatchListPanel = () => {
     getWatchListsData()
   }, [])
 
-  const {
-    symbols,
-    isLoading,
-    isLoadingBalance,
-  } = useSymbolContext()
+  const { symbols, isLoading, isLoadingBalance } = useSymbolContext()
 
   const { activeExchange } = useContext(UserContext)
 
   const customStyles = {
-    control: (styles, {}) => ({
+    control: (styles) => ({
       ...styles,
       boxShadow: 'none',
       border: '4px solid var(--trade-borders)',
@@ -165,7 +161,7 @@ const WatchListPanel = () => {
         <div>Symbol</div>
         <div>Chg%</div>
       </div>
-      <div className={styles.content}>
+      <div>
         {loading && (
           <div className="pt-5 text-center">
             <div className="spinner-border text-primary" role="status">

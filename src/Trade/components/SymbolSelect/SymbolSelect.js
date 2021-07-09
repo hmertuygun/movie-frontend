@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
@@ -9,24 +9,22 @@ import { useMediaQuery } from 'react-responsive'
 const SymbolSelect = ({ showOnlyMarketSelection }) => {
   const {
     exchanges,
-    symbols,
     selectedSymbol,
     setSymbol,
     setExchange,
-    selectedExchange,
     isLoading,
-    isLoadingBalance,
     binanceDD,
     binanceUSDD,
     ftxDD,
   } = useSymbolContext()
 
-  const EXCHANGES = {
-    binance: binanceDD,
-    binanceus: binanceUSDD,
-    ftx: ftxDD
-  }
-  
+  const EXCHANGES = useMemo(() => {
+    return {
+      binance: binanceDD,
+      binanceus: binanceUSDD,
+      ftx: ftxDD,
+    }
+  }, [binanceDD, binanceUSDD, ftxDD])
 
   const { activeExchange } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -35,7 +33,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   const customStyles = {
-    control: (styles, { }) => ({
+    control: (styles) => ({
       ...styles,
       boxShadow: 'none',
       border: '4px solid var(--trade-borders)',
@@ -75,10 +73,10 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       backgroundColor: isDisabled
         ? 'var(--trade-background)'
         : isSelected
-          ? 'var(--symbol-select-background-selected)'
-          : isFocused
-            ? 'var(--symbol-select-background-focus)'
-            : 'var(--trade-background)',
+        ? 'var(--symbol-select-background-selected)'
+        : isFocused
+        ? 'var(--symbol-select-background-focus)'
+        : 'var(--trade-background)',
       color: 'var(--grey)',
 
       '&:hover': {
@@ -104,23 +102,38 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     const selected = EXCHANGES[exchange]
     setInitialOptions(selected)
     setOptions(selected)
-  }, [binanceDD, ftxDD, activeExchange.exchange, binanceUSDD])
-  
+  }, [
+    binanceDD,
+    ftxDD,
+    activeExchange?.exchange,
+    binanceUSDD,
+    activeExchange,
+    EXCHANGES,
+  ])
+
   return (
-    <div className={`${styles['SymbolSelect-Container']} ${showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''}`}>
-        <div className={`${styles['Select-Container']} ${showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''}`}>
-          <Select
-            components={{
-              IndicatorSeparator: () => null,
-            }}
-            options={exchanges}
-            isSearchable={false}
-            styles={customStyles}
-            onChange={(value) => setExchange(value)}
-            value={activeExchange}
-            isDisabled={isLoading}
-          />
-        </div>
+    <div
+      className={`${styles['SymbolSelect-Container']} ${
+        showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''
+      }`}
+    >
+      <div
+        className={`${styles['Select-Container']} ${
+          showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''
+        }`}
+      >
+        <Select
+          components={{
+            IndicatorSeparator: () => null,
+          }}
+          options={exchanges}
+          isSearchable={false}
+          styles={customStyles}
+          onChange={(value) => setExchange(value)}
+          value={activeExchange}
+          isDisabled={isLoading}
+        />
+      </div>
       <div className={styles['Select-Container']}>
         <Select
           components={{
@@ -133,7 +146,9 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
           isDisabled={isLoading}
           styles={customStyles}
           onInputChange={(inputValue) => {
-            setOptions(matchSorter(initialOptions, inputValue, { keys: ['label'] }))
+            setOptions(
+              matchSorter(initialOptions, inputValue, { keys: ['label'] })
+            )
           }}
         />
       </div>

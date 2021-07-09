@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Key, AtSign } from 'react-feather'
-import { Link, Redirect, useLocation } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'

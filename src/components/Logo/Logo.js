@@ -1,12 +1,12 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { ThemeContext } from '../../contexts/ThemeContext'; 
+import { ThemeContext } from '../../contexts/ThemeContext'
 import './Logo.css'
 
 const Logo = () => {
-  const { theme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext)
   const style = {
-    color: theme === "DARK" ? "white": "var(--blue)"
+    color: theme === 'DARK' ? 'white' : 'var(--blue)',
   }
 
   return (

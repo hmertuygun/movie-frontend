@@ -22,7 +22,7 @@ const OrderChannelCard = ({
     } else if (tour2CurrentStep === 6) {
       document.getElementById('cp-tour-2-close').click()
     }
-  }, [tour2CurrentStep])
+  }, [isModalVisible, tour2CurrentStep])
 
   return (
     <>
@@ -50,7 +50,10 @@ const OrderChannelCard = ({
                 Telegram Settings
               </button>
             )}
-            <div className="custom-control custom-switch"  id={channel === 'Email' ? 'cp-tour-2-7' : ''}>
+            <div
+              className="custom-control custom-switch"
+              id={channel === 'Email' ? 'cp-tour-2-7' : ''}
+            >
               <input
                 type="checkbox"
                 className="custom-control-input"

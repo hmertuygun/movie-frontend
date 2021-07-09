@@ -4,7 +4,7 @@ import { ThemeContext } from '../../../contexts/ThemeContext'
 import '../../Logo/Logo.css'
 
 const Logo = () => {
-  const { theme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext)
 
   return (
     <>
@@ -12,7 +12,11 @@ const Logo = () => {
         id="cp-tour1"
         className="navbar-brand"
         to="/trade"
-        style={{ fontSize: '1.7rem', fontWeight: '700', color: theme === 'DARK' ? 'white' : '' }}
+        style={{
+          fontSize: '1.7rem',
+          fontWeight: '700',
+          color: theme === 'DARK' ? 'white' : '',
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
