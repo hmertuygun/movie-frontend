@@ -8,7 +8,6 @@ import styles from './WatchListPanel.module.css'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { getWatchLists, saveWatchLists } from '../api/api'
-import { uniqBy } from 'lodash'
 
 const WatchListPanel = () => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
@@ -97,16 +96,18 @@ const WatchListPanel = () => {
   }
 
   const selectedSymbols = useMemo(() => {
+    // eslint-disable-next-line no-unused-vars
     const { exchange } = activeExchange
     const selected = symbols
-      .filter((symbol) =>
-        symbol.value.toLowerCase().includes(exchange.toLowerCase())
-      )
+      .filter((symbol) => {
+        const exchangeString = symbol.value.split(':')?.[0]?.toLowerCase()
+        // Currently we only show binance symbols
+        return exchangeString === 'binance'
+      })
       .filter(
         (symbol) => !watchSymbols.some((item) => item.value === symbol.value)
       )
-    const uniqueSelected = uniqBy(selected, 'value')
-    return uniqueSelected
+    return selected
   }, [symbols, activeExchange, watchSymbols])
 
   const handleChange = async (symbol) => {
