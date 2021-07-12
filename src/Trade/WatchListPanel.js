@@ -8,6 +8,7 @@ import styles from './WatchListPanel.module.css'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { getWatchLists, saveWatchLists } from '../api/api'
+import { uniqBy } from 'lodash'
 
 const WatchListPanel = () => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
@@ -104,7 +105,8 @@ const WatchListPanel = () => {
       .filter(
         (symbol) => !watchSymbols.some((item) => item.value === symbol.value)
       )
-    return selected
+    const uniqueSelected = uniqBy(selected, 'value')
+    return uniqueSelected
   }, [symbols, activeExchange, watchSymbols])
 
   const handleChange = async (symbol) => {
