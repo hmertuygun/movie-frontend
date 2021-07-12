@@ -13,6 +13,7 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
 } from '../../api/api'
+import { useHistory } from 'react-router-dom'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
 import './index.css'
 
@@ -28,6 +29,9 @@ const OnboardingModal = () => {
     getSubscriptionsData,
     onTour,
     setOnTour,
+    setLoadApiKeysError,
+    handleOnboardingSkip,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -40,7 +44,7 @@ const OnboardingModal = () => {
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [secret, setSecret] = useState('')
-
+  const history = useHistory()
   const errorInitialValues = {
     exchange: '',
     apiName: '',
@@ -128,6 +132,7 @@ const OnboardingModal = () => {
       primaryBtn: 'Continue with existing Binance account',
       secBtn: 'Set up a new Binance account',
       heading: 'Welcome to CoinPanel!',
+      terBtn: 'Skip',
     },
     2: {
       primaryBtn: 'Continue',
@@ -184,6 +189,11 @@ const OnboardingModal = () => {
     } else if (step === 3) {
       window.open('https://support.coinpanel.com/hc/en-us')
     }
+  }
+
+  const onTertiaryBtnClick = () => {
+    handleOnboardingSkip()
+    history.push('/chartview')
   }
 
   const addExchange = async () => {
@@ -257,8 +267,6 @@ const OnboardingModal = () => {
       )}
     </>
   )
-
-  console.log(loadApiKeysError)
 
   return (
     <>
@@ -455,6 +463,15 @@ const OnboardingModal = () => {
                   />
                 )}
               </button>
+              {!isOnboardingSkipped && step === 1 && (
+                <button
+                  type="button"
+                  className="btn btn-secondary terBtn"
+                  onClick={onTertiaryBtnClick}
+                >
+                  {btnText[step].terBtn}
+                </button>
+              )}
             </div>
           </div>
         </div>

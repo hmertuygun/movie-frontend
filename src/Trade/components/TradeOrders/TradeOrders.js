@@ -45,6 +45,7 @@ const TradeOrders = () => {
     setDelOpenOrders,
     orderEdited,
     setOrderEdited,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext)
   const { loading: isPortfolioLoading } = useContext(PortfolioContext)
@@ -252,7 +253,12 @@ const TradeOrders = () => {
   }, [deletedRows])
 
   useEffect(() => {
-    if (orderHistoryFB > 0 && !showProgressBar && !keyProcessing) {
+    if (
+      orderHistoryFB > 0 &&
+      !showProgressBar &&
+      !keyProcessing &&
+      !isOnboardingSkipped
+    ) {
       getOrderHistoryData(true, false)
     }
   }, [orderHistoryFB, showProgressBar])
@@ -448,12 +454,11 @@ const TradeOrders = () => {
             >
               Order History
             </span>
-            {!isOpenOrders && (
-              <span className="message pl-4">
-                Order history sometimes does not update properly. We are aware
-                of the issue and it will be fixed soon.
+            {/* { !isOpenOrders && 
+              <span className='message pl-4'>
+                Order history sometimes does not update properly. We are aware of the issue and it will be fixed soon.
               </span>
-            )}
+            } */}
           </div>
           <div className="col-auto">
             <div className="d-flex justify-content-between align-items-center">

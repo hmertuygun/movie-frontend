@@ -108,3 +108,56 @@
     display: none;
   }
 }
+
+.chart-view {
+  position: relative;
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+}
+
+.chart-view-content {
+  text-align: center;
+  position: absolute;
+  padding: 10px;
+  top: 212px;
+  left: 45px;
+  color: #718096;
+}
+
+.chart-view-content-mobile {
+  text-align: center;
+  position: absolute;
+  padding: 10px;
+  bottom: 180px;
+  left: 75px;
+  color: #718096;
+}
+
+.chart-view-content p {
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.chart-order-view {
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+}
+
+.chart-order-view-position {
+  position: relative;
+}
+
+.chart-view-order-content {
+  text-align: center;
+  position: absolute;
+  top: 50px;
+  left: 400px;
+}
+
+.chart-view-order-content p {
+  font-size: 0.8rem;
+}
+
+.skipped-trade-view {
+  grid-template-columns: 200px auto;
+}

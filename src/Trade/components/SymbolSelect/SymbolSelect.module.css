@@ -13,6 +13,10 @@
   display: none;
 }
 
+.skipped-container {
+  grid-template-columns: 100%;
+}
+
 @media (max-width: 991px) {
   .Mobile-Symbol-Container {
     grid-template-columns: 100%;

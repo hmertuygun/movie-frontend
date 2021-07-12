@@ -146,7 +146,6 @@ export async function getBalance({ symbol, apiKeyName, exchange }) {
     headers: await getHeaders(token),
     method: 'GET',
   })
-
   return response
 }
 

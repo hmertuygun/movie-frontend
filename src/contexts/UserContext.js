@@ -9,10 +9,32 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   storeNotificationToken,
+  checkSubscription,
+  createUserSubscription,
+  getLastSelectedMarketSymbol,
 } from '../api/api'
-import { successNotification } from '../components/Notifications'
+import {
+  successNotification,
+  warningNotification,
+} from '../components/Notifications'
+import capitalize from '../helpers/capitalizeFirstLetter'
+import { ref } from 'yup'
+import { useHistory } from 'react-router'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
+
+const DEFAULT_EXCHANGE = {
+  data: {
+    apiKeys: [
+      {
+        apiKeyName: 'binance1',
+        exchange: 'binance',
+        status: 'Active',
+        isLastSelected: true,
+      },
+    ],
+  },
+}
 
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
@@ -42,6 +64,7 @@ const UserContextProvider = ({ children }) => {
     apiKeyName: '',
     exchange: '',
   })
+  const [isOnboardingSkipped, setIsOnboardingSkipped] = useState()
   const [loaderText, setLoaderText] = useState(
     'Loading data from new exchange ...'
   )
@@ -66,6 +89,8 @@ const UserContextProvider = ({ children }) => {
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
+
+  const history = useHistory()
   useEffect(() => {
     getUserExchangesAfterFBInit()
     getProducts()
@@ -101,6 +126,26 @@ const UserContextProvider = ({ children }) => {
           setProducts((products) => [...products, productData])
         })
       })
+  }
+
+  useEffect(() => {
+    const value = localStorage.getItem('onboarding')
+    if (value === 'skipped') {
+      setIsOnboardingSkipped(true)
+    } else {
+      setIsOnboardingSkipped(false)
+    }
+  }, [])
+
+  const handleOnboardingSkip = () => {
+    console.log('clicked')
+    localStorage.setItem('onboarding', 'skipped')
+    setIsOnboardingSkipped(true)
+  }
+
+  const handleOnboardingShow = () => {
+    localStorage.removeItem('onboarding')
+    setIsOnboardingSkipped(false)
   }
 
   useEffect(() => {
@@ -234,9 +279,16 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  useEffect(() => {
+    if (isOnboardingSkipped) {
+      getExchanges()
+    }
+  }, [isOnboardingSkipped])
+
   async function getExchanges() {
     try {
-      const hasKeys = await getUserExchanges()
+      let hasKeys = await getUserExchanges()
+      hasKeys = isOnboardingSkipped ? DEFAULT_EXCHANGE : hasKeys
       if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
           setUserContextLoaded(true)
@@ -258,7 +310,9 @@ const UserContextProvider = ({ children }) => {
         ) > -1
       ) {
         setActiveExchange({ ...ssData })
-        setLoadApiKeys(true)
+        if (!isOnboardingSkipped) {
+          setLoadApiKeys(true)
+        }
       } else {
         let activeKey = apiKeys.find(
           (item) => item.isLastSelected === true && item.status === 'Active'
@@ -269,7 +323,9 @@ const UserContextProvider = ({ children }) => {
             label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
             value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
           }
-          setLoadApiKeys(true) // Only check active api exchange eventually
+          if (!isOnboardingSkipped) {
+            setLoadApiKeys(true) // Only check active api exchange eventually
+          }
           setActiveExchange(data)
           sessionStorage.setItem('exchangeKey', JSON.stringify(data))
         } else {
@@ -284,7 +340,9 @@ const UserContextProvider = ({ children }) => {
             }
             setActiveExchange(data)
             sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-            setLoadApiKeys(true)
+            if (!isOnboardingSkipped) {
+              setLoadApiKeys(true)
+            }
           }
         }
       }
@@ -403,6 +461,7 @@ const UserContextProvider = ({ children }) => {
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
+      history.push('/trade')
     }
 
     localStorage.removeItem('registered')
@@ -593,6 +652,9 @@ const UserContextProvider = ({ children }) => {
         showSubModalIfLessThan7Days,
         setShowSubModal,
         trialDaysLeft,
+        handleOnboardingSkip,
+        isOnboardingSkipped,
+        handleOnboardingShow,
       }}
     >
       {children}

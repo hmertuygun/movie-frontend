@@ -52,7 +52,11 @@ const Routes = () => {
     userContextLoaded,
     loadApiKeys,
     hasSub,
+    loaderVisible,
+    loaderText,
+    setIsAppOnline,
     showSubModalIfLessThan7Days,
+    isOnboardingSkipped,
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
@@ -101,7 +105,8 @@ const Routes = () => {
           {isLoggedIn &&
             userContextLoaded &&
             !loadApiKeys &&
-            !isSettingsPage && <OnboardingModal />}
+            !isSettingsPage &&
+            !isOnboardingSkipped && <OnboardingModal />}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&
@@ -109,10 +114,14 @@ const Routes = () => {
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <CacheRoute exact path="/trade" component={TradeView} />
+              {!isOnboardingSkipped && (
+                <>
+                  <CacheRoute path="/portfolio" component={Portfolio} />
+                  <CacheRoute path="/alerts" component={PriceAlerts} />
+                  <CacheRoute path="/positions" component={Positions} />
+                </>
+              )}
               <Route path="/settings" component={Settings} />
-              <CacheRoute path="/portfolio" component={Portfolio} />
-              <CacheRoute path="/alerts" component={PriceAlerts} />
-              <CacheRoute path="/positions" component={Positions} />
               <Redirect to="/trade" />
             </CacheSwitch>
           )}

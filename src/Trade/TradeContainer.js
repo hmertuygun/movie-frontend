@@ -44,13 +44,16 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys, userData } = useContext(UserContext)
+  const { loadApiKeys, userData, handleOnboardingShow, isOnboardingSkipped } =
+    useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = watchListOpen
     ? window.innerHeight + 'px'
+    : isOnboardingSkipped
+    ? 'calc(100vh - 134px)'
     : window.innerHeight * 0.6 + 'px'
   const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
   const [snapShotCount, setSnapShotCount] = useState(0)
@@ -119,7 +122,7 @@ const TradeContainer = () => {
   }, [fbNotice, snapShotCount])
 
   useEffect(() => {
-    if (!loadApiKeys) {
+    if (!loadApiKeys && !isOnboardingSkipped) {
       history.push('/settings')
     }
   }, [loadApiKeys, history])
@@ -148,6 +151,10 @@ const TradeContainer = () => {
     }
   }
 
+  const handleAddExchange = () => {
+    handleOnboardingShow()
+  }
+
   return (
     <>
       {!isMobile ? (
@@ -166,12 +173,26 @@ const TradeContainer = () => {
               </section>
             </div>
           ) : (
-            <section className="TradeView-Panel">
-              <ErrorBoundary componentName="TradePanel">
-                <Suspense fallback={<div></div>}>
-                  <Route path="/trade/" component={TradePanel} />
-                </Suspense>
-              </ErrorBoundary>
+            <section className={`TradeView-Panel`}>
+              <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+                <ErrorBoundary componentName="TradePanel">
+                  <Suspense fallback={<div></div>}>
+                    <Route path="/trade/" component={TradePanel} />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+              {isOnboardingSkipped && (
+                <div className="chart-view-content">
+                  <p>Add exchange to start trading</p>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-primary btn-icon"
+                    onClick={handleAddExchange}
+                  >
+                    <span className="btn-inner--text">Add Exchange</span>
+                  </button>
+                </div>
+              )}
             </section>
           )}
           <section
@@ -214,7 +235,11 @@ const TradeContainer = () => {
               ))}
             </div>
             {!watchListOpen && (
-              <section className="TradeView-Symbol">
+              <section
+                className={`TradeView-Symbol ${
+                  isOnboardingSkipped ? 'skipped-trade-view' : ''
+                }`}
+              >
                 <ErrorBoundary componentName="SymbolSelect">
                   <Suspense fallback={<div></div>}>
                     <SymbolSelect />
@@ -245,17 +270,28 @@ const TradeContainer = () => {
             </section>
 
             <section
-              className="TradeOrders"
+              className={`TradeOrders ${
+                isOnboardingSkipped ? 'chart-order-view-position' : ''
+              }`}
               style={{
                 height: orderHeight,
                 display: watchListOpen ? 'none' : '',
               }}
             >
-              <ErrorBoundary componentName="TradeOrders">
-                <Suspense fallback={<div></div>}>
-                  <TradeOrders />
-                </Suspense>
-              </ErrorBoundary>
+              <div
+                className={`${isOnboardingSkipped ? 'chart-order-view' : ''}`}
+              >
+                <ErrorBoundary componentName="TradeOrders">
+                  <Suspense fallback={<div></div>}>
+                    <TradeOrders />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+              {isOnboardingSkipped && (
+                <div className="chart-view-order-content">
+                  <p>Add exchange to start trading</p>
+                </div>
+              )}
             </section>
           </section>
         </>
@@ -321,11 +357,25 @@ const TradeContainer = () => {
             </ErrorBoundary>
           </section>
           <section className="TradeOrders">
-            <ErrorBoundary componentName="TradeOrders">
-              <Suspense fallback={<div></div>}>
-                <TradeOrders />
-              </Suspense>
-            </ErrorBoundary>
+            <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+              <ErrorBoundary componentName="TradeOrders">
+                <Suspense fallback={<div></div>}>
+                  <TradeOrders />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+            {isOnboardingSkipped && (
+              <div className="chart-view-content-mobile">
+                <p>Add exchange to start trading</p>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-primary btn-icon"
+                  onClick={handleAddExchange}
+                >
+                  <span className="btn-inner--text">Add Exchange</span>
+                </button>
+              </div>
+            )}
           </section>
         </div>
       )}

@@ -26,7 +26,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     }
   }, [binanceDD, binanceUSDD, ftxDD])
 
-  const { activeExchange } = useContext(UserContext)
+  const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
   const [initialOptions, setInitialOptions] = useState([])
 
@@ -115,25 +115,29 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     <div
       className={`${styles['SymbolSelect-Container']} ${
         showOnlyMarketSelection ? styles['Mobile-Symbol-Container'] : ''
-      }`}
+      } ${isOnboardingSkipped ? styles['skipped-container'] : ''}`}
     >
-      <div
-        className={`${styles['Select-Container']} ${
-          showOnlyMarketSelection ? styles['Mobile-Select-Container-Type'] : ''
-        }`}
-      >
-        <Select
-          components={{
-            IndicatorSeparator: () => null,
-          }}
-          options={exchanges}
-          isSearchable={false}
-          styles={customStyles}
-          onChange={(value) => setExchange(value)}
-          value={activeExchange}
-          isDisabled={isLoading}
-        />
-      </div>
+      {!isOnboardingSkipped && (
+        <div
+          className={`${styles['Select-Container']} ${
+            showOnlyMarketSelection
+              ? styles['Mobile-Select-Container-Type']
+              : ''
+          }`}
+        >
+          <Select
+            components={{
+              IndicatorSeparator: () => null,
+            }}
+            options={exchanges}
+            isSearchable={false}
+            styles={customStyles}
+            onChange={(value) => setExchange(value)}
+            value={activeExchange}
+            isDisabled={isLoading || isOnboardingSkipped}
+          />
+        </div>
+      )}
       <div className={styles['Select-Container']}>
         <Select
           components={{

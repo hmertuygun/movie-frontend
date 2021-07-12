@@ -3,9 +3,15 @@ import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import { MenuData } from './MenuData'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
+import { UserContext } from '../../../../contexts/UserContext'
 
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext)
+  const { handleOnboardingShow, isOnboardingSkipped } = useContext(UserContext)
+
+  const onMenuClick = () => {
+    handleOnboardingShow()
+  }
 
   return (
     <ul className="navbar-nav ml-lg-auto mr-3">
@@ -30,7 +36,14 @@ const MenuItems = () => {
                 id={item.id}
                 activeClassName="nav-link active"
                 className="nav-link btn"
-                to={item.url}
+                to={
+                  isOnboardingSkipped && item.title !== 'Trade' ? '#' : item.url
+                }
+                onClick={
+                  isOnboardingSkipped && item.title !== 'Trade'
+                    ? onMenuClick
+                    : null
+                }
               >
                 {item.title}
                 {item.title === 'Positions' && (
