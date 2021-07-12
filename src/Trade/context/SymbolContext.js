@@ -68,6 +68,8 @@ const SymbolContextProvider = ({ children }) => {
   const [binanceUSDD, setBinanceUSDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
+  const [templateDrawings, setTemplateDrawings] = useState(false)
+  const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
@@ -616,6 +618,10 @@ const SymbolContextProvider = ({ children }) => {
         ftxDD,
         watchListOpen,
         setWatchListOpen,
+        templateDrawings,
+        setTemplateDrawings,
+        templateDrawingsOpen,
+        setTemplateDrawingsOpen,
         chartData,
       }}
     >

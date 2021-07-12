@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import dataFeed from './dataFeed'
-import { saveChartDrawing } from '../../../api/api'
+import firebase from 'firebase'
 import { errorNotification } from '../../../components/Notifications'
+import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -21,7 +22,10 @@ export default class TradingViewChart extends Component {
     marketSymbols,
     chartReady,
     sniperBtnClicked,
+    drawingsBtnClicked,
     drawingRendered,
+    templateDrawings,
+    templateDrawingsOpen,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -57,6 +61,11 @@ export default class TradingViewChart extends Component {
       theme,
       email,
       openOrderLines: [],
+      templateDrawings,
+      templateDrawingsOpen,
+      templateButton: {},
+      loadingButton: {},
+      isSaved: true,
     }
   }
 
@@ -66,8 +75,8 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget.onChartReady(() => {
         this.chartObject = this.tradingViewWidget.activeChart()
         this.initChart()
-        // this.chartEvent("drawing_event")
         this.addSniperModeButton()
+        this.addLoadDrawingsButton()
       })
     } catch (e) {
       console.log(e)
@@ -114,7 +123,31 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
-        this.saveChartDrawingToServer(event)
+        if (event === 'drawing_event') {
+          this.setState({ isSaved: false })
+        }
+
+        if (event === 'onAutoSaveNeeded') {
+          this.saveChartDrawingToServer(event)
+          this.setState({ isSaved: true })
+        }
+
+        if (
+          event === 'drawing_event' &&
+          this.props.templateDrawingsOpen &&
+          this.state.templateDrawingsOpen &&
+          this.props.templateDrawings === this.state.templateDrawings
+        ) {
+          this.tradingViewWidget.showConfirmDialog({
+            title: 'Chart Mirroring',
+            body: 'You are viewing a mirrored chart right now. Click Yes below to switch to your chart to start drawing.',
+            callback: (result) => {
+              if (result) this.props.drawingsBtnClicked()
+              else this.tradingViewWidget.closePopupsAndDialogs()
+            },
+          })
+          this.tradingViewWidget.activeChart().executeActionById('undo')
+        }
       })
     } catch (e) {
       console.log(`Error while subscribing to chart events!`)
@@ -122,10 +155,28 @@ export default class TradingViewChart extends Component {
   }
 
   saveChartDrawingToServer = (event) => {
+    const db = firebase.firestore()
     this.tradingViewWidget.save(async (obj) => {
+      const str = JSON.stringify(obj.charts[0].panes)
       try {
-        const str = JSON.stringify(obj.charts[0].panes)
-        await saveChartDrawing(this.state.email, str)
+        if (!this.props.templateDrawingsOpen) {
+          const drawings = {
+            [this.state.email]: str,
+          }
+
+          db.collection('chart_drawings')
+            .doc(this.state.email)
+            .set({
+              drawings,
+              lastSelectedSymbol: `${this.props.exchange.toUpperCase()}:${this.props.symbol.toUpperCase()}`,
+            })
+        }
+
+        if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+          db.collection('template_drawings')
+            .doc(this.state.email)
+            .set({ drawings: str })
+        }
       } catch (e) {
         errorNotification.open({
           description: e.message,
@@ -348,6 +399,25 @@ export default class TradingViewChart extends Component {
     button.append(text)
   }
 
+  addLoadDrawingsButton = async () => {
+    if (!this.tradingViewWidget) return
+    await this.tradingViewWidget.headerReady()
+    if (!TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+      let button = this.tradingViewWidget.createButton()
+      this.state.templateButton = button
+      button.setAttribute('title', `Click to toggle drawings`)
+      button.addEventListener('click', this.props.drawingsBtnClicked)
+      let text = document.createElement('div')
+      text.innerText = 'Show Sheldon’s Charts'
+      text.setAttribute('class', 'button-2ioYhFEY')
+      text.setAttribute('style', 'display:flex;align-items:center;')
+      button.append(text)
+    }
+    let loadingButton = this.tradingViewWidget.createButton({ align: 'right' })
+    this.state.loadingButton = loadingButton
+    this.state.loadingButton.style = {}
+  }
+
   initChart = () => {
     try {
       if (!this.tradingViewWidget) return
@@ -369,7 +439,7 @@ export default class TradingViewChart extends Component {
       })
       this.chartEvent('onAutoSaveNeeded')
       // this.chartShortCutSave()
-      // this.chartEvent("study_event")
+      this.chartEvent('drawing_event')
       setTimeout(() => {
         this.props.chartReady(true)
       }, 2500)
@@ -445,6 +515,76 @@ export default class TradingViewChart extends Component {
     }
     if (!_.isEqual(this.state.openOrderLines, props.openOrderLines)) {
       this.drawOpenOrdersChartLines(this.state.openOrderLines)
+    }
+
+    if (this.props.templateDrawingsOpen) {
+      this.drawOpenOrdersChartLines(this.state.openOrderLines)
+      if (
+        this.props.templateDrawings !== this.state.templateDrawings ||
+        !this.state.templateDrawingsOpen
+      ) {
+        try {
+          const pData = JSON.parse(this.props.templateDrawings.drawings)
+          this.tradingViewWidget.save((obj) => {
+            const prep = { ...obj.charts[0], panes: pData }
+            this.tradingViewWidget.load(prep)
+            this.setState({
+              templateDrawings: this.props.templateDrawings,
+              templateDrawingsOpen: true,
+            })
+            this.state.templateButton.innerText = 'Show My Charts'
+          })
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    }
+
+    if (!this.props.templateDrawingsOpen && this.state.templateDrawingsOpen) {
+      this.drawOpenOrdersChartLines(this.state.openOrderLines)
+      try {
+        if (!this.tradingViewWidget) return
+        if (this.props.drawings) {
+          const pData = JSON.parse(this.props.drawings)
+          this.tradingViewWidget.save((obj) => {
+            const prep = { ...obj.charts[0], panes: pData }
+            this.tradingViewWidget.load(prep)
+            this.state.templateButton.innerText = 'Show Sheldon’s Charts'
+          })
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.setState({ templateDrawingsOpen: false })
+      }
+    }
+
+    if (this.state.isSaved && this.state.loadingButton.style) {
+      this.state.loadingButton.setAttribute(
+        'style',
+        'background-color: currentColor;height: 20px;width: 20px;-webkit-mask: url(/img/icons/verification-on-cloud.svg) no-repeat center / contain;'
+      )
+    }
+
+    if (!this.state.isSaved && this.state.loadingButton) {
+      this.state.loadingButton.setAttribute('style', '')
+      this.state.loadingButton.innerText = 'Saving...'
+    }
+
+    if (
+      !this.props.templateDrawingsOpen &&
+      this.state.loadingButton.style &&
+      this.state.loadingButton.parentNode.parentNode
+    ) {
+      this.state.loadingButton.parentNode.parentNode.style.display = 'block'
+    }
+
+    if (
+      this.props.templateDrawingsOpen &&
+      this.state.loadingButton.style &&
+      this.state.loadingButton.parentNode.parentNode
+    ) {
+      this.state.loadingButton.parentNode.parentNode.style.display = 'none'
     }
   }
 

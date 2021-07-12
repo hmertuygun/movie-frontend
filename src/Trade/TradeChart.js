@@ -5,6 +5,8 @@ import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
+import firebase from 'firebase'
+
 const TradeChart = () => {
   const {
     symbolDetails,
@@ -13,6 +15,7 @@ const TradeChart = () => {
     setWatchListOpen,
     chartData,
   } = useSymbolContext()
+  const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
 
   const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
@@ -23,6 +26,9 @@ const TradeChart = () => {
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
+  const [drawings, setDrawings] = useState()
+  const [templateDrawings, setTemplateDrawings] = useState()
+  const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', () => {
@@ -49,6 +55,20 @@ const TradeChart = () => {
   useEffect(() => {
     setIsChartReady(false)
   }, [reRender])
+
+  useEffect(() => {
+    db.collection('template_drawings').onSnapshot((snapshot) => {
+      setTemplateDrawings(snapshot.docs[0].data())
+    })
+  }, [db])
+
+  useEffect(() => {
+    db.collection('chart_drawings')
+      .doc(userData.email)
+      .onSnapshot((snapshot) => {
+        setDrawings(snapshot.data().drawings[userData.email])
+      })
+  }, [db])
 
   useEffect(() => {
     if (lsIntervalValue && lsIntervalValue.length)
@@ -83,6 +103,10 @@ const TradeChart = () => {
     setWatchListOpen((watchListOpen) => !watchListOpen)
   }
 
+  const onDrawingsBtnClick = (e) => {
+    setTemplateDrawingsOpen((templateDrawingsOpen) => !templateDrawingsOpen)
+  }
+
   const filterOrders = (order, symbol) => {
     if (!order?.length || !symbol) return []
     return order.filter((item) => item.symbol.replace('-', '/') === symbol)
@@ -97,7 +121,7 @@ const TradeChart = () => {
     symbolType &&
     exchangeType &&
     (getSymbolsLS || Object.keys(symbolDetails).length)
-  const { drawings, intervals } = chartData || {}
+  const { intervals } = chartData || {}
 
   return (
     <div
@@ -111,6 +135,8 @@ const TradeChart = () => {
           theme={theme}
           intervals={intervals}
           drawings={drawings}
+          templateDrawings={templateDrawings}
+          templateDrawingsOpen={templateDrawingsOpen}
           openOrders={filterOrders(openOrdersUC, symbolType)}
           key={reRender}
           symbol={symbolType}
@@ -119,6 +145,9 @@ const TradeChart = () => {
           timeZone={chartData?.timeZone}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
+          }}
+          drawingsBtnClicked={(e) => {
+            onDrawingsBtnClick(e)
           }}
           chartReady={(e) => {
             setIsChartReady(e)
