@@ -106,10 +106,7 @@ const QuickRegister = () => {
             <h5 className="h3 text-white mt-3 mb-4">
               Mirror Sheldon’s charts onto your chart. Live!
             </h5>
-            <p
-              className="text-white opacity-9 mb-4"
-              style={{ fontSize: '1.2rem' }}
-            >
+            <p className="text-white opacity-9 mb-4">
               Get direct access to the Sniper’s charts without having to redraw
               patterns and trend lines by yourself. Sheldon’s charts are now
               available through Chart Mirroring – everything he charts will be
@@ -217,32 +214,9 @@ const QuickRegister = () => {
                         </div>
                       </div>
                       <div>
-                        <span className="mb-0">Take Profit zones</span>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="py-2">
-                    <div className="d-flex align-items-center">
-                      <div>
-                        <div className="badge badge-circle badge-dark mr-3">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="feather feather-check"
-                          >
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="mb-0">Stop Loss zones</span>
+                        <span className="mb-0">
+                          Take Profit / Stop Loss zones
+                        </span>
                       </div>
                     </div>
                   </li>
