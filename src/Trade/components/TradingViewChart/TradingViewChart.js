@@ -518,7 +518,6 @@ export default class TradingViewChart extends Component {
     }
 
     if (this.props.templateDrawingsOpen) {
-      this.drawOpenOrdersChartLines(this.state.openOrderLines)
       if (
         this.props.templateDrawings !== this.state.templateDrawings ||
         !this.state.templateDrawingsOpen
@@ -541,7 +540,6 @@ export default class TradingViewChart extends Component {
     }
 
     if (!this.props.templateDrawingsOpen && this.state.templateDrawingsOpen) {
-      this.drawOpenOrdersChartLines(this.state.openOrderLines)
       try {
         if (!this.tradingViewWidget) return
         if (this.props.drawings) {

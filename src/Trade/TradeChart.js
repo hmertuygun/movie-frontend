@@ -60,15 +60,19 @@ const TradeChart = () => {
     db.collection('template_drawings').onSnapshot((snapshot) => {
       setTemplateDrawings(snapshot.docs[0].data())
     })
-  }, [db])
+  }, [])
 
   useEffect(() => {
     db.collection('chart_drawings')
       .doc(userData.email)
       .onSnapshot((snapshot) => {
-        setDrawings(snapshot.data().drawings[userData.email])
+        if (snapshot.data().drawings[userData.email]) {
+          setDrawings(snapshot.data().drawings[userData.email])
+        } else {
+          setDrawings([])
+        }
       })
-  }, [db])
+  }, [])
 
   useEffect(() => {
     if (lsIntervalValue && lsIntervalValue.length)
