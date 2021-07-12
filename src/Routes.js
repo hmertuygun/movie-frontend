@@ -23,6 +23,7 @@ import {
 const Login = lazy(() => import('./views/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('./views/Auth/QuickLoginVerify2FA'))
 const Register = lazy(() => import('./views/Auth/QuickRegister'))
+const RegisterTwo = lazy(() => import('./views/Auth/QuickRegisterTwo'))
 const RegisterConfirm = lazy(() => import('./views/Auth/QuickRegisterConfirm'))
 const RegisterFinal = lazy(() => import('./views/Auth/QuickFinal'))
 const RecoverPassword = lazy(() => import('./views/Auth/RecoverPassword'))
@@ -133,6 +134,7 @@ const Routes = () => {
           <Route path="/new-password" component={NewPassword} />
           <Route path="/action" component={HandleEmailActions} />
           <Route exact path="/register" component={Register} />
+          <Route exact path="/register2" component={RegisterTwo} />
           <Route exact path="/register/confirm" component={RegisterConfirm} />
           <Route
             exact
