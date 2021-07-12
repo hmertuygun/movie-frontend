@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import dataFeed from './dataFeed'
-import firebase from 'firebase'
+import { firebase } from '../../../firebase/firebase'
 import { errorNotification } from '../../../components/Notifications'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 
@@ -46,6 +46,8 @@ export default class TradingViewChart extends Component {
         'header_symbol_search',
         'timeframes_toolbar',
         'header_undo_redo',
+        'header_screenshot',
+        'header_fullscreen_button',
       ],
       symbol,
       theme,
@@ -65,6 +67,7 @@ export default class TradingViewChart extends Component {
       templateDrawingsOpen,
       templateButton: {},
       loadingButton: {},
+      screenShotButton: {},
       isSaved: true,
     }
   }
@@ -77,6 +80,7 @@ export default class TradingViewChart extends Component {
         this.initChart()
         this.addSniperModeButton()
         this.addLoadDrawingsButton()
+        this.addHeaderButtons()
       })
     } catch (e) {
       console.log(e)
@@ -399,6 +403,48 @@ export default class TradingViewChart extends Component {
     button.append(text)
   }
 
+  headerButtonOnClick = (event) => {
+    if (event === 'screenshot') {
+      this.tradingViewWidget.takeScreenshot()
+    } else if (event === 'fullscreen') {
+      this.tradingViewWidget.startFullscreen()
+    }
+  }
+
+  addHeaderButtons = async () => {
+    if (!this.tradingViewWidget) return
+    await this.tradingViewWidget.headerReady()
+    let button = this.tradingViewWidget.createButton({ align: 'right' })
+    button.setAttribute('title', `Take a snapshot`)
+    button.addEventListener('click', () => {
+      this.headerButtonOnClick('screenshot')
+    })
+    this.state.screenShotButton = button
+    this.state.screenShotButton.style = {}
+    let text = document.createElement('div')
+    text.innerText = 'Take a snapshot'
+    text.setAttribute('class', 'button-2ioYhFEY')
+    text.setAttribute(
+      'style',
+      'background-color: currentColor;height: 28px;width: 28px;-webkit-mask: url(/img/icons/camera.svg) no-repeat center / contain;'
+    )
+    button.append(text)
+
+    let button3 = this.tradingViewWidget.createButton({ align: 'right' })
+    button3.setAttribute('title', `Fullscreen mode`)
+    button3.addEventListener('click', () => {
+      this.headerButtonOnClick('fullscreen')
+    })
+    let text3 = document.createElement('div')
+    text3.innerText = 'Fullscreen'
+    text3.setAttribute('class', 'button-2ioYhFEY')
+    text3.setAttribute(
+      'style',
+      'background-color: currentColor;height: 28px;width: 28px;-webkit-mask: url(/img/icons/fullscreen.svg) no-repeat center / contain;'
+    )
+    button3.append(text3)
+  }
+
   addLoadDrawingsButton = async () => {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
@@ -408,7 +454,7 @@ export default class TradingViewChart extends Component {
       button.setAttribute('title', `Click to toggle drawings`)
       button.addEventListener('click', this.props.drawingsBtnClicked)
       let text = document.createElement('div')
-      text.innerText = 'Show Sheldon’s Charts'
+      text.innerText = 'Show Sniper’s Charts'
       text.setAttribute('class', 'button-2ioYhFEY')
       text.setAttribute('style', 'display:flex;align-items:center;')
       button.append(text)
@@ -547,7 +593,7 @@ export default class TradingViewChart extends Component {
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
             this.tradingViewWidget.load(prep)
-            this.state.templateButton.innerText = 'Show Sheldon’s Charts'
+            this.state.templateButton.innerText = 'Show Sniper’s Charts'
           })
         }
       } catch (e) {
@@ -583,6 +629,22 @@ export default class TradingViewChart extends Component {
       this.state.loadingButton.parentNode.parentNode
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'none'
+    }
+
+    if (
+      this.props.templateDrawingsOpen &&
+      this.state.screenShotButton.style &&
+      this.state.screenShotButton.parentNode.parentNode
+    ) {
+      this.state.screenShotButton.parentNode.parentNode.style.display = 'none'
+    }
+
+    if (
+      !this.props.templateDrawingsOpen &&
+      this.state.screenShotButton.style &&
+      this.state.screenShotButton.parentNode.parentNode
+    ) {
+      this.state.screenShotButton.parentNode.parentNode.style.display = 'block'
     }
   }
 

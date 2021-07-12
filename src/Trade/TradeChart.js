@@ -5,7 +5,7 @@ import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
-import firebase from 'firebase'
+import { firebase } from '../firebase/firebase'
 
 const TradeChart = () => {
   const {
