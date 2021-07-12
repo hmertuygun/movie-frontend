@@ -128,9 +128,9 @@
   text-align: center;
   position: absolute;
   padding: 10px;
-  bottom: 180px;
-  left: 75px;
   color: #718096;
+  inset: 0;
+  margin-top: 20px;
 }
 
 .chart-view-content p {
@@ -150,8 +150,8 @@
 .chart-view-order-content {
   text-align: center;
   position: absolute;
-  top: 50px;
-  left: 400px;
+  inset: 0;
+  margin-top: 40px;
 }
 
 .chart-view-order-content p {

@@ -34,7 +34,12 @@ const MenuItems = () => {
             ) : (
               <NavLink
                 id={item.id}
-                activeClassName="nav-link active"
+                activeClassName={`${
+                  (isOnboardingSkipped && item.title === 'Trade') ||
+                  !isOnboardingSkipped
+                    ? 'nav-link active'
+                    : ''
+                }`}
                 className="nav-link btn"
                 to={
                   isOnboardingSkipped && item.title !== 'Trade' ? '#' : item.url

@@ -356,7 +356,11 @@ const TradeContainer = () => {
               </Suspense>
             </ErrorBoundary>
           </section>
-          <section className="TradeOrders">
+          <section
+            className={`TradeOrders ${
+              isOnboardingSkipped ? 'chart-order-view-position' : ''
+            }`}
+          >
             <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
               <ErrorBoundary componentName="TradeOrders">
                 <Suspense fallback={<div></div>}>

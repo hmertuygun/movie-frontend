@@ -114,6 +114,7 @@ const Routes = () => {
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <CacheRoute exact path="/trade" component={TradeView} />
+              <Route path="/settings" component={Settings} />
               {!isOnboardingSkipped && (
                 <>
                   <CacheRoute path="/portfolio" component={Portfolio} />
@@ -121,7 +122,6 @@ const Routes = () => {
                   <CacheRoute path="/positions" component={Positions} />
                 </>
               )}
-              <Route path="/settings" component={Settings} />
               <Redirect to="/trade" />
             </CacheSwitch>
           )}
