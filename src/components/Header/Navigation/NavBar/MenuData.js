@@ -34,11 +34,6 @@ export const MenuData = [
 
 export const ChartMirroringMenuData = [
   {
-    title: 'Chart Mirroring',
-    url: '/trade',
-    id: 'cp-tour2',
-  },
-  {
     title: 'Trade',
     url: '/trade',
     id: 'cp-tour2',
