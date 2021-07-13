@@ -1,21 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
-import { MenuData } from './MenuData'
+import { MenuData, ChartMirroringMenuData } from './MenuData'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
 import { UserContext } from '../../../../contexts/UserContext'
 
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext)
-  const { handleOnboardingShow, isOnboardingSkipped } = useContext(UserContext)
+  const { isOnboardingSkipped } = useContext(UserContext)
 
-  const onMenuClick = () => {
-    handleOnboardingShow()
-  }
+  let menu = isOnboardingSkipped ? ChartMirroringMenuData : MenuData
 
   return (
     <ul className="navbar-nav ml-lg-auto mr-3">
-      {MenuData.map((item) => {
+      {menu.map((item) => {
         return (
           <li
             className="nav-item nav-item-spaced d-none d-lg-block"
@@ -34,24 +32,22 @@ const MenuItems = () => {
             ) : (
               <NavLink
                 id={item.id}
-                activeClassName={`${
-                  (isOnboardingSkipped && item.title === 'Trade') ||
-                  !isOnboardingSkipped
-                    ? 'nav-link active'
+                activeClassName={`nav-link ${
+                  !isOnboardingSkipped ? 'active' : ''
+                } ${
+                  isOnboardingSkipped && item.title === 'Chart Mirroring'
+                    ? 'active'
                     : ''
                 }`}
-                className="nav-link btn"
-                to={
-                  isOnboardingSkipped && item.title !== 'Trade' ? '#' : item.url
-                }
-                onClick={
-                  isOnboardingSkipped && item.title !== 'Trade'
-                    ? onMenuClick
-                    : null
-                }
+                className={`nav-link btn ${
+                  isOnboardingSkipped && item.title !== 'Chart Mirroring'
+                    ? 'disabled'
+                    : ''
+                }`}
+                to={item.url}
               >
                 {item.title}
-                {item.title === 'Positions' && (
+                {item.title === 'Positions' && !isOnboardingSkipped && (
                   <span
                     className={`mt-3 badge badge-sm badge-danger badge-pill badge-floating ${
                       theme === 'DARK' ? 'border-dark' : 'border-white'

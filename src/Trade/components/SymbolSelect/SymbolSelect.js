@@ -38,7 +38,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       boxShadow: 'none',
       border: '4px solid var(--trade-borders)',
       backgroundColor: 'var(--trade-background)',
-      borderLeft: !isMobile ? 0 : '',
+      borderLeft: (!isMobile && 0) || (isOnboardingSkipped && '') || '',
       borderRadius: 0,
       height: '56px',
       minHeight: '56px',

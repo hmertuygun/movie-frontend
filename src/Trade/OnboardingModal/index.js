@@ -132,7 +132,7 @@ const OnboardingModal = () => {
       primaryBtn: 'Continue with existing Binance account',
       secBtn: 'Set up a new Binance account',
       heading: 'Welcome to CoinPanel!',
-      terBtn: 'Skip',
+      terBtn: 'Go to Chart Mirroring',
     },
     2: {
       primaryBtn: 'Continue',

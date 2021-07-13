@@ -31,3 +31,26 @@ export const MenuData = [
     id: 'cp-community',
   },
 ]
+
+export const ChartMirroringMenuData = [
+  {
+    title: 'Chart Mirroring',
+    url: '/trade',
+    id: 'cp-tour2',
+  },
+  {
+    title: 'Trade',
+    url: '/trade',
+    id: 'cp-tour2',
+  },
+  {
+    title: 'Positions',
+    url: '/positions',
+    id: 'cp-tourPositions',
+  },
+  {
+    title: 'Portfolio',
+    url: '/portfolio',
+    id: 'cp-tourPortfolio',
+  },
+]

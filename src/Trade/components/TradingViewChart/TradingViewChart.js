@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, useContext } from 'react'
 import _ from 'lodash'
 import dataFeed from './dataFeed'
 import { firebase } from '../../../firebase/firebase'
 import { errorNotification } from '../../../components/Notifications'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
+import { UserContext } from '../../../contexts/UserContext'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -71,6 +72,8 @@ export default class TradingViewChart extends Component {
       isSaved: true,
     }
   }
+
+  static contextType = UserContext
 
   chartReady = () => {
     if (!this.tradingViewWidget) return
@@ -385,10 +388,12 @@ export default class TradingViewChart extends Component {
   }
 
   addSniperModeButton = async () => {
+    const { isOnboardingSkipped } = this.context
+    const value = isOnboardingSkipped ? 'Watchlist Mode' : 'Sniper Mode'
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
     let button = this.tradingViewWidget.createButton()
-    button.setAttribute('title', 'Sniper Mode')
+    button.setAttribute('title', value)
     button.addEventListener('click', this.props.sniperBtnClicked)
     let img = document.createElement('div')
     img.setAttribute(
@@ -396,7 +401,7 @@ export default class TradingViewChart extends Component {
       'background-color: currentColor;height: 20px;width: 20px;margin-right: 6px;-webkit-mask: url(/img/icons/sniper.svg) no-repeat center / contain;'
     )
     let text = document.createElement('div')
-    text.innerText = 'Sniper Mode'
+    text.innerText = value
     text.setAttribute('class', 'button-2ioYhFEY')
     text.setAttribute('style', 'display:flex;align-items:center;')
     text.prepend(img)

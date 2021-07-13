@@ -66,10 +66,12 @@ const TradeChart = () => {
     db.collection('chart_drawings')
       .doc(userData.email)
       .onSnapshot((snapshot) => {
-        if (snapshot.data().drawings[userData.email]) {
-          setDrawings(snapshot.data().drawings[userData.email])
-        } else {
-          setDrawings([])
+        if (snapshot.data() && snapshot.data().drawings) {
+          if (snapshot.data().drawings[userData.email]) {
+            setDrawings(snapshot.data().drawings[userData.email])
+          } else {
+            setDrawings([])
+          }
         }
       })
   }, [])

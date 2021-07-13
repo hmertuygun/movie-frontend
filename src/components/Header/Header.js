@@ -21,8 +21,14 @@ import { secondTourSteps } from '../../helpers/tourSteps'
 import { Moon } from 'react-feather'
 
 const Header = () => {
-  const { isLoggedIn, onSecondTour, tour2CurrentStep, setTour2CurrentStep } =
-    useContext(UserContext)
+  const {
+    isLoggedIn,
+    onSecondTour,
+    tour2CurrentStep,
+    setTour2CurrentStep,
+    handleOnboardingShow,
+    isOnboardingSkipped,
+  } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen } = useSymbolContext()
 
@@ -113,6 +119,10 @@ const Header = () => {
     return null
   }
 
+  const handleStartTrading = () => {
+    handleOnboardingShow()
+  }
+
   return (
     <header className="" id="header-main">
       <nav
@@ -154,40 +164,55 @@ const Header = () => {
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
                 </a> */}
+                {isOnboardingSkipped && (
+                  <a
+                    className="mr-3 btn btn-xs btn-primary btn-icon"
+                    onClick={handleStartTrading}
+                  >
+                    {' '}
+                    <span className="btn-inner--text" style={{ color: '#fff' }}>
+                      Integrate your exchange to start trading
+                    </span>
+                  </a>
+                )}
               </li>
-              <li className="nav-item">
-                <a
-                  href="https://coin-panel.medium.com/"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faMediumM} className="mt-2" />
-                </a>
-              </li>{' '}
-              <li className="nav-item">
-                <a
-                  href="https://twitter.com/coin_panel"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faTwitter} className="mt-2" />
-                </a>
-              </li>
-              <li className="nav-item">
-                <a
-                  href="https://t.me/coinpanelsupport"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faTelegram} className="mt-2" />
-                </a>
-              </li>
+              {!isOnboardingSkipped && (
+                <>
+                  <li className="nav-item">
+                    <a
+                      href="https://coin-panel.medium.com/"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                    </a>
+                  </li>{' '}
+                  <li className="nav-item">
+                    <a
+                      href="https://twitter.com/coin_panel"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a
+                      href="https://t.me/coinpanelsupport"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTelegram} className="mt-2" />
+                    </a>
+                  </li>
+                </>
+              )}
               <li className="nav-item">
                 <span
                   type="button"
