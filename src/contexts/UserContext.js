@@ -461,7 +461,6 @@ const UserContextProvider = ({ children }) => {
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
-      history.push('/trade')
     }
 
     localStorage.removeItem('registered')

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, Suspense, lazy } from 'react'
+import React, { useContext, useState, useEffect, Suspense, lazy } from 'react'
 import {
   Switch,
   Route,
@@ -9,12 +9,26 @@ import {
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
 
+// import Login from './views/Auth/QuickLogin'
+// import LoginVerify2FA from './views/Auth/QuickLoginVerify2FA'
+// import Register from './views/Auth/QuickRegister'
+// import RegisterConfirm from './views/Auth/QuickRegisterConfirm'
+// import RegisterFinal from './views/Auth/QuickFinal'
+// import RecoverPassword from './views/Auth/RecoverPassword'
+// import NewPassword from './views/Auth/NewPassword'
+// import HandleEmailActions from './views/Auth/HandleEmailActions'
+
+// import TradeView from './views/TradeView'
+// import Settings from './views/Settings'
+// import Positions from './views/PositionView'
+// import Portfolio from './views/PortfolioView'
+// import PriceAlerts from './views/PriceAlertView'
 import OnboardingModal from './Trade/OnboardingModal'
 import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
-import { Detector } from 'react-detect-offline'
+import { Detector, Offline, Online } from 'react-detect-offline'
 import {
   successNotification,
   warningNotification,
@@ -84,7 +98,7 @@ const Routes = () => {
         onChange={(e) => {
           showNotifOnNetworkChange(e)
         }}
-        render={() => {
+        render={({ online }) => {
           return null
         }}
       />
@@ -117,11 +131,13 @@ const Routes = () => {
               <CacheRoute exact path="/trade" component={TradeView} />
               <Route path="/settings" component={Settings} />
               {!isOnboardingSkipped && (
-                <>
-                  <CacheRoute path="/portfolio" component={Portfolio} />
-                  <CacheRoute path="/alerts" component={PriceAlerts} />
-                  <CacheRoute path="/positions" component={Positions} />
-                </>
+                <CacheRoute path="/portfolio" component={Portfolio} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/alerts" component={PriceAlerts} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/positions" component={Positions} />
               )}
               <Redirect to="/trade" />
             </CacheSwitch>
