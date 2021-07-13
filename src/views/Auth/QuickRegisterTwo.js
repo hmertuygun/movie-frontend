@@ -89,21 +89,21 @@ const QuickRegister = () => {
     <section>
       <div
         className="position-absolute h-100 top-0 left-0 zindex-100 col-lg-6 col-xl-6 zindex-100 d-none d-lg-flex flex-column justify-content-center"
-        style={{ backgroundColor: '#1652f1', minHeight: '800px' }}
+        style={{ backgroundColor: '#1652f1', minHeight: '860px' }}
       >
         <div className="row position-relative zindex-110 p-5 h-100">
-          <div className="col-12 text-center mb-4">
+          <div className="col-12 text-center">
             <figure className="w-100">
               <img
                 alt="CoinPanel - Easy cryptocurrency trading bot"
                 src="https://coinpanel.com/assets/img/chart-mirroring-title.png"
                 className="img-fluid"
-                style={{ maxWidth: '70%' }}
+                style={{ maxWidth: '550px' }}
               />
             </figure>
           </div>
           <div className="col-md-12 text-center mx-auto">
-            <h5 className="h3 text-white mt-3 mb-4">
+            <h5 className="h3 text-white mt-0 mb-4">
               Mirror Sheldon’s charts onto your chart. Live!
             </h5>
             <p className="text-white opacity-9 mb-4">
