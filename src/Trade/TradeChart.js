@@ -29,12 +29,21 @@ const TradeChart = () => {
   const [drawings, setDrawings] = useState()
   const [templateDrawings, setTemplateDrawings] = useState()
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
+  const [onError, setOnError] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
     document.addEventListener('visibilitychange', () => {
       setDocVisibility(document.visibilityState === 'visible' ? true : false)
     })
   }
+
+  useEffect(() => {
+    if (typeof localStorage.getItem('chartMirroring') === 'string') {
+      const status =
+        localStorage.getItem('chartMirroring') === 'true' ? true : false
+      setTemplateDrawingsOpen(status)
+    }
+  }, [])
 
   useEffect(() => {
     reconnectWSOnWindowFocus()
@@ -65,15 +74,19 @@ const TradeChart = () => {
   useEffect(() => {
     db.collection('chart_drawings')
       .doc(userData.email)
-      .onSnapshot((snapshot) => {
-        if (snapshot.data() && snapshot.data().drawings) {
-          if (snapshot.data().drawings[userData.email]) {
+      .onSnapshot(
+        (snapshot) => {
+          if (snapshot.data()?.drawings?.[userData.email]) {
             setDrawings(snapshot.data().drawings[userData.email])
           } else {
-            setDrawings([])
+            setOnError(true)
           }
+        },
+        (error) => {
+          console.error(error)
+          setOnError(true)
         }
-      })
+      )
   }, [])
 
   useEffect(() => {
@@ -110,7 +123,10 @@ const TradeChart = () => {
   }
 
   const onDrawingsBtnClick = (e) => {
-    setTemplateDrawingsOpen((templateDrawingsOpen) => !templateDrawingsOpen)
+    setTemplateDrawingsOpen((templateDrawingsOpen) => {
+      localStorage.setItem('chartMirroring', !templateDrawingsOpen)
+      return !templateDrawingsOpen
+    })
   }
 
   const filterOrders = (order, symbol) => {
@@ -143,6 +159,7 @@ const TradeChart = () => {
           drawings={drawings}
           templateDrawings={templateDrawings}
           templateDrawingsOpen={templateDrawingsOpen}
+          onError={onError}
           openOrders={filterOrders(openOrdersUC, symbolType)}
           key={reRender}
           symbol={symbolType}

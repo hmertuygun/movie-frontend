@@ -24,6 +24,7 @@ export default class TradingViewChart extends Component {
     chartReady,
     sniperBtnClicked,
     drawingsBtnClicked,
+    onError,
     drawingRendered,
     templateDrawings,
     templateDrawingsOpen,
@@ -38,7 +39,7 @@ export default class TradingViewChart extends Component {
       fullscreen: false,
       language: getLocalLanguage(),
       autosize: true,
-      auto_save_delay: 5,
+      auto_save_delay: 2,
       timezone: timeZone,
       favorites: {
         intervals: intervals,
@@ -70,6 +71,7 @@ export default class TradingViewChart extends Component {
       loadingButton: {},
       screenShotButton: {},
       isSaved: true,
+      setError: false,
     }
   }
 
@@ -130,30 +132,40 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
-        if (event === 'drawing_event') {
-          this.setState({ isSaved: false })
-        }
-
-        if (event === 'onAutoSaveNeeded') {
-          this.saveChartDrawingToServer(event)
-          this.setState({ isSaved: true })
-        }
-
         if (
-          event === 'drawing_event' &&
-          this.props.templateDrawingsOpen &&
-          this.state.templateDrawingsOpen &&
-          this.props.templateDrawings === this.state.templateDrawings
+          this.isArrayEqual(
+            this.state.openOrderLines,
+            this.props.openOrderLines
+          )
         ) {
-          this.tradingViewWidget.showConfirmDialog({
-            title: 'Chart Mirroring',
-            body: 'You are viewing a mirrored chart right now. Click Yes below to switch to your chart to start drawing.',
-            callback: (result) => {
-              if (result) this.props.drawingsBtnClicked()
-              else this.tradingViewWidget.closePopupsAndDialogs()
-            },
-          })
-          this.tradingViewWidget.activeChart().executeActionById('undo')
+          if (event === 'drawing_event') {
+            this.setState({ isSaved: false })
+          }
+
+          if (event === 'onAutoSaveNeeded' && !this.props.onError) {
+            this.setState({ isSaved: false })
+            this.saveChartDrawingToServer(event)
+          }
+
+          if (
+            event === 'drawing_event' &&
+            this.props.templateDrawingsOpen &&
+            this.state.templateDrawingsOpen &&
+            this.props.templateDrawings === this.state.templateDrawings &&
+            !this.state.processingOrder
+          ) {
+            this.tradingViewWidget.showConfirmDialog({
+              title: 'Chart Mirroring',
+              body: 'You are viewing a mirrored chart right now. Click Yes below to switch to your chart to start drawing.',
+              callback: (result) => {
+                if (result) {
+                  this.props.drawingsBtnClicked(this.props.templateDrawingsOpen)
+                } else {
+                  this.tradingViewWidget.closePopupsAndDialogs()
+                }
+              },
+            })
+          }
         }
       })
     } catch (e) {
@@ -161,7 +173,7 @@ export default class TradingViewChart extends Component {
     }
   }
 
-  saveChartDrawingToServer = (event) => {
+  saveChartDrawingToServer = async (event) => {
     const db = firebase.firestore()
     this.tradingViewWidget.save(async (obj) => {
       const str = JSON.stringify(obj.charts[0].panes)
@@ -171,7 +183,8 @@ export default class TradingViewChart extends Component {
             [this.state.email]: str,
           }
 
-          db.collection('chart_drawings')
+          await db
+            .collection('chart_drawings')
             .doc(this.state.email)
             .set({
               drawings,
@@ -180,7 +193,8 @@ export default class TradingViewChart extends Component {
         }
 
         if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
-          db.collection('template_drawings')
+          await db
+            .collection('template_drawings')
             .doc(this.state.email)
             .set({ drawings: str })
         }
@@ -188,6 +202,8 @@ export default class TradingViewChart extends Component {
         errorNotification.open({
           description: e.message,
         })
+      } finally {
+        this.setState({ isSaved: true })
       }
     })
   }
@@ -206,6 +222,7 @@ export default class TradingViewChart extends Component {
 
   drawOpenOrdersChartLines = async (openOrders) => {
     if (!this.chartObject || !this.state.isChartReady || !openOrders) return
+    this.state.processingOrder = true
 
     const PlacedOrderTooltip = 'Order is on the exchange order book.'
     const PendingOrderTooltip =
@@ -359,6 +376,7 @@ export default class TradingViewChart extends Component {
           })
         }
       }
+      this.state.processingOrder = false
     } catch (e) {
       console.log(e)
     }
@@ -459,7 +477,7 @@ export default class TradingViewChart extends Component {
       button.setAttribute('title', `Click to toggle drawings`)
       button.addEventListener('click', this.props.drawingsBtnClicked)
       let text = document.createElement('div')
-      text.innerText = 'Show Sniper’s Charts'
+      text.innerText = ''
       text.setAttribute('class', 'button-2ioYhFEY')
       text.setAttribute('style', 'display:flex;align-items:center;')
       button.append(text)
@@ -472,12 +490,22 @@ export default class TradingViewChart extends Component {
   initChart = () => {
     try {
       if (!this.tradingViewWidget) return
-      if (this.props.drawings) {
+      if (this.props.drawings && !this.props.templateDrawingsOpen) {
         //loading drawings sends extra kLines API and gives 'subscribeBars of undefined' error
         const pData = JSON.parse(this.props.drawings)
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
+        })
+      } else if (this.props.templateDrawingsOpen) {
+        const pData = JSON.parse(this.props.templateDrawings.drawings)
+        this.tradingViewWidget.save((obj) => {
+          const prep = { ...obj.charts[0], panes: pData }
+          this.tradingViewWidget.load(prep)
+          this.setState({
+            templateDrawings: this.props.templateDrawings,
+            templateDrawingsOpen: true,
+          })
         })
       }
     } catch (e) {
@@ -568,7 +596,7 @@ export default class TradingViewChart extends Component {
       this.drawOpenOrdersChartLines(this.state.openOrderLines)
     }
 
-    if (this.props.templateDrawingsOpen) {
+    if (this.props.templateDrawingsOpen && this.state.isChartReady) {
       if (
         this.props.templateDrawings !== this.state.templateDrawings ||
         !this.state.templateDrawingsOpen
@@ -583,6 +611,7 @@ export default class TradingViewChart extends Component {
               templateDrawingsOpen: true,
             })
             this.state.templateButton.innerText = 'Show My Charts'
+            this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
         } catch (e) {
           console.error(e)
@@ -598,13 +627,13 @@ export default class TradingViewChart extends Component {
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
             this.tradingViewWidget.load(prep)
-            this.state.templateButton.innerText = 'Show Sniper’s Charts'
           })
         }
       } catch (e) {
         console.error(e)
       } finally {
-        this.setState({ templateDrawingsOpen: false })
+        this.setState({ templateDrawingsOpen: false, isSaved: true })
+        this.drawOpenOrdersChartLines(this.state.openOrderLines)
       }
     }
 
@@ -626,6 +655,7 @@ export default class TradingViewChart extends Component {
       this.state.loadingButton.parentNode.parentNode
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'block'
+      this.state.templateButton.innerText = 'Show Sniper’s Charts'
     }
 
     if (
@@ -634,6 +664,7 @@ export default class TradingViewChart extends Component {
       this.state.loadingButton.parentNode.parentNode
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'none'
+      this.state.templateButton.innerText = 'Show My Charts'
     }
 
     if (
@@ -650,6 +681,24 @@ export default class TradingViewChart extends Component {
       this.state.screenShotButton.parentNode.parentNode
     ) {
       this.state.screenShotButton.parentNode.parentNode.style.display = 'block'
+    }
+
+    if (this.props.onError && !this.state.setError) {
+      const newWidget = this.widgetOptions
+      newWidget.disabled_features.push('left_toolbar')
+      this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
+        newWidget
+      )
+      console.log(newWidget)
+      this.chartReady()
+      this.setState({ setError: true })
+      setTimeout(() => {
+        errorNotification.open({
+          description:
+            'Unable to load your chart drawings. Please send a screenshot of your chrome console and send to support.',
+          duration: 60,
+        })
+      }, 2000)
     }
   }
 
