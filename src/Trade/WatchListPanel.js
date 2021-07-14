@@ -7,31 +7,70 @@ import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
-import { getWatchLists, saveWatchLists } from '../api/api'
+import { orderBy } from 'lodash'
+import { firebase } from '../firebase/firebase'
 
 const WatchListPanel = () => {
+  const { symbols, isLoading, isLoadingBalance, lastMessage, symbolDetails } =
+    useSymbolContext()
+  const { userData } = useContext(UserContext)
+
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [watchSymbols, setWatchSymbols] = useState([])
+  const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
+  const [symbolsList, setSymbolsList] = useState([])
+  const [orderSetting, setOrderSetting] = useState({
+    label: 'asc',
+  })
+
+  const db = firebase.firestore()
+  const { activeExchange } = useContext(UserContext)
 
   useEffect(() => {
-    const getWatchListsData = async () => {
+    try {
       setLoading(true)
-      try {
-        const response = await getWatchLists()
-        setWatchSymbols(response.data.data)
-      } catch (error) {
-        console.log('Cannot fetch watch lists')
-      } finally {
-        setLoading(false)
-      }
+      db.collection('watch_list')
+        .doc(userData.email)
+        .onSnapshot((snapshot) => {
+          if (snapshot.data()?.[activeExchange.exchange]) {
+            setWatchSymbolsList(snapshot.data()?.[activeExchange.exchange])
+          } else {
+            setWatchSymbolsList([])
+          }
+        })
+    } catch (error) {
+      console.log('Cannot fetch watch lists')
+    } finally {
+      setLoading(false)
     }
-    getWatchListsData()
-  }, [])
+  }, [activeExchange.exchange, db, userData.email])
 
-  const { symbols, isLoading, isLoadingBalance } = useSymbolContext()
+  useEffect(() => {
+    const symbolArray = []
+    for (const symbol of watchSymbolsList) {
+      const activeMarketData = lastMessage.find((data) => {
+        return data.symbol.replace('/', '') === symbol.label.replace('-', '')
+      })
 
-  const { activeExchange } = useContext(UserContext)
+      const tickSize = symbolDetails?.[symbol.value]?.tickSize
+      if (!activeMarketData?.lastPrice) {
+        return
+      }
+      symbolArray.push({
+        ...symbol,
+        percentage: activeMarketData?.priceChangePercent,
+        lastPrice: Number(activeMarketData?.lastPrice)?.toFixed(tickSize),
+      })
+    }
+
+    setSymbolsList(symbolArray)
+  }, [
+    lastMessage,
+    watchSymbolsList,
+    symbolDetails,
+    orderSetting.symbol,
+    orderSetting.percentage,
+  ])
 
   const customStyles = {
     control: (styles) => ({
@@ -96,41 +135,88 @@ const WatchListPanel = () => {
   }
 
   const selectedSymbols = useMemo(() => {
-    // eslint-disable-next-line no-unused-vars
     const { exchange } = activeExchange
     const selected = symbols
       .filter((symbol) => {
         const exchangeString = symbol.value.split(':')?.[0]?.toLowerCase()
-        // Currently we only show binance symbols
-        return exchangeString === 'binance'
+        return exchangeString === exchange
       })
       .filter(
-        (symbol) => !watchSymbols.some((item) => item.value === symbol.value)
+        (symbol) => !symbolsList.some((item) => item.value === symbol.value)
       )
     return selected
-  }, [symbols, activeExchange, watchSymbols])
+  }, [symbols, activeExchange, symbolsList])
 
   const handleChange = async (symbol) => {
-    const symbols = [...watchSymbols, symbol]
+    const symbols = [...symbolsList, symbol].map((item) => ({
+      label: item.label,
+      value: item.value,
+    }))
     try {
-      await saveWatchLists(symbols)
-      setWatchSymbols(symbols)
+      db.collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            [activeExchange.exchange]: symbols,
+          },
+          { merge: true }
+        )
     } catch (error) {
       console.log('Cannot save watch lists')
     }
   }
 
   const removeWatchList = async (symbol) => {
-    const symbols = watchSymbols.filter((item) => {
-      return !(item.label === symbol.label && item.value === symbol.value)
-    })
+    const symbols = symbolsList
+      .filter((item) => {
+        return !(item.label === symbol.label && item.value === symbol.value)
+      })
+      .map((item) => ({
+        label: item.label,
+        value: item.value,
+      }))
     try {
-      await saveWatchLists(symbols)
-      setWatchSymbols(symbols)
+      db.collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            [activeExchange.exchange]: symbols,
+          },
+          { merge: true }
+        )
     } catch (error) {
       console.log('Cannot save watch lists')
     }
   }
+
+  const handleOrderChange = (orderItem) => {
+    setOrderSetting((setting) => {
+      switch (orderItem) {
+        case 'label':
+          return {
+            label: setting.label === 'asc' ? 'desc' : 'asc',
+          }
+
+        case 'percentage':
+          return {
+            percentage: setting.percentage === 'asc' ? 'desc' : 'asc',
+          }
+
+        default:
+          break
+      }
+    })
+  }
+
+  const orderedSymbolsList = useMemo(() => {
+    const orderedSymbolsList = orderBy(
+      symbolsList,
+      [Object.keys(orderSetting)],
+      [Object.values(orderSetting)]
+    )
+
+    return orderedSymbolsList
+  }, [orderSetting, symbolsList])
 
   return (
     <div>
@@ -161,8 +247,27 @@ const WatchListPanel = () => {
         </Popover>
       </div>
       <div className={styles.contentHeader}>
-        <div>Symbol</div>
-        <div>Chg%</div>
+        <div onClick={() => handleOrderChange('label')}>
+          Symbol{' '}
+          {orderSetting.label ? (
+            orderSetting.label === 'asc' ? (
+              <span className="fa fa-sort-amount-up-alt" />
+            ) : (
+              <span className="fa fa-sort-amount-down" />
+            )
+          ) : null}
+        </div>
+        <div>Last</div>
+        <div onClick={() => handleOrderChange('percentage')}>
+          Chg%
+          {orderSetting.percentage ? (
+            orderSetting.percentage === 'asc' ? (
+              <span className="fa fa-sort-amount-up-alt" />
+            ) : (
+              <span className="fa fa-sort-amount-down" />
+            )
+          ) : null}
+        </div>
       </div>
       <div>
         {loading && (
@@ -172,7 +277,7 @@ const WatchListPanel = () => {
             </div>
           </div>
         )}
-        {watchSymbols.map((symbol) => (
+        {orderedSymbolsList.map((symbol) => (
           <WatchListItem
             key={symbol.value}
             symbol={symbol}
