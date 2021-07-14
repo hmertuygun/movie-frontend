@@ -31,6 +31,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
   const [initialOptions, setInitialOptions] = useState([])
 
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+  const isTablet = useMediaQuery({ query: `(max-width: 1230px)` })
 
   const customStyles = {
     control: (styles) => ({
@@ -40,8 +41,8 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       backgroundColor: 'var(--trade-background)',
       borderLeft: (!isMobile && 0) || (isOnboardingSkipped && '') || '',
       borderRadius: 0,
-      height: '56px',
-      minHeight: '56px',
+      height: isOnboardingSkipped && isTablet ? '52px' : '56px',
+      minHeight: isOnboardingSkipped && isTablet ? '52px' : '56px',
       color: 'var(--grey)',
 
       '&:hover': {

@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { MenuData, ChartMirroringMenuData } from './MenuData'
 import { ThemeContext } from '../../../../contexts/ThemeContext'
 import { UserContext } from '../../../../contexts/UserContext'
+import Tooltip from '../../../../components/Tooltip'
 
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext)
@@ -42,15 +43,11 @@ const MenuItems = () => {
               </a>
             ) : (
               <>
+                <Tooltip id={item.id} />
                 <NavLink
                   id={item.id}
-                  data-toggle="tooltip"
-                  data-placement="right"
-                  title={
-                    isOnboardingSkipped
-                      ? 'Integrate your exchange to start trading'
-                      : ''
-                  }
+                  data-for={item.id}
+                  data-tip="Integrate your exchange to start trading"
                   style={
                     isOnboardingSkipped ? { pointerEvents: 'inherit' } : null
                   }
