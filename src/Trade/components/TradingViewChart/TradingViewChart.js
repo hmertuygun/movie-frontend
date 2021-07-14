@@ -186,10 +186,13 @@ export default class TradingViewChart extends Component {
           await db
             .collection('chart_drawings')
             .doc(this.state.email)
-            .set({
-              drawings,
-              lastSelectedSymbol: `${this.props.exchange.toUpperCase()}:${this.props.symbol.toUpperCase()}`,
-            })
+            .set(
+              {
+                drawings,
+                lastSelectedSymbol: `${this.props.exchange.toUpperCase()}:${this.props.symbol.toUpperCase()}`,
+              },
+              { merge: true }
+            )
         }
 
         if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
@@ -478,13 +481,18 @@ export default class TradingViewChart extends Component {
       button.addEventListener('click', this.props.drawingsBtnClicked)
       let text = document.createElement('div')
       text.innerText = ''
-      text.setAttribute('class', 'button-2ioYhFEY')
-      text.setAttribute('style', 'display:flex;align-items:center;')
+      button.setAttribute('class', 'button-2ioYhFEY')
+      button.setAttribute(
+        'style',
+        'display:flex;align-items:center;margin:10px;'
+      )
       button.append(text)
     }
     let loadingButton = this.tradingViewWidget.createButton({ align: 'right' })
-    this.state.loadingButton = loadingButton
+    loadingButton.setAttribute('class', 'button-2ioYhFEY')
     this.state.loadingButton.style = {}
+    loadingButton.setAttribute('style', 'align-items:center;')
+    this.state.loadingButton = loadingButton
   }
 
   initChart = () => {
@@ -640,12 +648,12 @@ export default class TradingViewChart extends Component {
     if (this.state.isSaved && this.state.loadingButton.style) {
       this.state.loadingButton.setAttribute(
         'style',
-        'background-color: currentColor;height: 20px;width: 20px;-webkit-mask: url(/img/icons/verification-on-cloud.svg) no-repeat center / contain;'
+        'background-color: currentColor;height: 20px;width: 20px;margin-left: 8px;-webkit-mask: url(/img/icons/verification-on-cloud.svg) no-repeat center / contain;'
       )
     }
 
     if (!this.state.isSaved && this.state.loadingButton) {
-      this.state.loadingButton.setAttribute('style', '')
+      this.state.loadingButton.setAttribute('style', 'margin: 7px;')
       this.state.loadingButton.innerText = 'Saving...'
     }
 
@@ -695,8 +703,8 @@ export default class TradingViewChart extends Component {
       setTimeout(() => {
         errorNotification.open({
           description:
-            'Unable to load your chart drawings. Please send a screenshot of your chrome console and send to support.',
-          duration: 60,
+            'Unable to load your chart drawings. Please take a screenshot of your chrome console and send to support.',
+          duration: 120,
         })
       }, 2000)
     }

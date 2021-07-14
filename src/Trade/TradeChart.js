@@ -5,7 +5,7 @@ import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
-import { firebase } from '../firebase/firebase'
+import firebase from 'firebase'
 
 const TradeChart = () => {
   const {
@@ -72,7 +72,8 @@ const TradeChart = () => {
   }, [])
 
   useEffect(() => {
-    db.collection('chart_drawings')
+    const unsubscribe = db
+      .collection('chart_drawings')
       .doc(userData.email)
       .onSnapshot(
         (snapshot) => {
@@ -87,7 +88,8 @@ const TradeChart = () => {
           setOnError(true)
         }
       )
-  }, [])
+    return () => unsubscribe()
+  }, [db, userData.email])
 
   useEffect(() => {
     if (lsIntervalValue && lsIntervalValue.length)
