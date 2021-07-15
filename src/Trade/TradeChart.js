@@ -79,6 +79,11 @@ const TradeChart = () => {
         (snapshot) => {
           if (snapshot.data()?.drawings?.[userData.email]) {
             setDrawings(snapshot.data().drawings[userData.email])
+          } else if (
+            !snapshot.data()?.drawings &&
+            snapshot.data()?.lastSelectedSymbol
+          ) {
+            setDrawings([])
           } else {
             setOnError(true)
           }
