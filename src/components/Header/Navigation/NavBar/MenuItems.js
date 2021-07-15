@@ -43,7 +43,7 @@ const MenuItems = () => {
               </a>
             ) : (
               <>
-                <Tooltip id={item.id} />
+                {isOnboardingSkipped && <Tooltip id={item.id} />}
                 <NavLink
                   id={item.id}
                   data-for={item.id}

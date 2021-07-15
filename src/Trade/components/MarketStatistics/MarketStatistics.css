@@ -44,11 +44,10 @@
   line-height: 15px;
 }
 
-
 @media (max-width: 1230px) {
   .marketDataContainer {
-    height: 52px;
-    border-top: none;
+    /* height: 52px; */
+    /* border-top: none; */
     border-right: 4px solid var(--trade-borders);
   }
 }
