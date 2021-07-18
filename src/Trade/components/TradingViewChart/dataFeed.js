@@ -77,7 +77,8 @@ export default class dataFeed {
       const selectedSymbol = `${
         EXCHANGE_SYMBOL[this.selectedExchange]
       }:${chosenSymbol}`
-      const selectedSymbolDetail = this.marketSymbols[selectedSymbol]
+      const selectedSymbolDetail =
+        this.marketSymbols && this.marketSymbols[selectedSymbol]
       // console.log(selectedSymbolDetail)
       setTimeout(() => {
         onSymbolResolvedCallback({
@@ -127,17 +128,19 @@ export default class dataFeed {
         console.log('📊:', totalKlines.length)
       }
       localStorage.setItem('lastSocketData', new Date().getTime())
-      if (totalKlines.length === 0) {
+      if (totalKlines && totalKlines.length === 0) {
         onHistoryCallback([], { noData: true })
       } else {
-        let historyCBArray = totalKlines.map((kline) => ({
-          time: kline[0],
-          open: parseFloat(kline[1]),
-          high: parseFloat(kline[2]),
-          low: parseFloat(kline[3]),
-          close: parseFloat(kline[4]),
-          volume: parseFloat(kline[5]),
-        }))
+        let historyCBArray =
+          totalKlines &&
+          totalKlines.map((kline) => ({
+            time: kline[0],
+            open: parseFloat(kline[1]),
+            high: parseFloat(kline[2]),
+            low: parseFloat(kline[3]),
+            close: parseFloat(kline[4]),
+            volume: parseFloat(kline[5]),
+          }))
         onHistoryCallback(historyCBArray, { noData: false })
       }
     }
@@ -158,7 +161,7 @@ export default class dataFeed {
           kLinesLimit
         )
 
-        totalKlines = totalKlines.concat(data)
+        totalKlines = totalKlines && totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
           getKlines(from, to)
