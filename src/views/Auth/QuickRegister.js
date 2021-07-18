@@ -39,6 +39,12 @@ const QuickRegister = () => {
         throw new Error(response.message)
       }
 
+      await firebase
+        .firestore()
+        .collection('chart_drawings')
+        .doc(email)
+        .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
+
       try {
         const actionCodeSettings = {
           url:
