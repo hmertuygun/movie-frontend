@@ -9,16 +9,8 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   storeNotificationToken,
-  checkSubscription,
-  createUserSubscription,
-  getLastSelectedMarketSymbol,
 } from '../api/api'
-import {
-  successNotification,
-  warningNotification,
-} from '../components/Notifications'
-import capitalize from '../helpers/capitalizeFirstLetter'
-import { ref } from 'yup'
+import { successNotification } from '../components/Notifications'
 import { useHistory } from 'react-router'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'

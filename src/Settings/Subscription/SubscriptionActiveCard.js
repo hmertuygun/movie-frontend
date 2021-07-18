@@ -7,6 +7,7 @@ import { callCloudFunction } from '../../api/api'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
+  const { cancel_at_period_end } = subscription
 
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
@@ -114,12 +115,14 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     per {priceData?.interval}
                     {` `}
                   </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    Your subscription will auto-renew on {` `}
-                    <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.current_period_end.seconds}
-                    </Moment>
-                  </p>
+                  {!cancel_at_period_end ? (
+                    <p className="mb-0 text-sm text-muted lh-150">
+                      Your subscription will auto-renew on {` `}
+                      <Moment unix format="hh:mm A MMMM DD, YYYY">
+                        {subscription.current_period_end.seconds}
+                      </Moment>
+                    </p>
+                  ) : null}
                 </div>
               )}
             </div>
