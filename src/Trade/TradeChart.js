@@ -151,7 +151,6 @@ const TradeChart = () => {
     exchangeType &&
     (getSymbolsLS || Object.keys(symbolDetails).length)
   const { intervals } = chartData || {}
-
   return (
     <div
       id="chart_outer_container"

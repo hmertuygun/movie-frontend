@@ -1,8 +1,9 @@
 import tvIntervals from '../helpers/tvIntervals'
 export default class socketClient {
   constructor({ exchange }) {
+    let currentExchange = localStorage.getItem('selectedExchange')
     this.binanceWS =
-      exchange === 'binance'
+      currentExchange === 'binance'
         ? 'wss://stream.binance.com:9443/ws'
         : 'wss://stream.binance.us:9443/ws'
     this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }

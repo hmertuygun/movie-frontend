@@ -1,7 +1,8 @@
 export default class binanceAPI {
   constructor({ exchange }) {
+    let currentExchange = localStorage.getItem('selectedExchange')
     this.binanceHost =
-      exchange === 'binance'
+      currentExchange === 'binance'
         ? 'https://api2.binance.com'
         : 'https://api.binance.us'
   }
