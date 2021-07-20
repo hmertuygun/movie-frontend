@@ -14,10 +14,7 @@ import {
   updateLastSelectedAPIKey,
 } from '../../api/api'
 import { useHistory } from 'react-router-dom'
-import { firebase } from '../../firebase/firebase'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
-import { errorNotification } from '../../components/Notifications'
-import { callCloudFunction } from '../../api/api'
 import './index.css'
 
 const OnboardingModal = () => {
@@ -35,8 +32,6 @@ const OnboardingModal = () => {
     setLoadApiKeysError,
     handleOnboardingSkip,
     isOnboardingSkipped,
-    needPayment,
-    chartMirroring,
   } = useContext(UserContext)
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -46,7 +41,6 @@ const OnboardingModal = () => {
     label: 'Binance.US',
     placeholder: 'BinanceUS',
   })
-  const [portalLoading, setPortalLoading] = useState(false)
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [secret, setSecret] = useState('')
@@ -138,10 +132,7 @@ const OnboardingModal = () => {
       primaryBtn: 'Continue with existing Binance account',
       secBtn: 'Set up a new Binance account',
       heading: 'Welcome to CoinPanel!',
-      terBtn:
-        needPayment && chartMirroring
-          ? 'Proceed to Subscribe Chart Mirroring'
-          : 'Go to Chart Mirroring',
+      terBtn: 'Go to Chart Mirroring',
     },
     2: {
       primaryBtn: 'Continue',
@@ -200,43 +191,9 @@ const OnboardingModal = () => {
     }
   }
 
-  const toCustomerPortal = async (needPayment) => {
-    try {
-      const response = await callCloudFunction(
-        'ext-firestore-stripe-subscriptions-createPortalLink'
-      )
-      if (needPayment) {
-        window.location.assign(response?.result?.url + '/payment-methods')
-      } else {
-        window.location.assign(response?.result?.url)
-      }
-    } catch (error) {
-      errorNotification.open({
-        description: error,
-      })
-      console.log('CustomerPortal Error: ', error)
-    }
-  }
-
-  const updateAsChartMirroringUser = async () => {
-    const { uid } = JSON.parse(localStorage.getItem('user'))
-
-    try {
-      await firebase
-        .firestore()
-        .collection('stripe_users')
-        .doc(uid)
-        .set({ chartMirroringSignUp: true }, { merge: true })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const onTertiaryBtnClick = async () => {
-    setPortalLoading(true)
-    await updateAsChartMirroringUser()
-    await toCustomerPortal(needPayment)
+  const onTertiaryBtnClick = () => {
     handleOnboardingSkip()
+    history.push('/chartview')
   }
 
   const addExchange = async () => {
@@ -506,25 +463,14 @@ const OnboardingModal = () => {
                   />
                 )}
               </button>
-              {portalLoading ? (
-                <div className="btn btn-secondary terBtn">
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                </div>
-              ) : (
-                !isOnboardingSkipped &&
-                step === 1 && (
-                  <button
-                    type="button"
-                    className="btn btn-secondary terBtn"
-                    onClick={onTertiaryBtnClick}
-                  >
-                    {btnText[step].terBtn}
-                  </button>
-                )
+              {!isOnboardingSkipped && step === 1 && (
+                <button
+                  type="button"
+                  className="btn btn-secondary terBtn"
+                  onClick={onTertiaryBtnClick}
+                >
+                  {btnText[step].terBtn}
+                </button>
               )}
             </div>
           </div>
