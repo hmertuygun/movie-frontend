@@ -40,6 +40,26 @@ const QuickRegister = () => {
       }
 
       try {
+        await firebase
+          .firestore()
+          .collection('stripe_users')
+          .doc(response?.user?.uid)
+          .set({ chartMirroringSignUp: true }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
+        await firebase
+          .firestore()
+          .collection('chart_drawings')
+          .doc(email)
+          .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
         const actionCodeSettings = {
           url:
             window.location.origin +
@@ -62,7 +82,10 @@ const QuickRegister = () => {
                   .firestore()
                   .collection('stripe_users')
                   .doc(response?.user?.uid)
-                  .set({ refId: refId }, { merge: true })
+                  .set(
+                    { refId: refId, chartMirroringSignUp: true },
+                    { merge: true }
+                  )
               } catch (error) {
                 console.log('==>', error)
               }
