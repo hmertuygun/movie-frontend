@@ -500,15 +500,10 @@ export default class TradingViewChart extends Component {
       if (!this.tradingViewWidget) return
       if (this.props.drawings && !this.props.templateDrawingsOpen) {
         //loading drawings sends extra kLines API and gives 'subscribeBars of undefined' error
-
+        const pData = JSON.parse(this.props.drawings)
         this.tradingViewWidget.save((obj) => {
-          if (typeof this.props.drawings === 'boolean') {
-            this.tradingViewWidget.load(obj.charts[0])
-          } else {
-            const pData = JSON.parse(this.props.drawings)
-            const prep = { ...obj.charts[0], panes: pData }
-            this.tradingViewWidget.load(prep)
-          }
+          const prep = { ...obj.charts[0], panes: pData }
+          this.tradingViewWidget.load(prep)
         })
       } else if (this.props.templateDrawingsOpen) {
         const pData = JSON.parse(this.props.templateDrawings.drawings)

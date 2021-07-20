@@ -83,7 +83,7 @@ const TradeChart = () => {
             !snapshot.data()?.drawings &&
             snapshot.data()?.lastSelectedSymbol
           ) {
-            setDrawings(true)
+            setDrawings([])
           } else {
             setOnError(true)
           }

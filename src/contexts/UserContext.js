@@ -11,8 +11,6 @@ import {
   storeNotificationToken,
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
-import { errorNotification } from '../components/Notifications'
-import { callCloudFunction } from '../api/api'
 import { useHistory } from 'react-router'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
@@ -83,7 +81,6 @@ const UserContextProvider = ({ children }) => {
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
-  const [chartMirroring, setChartMirroring] = useState(false)
 
   const history = useHistory()
   useEffect(() => {
@@ -122,22 +119,6 @@ const UserContextProvider = ({ children }) => {
         })
       })
   }
-
-  useEffect(() => {
-    const db = firebase.firestore()
-    if (localStorageUser) {
-      const { uid } = JSON.parse(localStorageUser)
-      db.collection('stripe_users')
-        .doc(uid)
-        .get()
-        .then(async (doc) => {
-          if (doc.data()?.chartMirroringSignUp) {
-            setChartMirroring(doc.data().chartMirroringSignUp)
-            handleOnboardingSkip()
-          }
-        })
-    }
-  }, [localStorageUser])
 
   useEffect(() => {
     const value = localStorage.getItem('onboarding')
@@ -256,24 +237,6 @@ const UserContextProvider = ({ children }) => {
       ) {
         setNeedPayment(true)
         console.log('==> need payment')
-        handleOnboardingShow()
-        if (chartMirroring) {
-          try {
-            const response = await callCloudFunction(
-              'ext-firestore-stripe-subscriptions-createPortalLink'
-            )
-            if (needPayment) {
-              window.location.assign(response?.result?.url + '/payment-methods')
-            } else {
-              window.location.assign(response?.result?.url)
-            }
-          } catch (error) {
-            errorNotification.open({
-              description: error,
-            })
-            console.log('CustomerPortal Error: ', error)
-          }
-        }
       } else {
         setNeedPayment(false)
       }
@@ -683,7 +646,6 @@ const UserContextProvider = ({ children }) => {
         handleOnboardingSkip,
         isOnboardingSkipped,
         handleOnboardingShow,
-        chartMirroring,
       }}
     >
       {children}
