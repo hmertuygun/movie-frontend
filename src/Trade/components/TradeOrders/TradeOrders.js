@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useMediaQuery } from 'react-responsive'
 
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
@@ -23,16 +23,12 @@ const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const {
     isLoadingBalance,
-    isOrderPlaced,
-    isOrderCancelled,
     refreshBalance,
     onRefreshBtnClicked,
     disableOrderHistoryRefreshBtn,
     disableOpenOrdersRefreshBtn,
     orderHistoryTimeInterval,
     openOrdersTimeInterval,
-    portfolioTimeInterval,
-    positionTimeInterval,
   } = useSymbolContext()
   const {
     activeExchange,
@@ -41,7 +37,6 @@ const TradeOrders = () => {
     totalExchanges,
     setOrderHistoryProgressUC,
     setOpenOrdersUC,
-    delOpenOrders,
     setDelOpenOrders,
     orderEdited,
     setOrderEdited,
@@ -59,11 +54,11 @@ const TradeOrders = () => {
   const [orderUpdateFB, setOrderUpdateFB] = useState(0)
   const [orderHistoryFB, setOrderHistoryFB] = useState(0)
   const [keyProcessing, setKeyProcessing] = useState(false)
-  const [openOrdersBtnHover, setOpenOrdersBtnHover] = useState(false)
+  // const [openOrdersBtnHover, setOpenOrdersBtnHover] = useState(false)
   /////////////////////////////////////////////////////////
   const [openOrderData, setOpenOrderData] = useState([])
   const [isOpenOrderFetching, setIsOpenOrderFetching] = useState(true)
-  const [openOrdersLastFetchedData, setOpenOrdersLastElement] = useState(null)
+  // const [openOrdersLastFetchedData, setOpenOrdersLastElement] = useState(null)
   const openOrdersLimit = 50
   ////////////////////////////////////////////////////////
   const [orderHistoryData, setOrderHistoryData] = useState([])
@@ -72,7 +67,7 @@ const TradeOrders = () => {
     useState(null)
   const orderHistoryLimit = 50
   ////////////////////////////////////////////////////////
-  const [cancelOrder, setCancelOrder] = useState(false)
+  // const [cancelOrder, setCancelOrder] = useState(false)
   const [openOrderError, setOpenOrderError] = useState(false)
   let FBOrderUpdate, FBOrderHistory, FBOrderHistoryLoad
 
@@ -98,16 +93,16 @@ const TradeOrders = () => {
       })
   }
 
-  const setDummyOOData = async () => {
-    let dummyData = [...dummyOpenOrderData]
-    setOpenOrderData([...dummyOpenOrderData])
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5500)
-    })
-    // dummyData[0].orders[0].status = "Filled"
-    // dummyData[0].orders[1].status = "Filled"
-    setOpenOrderData([...dummyData])
-  }
+  // const setDummyOOData = async () => {
+  //   let dummyData = [...dummyOpenOrderData]
+  //   setOpenOrderData([...dummyOpenOrderData])
+  //   await new Promise((resolve) => {
+  //     setTimeout(resolve, 5500)
+  //   })
+  //   // dummyData[0].orders[0].status = "Filled"
+  //   // dummyData[0].orders[1].status = "Filled"
+  //   setOpenOrderData([...dummyData])
+  // }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {

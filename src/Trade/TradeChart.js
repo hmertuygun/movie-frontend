@@ -18,7 +18,8 @@ const TradeChart = () => {
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
 
-  const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
+  const { userData, openOrdersUC, activeExchange, isOnboardingSkipped } =
+    useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [reRender, setReRender] = useState(new Date().getTime())
@@ -102,15 +103,17 @@ const TradeChart = () => {
   }, [lsIntervalValue])
 
   useEffect(() => {
-    if (
-      lsTimeZoneValue?.timezone &&
-      lsTimeZoneValue?.timezone !== chartData?.timeZone &&
-      count > 0
-    ) {
-      saveTimeZone(
-        lsTimeZoneValue?.timezone ||
-          Intl.DateTimeFormat().resolvedOptions().timeZone
-      )
+    if (!isOnboardingSkipped) {
+      if (
+        lsTimeZoneValue?.timezone &&
+        lsTimeZoneValue?.timezone !== chartData?.timeZone &&
+        count > 0
+      ) {
+        saveTimeZone(
+          lsTimeZoneValue?.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+        )
+      }
     }
   }, [chartData?.timeZone, count, lsTimeZoneValue])
 

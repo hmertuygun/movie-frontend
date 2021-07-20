@@ -130,7 +130,6 @@ const UserContextProvider = ({ children }) => {
   }, [])
 
   const handleOnboardingSkip = () => {
-    console.log('clicked')
     localStorage.setItem('onboarding', 'skipped')
     setIsOnboardingSkipped(true)
   }
@@ -203,7 +202,6 @@ const UserContextProvider = ({ children }) => {
       // const NoDefaultPayment = !lastSubscription.invoices.some(
       //   (invoice) => invoice.default_payment_method
       // )
-      console.log(lastSubscription)
       // Show days left on sub modal if less than 7 days on trial
 
       let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
@@ -236,7 +234,7 @@ const UserContextProvider = ({ children }) => {
         lastSubscription.status === 'past_due'
       ) {
         setNeedPayment(true)
-        console.log('==> need payment')
+        // console.log('==> need payment')
       } else {
         setNeedPayment(false)
       }
@@ -279,8 +277,10 @@ const UserContextProvider = ({ children }) => {
 
   async function getExchanges() {
     try {
-      let hasKeys = await getUserExchanges()
-      hasKeys = isOnboardingSkipped ? DEFAULT_EXCHANGE : hasKeys
+      let hasKeys = isOnboardingSkipped
+        ? DEFAULT_EXCHANGE
+        : await getUserExchanges()
+      // hasKeys = isOnboardingSkipped ? DEFAULT_EXCHANGE : hasKeys
       if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
           setUserContextLoaded(true)

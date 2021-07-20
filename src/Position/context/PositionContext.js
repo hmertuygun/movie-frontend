@@ -29,7 +29,7 @@ const PositionCTXProvider = ({ children }) => {
           description: 'Cannot fetch positions. Please try again later!',
         })
       } else if (data?.positions) {
-        console.log('positions: ', data?.positions)
+        // console.log('positions: ', data?.positions)
         setPositions(data.positions)
       }
     } catch (error) {
@@ -37,7 +37,7 @@ const PositionCTXProvider = ({ children }) => {
         description: 'Cannot fetch positions. Please try again later!',
       })
       Sentry.captureException(error)
-      console.warn(error)
+      // console.warn(error)
     } finally {
       setIsLoading(false)
     }

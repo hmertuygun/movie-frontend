@@ -67,9 +67,6 @@ const Routes = () => {
     userContextLoaded,
     loadApiKeys,
     hasSub,
-    loaderVisible,
-    loaderText,
-    setIsAppOnline,
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
   } = useContext(UserContext)

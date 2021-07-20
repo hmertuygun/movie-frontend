@@ -697,7 +697,6 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
         newWidget
       )
-      console.log(newWidget)
       this.chartReady()
       this.setState({ setError: true })
       setTimeout(() => {

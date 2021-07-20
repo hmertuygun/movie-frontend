@@ -29,7 +29,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
-  const { activeExchange } = useContext(UserContext)
+  const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [marketData, setMarketData] = useState([])
 
   const refreshData = useCallback(async () => {
@@ -71,8 +71,10 @@ const PortfolioCTXProvider = ({ children }) => {
   })
 
   useEffect(() => {
-    fetchData()
-  }, [user, activeExchange, fetchData])
+    if (!isOnboardingSkipped) {
+      fetchData()
+    }
+  }, [user, activeExchange, fetchData, isOnboardingSkipped])
 
   return (
     <PortfolioContext.Provider

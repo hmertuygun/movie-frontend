@@ -29,7 +29,6 @@ const OnboardingModal = () => {
     getSubscriptionsData,
     onTour,
     setOnTour,
-    setLoadApiKeysError,
     handleOnboardingSkip,
     isOnboardingSkipped,
   } = useContext(UserContext)

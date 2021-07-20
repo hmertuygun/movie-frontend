@@ -193,9 +193,7 @@ export async function getUserExchanges() {
       method: 'GET',
     })
     return exchanges
-  } catch (error) {
-    console.log(error)
-  }
+  } catch (error) {}
 }
 
 export async function updateLastSelectedAPIKey({ apiKeyName, exchange }) {

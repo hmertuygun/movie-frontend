@@ -76,7 +76,9 @@ const TradeContainer = () => {
 
   useEffect(() => {
     callObserver()
-    getPendingNotices()
+    if (!isOnboardingSkipped) {
+      getPendingNotices()
+    }
     const fBNotice = db
       .collection('platform_messages')
       .where('publishNow', '==', true)
@@ -149,10 +151,6 @@ const TradeContainer = () => {
       })
       console.log(e)
     }
-  }
-
-  const handleAddExchange = () => {
-    handleOnboardingShow()
   }
 
   return (

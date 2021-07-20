@@ -30,6 +30,7 @@ const SymbolContextProvider = ({ children }) => {
     userData,
     lastSelectedSymbol,
     loadApiKeys,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
@@ -431,22 +432,23 @@ const SymbolContextProvider = ({ children }) => {
       )
         return
       setIsLoadingBalance(true)
+      if (!isOnboardingSkipped) {
+        const quoteBalance = await getBalance({
+          symbol: quote_asset,
+          ...activeExchange,
+        })
+        if (quoteBalance?.data?.balance)
+          setSelectedSymbolBalance(quoteBalance.data.balance)
+        else setSelectedSymbolBalance(0)
 
-      const quoteBalance = await getBalance({
-        symbol: quote_asset,
-        ...activeExchange,
-      })
-      if (quoteBalance?.data?.balance)
-        setSelectedSymbolBalance(quoteBalance.data.balance)
-      else setSelectedSymbolBalance(0)
-
-      const baseBalance = await getBalance({
-        symbol: base_asset,
-        ...activeExchange,
-      })
-      if (baseBalance?.data?.balance)
-        setSelectedBaseSymbolBalance(baseBalance.data.balance)
-      else setSelectedBaseSymbolBalance(0)
+        const baseBalance = await getBalance({
+          symbol: base_asset,
+          ...activeExchange,
+        })
+        if (baseBalance?.data?.balance)
+          setSelectedBaseSymbolBalance(baseBalance.data.balance)
+        else setSelectedBaseSymbolBalance(0)
+      }
     } catch (err) {
       console.error(err)
       setSelectedSymbolBalance(0)

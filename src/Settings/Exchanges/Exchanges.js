@@ -34,6 +34,7 @@ const Exchanges = () => {
     setTotalExchanges,
     activeExchange,
     setActiveExchange,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
@@ -46,7 +47,9 @@ const Exchanges = () => {
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data?.data?.apiKeys
-    setTotalExchanges(exchanges)
+    if (exchanges.length !== 0) {
+      setTotalExchanges(exchanges)
+    }
   } else {
     exchanges = false
   }
