@@ -58,13 +58,17 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     </Moment>
                     .
                   </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    Please add a payment method to keep your account active.
-                  </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    If you don’t have a payment method added, your subscription
-                    will be cancelled automatically.
-                  </p>
+                  {needPayment ? (
+                    <>
+                      <p className="mb-0 text-sm text-muted lh-150">
+                        Please add a payment method to keep your account active.
+                      </p>
+                      <p className="mb-0 text-sm text-muted lh-150">
+                        If you don’t have a payment method added, your
+                        subscription will be cancelled automatically.
+                      </p>
+                    </>
+                  ) : null}
                 </div>
               ) : subscription.status === 'past_due' ? (
                 <div className="media-body">
