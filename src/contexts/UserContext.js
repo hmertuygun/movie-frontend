@@ -81,6 +81,7 @@ const UserContextProvider = ({ children }) => {
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
+  const [chartMirroring, setChartMirroring] = useState(false)
 
   const history = useHistory()
   useEffect(() => {
@@ -120,6 +121,26 @@ const UserContextProvider = ({ children }) => {
       })
   }
 
+  const getChartMirroring = async () => {
+    try {
+      const db = firebase.firestore()
+      const currentUser = firebase.auth().currentUser
+      await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .get()
+        .then(async (doc) => {
+          if (doc.data()?.chartMirroringSignUp) {
+            setChartMirroring(doc.data().chartMirroringSignUp)
+          } else {
+            setChartMirroring(false)
+          }
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     const value = localStorage.getItem('onboarding')
     if (value === 'skipped') {
@@ -142,6 +163,10 @@ const UserContextProvider = ({ children }) => {
   useEffect(() => {
     if (userData) {
       getSubscriptionsData()
+      if (isLoggedIn) {
+        getChartMirroring()
+      }
+      //getChartMirroring()
     }
   }, [userData])
 
@@ -646,6 +671,7 @@ const UserContextProvider = ({ children }) => {
         handleOnboardingSkip,
         isOnboardingSkipped,
         handleOnboardingShow,
+        chartMirroring,
       }}
     >
       {children}

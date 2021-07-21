@@ -14,7 +14,10 @@ import {
   updateLastSelectedAPIKey,
 } from '../../api/api'
 import { useHistory } from 'react-router-dom'
+import { firebase } from '../../firebase/firebase'
 import { options } from '../../Settings/Exchanges/ExchangeOptions'
+import { errorNotification } from '../../components/Notifications'
+import { callCloudFunction } from '../../api/api'
 import './index.css'
 
 const OnboardingModal = () => {
@@ -29,8 +32,11 @@ const OnboardingModal = () => {
     getSubscriptionsData,
     onTour,
     setOnTour,
+    setLoadApiKeysError,
     handleOnboardingSkip,
     isOnboardingSkipped,
+    needPayment,
+    chartMirroring,
   } = useContext(UserContext)
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -40,6 +46,7 @@ const OnboardingModal = () => {
     label: 'Binance.US',
     placeholder: 'BinanceUS',
   })
+  const [portalLoading, setPortalLoading] = useState(false)
   const [apiName, setApiName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [secret, setSecret] = useState('')
@@ -130,8 +137,23 @@ const OnboardingModal = () => {
     1: {
       primaryBtn: 'Continue with existing Binance account',
       secBtn: 'Set up a new Binance account',
-      heading: 'Welcome to CoinPanel!',
+      title:
+        needPayment && chartMirroring
+          ? 'Subscribe to use Chart Mirroring'
+          : 'Excange Setup',
+      heading:
+        needPayment && chartMirroring
+          ? 'Welcome to CoinPanel Chart Mirroring'
+          : 'Welcome to CoinPanel!',
       terBtn: 'Go to Chart Mirroring',
+      text1:
+        needPayment && chartMirroring
+          ? 'Start your 14 days free trial by adding your card details.'
+          : 'You need a Binance Exchange account to use CoinPanel.',
+      text2:
+        needPayment && chartMirroring
+          ? 'You will not be charged until your free trial is over. You can always cancel your free trial in settings.'
+          : 'Do you have an existing account that you would like to connect, or would you like to create a new Binance account?',
     },
     2: {
       primaryBtn: 'Continue',
@@ -190,9 +212,32 @@ const OnboardingModal = () => {
     }
   }
 
-  const onTertiaryBtnClick = () => {
-    handleOnboardingSkip()
-    history.push('/chartview')
+  const toCustomerPortal = async (needPayment) => {
+    try {
+      const response = await callCloudFunction(
+        'ext-firestore-stripe-subscriptions-createPortalLink'
+      )
+      if (needPayment) {
+        window.location.assign(response?.result?.url + '/payment-methods')
+      } else {
+        window.location.assign(response?.result?.url)
+      }
+    } catch (error) {
+      errorNotification.open({
+        description: error,
+      })
+      console.log('CustomerPortal Error: ', error)
+    }
+  }
+
+  const onTertiaryBtnClick = async () => {
+    if (needPayment) {
+      setPortalLoading(true)
+      await toCustomerPortal(needPayment)
+    } else {
+      handleOnboardingSkip()
+      window.parent.location = window.parent.location.href
+    }
   }
 
   const addExchange = async () => {
@@ -276,7 +321,7 @@ const OnboardingModal = () => {
         <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title h6">Exchange Setup</h5>
+              <h5 className="modal-title h6">{btnText[step].title}</h5>
               <div>
                 <Link to="/settings">
                   <button type="button" className="px-0 py-0 mr-3 btn btn-link">
@@ -291,32 +336,29 @@ const OnboardingModal = () => {
               </div>
             </div>
             <div className="modal-body">
-              <div className="mb-3 ml-0 text-center row">
-                {Object.entries(btnText).map((item, index) => (
-                  <div className="pl-0 col-4" key={`progressbar-${item}`}>
-                    <div
-                      className="rounded-sm progress"
-                      style={{ height: '12px' }}
-                    >
+              {!needPayment && chartMirroring && (
+                <div className="mb-3 ml-0 text-center row">
+                  {Object.entries(btnText).map((item, index) => (
+                    <div className="pl-0 col-4" key={`progressbar-${item}`}>
                       <div
-                        className={`progress-bar ${
-                          step >= index + 1 ? 'w-100' : ''
-                        }`}
-                        role="progressbar"
-                      ></div>
+                        className="rounded-sm progress"
+                        style={{ height: '12px' }}
+                      >
+                        <div
+                          className={`progress-bar ${
+                            step >= index + 1 ? 'w-100' : ''
+                          }`}
+                          role="progressbar"
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
               <h4>{btnText[step].heading}</h4>
               <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
-                <p className="lead">
-                  You need a Binance Exchange account to use CoinPanel.
-                </p>
-                <p className="lead">
-                  Do you have an existing account that you would like to
-                  connect, or would you like to create a new Binance account?
-                </p>
+                <p className="lead">{btnText[step].text1}</p>
+                <p className="lead">{btnText[step].text2}</p>
               </div>
               <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
                 <p>
@@ -438,38 +480,62 @@ const OnboardingModal = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={onSecondaryBtnClick}
-                disabled={apiProc}
-              >
-                {btnText[step].secBtn}
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={onPrimaryBtnClick}
-                disabled={step === 2 && apiProc}
-              >
-                {!apiProc ? (
-                  btnText[step].primaryBtn
-                ) : (
+              {!(chartMirroring && needPayment) && (
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={onSecondaryBtnClick}
+                    disabled={apiProc}
+                  >
+                    {btnText[step].secBtn}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={onPrimaryBtnClick}
+                    disabled={step === 2 && apiProc}
+                  >
+                    {!apiProc ? (
+                      btnText[step].primaryBtn
+                    ) : (
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                </div>
+              )}
+              {portalLoading ? (
+                <div
+                  className={`${
+                    needPayment && chartMirroring
+                      ? 'btn terBtn btn-primary'
+                      : 'btn terBtn btn-secondary'
+                  }`}
+                >
                   <span
                     className="spinner-border spinner-border-sm"
                     role="status"
                     aria-hidden="true"
-                  />
-                )}
-              </button>
-              {!isOnboardingSkipped && step === 1 && (
-                <button
-                  type="button"
-                  className="btn btn-secondary terBtn"
-                  onClick={onTertiaryBtnClick}
-                >
-                  {btnText[step].terBtn}
-                </button>
+                  ></span>
+                </div>
+              ) : (
+                step === 1 && (
+                  <button
+                    type="button"
+                    className={`${
+                      needPayment && chartMirroring
+                        ? 'btn terBtn btn-primary'
+                        : 'btn terBtn btn-secondary'
+                    }`}
+                    onClick={onTertiaryBtnClick}
+                  >
+                    {btnText[step].terBtn}
+                  </button>
+                )
               )}
             </div>
           </div>

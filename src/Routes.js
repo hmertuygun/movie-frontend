@@ -67,9 +67,22 @@ const Routes = () => {
     userContextLoaded,
     loadApiKeys,
     hasSub,
+    loaderVisible,
+    loaderText,
+    setIsAppOnline,
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
+    needPayment,
+    chartMirroring,
   } = useContext(UserContext)
+
+  const onboardingStatusStatus =
+    (isLoggedIn &&
+      userContextLoaded &&
+      !loadApiKeys &&
+      !isSettingsPage &&
+      !isOnboardingSkipped) ||
+    (needPayment && chartMirroring && userContextLoaded)
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
@@ -114,11 +127,7 @@ const Routes = () => {
               }}
             />
           )}
-          {isLoggedIn &&
-            userContextLoaded &&
-            !loadApiKeys &&
-            !isSettingsPage &&
-            !isOnboardingSkipped && <OnboardingModal />}
+          {onboardingStatusStatus && <OnboardingModal />}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

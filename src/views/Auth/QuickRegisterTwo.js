@@ -40,6 +40,26 @@ const QuickRegister = () => {
       }
 
       try {
+        await firebase
+          .firestore()
+          .collection('stripe_users')
+          .doc(response?.user?.uid)
+          .set({ chartMirroringSignUp: true }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
+        await firebase
+          .firestore()
+          .collection('chart_drawings')
+          .doc(email)
+          .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
         const actionCodeSettings = {
           url:
             window.location.origin +
@@ -62,7 +82,10 @@ const QuickRegister = () => {
                   .firestore()
                   .collection('stripe_users')
                   .doc(response?.user?.uid)
-                  .set({ refId: refId }, { merge: true })
+                  .set(
+                    { refId: refId, chartMirroringSignUp: true },
+                    { merge: true }
+                  )
               } catch (error) {
                 console.log('==>', error)
               }
@@ -92,13 +115,13 @@ const QuickRegister = () => {
         style={{ backgroundColor: '#1652f1', minHeight: '860px' }}
       >
         <div className="row position-relative zindex-110 p-5 h-100">
-          <div className="col-12 text-center">
+          <div className="col-12 text-center" style={{ height: '180px' }}>
             <figure className="w-100">
               <img
                 alt="CoinPanel - Easy cryptocurrency trading bot"
                 src="https://coinpanel.com/assets/img/chart-mirroring-title.png"
                 className="img-fluid"
-                style={{ maxWidth: '550px' }}
+                style={{ maxWidth: '340px' }}
               />
             </figure>
           </div>
@@ -237,7 +260,6 @@ const QuickRegister = () => {
                   </div>
                   <div className="mb-4">
                     <h6 className="h4 mb-1">Create your free account</h6>
-                    <p className="text-muted mb-0">No credit card required.</p>
                   </div>
                   <span className="clearfix"></span>
                   <form
