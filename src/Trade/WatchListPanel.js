@@ -1,7 +1,13 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useCallback,
+} from 'react'
 import Select from 'react-select'
 import { Popover } from 'react-tiny-popover'
-import { Plus } from 'react-feather'
+import { Plus, ChevronDown } from 'react-feather'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -9,13 +15,24 @@ import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { orderBy } from 'lodash'
 import { firebase } from '../firebase/firebase'
+import AddWatchListModal from './AddWatchListModal'
+import {
+  successNotification,
+  errorNotification,
+} from '../components/Notifications'
 
 const WatchListPanel = () => {
   const { symbols, isLoading, isLoadingBalance, lastMessage, symbolDetails } =
     useSymbolContext()
   const { userData } = useContext(UserContext)
 
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
+  const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
+  const [addWatchListModalOpen, setAddWatchListModalOpen] = useState(false)
+  const [addWatchListLoading, setAddWatchListLoading] = useState(false)
+  const [watchLists, setWatchLists] = useState([])
+  const [activeWatchList, setActiveWatchList] = useState()
+
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
@@ -26,15 +43,47 @@ const WatchListPanel = () => {
   const db = firebase.firestore()
   const { activeExchange } = useContext(UserContext)
 
+  const initWatchList = useCallback(() => {
+    db.collection('watch_list')
+      .doc(userData.email)
+      .set(
+        {
+          activeList: 'Watch List',
+          lists: { 'Watch List': { watchListName: 'Watch List' } },
+        },
+        { merge: true }
+      )
+  }, [userData.email])
+
   useEffect(() => {
     try {
       setLoading(true)
       db.collection('watch_list')
         .doc(userData.email)
         .onSnapshot((snapshot) => {
-          if (snapshot.data()?.[activeExchange.exchange]) {
-            setWatchSymbolsList(snapshot.data()?.[activeExchange.exchange])
+          if (snapshot.data()) {
+            if (!snapshot.data()?.lists) {
+              initWatchList()
+              return
+            }
+            const lists = Object.keys(snapshot.data()?.lists)
+            setWatchLists(snapshot.data()?.lists)
+            const listsData = Object.values(snapshot.data()?.lists)
+
+            if (lists.length === 0) {
+              initWatchList()
+            } else {
+              const activeList = listsData.find(
+                (list) => list.watchListName === snapshot.data()?.activeList
+              )
+
+              if (activeList) {
+                setWatchSymbolsList(activeList?.[activeExchange.exchange] ?? [])
+                setActiveWatchList(activeList)
+              }
+            }
           } else {
+            initWatchList()
             setWatchSymbolsList([])
           }
         })
@@ -43,7 +92,7 @@ const WatchListPanel = () => {
     } finally {
       setLoading(false)
     }
-  }, [activeExchange.exchange, db, userData.email])
+  }, [activeExchange.exchange, initWatchList, userData.email])
 
   useEffect(() => {
     const symbolArray = []
@@ -76,9 +125,9 @@ const WatchListPanel = () => {
     control: (styles) => ({
       ...styles,
       boxShadow: 'none',
-      border: '4px solid var(--trade-borders)',
-      backgroundColor: 'var(--trade-background)',
-      borderRadius: '2px',
+      backgroundColor: 'var(--modal-background)',
+      border: 0,
+      borderRadius: '4px',
       height: '45px',
       minHeight: '45px',
       color: 'var(--grey)',
@@ -105,17 +154,23 @@ const WatchListPanel = () => {
       color: 'var(--grey)',
     }),
 
+    menu: (styles) => ({
+      ...styles,
+      margin: 0,
+      background: 'var(--modal-background)',
+    }),
+
     option: (styles, { isDisabled, isFocused, isSelected }) => ({
       ...styles,
       textTransform: 'capitalize',
       padding: '5px 5px',
       backgroundColor: isDisabled
-        ? 'var(--trade-background)'
+        ? 'var(--modal-background)'
         : isSelected
         ? 'var(--symbol-select-background-selected)'
         : isFocused
         ? 'var(--symbol-select-background-focus)'
-        : 'var(--trade-background)',
+        : 'var(--modal-background)',
       color: 'var(--grey)',
 
       '&:hover': {
@@ -157,12 +212,18 @@ const WatchListPanel = () => {
         .doc(userData.email)
         .set(
           {
-            [activeExchange.exchange]: symbols,
+            lists: {
+              [activeWatchList.watchListName]: {
+                [activeExchange.exchange]: symbols,
+              },
+            },
           },
           { merge: true }
         )
     } catch (error) {
-      console.log('Cannot save watch lists')
+      errorNotification.open({
+        description: `Cannot create watch lists, Please try again later!`,
+      })
     }
   }
 
@@ -218,18 +279,90 @@ const WatchListPanel = () => {
     return orderedSymbolsList
   }, [orderSetting, symbolsList])
 
+  const handleAddWatchList = ({ watchListName }) => {
+    setAddWatchListLoading(true)
+    try {
+      db.collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            lists: {
+              [watchListName]: { watchListName },
+            },
+          },
+          { merge: true }
+        )
+      successNotification.open({ description: `Watch list created!` })
+      setAddWatchListModalOpen(false)
+    } catch (error) {
+      console.log('Cannot save watch lists')
+    } finally {
+      setAddWatchListLoading(false)
+    }
+  }
+
+  const handleWatchListItemClick = (watchListName) => {
+    db.collection('watch_list').doc(userData.email).set(
+      {
+        activeList: watchListName,
+      },
+      { merge: true }
+    )
+    setWatchListPopoverOpen(false)
+  }
+
   return (
     <div>
       <div className={styles.header}>
-        <div>WatchList</div>
         <Popover
-          isOpen={isPopoverOpen}
-          positions={['bottom', 'top', 'right', 'left']}
+          key="watchlist-select-popover"
+          isOpen={watchListPopoverOpen}
+          positions={['bottom', 'top', 'right']}
+          align="start"
           padding={10}
           reposition={false}
-          onClickOutside={() => setIsPopoverOpen(false)}
+          onClickOutside={() => setWatchListPopoverOpen(false)}
           content={({ position, nudgedLeft, nudgedTop }) => (
-            <div className={styles.modal}>
+            <div className={styles.watchListModal}>
+              <div
+                className={styles.watchListRow}
+                onClick={() => setAddWatchListModalOpen(true)}
+              >
+                Create new list...
+              </div>
+              {Object.keys(watchLists).map((list) => {
+                return (
+                  <div
+                    className={styles.watchListRow}
+                    onClick={() => handleWatchListItemClick(list)}
+                  >
+                    {list}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        >
+          <div
+            className={`${styles.watchListDropdown} ${
+              styles.watchListControl
+            } ${watchListPopoverOpen ? styles.watchListControlSelected : ''}`}
+            onClick={() => setWatchListPopoverOpen(true)}
+          >
+            <span>{activeWatchList?.watchListName}</span>
+            <ChevronDown size={15} style={{ marginLeft: '5px' }} />
+          </div>
+        </Popover>
+        <Popover
+          key="watchlist-creation-popover"
+          isOpen={selectPopoverOpen}
+          positions={['bottom', 'top', 'right', 'left']}
+          align="end"
+          padding={10}
+          reposition={false}
+          onClickOutside={() => setSelectPopoverOpen(false)}
+          content={({ position, nudgedLeft, nudgedTop }) => (
+            <div className={styles.newWatchListModal}>
               <Select
                 components={{
                   IndicatorSeparator: () => null,
@@ -243,11 +376,21 @@ const WatchListPanel = () => {
             </div>
           )}
         >
-          <Plus onClick={() => setIsPopoverOpen(true)} />
+          <div
+            className={`${styles.watchListPlus} ${styles.watchListControl} ${
+              selectPopoverOpen ? styles.watchListControlSelected : ''
+            }`}
+            onClick={() => setSelectPopoverOpen(true)}
+          >
+            <Plus />
+          </div>
         </Popover>
       </div>
       <div className={styles.contentHeader}>
-        <div onClick={() => handleOrderChange('label')}>
+        <div
+          onClick={() => handleOrderChange('label')}
+          className={styles.labelColumn}
+        >
           Symbol{' '}
           {orderSetting.label ? (
             orderSetting.label === 'asc' ? (
@@ -270,21 +413,29 @@ const WatchListPanel = () => {
         </div>
       </div>
       <div>
-        {loading && (
+        {loading ? (
           <div className="pt-5 text-center">
             <div className="spinner-border text-primary" role="status">
               <span className="sr-only">Loading...</span>
             </div>
           </div>
+        ) : (
+          orderedSymbolsList.map((symbol) => (
+            <WatchListItem
+              key={symbol.value}
+              symbol={symbol}
+              removeWatchList={removeWatchList}
+            />
+          ))
         )}
-        {orderedSymbolsList.map((symbol) => (
-          <WatchListItem
-            key={symbol.value}
-            symbol={symbol}
-            removeWatchList={removeWatchList}
-          />
-        ))}
       </div>
+      {addWatchListModalOpen ? (
+        <AddWatchListModal
+          onClose={() => setAddWatchListModalOpen(false)}
+          onSave={handleAddWatchList}
+          isLoading={addWatchListLoading}
+        />
+      ) : null}
     </div>
   )
 }

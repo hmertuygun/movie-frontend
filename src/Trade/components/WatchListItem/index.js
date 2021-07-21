@@ -26,7 +26,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
           <X size={20} />
         </div>
       )}
-      <div>{symbol.label}</div>
+      <div className="label-column">{symbol.label}</div>
       <div>{symbol.lastPrice}</div>
       <div className={Math.sign(symbol.percentage) > 0 ? 'plus' : 'minus'}>
         {symbol.percentage ? `${Number(symbol.percentage).toFixed(2)}%` : ''}
