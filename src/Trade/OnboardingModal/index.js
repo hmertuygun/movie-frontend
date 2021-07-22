@@ -145,7 +145,10 @@ const OnboardingModal = () => {
         needPayment && chartMirroring
           ? 'Welcome to CoinPanel Chart Mirroring'
           : 'Welcome to CoinPanel!',
-      terBtn: 'Go to Chart Mirroring',
+      terBtn:
+        needPayment && chartMirroring
+          ? 'Subscribe to Chart Mirroring'
+          : 'Go to Chart Mirroring',
       text1:
         needPayment && chartMirroring
           ? 'Start your 14 days free trial by adding your card details.'
