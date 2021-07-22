@@ -1,3 +1,4 @@
+/* eslint-disable css-modules/no-unused-class */
 import React, { useContext } from 'react'
 
 import Tooltip from '../../../components/Tooltip'
@@ -14,9 +15,8 @@ const OrderHistoryTableBody = ({
   lastFetchedData,
   isHideOtherPairs,
   callOrderHistoryAPI,
-  symbolClick
+  symbolClick,
 }) => {
-
   const columns = [
     {
       title: 'Pair',
@@ -78,11 +78,13 @@ const OrderHistoryTableBody = ({
     threshold: 0.1,
   })
 
-  const { selectedSymbolDetail, symbolType } = useSymbolContext()
-  const selectedPair = selectedSymbolDetail['symbolpair']
+  const { symbolType } = useSymbolContext()
 
   const onSymbolClick = (rowIndex, val) => {
-    const calcVal = `${activeExchange?.exchange.toUpperCase()}:${val.replace('-', '/')}`
+    const calcVal = `${activeExchange?.exchange.toUpperCase()}:${val.replace(
+      '-',
+      '/'
+    )}`
     if (!symbolDetails[calcVal]) return
     setSymbol({ label: val, value: calcVal })
   }
@@ -92,12 +94,15 @@ const OrderHistoryTableBody = ({
   }
 
   const parseErrorToolTip = (text) => {
-    if (text.includes("IP banned until")) {
-      let date = text.match(/\d/g).join("")
+    if (text.includes('IP banned until')) {
+      let date = text.match(/\d/g).join('')
       let formattedDate = new Date(Number(date)).toLocaleString()
       return addToolTipBreakPoints(text.replace(date, formattedDate))
-    }
-    else if (text.includes("Your trade failed to execute, because you did not have enough available balance.")) {
+    } else if (
+      text.includes(
+        'Your trade failed to execute, because you did not have enough available balance.'
+      )
+    ) {
       return `
       Your trade failed to execute, because you did not have enough available balance. <br> No need to panic. This can be caused by:
       <ul>
@@ -108,8 +113,7 @@ const OrderHistoryTableBody = ({
       You used the same balance to place multiple orders, one of them triggered and used your balance, therefore not enough left for the second order.
       </li>
       </ul>`
-    }
-    else return addToolTipBreakPoints(text)
+    } else return addToolTipBreakPoints(text)
   }
 
   data = data.filter((order) => {
@@ -147,17 +151,24 @@ const OrderHistoryTableBody = ({
             return (
               <tr key={index} className={rowClass}>
                 <td></td>
-                <td style={{ cursor: 'pointer' }} onClick={() => { onSymbolClick(index, order.symbol) }}>{order.symbol}</td>
+                <td
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    onSymbolClick(index, order.symbol)
+                  }}
+                >
+                  {order.symbol}
+                </td>
                 <td>{order.type}</td>
                 <td
                   style={
                     !isCanceled
                       ? {
-                        color:
-                          order.side?.toLowerCase() === 'buy'
-                            ? 'green'
-                            : 'red',
-                      }
+                          color:
+                            order.side?.toLowerCase() === 'buy'
+                              ? 'green'
+                              : 'red',
+                        }
                       : undefined
                   }
                 >
@@ -176,17 +187,17 @@ const OrderHistoryTableBody = ({
                 >
                   <div
                     data-for={`order-history-${order.order_id}`}
-                    data-place={`${order?.error?.length > 75 ? "left" : "top"}`}
+                    data-place={`${order?.error?.length > 75 ? 'left' : 'top'}`}
                     data-tip={parseErrorToolTip(order.error)}
                     data-html={true}
-                    data-class={order?.error ? 'order-history-error-tooltip' : ''}
+                    data-class={
+                      order?.error ? 'order-history-error-tooltip' : ''
+                    }
                   >
                     {order.status}
                   </div>
                   {order.error && (
-                    <Tooltip
-                      id={`order-history-${order.order_id}`}
-                    />
+                    <Tooltip id={`order-history-${order.order_id}`} />
                   )}
                 </td>
                 <td>
@@ -207,13 +218,15 @@ const OrderHistoryTableBody = ({
         ) : null}
       </div>
       <div
-        className={`alert alert-secondary text-center mt-5 mx-auto d-none ${!data.length && !isFetching ? 'd-block' : 'd-none'
-          }`}
+        className={`alert alert-secondary text-center mt-5 mx-auto d-none ${
+          !data.length && !isFetching ? 'd-block' : 'd-none'
+        }`}
         style={{ maxWidth: '500px' }}
         role="alert"
       >
         <strong>
-          <FontAwesomeIcon icon="info-circle" /> Order history will appear as you trade the markets on CoinPanel.
+          <FontAwesomeIcon icon="info-circle" /> Order history will appear as
+          you trade the markets on CoinPanel.
         </strong>
       </div>
     </div>

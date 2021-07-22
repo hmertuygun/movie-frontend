@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import BalanceTable from './components/BalanceTable'
 import EstimateValue from './components/EstimateValue'
 import PortfolioDistribution from './components/PortfolioDistribution'
@@ -19,18 +19,18 @@ function PortfolioContainer() {
     portfolioTimeInterval,
   } = useSymbolContext()
 
-  const onUnload = () => {
+  const onUnload = useCallback(() => {
     localStorage.removeItem(
       `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
     )
-  }
+  }, [activeExchange])
 
   useEffect(() => {
     window.addEventListener('beforeunload', onUnload)
     return () => {
       window.removeEventListener('beforeunload', onUnload)
     }
-  }, [])
+  }, [onUnload])
 
   useEffect(() => {
     if (loading) {
@@ -51,12 +51,6 @@ function PortfolioContainer() {
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
-              {/* <div class="text-center">
-                We are aware that for some users, some coins are missing in the
-                portfolio, please use the Report a Problem button and attach a
-                screenshot of the coin that is missing from your portfolio. We
-                apologize for the inconvenience.
-              </div> */}
               <div className="mb-4 row align-items-center">
                 <div className="col">
                   <h1 className="mb-0 h4">Portfolio</h1>

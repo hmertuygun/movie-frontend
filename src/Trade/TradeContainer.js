@@ -1,4 +1,11 @@
-import React, { useEffect, useContext, useState, lazy, Suspense } from 'react'
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useState,
+  lazy,
+  Suspense,
+} from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
@@ -8,10 +15,7 @@ import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getNotices, dismissNotice } from '../api/api'
-import {
-  successNotification,
-  errorNotification,
-} from '../components/Notifications'
+import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -28,7 +32,9 @@ const TradePanel = lazy(() => import('./TradePanel'))
 const TradeChart = lazy(() => import('./TradeChart'))
 const TradeOrders = lazy(() => import('./components/TradeOrders/TradeOrders'))
 const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
-const SymbolSelect = lazy(() => import('./components/SymbolSelect/SymbolSelect'))
+const SymbolSelect = lazy(() =>
+  import('./components/SymbolSelect/SymbolSelect')
+)
 
 const db = firebase.firestore()
 const registerResizeObserver = (cb, elem) => {
@@ -38,22 +44,41 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys, userData } = useContext(UserContext)
+  const { loadApiKeys, userData, handleOnboardingShow, isOnboardingSkipped } =
+    useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = watchListOpen
     ? window.innerHeight + 'px'
+    : isOnboardingSkipped
+    ? 'calc(100vh - 134px)'
     : window.innerHeight * 0.6 + 'px'
   const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
 
+  const resizeCallBack = useCallback(
+    (entries, observer) => {
+      const { contentRect } = entries[0]
+      setOrderHeight(totalHeight - contentRect.height + 200 + 'px')
+    },
+    [totalHeight]
+  )
+
+  const callObserver = useCallback(() => {
+    const elem = document.querySelector('.TradeView-Chart')
+    if (!elem) return
+    registerResizeObserver(resizeCallBack, elem)
+  }, [resizeCallBack])
+
   useEffect(() => {
     callObserver()
-    getPendingNotices()
+    if (!isOnboardingSkipped) {
+      getPendingNotices()
+    }
     const fBNotice = db
       .collection('platform_messages')
       .where('publishNow', '==', true)
@@ -90,30 +115,19 @@ const TradeContainer = () => {
     return () => {
       fBNotice()
     }
-  }, [])
+  }, [callObserver, userData.email])
 
   useEffect(() => {
     if (snapShotCount > 1 && fbNotice && fbNotice.action === 'added') {
       setNotices((prevState) => [fbNotice, ...prevState])
     }
-  }, [snapShotCount])
+  }, [fbNotice, snapShotCount])
 
   useEffect(() => {
-    if (!loadApiKeys) {
+    if (!loadApiKeys && !isOnboardingSkipped) {
       history.push('/settings')
     }
   }, [loadApiKeys, history])
-
-  const callObserver = () => {
-    const elem = document.querySelector('.TradeView-Chart')
-    if (!elem) return
-    registerResizeObserver(resizeCallBack, elem)
-  }
-
-  const resizeCallBack = (entries, observer) => {
-    const { contentRect } = entries[0]
-    setOrderHeight(totalHeight - contentRect.height + 200 + 'px')
-  }
 
   const getPendingNotices = async () => {
     try {
@@ -157,36 +171,59 @@ const TradeContainer = () => {
               </section>
             </div>
           ) : (
-            <section className="TradeView-Panel">
-              <ErrorBoundary componentName="TradePanel">
-                <Suspense fallback={<div></div>}>
-                  <Route path="/trade/" component={TradePanel} />
-                </Suspense>
-              </ErrorBoundary>
-            </section>
+            <>
+              {!isOnboardingSkipped && (
+                <section className={`TradeView-Panel`}>
+                  <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+                    <ErrorBoundary componentName="TradePanel">
+                      <Suspense fallback={<div></div>}>
+                        <Route path="/trade/" component={TradePanel} />
+                      </Suspense>
+                    </ErrorBoundary>
+                  </div>
+                  {/* {isOnboardingSkipped && (
+                <div className="chart-view-content">
+                  <p>Add exchange to start trading</p>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-primary btn-icon"
+                    onClick={handleAddExchange}
+                  >
+                    <span className="btn-inner--text">Add Exchange</span>
+                  </button>
+                </div>
+              )} */}
+                </section>
+              )}
+            </>
           )}
           <section
             className="TradeChart-Container"
             style={{ display: 'unset' }}
           >
-            <div className={`${notices.length ? 'alert-messages' : ''}`} style={{ margin: '0' }}>
+            <div
+              className={`${notices.length ? 'alert-messages' : ''}`}
+              style={{ margin: '0' }}
+            >
               {notices.map((item, index) => (
                 <div
                   style={{ padding: '10px' }}
-                  className={`text-center my-1 alert alert-${item.noticeType || 'primary'
-                    }`}
+                  className={`text-center my-1 alert alert-${
+                    item.noticeType || 'primary'
+                  }`}
                   key={`notice-${index}`}
                 >
                   <FontAwesomeIcon
                     color="white"
-                    icon={`${item.noticeType === 'danger'
-                      ? 'times-circle'
-                      : item.noticeType === 'warning'
+                    icon={`${
+                      item.noticeType === 'danger'
+                        ? 'times-circle'
+                        : item.noticeType === 'warning'
                         ? 'exclamation-triangle'
                         : item.noticeType === 'info'
-                          ? 'exclamation-circle'
-                          : 'exclamation-circle'
-                      }`}
+                        ? 'exclamation-circle'
+                        : 'exclamation-circle'
+                    }`}
                   />{' '}
                   {item.message}
                   <button
@@ -200,7 +237,11 @@ const TradeContainer = () => {
               ))}
             </div>
             {!watchListOpen && (
-              <section className="TradeView-Symbol">
+              <section
+                className={`TradeView-Symbol ${
+                  isOnboardingSkipped ? 'skipped-trade-view' : ''
+                }`}
+              >
                 <ErrorBoundary componentName="SymbolSelect">
                   <Suspense fallback={<div></div>}>
                     <SymbolSelect />
@@ -229,15 +270,32 @@ const TradeContainer = () => {
                 </Suspense>
               </ErrorBoundary>
             </section>
-
-            <section className="TradeOrders" style={{ height: orderHeight, display: watchListOpen ? "none" : "" }}>
-              <ErrorBoundary componentName="TradeOrders">
-                <Suspense fallback={<div></div>}>
-                  <TradeOrders />
-                </Suspense>
-              </ErrorBoundary>
-            </section>
-
+            {!isOnboardingSkipped && (
+              <section
+                className={`TradeOrders ${
+                  isOnboardingSkipped ? 'chart-order-view-position' : ''
+                }`}
+                style={{
+                  height: orderHeight,
+                  display: watchListOpen ? 'none' : '',
+                }}
+              >
+                <div
+                  className={`${isOnboardingSkipped ? 'chart-order-view' : ''}`}
+                >
+                  <ErrorBoundary componentName="TradeOrders">
+                    <Suspense fallback={<div></div>}>
+                      <TradeOrders />
+                    </Suspense>
+                  </ErrorBoundary>
+                </div>
+                {/* {isOnboardingSkipped && (
+                <div className="chart-view-order-content">
+                  <p>Add exchange to start trading</p>
+                </div>
+              )} */}
+              </section>
+            )}
           </section>
         </>
       ) : isTradePanelOpen ? (
@@ -253,20 +311,22 @@ const TradeContainer = () => {
           <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
             {notices.map((item, index) => (
               <div
-                className={`text-center my-1 alert alert-${item.noticeType || 'primary'
-                  }`}
+                className={`text-center my-1 alert alert-${
+                  item.noticeType || 'primary'
+                }`}
                 key={`notice-${index}`}
               >
                 <FontAwesomeIcon
                   color="white"
-                  icon={`${item.noticeType === 'danger'
-                    ? 'times-circle'
-                    : item.noticeType === 'warning'
+                  icon={`${
+                    item.noticeType === 'danger'
+                      ? 'times-circle'
+                      : item.noticeType === 'warning'
                       ? 'exclamation-triangle'
                       : item.noticeType === 'info'
-                        ? 'exclamation-circle'
-                        : 'exclamation-circle'
-                    }`}
+                      ? 'exclamation-circle'
+                      : 'exclamation-circle'
+                  }`}
                 />{' '}
                 {item.message}
                 <button
@@ -299,13 +359,33 @@ const TradeContainer = () => {
               </Suspense>
             </ErrorBoundary>
           </section>
-          <section className="TradeOrders">
-            <ErrorBoundary componentName="TradeOrders">
-              <Suspense fallback={<div></div>}>
-                <TradeOrders />
-              </Suspense>
-            </ErrorBoundary>
-          </section>
+          {!isOnboardingSkipped && (
+            <section
+              className={`TradeOrders ${
+                isOnboardingSkipped ? 'chart-order-view-position' : ''
+              }`}
+            >
+              <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+                <ErrorBoundary componentName="TradeOrders">
+                  <Suspense fallback={<div></div>}>
+                    <TradeOrders />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+              {/* {isOnboardingSkipped && (
+              <div className="chart-view-content-mobile">
+                <p>Add exchange to start trading</p>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-primary btn-icon"
+                  onClick={handleAddExchange}
+                >
+                  <span className="btn-inner--text">Add Exchange</span>
+                </button>
+              </div>
+            )} */}
+            </section>
+          )}
         </div>
       )}
     </>

@@ -22,10 +22,10 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 
 import { InlineInput, Button } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 
 import { Event } from '../../../Tracking'
@@ -59,7 +59,8 @@ const BuyStopLimitForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
@@ -69,9 +70,11 @@ const BuyStopLimitForm = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const symbolpair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
 
   const totalPrecision = symbolpair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
@@ -242,10 +245,8 @@ const BuyStopLimitForm = () => {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
-      const {
-        totalWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value, 'price')
+      const { totalWithPrecision, percentageQuantityWithPrecision } =
+        calculateTotalAndPercentageQuantity(target.value, 'price')
 
       setValues((values) => ({
         ...values,
@@ -263,10 +264,8 @@ const BuyStopLimitForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -314,10 +313,8 @@ const BuyStopLimitForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -345,10 +342,8 @@ const BuyStopLimitForm = () => {
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,
@@ -392,7 +387,8 @@ const BuyStopLimitForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -408,7 +404,7 @@ const BuyStopLimitForm = () => {
             price_trigger: values.price_trigger.value,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
+        const { data } = await createBasicTrade(payload)
         if (data?.status === 'error') {
           errorNotification.open({
             description:
@@ -572,7 +568,9 @@ const BuyStopLimitForm = () => {
           {renderInputValidationError('total')}
         </div>
         <Button type="submit" variant="buy" disabled={isBtnDisabled}>
-          <span>Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Buy {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

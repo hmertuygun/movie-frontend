@@ -1,11 +1,17 @@
 .watch-container {
   position: relative;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 30% 40% 30%;
+  text-align: end;
+  align-items: center;
   border-bottom: 1px solid var(--watch-list-border-color);
   padding: 5px 1rem;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+.watch-container .label-column {
+  text-align: start;
 }
 
 .watch-container:hover {

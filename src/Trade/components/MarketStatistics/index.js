@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
-import ReconnectingWebSocket from 'reconnecting-websocket'
+import React, { useState, useEffect } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './MarketStatistics.css'
 
@@ -76,12 +75,14 @@ function MarketStatistics() {
             ) : null}
           </div>
           <div className="marketData">
-            {!isNaN(message.priceChange)? (<div className="marketDataBlock">
-              <div className="marketDataBlockTitle">24h Change</div>
-              <div className="marketDataBlockValue">
-                {`${message.priceChange} ${message.priceChangePercent}%`}
+            {!isNaN(message.priceChange) ? (
+              <div className="marketDataBlock">
+                <div className="marketDataBlockTitle">24h Change</div>
+                <div className="marketDataBlockValue">
+                  {`${message.priceChange} ${message.priceChangePercent}%`}
+                </div>
               </div>
-            </div>): null}
+            ) : null}
 
             {!isNaN(message.highPrice) ? (
               <div className="marketDataBlock">

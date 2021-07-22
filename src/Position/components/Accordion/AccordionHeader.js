@@ -13,7 +13,11 @@ const AccordionHeader = (props) => {
 
   const { requestSort, liveUpdate } = props
   const { positions, isLoading, refreshData } = useContext(PositionContext)
-  const { onRefreshBtnClicked, disablePositionRefreshBtn, positionTimeInterval } = useSymbolContext()
+  const {
+    onRefreshBtnClicked,
+    disablePositionRefreshBtn,
+    positionTimeInterval,
+  } = useSymbolContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const ToggleMenu = () => {
@@ -40,7 +44,7 @@ const AccordionHeader = (props) => {
   }
 
   const pollingProp = {
-    url: "https://jsonplaceholder.typicode.com/todos"
+    url: 'https://jsonplaceholder.typicode.com/todos',
   }
   return (
     <>
@@ -108,8 +112,9 @@ const AccordionHeader = (props) => {
             </span>
           </button>
           <div
-            className={`collapse ${isMenuOpen ? 'dropdown-menu show' : 'dropdown-menu'
-              }`}
+            className={`collapse ${
+              isMenuOpen ? 'dropdown-menu show' : 'dropdown-menu'
+            }`}
             aria-labelledby="dropdownMenuButton"
             style={{
               position: 'absolute',
@@ -190,9 +195,15 @@ const AccordionHeader = (props) => {
               <button
                 type="button"
                 data-for="position"
-                data-tip={`You can only use this button every ${positionTimeInterval / 1000} seconds`}
-                className={`ml-2 btn btn-sm btn-neutral btn-icon ${disablePositionRefreshBtn ? 'disabled' : ''}`}
-                onClick={() => disablePositionRefreshBtn ? null : onRefreshBtn()}
+                data-tip={`You can only use this button every ${
+                  positionTimeInterval / 1000
+                } seconds`}
+                className={`ml-2 btn btn-sm btn-neutral btn-icon ${
+                  disablePositionRefreshBtn ? 'disabled' : ''
+                }`}
+                onClick={() =>
+                  disablePositionRefreshBtn ? null : onRefreshBtn()
+                }
               >
                 <span className="btn-inner--text">Refresh</span>
                 <span className="btn-inner--icon">

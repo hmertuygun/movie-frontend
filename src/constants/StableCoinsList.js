@@ -1,5 +1,3 @@
-import { braziliex } from 'ccxt'
-
 //List of all stable coins
 export const stableCoins = [
   'USDT',

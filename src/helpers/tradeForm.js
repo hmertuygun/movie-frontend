@@ -8,11 +8,11 @@ export const convertCommaNumberToDot = (value) => {
 export const addPrecisionToNumber = (value, precisionCount) => {
   if (value) {
     if (value === '0') return Number(value)
-    
+
     const convertToString = value.toString()
     const splittedValue = convertToString.split('.')
-    
-    if (precisionCount > 8) return (Number(splittedValue[0]))
+
+    if (precisionCount > 8) return Number(splittedValue[0])
     if (splittedValue[1]) {
       const sliceDecimalPaces = splittedValue[1].slice(0, precisionCount)
       const joinedString = splittedValue[0] + '.' + sliceDecimalPaces

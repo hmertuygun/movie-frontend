@@ -12,13 +12,7 @@ import {
 } from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
-import {
-  TabNavigator,
-  ButtonNavigator,
-  Typography,
-  Button,
-  Modal,
-} from '../components'
+import { TabNavigator, ButtonNavigator, Typography, Modal } from '../components'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
 import TradeTableContainer from './components/TradeTableContainer'
@@ -60,9 +54,8 @@ const Trade = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol, setIsOrderPlaced, refreshBalance } = useContext(
-    SymbolContext
-  )
+  const { selectedSymbol, setIsOrderPlaced, refreshBalance } =
+    useContext(SymbolContext)
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
@@ -90,7 +83,7 @@ const Trade = () => {
       if (isBtnDisabled) return
       setBtnVisibility(true)
       setIsOrderPlaced(false)
-      const { data, status } = await placeOrder({ ...state, ...activeExchange })
+      const { data } = await placeOrder({ ...state, ...activeExchange })
       if (data?.status === 'error') {
         errorNotification.open({
           description:
@@ -100,7 +93,11 @@ const Trade = () => {
         successNotification.open({ description: `Order Created!` })
         const { entry } = state
         analytics.logEvent(`placed_full_trade_${entry.type}_order`)
-        Event('user', `placed_full_trade_${entry.type}_order`, `placed_full_trade_${entry.type}_order`)
+        Event(
+          'user',
+          `placed_full_trade_${entry.type}_order`,
+          `placed_full_trade_${entry.type}_order`
+        )
         if (entry.type !== 'stop-limit' && entry.type !== 'stop-market') {
           refreshBalance()
         }
@@ -123,12 +120,12 @@ const Trade = () => {
 
   useEffect(() => {
     clear()
-  }, [selectedSymbol])
+  }, [clear, selectedSymbol])
 
   return (
     <Fragment>
       <>
-        <SymbolSelect showOnlyMarketSelection={true}/>
+        <SymbolSelect showOnlyMarketSelection={true} />
         <div
           className="TradeView-Panel-Mobile-Close"
           onClick={() => setIsTradePanelOpen(false)}
@@ -143,12 +140,7 @@ const Trade = () => {
             <ButtonNavigator labelArray={['BUY', 'SELL']}>
               <TabNavigator
                 key="buy-tab-nav"
-                labelArray={[
-                  'Limit', 
-                  'Market', 
-                  'Stop-limit', 
-                  'Stop-market'
-                ]}
+                labelArray={['Limit', 'Market', 'Stop-limit', 'Stop-market']}
               >
                 <BuyLimitForm />
                 <BuyMarketForm />

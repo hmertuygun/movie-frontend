@@ -9,6 +9,7 @@ import {
   addPrecisionToNumber,
   allowOnlyNumberDecimalAndComma,
 } from '../../../../helpers/tradeForm'
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../../../forms/LimitForm/LimitForm.module.css'
 import { findIndex } from 'lodash'
 
@@ -68,7 +69,7 @@ const OrderEditModal = ({
       trigger = triggerCondition
     }
     return trigger
-  }, [targetOrders, selectedOrder, activeIndex])
+  }, [targetOrders, activeIndex])
 
   const prevTriggerPrice = useMemo(() => {
     const prevTarget =
@@ -84,7 +85,7 @@ const OrderEditModal = ({
       trigger = triggerCondition
     }
     return trigger
-  }, [targetOrders, selectedOrder, activeIndex])
+  }, [targetOrders, activeIndex])
 
   const formSchema = yup.object().shape(
     {

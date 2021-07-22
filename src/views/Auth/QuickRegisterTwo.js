@@ -39,11 +39,25 @@ const QuickRegister = () => {
         throw new Error(response.message)
       }
 
-      await firebase
-        .firestore()
-        .collection('chart_drawings')
-        .doc(email)
-        .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
+      try {
+        await firebase
+          .firestore()
+          .collection('stripe_users')
+          .doc(response?.user?.uid)
+          .set({ chartMirroringSignUp: true }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
+        await firebase
+          .firestore()
+          .collection('chart_drawings')
+          .doc(email)
+          .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
+      } catch (error) {
+        console.log(error)
+      }
 
       try {
         const actionCodeSettings = {
@@ -68,7 +82,10 @@ const QuickRegister = () => {
                   .firestore()
                   .collection('stripe_users')
                   .doc(response?.user?.uid)
-                  .set({ refId: refId }, { merge: true })
+                  .set(
+                    { refId: refId, chartMirroringSignUp: true },
+                    { merge: true }
+                  )
               } catch (error) {
                 console.log('==>', error)
               }
@@ -95,24 +112,28 @@ const QuickRegister = () => {
     <section>
       <div
         className="position-absolute h-100 top-0 left-0 zindex-100 col-lg-6 col-xl-6 zindex-100 d-none d-lg-flex flex-column justify-content-center"
-        style={{ backgroundColor: '#1652f1', minHeight: '768px' }}
+        style={{ backgroundColor: '#1652f1', minHeight: '860px' }}
       >
         <div className="row position-relative zindex-110 p-5 h-100">
-          <div className="col-12 text-center mb-4">
+          <div className="col-12 text-center" style={{ height: '180px' }}>
             <figure className="w-100">
               <img
                 alt="CoinPanel - Easy cryptocurrency trading bot"
-                src="https://coinpanel.com/assets/img/homepage/CoinPanel_trading.png"
-                className="img-fluid mw-50"
+                src="https://coinpanel.com/assets/img/chart-mirroring-title.png"
+                className="img-fluid"
+                style={{ maxWidth: '340px' }}
               />
             </figure>
           </div>
           <div className="col-md-12 text-center mx-auto">
-            <h5 className="h3 text-white mt-3 mb-4">
-              Carefree crypto trading is here
+            <h5 className="h3 text-white mt-0 mb-4">
+              Mirror Sheldon’s charts onto your chart. Live!
             </h5>
             <p className="text-white opacity-9 mb-4">
-              Connect your exchange and never be tied to your screen again.
+              Get direct access to the Sniper’s charts without having to redraw
+              patterns and trend lines by yourself. Sheldon’s charts are now
+              available through Chart Mirroring – everything he charts will be
+              copied into yours, whenever you want to see it.
             </p>
             <div className="row align-items-center mx-auto">
               <div className="text-center mx-auto opacity-9">
@@ -139,7 +160,8 @@ const QuickRegister = () => {
                       </div>
                       <div>
                         <span className="mb-0">
-                          Easy stop-loss / take-profit orders
+                          Everything on the chart will appear live when Sheldon
+                          draws it
                         </span>
                       </div>
                     </div>
@@ -165,9 +187,32 @@ const QuickRegister = () => {
                         </div>
                       </div>
                       <div>
-                        <span className="mb-0">
-                          Place entry, stop loss, take profit at the same time
-                        </span>
+                        <span className="mb-0">Drawings, indicators</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li className="py-2">
+                    <div className="d-flex align-items-center">
+                      <div>
+                        <div className="badge badge-circle badge-dark mr-3">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="1em"
+                            height="1em"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="feather feather-check"
+                          >
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="mb-0">Buy zones</span>
                       </div>
                     </div>
                   </li>
@@ -193,34 +238,7 @@ const QuickRegister = () => {
                       </div>
                       <div>
                         <span className="mb-0">
-                          Automatic profit/loss tracking
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="py-2">
-                    <div className="d-flex align-items-center">
-                      <div>
-                        <div className="badge badge-circle badge-dark mr-3">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="feather feather-check"
-                          >
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="mb-0">
-                          Email/Telegram notifications
+                          Take Profit / Stop Loss zones
                         </span>
                       </div>
                     </div>
@@ -242,7 +260,6 @@ const QuickRegister = () => {
                   </div>
                   <div className="mb-4">
                     <h6 className="h4 mb-1">Create your free account</h6>
-                    <p className="text-muted mb-0">No credit card required.</p>
                   </div>
                   <span className="clearfix"></span>
                   <form

@@ -23,19 +23,21 @@ import { UserContext } from './contexts/UserContext'
 // import Positions from './views/PositionView'
 // import Portfolio from './views/PortfolioView'
 // import PriceAlerts from './views/PriceAlertView'
-
-
 import OnboardingModal from './Trade/OnboardingModal'
 import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 import { Detector, Offline, Online } from 'react-detect-offline'
-import { successNotification, warningNotification } from './components/Notifications'
+import {
+  successNotification,
+  warningNotification,
+} from './components/Notifications'
 
 const Login = lazy(() => import('./views/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('./views/Auth/QuickLoginVerify2FA'))
 const Register = lazy(() => import('./views/Auth/QuickRegister'))
+const RegisterTwo = lazy(() => import('./views/Auth/QuickRegisterTwo'))
 const RegisterConfirm = lazy(() => import('./views/Auth/QuickRegisterConfirm'))
 const RegisterFinal = lazy(() => import('./views/Auth/QuickFinal'))
 const RecoverPassword = lazy(() => import('./views/Auth/RecoverPassword'))
@@ -68,27 +70,44 @@ const Routes = () => {
     loaderVisible,
     loaderText,
     setIsAppOnline,
-    showSubModalIfLessThan7Days
+    showSubModalIfLessThan7Days,
+    isOnboardingSkipped,
+    needPayment,
+    chartMirroring,
   } = useContext(UserContext)
+
+  const onboardingStatusStatus =
+    (isLoggedIn &&
+      userContextLoaded &&
+      !loadApiKeys &&
+      !isSettingsPage &&
+      !isOnboardingSkipped) ||
+    (needPayment && chartMirroring && userContextLoaded)
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
-      successNotification.open({ description: "You are back online!" })
-    }
-    else {
-      warningNotification.open({ description: "You don't seem to be online anymore!" })
+      successNotification.open({ description: 'You are back online!' })
+    } else {
+      warningNotification.open({
+        description: "You don't seem to be online anymore!",
+      })
     }
     return null
   }
 
-  const isLocalEnv = window.location.hostname === "localhost"
-  
+  const isLocalEnv = window.location.hostname === 'localhost'
+
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <FullScreenLoader />
       <Detector
-        polling={{ url: "https://jsonplaceholder.typicode.com/posts/1", enabled: isLoggedIn && !isLocalEnv }}
-        onChange={(e) => { showNotifOnNetworkChange(e) }}
+        polling={{
+          url: 'https://jsonplaceholder.typicode.com/posts/1',
+          enabled: isLoggedIn && !isLocalEnv,
+        }}
+        onChange={(e) => {
+          showNotifOnNetworkChange(e)
+        }}
         render={({ online }) => {
           return null
         }}
@@ -108,17 +127,24 @@ const Routes = () => {
               }}
             />
           )}
-          {isLoggedIn && userContextLoaded && !loadApiKeys && !isSettingsPage && <OnboardingModal />}
-          {isLoggedIn && userContextLoaded && !isSettingsPage && (!hasSub || showSubModalIfLessThan7Days) && (
-            <SubscriptionModal />
-          )}
+          {onboardingStatusStatus && <OnboardingModal />}
+          {isLoggedIn &&
+            userContextLoaded &&
+            !isSettingsPage &&
+            (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <CacheRoute exact path="/trade" component={TradeView} />
               <Route path="/settings" component={Settings} />
-              <CacheRoute path="/portfolio" component={Portfolio} />
-              <CacheRoute path="/alerts" component={PriceAlerts} />
-              <CacheRoute path="/positions" component={Positions} />
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/portfolio" component={Portfolio} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/alerts" component={PriceAlerts} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/positions" component={Positions} />
+              )}
               <Redirect to="/trade" />
             </CacheSwitch>
           )}
@@ -130,6 +156,7 @@ const Routes = () => {
           <Route path="/new-password" component={NewPassword} />
           <Route path="/action" component={HandleEmailActions} />
           <Route exact path="/register" component={Register} />
+          <Route exact path="/register2" component={RegisterTwo} />
           <Route exact path="/register/confirm" component={RegisterConfirm} />
           <Route
             exact

@@ -5,31 +5,46 @@ import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
+import firebase from 'firebase'
+
 const TradeChart = () => {
   const {
     symbolDetails,
     symbolType,
     exchangeType,
     setWatchListOpen,
-    chartData
+    chartData,
   } = useSymbolContext()
-  const { theme } = useContext(ThemeContext);
+  const db = firebase.firestore()
+  const { theme } = useContext(ThemeContext)
 
-  const { userData, openOrdersUC, activeExchange } = useContext(UserContext)
+  const { userData, openOrdersUC, activeExchange, isOnboardingSkipped } =
+    useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
-  const [lsWS] = useLocalStorage('WS')
   const [reRender, setReRender] = useState(new Date().getTime())
   const [exchangeName, seExchangeName] = useState(null)
   const [count, setCount] = useState(0)
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
+  const [drawings, setDrawings] = useState()
+  const [templateDrawings, setTemplateDrawings] = useState()
+  const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
+  const [onError, setOnError] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
-    document.addEventListener('visibilitychange', (ev) => {
-      setDocVisibility(document.visibilityState === "visible" ? true : false)
+    document.addEventListener('visibilitychange', () => {
+      setDocVisibility(document.visibilityState === 'visible' ? true : false)
     })
   }
+
+  useEffect(() => {
+    if (typeof localStorage.getItem('chartMirroring') === 'string') {
+      const status =
+        localStorage.getItem('chartMirroring') === 'true' ? true : false
+      setTemplateDrawingsOpen(status)
+    }
+  }, [])
 
   useEffect(() => {
     reconnectWSOnWindowFocus()
@@ -37,37 +52,91 @@ const TradeChart = () => {
 
   useEffect(() => {
     if (!count) return
-    if (docVisibility && isChartReady && activeExchange.exchange === "binance" && localStorage.getItem("WS") === "0") {
+    if (
+      docVisibility &&
+      isChartReady &&
+      activeExchange.exchange === 'binance' &&
+      localStorage.getItem('WS') === '0'
+    ) {
       setReRender(new Date().getTime())
     }
-  }, [docVisibility])
+  }, [activeExchange.exchange, count, docVisibility, isChartReady])
 
   useEffect(() => {
     setIsChartReady(false)
   }, [reRender])
 
   useEffect(() => {
-    if (lsIntervalValue && lsIntervalValue.length) saveChartIntervals(lsIntervalValue)
+    db.collection('template_drawings').onSnapshot((snapshot) => {
+      setTemplateDrawings(snapshot.docs[0].data())
+    })
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = db
+      .collection('chart_drawings')
+      .doc(userData.email)
+      .onSnapshot(
+        (snapshot) => {
+          if (snapshot.data()?.drawings?.[userData.email]) {
+            setDrawings(snapshot.data().drawings[userData.email])
+          } else if (
+            !snapshot.data()?.drawings &&
+            snapshot.data()?.lastSelectedSymbol
+          ) {
+            setDrawings([])
+          } else {
+            setOnError(true)
+          }
+        },
+        (error) => {
+          console.error(error)
+          setOnError(true)
+        }
+      )
+    return () => unsubscribe()
+  }, [db, userData.email])
+
+  useEffect(() => {
+    if (lsIntervalValue && lsIntervalValue.length)
+      saveChartIntervals(lsIntervalValue)
   }, [lsIntervalValue])
 
   useEffect(() => {
-    if (lsTimeZoneValue?.timezone && lsTimeZoneValue?.timezone !== chartData?.timeZone && count > 0) {
-      saveTimeZone(lsTimeZoneValue?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)
+    if (!isOnboardingSkipped) {
+      if (
+        lsTimeZoneValue?.timezone &&
+        lsTimeZoneValue?.timezone !== chartData?.timeZone &&
+        count > 0
+      ) {
+        saveTimeZone(
+          lsTimeZoneValue?.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+        )
+      }
     }
-  }, [lsTimeZoneValue])
+  }, [chartData?.timeZone, count, lsTimeZoneValue])
 
   useEffect(() => {
-    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange) return
+    if (!activeExchange?.exchange || exchangeName === activeExchange.exchange)
+      return
     seExchangeName(activeExchange.exchange)
     if (count > 0) {
       console.log('Re-rendered')
       setReRender(new Date().getTime())
     }
-    setCount(prev => prev + 1)
-  }, [activeExchange])
+    setCount((prev) => prev + 1)
+  }, [activeExchange, count, exchangeName])
 
-  const onSniperBtnClick = (e) => {
-    setWatchListOpen(watchListOpen => !watchListOpen)
+  const onSniperBtnClick = () => {
+    setWatchListOpen((watchListOpen) => !watchListOpen)
+  }
+
+  const onDrawingsBtnClick = (e) => {
+    setTemplateDrawingsOpen((templateDrawingsOpen) => {
+      localStorage.setItem('chartMirroring', !templateDrawingsOpen)
+      return !templateDrawingsOpen
+    })
   }
 
   const filterOrders = (order, symbol) => {
@@ -76,10 +145,15 @@ const TradeChart = () => {
   }
 
   const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
-  const symbolDetailsKeyValue = getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails
-  let showChart = chartData && symbolType && exchangeType && (getSymbolsLS || Object.keys(symbolDetails).length)
-  const { drawings, intervals } = chartData || {}
-
+  const symbolDetailsKeyValue = getSymbolsLS
+    ? JSON.parse(getSymbolsLS)
+    : symbolDetails
+  let showChart =
+    chartData &&
+    symbolType &&
+    exchangeType &&
+    (getSymbolsLS || Object.keys(symbolDetails).length)
+  const { intervals } = chartData || {}
   return (
     <div
       id="chart_outer_container"
@@ -92,6 +166,9 @@ const TradeChart = () => {
           theme={theme}
           intervals={intervals}
           drawings={drawings}
+          templateDrawings={templateDrawings}
+          templateDrawingsOpen={templateDrawingsOpen}
+          onError={onError}
           openOrders={filterOrders(openOrdersUC, symbolType)}
           key={reRender}
           symbol={symbolType}
@@ -100,6 +177,9 @@ const TradeChart = () => {
           timeZone={chartData?.timeZone}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
+          }}
+          drawingsBtnClicked={(e) => {
+            onDrawingsBtnClick(e)
           }}
           chartReady={(e) => {
             setIsChartReady(e)

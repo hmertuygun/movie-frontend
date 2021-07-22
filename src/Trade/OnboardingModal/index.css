@@ -1,12 +1,18 @@
 .lead-warning {
-    font-size: 22px;
-    margin-bottom: 0;
+  font-size: 22px;
+  margin-bottom: 0;
 }
 
 .error-close {
-    position: absolute;
-    right: 10px;
-    top: 8px;
-    cursor: pointer;
-    z-index: 1;
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+@media (max-width: 575.98px) {
+  .terBtn {
+    width: 100%;
+  }
 }

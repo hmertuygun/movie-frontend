@@ -25,7 +25,6 @@
     "exponential-backoff": "^3.1.0",
     "firebase": "^8.0.0",
     "lodash": "^4.17.21",
-    "prettier": "^2.1.2",
     "qrcode": "^1.4.4",
     "rc-slider": "^9.7.1",
     "react": "^17.0.1",
@@ -61,18 +60,9 @@
     "test:e2e": "testcafe chrome:headless",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 6006 -s public --no-dll",
-    "build-storybook": "build-storybook -s public --no-dll"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "rules": {
-      "no-unused-vars": "off",
-      "react-hooks/exhaustive-deps": "off",
-      "no-empty-pattern": "off"
-    }
+    "build-storybook": "build-storybook -s public --no-dll",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint \"src/**/*.js\" --fix"
   },
   "browserslist": {
     "production": [
@@ -87,6 +77,10 @@
     ]
   },
   "devDependencies": {
-    "babel-plugin-import": "^1.13.3"
+    "babel-plugin-import": "^1.13.3",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-css-modules": "^2.11.0",
+    "eslint-plugin-prettier": "3.4.0",
+    "prettier": "^2.3.1"
   }
 }

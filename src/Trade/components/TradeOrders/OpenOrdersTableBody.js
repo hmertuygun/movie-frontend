@@ -1,19 +1,17 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Tooltip from '../../../components/Tooltip'
 import { cancelTradeOrder, editOrder } from '../../../api/api'
 import { Icon } from '../../../components'
-import useIntersectionObserver from './useIntersectionObserver'
 import Moment from 'react-moment'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { UserContext } from '../../../contexts/UserContext'
 import { ThemeContext } from '../../../contexts/ThemeContext'
 import {
   errorNotification,
   successNotification,
 } from '../../../components/Notifications'
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from './TradeOrders.module.css'
-import { Modal } from '../../../components'
 import OrderEditModal from './OrderEditModal'
 
 const openOrdersColumns = [
@@ -21,7 +19,7 @@ const openOrdersColumns = [
     title: 'Pair',
     key: 'symbol',
     type: 'alphabet',
-    order: 0
+    order: 0,
   },
   {
     title: 'Type',
@@ -59,7 +57,7 @@ const openOrdersColumns = [
     title: 'Date',
     key: 'timestamp',
     type: 'number',
-    order: 1
+    order: 1,
   },
   {
     title: 'Edit',
@@ -71,33 +69,27 @@ const openOrdersColumns = [
   },
 ]
 
-const deleteDuplicateRows = (data, key) => {
-  if (!data?.length) return []
-  const uniqueData = Array.from(new Set(data.map((a) => a[key]))).map((id) =>
-    data.find((a) => a[key] === id)
-  )
-  return uniqueData
-}
-
 const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [show, setShow] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
-  const { activeExchange, orderEdited, setOrderEdited } = useContext(UserContext)
+  const { activeExchange, setOrderEdited } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
   const { symbolDetails, setSymbol } = useSymbolContext()
 
   const isFullTrade = entry.length > 2
   const entryOrder = isFullTrade ? entry?.[1] : null
-  const targetOrders = isFullTrade ? entry.filter(entry => entry.label.includes('Target')) : null
+  const targetOrders = isFullTrade
+    ? entry.filter((entry) => entry.label.includes('Target'))
+    : null
   const stoplossOrder = isFullTrade ? entry?.[2] : null
 
-  const onCancelOrderClick = async (order, index) => {
+  const onCancelOrderClick = async (order) => {
     setCancelOrderRow({ ...order })
     try {
-      const { data, status } = await cancelTradeOrder({
+      const { data } = await cancelTradeOrder({
         ...order,
         ...activeExchange,
       })
@@ -170,8 +162,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
           rowIndex === 1
             ? { border: 0 }
             : rowIndex === 0
-              ? { cursor: 'pointer' }
-              : undefined
+            ? { cursor: 'pointer' }
+            : undefined
         const rowClass = rowIndex > 0 ? `collapse ${show ? 'show' : ''}` : ''
         const rowClick = () => {
           if (order.type === 'Full Trade') setShow(!show)
@@ -189,8 +181,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 ? '#58AB58'
                 : 'green'
               : theme === 'DARK'
-                ? '#D23D3D'
-                : 'red',
+              ? '#D23D3D'
+              : 'red',
         }
         const hideFirst = {
           ...tdStyle,
@@ -200,6 +192,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
               : undefined,
         }
 
+        // eslint-disable-next-line no-unused-vars
         const editColumn =
           order.status === 'Pending' && order.type !== 'LIMIT' ? (
             order.type === 'Full Trade' ? (
@@ -253,7 +246,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         const PlacedOrderTooltip = 'Order is on the exchange order book.'
         const PendingOrderTooltip =
           'Order is waiting to be placed in the order book.'
-        const FilledorderTooltip = 'Order is filled.'  
+        const FilledorderTooltip = 'Order is filled.'
 
         return (
           <tr className={rowClass} key={rowIndex}>
@@ -283,8 +276,8 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
                 data-tip={
                   order.status?.toLowerCase() === 'pending'
                     ? PendingOrderTooltip
-                    : order.status?.toLowerCase() === 'filled' 
-                    ? FilledorderTooltip 
+                    : order.status?.toLowerCase() === 'filled'
+                    ? FilledorderTooltip
                     : PlacedOrderTooltip
                 }
               >
@@ -321,18 +314,15 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
 }
 
 const OpenOrdersTableBody = ({
-  isFetching,
   data,
   isHideOtherPairs,
   deleteRow,
-  sortColumn
+  sortColumn,
 }) => {
-  const loadMoreButtonRef = React.useRef()
   const [deletedRows, setDeletedRows] = useState([])
   const [columns, setColumns] = useState(openOrdersColumns)
 
-  const { selectedSymbolDetail, symbolType } = useSymbolContext()
-  const selectedPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const { symbolType } = useSymbolContext()
 
   const onTableHeadClick = (key, type, index) => {
     if (!type) return
@@ -367,15 +357,25 @@ const OpenOrdersTableBody = ({
           <tr>
             <th scope="col"></th>
             {columns.map((item, index) => (
-              <th scope="col" key={item.key} onClick={() => onTableHeadClick(item.key, item?.type, index)}>
+              <th
+                scope="col"
+                key={item.key}
+                onClick={() => onTableHeadClick(item.key, item?.type, index)}
+              >
                 {/* item?.type === 'alphabet' ? sortColumn(item.key, item.type, index) : item?.type === 'number' ? sortColumn(item.key, item.type, index) : null */}
-                {item.title} {item?.type && (item.order === 0 ? <span className="fa fa-sort-amount-up-alt" /> : item.order === 1 ? <span className="fa fa-sort-amount-down" /> : null)}
+                {item.title}{' '}
+                {item?.type &&
+                  (item.order === 0 ? (
+                    <span className="fa fa-sort-amount-up-alt" />
+                  ) : item.order === 1 ? (
+                    <span className="fa fa-sort-amount-down" />
+                  ) : null)}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => {
+          {data.map((item) => {
             const { trade_id, symbol } = item
             // Order Symbol for all orders.
             const orderArray = item.orders.map((order) => ({

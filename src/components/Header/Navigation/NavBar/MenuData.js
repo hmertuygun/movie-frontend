@@ -2,17 +2,17 @@ export const MenuData = [
   {
     title: 'Trade',
     url: '/trade',
-    id: 'cp-tour2'
+    id: 'cp-tour2',
   },
   {
     title: 'Positions',
     url: '/positions',
-    id: 'cp-tourPositions'
+    id: 'cp-tourPositions',
   },
   {
     title: 'Portfolio',
     url: '/portfolio',
-    id: 'cp-tourPortfolio'
+    id: 'cp-tourPortfolio',
   },
   // {
   //   title: 'Price Alerts',
@@ -20,16 +20,32 @@ export const MenuData = [
   // },
   {
     title: 'Guides',
-    url:
-      'https://support.coinpanel.com/hc/en-us/categories/360002959559-Beginner-s-Guide',
+    url: 'https://support.coinpanel.com/hc/en-us/categories/360002959559-Beginner-s-Guide',
     externalLink: true,
-    id: 'cp-tour8'
+    id: 'cp-tour8',
   },
   {
     title: 'Community',
-    url:
-    'https://community.coinpanel.com/',
+    url: 'https://community.coinpanel.com/',
     externalLink: true,
-    id: 'cp-community'
-  }
+    id: 'cp-community',
+  },
+]
+
+export const ChartMirroringMenuData = [
+  {
+    title: 'Trade',
+    url: '/trade',
+    id: 'cp-tour2',
+  },
+  {
+    title: 'Positions',
+    url: '/positions',
+    id: 'cp-tourPositions',
+  },
+  {
+    title: 'Portfolio',
+    url: '/portfolio',
+    id: 'cp-tourPortfolio',
+  },
 ]

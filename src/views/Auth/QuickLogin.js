@@ -7,7 +7,8 @@ import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickLogin = () => {
-  const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } = useContext(UserContext)
+  const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } =
+    useContext(UserContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -51,7 +52,7 @@ const QuickLogin = () => {
     }
     setLoading(false)
     analytics.logEvent('login')
-    Event("user", "login", "user")
+    Event('user', 'login', 'user')
   }
 
   const toggleTypeText = () => {
@@ -162,7 +163,11 @@ const QuickLogin = () => {
                   <label
                     className={`custom-control-label`}
                     htmlFor="check-terms"
-                    style={{ fontSize: '14px', paddingTop: '2px', cursor: 'pointer' }}
+                    style={{
+                      fontSize: '14px',
+                      paddingTop: '2px',
+                      cursor: 'pointer',
+                    }}
                   >
                     Keep me logged in
                   </label>

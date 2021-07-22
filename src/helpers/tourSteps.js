@@ -33,7 +33,7 @@ export const firstTourSteps = [
     title: 'New order types!',
     content:
       'On CoinPanel, you can use simple Stop-Market and Take-Profit-Market orders to create stop-loss and take-profit orders easily. Normally on the exchange, if you use a stop loss, your balance gets blocked, so you cannot use a take-profit order simultaneously. However on CoinPanel, these orders do not block your balance. So you can create an unlimited number of stop-loss and take-profit orders at the same time!',
-    placement: 'right'
+    placement: 'right',
   },
   {
     target: '#cp-tour7',
@@ -86,6 +86,7 @@ export const secondTourSteps = [
   {
     target: '#cp-tour-2-7',
     title: 'Email Notifications',
-    content: 'If you enabled Telegram bot, you can turn off Email Notifications to avoid lots of notification emails in your inbox.',
+    content:
+      'If you enabled Telegram bot, you can turn off Email Notifications to avoid lots of notification emails in your inbox.',
   },
 ]

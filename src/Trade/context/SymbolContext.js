@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  useContext,
-} from 'react'
+import React, { createContext, useEffect, useState, useContext } from 'react'
 import { backOff } from 'exponential-backoff'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import * as Sentry from '@sentry/browser'
@@ -17,7 +12,7 @@ import {
   updateLastSelectedAPIKey,
   get24hrTickerPrice,
   getLastSelectedMarketSymbol,
-  saveLastSelectedMarketSymbol
+  saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
@@ -34,15 +29,20 @@ const SymbolContextProvider = ({ children }) => {
     setOpenOrdersUC,
     userData,
     lastSelectedSymbol,
-    loadApiKeys
+    loadApiKeys,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const DEFAULT_EXCHANGE = 'BINANCE'
-  const [disableOrderHistoryRefreshBtn, setDisableOrderHistoryRefreshBtn] = useState(false)
-  const [disableOpenOrdersRefreshBtn, setDisableOpenOrdesrRefreshBtn] = useState(false)
-  const [disablePortfolioRefreshBtn, setDisablePortfolioRefreshBtn] = useState(false)
-  const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] = useState(false)
+  const [disableOrderHistoryRefreshBtn, setDisableOrderHistoryRefreshBtn] =
+    useState(false)
+  const [disableOpenOrdersRefreshBtn, setDisableOpenOrdesrRefreshBtn] =
+    useState(false)
+  const [disablePortfolioRefreshBtn, setDisablePortfolioRefreshBtn] =
+    useState(false)
+  const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] =
+    useState(false)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -69,6 +69,8 @@ const SymbolContextProvider = ({ children }) => {
   const [binanceUSDD, setBinanceUSDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
+  const [templateDrawings, setTemplateDrawings] = useState(false)
+  const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
@@ -90,10 +92,10 @@ const SymbolContextProvider = ({ children }) => {
         break
       case 'binanceus':
         socketURL = 'wss://stream.binance.us:9443/stream'
-        break  
+        break
       case 'ftx':
         socketURL = 'wss://ftx.com/ws/'
-        break  
+        break
 
       default:
         break
@@ -113,16 +115,16 @@ const SymbolContextProvider = ({ children }) => {
             })
           )
           break
-          case 'binanceus':
-            setSocketLiveUpdate(true)
-            rws.send(
-              JSON.stringify({
-                id: 1,
-                method: 'SUBSCRIBE',
-                params: ['!ticker@arr'],
-              })
-            )
-            break
+        case 'binanceus':
+          setSocketLiveUpdate(true)
+          rws.send(
+            JSON.stringify({
+              id: 1,
+              method: 'SUBSCRIBE',
+              params: ['!ticker@arr'],
+            })
+          )
+          break
 
         case 'ftx':
           setSocketLiveUpdate(false)
@@ -158,7 +160,7 @@ const SymbolContextProvider = ({ children }) => {
           break
         case 'binanceus':
           onBinanceMessage(lastMessage)
-          break  
+          break
 
         default:
           break
@@ -223,7 +225,7 @@ const SymbolContextProvider = ({ children }) => {
               }, 5000)
             )
           }
-          break  
+          break
         case 'ftx':
           {
             const fetchTickers = async () => {
@@ -283,7 +285,12 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     let { exchange } = activeExchange
-    if (!exchange || !selectedSymbol?.label || !Object.keys(symbolDetails).length) return
+    if (
+      !exchange ||
+      !selectedSymbol?.label ||
+      !Object.keys(symbolDetails).length
+    )
+      return
     localStorage.setItem('selectedExchange', exchange)
     exchange = exchange.toUpperCase()
     setOpenOrdersUC(null)
@@ -292,8 +299,7 @@ const SymbolContextProvider = ({ children }) => {
     if (details) {
       setSymbol({ label: selectedSymbol.label, value: key })
       setSelectedSymbolDetail(details)
-    }
-    else {
+    } else {
       const val = `${exchange}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
       setSelectedSymbolDetail(symbolDetails[val])
@@ -303,7 +309,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
     setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
-    const [baseAsset, qouteAsset] = selectedSymbol.label.split("-")
+    const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
     //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
   }, [selectedSymbol])
@@ -333,36 +339,39 @@ const SymbolContextProvider = ({ children }) => {
       const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
       const positionLS = localStorage.getItem('positionRefreshBtn')
 
-      if (orderHistoryLS && (Date.now() - orderHistoryLS < orderHistoryTimeInterval)) setDisableOrderHistoryRefreshBtn(true)
+      if (
+        orderHistoryLS &&
+        Date.now() - orderHistoryLS < orderHistoryTimeInterval
+      )
+        setDisableOrderHistoryRefreshBtn(true)
       else setDisableOrderHistoryRefreshBtn(false)
 
-      if (openOrdersLS && (Date.now() - openOrdersLS < openOrdersTimeInterval)) setDisableOpenOrdesrRefreshBtn(true)
+      if (openOrdersLS && Date.now() - openOrdersLS < openOrdersTimeInterval)
+        setDisableOpenOrdesrRefreshBtn(true)
       else setDisableOpenOrdesrRefreshBtn(false)
 
-      if (portfolioLS && (Date.now() - portfolioLS < portfolioTimeInterval)) setDisablePortfolioRefreshBtn(true)
+      if (portfolioLS && Date.now() - portfolioLS < portfolioTimeInterval)
+        setDisablePortfolioRefreshBtn(true)
       else setDisablePortfolioRefreshBtn(false)
 
-      if (positionLS && (Date.now() - positionLS < positionTimeInterval)) setDisablePositionRefreshBtn(true)
+      if (positionLS && Date.now() - positionLS < positionTimeInterval)
+        setDisablePositionRefreshBtn(true)
       else setDisablePositionRefreshBtn(false)
-
     }, 1000)
   }
 
   const onRefreshBtnClicked = (type) => {
     const dateNow = Date.now()
-    if (type === "order-history") {
+    if (type === 'order-history') {
       setDisableOrderHistoryRefreshBtn(true)
       localStorage.setItem('orderHistoryRefreshBtn', dateNow)
-    }
-    else if (type === "open-order") {
+    } else if (type === 'open-order') {
       setDisableOpenOrdesrRefreshBtn(true)
       localStorage.setItem('openOrdersRefreshBtn', dateNow)
-    }
-    else if (type === "portfolio") {
+    } else if (type === 'portfolio') {
       setDisablePortfolioRefreshBtn(true)
       localStorage.setItem('portfolioRefreshBtn', dateNow)
-    }
-    else if (type === "position") {
+    } else if (type === 'position') {
       setDisablePositionRefreshBtn(true)
       localStorage.setItem('positionRefreshBtn', dateNow)
     }
@@ -374,28 +383,39 @@ const SymbolContextProvider = ({ children }) => {
     try {
       const { exchange } = activeExchange
       const { data } = await getAllChartData()
-      let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } = data
+      let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } =
+        data
       drawings = drawings && drawings[userData?.email]
-      lastSelectedSymbol = lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      lastSelectedSymbol =
+        lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       intervals = intervals || []
-      setChartData({ drawings, lastSelectedSymbol, intervals, timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone })
-      let [exchangeVal, symbolVal] = lastSelectedSymbol.split(":")
+      setChartData({
+        drawings,
+        lastSelectedSymbol,
+        intervals,
+        timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+      let [exchangeVal, symbolVal] = lastSelectedSymbol.split(':')
       exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
       symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
       localStorage.setItem('selectedSymbol', symbolVal)
       const [baseAsset, qouteAsset] = symbolVal.split('/')
-      setSelectedSymbolDetail({ base_asset: baseAsset, quote_asset: qouteAsset }) // to show balance in trade panel quickly
+      setSelectedSymbolDetail({
+        base_asset: baseAsset,
+        quote_asset: qouteAsset,
+      }) // to show balance in trade panel quickly
       setSymbolType(symbolVal)
       setExchangeType(exchangeVal.toLowerCase())
       loadExchanges(symbolVal, exchangeVal)
-      setSelectedSymbol({ label: symbolVal.replace('/', '-'), value: `${exchangeVal}:${symbolType}` })
+      setSelectedSymbol({
+        label: symbolVal.replace('/', '-'),
+        value: `${exchangeVal}:${symbolType}`,
+      })
       loadLastPrice(symbolVal, exchangeVal)
-    }
-    catch (e) {
+    } catch (e) {
       console.error(e)
-    }
-    finally {
+    } finally {
     }
   }
 
@@ -403,17 +423,32 @@ const SymbolContextProvider = ({ children }) => {
     try {
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
       const getSymbolFromLS = localStorage.getItem('selectedSymbol')
-      if (!activeExchange?.exchange || !quote_asset || (!base_asset && (getSymbolFromLS && `${base_asset}/${quote_asset}` !== getSymbolFromLS))) return
+      if (
+        !activeExchange?.exchange ||
+        !quote_asset ||
+        (!base_asset &&
+          getSymbolFromLS &&
+          `${base_asset}/${quote_asset}` !== getSymbolFromLS)
+      )
+        return
       setIsLoadingBalance(true)
+      if (!isOnboardingSkipped) {
+        const quoteBalance = await getBalance({
+          symbol: quote_asset,
+          ...activeExchange,
+        })
+        if (quoteBalance?.data?.balance)
+          setSelectedSymbolBalance(quoteBalance.data.balance)
+        else setSelectedSymbolBalance(0)
 
-      const quoteBalance = await getBalance({ symbol: quote_asset, ...activeExchange })
-      if (quoteBalance?.data?.balance) setSelectedSymbolBalance(quoteBalance.data.balance)
-      else setSelectedSymbolBalance(0)
-
-      const baseBalance = await getBalance({ symbol: base_asset, ...activeExchange })
-      if (baseBalance?.data?.balance) setSelectedBaseSymbolBalance(baseBalance.data.balance)
-      else setSelectedBaseSymbolBalance(0)
-
+        const baseBalance = await getBalance({
+          symbol: base_asset,
+          ...activeExchange,
+        })
+        if (baseBalance?.data?.balance)
+          setSelectedBaseSymbolBalance(baseBalance.data.balance)
+        else setSelectedBaseSymbolBalance(0)
+      }
     } catch (err) {
       console.error(err)
       setSelectedSymbolBalance(0)
@@ -427,8 +462,11 @@ const SymbolContextProvider = ({ children }) => {
     try {
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
-      const response = await backOff(() => getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange))
-      if (response?.data?.last_price !== 'NA') setSelectedSymbolLastPrice(response.data.last_price)
+      const response = await backOff(() =>
+        getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange)
+      )
+      if (response?.data?.last_price !== 'NA')
+        setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
     } catch (err) {
       console.error(err)
@@ -446,8 +484,7 @@ const SymbolContextProvider = ({ children }) => {
     setSelectedSymbol(symbol)
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
-    }
-    catch (e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -482,9 +519,16 @@ const SymbolContextProvider = ({ children }) => {
         return
       }
       const [binance, ftx, binanceus] = data.exchanges
-      setSymbols(() => [...binance.symbols, ...ftx.symbols, ...binanceus.symbols])
+      setSymbols(() => [
+        ...binance.symbols,
+        ...ftx.symbols,
+        ...binanceus.symbols,
+      ])
       setSymbolDetails(data.symbolsChange)
-      localStorage.setItem('symbolsKeyValue', JSON.stringify(data.symbolsChange))
+      localStorage.setItem(
+        'symbolsKeyValue',
+        JSON.stringify(data.symbolsChange)
+      )
       setBinanceDD(() => binance.symbols)
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
@@ -492,15 +536,14 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
       console.error(error)
-    }
-    finally {
+    } finally {
       setIsLoadingExchanges(false)
     }
   }
 
   const refreshBalance = async () => {
     setIsLoadingBalance(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500))
     if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
         selectedSymbolDetail.quote_asset,
@@ -527,7 +570,7 @@ const SymbolContextProvider = ({ children }) => {
         return {
           ...item,
           label: `${item.exchange} - ${item.apiKeyName}`,
-          value: `${item.exchange} - ${item.apiKeyName}`
+          value: `${item.exchange} - ${item.apiKeyName}`,
         }
       })
       setExchanges(apiKeys)
@@ -577,7 +620,11 @@ const SymbolContextProvider = ({ children }) => {
         ftxDD,
         watchListOpen,
         setWatchListOpen,
-        chartData
+        templateDrawings,
+        setTemplateDrawings,
+        templateDrawingsOpen,
+        setTemplateDrawingsOpen,
+        chartData,
       }}
     >
       {children}

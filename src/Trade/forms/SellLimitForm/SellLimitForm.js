@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react'
+import React, { Fragment, useState, useContext } from 'react'
 import { InlineInput, Button } from '../../../components'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -26,9 +26,8 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
-import { Event } from '../../../Tracking'
-import { analytics } from '../../../firebase/firebase'
 
 const errorInitialValues = {
   price: '',
@@ -50,18 +49,20 @@ const SellLimitForm = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
 
-  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize'] 
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
-  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const totalPrecision =
+    symbolPair === 'ETHUSDT' ? 7 : selectedSymbolDetail['quote_asset_precision']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
 
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const [values, setValues] = useState({
     price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
@@ -245,10 +246,8 @@ const SellLimitForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -347,7 +346,7 @@ const SellLimitForm = () => {
           price: convertCommaNumberToDot(values.price),
         },
       }
-      const { data, status } = await createBasicTrade(payload)
+      const { data } = await createBasicTrade(payload)
       if (data?.status === 'error') {
         errorNotification.open({
           description:
@@ -456,7 +455,9 @@ const SellLimitForm = () => {
             onBlur={(e) => handleBlur(e, pricePrecision)}
             value={values.price}
             placeholder="Price"
-            postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+            postLabel={
+              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+            }
           />
           {renderInputValidationError('price')}
         </div>
@@ -510,7 +511,9 @@ const SellLimitForm = () => {
         </div>
 
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

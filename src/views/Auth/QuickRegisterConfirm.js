@@ -1,24 +1,23 @@
 import React, { useContext, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Logo } from '../../components'
 import { UserContext } from '../../contexts/UserContext'
 
 const QuickConfirm = () => {
   const { sendEmailAgain } = useContext(UserContext)
-  const [ isLoading, setIsLoading ] = useState(false)
-  const [ status, setStatus ] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState('')
 
-  function timeout(delay: number) {
-    return new Promise( res => setTimeout(res, delay) );
+  function timeout(delay) {
+    return new Promise((res) => setTimeout(res, delay))
   }
   const sendAgain = async () => {
     setIsLoading(true)
     try {
-      const response = await sendEmailAgain()
-    } catch(e) {
+      await sendEmailAgain()
+    } catch (e) {
       setStatus('Please wait before trying again.')
     }
-    
+
     await timeout(60000)
     setStatus('Email resent')
     setIsLoading(false)
@@ -42,13 +41,14 @@ const QuickConfirm = () => {
                   email in your inbox, check your spam folder.
                 </p>
 
-                
-                  <div className="mt-4">
+                <div className="mt-4">
                   <button
                     onClick={() => sendAgain()}
                     className="btn btn-block btn-primary"
                     disabled={isLoading}
-                   > {isLoading ? (
+                  >
+                    {' '}
+                    {isLoading ? (
                       <span
                         className="spinner-border spinner-border-sm"
                         role="status"
@@ -59,10 +59,11 @@ const QuickConfirm = () => {
                     )}
                   </button>
 
-                  {status ?
-                  <p className="text-sm mt-3 text-danger">{status.message}</p>
-                : <p />}
-
+                  {status ? (
+                    <p className="text-sm mt-3 text-danger">{status.message}</p>
+                  ) : (
+                    <p />
+                  )}
                 </div>
               </div>
             </div>

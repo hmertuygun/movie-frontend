@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useCallback } from 'react'
 
 export const TradeContext = createContext()
 
@@ -214,11 +214,11 @@ const SimpleTradeContextProvider = ({ children }) => {
     })
   }
 
-  const clear = () => {
+  const clear = useCallback(() => {
     setState({
       state: initialState,
     })
-  }
+  }, [])
 
   return (
     <TradeContext.Provider

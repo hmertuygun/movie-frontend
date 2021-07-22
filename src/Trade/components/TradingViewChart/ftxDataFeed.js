@@ -2,31 +2,52 @@ import binanceAPI from '../../../api/binanceAPI'
 import ftxAPI from '../../../api/ftxAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
 export default class dataFeed {
-  constructor({ exchange, symbolList, selectedSymbolDetail, marketSymbols, debug }) {
-    this.binanceStr = "binance"
-    this.ftxStr = "ftx"
+  constructor({
+    exchange,
+    symbolList,
+    selectedSymbolDetail,
+    marketSymbols,
+    debug,
+  }) {
+    this.binanceStr = 'binance'
+    this.ftxStr = 'ftx'
     this.selectedExchange = exchange
     this.symbolList = symbolList
     this.ftxResolutions = ['1', '5', '15', '60', '240', '1D']
-    this.binanceResolutions = ['1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M']
+    this.binanceResolutions = [
+      '1',
+      '3',
+      '5',
+      '15',
+      '30',
+      '60',
+      '120',
+      '240',
+      '360',
+      '480',
+      '720',
+      '1D',
+      '1W',
+      '1M',
+    ]
     this.mappedResolutions = {
-      '1': '1m',
-      '3': '3m',
-      '5': '5m',
-      '15': '15m',
-      '30': '30m',
-      '60': '1h',
-      '120': '2h',
-      '240': '4h',
-      '360': '6h',
-      '480': '8h',
-      '720': '12h',
-      'D': '1d',
+      1: '1m',
+      3: '3m',
+      5: '5m',
+      15: '15m',
+      30: '30m',
+      60: '1h',
+      120: '2h',
+      240: '4h',
+      360: '6h',
+      480: '8h',
+      720: '12h',
+      D: '1d',
       '1D': '1d',
       '3D': '3d',
-      'W': '1w',
+      W: '1w',
       '1W': '1w',
-      'M': '1M',
+      M: '1M',
       '1M': '1M',
     }
     this.debug = debug
@@ -43,7 +64,10 @@ export default class dataFeed {
       supports_marks: false,
       supports_timescale_marks: false,
       supports_time: true,
-      supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
+      supported_resolutions:
+        this.selectedExchange === this.binanceStr
+          ? this.binanceResolutions
+          : this.ftxResolutions,
     })
   }
 
@@ -53,13 +77,16 @@ export default class dataFeed {
     // this.debug && console.log(this.selectedExchange)
     this.selectedExchange = localStorage.getItem('selectedExchange')
     this.debug && console.log(this.selectedExchange)
-    const selectedSymbolDetail = `${this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'}:${chosenSymbol}`
+    const selectedSymbolDetail = `${
+      this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX'
+    }:${chosenSymbol}`
     onSymbolResolvedCallback({
       name: chosenSymbol,
       description: chosenSymbol,
       ticker: chosenSymbol,
       exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
-      listed_exchange: this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
+      listed_exchange:
+        this.selectedExchange === this.binanceStr ? 'BINANCE' : 'FTX',
       type: 'Crypto',
       session: '24x7',
       pricescale: 100, // parseInt(this.selectedSymbolDetail.tickSize)
@@ -72,9 +99,20 @@ export default class dataFeed {
     })
   }
 
-  getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
+  getBars(
+    symbolInfo,
+    resolution,
+    from,
+    to,
+    onHistoryCallback,
+    onErrorCallback,
+    firstDataRequest
+  ) {
     //console.log(`getBars`)
-    const interval = this.selectedExchange === this.binanceStr ? this.mappedResolutions[resolution] : this.mappedResolutions[resolution]
+    const interval =
+      this.selectedExchange === this.binanceStr
+        ? this.mappedResolutions[resolution]
+        : this.mappedResolutions[resolution]
     if (!interval) {
       onErrorCallback('Invalid interval')
     }
@@ -89,13 +127,13 @@ export default class dataFeed {
       if (totalKlines.length === 0) {
         onHistoryCallback([], { noData: true })
       } else {
-        let historyCBArray = totalKlines.map(kline => ({
+        let historyCBArray = totalKlines.map((kline) => ({
           time: kline[0],
           open: parseFloat(kline[1]),
           high: parseFloat(kline[2]),
           low: parseFloat(kline[3]),
           close: parseFloat(kline[4]),
-          volume: parseFloat(kline[5])
+          volume: parseFloat(kline[5]),
         }))
         onHistoryCallback(historyCBArray, { noData: false })
       }
@@ -103,11 +141,28 @@ export default class dataFeed {
 
     const getKlines = async (from, to) => {
       try {
-        const symbolAPI = this.selectedExchange === this.binanceStr ? symbolInfo.name.replace('/', '') : symbolInfo.name
-        const fromTime = this.selectedExchange === this.binanceStr ? from : undefined
-        const data = this.selectedExchange === this.binanceStr ?
-          await this.binanceAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit) :
-          await this.ftxAPI.getKlines(symbolAPI, this.mappedResolutions[resolution], from, to, kLinesLimit)
+        const symbolAPI =
+          this.selectedExchange === this.binanceStr
+            ? symbolInfo.name.replace('/', '')
+            : symbolInfo.name
+        const fromTime =
+          this.selectedExchange === this.binanceStr ? from : undefined
+        const data =
+          this.selectedExchange === this.binanceStr
+            ? await this.binanceAPI.getKlines(
+                symbolAPI,
+                this.mappedResolutions[resolution],
+                from,
+                to,
+                kLinesLimit
+              )
+            : await this.ftxAPI.getKlines(
+                symbolAPI,
+                this.mappedResolutions[resolution],
+                from,
+                to,
+                kLinesLimit
+              )
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -115,8 +170,7 @@ export default class dataFeed {
         } else {
           finishKlines()
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.log(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }
@@ -128,15 +182,32 @@ export default class dataFeed {
     getKlines(from, to)
   }
 
-  async subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
+  async subscribeBars(
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    subscriberUID,
+    onResetCacheNeededCallback
+  ) {
     this.debug && console.log(`Sub`, this.selectedExchange)
     if (this.selectedExchange === this.binanceStr) {
-      this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
-    }
-    else {
+      this.ws.subscribeOnStream(
+        symbolInfo,
+        resolution,
+        onRealtimeCallback,
+        subscriberUID,
+        onResetCacheNeededCallback
+      )
+    } else {
       const pollingAPI = async () => {
         try {
-          const klines = await this.ftxAPI.getKlines(symbolInfo.name, this.mappedResolutions[resolution], undefined, null, 500)
+          const klines = await this.ftxAPI.getKlines(
+            symbolInfo.name,
+            this.mappedResolutions[resolution],
+            undefined,
+            null,
+            500
+          )
           const kline = klines[klines.length - 1]
           const cbData = {
             time: kline[0],
@@ -144,11 +215,10 @@ export default class dataFeed {
             high: kline[2],
             low: kline[3],
             close: kline[4],
-            volume: kline[5]
+            volume: kline[5],
           }
           return cbData
-        }
-        catch (e) {
+        } catch (e) {
           console.log(e)
         }
       }
@@ -164,8 +234,7 @@ export default class dataFeed {
     this.debug && console.log(`UnSub`, this.selectedExchange)
     if (this.selectedExchange === this.binanceStr) {
       this.ws.unsubscribeFromStream(subscriberUID)
-    }
-    else {
+    } else {
       clearInterval(this.pollingInterval)
     }
   }
@@ -173,18 +242,20 @@ export default class dataFeed {
   searchSymbols(userInput, exchange, symbolType, onResultReadyCallback) {
     userInput = userInput.toUpperCase()
     onResultReadyCallback(
-      this.symbols.filter((symbol) => {
-        return symbol.symbol.indexOf(userInput) >= 0
-      }).map((symbol) => {
-        return {
-          symbol: symbol.symbol,
-          full_name: symbol.symbol,
-          description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
-          ticker: symbol.symbol,
-          exchange: 'Binance',
-          type: 'crypto'
-        }
-      })
+      this.symbols
+        .filter((symbol) => {
+          return symbol.symbol.indexOf(userInput) >= 0
+        })
+        .map((symbol) => {
+          return {
+            symbol: symbol.symbol,
+            full_name: symbol.symbol,
+            description: symbol.baseAsset + ' / ' + symbol.quoteAsset,
+            ticker: symbol.symbol,
+            exchange: 'Binance',
+            type: 'crypto',
+          }
+        })
     )
   }
 }

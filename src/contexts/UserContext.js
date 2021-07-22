@@ -9,15 +9,24 @@ import {
   getUserExchanges,
   updateLastSelectedAPIKey,
   storeNotificationToken,
-  checkSubscription,
-  createUserSubscription,
-  getLastSelectedMarketSymbol
 } from '../api/api'
-import { successNotification, warningNotification } from '../components/Notifications'
-import capitalize from '../helpers/capitalizeFirstLetter'
-import { ref } from 'yup'
+import { successNotification } from '../components/Notifications'
+import { useHistory } from 'react-router'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
+
+const DEFAULT_EXCHANGE = {
+  data: {
+    apiKeys: [
+      {
+        apiKeyName: 'binance1',
+        exchange: 'binance',
+        status: 'Active',
+        isLastSelected: true,
+      },
+    ],
+  },
+}
 
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
@@ -47,6 +56,7 @@ const UserContextProvider = ({ children }) => {
     apiKeyName: '',
     exchange: '',
   })
+  const [isOnboardingSkipped, setIsOnboardingSkipped] = useState()
   const [loaderText, setLoaderText] = useState(
     'Loading data from new exchange ...'
   )
@@ -71,6 +81,9 @@ const UserContextProvider = ({ children }) => {
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
+  const [chartMirroring, setChartMirroring] = useState(false)
+
+  const history = useHistory()
   useEffect(() => {
     getUserExchangesAfterFBInit()
     getProducts()
@@ -78,7 +91,6 @@ const UserContextProvider = ({ children }) => {
 
   const getProducts = async () => {
     const db = firebase.firestore()
-    const plans = []
     await db
       .collection('stripe_plans')
       .where('active', '==', true)
@@ -109,14 +121,56 @@ const UserContextProvider = ({ children }) => {
       })
   }
 
+  const getChartMirroring = async () => {
+    try {
+      const db = firebase.firestore()
+      const currentUser = firebase.auth().currentUser
+      await db
+        .collection('stripe_users')
+        .doc(currentUser.uid)
+        .get()
+        .then(async (doc) => {
+          if (doc.data()?.chartMirroringSignUp) {
+            setChartMirroring(doc.data().chartMirroringSignUp)
+          } else {
+            setChartMirroring(false)
+          }
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    const value = localStorage.getItem('onboarding')
+    if (value === 'skipped') {
+      setIsOnboardingSkipped(true)
+    } else {
+      setIsOnboardingSkipped(false)
+    }
+  }, [])
+
+  const handleOnboardingSkip = () => {
+    localStorage.setItem('onboarding', 'skipped')
+    setIsOnboardingSkipped(true)
+  }
+
+  const handleOnboardingShow = () => {
+    localStorage.removeItem('onboarding')
+    setIsOnboardingSkipped(false)
+  }
+
   useEffect(() => {
     if (userData) {
       getSubscriptionsData()
+      if (isLoggedIn) {
+        getChartMirroring()
+      }
+      //getChartMirroring()
     }
   }, [userData])
 
   const getCustomClaimRole = async () => {
-    const db = firebase.firestore()
     const currentUser = firebase.auth().currentUser
 
     await currentUser.getIdToken(true)
@@ -157,16 +211,6 @@ const UserContextProvider = ({ children }) => {
       )
       // console.log('All ==>', all)
       if (all.length === 0) return
-      const activeSubscriptions = all.filter((sub) => sub.status === 'active')
-      const trialingSubscriptions = all.filter(
-        (sub) => sub.status === 'trialing'
-      )
-      const canceledSubscriptions = all.filter(
-        (sub) => sub.status === 'canceled'
-      )
-      const pastDueSubscriptions = all.filter(
-        (sub) => sub.status === 'past_due'
-      )
       const lastSubscription = all[all.length - 1]
       // console.log('last ==>', lastSubscription)
 
@@ -183,18 +227,20 @@ const UserContextProvider = ({ children }) => {
       // const NoDefaultPayment = !lastSubscription.invoices.some(
       //   (invoice) => invoice.default_payment_method
       // )
-      console.log(lastSubscription)
-    // Show days left on sub modal if less than 7 days on trial
+      // Show days left on sub modal if less than 7 days on trial
 
       let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
-      getSubModalShownLastTime = getSubModalShownLastTime ? Number(getSubModalShownLastTime) : true
+      getSubModalShownLastTime = getSubModalShownLastTime
+        ? Number(getSubModalShownLastTime)
+        : true
 
       let trialDays = lastSubscription?.trial_end?.seconds * 1000 - Date.now()
-      trialDays = (trialDays / 1000 / 60 / 60 / 24)
+      trialDays = trialDays / 1000 / 60 / 60 / 24
 
-      let showSubModal = lastSubscription?.status === 'trialing' && 
-      (trialDays < 7) &&
-      (getSubModalShownLastTime + 86400 < (Date.now() / 1000))
+      let showSubModal =
+        lastSubscription?.status === 'trialing' &&
+        trialDays < 7 &&
+        getSubModalShownLastTime + 86400 < Date.now() / 1000
 
       setShowSubModal(showSubModal)
       setDaysLeft(trialDays)
@@ -203,7 +249,7 @@ const UserContextProvider = ({ children }) => {
         localStorage.setItem('lastSubModal', parseInt(Date.now() / 1000))
       }
 
-    // Add Payment Method case
+      // Add Payment Method case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
@@ -213,16 +259,17 @@ const UserContextProvider = ({ children }) => {
         lastSubscription.status === 'past_due'
       ) {
         setNeedPayment(true)
-        console.log('==> need payment')
+        // console.log('==> need payment')
       } else {
         setNeedPayment(false)
+        handleOnboardingSkip()
       }
 
-    // Subscribe button case
+      // Subscribe button case
       if (lastSubscription.status === 'canceled' && NoneActive) {
         setHasSub(false)
       }
-    // Manage subscription case
+      // Manage subscription case
       if (
         (lastSubscription.status === 'active' &&
           lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
@@ -248,10 +295,19 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  useEffect(() => {
+    if (isOnboardingSkipped) {
+      getExchanges()
+    }
+  }, [isOnboardingSkipped])
+
   async function getExchanges() {
     try {
-      const hasKeys = await getUserExchanges()
-      if(hasKeys) {
+      let hasKeys = isOnboardingSkipped
+        ? DEFAULT_EXCHANGE
+        : await getUserExchanges()
+      // hasKeys = isOnboardingSkipped ? DEFAULT_EXCHANGE : hasKeys
+      if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
           setUserContextLoaded(true)
           return
@@ -272,7 +328,9 @@ const UserContextProvider = ({ children }) => {
         ) > -1
       ) {
         setActiveExchange({ ...ssData })
-        setLoadApiKeys(true)
+        if (!isOnboardingSkipped) {
+          setLoadApiKeys(true)
+        }
       } else {
         let activeKey = apiKeys.find(
           (item) => item.isLastSelected === true && item.status === 'Active'
@@ -283,7 +341,9 @@ const UserContextProvider = ({ children }) => {
             label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
             value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
           }
-          setLoadApiKeys(true) // Only check active api exchange eventually
+          if (!isOnboardingSkipped) {
+            setLoadApiKeys(true) // Only check active api exchange eventually
+          }
           setActiveExchange(data)
           sessionStorage.setItem('exchangeKey', JSON.stringify(data))
         } else {
@@ -298,7 +358,9 @@ const UserContextProvider = ({ children }) => {
             }
             setActiveExchange(data)
             sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-            setLoadApiKeys(true)
+            if (!isOnboardingSkipped) {
+              setLoadApiKeys(true)
+            }
           }
         }
       }
@@ -336,7 +398,7 @@ const UserContextProvider = ({ children }) => {
           description,
         })
       })
-      navigator.serviceWorker.addEventListener('message', (message) => {
+      navigator.serviceWorker.addEventListener('message', () => {
         // console.log(`Received msg in UC serviceWorker.addEventListener`)
       })
     } catch (e) {
@@ -413,7 +475,7 @@ const UserContextProvider = ({ children }) => {
           T2FA_LOCAL_STORAGE,
           JSON.stringify({ has2FADetails })
         )
-      } catch (error) { }
+      } catch (error) {}
       setState({ user: signedin.user, has2FADetails })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
@@ -606,7 +668,11 @@ const UserContextProvider = ({ children }) => {
         setLastSelectedSymbol,
         showSubModalIfLessThan7Days,
         setShowSubModal,
-        trialDaysLeft
+        trialDaysLeft,
+        handleOnboardingSkip,
+        isOnboardingSkipped,
+        handleOnboardingShow,
+        chartMirroring,
       }}
     >
       {children}

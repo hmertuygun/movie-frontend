@@ -9,17 +9,23 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { TabContext } from '../../../contexts/TabContext'
+import { UserContext } from '../../../contexts/UserContext'
 
 import './MobileTab.css'
 
 const MobileTab = () => {
   const { setIsTradePanelOpen } = useContext(TabContext)
+  const { handleOnboardingShow, isOnboardingSkipped } = useContext(UserContext)
   const history = useHistory()
 
   const handlePlusClick = () => {
-    history.push('/trade')
-    window.scrollTo(0, 0)
-    setIsTradePanelOpen(true)
+    if (isOnboardingSkipped) {
+      handleOnboardingShow()
+    } else {
+      history.push('/trade')
+      window.scrollTo(0, 0)
+      setIsTradePanelOpen(true)
+    }
   }
 
   return (

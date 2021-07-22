@@ -22,7 +22,6 @@ const TradeView = () => {
 
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data
-    console.log(data)
     if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
       // Update state to advance the tour
       setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1))

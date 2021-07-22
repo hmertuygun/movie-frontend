@@ -43,14 +43,15 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
         </Typography>
       </header>
 
-      <main className={styles['TradeModal-Main']}>
+      <main>
         <div className={styles['TradeModal-Main__entry']}>
           <Typography>Price</Typography>
           {state.entry.type === 'market' ? (
             <Typography>Market Price</Typography>
           ) : (
             <Typography>
-              {state.entry.price || state.entry.trigger} {selectedSymbolDetail['quote_asset']}
+              {state.entry.price || state.entry.trigger}{' '}
+              {selectedSymbolDetail['quote_asset']}
             </Typography>
           )}
         </div>
@@ -73,14 +74,15 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   <td>
                     (
                     {addPrecisionToNumber(
-                    (target.quantity / state.entry.quantity) * 100,
-                    2
-                  )}
+                      (target.quantity / state.entry.quantity) * 100,
+                      2
+                    )}
                     %) {target.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
                   {target.type === 'stop-market' ? (
                     <td>
-                      {target.triggerPrice} {selectedSymbolDetail['quote_asset']}
+                      {target.triggerPrice}{' '}
+                      {selectedSymbolDetail['quote_asset']}
                     </td>
                   ) : (
                     <td>
@@ -95,9 +97,9 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   <td>
                     (
                     {addPrecisionToNumber(
-                    (stoploss.quantity / state.entry.quantity) * 100,
-                    2
-                  )}
+                      (stoploss.quantity / state.entry.quantity) * 100,
+                      2
+                    )}
                     %) {stoploss.quantity} {selectedSymbolDetail['base_asset']}
                   </td>
                   <td>
@@ -114,11 +116,7 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
       </main>
 
       <footer className={styles['TradeModal-Footer']}>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={onClose}
-        >
+        <button type="button" className="btn btn-secondary" onClick={onClose}>
           Cancel
         </button>
         <button

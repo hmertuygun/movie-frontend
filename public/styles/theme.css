@@ -17,6 +17,10 @@
 
   /* Watch List */
   --watch-list-border-color: #f0f3fa;
+  --watch-list-hover-color: #f0f3fa;
+
+  /* Modal */
+  --modal-background: white;
 
   /* Symbol Select */
   --symbol-select-background-selected: #b2d4ff;
@@ -79,6 +83,10 @@
 
   /* Watch List */
   --watch-list-border-color: rgb(37, 43, 56);
+  --watch-list-hover-color: #2a2e39;
+
+  /* Modal */
+  --modal-background: #1e222d;
 
   /* Symbol Select */
   --symbol-select-background-selected: #475369;

@@ -2,28 +2,29 @@ import React, { useState } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
 
-import { firebase, auth, functions } from '../../firebase/firebase'
 import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
-  const { subscription, priceData, plan } = subscriptionData
+  const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
+  const { cancel_at_period_end } = subscription
 
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
-      const response = await callCloudFunction('ext-firestore-stripe-subscriptions-createPortalLink')
+      const response = await callCloudFunction(
+        'ext-firestore-stripe-subscriptions-createPortalLink'
+      )
       if (needPayment) {
         window.location.assign(response?.result?.url + '/payment-methods')
       } else {
         window.location.assign(response?.result?.url)
       }
-
     } catch (error) {
       errorNotification.open({
         description: error,
       })
-      console.log("CustomerPortal Error: ", error)
+      console.log('CustomerPortal Error: ', error)
     } finally {
       setPortalLoading(false)
     }
@@ -54,15 +55,20 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     Your trial will end on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {subscription.current_period_end.seconds}
-                    </Moment>.
+                    </Moment>
+                    .
                   </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    Please add a payment method to keep your account active.
-                  </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    If you don’t have a payment method added, your subscription
-                    will be cancelled automatically.
-                  </p>
+                  {needPayment ? (
+                    <>
+                      <p className="mb-0 text-sm text-muted lh-150">
+                        Please add a payment method to keep your account active.
+                      </p>
+                      <p className="mb-0 text-sm text-muted lh-150">
+                        If you don’t have a payment method added, your
+                        subscription will be cancelled automatically.
+                      </p>
+                    </>
+                  ) : null}
                 </div>
               ) : subscription.status === 'past_due' ? (
                 <div className="media-body">
@@ -113,12 +119,14 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     per {priceData?.interval}
                     {` `}
                   </p>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    Your subscription will auto-renew on {` `}
-                    <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.current_period_end.seconds}
-                    </Moment>
-                  </p>
+                  {!cancel_at_period_end ? (
+                    <p className="mb-0 text-sm text-muted lh-150">
+                      Your subscription will auto-renew on {` `}
+                      <Moment unix format="hh:mm A MMMM DD, YYYY">
+                        {subscription.current_period_end.seconds}
+                      </Moment>
+                    </p>
+                  ) : null}
                 </div>
               )}
             </div>

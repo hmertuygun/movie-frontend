@@ -29,7 +29,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
 }
 const analytics = firebase.analytics()
-let messaging = null;
+let messaging = null
 if (firebase.messaging.isSupported()) {
   messaging = firebase.messaging()
 }

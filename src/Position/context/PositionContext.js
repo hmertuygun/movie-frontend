@@ -1,4 +1,10 @@
-import React, { createContext, useState, useEffect, useContext } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+} from 'react'
 import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
@@ -7,13 +13,14 @@ import { errorNotification } from '../../components/Notifications'
 export const PositionContext = createContext()
 
 const PositionCTXProvider = ({ children }) => {
-  const { activeExchange, userData, isLoggedIn } = useContext(UserContext)
+  const { activeExchange, userData, isLoggedIn, isOnboardingSkipped } =
+    useContext(UserContext)
   const { exchange, apiKeyName } = activeExchange
 
   const [isLoading, setIsLoading] = useState(false)
   const [positions, setPositions] = useState([])
 
-  const fetchPositionsList = async () => {
+  const fetchPositionsList = useCallback(async () => {
     try {
       setIsLoading(true)
       const { data } = await getPositionsList({ exchange, apiKeyName })
@@ -21,9 +28,8 @@ const PositionCTXProvider = ({ children }) => {
         errorNotification.open({
           description: 'Cannot fetch positions. Please try again later!',
         })
-      }
-      else if (data?.positions) {
-        console.log("positions: ", data?.positions)
+      } else if (data?.positions) {
+        // console.log('positions: ', data?.positions)
         setPositions(data.positions)
       }
     } catch (error) {
@@ -31,26 +37,39 @@ const PositionCTXProvider = ({ children }) => {
         description: 'Cannot fetch positions. Please try again later!',
       })
       Sentry.captureException(error)
-      console.warn(error)
-      // throw new Error('Cannot fetch positions')
-    }
-    finally {
+      // console.warn(error)
+    } finally {
       setIsLoading(false)
     }
-  }
+  }, [apiKeyName, exchange])
 
   useEffect(() => {
-    if (userData && isLoggedIn && exchange && apiKeyName) {
+    if (
+      userData &&
+      isLoggedIn &&
+      exchange &&
+      apiKeyName &&
+      !isOnboardingSkipped
+    ) {
       fetchPositionsList()
     }
-  }, [activeExchange])
+  }, [
+    activeExchange,
+    apiKeyName,
+    exchange,
+    fetchPositionsList,
+    isLoggedIn,
+    userData,
+  ])
 
   const refreshData = () => {
     fetchPositionsList()
   }
 
   return (
-    <PositionContext.Provider value={{ isLoading, setIsLoading, positions, refreshData }}>
+    <PositionContext.Provider
+      value={{ isLoading, setIsLoading, positions, refreshData }}
+    >
       {children}
     </PositionContext.Provider>
   )

@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import * as Sentry from '@sentry/browser'
 
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
 import useSortableData from '../../utils/useSortableData'
 import Accordion from './Accordion'
-// import { data } from '../../utils/mock-data'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
@@ -128,7 +127,6 @@ const AccordionContainer = () => {
     } catch (error) {
       Sentry.captureException(error)
       console.warn(error)
-      // throw new Error('Error occured while processing positions')
     }
   }, [positions, lastMessage, symbolDetails, activeExchange])
 
@@ -208,7 +206,7 @@ const AccordionContainer = () => {
           reasons why some of your positions might be missing.
         </p>
         <ul>
-          <li style={{listStyleType: ''}}>
+          <li style={{ listStyleType: '' }}>
             When you trade with Limit orders on Place Order tab, the order
             history doesn’t update, so you need to trade either with Full Trade,
             or with automation order types(Stop/Take-Profit) to see your

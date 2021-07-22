@@ -2,10 +2,31 @@ import binanceAPI from '../../../api/binanceAPI'
 import binanceSockets from '../../../sockets/binanceSockets'
 import tvIntervals from '../../../helpers/tvIntervals'
 export default class dataFeed {
-  constructor({ exchange, symbolList, selectedSymbolDetail, marketSymbols, debug }) {
+  constructor({
+    exchange,
+    symbolList,
+    selectedSymbolDetail,
+    marketSymbols,
+    debug,
+  }) {
     this.selectedExchange = exchange
     this.symbolList = symbolList
-    this.binanceResolutions = ['1', '3', '5', '15', '30', '60', '120', '240', '360', '480', '720', '1D', '1W', '1M']
+    this.binanceResolutions = [
+      '1',
+      '3',
+      '5',
+      '15',
+      '30',
+      '60',
+      '120',
+      '240',
+      '360',
+      '480',
+      '720',
+      '1D',
+      '1W',
+      '1M',
+    ]
     this.debug = debug
     this.binanceAPI = new binanceAPI()
     this.ws = new binanceSockets()
@@ -18,7 +39,10 @@ export default class dataFeed {
       supports_marks: false,
       supports_timescale_marks: false,
       supports_time: true,
-      supported_resolutions: this.selectedExchange === this.binanceStr ? this.binanceResolutions : this.ftxResolutions
+      supported_resolutions:
+        this.selectedExchange === this.binanceStr
+          ? this.binanceResolutions
+          : this.ftxResolutions,
     })
   }
 
@@ -34,7 +58,7 @@ export default class dataFeed {
       session: '24x7',
       pricescale: 100, // parseInt(this.selectedSymbolDetail.tickSize)
       timezone: 'UTC',
-      currency_code: chosenSymbol.replace("/", ""),
+      currency_code: chosenSymbol.replace('/', ''),
       has_intraday: true,
       has_daily: true,
       has_weekly_and_monthly: true,
@@ -42,7 +66,15 @@ export default class dataFeed {
     })
   }
 
-  getBars(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) {
+  getBars(
+    symbolInfo,
+    resolution,
+    from,
+    to,
+    onHistoryCallback,
+    onErrorCallback,
+    firstDataRequest
+  ) {
     //console.log(`getBars`)
     const interval = tvIntervals[resolution]
     if (!interval) {
@@ -59,13 +91,13 @@ export default class dataFeed {
       if (totalKlines.length === 0) {
         onHistoryCallback([], { noData: true })
       } else {
-        let historyCBArray = totalKlines.map(kline => ({
+        let historyCBArray = totalKlines.map((kline) => ({
           time: kline[0],
           open: parseFloat(kline[1]),
           high: parseFloat(kline[2]),
           low: parseFloat(kline[3]),
           close: parseFloat(kline[4]),
-          volume: parseFloat(kline[5])
+          volume: parseFloat(kline[5]),
         }))
         onHistoryCallback(historyCBArray, { noData: false })
       }
@@ -74,7 +106,13 @@ export default class dataFeed {
     const getKlines = async (from, to) => {
       try {
         const symbolAPI = symbolInfo.name.replace('/', '')
-        const data = await this.binanceAPI.getKlines(symbolAPI, tvIntervals[resolution], from, to, kLinesLimit)
+        const data = await this.binanceAPI.getKlines(
+          symbolAPI,
+          tvIntervals[resolution],
+          from,
+          to,
+          kLinesLimit
+        )
         totalKlines = totalKlines.concat(data)
         if (data.length === kLinesLimit) {
           from = data[data.length - 1][0] + 1
@@ -82,8 +120,7 @@ export default class dataFeed {
         } else {
           finishKlines()
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.log(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }
@@ -95,8 +132,20 @@ export default class dataFeed {
     getKlines(from, to)
   }
 
-  subscribeBars(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) {
-    this.ws.subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback)
+  subscribeBars(
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    subscriberUID,
+    onResetCacheNeededCallback
+  ) {
+    this.ws.subscribeOnStream(
+      symbolInfo,
+      resolution,
+      onRealtimeCallback,
+      subscriberUID,
+      onResetCacheNeededCallback
+    )
   }
 
   unsubscribeBars(subscriberUID) {

@@ -17,10 +17,10 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 
 import { InlineInput, Button } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 
 import * as yup from 'yup'
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 
 const EntryStopMarketForm = () => {
@@ -48,7 +48,8 @@ const EntryStopMarketForm = () => {
     total: '',
   })
 
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
@@ -58,9 +59,11 @@ const EntryStopMarketForm = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail &&  selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
@@ -203,10 +206,8 @@ const EntryStopMarketForm = () => {
       const maxLength = getMaxInputLength(target.value, quantityPrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
-      const {
-        totalWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculateTotalAndPercentageQuantity(target.value, 'triggerPrice')
+      const { totalWithPrecision, percentageQuantityWithPrecision } =
+        calculateTotalAndPercentageQuantity(target.value, 'triggerPrice')
 
       setValues((values) => ({
         ...values,
@@ -224,10 +225,8 @@ const EntryStopMarketForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -275,10 +274,8 @@ const EntryStopMarketForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -306,10 +303,8 @@ const EntryStopMarketForm = () => {
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,

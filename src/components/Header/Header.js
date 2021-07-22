@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useCallback } from 'react'
 import {
   faTwitter,
   faTelegram,
@@ -26,6 +26,8 @@ const Header = () => {
     onSecondTour,
     tour2CurrentStep,
     setTour2CurrentStep,
+    handleOnboardingShow,
+    isOnboardingSkipped,
   } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen } = useSymbolContext()
@@ -83,7 +85,7 @@ const Header = () => {
     })
   }
 
-  const addDarkClassToBody = () => {
+  const addDarkClassToBody = useCallback(() => {
     const element = document.body
     switch (theme) {
       case 'LIGHT':
@@ -95,11 +97,11 @@ const Header = () => {
       default:
         break
     }
-  }
+  }, [theme])
 
   useEffect(() => {
     addDarkClassToBody()
-  }, [theme])
+  }, [addDarkClassToBody, theme])
 
   useEffect(() => {
     if (stepIndex2 === 2) {
@@ -111,19 +113,21 @@ const Header = () => {
         setRun2(true)
       }, 1000)
     }
-  }, [stepIndex2])
+  }, [history, stepIndex2, tour2CurrentStep])
 
   if (!isLoggedIn || watchListOpen) {
     return null
+  }
+
+  const handleStartTrading = () => {
+    handleOnboardingShow()
   }
 
   return (
     <header className="" id="header-main">
       <nav
         className={`shadow navbar navbar-main navbar-expand-lg ${
-          theme === 'LIGHT'
-            ? 'navbar-light bg-whtie'
-            : 'navbar-dark bg-dark'
+          theme === 'LIGHT' ? 'navbar-light bg-whtie' : 'navbar-dark bg-dark'
         }`}
         id="navbar-main"
       >
@@ -160,40 +164,55 @@ const Header = () => {
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
                 </a> */}
+                {isOnboardingSkipped && (
+                  <a
+                    className="mr-3 btn btn-xs btn-primary btn-icon"
+                    onClick={handleStartTrading}
+                  >
+                    {' '}
+                    <span className="btn-inner--text" style={{ color: '#fff' }}>
+                      Integrate your exchange to start trading
+                    </span>
+                  </a>
+                )}
               </li>
-              <li className="nav-item">
-                <a
-                  href="https://coin-panel.medium.com/"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faMediumM} className="mt-2" />
-                </a>
-              </li>{' '}
-              <li className="nav-item">
-                <a
-                  href="https://twitter.com/coin_panel"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faTwitter} className="mt-2" />
-                </a>
-              </li>
-              <li className="nav-item">
-                <a
-                  href="https://t.me/coinpanelsupport"
-                  type="button"
-                  className="px-2 nav-link nav-link-icon"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FontAwesomeIcon icon={faTelegram} className="mt-2" />
-                </a>
-              </li>
+              {!isOnboardingSkipped && (
+                <>
+                  <li className="nav-item">
+                    <a
+                      href="https://coin-panel.medium.com/"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                    </a>
+                  </li>{' '}
+                  <li className="nav-item">
+                    <a
+                      href="https://twitter.com/coin_panel"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a
+                      href="https://t.me/coinpanelsupport"
+                      type="button"
+                      className="px-2 nav-link nav-link-icon"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FontAwesomeIcon icon={faTelegram} className="mt-2" />
+                    </a>
+                  </li>
+                </>
+              )}
               <li className="nav-item">
                 <span
                   type="button"

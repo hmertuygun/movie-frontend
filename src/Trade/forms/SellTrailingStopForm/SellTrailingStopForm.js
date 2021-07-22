@@ -42,7 +42,8 @@ const BuyTrailingStopForm = () => {
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
@@ -52,10 +53,12 @@ const BuyTrailingStopForm = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
 
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
 
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
 
   const sliderMarks = {
@@ -144,7 +147,7 @@ const BuyTrailingStopForm = () => {
             minNotional,
             totalPrecision
           )}`
-        )
+        ),
     },
     [values.activation_price]
   )
@@ -206,10 +209,8 @@ const BuyTrailingStopForm = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
-      const {
-        quantityWithPrecision,
-        percentageQuantityWithPrecision,
-      } = calculatePercentageQuantityAndQuantityFromTotal(target.value)
+      const { quantityWithPrecision, percentageQuantityWithPrecision } =
+        calculatePercentageQuantityAndQuantityFromTotal(target.value)
 
       setValues((values) => ({
         ...values,
@@ -277,7 +278,10 @@ const BuyTrailingStopForm = () => {
     const sliderPercentage = Number(sliderValue) / 100
     const quantity = sliderPercentage * balance
 
-    const quantityWithPrecision = addPrecisionToNumber(quantity, quantityPrecision)
+    const quantityWithPrecision = addPrecisionToNumber(
+      quantity,
+      quantityPrecision
+    )
 
     const totalWithPrecision = addPrecisionToNumber(
       quantityWithPrecision * selectedSymbolLastPrice,
@@ -288,10 +292,8 @@ const BuyTrailingStopForm = () => {
   }
 
   const handleSlider = (newValue) => {
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(newValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(newValue)
 
     setValues((values) => ({
       ...values,
@@ -321,10 +323,8 @@ const BuyTrailingStopForm = () => {
     const value = removeTrailingZeroFromInput(Math.abs(target.value))
     const validatedValue = value > 100 ? 100 : value
 
-    const {
-      quantityWithPrecision,
-      totalWithPrecision,
-    } = calculateTotalAndQuantityFromSliderPercentage(validatedValue)
+    const { quantityWithPrecision, totalWithPrecision } =
+      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
 
     setValues((values) => ({
       ...values,
@@ -368,7 +368,8 @@ const BuyTrailingStopForm = () => {
         if (isBtnDisabled) return
         setBtnVisibility(true)
 
-        const symbol = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+        const symbol =
+          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
         const { exchange, apiKeyName } = activeExchange
 
         const payload = {
@@ -564,7 +565,9 @@ const BuyTrailingStopForm = () => {
         </div>
 
         <Button type="submit" variant="sell" disabled={isBtnDisabled}>
-          <span>Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}</span>
+          <span>
+            Sell {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
+          </span>
         </Button>
       </form>
     </Fragment>

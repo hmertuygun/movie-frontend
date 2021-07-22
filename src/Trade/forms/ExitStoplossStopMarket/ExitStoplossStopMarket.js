@@ -4,10 +4,8 @@ import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 import { InlineInput, Button, Typography } from '../../../components'
-import PriceTriggerDropdown from '../../components/PriceTriggerDropdown/PriceTriggerDropdown'
 import { TradeContext } from '../../context/SimpleTradeContext'
 
-import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
@@ -47,27 +45,27 @@ const errorInitialValues = {
 }
 
 const ExitStoplossStopMarket = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolLastPrice,
-  } = useSymbolContext()
+  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
+    useSymbolContext()
 
   const { state, addStoplossMarket } = useContext(TradeContext)
   const { entry } = state
 
-  const tickSize =  selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision = selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
   const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision = selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-  const minNotional = selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
+  const minNotional =
+    selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
 
@@ -402,7 +400,9 @@ const ExitStoplossStopMarket = () => {
                 name="triggerPrice"
                 onChange={handleChange}
                 onBlur={(e) => handleBlur(e, pricePrecision)}
-                postLabel={selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+                postLabel={
+                  selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+                }
               />
             </div>
             {renderInputValidationError('triggerPrice')}

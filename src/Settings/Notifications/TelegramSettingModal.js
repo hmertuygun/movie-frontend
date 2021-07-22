@@ -63,13 +63,23 @@ const QuickModal = ({ onClose, connected }) => {
                 data-dismiss="modal"
                 aria-label="Close"
               >
-                <span className="modal-cross" aria-hidden="true">&times;</span>
+                <span className="modal-cross" aria-hidden="true">
+                  &times;
+                </span>
               </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
                 <p>
-                  Write "/start" to <a href="https://t.me/coinpanelbot" target="_blank" rel="noreferrer">@coinpanelbot</a> on Telegram to set up your Telegram notifications.
+                  Write "/start" to{' '}
+                  <a
+                    href="https://t.me/coinpanelbot"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    @coinpanelbot
+                  </a>{' '}
+                  on Telegram to set up your Telegram notifications.
                 </p>
                 {telegramKey && (
                   <div className="input-group">
