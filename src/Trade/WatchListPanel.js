@@ -241,7 +241,11 @@ const WatchListPanel = () => {
         .doc(userData.email)
         .set(
           {
-            [activeExchange.exchange]: symbols,
+            lists: {
+              [activeWatchList.watchListName]: {
+                [activeExchange.exchange]: symbols,
+              },
+            },
           },
           { merge: true }
         )
