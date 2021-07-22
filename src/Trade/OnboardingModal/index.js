@@ -274,19 +274,8 @@ const OnboardingModal = () => {
 
   const modalVisibility = () => {
     if (isLoggedIn) {
-      if (!loadApiKeysError) {
-        if (loadApiKeys) return 'none'
-        else return 'block'
-      }
-    } else {
-      return 'none'
-    }
-  }
-
-  const errorModalVisibility = () => {
-    if (isLoggedIn) {
-      if (loadApiKeysError) return 'block'
-      else return 'none'
+      if (loadApiKeys) return 'none'
+      else return 'block'
     } else {
       return 'none'
     }
@@ -297,10 +286,10 @@ const OnboardingModal = () => {
     display: modalVisibility(),
   }
 
-  const errorModalStyle = {
-    background: 'rgba(0,0,0,.5)',
-    display: errorModalVisibility(),
-  }
+  // const errorModalStyle = {
+  //   background: 'rgba(0,0,0,.5)',
+  //   display: errorModalVisibility(),
+  // }
 
   const renderInputValidationError = (errorKey) => (
     <>
@@ -541,7 +530,7 @@ const OnboardingModal = () => {
           </div>
         </div>
       </div>
-      <div
+      {/* <div
         className={`modal fade docs-example-modal-lg pt-5 show`}
         style={errorModalStyle}
       >
@@ -555,7 +544,7 @@ const OnboardingModal = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   )
 }
