@@ -262,7 +262,6 @@ const UserContextProvider = ({ children }) => {
         // console.log('==> need payment')
       } else {
         setNeedPayment(false)
-        handleOnboardingSkip()
       }
 
       // Subscribe button case
