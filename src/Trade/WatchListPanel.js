@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import Select from 'react-select'
 import { Popover } from 'react-tiny-popover'
-import { Plus, ChevronDown } from 'react-feather'
+import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -21,6 +21,8 @@ import {
   errorNotification,
 } from '../components/Notifications'
 
+const DEFAULT_WATCHLIST = 'Watch List'
+
 const WatchListPanel = () => {
   const { symbols, isLoading, isLoadingBalance, lastMessage, symbolDetails } =
     useSymbolContext()
@@ -28,6 +30,8 @@ const WatchListPanel = () => {
 
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
+  const [watchListOptionPopoverOpen, setWatchListOptionPopoverOpen] =
+    useState(false)
   const [addWatchListModalOpen, setAddWatchListModalOpen] = useState(false)
   const [addWatchListLoading, setAddWatchListLoading] = useState(false)
   const [watchLists, setWatchLists] = useState([])
@@ -41,6 +45,7 @@ const WatchListPanel = () => {
   })
 
   const db = firebase.firestore()
+  const FieldValue = firebase.firestore.FieldValue
   const { activeExchange } = useContext(UserContext)
 
   const initWatchList = useCallback(() => {
@@ -48,8 +53,8 @@ const WatchListPanel = () => {
       .doc(userData.email)
       .set(
         {
-          activeList: 'Watch List',
-          lists: { 'Watch List': { watchListName: 'Watch List' } },
+          activeList: DEFAULT_WATCHLIST,
+          lists: { DEFAULT_WATCHLIST: { watchListName: DEFAULT_WATCHLIST } },
         },
         { merge: true }
       )
@@ -315,6 +320,31 @@ const WatchListPanel = () => {
     setWatchListPopoverOpen(false)
   }
 
+  const handleDelete = async () => {
+    setWatchListOptionPopoverOpen(false)
+    if (activeWatchList.watchListName === DEFAULT_WATCHLIST) {
+      errorNotification.open({
+        description: `Cannot delete Default Watch list!`,
+      })
+      return
+    }
+    try {
+      const ref = db.collection('watch_list').doc(userData.email)
+      const filedName = `lists.${activeWatchList.watchListName}`
+      await ref.update({
+        [filedName]: FieldValue.delete(),
+      })
+      await ref.update({
+        activeList: DEFAULT_WATCHLIST,
+      })
+      successNotification.open({
+        description: 'Watch list deleted!',
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div>
       <div className={styles.header}>
@@ -330,7 +360,10 @@ const WatchListPanel = () => {
             <div className={styles.watchListModal}>
               <div
                 className={styles.watchListRow}
-                onClick={() => setAddWatchListModalOpen(true)}
+                onClick={() => {
+                  setWatchListPopoverOpen(false)
+                  setAddWatchListModalOpen(true)
+                }}
               >
                 Create new list...
               </div>
@@ -387,6 +420,34 @@ const WatchListPanel = () => {
             onClick={() => setSelectPopoverOpen(true)}
           >
             <Plus />
+          </div>
+        </Popover>
+        <Popover
+          key="watchlist-option"
+          isOpen={watchListOptionPopoverOpen}
+          positions={['bottom', 'top', 'right']}
+          align="end"
+          padding={10}
+          reposition={false}
+          onClickOutside={() => setWatchListOptionPopoverOpen(false)}
+          content={({ position, nudgedLeft, nudgedTop }) => (
+            <div className={styles.watchListModal}>
+              <div
+                className={styles.watchListRow}
+                onClick={() => handleDelete()}
+              >
+                Delete this list
+              </div>
+            </div>
+          )}
+        >
+          <div
+            className={`${styles.watchListOption} ${styles.watchListControl} ${
+              watchListOptionPopoverOpen ? styles.watchListControlSelected : ''
+            }`}
+            onClick={() => setWatchListOptionPopoverOpen(true)}
+          >
+            <MoreHorizontal />
           </div>
         </Popover>
       </div>

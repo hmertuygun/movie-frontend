@@ -68,6 +68,14 @@
   width: 38px;
   height: 38px;
 }
+.watchListOption {
+  display: flex;
+  margin-left: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+}
 
 .newWatchListModal {
   width: 200px;
