@@ -510,7 +510,12 @@ export default class TradingViewChart extends Component {
           console.log('Init Drawings')
         }
       } else if (this.props.templateDrawingsOpen) {
-        const pData = JSON.parse(this.props.templateDrawings.drawings)
+        const pData = JSON.parse(
+          this.props.templateDrawings.drawings.replaceAll(
+            'BINANCE:',
+            `${this.props.exchange.toUpperCase()}:`
+          )
+        )
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
@@ -614,7 +619,12 @@ export default class TradingViewChart extends Component {
         !this.state.templateDrawingsOpen
       ) {
         try {
-          const pData = JSON.parse(this.props.templateDrawings.drawings)
+          const pData = JSON.parse(
+            this.props.templateDrawings.drawings.replaceAll(
+              'BINANCE:',
+              `${this.props.exchange.toUpperCase()}:`
+            )
+          )
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
             this.tradingViewWidget.load(prep)
