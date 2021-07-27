@@ -82,7 +82,10 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const isFullTrade = entry.length > 2
   const entryOrder = isFullTrade ? entry?.[1] : null
   const targetOrders = isFullTrade
-    ? entry.filter((entry) => entry.label.includes('Target'))
+    ? entry.filter(
+        (entry) =>
+          entry.label.includes('Target') && !entry.type.includes('Full Trade')
+      )
     : null
   const stoplossOrder = isFullTrade ? entry?.[2] : null
 
