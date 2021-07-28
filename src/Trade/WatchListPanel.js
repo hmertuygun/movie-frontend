@@ -54,7 +54,7 @@ const WatchListPanel = () => {
       .set(
         {
           activeList: DEFAULT_WATCHLIST,
-          lists: { DEFAULT_WATCHLIST: { watchListName: DEFAULT_WATCHLIST } },
+          lists: { [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST } },
         },
         { merge: true }
       )
