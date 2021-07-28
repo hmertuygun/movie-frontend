@@ -112,7 +112,7 @@ const WatchListPanel = () => {
       }
       symbolArray.push({
         ...symbol,
-        percentage: activeMarketData?.priceChangePercent,
+        percentage: +activeMarketData?.priceChangePercent,
         lastPrice: Number(activeMarketData?.lastPrice)?.toFixed(tickSize),
       })
     }
@@ -278,15 +278,11 @@ const WatchListPanel = () => {
     })
   }
 
-  const orderedSymbolsList = useMemo(() => {
-    const orderedSymbolsList = orderBy(
-      symbolsList,
-      [Object.keys(orderSetting)],
-      [Object.values(orderSetting)]
-    )
-
-    return orderedSymbolsList
-  }, [orderSetting, symbolsList])
+  const orderedSymbolsList = orderBy(
+    symbolsList,
+    [Object.keys(orderSetting)],
+    [Object.values(orderSetting)]
+  )
 
   const handleAddWatchList = ({ watchListName }) => {
     setAddWatchListLoading(true)

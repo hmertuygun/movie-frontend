@@ -1,5 +1,6 @@
 //List of all stable coins
 export const stableCoins = [
+  'USD',
   'USDT',
   'BUSD',
   'AUD',

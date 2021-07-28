@@ -20,13 +20,6 @@ import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
 
-// import WatchListPanel from './WatchListPanel'
-// import TradePanel from './TradePanel'
-// import TradeChart from './TradeChart'
-// import TradeOrders from './components/TradeOrders/TradeOrders'
-// import MarketStatistics from './components/MarketStatistics'
-// import SymbolSelect from './components/SymbolSelect/SymbolSelect'
-
 const WatchListPanel = lazy(() => import('./WatchListPanel'))
 const TradePanel = lazy(() => import('./TradePanel'))
 const TradeChart = lazy(() => import('./TradeChart'))
@@ -44,8 +37,7 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys, userData, handleOnboardingShow, isOnboardingSkipped } =
-    useContext(UserContext)
+  const { loadApiKeys, userData, isOnboardingSkipped } = useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -75,7 +67,6 @@ const TradeContainer = () => {
   }, [resizeCallBack])
 
   useEffect(() => {
-    callObserver()
     if (!isOnboardingSkipped) {
       getPendingNotices()
     }
@@ -115,7 +106,11 @@ const TradeContainer = () => {
     return () => {
       fBNotice()
     }
-  }, [callObserver, userData.email])
+  }, [isOnboardingSkipped, userData.email])
+
+  useEffect(() => {
+    callObserver()
+  }, [callObserver])
 
   useEffect(() => {
     if (snapShotCount > 1 && fbNotice && fbNotice.action === 'added') {
@@ -127,7 +122,7 @@ const TradeContainer = () => {
     if (!loadApiKeys && !isOnboardingSkipped) {
       history.push('/settings')
     }
-  }, [loadApiKeys, history])
+  }, [loadApiKeys, history, isOnboardingSkipped])
 
   const getPendingNotices = async () => {
     try {
