@@ -131,6 +131,7 @@ const UserContextProvider = ({ children }) => {
         .get()
         .then(async (doc) => {
           if (doc.data()?.chartMirroringSignUp) {
+            handleOnboardingSkip()
             setChartMirroring(doc.data().chartMirroringSignUp)
           } else {
             setChartMirroring(false)
@@ -163,10 +164,6 @@ const UserContextProvider = ({ children }) => {
   useEffect(() => {
     if (userData) {
       getSubscriptionsData()
-      if (isLoggedIn) {
-        getChartMirroring()
-      }
-      //getChartMirroring()
     }
   }, [userData])
 
@@ -466,6 +463,7 @@ const UserContextProvider = ({ children }) => {
     if (signedin) {
       await validateUser()
       let has2FADetails = null
+      getChartMirroring()
       try {
         getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()
@@ -671,7 +669,6 @@ const UserContextProvider = ({ children }) => {
         handleOnboardingSkip,
         isOnboardingSkipped,
         handleOnboardingShow,
-        chartMirroring,
       }}
     >
       {children}
