@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import * as yup from 'yup'
 
 import { useSymbolContext } from '../../../context/SymbolContext'
+import { UserContext } from '../../../../contexts/UserContext'
 import { InlineInput } from '../../../../components'
 import {
   getMaxInputLength,
@@ -23,6 +24,8 @@ const OrderEditModal = ({
   stoplossOrder,
   targetOrders,
 }) => {
+  const { activeExchange } = useContext(UserContext)
+
   const [values, setValues] = useState({
     triggerPrice: '',
     price: '',
@@ -186,10 +189,13 @@ const OrderEditModal = ({
   )
 
   useEffect(() => {
-    if (!selectedOrder || !symbolDetails) return
+    if (!selectedOrder || !symbolDetails || !activeExchange.exchange) return
     const { orderSymbol, trigger: triggerCondition, price } = selectedOrder
     const modifiedSymbol = orderSymbol.split('-').join('/')
-    const selectedSymbolDetail = symbolDetails[`BINANCE:${modifiedSymbol}`]
+    const selectedSymbolDetail =
+      symbolDetails[
+        `${activeExchange.exchange.toUpperCase()}:${modifiedSymbol}`
+      ]
     setselectedSymbolDetail(selectedSymbolDetail)
 
     if (!selectedSymbolDetail) return
@@ -231,7 +237,7 @@ const OrderEditModal = ({
       price: priceValue,
       triggerPrice: triggerValue,
     })
-  }, [selectedOrder, symbolDetails])
+  }, [activeExchange.exchange, selectedOrder, symbolDetails])
 
   const handleBlur = ({ target }, precision) => {
     setValues((values) => ({
