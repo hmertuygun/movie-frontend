@@ -510,12 +510,17 @@ export default class TradingViewChart extends Component {
           console.log('Init Drawings')
         }
       } else if (this.props.templateDrawingsOpen) {
-        const pData = JSON.parse(
-          this.props.templateDrawings.drawings.replaceAll(
-            'BINANCE:',
-            `${this.props.exchange.toUpperCase()}:`
+        let pData = ''
+        if (this.props.exchange !== 'binance') {
+          pData = JSON.parse(
+            this.props.templateDrawings.drawings.replaceAll(
+              'BINANCE:',
+              `${this.props.exchange.toUpperCase()}:`
+            )
           )
-        )
+        } else {
+          pData = JSON.parse(this.props.templateDrawings.drawings)
+        }
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
@@ -619,12 +624,17 @@ export default class TradingViewChart extends Component {
         !this.state.templateDrawingsOpen
       ) {
         try {
-          const pData = JSON.parse(
-            this.props.templateDrawings.drawings.replaceAll(
-              'BINANCE:',
-              `${this.props.exchange.toUpperCase()}:`
+          let pData = ''
+          if (this.props.exchange !== 'binance') {
+            pData = JSON.parse(
+              this.props.templateDrawings.drawings.replaceAll(
+                'BINANCE:',
+                `${this.props.exchange.toUpperCase()}:`
+              )
             )
-          )
+          } else {
+            pData = JSON.parse(this.props.templateDrawings.drawings)
+          }
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
             this.tradingViewWidget.load(prep)
@@ -706,14 +716,14 @@ export default class TradingViewChart extends Component {
     }
 
     if (this.props.onError && !this.state.setError) {
+      this.setState({ setError: true })
       const newWidget = this.widgetOptions
       newWidget.disabled_features.push('left_toolbar')
       this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
         newWidget
       )
-      console.log(newWidget)
       this.chartReady()
-      this.setState({ setError: true })
+
       setTimeout(() => {
         errorNotification.open({
           description:

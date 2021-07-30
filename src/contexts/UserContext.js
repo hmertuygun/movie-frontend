@@ -302,7 +302,7 @@ const UserContextProvider = ({ children }) => {
       let hasKeys = isOnboardingSkipped
         ? DEFAULT_EXCHANGE
         : await getUserExchanges()
-      // hasKeys = isOnboardingSkipped ? DEFAULT_EXCHANGE : hasKeys
+
       if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
           setUserContextLoaded(true)

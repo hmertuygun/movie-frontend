@@ -67,10 +67,18 @@ const TradeChart = () => {
   }, [reRender])
 
   useEffect(() => {
-    db.collection('template_drawings').onSnapshot((snapshot) => {
-      setTemplateDrawings(snapshot.docs[0].data())
-    })
-  }, [])
+    db.collection('template_drawings').onSnapshot(
+      (snapshot) => {
+        if (snapshot?.docs[0]) {
+          setTemplateDrawings(snapshot.docs[0].data())
+        }
+      },
+      (error) => {
+        console.error(error)
+        setOnError(true)
+      }
+    )
+  }, [db])
 
   useEffect(() => {
     const unsubscribe = db
@@ -95,7 +103,7 @@ const TradeChart = () => {
         }
       )
     return () => unsubscribe()
-  }, [db, userData.email])
+  }, [db, userData])
 
   useEffect(() => {
     if (lsIntervalValue && lsIntervalValue.length)
@@ -115,7 +123,7 @@ const TradeChart = () => {
         )
       }
     }
-  }, [chartData?.timeZone, count, lsTimeZoneValue])
+  }, [chartData?.timeZone, count, lsTimeZoneValue, isOnboardingSkipped])
 
   useEffect(() => {
     if (!activeExchange?.exchange || exchangeName === activeExchange.exchange)
