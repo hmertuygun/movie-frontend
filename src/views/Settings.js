@@ -1,16 +1,39 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { LogOut } from 'react-feather'
+import { LogOut, Moon } from 'react-feather'
 
 import { TabNavigator } from '../components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
 import Notifications from '../Settings/Notifications'
 import Subscriptions from '../Settings/Subscription'
+import { ThemeContext } from '../contexts/ThemeContext'
 
 const Settings = () => {
   const { hash } = useLocation()
   const tabIndex = hash === '#subscription' ? 3 : 0
+  const { theme, setTheme } = useContext(ThemeContext)
+
+  const toggleTheme = () => {
+    setTheme((theme) => {
+      let newTheme = ''
+      switch (theme) {
+        case 'LIGHT':
+          newTheme = 'DARK'
+          break
+        case 'DARK':
+          newTheme = 'LIGHT'
+          break
+        default:
+          newTheme = 'LIGHT'
+          break
+      }
+      localStorage.setItem('theme', newTheme)
+
+      return newTheme
+    })
+  }
+
   return (
     <Fragment>
       <section
@@ -26,9 +49,24 @@ const Settings = () => {
 
                   <div className="d-flex justify-content-between align-items-center">
                     <h1 className="mb-0 h2">Settings</h1>
-                    <Link to="/logout" className="ml-lg-auto d-flex d-lg-none">
-                      <LogOut strokeWidth="3" />
-                    </Link>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        type="button"
+                        id="btnSwitchMode"
+                        className={`nav-link nav-link-icon px-4 ${
+                          theme === 'DARK' ? 'text-warning' : ''
+                        }`}
+                        onClick={toggleTheme}
+                      >
+                        <Moon className="chevron-down" strokeWidth="3" />
+                      </span>
+                      <Link
+                        to="/logout"
+                        className="ml-lg-auto d-flex d-lg-none"
+                      >
+                        <LogOut strokeWidth="3" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

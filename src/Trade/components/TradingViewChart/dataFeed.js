@@ -112,7 +112,6 @@ export default class dataFeed {
     onErrorCallback,
     firstDataRequest
   ) {
-    //console.log(`getBars`)
     const interval =
       this.selectedExchange === this.binanceStr
         ? this.mappedResolutions[resolution]
@@ -152,21 +151,28 @@ export default class dataFeed {
           this.selectedExchange === this.binanceUSStr
             ? symbolInfo.name.replace('/', '')
             : symbolInfo.name
-
-        const data = await this.binanceAPI.getKlines(
-          symbolAPI,
-          this.mappedResolutions[resolution],
-          from,
-          to,
+        if (
+          symbolAPI &&
+          this.mappedResolutions[resolution] &&
+          from &&
+          to &&
           kLinesLimit
-        )
+        ) {
+          const data = await this.binanceAPI.getKlines(
+            symbolAPI,
+            this.mappedResolutions[resolution],
+            from,
+            to,
+            kLinesLimit
+          )
 
-        totalKlines = totalKlines && totalKlines.concat(data)
-        if (data.length === kLinesLimit) {
-          from = data[data.length - 1][0] + 1
-          getKlines(from, to)
-        } else {
-          finishKlines()
+          totalKlines = totalKlines && totalKlines.concat(data)
+          if (data.length === kLinesLimit) {
+            from = data[data.length - 1][0] + 1
+            getKlines(from, to)
+          } else {
+            finishKlines()
+          }
         }
       } catch (e) {
         console.error(e)
