@@ -626,12 +626,14 @@ export default class TradingViewChart extends Component {
         try {
           let pData = ''
           if (this.props.exchange !== 'binance') {
-            pData = JSON.parse(
-              this.props.templateDrawings.drawings.replaceAll(
-                'BINANCE:',
-                `${this.props.exchange.toUpperCase()}:`
+            if (this.props.templateDrawings.drawings) {
+              pData = JSON.parse(
+                this.props.templateDrawings.drawings.replaceAll(
+                  'BINANCE:',
+                  `${this.props.exchange.toUpperCase()}:`
+                )
               )
-            )
+            }
           } else {
             pData = JSON.parse(this.props.templateDrawings.drawings)
           }
