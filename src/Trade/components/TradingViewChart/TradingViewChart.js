@@ -1,4 +1,4 @@
-import React, { Component, useContext } from 'react'
+import React, { Component } from 'react'
 import _ from 'lodash'
 import dataFeed from './dataFeed'
 import { firebase } from '../../../firebase/firebase'
@@ -504,7 +504,9 @@ export default class TradingViewChart extends Component {
           const pData = JSON.parse(this.props.drawings)
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
-            this.tradingViewWidget.load(prep)
+            if (prep) {
+              this.tradingViewWidget.load(prep)
+            }
           })
         } catch (error) {
           console.log('Init Drawings')
