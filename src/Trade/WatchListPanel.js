@@ -194,26 +194,6 @@ const WatchListPanel = () => {
     }),
   }
 
-  const mergeMarkets = useMemo(() => {
-    const newSymbols = []
-
-    symbols.forEach((element) => {
-      const inBinance = symbols.find(
-        (symbol) => symbol.value === `BINANCE:${element.symbolpair}`
-      )
-      const nonBinance = symbols.find(
-        (symbol) => symbol.value === `BINANCEUS:${element.symbolpair}`
-      )
-
-      if (inBinance && !nonBinance) {
-        newSymbols.push({ ...inBinance })
-      }
-    })
-    return newSymbols.filter(
-      (symbol) => !symbolsList.some((item) => item.value === symbol.value)
-    )
-  }, [symbols, symbolsList])
-
   const selectedSymbols = useMemo(() => {
     const { exchange } = activeExchange
     const selected = symbols
@@ -224,13 +204,8 @@ const WatchListPanel = () => {
       .filter(
         (symbol) => !symbolsList.some((item) => item.value === symbol.value)
       )
-
-    const finalSymbols = [...selected, ...mergeMarkets]
-
-    return [
-      ...new Map(finalSymbols.map((item) => [item['value'], item])).values(),
-    ]
-  }, [symbols, activeExchange, symbolsList, mergeMarkets])
+    return selected
+  }, [symbols, activeExchange, symbolsList])
 
   const handleChange = async (symbol) => {
     const symbols = [...symbolsList, symbol].map((item) => ({
