@@ -627,17 +627,19 @@ export default class TradingViewChart extends Component {
       ) {
         try {
           let pData = ''
-          if (this.props.exchange !== 'binance') {
-            if (this.props.templateDrawings.drawings) {
-              pData = JSON.parse(
-                this.props.templateDrawings.drawings.replaceAll(
-                  'BINANCE:',
-                  `${this.props.exchange.toUpperCase()}:`
+          if (this.props.templateDrawings) {
+            if (this.props.exchange !== 'binance') {
+              if (this.props.templateDrawings.drawings) {
+                pData = JSON.parse(
+                  this.props.templateDrawings.drawings.replaceAll(
+                    'BINANCE:',
+                    `${this.props.exchange.toUpperCase()}:`
+                  )
                 )
-              )
+              }
+            } else {
+              pData = JSON.parse(this.props.templateDrawings.drawings)
             }
-          } else {
-            pData = JSON.parse(this.props.templateDrawings.drawings)
           }
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
