@@ -58,6 +58,7 @@ export default class TradingViewChart extends Component {
     this.chartObject = null
     this.orderLinesDrawn = []
     this.orderLineCount = 0
+    this.TEMPLATE_LOAD_INTERVAL = 60000
     this.state = {
       isChartReady: false,
       saveCount: 0,
@@ -72,6 +73,7 @@ export default class TradingViewChart extends Component {
       screenShotButton: {},
       isSaved: true,
       setError: false,
+      intervalId: '',
     }
   }
 
@@ -381,7 +383,7 @@ export default class TradingViewChart extends Component {
       }
       this.state.processingOrder = false
     } catch (e) {
-      console.log(e)
+      console.log('Value is null')
     }
   }
 
@@ -565,6 +567,45 @@ export default class TradingViewChart extends Component {
     getIFrame?.contentDocument.head.appendChild(cssLink)
   }
 
+  setTemplateDrawings() {
+    if (this.props.templateDrawingsOpen && this.state.isChartReady) {
+      if (
+        this.props.templateDrawings !== this.state.templateDrawings ||
+        !this.state.templateDrawingsOpen
+      ) {
+        try {
+          let pData = ''
+          if (this.props.templateDrawings) {
+            if (this.props.exchange !== 'binance') {
+              if (this.props.templateDrawings.drawings) {
+                pData = JSON.parse(
+                  this.props.templateDrawings.drawings.replaceAll(
+                    'BINANCE:',
+                    `${this.props.exchange.toUpperCase()}:`
+                  )
+                )
+              }
+            } else {
+              pData = JSON.parse(this.props.templateDrawings.drawings)
+            }
+          }
+          this.tradingViewWidget.save((obj) => {
+            const prep = { ...obj.charts[0], panes: pData }
+            this.tradingViewWidget.load(prep)
+            this.setState({
+              templateDrawings: this.props.templateDrawings,
+              templateDrawingsOpen: true,
+            })
+            this.state.templateButton.innerText = 'Show My Charts'
+            this.drawOpenOrdersChartLines(this.state.openOrderLines)
+          })
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    }
+  }
+
   isArrayEqual(newOrders, oldOrders) {
     if (!newOrders) return true
     let newArray = []
@@ -620,43 +661,13 @@ export default class TradingViewChart extends Component {
       this.drawOpenOrdersChartLines(this.state.openOrderLines)
     }
 
-    if (this.props.templateDrawingsOpen && this.state.isChartReady) {
-      if (
-        this.props.templateDrawings !== this.state.templateDrawings ||
-        !this.state.templateDrawingsOpen
-      ) {
-        try {
-          let pData = ''
-          if (this.props.templateDrawings) {
-            if (this.props.exchange !== 'binance') {
-              if (this.props.templateDrawings.drawings) {
-                pData = JSON.parse(
-                  this.props.templateDrawings.drawings.replaceAll(
-                    'BINANCE:',
-                    `${this.props.exchange.toUpperCase()}:`
-                  )
-                )
-              }
-            } else {
-              pData = JSON.parse(this.props.templateDrawings.drawings)
-            }
-          }
-          this.tradingViewWidget.save((obj) => {
-            const prep = { ...obj.charts[0], panes: pData }
-            this.tradingViewWidget.load(prep)
-            this.setState({
-              templateDrawings: this.props.templateDrawings,
-              templateDrawingsOpen: true,
-            })
-            this.state.templateButton.innerText = 'Show My Charts'
-            this.drawOpenOrdersChartLines(this.state.openOrderLines)
-          })
-        } catch (e) {
-          console.error(e)
-        }
-      }
+    if (this.props.templateDrawingsOpen && !this.state.intervalId) {
+      this.setTemplateDrawings()
+      this.state.intervalId = setInterval(
+        this.setTemplateDrawings.bind(this),
+        this.TEMPLATE_LOAD_INTERVAL
+      )
     }
-
     if (!this.props.templateDrawingsOpen && this.state.templateDrawingsOpen) {
       try {
         if (!this.tradingViewWidget) return
@@ -670,7 +681,11 @@ export default class TradingViewChart extends Component {
       } catch (e) {
         console.error(e)
       } finally {
-        this.setState({ templateDrawingsOpen: false, isSaved: true })
+        this.setState({
+          templateDrawingsOpen: false,
+          isSaved: true,
+          intervalId: null,
+        })
         this.drawOpenOrdersChartLines(this.state.openOrderLines)
       }
     }
@@ -742,6 +757,9 @@ export default class TradingViewChart extends Component {
 
   componentWillUnmount() {
     console.info(`Chart component unmounted`)
+    if (this.state.intervalId) {
+      clearInterval(this.state.intervalId)
+    }
   }
 
   componentDidCatch() {
