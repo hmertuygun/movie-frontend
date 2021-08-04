@@ -53,7 +53,7 @@ const Settings = () => {
                       <span
                         type="button"
                         id="btnSwitchMode"
-                        className={`nav-link nav-link-icon px-4 ${
+                        className={`nav-link nav-link-icon px-4 ml-lg-auto d-flex d-lg-none ${
                           theme === 'DARK' ? 'text-warning' : ''
                         }`}
                         onClick={toggleTheme}
