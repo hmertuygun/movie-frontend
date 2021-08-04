@@ -410,7 +410,7 @@ const SymbolContextProvider = ({ children }) => {
       loadExchanges(symbolVal, exchangeVal)
       setSelectedSymbol({
         label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal}:${symbolType}`,
+        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
       })
       loadLastPrice(symbolVal, exchangeVal)
     } catch (e) {
