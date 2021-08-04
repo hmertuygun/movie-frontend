@@ -43,7 +43,7 @@ const Exchanges = () => {
 
   useEffect(() => {
     exchangeQuery.refetch()
-  }, [exchangeQuery, loadApiKeys])
+  }, [loadApiKeys])
 
   if (exchangeQuery.data) {
     exchanges = exchangeQuery.data?.data?.apiKeys
