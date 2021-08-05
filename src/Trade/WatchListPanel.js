@@ -473,7 +473,7 @@ const WatchListPanel = () => {
           ) : null}
         </div>
       </div>
-      <div>
+      <div className={styles.watchLists}>
         {loading ? (
           <div className="pt-5 text-center">
             <div className="spinner-border text-primary" role="status">
