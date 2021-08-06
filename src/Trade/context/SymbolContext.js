@@ -330,7 +330,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-  }, [userData, activeExchange])
+  }, [userData, activeExchange, watchListOpen, templateDrawingsOpen])
 
   const checkDisableBtnStatus = () => {
     disableBtnInterval = setInterval(() => {
@@ -381,7 +381,10 @@ const SymbolContextProvider = ({ children }) => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
-      const { exchange } = activeExchange
+      const exchange =
+        templateDrawingsOpen && watchListOpen
+          ? 'binance'
+          : activeExchange.exchange
       const { data } = await getAllChartData()
       let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } =
         data

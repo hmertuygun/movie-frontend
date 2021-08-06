@@ -14,6 +14,11 @@ const TradeChart = () => {
     exchangeType,
     setWatchListOpen,
     chartData,
+    templateDrawings,
+    setTemplateDrawings,
+    watchListOpen,
+    templateDrawingsOpen,
+    setTemplateDrawingsOpen,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
@@ -28,8 +33,6 @@ const TradeChart = () => {
   const [docVisibility, setDocVisibility] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
   const [drawings, setDrawings] = useState()
-  const [templateDrawings, setTemplateDrawings] = useState()
-  const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [onError, setOnError] = useState(false)
 
   const reconnectWSOnWindowFocus = () => {
@@ -174,6 +177,7 @@ const TradeChart = () => {
           theme={theme}
           intervals={intervals}
           drawings={drawings}
+          watchListOpen={watchListOpen}
           templateDrawings={templateDrawings}
           templateDrawingsOpen={templateDrawingsOpen}
           onError={onError}

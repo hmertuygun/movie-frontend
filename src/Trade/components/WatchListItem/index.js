@@ -5,7 +5,7 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import './style.css'
 
 const WatchListItem = ({ symbol, removeWatchList }) => {
-  const { setSymbol } = useSymbolContext()
+  const { setSymbol, templateDrawingsOpen } = useSymbolContext()
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
 
   return (
@@ -15,7 +15,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
       onMouseOver={() => setShowRemoveBtn(true)}
       onMouseLeave={() => setShowRemoveBtn(false)}
     >
-      {showRemoveBtn && (
+      {showRemoveBtn && !templateDrawingsOpen && (
         <div
           className={'removeBtn'}
           onClick={(e) => {
