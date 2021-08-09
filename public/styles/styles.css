@@ -171,6 +171,14 @@ hr {
   color: var(--modal-times) !important;
 }
 
+.security-border {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.custom-icon-container svg {
+  width: 4rem !important;
+}
+
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,

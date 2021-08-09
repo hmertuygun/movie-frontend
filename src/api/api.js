@@ -760,3 +760,15 @@ export async function editOrder(payload) {
   })
   return response?.data
 }
+
+//To delete current account
+export async function deleteUserAccount() {
+  const apiUrl = `${process.env.REACT_APP_API_V2}delete`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE',
+  })
+  return response
+}

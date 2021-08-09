@@ -5,6 +5,10 @@ import { ADD_2FA_FLOW, DeleteGoogleAuth, ModalsConf } from './T2FAModal'
 import { UserContext } from '../../contexts/UserContext'
 import { Modal } from '../../components'
 import Button from '../../components/Button/Button'
+import { UserX } from 'react-feather'
+import { deleteUserAccount } from '../../api/api'
+import { errorNotification } from '../../components/Notifications'
+import { useHistory } from 'react-router-dom'
 
 const T2FA_TYPES = {
   googleAuth: {
@@ -22,7 +26,11 @@ const Security = () => {
   const [desc, setDesc] = useState('')
   const [toggleModal, setToggleModal] = useState(false)
   const [add2FAFlowPage, setAdd2FAFlowPage] = useState(0)
+  const [accountDeleteLoading, setAccountDeleteLoading] = useState(false)
+  const [showAccountDeleteModal, setShowAccountDeleteModal] = useState(false)
   const nextDataRef = useRef()
+
+  const history = useHistory()
 
   const handleEntryRemove = () => {
     setAdd2FAFlowPage(ADD_2FA_FLOW.length)
@@ -46,6 +54,20 @@ const Security = () => {
     description: desc,
     date: new Date().getTime(),
     type: T2FA_TYPES.googleAuth.type,
+  }
+
+  const handleDeleteAccount = async () => {
+    setAccountDeleteLoading(true)
+    try {
+      await deleteUserAccount()
+      setAccountDeleteLoading(false)
+      history.push('/logout')
+    } catch (err) {
+      setAccountDeleteLoading(false)
+      errorNotification.open({
+        description: `It seems something wrong. Please try again later`,
+      })
+    }
   }
 
   return (
@@ -99,7 +121,7 @@ const Security = () => {
         <div className="justify-content-center">
           <div className="row">
             <div className="col-lg-12">
-              <div className="mb-5">
+              <div className="mb-4 security-border">
                 <div className="card">
                   <div className="card-header">
                     <h5 className="h6 mb-0">Two Factor Authentication</h5>
@@ -128,6 +150,71 @@ const Security = () => {
                 </div>
               </div>
               {/* CHANGE PASSWORD */}
+              <div>
+                <div class="page-inner-header mb-4">
+                  <h5 class="mb-1">Delete account</h5>
+                  <p class="text-muted mb-0">
+                    Once you delete your account, there is no going back. Please
+                    be certain.
+                  </p>
+                </div>
+                <div class="row">
+                  <div class="col-md-8">
+                    <button
+                      type="button"
+                      class="btn btn-danger"
+                      onClick={() => setShowAccountDeleteModal(true)}
+                    >
+                      Delete your account
+                    </button>
+                  </div>
+                </div>
+                {showAccountDeleteModal && (
+                  <Modal>
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-body">
+                          <div class="pt-5 text-center">
+                            <div class="icon text-danger custom-icon-container">
+                              <UserX size={16} strokeWidth={3} />
+                            </div>
+                            <h4 class="h5 mt-5 mb-3">Extremely important</h4>
+                            <p>
+                              We will immediately delete all of your personal
+                              data from our database. This action can not be
+                              undone. Are you sure you want to do this?
+                            </p>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button
+                            onClick={handleDeleteAccount}
+                            type="button"
+                            class="btn btn-sm btn-link text-danger btn-zoom--hover font-weight-600"
+                          >
+                            {accountDeleteLoading ? (
+                              <span
+                                className="spinner-border spinner-border-sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              'Delete'
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-secondary"
+                            onClick={() => setShowAccountDeleteModal(false)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </Modal>
+                )}
+              </div>
             </div>
           </div>
         </div>
