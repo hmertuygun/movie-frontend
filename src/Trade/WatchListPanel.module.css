@@ -113,6 +113,6 @@
 }
 
 .watchLists {
-  height: calc(100vh - 184px);
+  height: calc(100vh - 300px);
   overflow: auto;
 }
