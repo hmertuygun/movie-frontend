@@ -353,16 +353,10 @@ const MarketForm = () => {
 
         setSelectedSymbolLastPrice(price)
         setBtnProc(false)
-        const { quantityWithPrecision } =
-          calculateTotalAndQuantityFromSliderPercentage(
-            values.quantityPercentage,
-            price
-          )
-        setValues({ ...values, quantity: quantityWithPrecision })
 
         const payload = {
           price: price,
-          quantity: convertCommaNumberToDot(quantityWithPrecision),
+          quantity: values.quantity,
           balance: selectedSymbolBalance,
           symbol,
           type: 'market',
