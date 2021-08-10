@@ -314,7 +314,6 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
-    setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
     const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
     //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
@@ -490,6 +489,7 @@ const SymbolContextProvider = ({ children }) => {
     const symbolT = symbol.label.replace('-', '/')
     localStorage.setItem('selectedSymbol', symbolT)
     setSymbolType(symbolT)
+    setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbol(symbol)
     try {
       await saveLastSelectedMarketSymbol(symbol.value)
