@@ -96,7 +96,12 @@ const WatchListPanel = () => {
                     activeList?.[activeExchange.exchange] ?? []
                   )
                   setActiveWatchList(activeList)
-                  setSymbol(activeList?.[activeExchange.exchange][0])
+                  if (
+                    activeList?.[activeExchange.exchange] &&
+                    activeList?.[activeExchange.exchange][0]
+                  ) {
+                    setSymbol(activeList?.[activeExchange.exchange][0])
+                  }
                 }
               }
             } else {
@@ -134,7 +139,9 @@ const WatchListPanel = () => {
                 if (activeList) {
                   setWatchSymbolsList(activeList?.['binance'] ?? [])
                   setActiveWatchList(activeList)
-                  setSymbol(activeList?.['binance'][0])
+                  if (activeList?.['binance'] && activeList?.['binance'][0]) {
+                    setSymbol(activeList?.['binance'][0])
+                  }
                 }
               }
             }
@@ -154,22 +161,31 @@ const WatchListPanel = () => {
 
   useEffect(() => {
     const symbolArray = []
+    setLoading(true)
     for (const symbol of watchSymbolsList) {
+      let previousData = {}
       const activeMarketData = lastMessage.find((data) => {
         return data.symbol.replace('/', '') === symbol.label.replace('-', '')
       })
 
       const tickSize = symbolDetails?.[symbol.value]?.tickSize
       if (!activeMarketData?.lastPrice) {
-        return
+        previousData = symbolsList.find((curr) => symbol.value === curr.value)
+        if (!previousData) {
+          return
+        }
       }
       symbolArray.push({
         ...symbol,
-        percentage: +activeMarketData?.priceChangePercent,
-        lastPrice: Number(activeMarketData?.lastPrice)?.toFixed(tickSize),
+        percentage: activeMarketData?.priceChangePercent
+          ? +activeMarketData?.priceChangePercent
+          : previousData.percentage,
+        lastPrice: activeMarketData?.lastPrice
+          ? Number(activeMarketData?.lastPrice)?.toFixed(tickSize)
+          : previousData.lastPrice,
       })
     }
-
+    setLoading(false)
     setSymbolsList(symbolArray)
   }, [
     lastMessage,
@@ -373,7 +389,9 @@ const WatchListPanel = () => {
       )
       setActiveWatchList(activeList)
       setWatchSymbolsList(activeList?.['binance'] ?? [])
-      setSymbol(activeList?.['binance'][0])
+      if (activeList?.['binance'] && activeList?.['binance'][0]) {
+        setSymbol(activeList?.['binance'][0])
+      }
     }
     setWatchListPopoverOpen(false)
   }
@@ -411,7 +429,7 @@ const WatchListPanel = () => {
         }`}
       >
         {templateDrawingsOpen && (
-          <span class={styles.headerTemplate}>
+          <span className={styles.headerTemplate}>
             You are viewing Sniper's watchlist.
           </span>
         )}

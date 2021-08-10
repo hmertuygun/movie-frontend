@@ -83,7 +83,10 @@ const SymbolContextProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    const { exchange } = activeExchange
+    const exchange =
+      templateDrawingsOpen && watchListOpen
+        ? 'binance'
+        : activeExchange.exchange
 
     let socketURL = ''
     switch (exchange) {
@@ -179,10 +182,13 @@ const SymbolContextProvider = ({ children }) => {
       rws.removeEventListener('open')
       rws.removeEventListener('message')
     }
-  }, [activeExchange])
+  }, [activeExchange, templateDrawingsOpen, watchListOpen])
 
   useEffect(() => {
-    const { exchange } = activeExchange
+    const exchange =
+      templateDrawingsOpen && watchListOpen
+        ? 'binance'
+        : activeExchange.exchange
     if (!socketLiveUpdate) {
       if (timer) clearInterval(timer)
       switch (exchange) {
@@ -281,7 +287,7 @@ const SymbolContextProvider = ({ children }) => {
     return () => {
       clearInterval(timer)
     }
-  }, [socketLiveUpdate, activeExchange])
+  }, [socketLiveUpdate, activeExchange, templateDrawingsOpen, watchListOpen])
 
   useEffect(() => {
     let { exchange } = activeExchange
