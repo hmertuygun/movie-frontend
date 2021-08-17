@@ -3,7 +3,6 @@ import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
-import { matchSorter } from 'match-sorter'
 import { useMediaQuery } from 'react-responsive'
 
 const SymbolSelect = ({ showOnlyMarketSelection }) => {
@@ -101,8 +100,16 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     let { exchange } = activeExchange
     exchange = exchange.toLowerCase()
     const selected = EXCHANGES[exchange]
-    setInitialOptions(selected)
-    setOptions(selected)
+    const finalOptions =
+      selected &&
+      selected.map((item) => {
+        return {
+          ...item,
+          searchLabel: `${item.base_asset}${item.quote_asset}`,
+        }
+      })
+    setInitialOptions(finalOptions)
+    setOptions(finalOptions)
   }, [
     binanceDD,
     ftxDD,
@@ -150,11 +157,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
           onChange={(value) => setSymbol(value)}
           isDisabled={isLoading}
           styles={customStyles}
-          onInputChange={(inputValue) => {
-            setOptions(
-              matchSorter(initialOptions, inputValue, { keys: ['label'] })
-            )
-          }}
+          getOptionValue={(option) => option.searchLabel}
         />
       </div>
     </div>
