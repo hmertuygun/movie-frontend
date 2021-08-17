@@ -16,11 +16,12 @@ const QuickRegister = () => {
   const [type, setType] = useState('password')
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   // clear errors
   useEffect(() => {
     setError('')
-    setValidForm(password && tos)
+    setValidForm(email && password && tos)
   }, [email, password, tos])
 
   const toggleTypeText = () => {
@@ -89,6 +90,20 @@ const QuickRegister = () => {
 
   if (redirect) {
     return <Redirect to={redirect} />
+  }
+
+  let validationPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/
+
+  const handleSubmit = (e) => {
+    let validPassword = validationPattern.test(password)
+    setIsSubmitted(true)
+    e.preventDefault()
+    if (!isLoading) {
+      if (email && validPassword) {
+        setIsLoading(true)
+        actualRegister()
+      }
+    }
   }
 
   return (
@@ -245,19 +260,7 @@ const QuickRegister = () => {
                     <p className="text-muted mb-0">No credit card required.</p>
                   </div>
                   <span className="clearfix"></span>
-                  <form
-                    onSubmit={(event) => {
-                      event.preventDefault()
-                      if (!isLoading) {
-                        if (email) {
-                          setIsLoading(true)
-                          actualRegister()
-                        } else {
-                          setError({ message: 'Need your email!' })
-                        }
-                      }
-                    }}
-                  >
+                  <form onSubmit={handleSubmit}>
                     <div className="form-group">
                       <label className="form-control-label">
                         Email address
@@ -316,6 +319,14 @@ const QuickRegister = () => {
                         </div>
                       </div>
                     </div>
+                    {isSubmitted &&
+                      password &&
+                      !validationPattern.test(password) && (
+                        <div class="text-sm text-danger">
+                          Password must contain at least 6 characters, including
+                          1 uppercase letter, 1 lowercase letter and 1 number.
+                        </div>
+                      )}
 
                     <div className="my-4">
                       <div className="custom-control custom-checkbox mb-3">
