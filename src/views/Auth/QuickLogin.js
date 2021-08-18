@@ -92,7 +92,7 @@ const QuickLogin = () => {
                     doLogin()
                   } else {
                     setError({
-                      message: 'You need both email and password to sign in',
+                      message: 'Please fill in both email and password.',
                     })
                     setLoading(false)
                   }
