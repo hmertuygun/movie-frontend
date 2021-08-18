@@ -165,18 +165,13 @@ export async function getLastPrice(symbol, exchange) {
 //   "signSecret": "Tralalala",
 //   "exchange": "binance"
 // }
-export async function addUserExchange({ name, apiKey, secret, exchange }) {
+export async function addUserExchange(data) {
   const apiUrl = process.env.REACT_APP_API_V2 + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
   const added = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
-    data: {
-      apiKey,
-      apiKeyName: name.toLowerCase(),
-      signSecret: secret,
-      exchange,
-    },
+    data,
   }).catch((error) => {
     return error?.response
   })

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import * as yup from 'yup'
@@ -14,7 +14,10 @@ import {
   updateLastSelectedAPIKey,
 } from '../../api/api'
 import { useHistory } from 'react-router-dom'
-import { options } from '../../Settings/Exchanges/ExchangeOptions'
+import {
+  options,
+  validationRules,
+} from '../../Settings/Exchanges/ExchangeOptions'
 import './index.css'
 
 const OnboardingModal = () => {
@@ -33,6 +36,8 @@ const OnboardingModal = () => {
     handleOnboardingSkip,
     isOnboardingSkipped,
   } = useContext(UserContext)
+  const history = useHistory()
+
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
   const [hasError, setError] = useState(false)
@@ -42,59 +47,50 @@ const OnboardingModal = () => {
     placeholder: 'BinanceUS',
   })
   const [apiName, setApiName] = useState('')
-  const [apiKey, setApiKey] = useState('')
-  const [secret, setSecret] = useState('')
-  const history = useHistory()
+  const [validation, setValidation] = useState({})
+  const [exchangeForm, setExchangeForm] = useState({})
+  const [formFields, setFormFields] = useState()
+
   const errorInitialValues = {
     exchange: '',
     apiName: '',
-    apiKey: '',
-    secret: '',
   }
 
-  const [errors, setErrors] = useState(errorInitialValues)
-
-  const customStyles = {
-    control: (styles) => ({
-      ...styles,
-      backgroundColor: '#eff2f7',
-      padding: '5px 5px',
-      border: 0,
-      boxShadow: 'none',
-
-      '&:hover': {
-        backgroundColor: '#d6ddea',
-        cursor: 'pointer',
-      },
-    }),
-
-    placeholder: (styles) => ({
-      ...styles,
-      color: '#273444',
-      fontWeight: 'bold',
-    }),
-  }
-
-  const formSchema = yup.object().shape({
-    exchange: yup.string().required('Exchange is required'),
-    apiName: yup
-      .string()
-      .required('API Name is required')
-      .min(3, 'Must be at least 3 characters')
-      .matches(/^[a-zA-Z0-9]+$/, {
-        message: 'Accepted characters are A-Z, a-z and 0-9.',
-        excludeEmptyString: true,
-      }),
-    apiKey: yup
-      .string()
-      .required('API Key is required')
-      .min(3, 'Must be at least 3 characters'),
-    secret: yup.string().required('API Secret is required'),
+  const [errors, setErrors] = useState({
+    ...errorInitialValues,
+    ...exchangeForm,
   })
 
+  const setExchangeFormFields = () => {
+    let exchangeFields = {}
+    let validationFields = {
+      exchange: validationRules.exchange,
+      apiName: validationRules.apiName,
+    }
+
+    const { fields } = options.find(
+      (exchangeItem) => exchange.value === exchangeItem.value
+    )
+
+    Object.values(fields).forEach((value) => {
+      exchangeFields[value] = ''
+      validationFields[value] = validationRules[value]
+    })
+    setExchangeForm(exchangeFields)
+    setErrors({ ...errorInitialValues, ...exchangeFields })
+    setValidation(validationFields)
+    setFormFields(fields)
+  }
+
+  useEffect(() => {
+    setExchangeFormFields()
+  }, [exchange])
+
   const validateInput = (target) => {
-    const isValid = formSchema.fields[target.name]
-      .validate(target.value)
+    const isValid = yup
+      .object()
+      .shape(validation)
+      .fields[target.name].validate(target.value)
       .catch((error) => {
         setErrors((errors) => ({
           ...errors,
@@ -110,9 +106,11 @@ const OnboardingModal = () => {
   }
 
   const validateForm = () => {
-    return formSchema
+    return yup
+      .object()
+      .shape(validation)
       .validate(
-        { exchange: exchange.value, apiName, apiKey, secret },
+        { exchange: exchange.value, apiName, ...exchangeForm },
         { abortEarly: false }
       )
       .catch((error) => {
@@ -126,6 +124,49 @@ const OnboardingModal = () => {
         }
       })
   }
+
+  const addExchange = async () => {
+    try {
+      setIsApiProc(true)
+      setError(false)
+      if (apiProc) return
+
+      let body = {
+        apiKeyName: apiName,
+        exchange: exchange.value,
+        keyData: exchangeForm,
+      }
+
+      let result = await addUserExchange(body)
+
+      if (result.status !== 200) {
+        setError(true)
+      } else {
+        await updateLastSelectedAPIKey({
+          apiKeyName: apiName,
+          exchange: exchange.value,
+        })
+        setStepNo(step + 1)
+        successNotification.open({ description: 'API key added!' })
+        analytics.logEvent('api_keys_added')
+        Event('user', 'api_keys_added', 'user')
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsApiProc(false)
+    }
+  }
+
+  const renderInputValidationError = (errorKey) => (
+    <>
+      {errors[errorKey] && (
+        <div className="d-flex align-items-center text-danger">
+          {errors[errorKey]}
+        </div>
+      )}
+    </>
+  )
 
   let btnText = {
     1: {
@@ -148,6 +189,22 @@ const OnboardingModal = () => {
       secBtn: 'Checkout the tutorials',
       heading: 'Exchange integration complete!',
     },
+  }
+
+  const onSecondaryBtnClick = () => {
+    if (step === 1) {
+      window.open('https://www.binance.com/en/register?ref=UR7ZCKEJ')
+    } else if (step === 2) {
+      setError(false)
+      setStepNo(step - 1)
+    } else if (step === 3) {
+      window.open('https://support.coinpanel.com/hc/en-us')
+    }
+  }
+
+  const onTertiaryBtnClick = async () => {
+    handleOnboardingSkip()
+    history.push('/chartview')
   }
 
   const onPrimaryBtnClick = async () => {
@@ -184,52 +241,25 @@ const OnboardingModal = () => {
     }
   }
 
-  const onSecondaryBtnClick = () => {
-    if (step === 1) {
-      window.open('https://www.binance.com/en/register?ref=UR7ZCKEJ')
-    } else if (step === 2) {
-      setError(false)
-      setStepNo(step - 1)
-    } else if (step === 3) {
-      window.open('https://support.coinpanel.com/hc/en-us')
-    }
-  }
+  const customStyles = {
+    control: (styles) => ({
+      ...styles,
+      backgroundColor: '#eff2f7',
+      padding: '5px 5px',
+      border: 0,
+      boxShadow: 'none',
 
-  const onTertiaryBtnClick = async () => {
-    handleOnboardingSkip()
-    history.push('/chartview')
-  }
+      '&:hover': {
+        backgroundColor: '#d6ddea',
+        cursor: 'pointer',
+      },
+    }),
 
-  const addExchange = async () => {
-    try {
-      setIsApiProc(true)
-      setError(false)
-      if (apiProc) return
-
-      let result = await addUserExchange({
-        secret,
-        apiKey,
-        exchange: exchange.value,
-        name: apiName,
-      })
-
-      if (result.status !== 200) {
-        setError(true)
-      } else {
-        await updateLastSelectedAPIKey({
-          apiKeyName: apiName,
-          exchange: exchange.value,
-        })
-        setStepNo(step + 1)
-        successNotification.open({ description: 'API key added!' })
-        analytics.logEvent('api_keys_added')
-        Event('user', 'api_keys_added', 'user')
-      }
-    } catch (e) {
-      console.log(e)
-    } finally {
-      setIsApiProc(false)
-    }
+    placeholder: (styles) => ({
+      ...styles,
+      color: '#273444',
+      fontWeight: 'bold',
+    }),
   }
 
   const modalVisibility = () => {
@@ -245,21 +275,6 @@ const OnboardingModal = () => {
     background: 'rgba(0,0,0,.5)',
     display: modalVisibility(),
   }
-
-  // const errorModalStyle = {
-  //   background: 'rgba(0,0,0,.5)',
-  //   display: errorModalVisibility(),
-  // }
-
-  const renderInputValidationError = (errorKey) => (
-    <>
-      {errors[errorKey] && (
-        <div className="d-flex align-items-center text-danger">
-          {errors[errorKey]}
-        </div>
-      )}
-    </>
-  )
 
   return (
     <>
@@ -363,56 +378,39 @@ const OnboardingModal = () => {
                   </div>
                   {renderInputValidationError('apiName')}
                 </div>
-                <div className="form-group">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text" id="basic-addon1">
-                        Key
-                      </span>
+                {exchangeForm &&
+                  formFields &&
+                  Object.entries(formFields).map((key) => (
+                    <div className="form-group">
+                      <div className="input-group">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text" id="basic-addon1">
+                            {key[0]}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          disabled={apiProc}
+                          className="form-control"
+                          placeholder={key[0] === 'Key' ? 'API Key' : key[0]}
+                          name={key[1]}
+                          value={exchangeForm[key[1]]}
+                          onChange={(event) => {
+                            validateInput({
+                              name: event.target.name,
+                              value: event.target.value,
+                            })
+                            setExchangeForm((state) => {
+                              return { ...state, [key[1]]: event.target.value }
+                            })
+                          }}
+                          aria-label={key[1]}
+                          aria-describedby="basic-addon1"
+                        />
+                      </div>
+                      {renderInputValidationError(key[1])}
                     </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="API Key"
-                      name="apiKey"
-                      value={apiKey}
-                      onChange={(event) => {
-                        validateInput({
-                          name: event.target.name,
-                          value: event.target.value,
-                        })
-                        setApiKey(event.target.value)
-                      }}
-                      aria-label="apikey"
-                      aria-describedby="basic-addon1"
-                    />
-                  </div>
-                  {renderInputValidationError('apiKey')}
-                </div>
-                <div className="form-group">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text" id="basic-addon1">
-                        Secret
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="secret"
-                      value={secret}
-                      onChange={(event) => {
-                        validateInput({
-                          name: event.target.name,
-                          value: event.target.value,
-                        })
-                        setSecret(event.target.value)
-                      }}
-                      placeholder="Secret"
-                    />
-                  </div>
-                  {renderInputValidationError('secret')}
-                </div>
+                  ))}
                 <div
                   className={`alert alert-danger ${
                     hasError ? 'd-show' : 'd-none'

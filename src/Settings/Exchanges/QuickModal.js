@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
-import { options } from './ExchangeOptions'
+import { options, validationRules } from './ExchangeOptions'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState({
@@ -10,18 +10,46 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     label: 'Binance',
     placeholder: 'Binance',
   })
+
   const [apiName, setApiName] = useState('')
-  const [apiKey, setApiKey] = useState('')
-  const [secret, setSecret] = useState('')
+  const [validation, setValidation] = useState({})
+  const [exchangeForm, setExchangeForm] = useState()
+  const [formFields, setFormFields] = useState()
 
   const errorInitialValues = {
     exchange: '',
     apiName: '',
-    apiKey: '',
-    secret: '',
   }
 
-  const [errors, setErrors] = useState(errorInitialValues)
+  const [errors, setErrors] = useState({
+    ...errorInitialValues,
+    ...exchangeForm,
+  })
+
+  const setExchangeFormFields = () => {
+    let exchangeFields = {}
+    let validationFields = {
+      exchange: validationRules.exchange,
+      apiName: validationRules.apiName,
+    }
+
+    const { fields } = options.find(
+      (exchangeItem) => exchange.value === exchangeItem.value
+    )
+
+    Object.values(fields).forEach((value) => {
+      exchangeFields[value] = ''
+      validationFields[value] = validationRules[value]
+    })
+    setExchangeForm(exchangeFields)
+    setErrors({ ...errorInitialValues, ...exchangeFields })
+    setValidation(validationFields)
+    setFormFields(fields)
+  }
+
+  useEffect(() => {
+    setExchangeFormFields()
+  }, [exchange])
 
   const customStyles = {
     control: (styles) => ({
@@ -44,26 +72,11 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     }),
   }
 
-  const formSchema = yup.object().shape({
-    exchange: yup.string().required('Exchange is required'),
-    apiName: yup
-      .string()
-      .required('API Name is required')
-      .min(3, 'Must be at least 3 characters')
-      .matches(/^[a-zA-Z0-9]+$/, {
-        message: 'Accepted characters are A-Z, a-z and 0-9.',
-        excludeEmptyString: true,
-      }),
-    apiKey: yup
-      .string()
-      .required('API Key is required')
-      .min(3, 'Must be at least 3 characters'),
-    secret: yup.string().required('API Secret is required'),
-  })
-
   const validateInput = (target) => {
-    const isValid = formSchema.fields[target.name]
-      .validate(target.value)
+    const isValid = yup
+      .object()
+      .shape(validation)
+      .fields[target.name].validate(target.value)
       .catch((error) => {
         setErrors((errors) => ({
           ...errors,
@@ -79,9 +92,11 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   }
 
   const validateForm = () => {
-    return formSchema
+    return yup
+      .object()
+      .shape(validation)
       .validate(
-        { exchange: exchange.value, apiName, apiKey, secret },
+        { exchange: exchange.value, apiName, ...exchangeForm },
         { abortEarly: false }
       )
       .catch((error) => {
@@ -101,7 +116,13 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      onSave({ secret, apiKey, exchange: exchange.value, name: apiName })
+      let body = {
+        apiKeyName: apiName,
+        exchange: exchange.value,
+        keyData: exchangeForm,
+      }
+
+      onSave(body)
     }
   }
 
@@ -201,60 +222,39 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                 </div>
                 {renderInputValidationError('apiName')}
               </div>
-
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Key
-                    </span>
+              {exchangeForm &&
+                formFields &&
+                Object.entries(formFields).map((key) => (
+                  <div className="form-group">
+                    <div className="input-group">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text" id="basic-addon1">
+                          {key[0]}
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        disabled={isLoading}
+                        className="form-control"
+                        placeholder={key[0] === 'Key' ? 'API Key' : key[0]}
+                        name={key[1]}
+                        value={exchangeForm[key[1]]}
+                        onChange={(event) => {
+                          validateInput({
+                            name: event.target.name,
+                            value: event.target.value,
+                          })
+                          setExchangeForm((state) => {
+                            return { ...state, [key[1]]: event.target.value }
+                          })
+                        }}
+                        aria-label={key[1]}
+                        aria-describedby="basic-addon1"
+                      />
+                    </div>
+                    {renderInputValidationError(key[1])}
                   </div>
-                  <input
-                    type="text"
-                    disabled={isLoading}
-                    className="form-control"
-                    placeholder="API Key"
-                    name="apiKey"
-                    value={apiKey}
-                    onChange={(event) => {
-                      validateInput({
-                        name: event.target.name,
-                        value: event.target.value,
-                      })
-                      setApiKey(event.target.value)
-                    }}
-                    aria-label="apikey"
-                    aria-describedby="basic-addon1"
-                  />
-                </div>
-                {renderInputValidationError('apiKey')}
-              </div>
-
-              <div className="form-group">
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text" id="basic-addon1">
-                      Secret
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    disabled={isLoading}
-                    className="form-control"
-                    name="secret"
-                    value={secret}
-                    onChange={(event) => {
-                      validateInput({
-                        name: event.target.name,
-                        value: event.target.value,
-                      })
-                      setSecret(event.target.value)
-                    }}
-                    placeholder="Secret"
-                  />
-                </div>
-                {renderInputValidationError('secret')}
-              </div>
+                ))}
             </div>
             <div className="modal-footer">
               <button

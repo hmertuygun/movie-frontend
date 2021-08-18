@@ -11,6 +11,10 @@
   z-index: 1;
 }
 
+.modal-lg {
+  margin-top: -1.5em;
+}
+
 @media (max-width: 575.98px) {
   .terBtn {
     width: 100%;

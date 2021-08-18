@@ -74,14 +74,9 @@ const Exchanges = () => {
     },
   })
 
-  const onAddExchange = async ({ name, apiKey, exchange, secret }) => {
+  const onAddExchange = async (formData) => {
     try {
-      await addExchangeMutation.mutate({
-        apiKey,
-        name,
-        secret,
-        exchange,
-      })
+      await addExchangeMutation.mutate(formData)
     } catch (error) {
       console.error(error)
     }
