@@ -296,7 +296,7 @@ const WatchListPanel = () => {
         )
     } catch (error) {
       errorNotification.open({
-        description: `Cannot create watch lists, Please try again later!`,
+        description: `Cannot create watch lists, Please try again later.`,
       })
     }
   }
@@ -400,7 +400,7 @@ const WatchListPanel = () => {
     setWatchListOptionPopoverOpen(false)
     if (activeWatchList.watchListName === DEFAULT_WATCHLIST) {
       errorNotification.open({
-        description: `Cannot delete Default Watch list!`,
+        description: `Cannot delete Default Watchlist.`,
       })
       return
     }

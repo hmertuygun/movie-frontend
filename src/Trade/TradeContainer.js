@@ -142,7 +142,7 @@ const TradeContainer = () => {
       await dismissNotice(item.id)
     } catch (e) {
       errorNotification.open({
-        description: `Couldn't dismiss notice. Please try again later!`,
+        description: `Couldn't dismiss notice. Please try again later.`,
       })
       console.log(e)
     }

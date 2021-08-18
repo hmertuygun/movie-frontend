@@ -284,9 +284,7 @@ const QuickRegister = () => {
 
                     {error && (
                       <div style={{ margin: '1rem 0', textAlign: 'center' }}>
-                        <span style={{ color: 'red' }}>
-                          Error: {error.message}
-                        </span>
+                        <span style={{ color: 'red' }}>{error.message}</span>
                       </div>
                     )}
                     <div className="form-group mb-0">

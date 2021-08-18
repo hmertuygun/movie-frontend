@@ -100,7 +100,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         errorNotification.open({
           description:
             data?.error ||
-            `Order couldn't be cancelled. Please try again later`,
+            `Order couldn't be cancelled. Please try again later.`,
         })
       } else {
         setDeletedRows(order.trade_id)
@@ -109,7 +109,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
       }
     } catch (error) {
       errorNotification.open({
-        description: `Order couldn't be cancelled. Please try again later`,
+        description: `Order couldn't be cancelled. Please try again later.`,
       })
     } finally {
       setCancelOrderRow(null)
@@ -151,7 +151,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
       const { data } = error.response
       errorNotification.open({
         description:
-          data?.detail || `Order couldn't be edited. Please try again later`,
+          data?.detail || `Order couldn't be edited. Please try again later.`,
       })
     } finally {
       setEditLoading(false)
