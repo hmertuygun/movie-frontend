@@ -1,13 +1,13 @@
 .full-screen-loader {
   position: absolute;
   top: 71px;
-  height: 100%;
+  height: calc(100vh - 71px);
   width: 100%;
   background-color: var(--trade-background) !important;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999999;
+  z-index: 2;
   transition: 0.2s all ease-in-out;
 }
 @media (max-width: 575.98px) {
