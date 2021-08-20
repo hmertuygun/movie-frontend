@@ -30,20 +30,20 @@ export default function App() {
         <Router>
           <ThemeContextProvider>
             <UserContextProvider>
-              <SymbolContextProvider>
-                <TabContextProvider>
-                  <PositionCTXProvider>
-                    <PortfolioCTXProvider>
+              <PortfolioCTXProvider>
+                <SymbolContextProvider>
+                  <TabContextProvider>
+                    <PositionCTXProvider>
                       <ErrorBoundary componentName="Header">
                         <Suspense fallback={<div></div>}>
                           <Header />
                         </Suspense>
                       </ErrorBoundary>
                       <Routes />
-                    </PortfolioCTXProvider>
-                  </PositionCTXProvider>
-                </TabContextProvider>
-              </SymbolContextProvider>
+                    </PositionCTXProvider>
+                  </TabContextProvider>
+                </SymbolContextProvider>
+              </PortfolioCTXProvider>
             </UserContextProvider>
           </ThemeContextProvider>
         </Router>

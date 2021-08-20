@@ -30,6 +30,7 @@ const LimitForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     refreshBalance,
+    getUpdatedBalance,
   } = useSymbolContext()
 
   const { addEntry } = useContext(TradeContext)
@@ -388,7 +389,7 @@ const LimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={getUpdatedBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

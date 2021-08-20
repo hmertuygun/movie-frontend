@@ -54,8 +54,12 @@ const Trade = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol, setIsOrderPlaced, refreshBalance } =
-    useContext(SymbolContext)
+  const {
+    selectedSymbol,
+    setIsOrderPlaced,
+    refreshBalance,
+    getUpdatedBalance,
+  } = useContext(SymbolContext)
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
@@ -99,7 +103,7 @@ const Trade = () => {
           `placed_full_trade_${entry.type}_order`
         )
         if (entry.type !== 'stop-limit' && entry.type !== 'stop-market') {
-          refreshBalance()
+          getUpdatedBalance()
         }
       }
       setIsModalVisible(false)
