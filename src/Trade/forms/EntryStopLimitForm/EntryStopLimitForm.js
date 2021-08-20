@@ -29,6 +29,7 @@ const EntryStopLimitForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     refreshBalance,
+    getUpdatedBalance,
   } = useSymbolContext()
 
   const { addEntryStopLimit } = useContext(TradeContext)
@@ -417,7 +418,7 @@ const EntryStopLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={getUpdatedBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

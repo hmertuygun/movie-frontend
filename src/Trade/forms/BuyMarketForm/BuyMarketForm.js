@@ -39,6 +39,7 @@ const BuyMarketForm = () => {
     isLoadingLastPrice,
     selectedSymbolLastPrice,
     refreshBalance,
+    getUpdatedBalance,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
 
@@ -392,7 +393,7 @@ const BuyMarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={getUpdatedBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"
