@@ -21,7 +21,6 @@ export default class TradingViewChart extends Component {
     delOrderId,
     exchange,
     marketSymbols,
-    chartReady,
     sniperBtnClicked,
     drawingsBtnClicked,
     onError,
@@ -545,9 +544,6 @@ export default class TradingViewChart extends Component {
       this.chartEvent('onAutoSaveNeeded')
       // this.chartShortCutSave()
       this.chartEvent('drawing_event')
-      setTimeout(() => {
-        this.props.chartReady(true)
-      }, 2500)
     }
   }
 
