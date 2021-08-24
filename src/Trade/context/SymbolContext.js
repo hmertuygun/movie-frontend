@@ -33,7 +33,7 @@ const SymbolContextProvider = ({ children }) => {
     loadApiKeys,
     isOnboardingSkipped,
   } = useContext(UserContext)
-  const { balance, refreshData, loading } = useContext(PortfolioContext)
+  const { balance, refreshData } = useContext(PortfolioContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const DEFAULT_EXCHANGE = 'BINANCE'
@@ -321,12 +321,6 @@ const SymbolContextProvider = ({ children }) => {
   }, [balance])
 
   useEffect(() => {
-    if (loading) {
-      setIsLoadingBalance(true)
-    }
-  }, [loading])
-
-  useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
     const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
     //loadBalance(qouteAsset, baseAsset)
@@ -562,7 +556,7 @@ const SymbolContextProvider = ({ children }) => {
   const refreshBalance = async () => {
     setIsLoadingBalance(true)
     await refreshData()
-    // getUpdatedBalance()
+    getUpdatedBalance()
   }
 
   const getUpdatedBalance = async () => {
