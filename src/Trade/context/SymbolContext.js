@@ -15,7 +15,6 @@ import {
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
-import { PortfolioContext } from '../../Portfolio/context/PortfolioContext'
 import { errorNotification } from '../../components/Notifications'
 import ccxt from 'ccxt'
 export const SymbolContext = createContext()
@@ -33,7 +32,6 @@ const SymbolContextProvider = ({ children }) => {
     loadApiKeys,
     isOnboardingSkipped,
   } = useContext(UserContext)
-  const { balance, refreshData } = useContext(PortfolioContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const DEFAULT_EXCHANGE = 'BINANCE'
@@ -315,12 +313,6 @@ const SymbolContextProvider = ({ children }) => {
   }, [activeExchange])
 
   useEffect(() => {
-    if (balance) {
-      getUpdatedBalance()
-    }
-  }, [balance])
-
-  useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
     const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
     //loadBalance(qouteAsset, baseAsset)
@@ -332,7 +324,7 @@ const SymbolContextProvider = ({ children }) => {
     const [baseAsset, qouteAsset] = symbolType.split('/')
     setBaseAsset(baseAsset)
     setQuoteAsset(qouteAsset)
-    getUpdatedBalance()
+    loadBalance(qouteAsset, baseAsset)
   }, [activeExchange, symbolType])
 
   useEffect(() => {
@@ -449,15 +441,20 @@ const SymbolContextProvider = ({ children }) => {
         return
       setIsLoadingBalance(true)
       if (!isOnboardingSkipped) {
-        let quoteBalance =
-          balance && balance.find((value) => value.SYMBOL === quote_asset)
-        if (quoteBalance?.BALANCE)
-          setSelectedSymbolBalance(quoteBalance.BALANCE)
+        const quoteBalance = await getBalance({
+          symbol: quote_asset,
+          ...activeExchange,
+        })
+        if (quoteBalance?.data?.balance)
+          setSelectedSymbolBalance(quoteBalance.data.balance)
         else setSelectedSymbolBalance(0)
-        let baseBalance =
-          balance && balance.filter((value) => value.SYMBOL === base_asset)
-        if (baseBalance?.BALANCE)
-          setSelectedBaseSymbolBalance(baseBalance.BALANCE)
+
+        const baseBalance = await getBalance({
+          symbol: base_asset,
+          ...activeExchange,
+        })
+        if (baseBalance?.data?.balance)
+          setSelectedBaseSymbolBalance(baseBalance.data.balance)
         else setSelectedBaseSymbolBalance(0)
       }
     } catch (err) {
@@ -555,14 +552,8 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshBalance = async () => {
     setIsLoadingBalance(true)
-    await refreshData()
-    getUpdatedBalance()
-  }
-
-  const getUpdatedBalance = async () => {
-    if (balance && selectedSymbolDetail?.quote_asset) {
-      setIsLoadingBalance(true)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
         selectedSymbolDetail.quote_asset,
         selectedSymbolDetail.base_asset
@@ -643,7 +634,6 @@ const SymbolContextProvider = ({ children }) => {
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
         chartData,
-        getUpdatedBalance,
       }}
     >
       {children}

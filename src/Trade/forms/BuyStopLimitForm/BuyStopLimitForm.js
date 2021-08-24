@@ -38,7 +38,6 @@ const BuyStopLimitForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     refreshBalance,
-    getUpdatedBalance,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
 
@@ -477,7 +476,7 @@ const BuyStopLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={getUpdatedBalance}
+            onClick={refreshBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

@@ -43,7 +43,6 @@ const TakeProfitMarketForm = () => {
     selectedBaseSymbolBalance,
     isLoadingBalance,
     refreshBalance,
-    getUpdatedBalance,
     selectedSymbolLastPrice,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
@@ -427,7 +426,7 @@ const TakeProfitMarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={getUpdatedBalance}
+            onClick={refreshBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"
