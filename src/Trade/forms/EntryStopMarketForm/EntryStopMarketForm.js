@@ -30,7 +30,6 @@ const EntryStopMarketForm = () => {
     selectedSymbolBalance,
     isLoadingBalance,
     refreshBalance,
-    getUpdatedBalance,
   } = useSymbolContext()
 
   const { addEntryStopMarket } = useContext(TradeContext)
@@ -389,7 +388,7 @@ const EntryStopMarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={getUpdatedBalance}
+            onClick={refreshBalance}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

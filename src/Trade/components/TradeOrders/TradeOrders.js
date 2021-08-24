@@ -29,7 +29,6 @@ const TradeOrders = () => {
     disableOpenOrdersRefreshBtn,
     orderHistoryTimeInterval,
     openOrdersTimeInterval,
-    getUpdatedBalance,
   } = useSymbolContext()
   const {
     activeExchange,
@@ -225,7 +224,7 @@ const TradeOrders = () => {
     // let dIndex = arrData.findIndex(item => item.trade_id === row.trade_id)
     // arrData.splice(dIndex, 1)
     // setOpenOrderData(arrData)
-    getUpdatedBalance()
+    refreshBalance()
   }
 
   useEffect(() => {
