@@ -82,6 +82,7 @@ const UserContextProvider = ({ children }) => {
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
   const [chartMirroring, setChartMirroring] = useState(false)
+  const [isChartReady, setIsChartReady] = useState(false)
 
   const history = useHistory()
   useEffect(() => {
@@ -669,6 +670,8 @@ const UserContextProvider = ({ children }) => {
         handleOnboardingSkip,
         isOnboardingSkipped,
         handleOnboardingShow,
+        isChartReady,
+        setIsChartReady,
       }}
     >
       {children}

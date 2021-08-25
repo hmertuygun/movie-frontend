@@ -261,6 +261,24 @@ const TradeContainer = () => {
             >
               <ErrorBoundary componentName="TradeChart">
                 <Suspense fallback={<div></div>}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      marginLeft: '486px',
+                      width: '150px',
+                      height: '38px',
+                    }}
+                    id="mirroring-tour1"
+                  ></div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      marginLeft: '345px',
+                      width: '135px',
+                      height: '38px',
+                    }}
+                    id="mirroring-tour2"
+                  ></div>
                   <TradeChart />
                 </Suspense>
               </ErrorBoundary>
