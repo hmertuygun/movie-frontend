@@ -90,18 +90,3 @@ export const secondTourSteps = [
       'If you enabled Telegram bot, you can turn off Email Notifications to avoid lots of notification emails in your inbox.',
   },
 ]
-
-export const mirroringTourSteps = [
-  {
-    target: '#mirroring-tour1',
-    title: 'Seeing Sheldon The Sniper’s Charts',
-    content:
-      'Click this button to toggle between your charts and Sniper’s charts.',
-  },
-  {
-    target: '#mirroring-tour2',
-    title: 'Watchlist Mode',
-    content:
-      'You can use the watchlist mode to mirror the trader’s watchlist as well.',
-  },
-]
