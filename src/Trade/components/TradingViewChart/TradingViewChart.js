@@ -87,8 +87,6 @@ export default class TradingViewChart extends Component {
         this.addSniperModeButton()
         this.addLoadDrawingsButton()
         this.addHeaderButtons()
-        const { setIsChartReady } = this.context
-        setIsChartReady(true)
       })
     } catch (e) {
       console.log(e)
