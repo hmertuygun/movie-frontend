@@ -470,14 +470,20 @@ const SymbolContextProvider = ({ children }) => {
     try {
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
-      const response = await backOff(() =>
-        getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange)
+      const response = await backOff(
+        () =>
+          getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange),
+        { jitter: 'full', numOfAttempts: 3, timeMultiple: 10 }
       )
       if (response?.data?.last_price !== 'NA')
         setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
     } catch (err) {
       console.error(err)
+      errorNotification.open({
+        description: `Error getting last price of market.`,
+        key: 'last-price-warning',
+      })
       setSelectedSymbolLastPrice(0)
     } finally {
       setIsLoadingLastPrice(false)
