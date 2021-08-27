@@ -101,6 +101,17 @@ const TradeChart = () => {
     setWatchListOpen((watchListOpen) => !watchListOpen)
   }
 
+  useEffect(() => {
+    const helpButtonElement = document.getElementById('launcher')
+    if (!helpButtonElement) return
+
+    if (watchListOpen) {
+      helpButtonElement.style.display = 'none'
+    } else {
+      helpButtonElement.style.display = 'unset'
+    }
+  }, [watchListOpen])
+
   const onDrawingsBtnClick = (e) => {
     setTemplateDrawingsOpen((templateDrawingsOpen) => {
       localStorage.setItem('chartMirroring', !templateDrawingsOpen)

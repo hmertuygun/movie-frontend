@@ -412,9 +412,9 @@ export default class TradingViewChart extends Component {
   }
 
   addSniperModeButton = async () => {
-    const { isOnboardingSkipped } = this.context
-    const value = isOnboardingSkipped ? 'Watchlist Mode' : 'Sniper Mode'
     if (!this.tradingViewWidget) return
+
+    const value = 'Watchlist Mode'
     await this.tradingViewWidget.headerReady()
     let button = this.tradingViewWidget.createButton()
     button.setAttribute('title', value)
