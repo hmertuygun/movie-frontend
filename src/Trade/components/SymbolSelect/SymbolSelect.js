@@ -15,6 +15,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     binanceDD,
     binanceUSDD,
     ftxDD,
+    kucoinDD,
   } = useSymbolContext()
 
   const EXCHANGES = useMemo(() => {
@@ -22,8 +23,9 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       binance: binanceDD,
       binanceus: binanceUSDD,
       ftx: ftxDD,
+      kucoin: kucoinDD,
     }
-  }, [binanceDD, binanceUSDD, ftxDD])
+  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD])
 
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -113,6 +115,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
   }, [
     binanceDD,
     ftxDD,
+    kucoinDD,
     activeExchange?.exchange,
     binanceUSDD,
     activeExchange,

@@ -346,6 +346,18 @@ const MarketForm = () => {
             }
             break
           }
+          case 'kucoin': {
+            try {
+              const ftx = new ccxt.kucoin({
+                proxy: 'https://nodejs-cors.herokuapp.com/',
+              })
+              const response = await ftx.fetchTicker(symbol)
+              price = response.last
+            } catch (error) {
+              console.log(error)
+            }
+            break
+          }
 
           default:
             break

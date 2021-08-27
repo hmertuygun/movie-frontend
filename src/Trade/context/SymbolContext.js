@@ -17,6 +17,7 @@ import {
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
 import ccxt from 'ccxt'
+import { execExchangeFunc } from '../../helpers/getExchangeProp'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -66,6 +67,7 @@ const SymbolContextProvider = ({ children }) => {
   const [qouteAsset, setQuoteAsset] = useState('')
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
+  const [kucoinDD, setKucoinDD] = useState([])
   const [binanceUSDD, setBinanceUSDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
@@ -87,87 +89,49 @@ const SymbolContextProvider = ({ children }) => {
       templateDrawingsOpen && watchListOpen
         ? 'binance'
         : activeExchange.exchange
-
     let socketURL = ''
-    switch (exchange) {
-      case 'binance':
-        socketURL = 'wss://stream.binance.com:9443/stream'
-        break
-      case 'binanceus':
-        socketURL = 'wss://stream.binance.us:9443/stream'
-        break
-      case 'ftx':
-        socketURL = 'wss://ftx.com/ws/'
-        break
-
-      default:
-        break
+    if (exchange == 'kucoin') {
+      const token = localStorage.getItem('kucoinEndpoint')
+      if (token) {
+        let { endpoint, date } = JSON.parse(token)
+        if (endpoint)
+          socketURL = `wss://ws-api.kucoin.com/endpoint?token=${endpoint}&[connectId=${Date.now()}]`
+      }
+    } else if (exchange == 'binance') {
+      socketURL = 'wss://stream.binance.com:9443/stream'
+    } else if (exchange == 'binanceus') {
+      socketURL = 'wss://stream.binance.us:9443/stream'
     }
+
     if (!socketURL) return
+
+    let label = ''
+    if (!selectedSymbol.label) {
+      if (localStorage.getItem('selectedSymbol')) {
+        label = localStorage.getItem('selectedSymbol').replace('/', '-')
+      } else {
+        label = DEFAULT_SYMBOL_LOAD_DASH
+      }
+    } else {
+      label = selectedSymbol.label
+    }
+
     const rws = new ReconnectingWebSocket(socketURL)
+
     rws.addEventListener('open', () => {
       setLastMessage([])
-      switch (exchange) {
-        case 'binance':
-          setSocketLiveUpdate(true)
-          rws.send(
-            JSON.stringify({
-              id: 1,
-              method: 'SUBSCRIBE',
-              params: ['!ticker@arr'],
-            })
-          )
-          break
-        case 'binanceus':
-          setSocketLiveUpdate(true)
-          rws.send(
-            JSON.stringify({
-              id: 1,
-              method: 'SUBSCRIBE',
-              params: ['!ticker@arr'],
-            })
-          )
-          break
-
-        case 'ftx':
-          setSocketLiveUpdate(false)
-          break
-
-        default:
-          break
-      }
+      setSocketLiveUpdate(true)
+      const initSubMessage = execExchangeFunc(exchange, 'initSubscribe', {
+        label,
+      })
+      rws.send(initSubMessage)
     })
 
-    const onBinanceMessage = (lastMessage) => {
-      if (lastMessage && 'data' in JSON.parse(lastMessage.data)) {
-        const marketData = JSON.parse(lastMessage.data).data.map((item) => {
-          return {
-            symbol: item.s,
-            lastPrice: item.c,
-            priceChange: item.p,
-            priceChangePercent: item.P,
-            highPrice: item.h,
-            lowPrice: item.l,
-            volume: item.v,
-            quoteVolume: item.q,
-          }
-        })
-        setLastMessage(marketData)
-      }
-    }
-
     rws.addEventListener('message', (lastMessage) => {
-      switch (exchange) {
-        case 'binance':
-          onBinanceMessage(lastMessage)
-          break
-        case 'binanceus':
-          onBinanceMessage(lastMessage)
-          break
-
-        default:
-          break
-      }
+      const message = execExchangeFunc(exchange, 'onSocketMessage', {
+        lastMessage,
+      })
+      if (message) setLastMessage(message)
     })
 
     rws.addEventListener('error', (error) => {
@@ -182,112 +146,7 @@ const SymbolContextProvider = ({ children }) => {
       rws.removeEventListener('open')
       rws.removeEventListener('message')
     }
-  }, [activeExchange, templateDrawingsOpen, watchListOpen])
-
-  useEffect(() => {
-    const exchange =
-      templateDrawingsOpen && watchListOpen
-        ? 'binance'
-        : activeExchange.exchange
-    if (!socketLiveUpdate) {
-      if (timer) clearInterval(timer)
-      switch (exchange) {
-        case 'binance':
-          {
-            const getFirstData = async () => {
-              const data = await get24hrTickerPrice('binance')
-              setLastMessage(data)
-            }
-            getFirstData()
-            setTimer(
-              setInterval(async () => {
-                try {
-                  getFirstData()
-                  setPollingLiveUpdate(true)
-                } catch (error) {
-                  setPollingLiveUpdate(false)
-                  Sentry.captureException(error)
-                }
-              }, 5000)
-            )
-          }
-          break
-        case 'binanceus':
-          {
-            const getFirstData = async () => {
-              const data = await get24hrTickerPrice('binanceus')
-              setLastMessage(data)
-            }
-            getFirstData()
-            setTimer(
-              setInterval(async () => {
-                try {
-                  getFirstData()
-                  setPollingLiveUpdate(true)
-                } catch (error) {
-                  setPollingLiveUpdate(false)
-                  Sentry.captureException(error)
-                }
-              }, 5000)
-            )
-          }
-          break
-        case 'ftx':
-          {
-            const fetchTickers = async () => {
-              try {
-                const ftx = new ccxt.ftx({
-                  proxy: 'https://nodejs-cors.herokuapp.com/',
-                })
-                const response = await ftx.fetchTickers()
-                return response
-              } catch (error) {
-                console.log(error)
-              }
-            }
-            const getFirstData = async () => {
-              const response = await fetchTickers()
-              if (!response) return
-              const message = Object.values(response).map((item) => {
-                return {
-                  symbol: item.symbol,
-                  lastPrice: item.last,
-                  priceChange: item.change,
-                  priceChangePercent: item.percentage,
-                  highPrice: item.high,
-                  lowPrice: item.low,
-                  volume: item.baseVolume,
-                  quoteVolume: item.quoteVolume,
-                }
-              })
-              setLastMessage(message)
-            }
-
-            getFirstData()
-            setTimer(
-              setInterval(async () => {
-                try {
-                  getFirstData()
-                  setPollingLiveUpdate(true)
-                } catch (error) {
-                  setPollingLiveUpdate(false)
-                  Sentry.captureException(error)
-                }
-              }, 5000)
-            )
-          }
-          break
-
-        default:
-          break
-      }
-    } else {
-      if (timer) clearInterval(timer)
-    }
-    return () => {
-      clearInterval(timer)
-    }
-  }, [socketLiveUpdate, activeExchange, templateDrawingsOpen, watchListOpen])
+  }, [activeExchange, templateDrawingsOpen, watchListOpen, selectedSymbol])
 
   useEffect(() => {
     let { exchange } = activeExchange
@@ -533,11 +392,13 @@ const SymbolContextProvider = ({ children }) => {
       if (!data?.exchanges?.length || !data?.symbolsChange) {
         return
       }
-      const [binance, ftx, binanceus] = data.exchanges
+
+      const [binance, ftx, binanceus, kucoin] = data.exchanges
       setSymbols(() => [
         ...binance.symbols,
         ...ftx.symbols,
         ...binanceus.symbols,
+        ...kucoin.symbols,
       ])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
@@ -547,6 +408,7 @@ const SymbolContextProvider = ({ children }) => {
       setBinanceDD(() => binance.symbols)
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
+      setKucoinDD(() => kucoin.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -633,6 +495,7 @@ const SymbolContextProvider = ({ children }) => {
         binanceDD,
         binanceUSDD,
         ftxDD,
+        kucoinDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,

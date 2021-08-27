@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
-import dataFeed from './dataFeed'
+import dataFeed from '../../../api/dataFeed'
 import { firebase } from '../../../firebase/firebase'
 import { errorNotification } from '../../../components/Notifications'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
@@ -107,6 +107,8 @@ export default class TradingViewChart extends Component {
             localStorage.setItem('selectedIntervalFtx', interval)
           } else if (this.props.exchange === 'binanceus') {
             localStorage.setItem('selectedIntervalBinanceus', interval)
+          } else if (this.props.exchange === 'binanceus') {
+            localStorage.setItem('selectedIntervalKucoin', interval)
           }
         })
     } catch (e) {
@@ -127,6 +129,10 @@ export default class TradingViewChart extends Component {
     } else if (this.props.exchange === 'binanceus') {
       this.chartObject.setResolution(
         localStorage.getItem('selectedIntervalBinanceus') || '1D'
+      )
+    } else if (this.props.exchange === 'kucoin') {
+      this.chartObject.setResolution(
+        localStorage.getItem('selectedIntervalKucoin') || '1D'
       )
     }
   }

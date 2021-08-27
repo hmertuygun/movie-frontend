@@ -6,7 +6,7 @@ import * as yup from 'yup'
 import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
-import { useSymbolContext } from '../../Trade/context/SymbolContext'
+import { useSymbolContext } from '../context/SymbolContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,

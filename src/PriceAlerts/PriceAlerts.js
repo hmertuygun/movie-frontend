@@ -42,6 +42,7 @@ const exchangeOptions = [
   { label: 'Binance', value: 'binance' },
   { label: 'FTX', value: 'ftx' },
   { label: 'Binance.us', value: 'binanceus' },
+  { label: 'KuCoin', value: 'kucoin' },
 ]
 const conditionOptions = [
   { label: `Less and equal to ≤`, value: '<=' },
@@ -105,7 +106,7 @@ const AddOrEditPriceAlert = ({
   cardOp,
   onCancel,
 }) => {
-  const { symbols, symbolDetails, binanceDD, ftxDD, binanceUSDD } =
+  const { symbols, symbolDetails, binanceDD, ftxDD, binanceUSDD, kucoinDD } =
     useSymbolContext()
 
   const [state, setState] = useState(INITIAL_STATE)
@@ -191,6 +192,13 @@ const AddOrEditPriceAlert = ({
         setState((prevVal) => ({
           ...prevVal,
           symbol: { label: 'BTC-USDT', value: 'BINANCEUS:BTC/USDT' },
+        }))
+    } else if (state.exchange.value === 'kucoin') {
+      let key = `KUCOIN:${state.symbol.label.replace('-', '/')}`
+      if (!symbolDetails[key])
+        setState((prevVal) => ({
+          ...prevVal,
+          symbol: { label: 'BTC-USDT', value: 'KUCOIN:BTC/USDT' },
         }))
     }
   }, [state.exchange, state.symbol.label, symbolDetails])
@@ -324,6 +332,20 @@ const AddOrEditPriceAlert = ({
               styles={customStyles}
               className={`${
                 state.exchange.value === 'binanceUSDD' ? 'd-block' : 'd-none'
+              }`}
+            />
+            <Select
+              components={{
+                IndicatorSeparator: () => null,
+              }}
+              options={kucoinDD}
+              placeholder="Select trading pair"
+              value={state.symbol}
+              onChange={(value) => onInputChange('symbol', value)}
+              isDisabled={!binanceUSDD.length}
+              styles={customStyles}
+              className={`${
+                state.exchange.value === 'kucoinDD' ? 'd-block' : 'd-none'
               }`}
             />
             {/* <div className={`${state.exchange.value === 'binance' ? 'd-flex' : 'd-none'}`}>
