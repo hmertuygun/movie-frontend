@@ -59,6 +59,22 @@ const initSubscribe = ({ label }) => {
   })
 }
 
+const fetchTickers = () => {
+  return new Promise(async (resolve) => {
+    const client = new XMLHttpRequest()
+    client.open(
+      'GET',
+      'https://nodejs-cors.herokuapp.com/https://api.kucoin.com/api/v1/market/allTickers'
+    )
+    client.send()
+    client.onload = () => {
+      const { data } = JSON.parse(client.responseText)
+      const { ticker } = data
+      resolve(ticker)
+    }
+  })
+}
+
 const getSocketEndpoint = () => {
   return new Promise(async (resolve) => {
     const token = localStorage.getItem('kucoinEndpoint')
@@ -115,6 +131,22 @@ const getSocketEndpoint = () => {
     }
   })
 }
+
+const editMessage = (data) => {
+  return data.map((sy) => {
+    return {
+      symbol: sy.symbol.replace('-', '/'),
+      lastPrice: sy.last,
+      priceChange: sy.changePrice,
+      priceChangePercent: sy.changeRate,
+      highPrice: sy.high,
+      lowPrice: sy.last,
+      volume: sy.vol,
+      quoteVolume: sy.volValue,
+    }
+  })
+}
+
 const KuCoin = {
   getKlines,
   editSymbol,
@@ -122,6 +154,8 @@ const KuCoin = {
   onSocketMessage,
   initSubscribe,
   getSocketEndpoint,
+  fetchTickers,
+  editMessage,
 }
 
 export default KuCoin

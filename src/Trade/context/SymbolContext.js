@@ -84,6 +84,36 @@ const SymbolContextProvider = ({ children }) => {
     checkDisableBtnStatus()
   }, [])
 
+  const useInterval = (callback, delay) => {
+    const savedCallback = React.useRef()
+
+    useEffect(() => {
+      savedCallback.current = callback
+    }, [callback])
+
+    useEffect(() => {
+      function tick() {
+        savedCallback.current()
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay)
+        return () => clearInterval(id)
+      }
+    }, [delay])
+  }
+
+  useInterval(async () => {
+    const exchange =
+      templateDrawingsOpen && watchListOpen
+        ? 'binance'
+        : activeExchange.exchange
+    if (exchange === 'kucoin') {
+      const data = await execExchangeFunc(exchange, 'fetchTickers')
+      const tickers = execExchangeFunc(exchange, 'editMessage', data)
+      setLastMessage(tickers)
+    }
+  }, 4000)
+
   useEffect(() => {
     const exchange =
       templateDrawingsOpen && watchListOpen
@@ -327,6 +357,7 @@ const SymbolContextProvider = ({ children }) => {
 
   const loadLastPrice = async (symbolpair, exchangeParam) => {
     try {
+      console.log(symbolpair)
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
       const response = await backOff(
@@ -334,6 +365,7 @@ const SymbolContextProvider = ({ children }) => {
           getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange),
         { jitter: 'full', numOfAttempts: 3, timeMultiple: 10 }
       )
+      console.log(response)
       if (response?.data?.last_price !== 'NA')
         setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
@@ -354,6 +386,7 @@ const SymbolContextProvider = ({ children }) => {
     const symbolT = symbol.label.replace('-', '/')
     localStorage.setItem('selectedSymbol', symbolT)
     setSymbolType(symbolT)
+    console.log(symbolDetails[symbol.value])
     setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbol(symbol)
     try {

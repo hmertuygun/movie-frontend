@@ -53,12 +53,18 @@ const initSubscribe = ({ label }) => {
   })
 }
 
+const fetchTickers = () => {}
+
+const editMessage = () => {}
+
 const Binance = {
   getKlines,
   editSymbol,
   editKline,
   onSocketMessage,
   initSubscribe,
+  editMessage,
+  fetchTickers,
 }
 
 export default Binance

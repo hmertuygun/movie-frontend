@@ -131,6 +131,8 @@ export const options = [
     editKline: KuCoin.editKline,
     onSocketMessage: KuCoin.onSocketMessage,
     initSubscribe: KuCoin.initSubscribe,
+    fetchTickers: KuCoin.fetchTickers,
+    editMessage: KuCoin.editMessage,
     resolutions: [
       '1',
       '3',

@@ -54,6 +54,9 @@ const initSubscribe = ({ label }) => {
     params: ['!ticker@arr'],
   })
 }
+const fetchTickers = () => {}
+
+const editMessage = () => {}
 
 const BinanceUS = {
   getKlines,
@@ -61,6 +64,8 @@ const BinanceUS = {
   editKline,
   onSocketMessage,
   initSubscribe,
+  editMessage,
+  fetchTickers,
 }
 
 export default BinanceUS
