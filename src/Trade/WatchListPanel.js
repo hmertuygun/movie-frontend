@@ -168,15 +168,21 @@ const WatchListPanel = () => {
       })
 
       const tickSize = symbolDetails?.[symbol.value]?.tickSize
-
+      if (!activeMarketData?.lastPrice) {
+        previousData = symbolsList.find((curr) => symbol.value === curr.value)
+      }
       symbolArray.push({
         ...symbol,
         percentage: activeMarketData?.priceChangePercent
           ? +activeMarketData?.priceChangePercent
+          : previousData?.percentage
+          ? previousData?.percentage
           : 0,
         lastPrice: activeMarketData?.lastPrice
           ? Number(activeMarketData?.lastPrice)?.toFixed(tickSize)
-          : NaN,
+          : previousData?.lastPrice
+          ? previousData?.lastPrice
+          : '',
       })
     }
     setLoading(false)
