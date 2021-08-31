@@ -283,8 +283,10 @@ const SymbolContextProvider = ({ children }) => {
       let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } =
         data
       drawings = drawings && drawings[userData?.email]
-      lastSelectedSymbol =
-        lastSelectedSymbol || `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      let lastSymbolExchange = lastSelectedSymbol.split(':')[0].toLowerCase()
+      if (lastSymbolExchange !== exchange) {
+        lastSelectedSymbol = `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      }
       intervals = intervals || []
       setChartData({
         drawings,
@@ -357,7 +359,6 @@ const SymbolContextProvider = ({ children }) => {
 
   const loadLastPrice = async (symbolpair, exchangeParam) => {
     try {
-      console.log(symbolpair)
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
       const response = await backOff(
@@ -365,7 +366,6 @@ const SymbolContextProvider = ({ children }) => {
           getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange),
         { jitter: 'full', numOfAttempts: 3, timeMultiple: 10 }
       )
-      console.log(response)
       if (response?.data?.last_price !== 'NA')
         setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
@@ -386,7 +386,6 @@ const SymbolContextProvider = ({ children }) => {
     const symbolT = symbol.label.replace('-', '/')
     localStorage.setItem('selectedSymbol', symbolT)
     setSymbolType(symbolT)
-    console.log(symbolDetails[symbol.value])
     setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbol(symbol)
     try {

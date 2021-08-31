@@ -64,7 +64,6 @@ export default class socketClient {
                 }
                 this.ping = this.ping + 1
                 if (this.ping % 10 === 0) {
-                  console.warn('ping')
                   this._ws.send(
                     JSON.stringify({
                       id: Date.now(),

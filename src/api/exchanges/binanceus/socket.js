@@ -57,7 +57,6 @@ export default class socketClient {
             if (Object.keys(this.streams).length) {
               localStorage.setItem('lastSocketData', new Date().getTime())
               localStorage.setItem('WS', 1)
-              console.log(lastSocketData)
               this.streams[s].data = lastSocketData
               this.streams[s].listener(lastSocketData)
             }

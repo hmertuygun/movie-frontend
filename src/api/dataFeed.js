@@ -135,7 +135,6 @@ export default class dataFeed {
 
           totalKlines = totalKlines && totalKlines.concat(data)
           if (data.length === kLinesLimit) {
-            console.log('asd')
             from = data[data.length - 1][0] + 1
             getKlines(from, to)
           } else {
@@ -175,7 +174,6 @@ export default class dataFeed {
 
   searchSymbols(userInput, exchange, symbolType, onResultReadyCallback) {
     userInput = userInput.toUpperCase()
-    console.log(this.symbolList)
     onResultReadyCallback(
       this.symbolList
         .filter((symbol) => {
