@@ -1,5 +1,5 @@
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  const url = `https://nodejs-cors.herokuapp.com/https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${
+  const url = `https://thingproxy.freeboard.io/fetch/https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${
     startTime / 1000
   }&endAt=${endTime / 1000}`
   console.log(url)
@@ -64,7 +64,7 @@ const fetchTickers = () => {
     const client = new XMLHttpRequest()
     client.open(
       'GET',
-      'https://nodejs-cors.herokuapp.com/https://api.kucoin.com/api/v1/market/allTickers'
+      'https://thingproxy.freeboard.io/fetch/https://api.kucoin.com/api/v1/market/allTickers'
     )
     client.send()
     client.onload = () => {
@@ -89,7 +89,7 @@ const getSocketEndpoint = () => {
         const client = new XMLHttpRequest()
         client.open(
           'POST',
-          'https://nodejs-cors.herokuapp.com/https://api.kucoin.com/api/v1/bullet-public'
+          'https://thingproxy.freeboard.io/fetch/https://api.kucoin.com/api/v1/bullet-public'
         )
         client.send()
 
@@ -111,7 +111,7 @@ const getSocketEndpoint = () => {
       const client = new XMLHttpRequest()
       client.open(
         'POST',
-        'https://nodejs-cors.herokuapp.com/https://api.kucoin.com/api/v1/bullet-public'
+        'https://thingproxy.freeboard.io/fetch/https://api.kucoin.com/api/v1/bullet-public'
       )
       client.send()
 
