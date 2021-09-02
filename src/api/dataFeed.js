@@ -15,7 +15,7 @@ export default class dataFeed {
     this.socketClass = getExchangeProp(this.selectedExchange, 'socketClass')
     this.ws = new this.socketClass()
     this.kucoin = new ccxt.kucoin({
-      proxy: 'https://thingproxy.freeboard.io/fetch/',
+      proxy: 'https://cors.bridged.cc/',
     })
   }
   onReady(callback) {
