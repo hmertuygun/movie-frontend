@@ -1,11 +1,7 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
-
-const EXCHANGE_API = {
-  binance: `https://api2.binance.com/api/`,
-  binanceus: `https://api.binance.us/api/`,
-}
+import { getExchangeProp } from '../helpers/getExchangeProp'
 
 function getLocalUserData() {
   let userData = localStorage.getItem('user')
@@ -26,7 +22,7 @@ async function getHeaders(token) {
 }
 
 export async function get24hrTickerPrice(exchange) {
-  let type = EXCHANGE_API[exchange]
+  let type = getExchangeProp(exchange, 'apiUrl')
   const result = await axios(`${type}v3/ticker/24hr`, {
     method: 'GET',
   })
@@ -34,7 +30,7 @@ export async function get24hrTickerPrice(exchange) {
 }
 
 export async function getSymbolPriceTicker(exchange, symbols) {
-  let type = EXCHANGE_API[exchange]
+  let type = getExchangeProp(exchange, 'apiUrl')
   const result = await axios(`${type}v3/ticker/price`, {
     method: 'GET',
   })

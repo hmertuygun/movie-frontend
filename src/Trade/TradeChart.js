@@ -20,11 +20,15 @@ const TradeChart = () => {
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
     selectedSymbol,
+    setSymbol,
+    kucoinDD,
+    binanceDD,
+    binanceUSDD,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
 
-  const { userData, openOrdersUC, isOnboardingSkipped } =
+  const { userData, openOrdersUC, isOnboardingSkipped, activeExchange } =
     useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
@@ -98,7 +102,19 @@ const TradeChart = () => {
   }, [chartData?.timeZone, lsTimeZoneValue, isOnboardingSkipped])
 
   const onSniperBtnClick = () => {
-    setWatchListOpen((watchListOpen) => !watchListOpen)
+    setWatchListOpen((watchListOpen) => {
+      if (watchListOpen) {
+        const { exchange } = activeExchange
+        if (exchange == 'kucoin') {
+          setSymbol(kucoinDD[0])
+        } else if (exchange == 'binance') {
+          setSymbol(binanceDD[0])
+        } else if (exchange == 'binanceus') {
+          setSymbol(binanceUSDD[0])
+        }
+      }
+      return !watchListOpen
+    })
   }
 
   useEffect(() => {

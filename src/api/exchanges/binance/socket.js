@@ -1,38 +1,39 @@
-import tvIntervals from '../helpers/tvIntervals'
+import tvIntervals from '../../../helpers/tvIntervals'
+import { getExchangeProp } from '../../../helpers/getExchangeProp'
+
 export default class socketClient {
-  constructor({ exchange }) {
-    this.binanceWS =
-      exchange === 'binance'
-        ? 'wss://stream.binance.com:9443/ws'
-        : 'wss://stream.binance.us:9443/ws'
-    this.streams = {} // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
+  constructor() {
+    let currentExchange = localStorage.getItem('selectedExchange')
+    this.socketUrl = getExchangeProp(currentExchange, 'socketUrl')
+    this.exchangeName = getExchangeProp(currentExchange, 'label')
+    this.streams = {}
     this._createSocket()
   }
 
   openWS() {
     this._ws = null
-    this._ws = new WebSocket(this.binanceWS)
+    this._ws = new WebSocket(this.socketUrl)
   }
 
   _createSocket() {
     try {
       this._ws = null
-      this._ws = new WebSocket(this.binanceWS)
+      this._ws = new WebSocket(this.socketUrl)
       this._ws.onopen = (e) => {
-        console.info(`Binance WS Open`)
+        console.info(`${this.exchangeName} WS Open`)
         localStorage.setItem('WS', 1)
       }
 
       this._ws.onclose = () => {
         this.isDisconnected = true
         localStorage.setItem('WS', 0)
-        console.warn('Binance WS Closed')
+        console.warn(`${this.exchangeName}  WS Closed`)
       }
 
       this._ws.onerror = (err) => {
         this.isDisconnected = true
         localStorage.setItem('WS', 0)
-        console.warn('WS Error', err)
+        console.warn(`${this.exchangeName}  Error`, err)
       }
 
       this._ws.onmessage = (msg) => {

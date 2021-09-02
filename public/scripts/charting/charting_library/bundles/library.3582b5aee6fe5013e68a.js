@@ -59303,12 +59303,7 @@
                 ? this._cache.bars.push(e)
                 : n === i
                 ? (this._cache.bars[t - 1] = e)
-                : console.error(
-                    'putToCacheNewBar: time violation, previous bar time: ' +
-                      u(n) +
-                      ' should be less or equal to new time: ' +
-                      u(i)
-                  )
+                : console.error()
             }),
             (e.prototype._alignBarsTime = function (e) {
               if (this._dwmAligner)
@@ -85639,12 +85634,7 @@
                   ? n.push(i)
                   : s === o
                   ? (n[r - 1] = i)
-                  : console.error(
-                      'time order violation, prev: ' +
-                        new Date(s).toUTCString() +
-                        ', cur: ' +
-                        new Date(o).toUTCString()
-                    ),
+                  : console.error(),
                   (this.isBarClosed = !!t)
               }),
               (w.prototype.init = function (e) {

@@ -8,7 +8,6 @@ function MarketStatistics() {
   const baseAsset = selectedSymbolDetail && selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail && selectedSymbolDetail.quote_asset
   const symbolPair = `${baseAsset}${quoteAsset}`
-
   useEffect(() => {
     const activeMarketData = lastMessage.find((data) => {
       return data.symbol.replace('/', '') === symbolPair

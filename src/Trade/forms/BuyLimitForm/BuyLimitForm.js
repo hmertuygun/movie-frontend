@@ -87,7 +87,7 @@ const BuyLimitForm = () => {
   })
 
   useEffect(() => {
-    if (selectedSymbolDetail?.tickSize) {
+    if (typeof selectedSymbolDetail?.tickSize == 'number') {
       setValues((prevVal) => ({
         ...prevVal,
         price: addPrecisionToNumber(
@@ -99,7 +99,6 @@ const BuyLimitForm = () => {
       }))
     }
   }, [selectedSymbolLastPrice, selectedSymbolDetail])
-
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({

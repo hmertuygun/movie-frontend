@@ -13,6 +13,12 @@ export const options = [
     placeholder: 'BinanceUS',
     fields: { Key: 'apiKey', Secret: 'secret' },
   },
+  {
+    value: 'kucoin',
+    label: 'KuCoin',
+    placeholder: 'KuCoin',
+    fields: { Key: 'apiKey', Secret: 'secret', Password: 'password' },
+  },
 ]
 
 export const validationRules = {
