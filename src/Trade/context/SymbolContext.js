@@ -74,7 +74,6 @@ const SymbolContextProvider = ({ children }) => {
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
-  const [currentSymbolType, setCurrentSymbolType] = useState(null)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
@@ -308,7 +307,6 @@ const SymbolContextProvider = ({ children }) => {
         base_asset: baseAsset,
         quote_asset: qouteAsset,
       }) // to show balance in trade panel quickly
-      setCurrentSymbolType(symbolVal)
       setSymbolType(symbolVal)
       setExchangeType(exchangeVal.toLowerCase())
       loadExchanges(symbolVal, exchangeVal)
@@ -390,7 +388,7 @@ const SymbolContextProvider = ({ children }) => {
     if (!symbol || symbol?.value === selectedSymbol?.value) return
     const symbolT = symbol.label.replace('-', '/')
     localStorage.setItem('selectedSymbol', symbolT)
-    setCurrentSymbolType(symbolT)
+    setSymbolType(symbolT)
     setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbol(symbol)
     try {
@@ -399,10 +397,6 @@ const SymbolContextProvider = ({ children }) => {
       console.log(e)
     }
   }
-
-  useEffect(() => {
-    setSymbolType(currentSymbolType)
-  }, [selectedSymbolDetail, currentSymbolType])
 
   const setExchange = async (exchange) => {
     try {
