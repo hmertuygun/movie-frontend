@@ -121,7 +121,7 @@ export const options = [
     value: 'kucoin',
     label: 'KuCoin',
     placeholder: 'KuCoin',
-    fields: { Key: 'apiKey', Secret: 'secret', Password: 'password' },
+    fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
     socketUrl: KuCoin.getSocketEndpoint,
     symbol: 'KUCOIN',
     apiUrl: 'https://api.kucoin.com',
@@ -200,5 +200,5 @@ export const validationRules = {
     .required('API Key is required')
     .min(3, 'Must be at least 3 characters'),
   secret: yup.string().required('API Secret is required'),
-  password: yup.string().required('Password is required'),
+  password: yup.string().required('Passphrase is required'),
 }

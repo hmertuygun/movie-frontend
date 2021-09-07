@@ -9,6 +9,7 @@ import {
   secondTourSteps,
   mirroringTourSteps,
 } from '../helpers/tourSteps'
+import { firebase } from '../firebase/firebase'
 
 const TradeView = () => {
   const {
@@ -19,19 +20,37 @@ const TradeView = () => {
     showMarketItems,
     setShowMarketItems,
     setIsTourFinished,
-    isOnboardingSkipped,
     isChartReady,
   } = useContext(UserContext)
   const [stepIndex, setStepIndex] = useState(0)
   const [mirroringStepIndex, setMirroringStepIndex] = useState(0)
   const [run, setRun] = useState(true)
-  const isMirroringTourFinished = localStorage.getItem(
-    'mirroring_tour_finished'
-  )
-  const [run2, setRun2] = useState(isMirroringTourFinished ? false : true)
+  const [run2, setRun2] = useState(true)
   const [stepsFirstTour] = useState(firstTourSteps)
   const [stepsSecondTour] = useState(secondTourSteps)
   const [stepsMirroringTour] = useState(mirroringTourSteps)
+  const [chartMirroringTourNeeded, setChartMirroringTourNeeded] =
+    useState(false)
+
+  const userId = firebase.auth().currentUser?.uid
+  useEffect(() => {
+    ;(async () => {
+      await firebase
+        .firestore()
+        .collection('stripe_users')
+        .doc(userId)
+        .get()
+        .then((doc) => {
+          const userData = doc.data()
+          if (
+            userData?.chartMirroringSignUp &&
+            !userData?.chartMirroringTourFinished
+          ) {
+            setChartMirroringTourNeeded(true)
+          }
+        })
+    })()
+  }, [userId])
 
   const isNotMobile = useMediaQuery({ query: `(min-width: 992px)` })
 
@@ -61,7 +80,11 @@ const TradeView = () => {
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setRun2(false)
-      localStorage.setItem('mirroring_tour_finished', true)
+      firebase
+        .firestore()
+        .collection('stripe_users')
+        .doc(userId)
+        .set({ chartMirroringTourFinished: true }, { merge: true })
     }
   }
 
@@ -81,16 +104,11 @@ const TradeView = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      if (
-        isNotMobile &&
-        isOnboardingSkipped &&
-        isChartReady &&
-        !isMirroringTourFinished
-      ) {
+      if (isNotMobile && chartMirroringTourNeeded && isChartReady) {
         document.querySelector('.react-joyride__beacon')?.click()
       }
     }, 1000)
-  }, [isChartReady, isMirroringTourFinished, isNotMobile, isOnboardingSkipped])
+  }, [isChartReady, isNotMobile, chartMirroringTourNeeded])
 
   const styles = {
     options: {
@@ -121,7 +139,7 @@ const TradeView = () => {
           styles={styles}
         />
       )}
-      {isNotMobile && isOnboardingSkipped && isChartReady && (
+      {isNotMobile && chartMirroringTourNeeded && isChartReady && (
         <Joyride
           run={run2}
           key="tour-3"

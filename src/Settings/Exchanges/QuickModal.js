@@ -3,6 +3,7 @@ import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
 import { options, validationRules } from './ExchangeOptions'
+import { supportLinks } from '../../constants/SupportLinks'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
   const [exchange, setExchange] = useState({
@@ -171,7 +172,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
             <div className="modal-body">
               <div className="mb-3">
                 <a
-                  href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+                  href={exchange && supportLinks[exchange.value]}
                   target="_blank"
                   rel="noreferrer"
                   style={{ textDecoration: 'underline', color: '#718096' }}
