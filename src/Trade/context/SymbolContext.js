@@ -284,7 +284,9 @@ const SymbolContextProvider = ({ children }) => {
       let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } =
         data
       drawings = drawings && drawings[userData?.email]
-      let lastSymbolExchange = lastSelectedSymbol.split(':')[0].toLowerCase()
+      let lastSymbolExchange = lastSelectedSymbol
+        ? lastSelectedSymbol.split(':')[0].toLowerCase()
+        : `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       if (lastSymbolExchange !== exchange) {
         lastSelectedSymbol = `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       }
@@ -295,7 +297,8 @@ const SymbolContextProvider = ({ children }) => {
         intervals,
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
-      let [exchangeVal, symbolVal] = lastSelectedSymbol.split(':')
+      let [exchangeVal, symbolVal] =
+        lastSelectedSymbol && lastSelectedSymbol.split(':')
       exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
       symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
