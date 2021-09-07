@@ -19,6 +19,7 @@ import {
   validationRules,
 } from '../../Settings/Exchanges/ExchangeOptions'
 import './index.css'
+import { supportLinks } from '../../constants/SupportLinks'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -326,7 +327,7 @@ const OnboardingModal = () => {
                 <p>
                   <a
                     className="pb-2 text-muted text-underline"
-                    href="https://support.coinpanel.com/hc/en-us/articles/360018767359-Connecting-your-Binance-account-to-CoinPanel"
+                    href={exchange && supportLinks[exchange.value]}
                     target="_blank"
                     rel="noreferrer notarget"
                   >
