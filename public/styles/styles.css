@@ -179,6 +179,13 @@ hr {
   width: 4rem !important;
 }
 
+.kucoin-history-message {
+  font-size: 0.7rem;
+  margin-top: -6px;
+  display: block;
+  margin-left: 12px;
+}
+
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,
