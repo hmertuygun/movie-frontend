@@ -272,6 +272,7 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const getChartDataOnInit = async () => {
+    console.log('getChartDataOnInit')
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
@@ -280,41 +281,35 @@ const SymbolContextProvider = ({ children }) => {
           ? 'binance'
           : activeExchange.exchange
       const { data } = await getAllChartData()
-      let { drawings, intervals, watchlist, lastSelectedSymbol, timeZone } =
-        data
-      drawings = drawings && drawings[userData?.email]
-      let lastSymbolExchange = lastSelectedSymbol
-        ? lastSelectedSymbol.split(':')[0].toLowerCase()
-        : `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
-      if (lastSymbolExchange !== exchange) {
-        lastSelectedSymbol = `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
-      }
-      intervals = intervals || []
-      setChartData({
-        drawings,
-        lastSelectedSymbol,
-        intervals,
+      let { intervals, lastSelectedSymbol, timeZone } = data
+      const chartData = {
+        intervals: intervals || [],
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      })
-      let [exchangeVal, symbolVal] =
-        lastSelectedSymbol && lastSelectedSymbol.split(':')
-      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
-      localStorage.setItem('selectedExchange', exchangeVal)
-      localStorage.setItem('selectedSymbol', symbolVal)
-      const [baseAsset, qouteAsset] = symbolVal.split('/')
-      setSelectedSymbolDetail({
-        base_asset: baseAsset,
-        quote_asset: qouteAsset,
-      }) // to show balance in trade panel quickly
-      setSymbolType(symbolVal)
-      setExchangeType(exchangeVal.toLowerCase())
-      loadExchanges(symbolVal, exchangeVal)
-      setSelectedSymbol({
-        label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
-      })
-      loadLastPrice(symbolVal, exchangeVal)
+        lastSelectedSymbol,
+      }
+
+      if (!watchListOpen) {
+        setChartData({ ...chartData })
+        let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
+        exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+        symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+        localStorage.setItem('selectedExchange', exchangeVal)
+        localStorage.setItem('selectedSymbol', symbolVal)
+        const [baseAsset, qouteAsset] = symbolVal.split('/')
+        setSelectedSymbolDetail({
+          base_asset: baseAsset,
+          quote_asset: qouteAsset,
+        }) // to show balance in trade panel quickly
+        setSymbolType(symbolVal)
+        loadExchanges(symbolVal, exchangeVal)
+        setSelectedSymbol({
+          label: symbolVal.replace('/', '-'),
+          value: `${exchangeVal.toUpperCase()}:${symbolType}`,
+        })
+        loadLastPrice(symbolVal, exchangeVal)
+      }
+      setExchangeType(exchange.toLowerCase())
+      localStorage.setItem('selectedExchange', exchange.toLowerCase())
     } catch (e) {
       console.error(e)
     } finally {
@@ -391,10 +386,12 @@ const SymbolContextProvider = ({ children }) => {
     setSymbolType(symbolT)
     setSelectedSymbolDetail(symbolDetails[symbol.value])
     setSelectedSymbol(symbol)
-    try {
-      await saveLastSelectedMarketSymbol(symbol.value)
-    } catch (e) {
-      console.log(e)
+    if (!watchListOpen) {
+      try {
+        await saveLastSelectedMarketSymbol(symbol.value)
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
@@ -494,7 +491,8 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: !selectedSymbolDetail || isLoadingExchanges,
+        isLoading:
+          !selectedSymbolDetail || isLoadingExchanges || isLoadingLastPrice,
         exchanges,
         disableOrderHistoryRefreshBtn,
         disableOpenOrdersRefreshBtn,

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import * as yup from 'yup'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
@@ -96,6 +96,17 @@ const ExitStoplossStopMarket = () => {
     75: '',
     99: '',
   }
+
+  useEffect(() => {
+    setValues({
+      triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
+      profit: '',
+      quantity: '',
+      quantityPercentage: '',
+      total: '',
+      price_trigger: { value: 'p', label: 'Last' },
+    })
+  }, [selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder

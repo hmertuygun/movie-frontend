@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { InlineInput, Button, Typography } from '../../../components'
 import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -102,6 +102,18 @@ const ExitStoplossStopLimit = () => {
     75: '',
     99: '',
   }
+
+  useEffect(() => {
+    setValues({
+      triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
+      price: '',
+      profit: '',
+      quantity: '',
+      quantityPercentage: '',
+      total: '',
+      price_trigger: { value: 'p', label: 'Last' },
+    })
+  }, [selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder
