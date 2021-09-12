@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import { InlineInput, Button } from '../../../components'
 import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
@@ -80,6 +80,15 @@ const SellLimitForm = () => {
     75: '',
     100: '',
   }
+
+  useEffect(() => {
+    setValues({
+      price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
+      quantity: '',
+      quantityPercentage: '',
+      total: '',
+    })
+  }, [selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder

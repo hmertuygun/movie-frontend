@@ -21,9 +21,6 @@ const TradeChart = () => {
     setTemplateDrawingsOpen,
     selectedSymbol,
     setSymbol,
-    kucoinDD,
-    binanceDD,
-    binanceUSDD,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
@@ -105,13 +102,16 @@ const TradeChart = () => {
     setWatchListOpen((watchListOpen) => {
       if (watchListOpen) {
         const { exchange } = activeExchange
-        if (exchange == 'kucoin') {
-          setSymbol(kucoinDD[0])
-        } else if (exchange == 'binance') {
-          setSymbol(binanceDD[0])
-        } else if (exchange == 'binanceus') {
-          setSymbol(binanceUSDD[0])
-        }
+        if (exchange === exchangeType) return !watchListOpen
+
+        const selectedSymbol = localStorage.getItem('mainSelectedSymbol')
+        const label = selectedSymbol.replace('/', '-')
+        const value = `${exchange}:${selectedSymbol}`
+
+        setSymbol({ label, value })
+      } else {
+        const selectedSymbol = localStorage.getItem('selectedSymbol')
+        localStorage.setItem('mainSelectedSymbol', selectedSymbol)
       }
       return !watchListOpen
     })

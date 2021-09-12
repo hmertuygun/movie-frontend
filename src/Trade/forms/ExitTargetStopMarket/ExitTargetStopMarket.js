@@ -98,6 +98,17 @@ const ExitTargetStopMarket = () => {
     100: '',
   }
 
+  useEffect(() => {
+    setValues({
+      price: addPrecisionToNumber(entryPrice, pricePrecision),
+      profit: '',
+      quantity: '',
+      quantityPercentage: '',
+      total: '',
+      price_trigger: { value: 'p', label: 'Last' },
+    })
+  }, [selectedSymbolDetail])
+
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape(

@@ -89,7 +89,9 @@ const BuyLimitForm = () => {
   useEffect(() => {
     if (typeof selectedSymbolDetail?.tickSize == 'number') {
       setValues((prevVal) => ({
-        ...prevVal,
+        quantity: '',
+        total: '',
+        quantityPercentage: '',
         price: addPrecisionToNumber(
           selectedSymbolLastPrice,
           selectedSymbolDetail['tickSize'] > 8

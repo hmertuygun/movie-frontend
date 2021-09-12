@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import { createBasicTrade } from '../../../api/api'
@@ -84,6 +84,17 @@ const BuyTrailingStopForm = () => {
     quantity: '',
     total: '',
   })
+
+  useEffect(() => {
+    setValues({
+      callback_rate: '',
+      activation_price: '',
+      price_trigger: { value: 'p', label: 'Last' },
+      quantity: '',
+      total: '',
+      quantityPercentage: '',
+    })
+  }, [selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder

@@ -96,6 +96,16 @@ const ExitTarget = () => {
     100: '',
   }
 
+  useEffect(() => {
+    setValues({
+      price: addPrecisionToNumber(entryPrice, pricePrecision),
+      profit: '',
+      quantity: '',
+      quantityPercentage: '',
+      total: '',
+    })
+  }, [selectedSymbolDetail])
+
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({

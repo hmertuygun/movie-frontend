@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react'
+import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import { createBasicTrade } from '../../../api/api'
@@ -75,6 +75,14 @@ const BuyMarketForm = () => {
     75: '',
     100: '',
   }
+
+  useEffect(() => {
+    setValues({
+      quantity: '',
+      total: '',
+      quantityPercentage: '',
+    })
+  }, [selectedSymbolLastPrice, selectedSymbolDetail])
 
   // @TODO
   // Move schema to a different folder

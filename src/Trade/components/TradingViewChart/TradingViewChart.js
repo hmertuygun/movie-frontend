@@ -192,16 +192,12 @@ export default class TradingViewChart extends Component {
             [this.state.email]: str,
           }
 
-          await db
-            .collection('chart_drawings')
-            .doc(this.state.email)
-            .set(
-              {
-                drawings,
-                lastSelectedSymbol: `${this.props.exchange.toUpperCase()}:${this.props.symbol.toUpperCase()}`,
-              },
-              { merge: true }
-            )
+          await db.collection('chart_drawings').doc(this.state.email).set(
+            {
+              drawings,
+            },
+            { merge: true }
+          )
         }
 
         if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
