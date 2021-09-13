@@ -272,7 +272,6 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const getChartDataOnInit = async () => {
-    console.log('getChartDataOnInit')
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
@@ -282,10 +281,13 @@ const SymbolContextProvider = ({ children }) => {
           : activeExchange.exchange
       const { data } = await getAllChartData()
       let { intervals, lastSelectedSymbol, timeZone } = data
+
       const chartData = {
         intervals: intervals || [],
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lastSelectedSymbol,
+        lastSelectedSymbol:
+          lastSelectedSymbol ||
+          `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
       }
 
       if (!watchListOpen) {
