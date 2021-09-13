@@ -282,10 +282,13 @@ const SymbolContextProvider = ({ children }) => {
           : activeExchange.exchange
       const { data } = await getAllChartData()
       let { intervals, lastSelectedSymbol, timeZone } = data
+
       const chartData = {
         intervals: intervals || [],
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lastSelectedSymbol,
+        lastSelectedSymbol:
+          lastSelectedSymbol ||
+          `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
       }
 
       if (!watchListOpen) {

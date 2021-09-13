@@ -300,9 +300,10 @@ const UserContextProvider = ({ children }) => {
 
   async function getExchanges() {
     try {
-      let hasKeys = isOnboardingSkipped
-        ? DEFAULT_EXCHANGE
-        : await getUserExchanges()
+      let hasKeys = await getUserExchanges()
+      if (!hasKeys?.data?.apiKeys?.length && isOnboardingSkipped) {
+        hasKeys = DEFAULT_EXCHANGE
+      }
 
       if (hasKeys) {
         if (!hasKeys?.data?.apiKeys?.length) {
@@ -314,6 +315,7 @@ const UserContextProvider = ({ children }) => {
       }
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
+      console.log(apiKeys)
       let getSavedKey = sessionStorage.getItem('exchangeKey')
       const ssData = JSON.parse(getSavedKey)
       if (
