@@ -315,7 +315,6 @@ const UserContextProvider = ({ children }) => {
       }
       const { apiKeys } = hasKeys.data
       setTotalExchanges(apiKeys)
-      console.log(apiKeys)
       let getSavedKey = sessionStorage.getItem('exchangeKey')
       const ssData = JSON.parse(getSavedKey)
       if (

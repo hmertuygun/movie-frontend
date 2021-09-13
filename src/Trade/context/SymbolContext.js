@@ -272,7 +272,6 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const getChartDataOnInit = async () => {
-    console.log('getChartDataOnInit')
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
