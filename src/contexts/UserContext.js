@@ -303,6 +303,8 @@ const UserContextProvider = ({ children }) => {
       let hasKeys = await getUserExchanges()
       if (!hasKeys?.data?.apiKeys?.length && isOnboardingSkipped) {
         hasKeys = DEFAULT_EXCHANGE
+      } else {
+        handleOnboardingShow()
       }
 
       if (hasKeys) {
