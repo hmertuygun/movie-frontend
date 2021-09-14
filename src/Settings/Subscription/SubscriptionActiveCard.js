@@ -9,6 +9,15 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const [portalLoading, setPortalLoading] = useState(false)
   const { cancel_at_period_end } = subscription
 
+  const subscriptionNames = {
+    month: 'Monthly',
+    year: 'Yearly',
+  }
+
+  const getSubsName = () => {
+    return subscriptionNames[subscription.items[0].plan.interval]
+  }
+
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
@@ -41,7 +50,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               </span>
               {subscription.status === 'trialing' ? (
                 <div className="media-body">
-                  <h5 className="mb-0">Monthly Subscription | Trial</h5>
+                  <h5 className="mb-0">{getSubsName()} Subscription | Trial</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
                     You will pay {` `}
                     {new Intl.NumberFormat('en-US', {
@@ -72,7 +81,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 </div>
               ) : subscription.status === 'past_due' ? (
                 <div className="media-body">
-                  <h5 className="mb-0">Monthly Subscription</h5>
+                  <h5 className="mb-0">{getSubsName()} Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial expired at {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
@@ -90,7 +99,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 </div>
               ) : needPayment ? (
                 <div className="media-body">
-                  <h5 className="mb-0">Monthly Subscription</h5>
+                  <h5 className="mb-0">{getSubsName()} Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your free trial expired on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
@@ -108,7 +117,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 </div>
               ) : (
                 <div className="media-body">
-                  <h5 className="mb-0">Monthly Subscription</h5>
+                  <h5 className="mb-0">{getSubsName()} Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
                     You are paying {` `}
                     {new Intl.NumberFormat('en-US', {
