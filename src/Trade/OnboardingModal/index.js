@@ -173,7 +173,7 @@ const OnboardingModal = () => {
     1: {
       primaryBtn: 'Continue with existing Binance account',
       secBtn: 'Set up a new Binance account',
-      title: 'Excange Setup',
+      title: 'Exchange Setup',
       heading: 'Welcome to CoinPanel!',
       terBtn: 'Go to Chart Mirroring',
       text1: 'You need a Binance Exchange account to use CoinPanel.',
