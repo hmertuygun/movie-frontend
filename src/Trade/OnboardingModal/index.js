@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import Select from 'react-select'
+import Select, { components } from 'react-select'
 import * as yup from 'yup'
-
 import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
@@ -20,6 +19,27 @@ import {
 } from '../../Settings/Exchanges/ExchangeOptions'
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
+
+const exchangeCreationOptions = [
+  {
+    value: 'binanceus',
+    url: 'https://accounts.binance.us/en/register',
+    image: 'img/svg/exchange/binanceus.svg',
+    label: 'Binance.US',
+  },
+  {
+    value: 'binance',
+    url: 'https://accounts.binance.com/en/register?ref=UR7ZCKEJ',
+    image: 'img/svg/exchange/binance.svg',
+    label: 'Binance',
+  },
+  {
+    value: 'kucoin',
+    url: 'https://www.kucoin.com/ucenter/signup?rcode=r3JHGQU',
+    image: 'img/svg/exchange/kucoin.svg',
+    label: 'KuCoin',
+  },
+]
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -51,6 +71,7 @@ const OnboardingModal = () => {
   const [validation, setValidation] = useState({})
   const [exchangeForm, setExchangeForm] = useState({})
   const [formFields, setFormFields] = useState()
+  const [exchangeCreation, setExchangeCreation] = useState()
 
   const errorInitialValues = {
     exchange: '',
@@ -249,6 +270,9 @@ const OnboardingModal = () => {
       padding: '5px 5px',
       border: 0,
       boxShadow: 'none',
+      '& div': {
+        textAlign: 'center',
+      },
 
       '&:hover': {
         backgroundColor: '#d6ddea',
@@ -275,6 +299,35 @@ const OnboardingModal = () => {
   const modalStyle = {
     background: 'rgba(0,0,0,.5)',
     display: modalVisibility(),
+  }
+
+  const handleExchangeCreation = (exchange) => {
+    setExchangeCreation(exchange)
+  }
+
+  const Option = (props) => {
+    console.log(props)
+    return (
+      <>
+        <components.Option {...props}>
+          <a
+            href={props.data.url}
+            target="_blank"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src={props.data.image}
+              alt={props.children}
+              style={{ width: 120 }}
+            />
+          </a>
+        </components.Option>
+      </>
+    )
   }
 
   return (
@@ -426,15 +479,31 @@ const OnboardingModal = () => {
               </div>
             </div>
             <div className="modal-footer">
+              <div style={step === 1 ? { width: '40%' } : null}>
+                {step !== 1 ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={onSecondaryBtnClick}
+                    disabled={apiProc}
+                  >
+                    {btnText[step].secBtn}
+                  </button>
+                ) : (
+                  <Select
+                    placeholder="Create a new exchange account"
+                    value={exchangeCreation}
+                    components={{
+                      IndicatorSeparator: () => null,
+                      Option,
+                    }}
+                    onChange={handleExchangeCreation}
+                    styles={customStyles}
+                    options={exchangeCreationOptions}
+                  />
+                )}
+              </div>
               <div>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={onSecondaryBtnClick}
-                  disabled={apiProc}
-                >
-                  {btnText[step].secBtn}
-                </button>
                 <button
                   type="button"
                   className="btn btn-primary"
