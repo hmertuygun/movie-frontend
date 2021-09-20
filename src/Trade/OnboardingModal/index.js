@@ -322,7 +322,13 @@ const OnboardingModal = () => {
             <img
               src={props.data.image}
               alt={props.children}
-              style={{ width: 120 }}
+              style={
+                props.data.value === 'binance'
+                  ? { width: 100 }
+                  : props.data.value === 'kucoin'
+                  ? { width: 105 }
+                  : { width: 120 }
+              }
             />
           </a>
         </components.Option>
@@ -500,6 +506,7 @@ const OnboardingModal = () => {
                     onChange={handleExchangeCreation}
                     styles={customStyles}
                     options={exchangeCreationOptions}
+                    isSearchable={false}
                   />
                 )}
               </div>
