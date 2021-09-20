@@ -306,7 +306,6 @@ const OnboardingModal = () => {
   }
 
   const Option = (props) => {
-    console.log(props)
     return (
       <>
         <components.Option {...props}>
