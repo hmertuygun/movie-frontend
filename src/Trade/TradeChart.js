@@ -19,6 +19,7 @@ const TradeChart = () => {
     watchListOpen,
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
+    selectedSymbol,
     setSymbol,
   } = useSymbolContext()
   const db = firebase.firestore()
@@ -144,6 +145,13 @@ const TradeChart = () => {
     ? JSON.parse(getSymbolsLS)
     : symbolDetails
 
+  const showChart =
+    chartData &&
+    symbolType &&
+    exchangeType &&
+    selectedSymbol.value &&
+    (getSymbolsLS || Object.keys(symbolDetails).length)
+
   const { intervals } = chartData || {}
 
   return (
@@ -152,28 +160,32 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      <TradingViewChart
-        email={userData?.email}
-        theme={theme}
-        intervals={intervals}
-        drawings={drawings}
-        watchListOpen={watchListOpen}
-        templateDrawings={templateDrawings}
-        templateDrawingsOpen={templateDrawingsOpen}
-        onError={onError}
-        openOrders={filterOrders(openOrdersUC, symbolType)}
-        key={`${exchangeType}`}
-        symbol={symbolType}
-        exchange={exchangeType}
-        marketSymbols={symbolDetailsKeyValue}
-        timeZone={chartData?.timeZone}
-        sniperBtnClicked={(e) => {
-          onSniperBtnClick(e)
-        }}
-        drawingsBtnClicked={(e) => {
-          onDrawingsBtnClick(e)
-        }}
-      />
+      {showChart ? (
+        <TradingViewChart
+          email={userData?.email}
+          theme={theme}
+          intervals={intervals}
+          drawings={drawings}
+          watchListOpen={watchListOpen}
+          templateDrawings={templateDrawings}
+          templateDrawingsOpen={templateDrawingsOpen}
+          onError={onError}
+          openOrders={filterOrders(openOrdersUC, symbolType)}
+          key={`${exchangeType}${selectedSymbol.value}`}
+          symbol={symbolType}
+          exchange={exchangeType}
+          marketSymbols={symbolDetailsKeyValue}
+          timeZone={chartData?.timeZone}
+          sniperBtnClicked={(e) => {
+            onSniperBtnClick(e)
+          }}
+          drawingsBtnClicked={(e) => {
+            onDrawingsBtnClick(e)
+          }}
+        />
+      ) : (
+        <span className="spinner-border spinner-border-sm text-primary" />
+      )}
     </div>
   )
 }
