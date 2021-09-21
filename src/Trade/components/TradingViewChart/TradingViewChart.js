@@ -222,6 +222,7 @@ export default class TradingViewChart extends Component {
       const symbObj = this.tradingViewWidget.symbolInterval()
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
+      this.setState({ isChartReady: true })
       // this.chartObject.setSymbol(newSymbol)
     } catch (e) {
       console.log(e)
@@ -483,7 +484,10 @@ export default class TradingViewChart extends Component {
       let button = this.tradingViewWidget.createButton()
       this.state.templateButton = button
       button.setAttribute('title', `Click to toggle drawings`)
-      button.addEventListener('click', this.props.drawingsBtnClicked)
+      button.addEventListener('click', () => {
+        this.setState({ isChartReady: false })
+        this.props.drawingsBtnClicked()
+      })
       let text = document.createElement('div')
       text.innerText = ''
       button.setAttribute('class', 'button-2ioYhFEY')
@@ -542,9 +546,7 @@ export default class TradingViewChart extends Component {
     } finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
-      this.setState({
-        isChartReady: true,
-      })
+      this.setState({ isChartReady: true })
       this.chartEvent('onAutoSaveNeeded')
       // this.chartShortCutSave()
       this.chartEvent('drawing_event')
@@ -771,14 +773,19 @@ export default class TradingViewChart extends Component {
 
   render() {
     return (
-      <div
-        id="chart_container"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: this.state.isChartReady ? 'block' : 'none',
-        }}
-      ></div>
+      <>
+        <div
+          id="chart_container"
+          style={{
+            width: '100%',
+            height: '100%',
+            display: this.state.isChartReady ? 'block' : 'none',
+          }}
+        ></div>
+        {!this.state.isChartReady ? (
+          <span className="spinner-border spinner-border-sm text-primary" />
+        ) : null}
+      </>
     )
   }
 }
