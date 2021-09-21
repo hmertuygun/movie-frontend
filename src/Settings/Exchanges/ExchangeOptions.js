@@ -38,24 +38,3 @@ export const validationRules = {
   secret: yup.string().required('API Secret is required'),
   password: yup.string().required('Passphrase is required'),
 }
-
-export const exchangeCreationOptions = [
-  {
-    value: 'binanceus',
-    url: 'https://accounts.binance.us/en/register',
-    image: 'img/svg/exchange/binanceus.svg',
-    label: 'Binance.US',
-  },
-  {
-    value: 'binance',
-    url: 'https://accounts.binance.com/en/register?ref=UR7ZCKEJ',
-    image: 'img/svg/exchange/binance.svg',
-    label: 'Binance',
-  },
-  {
-    value: 'kucoin',
-    url: 'https://www.kucoin.com/ucenter/signup?rcode=r3JHGQU',
-    image: 'img/svg/exchange/kucoin.svg',
-    label: 'KuCoin',
-  },
-]
