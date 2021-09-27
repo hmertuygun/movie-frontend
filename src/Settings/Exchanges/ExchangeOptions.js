@@ -44,18 +44,21 @@ export const exchangeCreationOptions = [
     value: 'binanceus',
     url: 'https://accounts.binance.us/en/register',
     image: 'img/svg/exchange/binanceus.svg',
+    logo: 'img/icons/brands/binanceus.svg',
     label: 'Binance.US',
   },
   {
     value: 'binance',
     url: 'https://accounts.binance.com/en/register?ref=UR7ZCKEJ',
     image: 'img/svg/exchange/binance.svg',
+    logo: 'img/icons/brands/binance.svg',
     label: 'Binance',
   },
   {
     value: 'kucoin',
     url: 'https://www.kucoin.com/ucenter/signup?rcode=r3JHGQU',
     image: 'img/svg/exchange/kucoin.svg',
+    logo: 'img/icons/brands/kucoin.svg',
     label: 'KuCoin',
   },
 ]
