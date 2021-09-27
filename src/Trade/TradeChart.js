@@ -19,7 +19,6 @@ const TradeChart = () => {
     watchListOpen,
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
-    selectedSymbol,
     setSymbol,
   } = useSymbolContext()
   const db = firebase.firestore()
@@ -145,13 +144,6 @@ const TradeChart = () => {
     ? JSON.parse(getSymbolsLS)
     : symbolDetails
 
-  const showChart =
-    chartData &&
-    symbolType &&
-    exchangeType &&
-    selectedSymbol.value &&
-    (getSymbolsLS || Object.keys(symbolDetails).length)
-
   const { intervals } = chartData || {}
 
   return (
@@ -160,7 +152,7 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      {showChart ? (
+      {exchangeType && symbolType ? (
         <TradingViewChart
           email={userData?.email}
           theme={theme}
@@ -171,7 +163,7 @@ const TradeChart = () => {
           templateDrawingsOpen={templateDrawingsOpen}
           onError={onError}
           openOrders={filterOrders(openOrdersUC, symbolType)}
-          key={`${exchangeType}${selectedSymbol.value}`}
+          key={`${exchangeType}`}
           symbol={symbolType}
           exchange={exchangeType}
           marketSymbols={symbolDetailsKeyValue}
