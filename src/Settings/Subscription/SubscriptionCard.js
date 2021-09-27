@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 
 import { firebase, auth } from '../../firebase/firebase'
-import { Bell } from 'react-feather'
+import { Bell, X } from 'react-feather'
+import { Modal } from '../../components'
 
 const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
+  const [showCryptoModal, setShowCryptoModal] = useState(false)
   const currentUser = auth.currentUser
   const db = firebase.firestore()
   const { name, prices } = product
@@ -64,7 +66,7 @@ const SubscriptionCard = ({ product }) => {
     <div className="card">
       <div className="card-body">
         <div className="row row-grid align-items-center">
-          <div className="col-lg-8">
+          <div className="col-lg-7">
             <div className="media align-items-center">
               <span className="avatar bg-danger text-white rounded-circle mr-3">
                 <Bell size={16} strokeWidth="3" />
@@ -87,6 +89,14 @@ const SubscriptionCard = ({ product }) => {
             </div>
           </div>
           <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right">
+            {name === 'Yearly Subscription' && (
+              <div
+                className="btn btn-sm btn-neutral rounded-pill"
+                onClick={() => setShowCryptoModal(true)}
+              >
+                Pay with crypto
+              </div>
+            )}
             {subscribing ? (
               <div className="btn btn-sm btn-neutral rounded-pill">
                 <span
@@ -96,16 +106,57 @@ const SubscriptionCard = ({ product }) => {
                 ></span>
               </div>
             ) : (
-              <div
-                className="btn btn-sm btn-neutral rounded-pill"
-                onClick={subscribe}
-              >
-                Subscribe
-              </div>
+              <>
+                <div
+                  className="btn btn-sm btn-neutral rounded-pill"
+                  onClick={subscribe}
+                >
+                  Subscribe
+                </div>
+              </>
             )}
           </div>
         </div>
       </div>
+      {showCryptoModal && (
+        <Modal>
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 20,
+                  zIndex: 9,
+                }}
+              >
+                <X size="20" onClick={() => setShowCryptoModal(false)} />
+              </div>
+              <div
+                class="modal-body mt-4"
+                style={{
+                  textAlign: 'center',
+                }}
+              >
+                <div class="text-center">
+                  <h4 class="h6 mt-2 mb-2">
+                    Contact @panelboss on Telegram to pay with crypto.
+                  </h4>
+
+                  <h4 class="h6 mt-2 mb-2">
+                    Beware of scammers. We will never contact you first.
+                  </h4>
+                </div>
+                <a href="https://t.me/panelboss" target="_blank">
+                  <button type="button" class="btn btn-primary btn-sm mt-2">
+                    Contact on Telegram
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

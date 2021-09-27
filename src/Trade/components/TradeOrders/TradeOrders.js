@@ -487,12 +487,6 @@ const TradeOrders = () => {
             </div>
           </div>
         </div>
-        {exchangeType === 'kucoin' && !isOpenOrders && (
-          <span class="kucoin-history-message">
-            Order history on Kucoin is a bit buggy. Sometimes you might not see
-            your executed trades in history. We are working on improving this.
-          </span>
-        )}
       </div>
       {isOpenOrders ? (
         <OpenOrdersTableBody
