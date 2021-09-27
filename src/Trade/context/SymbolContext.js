@@ -165,8 +165,8 @@ const SymbolContextProvider = ({ children }) => {
     })
 
     rws.addEventListener('error', (error) => {
-      setSocketLiveUpdate(false)
-      rws.close()
+      // setSocketLiveUpdate(false)
+      // rws.close()
       Sentry.captureException(error)
     })
 
