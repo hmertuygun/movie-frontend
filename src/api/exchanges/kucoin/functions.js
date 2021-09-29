@@ -143,7 +143,6 @@ const editMessage = (data) => {
       lowPrice: sy.last,
       volume: sy.vol,
       quoteVolume: sy.volValue,
-      exchange: 'kucoin',
     }
   })
 }

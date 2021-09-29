@@ -20,7 +20,6 @@ export default class dataFeed {
   }
   onReady(callback) {
     setTimeout(() => {
-      console.log(this.selectedExchange)
       callback({
         supports_marks: false,
         supports_timescale_marks: false,
