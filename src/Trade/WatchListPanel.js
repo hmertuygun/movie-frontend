@@ -4,8 +4,9 @@ import React, {
   useMemo,
   useContext,
   useCallback,
+  useRef,
 } from 'react'
-import Select from 'react-select'
+import Select, { components } from 'react-select'
 import { Popover } from 'react-tiny-popover'
 import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
 
@@ -20,6 +21,7 @@ import {
   successNotification,
   errorNotification,
 } from '../components/Notifications'
+import { exchangeCreationOptions } from '../Settings/Exchanges/ExchangeOptions'
 
 const DEFAULT_WATCHLIST = 'Watch List'
 
@@ -28,7 +30,7 @@ const WatchListPanel = () => {
     symbols,
     isLoading,
     isLoadingBalance,
-    lastMessage,
+    pureData,
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
@@ -47,6 +49,7 @@ const WatchListPanel = () => {
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
+  const symbolsSelectRef = useRef(null)
   const [templateWatchlist, setTemplateWatchlist] = useState()
   const [orderSetting, setOrderSetting] = useState({
     label: 'asc',
@@ -159,12 +162,33 @@ const WatchListPanel = () => {
     templateDrawingsOpen,
   ])
 
-  useEffect(() => {
+  const useInterval = (callback, delay) => {
+    const savedCallback = React.useRef()
+
+    useEffect(() => {
+      savedCallback.current = callback
+    }, [callback])
+
+    useEffect(() => {
+      function tick() {
+        savedCallback.current()
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay)
+        return () => clearInterval(id)
+      }
+    }, [delay])
+  }
+
+  useInterval(async () => {
     const symbolArray = []
     for (const symbol of watchSymbolsList) {
       let previousData = {}
-      const activeMarketData = lastMessage.find((data) => {
-        return data.symbol.replace('/', '') === symbol.label.replace('-', '')
+      const activeMarketData = pureData.find((data) => {
+        return (
+          data.symbol.replace('/', '') === symbol.label.replace('-', '') &&
+          symbol.value.split(':')[0].toLowerCase() == data.exchange
+        )
       })
 
       const tickSize = symbolDetails?.[symbol.value]?.tickSize
@@ -187,13 +211,13 @@ const WatchListPanel = () => {
     }
     setLoading(false)
     setSymbolsList(symbolArray)
-  }, [
-    lastMessage,
-    watchSymbolsList,
-    symbolDetails,
-    orderSetting.symbol,
-    orderSetting.percentage,
-  ])
+  }, 1000)
+
+  const getLogo = (symbol) => {
+    const exchange = symbol.value.split(':')[0].toLowerCase()
+    const obj = exchangeCreationOptions.find((sy) => sy.value == exchange)
+    return obj.logo
+  }
 
   const customStyles = {
     control: (styles) => ({
@@ -265,14 +289,9 @@ const WatchListPanel = () => {
 
   const selectedSymbols = useMemo(() => {
     const { exchange } = activeExchange
-    const selected = symbols
-      .filter((symbol) => {
-        const exchangeString = symbol.value.split(':')?.[0]?.toLowerCase()
-        return exchangeString === exchange
-      })
-      .filter(
-        (symbol) => !symbolsList.some((item) => item.value === symbol.value)
-      )
+    const selected = symbols.filter(
+      (symbol) => !symbolsList.some((item) => item.value === symbol.value)
+    )
     return selected
   }, [symbols, activeExchange, symbolsList])
 
@@ -496,7 +515,21 @@ const WatchListPanel = () => {
                   }}
                   options={Object.values(selectedSymbols)}
                   placeholder="Search"
+                  ref={symbolsSelectRef}
                   onChange={handleChange}
+                  getOptionLabel={(symbol) => (
+                    <div>
+                      <img
+                        src={getLogo(symbol)}
+                        style={{
+                          width: '18px',
+                          marginRight: '4px',
+                          marginTop: '-2px',
+                        }}
+                      />
+                      {symbol.label}
+                    </div>
+                  )}
                   isDisabled={isLoadingBalance || isLoading}
                   styles={customStyles}
                 />
@@ -507,7 +540,12 @@ const WatchListPanel = () => {
               className={`${styles.watchListPlus} ${styles.watchListControl} ${
                 selectPopoverOpen ? styles.watchListControlSelected : ''
               }`}
-              onClick={() => setSelectPopoverOpen(true)}
+              onClick={() => {
+                setSelectPopoverOpen(true)
+                setTimeout(() => {
+                  symbolsSelectRef?.current?.select?.focus()
+                }, 0)
+              }}
             >
               <Plus />
             </div>
