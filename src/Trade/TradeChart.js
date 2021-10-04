@@ -114,17 +114,16 @@ const TradeChart = () => {
   const onSniperBtnClick = () => {
     setWatchListOpen((watchListOpen) => {
       if (watchListOpen) {
-        const { exchange } = activeExchange
-        if (exchange === exchangeType) return !watchListOpen
+        const mainSelectedSymbol = JSON.parse(
+          localStorage.getItem('mainSelectedSymbol')
+        )
 
-        const selectedSymbol = localStorage.getItem('mainSelectedSymbol')
-        const label = selectedSymbol.replace('/', '-')
-        const value = `${exchange}:${selectedSymbol}`
-
-        setSymbol({ label, value })
+        setSymbol(mainSelectedSymbol)
       } else {
-        const selectedSymbol = localStorage.getItem('selectedSymbol')
-        localStorage.setItem('mainSelectedSymbol', selectedSymbol)
+        localStorage.setItem(
+          'mainSelectedSymbol',
+          JSON.stringify(selectedSymbol)
+        )
       }
       return !watchListOpen
     })

@@ -399,6 +399,41 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
+  useEffect(() => {
+    if (!selectedSymbol || !selectedSymbolDetail) return
+
+    const [baseAsset, quoteAsset] = selectedSymbol.label.split('-')
+    if (
+      !(
+        selectedSymbol.value.includes(baseAsset) &&
+        selectedSymbol.value.includes(quoteAsset)
+      )
+    )
+      return
+
+    if (watchListOpen) return
+
+    if (selectedSymbol.value !== selectedSymbolDetail.value) {
+      console.log(
+        'Trade panel issue log: ',
+        selectedSymbol,
+        selectedSymbolDetail
+      )
+      setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
+    }
+  }, [
+    isLoadingExchanges,
+    isLoadingLastPrice,
+    selectedSymbol,
+    selectedSymbolDetail,
+    symbolDetails,
+    watchListOpen,
+  ])
+
+  useEffect(() => {
+    console.log('symbolinfo: ', selectedSymbol, selectedSymbolDetail)
+  }, [selectedSymbol, selectedSymbolDetail])
+
   const setExchange = async (exchange) => {
     try {
       // if user selects the selected option again in the dropdown
