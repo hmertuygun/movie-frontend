@@ -1,4 +1,10 @@
-import React, { createContext, useEffect, useState, useContext } from 'react'
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+} from 'react'
 import { backOff } from 'exponential-backoff'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import * as Sentry from '@sentry/browser'
@@ -383,21 +389,24 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const setSymbol = async (symbol) => {
-    if (!symbol || symbol?.value === selectedSymbol?.value) return
-    const symbolT = symbol.label.replace('-', '/')
-    localStorage.setItem('selectedSymbol', symbolT)
-    setSymbolType(symbolT)
-    setSelectedSymbolDetail(symbolDetails[symbol.value])
-    setSelectedSymbol(symbol)
-    if (!watchListOpen) {
-      try {
-        await saveLastSelectedMarketSymbol(symbol.value)
-      } catch (e) {
-        console.log(e)
+  const setSymbol = useCallback(
+    async (symbol) => {
+      if (!symbol || symbol?.value === selectedSymbol?.value) return
+      const symbolT = symbol.label.replace('-', '/')
+      localStorage.setItem('selectedSymbol', symbolT)
+      setSymbolType(symbolT)
+      setSelectedSymbolDetail(symbolDetails[symbol.value])
+      setSelectedSymbol(symbol)
+      if (!watchListOpen) {
+        try {
+          await saveLastSelectedMarketSymbol(symbol.value)
+        } catch (e) {
+          console.log(e)
+        }
       }
-    }
-  }
+    },
+    [selectedSymbol?.value, symbolDetails, watchListOpen]
+  )
 
   useEffect(() => {
     if (!selectedSymbol || !selectedSymbolDetail) return
@@ -454,6 +463,53 @@ const SymbolContextProvider = ({ children }) => {
     } finally {
     }
   }
+
+  // Handle no symbol type logic when exchange switched.
+  // when exchange switch, if new exchange doesn't have the old exchange's symbol, set default symbol.
+  useEffect(() => {
+    if (
+      binanceDD.length === 0 ||
+      binanceUSDD.length === 0 ||
+      kucoinDD.length === 0 ||
+      !exchangeType ||
+      !symbolType
+    ) {
+      return
+    }
+
+    let selectedDD = []
+    switch (exchangeType) {
+      case 'binance':
+        selectedDD = [...binanceDD]
+        break
+      case 'binanceus':
+        selectedDD = [...binanceUSDD]
+        break
+      case 'kucoin':
+        selectedDD = [...kucoinDD]
+        break
+
+      default:
+        break
+    }
+    const selectedSymbol = selectedDD.find(
+      (symbol) => symbol.symbolpair === symbolType
+    )
+    if (!selectedSymbol) {
+      console.log('info: ', selectedDD, exchangeType, symbolType)
+      const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
+    }
+  }, [
+    exchangeType,
+    symbolType,
+    binanceDD,
+    binanceUSDD,
+    kucoinDD,
+    setSymbol,
+    DEFAULT_SYMBOL_LOAD_SLASH,
+    DEFAULT_SYMBOL_LOAD_DASH,
+  ])
 
   const loadExchanges = async (symbol, exchange) => {
     try {
