@@ -39,7 +39,6 @@ const onSocketMessage = ({ lastMessage }) => {
         lowPrice: item.l,
         volume: item.v,
         quoteVolume: item.q,
-        exchange: 'binance',
       }
     })
     return marketData
