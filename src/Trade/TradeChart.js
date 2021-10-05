@@ -6,7 +6,6 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
-import { exception } from 'react-ga'
 
 const TradeChart = () => {
   const {
@@ -21,16 +20,15 @@ const TradeChart = () => {
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
     setSymbol,
-    selectedSymbol,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
+
   const { userData, openOrdersUC, isOnboardingSkipped, activeExchange } =
     useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
-  const [exchange, setExchange] = useState(exchangeType)
   const [onError, setOnError] = useState(false)
 
   useEffect(() => {
@@ -40,18 +38,6 @@ const TradeChart = () => {
       setTemplateDrawingsOpen(status)
     }
   }, [])
-
-  useEffect(() => {
-    if (selectedSymbol.value) {
-      localStorage.setItem(
-        'selectedExchange',
-        selectedSymbol.value.split(':')[0].toLowerCase()
-      )
-      setExchange(selectedSymbol.value.split(':')[0].toLowerCase())
-    } else {
-      setExchange(exchangeType)
-    }
-  }, [selectedSymbol])
 
   useEffect(() => {
     db.collection('template_drawings').onSnapshot(
@@ -179,7 +165,7 @@ const TradeChart = () => {
           openOrders={filterOrders(openOrdersUC, symbolType)}
           key={`${exchangeType}`}
           symbol={symbolType}
-          exchange={exchange}
+          exchange={exchangeType}
           marketSymbols={symbolDetailsKeyValue}
           timeZone={chartData?.timeZone}
           sniperBtnClicked={(e) => {
