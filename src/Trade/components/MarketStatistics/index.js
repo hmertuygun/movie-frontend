@@ -1,43 +1,56 @@
 import React, { useState, useEffect } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
+import ccxtpro from 'ccxt.pro'
 import './MarketStatistics.css'
 
 function MarketStatistics() {
   const [message, setMessage] = useState(null)
-  const { selectedSymbolDetail, lastMessage } = useSymbolContext()
+
+  const { selectedSymbolDetail, marketData } = useSymbolContext()
   const baseAsset = selectedSymbolDetail && selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail && selectedSymbolDetail.quote_asset
-  const symbolPair = `${baseAsset}${quoteAsset}`
+  const symbolPair = `${baseAsset}/${quoteAsset}`
+  const [lastData, setLastData] = useState()
+  const [intervalId, setIntervalId] = useState()
+
+  const [binance, binanceus, kucoin] = [
+    new ccxtpro.binance({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxtpro.binanceus({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+  ]
+
   useEffect(() => {
-    const activeMarketData = lastMessage.find((data) => {
-      return data.symbol.replace('/', '') === symbolPair
-    })
-    const quoteWorth =
-      quoteAsset === 'USDT'
-        ? { lastPrice: 1 }
-        : lastMessage.find((data) => {
-            return data.symbol.replace('/', '') === `${quoteAsset}USDT`
-          })
+    if (!selectedSymbolDetail || !marketData) return
+    setNewMessage(marketData)
+  }, [lastData, marketData])
 
-    if (!activeMarketData) return
-    const {
-      lastPrice,
-      priceChange,
-      priceChangePercent,
-      highPrice,
-      lowPrice,
-      volume,
-      quoteVolume,
-    } = activeMarketData
-
+  const setNewMessage = ({
+    last,
+    change,
+    percentage,
+    high,
+    low,
+    baseVolume,
+    quoteVolume,
+    symbol,
+  }) => {
     const newMessage = {
-      lastPrice,
-      worth: lastPrice * quoteWorth?.lastPrice,
-      priceChange,
-      priceChangePercent,
-      highPrice,
-      lowPrice,
-      volume,
+      lastPrice: last,
+      worth: last * 1,
+      priceChange: change,
+      priceChangePercent: percentage,
+      highPrice: high,
+      lowPrice: low,
+      volume: baseVolume,
       quoteVolume,
     }
 
@@ -47,7 +60,7 @@ function MarketStatistics() {
       ? 2
       : selectedSymbolDetail.tickSize > 8
       ? 8
-      : selectedSymbolDetail.tickSize
+      : selectedSymbolDetail.tickSize ?? 3
 
     newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
     newMessage.worth = Number(newMessage.worth).toFixed(2)
@@ -61,14 +74,45 @@ function MarketStatistics() {
     newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
 
     setMessage(newMessage)
-  }, [lastMessage, quoteAsset, symbolPair])
+  }
+
+  useEffect(() => {
+    for (let i = 1; i < intervalId; i++) {
+      window.clearInterval(i)
+    }
+    let id = setInterval(async () => await getData(), 700)
+    setIntervalId(id)
+  }, [marketData, selectedSymbolDetail])
+
+  const getData = async () => {
+    let activeMarketData = {}
+    if (!selectedSymbolDetail?.value) return
+    let key = selectedSymbolDetail.value.split(':')[0].toLowerCase()
+    try {
+      if (key == 'binance') {
+        activeMarketData = await binance.watchTicker(symbolPair)
+      } else if (key == 'binanceus') {
+        activeMarketData = await binanceus.watchTicker(symbolPair)
+      } else if (key == 'kucoin') {
+        activeMarketData = await kucoin.watchTicker(symbolPair)
+      }
+      setNewMessage(activeMarketData)
+    } catch (e) {
+      console.log(e)
+      // do nothing and retry on next loop iteration
+      // throw e // uncomment to break all loops in case of an error in any one of them
+      // break // you can also break just this one loop if it fails
+    }
+  }
 
   return (
     <div className="marketDataContainer">
       {message && (
         <div className="d-flex">
           <div className="lastPriceBlock">
-            <div className="marketDataLastPrice">{message.lastPrice}</div>
+            {!isNaN(message.worth) ? (
+              <div className="marketDataLastPrice">{message.lastPrice}</div>
+            ) : null}
             {!isNaN(message.worth) ? (
               <div className="marketDataWorth">${message.worth}</div>
             ) : null}
@@ -112,7 +156,17 @@ function MarketStatistics() {
                   {message.quoteVolume}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  display: 'flex',
+                }}
+              >
+                <span className="spinner-border spinner-border-sm text-primary" />
+              </div>
+            )}
           </div>
         </div>
       )}

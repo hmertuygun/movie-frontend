@@ -73,6 +73,7 @@ export default class TradingViewChart extends Component {
       isSaved: true,
       setError: false,
       intervalId: '',
+      watchListOpen: false,
     }
   }
 
@@ -224,9 +225,7 @@ export default class TradingViewChart extends Component {
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    } catch (e) {
-      console.log(e)
-    }
+    } catch (e) {}
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
@@ -386,9 +385,7 @@ export default class TradingViewChart extends Component {
         }
       }
       this.state.processingOrder = false
-    } catch (e) {
-      console.log('Value is null')
-    }
+    } catch (e) {}
   }
 
   deleteOpenOrderLine = (trade_id) => {
@@ -417,11 +414,19 @@ export default class TradingViewChart extends Component {
   addSniperModeButton = async () => {
     if (!this.tradingViewWidget) return
 
-    const value = 'Watchlist Mode'
+    const value = this.state.watchListOpen
+      ? 'Go Back to Trading'
+      : 'Watchlist Mode'
     await this.tradingViewWidget.headerReady()
     let button = this.tradingViewWidget.createButton()
     button.setAttribute('title', value)
-    button.addEventListener('click', this.props.sniperBtnClicked)
+    button.addEventListener('click', (event) => {
+      event.target.innerText =
+        event.target.innerText === 'Watchlist Mode'
+          ? 'Go Back to Trading'
+          : 'Watchlist Mode'
+      this.props.sniperBtnClicked()
+    })
     let img = document.createElement('div')
     img.setAttribute(
       'style',
@@ -638,6 +643,7 @@ export default class TradingViewChart extends Component {
       theme: newProps.theme,
       symbol: newProps.symbol,
       openOrderLines: newProps.openOrders,
+      watchListOpen: newProps.watchListOpen,
     }
   }
 

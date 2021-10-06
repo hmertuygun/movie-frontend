@@ -12,6 +12,7 @@ import {
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import { useHistory } from 'react-router'
+import Ping from 'ping.js'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -34,6 +35,7 @@ const UserContextProvider = ({ children }) => {
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   localStorage.removeItem('tradingview.IntervalWidget.quicks')
+  const p = new Ping()
   let initialState = {}
   if (
     localStorageUser !== 'undefined' &&
@@ -84,10 +86,17 @@ const UserContextProvider = ({ children }) => {
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
 
+  var urls = [
+    'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
+    'https://cp-cors-proxy-eu-north-ywasypvnmq-lz.a.run.app/',
+    'https://cp-cors-proxy-us-west-ywasypvnmq-uw.a.run.app/',
+  ]
+
   const history = useHistory()
   useEffect(() => {
     getUserExchangesAfterFBInit()
     getProducts()
+    findFastServer(urls)
   }, [])
 
   const getProducts = async () => {
@@ -174,6 +183,35 @@ const UserContextProvider = ({ children }) => {
     await currentUser.getIdToken(true)
     const decodedToken = await currentUser.getIdTokenResult()
     return decodedToken.claims.stripeRole
+  }
+
+  async function findFastServer(urls) {
+    return new Promise((resolve, reject) => {
+      var results = []
+      urls.forEach((url) => {
+        results.push(makePing(url))
+      })
+
+      Promise.all(results).then(function (values) {
+        values.sort((a, b) => {
+          return a.time - b.time
+        })
+        localStorage.setItem('proxyServer', values[0].url)
+        resolve(values[0].url)
+      })
+    })
+  }
+
+  function makePing(url) {
+    return new Promise(function (resolve, reject) {
+      try {
+        p.ping(url, function (err, data) {
+          resolve({ url: url, time: data })
+        })
+      } catch (error) {
+        console.warn('cannot fetch proxy')
+      }
+    })
   }
 
   const getSubscriptionsData = async () => {

@@ -10,5 +10,6 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "css-modules/no-unused-class": [1, { "camelCase": true }]
-  }
+  },
+  "parserOptions": { "sourceType": "module" }
 }

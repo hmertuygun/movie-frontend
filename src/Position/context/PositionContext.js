@@ -29,7 +29,6 @@ const PositionCTXProvider = ({ children }) => {
           description: 'Cannot fetch positions. Please try again later!',
         })
       } else if (data?.positions) {
-        // console.log('positions: ', data?.positions)
         setPositions(data.positions)
       }
     } catch (error) {

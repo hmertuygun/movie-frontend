@@ -145,69 +145,72 @@ const OrderHistoryTableBody = ({
           </tr>
         </thead>
         <tbody>
-          {data.map((order, index) => {
-            const isCanceled = order.status?.toLowerCase() === 'canceled'
-            const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
-            return (
-              <tr key={index} className={rowClass}>
-                <td></td>
-                <td
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    onSymbolClick(index, order.symbol)
-                  }}
-                >
-                  {order.symbol}
-                </td>
-                <td>{order.type}</td>
-                <td
-                  style={
-                    !isCanceled
-                      ? {
-                          color:
-                            order.side?.toLowerCase() === 'buy'
-                              ? 'green'
-                              : 'red',
-                        }
-                      : undefined
-                  }
-                >
-                  {order.side}
-                </td>
-                <td>{order.average}</td>
-                <td>{order.price}</td>
-                <td>{order.amount}</td>
-                <td>{order.filled}</td>
-                <td>{order.total}</td>
-                <td>{order.trigger}</td>
-                <td
-                  style={{
-                    color: order.error ? 'red' : '',
-                  }}
-                >
-                  <div
-                    data-for={`order-history-${order.order_id}`}
-                    data-place={`${order?.error?.length > 75 ? 'left' : 'top'}`}
-                    data-tip={parseErrorToolTip(order.error)}
-                    data-html={true}
-                    data-class={
-                      order?.error ? 'order-history-error-tooltip' : ''
+          {data &&
+            data.map((order, index) => {
+              const isCanceled = order?.status?.toLowerCase() === 'canceled'
+              const rowClass = isCanceled ? TradeOrdersStyle.canceled : ''
+              return (
+                <tr key={index} className={rowClass}>
+                  <td></td>
+                  <td
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      onSymbolClick(index, order.symbol)
+                    }}
+                  >
+                    {order?.symbol}
+                  </td>
+                  <td>{order?.type}</td>
+                  <td
+                    style={
+                      !isCanceled
+                        ? {
+                            color:
+                              order.side?.toLowerCase() === 'buy'
+                                ? 'green'
+                                : 'red',
+                          }
+                        : undefined
                     }
                   >
-                    {order.status}
-                  </div>
-                  {order.error && (
-                    <Tooltip id={`order-history-${order.order_id}`} />
-                  )}
-                </td>
-                <td>
-                  <Moment unix format="YYYY-MM-DD hh:mm:ss A">
-                    {order.update_time / 1000}
-                  </Moment>
-                </td>
-              </tr>
-            )
-          })}
+                    {order?.side}
+                  </td>
+                  <td>{order?.average}</td>
+                  <td>{order?.price}</td>
+                  <td>{order?.amount}</td>
+                  <td>{order?.filled}</td>
+                  <td>{order?.total}</td>
+                  <td>{order?.trigger}</td>
+                  <td
+                    style={{
+                      color: order?.error ? 'red' : '',
+                    }}
+                  >
+                    <div
+                      data-for={`order-history-${order?.order_id}`}
+                      data-place={`${
+                        order?.error?.length > 75 ? 'left' : 'top'
+                      }`}
+                      data-tip={parseErrorToolTip(order.error)}
+                      data-html={true}
+                      data-class={
+                        order?.error ? 'order-history-error-tooltip' : ''
+                      }
+                    >
+                      {order?.status}
+                    </div>
+                    {order.error && (
+                      <Tooltip id={`order-history-${order.order_id}`} />
+                    )}
+                  </td>
+                  <td>
+                    <Moment unix format="YYYY-MM-DD hh:mm:ss A">
+                      {order.update_time / 1000}
+                    </Moment>
+                  </td>
+                </tr>
+              )
+            })}
         </tbody>
       </table>
       <div className="text-center" ref={loadMoreButtonRef}>

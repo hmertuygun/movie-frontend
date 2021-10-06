@@ -8,8 +8,7 @@ import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useCallback } from 'react'
 
 const BalanceTable = () => {
-  const { balance } = useContext(PortfolioContext)
-  const { lastMessage } = useSymbolContext()
+  const { balance, lastMessage } = useContext(PortfolioContext)
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -45,15 +44,10 @@ const BalanceTable = () => {
   const fetchLatestPrice = useCallback(() => {
     const tempBalance = balance
     tempBalance.forEach((item, index, arr) => {
-      const fData = lastMessage.find(
-        (item1) => item1.symbol === `${item.SYMBOL}BTC`
-      )
-      const fData1 = lastMessage.find(
-        (item1) => item1.symbol === `${item.SYMBOL}USDT`
-      )
-
-      if (fData) arr[index].BTC = (fData.lastPrice * item.TOTAL).toFixed(8)
-      if (fData1) arr[index].USD = (fData1.lastPrice * item.TOTAL).toFixed(2)
+      const fData = lastMessage[`${item.SYMBOL}/BTC`]
+      const fData1 = lastMessage[`${item.SYMBOL}/USDT`]
+      if (fData) arr[index].BTC = (fData.last * item.TOTAL).toFixed(8)
+      if (fData1) arr[index].USD = (fData1.last * item.TOTAL).toFixed(2)
     })
     setTableData(tempBalance)
   }, [balance, lastMessage])
