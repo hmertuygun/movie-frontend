@@ -74,6 +74,7 @@ const SymbolContextProvider = ({ children }) => {
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
+  const [pureData, setPureData] = useState([])
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
@@ -102,80 +103,81 @@ const SymbolContextProvider = ({ children }) => {
     }, [delay])
   }
 
+  const editMarketData = (data) => {
+    const exchange = data[0].exchange
+    if (!pureData.length) {
+      setPureData(data)
+      return
+    }
+    const getExceptions = pureData.filter(
+      (symbol) => symbol.exchange != exchange
+    )
+    setPureData([...getExceptions, ...data])
+  }
+
+  //NOTE:
+  //This useEffect is for getting lastMessage from exchanges which has NOT socket connection
+  //for getting all tickers but has API
   useInterval(async () => {
-    const exchange =
-      templateDrawingsOpen && watchListOpen
-        ? 'binance'
-        : activeExchange.exchange
-    if (exchange === 'kucoin') {
-      const data = await execExchangeFunc(exchange, 'fetchTickers')
-      const tickers = execExchangeFunc(exchange, 'editMessage', data)
+    if (activeExchange.exchange == 'kucoin' || watchListOpen) {
+      const data = await execExchangeFunc('kucoin', 'fetchTickers')
+      const tickers = execExchangeFunc('kucoin', 'editMessage', data)
+      editMarketData(tickers)
       setLastMessage(tickers)
     }
   }, 4000)
 
+  //NOTE:
+  //This useEffect is for getting lastMessage from exchanges which has socket connection
+  //for getting all tickers
   useEffect(() => {
     const exchange =
       templateDrawingsOpen && watchListOpen
         ? 'binance'
         : activeExchange.exchange
-    let socketURL = ''
-    if (exchange == 'kucoin') {
-      const token = localStorage.getItem('kucoinEndpoint')
-      if (token) {
-        let { endpoint, date } = JSON.parse(token)
-        if (endpoint)
-          socketURL = `wss://ws-api.kucoin.com/endpoint?token=${endpoint}&[connectId=${Date.now()}]`
-      }
-    } else if (exchange == 'binance') {
-      socketURL = 'wss://stream.binance.com:9443/stream'
-    } else if (exchange == 'binanceus') {
-      socketURL = 'wss://stream.binance.us:9443/stream'
-    }
-
-    if (!socketURL) return
-
-    let label = ''
-    if (!selectedSymbol.label) {
-      if (localStorage.getItem('selectedSymbol')) {
-        label = localStorage.getItem('selectedSymbol').replace('/', '-')
+    const urls = [
+      { url: 'wss://stream.binance.com:9443/stream', exchange: 'binance' },
+      { url: 'wss://stream.binance.us:9443/stream', exchange: 'binanceus' },
+    ]
+    urls.forEach((exc) => {
+      let label = ''
+      if (!selectedSymbol.label) {
+        if (localStorage.getItem('selectedSymbol')) {
+          label = localStorage.getItem('selectedSymbol').replace('/', '-')
+        } else {
+          label = DEFAULT_SYMBOL_LOAD_DASH
+        }
       } else {
-        label = DEFAULT_SYMBOL_LOAD_DASH
+        label = selectedSymbol.label
       }
-    } else {
-      label = selectedSymbol.label
-    }
 
-    const rws = new ReconnectingWebSocket(socketURL)
+      const rws = new ReconnectingWebSocket(exc.url)
 
-    rws.addEventListener('open', () => {
-      setLastMessage([])
-      setSocketLiveUpdate(true)
-      const initSubMessage = execExchangeFunc(exchange, 'initSubscribe', {
-        label,
+      rws.addEventListener('open', () => {
+        setLastMessage([])
+        setSocketLiveUpdate(true)
+        const initSubMessage = execExchangeFunc(exc.exchange, 'initSubscribe', {
+          label,
+        })
+        rws.send(initSubMessage)
       })
-      rws.send(initSubMessage)
-    })
 
-    rws.addEventListener('message', (lastMessage) => {
-      const message = execExchangeFunc(exchange, 'onSocketMessage', {
-        lastMessage,
+      rws.addEventListener('message', (lastMessage) => {
+        const message = execExchangeFunc(exc.exchange, 'onSocketMessage', {
+          lastMessage,
+        })
+        if (message) {
+          if (exchange === exc.exchange) setLastMessage(message)
+          editMarketData(message)
+        }
       })
-      if (message) setLastMessage(message)
-    })
 
-    rws.addEventListener('error', (error) => {
-      // setSocketLiveUpdate(false)
-      // rws.close()
-      Sentry.captureException(error)
+      rws.addEventListener('error', (error) => {
+        // setSocketLiveUpdate(false)
+        // rws.close()
+        Sentry.captureException(error)
+      })
     })
-
-    return () => {
-      setTimer(null)
-      rws.close()
-      rws.removeEventListener('open')
-      rws.removeEventListener('message')
-    }
   }, [activeExchange, templateDrawingsOpen, watchListOpen, selectedSymbol])
 
   useEffect(() => {
@@ -430,7 +432,6 @@ const SymbolContextProvider = ({ children }) => {
       const [binance, ftx, binanceus, kucoin] = data.exchanges
       setSymbols(() => [
         ...binance.symbols,
-        ...ftx.symbols,
         ...binanceus.symbols,
         ...kucoin.symbols,
       ])
@@ -537,6 +538,7 @@ const SymbolContextProvider = ({ children }) => {
         setTemplateDrawings,
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
+        pureData,
         chartData,
       }}
     >
