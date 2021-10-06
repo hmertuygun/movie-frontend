@@ -653,6 +653,20 @@ export default class TradingViewChart extends Component {
     if (props.theme !== this.state.theme)
       this.tradingViewWidget.changeTheme(this.state.theme)
     this.changeSymbol(this.state.symbol)
+    if (prevProps.exchange !== this.props.exchange && this.props.exchange) {
+      localStorage.setItem('selectedExchange', this.props.exchange)
+      const newWidget = this.widgetOptions
+      const aaa = new dataFeed({
+        debug: false,
+        exchange: this.props.exchange,
+        marketSymbols: this.props.marketSymbols,
+      })
+      this.tradingViewWidget = window.tvWidget = new window.TradingView.widget({
+        ...newWidget,
+        datafeed: aaa,
+      })
+      this.chartReady()
+    }
 
     if (!this.isArrayEqual(this.state.openOrderLines, props.openOrderLines)) {
       this.drawOpenOrdersChartLines(this.state.openOrderLines)
