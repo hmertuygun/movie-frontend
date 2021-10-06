@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import React, {
   useState,
   useEffect,
@@ -9,6 +10,7 @@ import React, {
 import Select, { components } from 'react-select'
 import { Popover } from 'react-tiny-popover'
 import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
+import ccxtpro from 'ccxt.pro'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -26,6 +28,20 @@ import { exchangeCreationOptions } from '../Settings/Exchanges/ExchangeOptions'
 const DEFAULT_WATCHLIST = 'Watch List'
 
 const WatchListPanel = () => {
+  const [binance, binanceus, kucoin] = [
+    new ccxtpro.binance({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxtpro.binanceus({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+  ]
   const {
     symbols,
     isLoading,
@@ -34,6 +50,7 @@ const WatchListPanel = () => {
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
+    watchlistOpen,
   } = useSymbolContext()
   const { userData } = useContext(UserContext)
 
@@ -45,7 +62,8 @@ const WatchListPanel = () => {
   const [addWatchListLoading, setAddWatchListLoading] = useState(false)
   const [watchLists, setWatchLists] = useState([])
   const [activeWatchList, setActiveWatchList] = useState()
-
+  const [marketData, setMarketData] = useState([])
+  const [liveUpdate, setLiveUpdate] = useState(false)
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
@@ -180,38 +198,83 @@ const WatchListPanel = () => {
     }, [delay])
   }
 
+  useEffect(() => {
+    setItems()
+  }, [watchSymbolsList])
+
   useInterval(async () => {
     const symbolArray = []
     for (const symbol of watchSymbolsList) {
       let previousData = {}
-      const activeMarketData = pureData.find((data) => {
-        return (
-          data.symbol.replace('/', '') === symbol.label.replace('-', '') &&
-          symbol.value.split(':')[0].toLowerCase() == data.exchange
-        )
-      })
+      const activeMarketData = marketData[symbol.value]
 
       const tickSize = symbolDetails?.[symbol.value]?.tickSize
-      if (!activeMarketData?.lastPrice) {
+      if (!activeMarketData?.last) {
         previousData = symbolsList.find((curr) => symbol.value === curr.value)
       }
+
       symbolArray.push({
         ...symbol,
-        percentage: activeMarketData?.priceChangePercent
-          ? +activeMarketData?.priceChangePercent
+        percentage: activeMarketData?.percentage
+          ? +activeMarketData?.percentage
           : previousData?.percentage
           ? previousData?.percentage
           : 0,
-        lastPrice: activeMarketData?.lastPrice
-          ? Number(activeMarketData?.lastPrice)?.toFixed(tickSize)
-          : previousData?.lastPrice
-          ? previousData?.lastPrice
+        last: activeMarketData?.last
+          ? Number(activeMarketData?.last)?.toFixed(tickSize)
+          : previousData?.last
+          ? previousData?.last
           : '',
       })
     }
+
     setLoading(false)
     setSymbolsList(symbolArray)
   }, 1000)
+
+  async function loop(exchange, symbol) {
+    while (true) {
+      try {
+        const ticker = await exchange.watchTicker(symbol)
+        setMarketData((prevState) => {
+          return {
+            ...prevState,
+            [`${exchange.id.toUpperCase()}:${symbol}`]: ticker,
+          }
+        })
+      } catch (e) {
+        break
+      }
+    }
+  }
+
+  const setItems = async () => {
+    let obj = {}
+    watchSymbolsList.forEach((sy) => {
+      let exc = sy.value.split(':')[0].toLowerCase()
+      if (obj[exc]) {
+        obj[exc].push(sy.label.replace('-', '/'))
+      } else {
+        obj[exc] = [sy.label.replace('-', '/')]
+      }
+    })
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (key == 'binance') {
+        if (binance.has['watchTicker']) {
+          Promise.all(value.map((symbol) => loop(binance, symbol)))
+        }
+      } else if (key == 'binanceus') {
+        if (binanceus.has['watchTicker']) {
+          Promise.all(value.map((symbol) => loop(binanceus, symbol)))
+        }
+      } else if (key == 'kucoin') {
+        if (kucoin.has['watchTicker']) {
+          Promise.all(value.map((symbol) => loop(kucoin, symbol)))
+        }
+      }
+    }
+  }
 
   const getLogo = (symbol) => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
@@ -323,7 +386,7 @@ const WatchListPanel = () => {
   const removeWatchList = async (symbol) => {
     const symbols = symbolsList
       .filter((item) => {
-        return !(item.label === symbol.label && item.value === symbol.value)
+        return !(item.value === symbol.value)
       })
       .map((item) => ({
         label: item.label,

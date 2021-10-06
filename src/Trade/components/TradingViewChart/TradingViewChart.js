@@ -225,9 +225,7 @@ export default class TradingViewChart extends Component {
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    } catch (e) {
-      console.log(e)
-    }
+    } catch (e) {}
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
@@ -387,9 +385,7 @@ export default class TradingViewChart extends Component {
         }
       }
       this.state.processingOrder = false
-    } catch (e) {
-      console.log('Value is null')
-    }
+    } catch (e) {}
   }
 
   deleteOpenOrderLine = (trade_id) => {

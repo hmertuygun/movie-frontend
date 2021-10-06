@@ -15,12 +15,11 @@ export default class dataFeed {
     this.socketClass = getExchangeProp(this.selectedExchange, 'socketClass')
     this.ws = new this.socketClass()
     this.kucoin = new ccxt.kucoin({
-      proxy: 'https://cors.bridged.cc/',
+      proxy: localStorage.getItem('proxyServer'),
     })
   }
   onReady(callback) {
     setTimeout(() => {
-      console.log(this.selectedExchange)
       callback({
         supports_marks: false,
         supports_timescale_marks: false,

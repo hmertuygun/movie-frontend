@@ -6,8 +6,7 @@ import React, {
   useCallback,
 } from 'react'
 import { backOff } from 'exponential-backoff'
-import ReconnectingWebSocket from 'reconnecting-websocket'
-import * as Sentry from '@sentry/browser'
+import ccxtpro from 'ccxt.pro'
 
 import {
   getExchanges,
@@ -22,8 +21,6 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
-import ccxt from 'ccxt'
-import { execExchangeFunc } from '../../helpers/getExchangeProp'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -55,7 +52,6 @@ const SymbolContextProvider = ({ children }) => {
   const [symbolDetails, setSymbolDetails] = useState({})
   const [selectedSymbol, setSelectedSymbol] = useState('')
   const [selectedSymbolDetail, setSelectedSymbolDetail] = useState({})
-  const [selectedExchange, setSelectedExchange] = useState('')
   const [selectedSymbolBalance, setSelectedSymbolBalance] = useState('')
   const [selectedBaseSymbolBalance, setSelectedBaseSymbolBalance] = useState('')
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
@@ -69,8 +65,6 @@ const SymbolContextProvider = ({ children }) => {
   const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
-  const [baseAsset, setBaseAsset] = useState('')
-  const [qouteAsset, setQuoteAsset] = useState('')
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
   const [kucoinDD, setKucoinDD] = useState([])
@@ -80,111 +74,28 @@ const SymbolContextProvider = ({ children }) => {
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
-  const [pureData, setPureData] = useState([])
+  const [marketData, setMarketData] = useState({})
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
   let disableBtnInterval = null
+  const [binance, binanceus, kucoin] = [
+    new ccxtpro.binance({
+      enableRateLimit: true,
+    }),
+    new ccxtpro.binanceus({
+      enableRateLimit: true,
+    }),
+    new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+  ]
 
   useEffect(() => {
     checkDisableBtnStatus()
   }, [])
-
-  const useInterval = (callback, delay) => {
-    const savedCallback = React.useRef()
-
-    useEffect(() => {
-      savedCallback.current = callback
-    }, [callback])
-
-    useEffect(() => {
-      function tick() {
-        savedCallback.current()
-      }
-      if (delay !== null) {
-        let id = setInterval(tick, delay)
-        return () => clearInterval(id)
-      }
-    }, [delay])
-  }
-
-  const editMarketData = (data) => {
-    const exchange = data[0].exchange
-    if (!pureData.length) {
-      setPureData(data)
-      return
-    }
-    const getExceptions = pureData.filter(
-      (symbol) => symbol.exchange != exchange
-    )
-    setPureData([...getExceptions, ...data])
-  }
-
-  //NOTE:
-  //This useEffect is for getting lastMessage from exchanges which has NOT socket connection
-  //for getting all tickers but has API
-  useInterval(async () => {
-    if (activeExchange.exchange == 'kucoin' || watchListOpen) {
-      const data = await execExchangeFunc('kucoin', 'fetchTickers')
-      const tickers = execExchangeFunc('kucoin', 'editMessage', data)
-      editMarketData(tickers)
-      setLastMessage(tickers)
-    }
-  }, 4000)
-
-  //NOTE:
-  //This useEffect is for getting lastMessage from exchanges which has socket connection
-  //for getting all tickers
-  useEffect(() => {
-    const exchange =
-      templateDrawingsOpen && watchListOpen
-        ? 'binance'
-        : activeExchange.exchange
-    const urls = [
-      { url: 'wss://stream.binance.com:9443/stream', exchange: 'binance' },
-      { url: 'wss://stream.binance.us:9443/stream', exchange: 'binanceus' },
-    ]
-    urls.forEach((exc) => {
-      let label = ''
-      if (!selectedSymbol.label) {
-        if (localStorage.getItem('selectedSymbol')) {
-          label = localStorage.getItem('selectedSymbol').replace('/', '-')
-        } else {
-          label = DEFAULT_SYMBOL_LOAD_DASH
-        }
-      } else {
-        label = selectedSymbol.label
-      }
-
-      const rws = new ReconnectingWebSocket(exc.url)
-
-      rws.addEventListener('open', () => {
-        setLastMessage([])
-        setSocketLiveUpdate(true)
-        const initSubMessage = execExchangeFunc(exc.exchange, 'initSubscribe', {
-          label,
-        })
-        rws.send(initSubMessage)
-      })
-
-      rws.addEventListener('message', (lastMessage) => {
-        const message = execExchangeFunc(exc.exchange, 'onSocketMessage', {
-          lastMessage,
-        })
-        if (message) {
-          if (exchange === exc.exchange) setLastMessage(message)
-          editMarketData(message)
-        }
-      })
-
-      rws.addEventListener('error', (error) => {
-        // setSocketLiveUpdate(false)
-        // rws.close()
-        Sentry.captureException(error)
-      })
-    })
-  }, [activeExchange, templateDrawingsOpen, watchListOpen, selectedSymbol])
 
   useEffect(() => {
     let { exchange } = activeExchange
@@ -212,17 +123,22 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
     const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
+
     //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
   }, [selectedSymbol])
 
-  useEffect(() => {
-    if (!symbolType || !activeExchange?.exchange) return
-    const [baseAsset, qouteAsset] = symbolType.split('/')
-    setBaseAsset(baseAsset)
-    setQuoteAsset(qouteAsset)
-    loadBalance(qouteAsset, baseAsset)
-  }, [activeExchange, symbolType])
+  const setInitMarketData = async (symbol) => {
+    let activeMarketData = {}
+    if (activeExchange.exchange == 'binance') {
+      activeMarketData = await binance.fetchTicker(symbol)
+    } else if (activeExchange.exchange == 'binanceus') {
+      activeMarketData = await binanceus.fetchTicker(symbol)
+    } else if (activeExchange.exchange == 'kucoin') {
+      activeMarketData = await kucoin.fetchTicker(symbol)
+    }
+    setMarketData(activeMarketData)
+  }
 
   useEffect(() => {
     setExchangesFromTotalExchanges()
@@ -289,7 +205,7 @@ const SymbolContextProvider = ({ children }) => {
           : activeExchange.exchange
       const { data } = await getAllChartData()
       let { intervals, lastSelectedSymbol, timeZone } = data
-
+      let activeMarketData = {}
       const chartData = {
         intervals: intervals || [],
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -298,26 +214,27 @@ const SymbolContextProvider = ({ children }) => {
           `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
       }
 
-      if (!watchListOpen) {
-        setChartData({ ...chartData })
-        let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
-        exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-        symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
-        localStorage.setItem('selectedExchange', exchangeVal)
-        localStorage.setItem('selectedSymbol', symbolVal)
-        const [baseAsset, qouteAsset] = symbolVal.split('/')
-        setSelectedSymbolDetail({
-          base_asset: baseAsset,
-          quote_asset: qouteAsset,
-        }) // to show balance in trade panel quickly
-        setSymbolType(symbolVal)
-        loadExchanges(symbolVal, exchangeVal)
-        setSelectedSymbol({
-          label: symbolVal.replace('/', '-'),
-          value: `${exchangeVal.toUpperCase()}:${symbolType}`,
-        })
-        loadLastPrice(symbolVal, exchangeVal)
-      }
+      setChartData({ ...chartData })
+      let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
+      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+      localStorage.setItem('selectedExchange', exchangeVal)
+      localStorage.setItem('selectedSymbol', symbolVal)
+      const [baseAsset, qouteAsset] = symbolVal.split('/')
+      loadBalance(qouteAsset, baseAsset)
+      setInitMarketData(symbolVal)
+      setSelectedSymbolDetail({
+        base_asset: baseAsset,
+        quote_asset: qouteAsset,
+      }) // to show balance in trade panel quickly
+      setSymbolType(symbolVal)
+      loadExchanges(symbolVal, exchangeVal)
+      setSelectedSymbol({
+        label: symbolVal.replace('/', '-'),
+        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
+      })
+      loadLastPrice(symbolVal, exchangeVal)
+
       setExchangeType(exchange.toLowerCase())
       localStorage.setItem('selectedExchange', exchange.toLowerCase())
     } catch (e) {
@@ -398,6 +315,7 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolDetail(symbolDetails[symbol.value])
       setSelectedSymbol(symbol)
       if (!watchListOpen) {
+        setInitMarketData(symbolT)
         try {
           await saveLastSelectedMarketSymbol(symbol.value)
         } catch (e) {
@@ -439,10 +357,6 @@ const SymbolContextProvider = ({ children }) => {
     watchListOpen,
   ])
 
-  useEffect(() => {
-    console.log('symbolinfo: ', selectedSymbol, selectedSymbolDetail)
-  }, [selectedSymbol, selectedSymbolDetail])
-
   const setExchange = async (exchange) => {
     try {
       // if user selects the selected option again in the dropdown
@@ -456,6 +370,8 @@ const SymbolContextProvider = ({ children }) => {
       await updateLastSelectedAPIKey({ ...exchange })
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
+      const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
       errorNotification.open({
         description: `Error activating this exchange key!`,
@@ -496,7 +412,6 @@ const SymbolContextProvider = ({ children }) => {
       (symbol) => symbol.symbolpair === symbolType
     )
     if (!selectedSymbol) {
-      console.log('info: ', selectedDD, exchangeType, symbolType)
       const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     }
@@ -546,7 +461,6 @@ const SymbolContextProvider = ({ children }) => {
 
   const refreshBalance = async () => {
     setIsLoadingBalance(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
     if (selectedSymbolDetail?.quote_asset) {
       loadBalance(
         selectedSymbolDetail.quote_asset,
@@ -629,7 +543,7 @@ const SymbolContextProvider = ({ children }) => {
         setTemplateDrawings,
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
-        pureData,
+        marketData,
         chartData,
       }}
     >

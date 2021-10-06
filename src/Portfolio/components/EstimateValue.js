@@ -12,13 +12,11 @@ import CashoMeter from './CashoMeter'
 import './EstimateValue.css'
 
 const EstimateValue = () => {
-  const { estimate } = useContext(PortfolioContext)
+  const { estimate, lastMessage } = useContext(PortfolioContext)
   const [estData, setEstData] = useState([])
-  const { lastMessage } = useSymbolContext()
   const [currentCurrency, setCurrentCurrency] = useState('USDT')
   const [showOptions, setShowOptions] = useState(false)
   const closeDropDownRef = useRef()
-
   const currencySymbols = {
     USDT: 'dollar-sign',
     EUR: 'euro-sign',
@@ -42,11 +40,9 @@ const EstimateValue = () => {
     let tempBalance = []
     const BTC = estimate[0].value
     estimate.forEach((item) => {
-      const fData = lastMessage.find(
-        (item1) => item1.symbol === `BTC${item.symbol.toUpperCase()}`
-      )
+      const fData = lastMessage[`BTC/${item.symbol.toUpperCase()}`]
       const data = fData
-        ? { symbol: item.symbol, value: (fData.lastPrice * BTC).toFixed(2) }
+        ? { symbol: item.symbol, value: (fData.last * BTC).toFixed(2) }
         : { symbol: item?.symbol, value: item?.value }
       tempBalance.push(data)
     })
@@ -54,7 +50,7 @@ const EstimateValue = () => {
   }, [estimate, lastMessage])
 
   useEffect(() => {
-    if (!estimate?.length || !lastMessage?.length) return
+    if (!estimate?.length || !lastMessage) return
     fetchLatestPrice()
   }, [estimate?.length, fetchLatestPrice, lastMessage])
 

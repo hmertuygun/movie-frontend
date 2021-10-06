@@ -41,9 +41,9 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
             src={getLogo()}
           ></img>
         </span>
-        {symbol.label}
+        {symbol.label.replace('/', '-')}
       </div>
-      <div>{symbol.lastPrice}</div>
+      <div>{symbol.last}</div>
       <div className={Math.sign(symbol.percentage) > 0 ? 'plus' : 'minus'}>
         {symbol.percentage ? `${Number(symbol.percentage).toFixed(2)}%` : ''}
       </div>

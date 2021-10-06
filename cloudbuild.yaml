@@ -14,10 +14,10 @@ steps:
     args: ['mv', '.env-${_CLUSTER_TYPE}', '.env']
   #- name: 'ubuntu'
   #  args: ['mv', 'public/maintainence.html', 'public/index.html']
-  - name: node:12.10.0
+  - name: node:14.17.3
     entrypoint: yarn
     args: ['install']
-  - name: node:12.10.0
+  - name: node:14.17.3
     entrypoint: yarn
     args: ['run', 'build']
   - name: gcr.io/${PROJECT_ID}/firebase
