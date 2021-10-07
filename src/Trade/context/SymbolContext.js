@@ -199,44 +199,27 @@ const SymbolContextProvider = ({ children }) => {
     // get chart data, like last selected symbols, fav chart intervals & drawings
     // get market symbols
     try {
-      const defaultSymbol = `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`
-
+      const exchange =
+        templateDrawingsOpen && watchListOpen
+          ? 'binance'
+          : activeExchange.exchange
       const { data } = await getAllChartData()
       let { intervals, lastSelectedSymbol, timeZone } = data
-      lastSelectedSymbol = lastSelectedSymbol || defaultSymbol
-
-      let lastSelectedWatchListSymbol = ''
-
-      if (watchListOpen) {
-        let selectedWatchListSymbol = localStorage.getItem('myWatchListSymbol')
-        if (templateDrawingsOpen) {
-          selectedWatchListSymbol = localStorage.getItem(
-            'traderWatchListSymbol'
-          )
-        }
-
-        if (selectedWatchListSymbol) {
-          lastSelectedWatchListSymbol = JSON.parse(selectedWatchListSymbol)
-        } else {
-          lastSelectedWatchListSymbol = defaultSymbol
-        }
-      }
-
+      let activeMarketData = {}
       const chartData = {
         intervals: intervals || [],
         timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lastSelectedSymbol: watchListOpen
-          ? lastSelectedWatchListSymbol
-          : lastSelectedSymbol,
+        lastSelectedSymbol:
+          lastSelectedSymbol ||
+          `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
       }
-      setChartData({ ...chartData })
 
+      setChartData({ ...chartData })
       let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
-      exchangeVal = exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
       symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
       localStorage.setItem('selectedSymbol', symbolVal)
-
       const [baseAsset, qouteAsset] = symbolVal.split('/')
       loadBalance(qouteAsset, baseAsset)
       setInitMarketData(symbolVal)
@@ -244,17 +227,19 @@ const SymbolContextProvider = ({ children }) => {
         base_asset: baseAsset,
         quote_asset: qouteAsset,
       }) // to show balance in trade panel quickly
-      setExchangeType(exchangeVal)
       setSymbolType(symbolVal)
-
       loadExchanges(symbolVal, exchangeVal)
       setSelectedSymbol({
         label: symbolVal.replace('/', '-'),
         value: `${exchangeVal.toUpperCase()}:${symbolType}`,
       })
       loadLastPrice(symbolVal, exchangeVal)
+
+      setExchangeType(exchange.toLowerCase())
+      localStorage.setItem('selectedExchange', exchange.toLowerCase())
     } catch (e) {
       console.error(e)
+    } finally {
     }
   }
 
@@ -356,6 +341,11 @@ const SymbolContextProvider = ({ children }) => {
     if (watchListOpen) return
 
     if (selectedSymbol.value !== selectedSymbolDetail.value) {
+      console.log(
+        'Trade panel issue log: ',
+        selectedSymbol,
+        selectedSymbolDetail
+      )
       setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
     }
   }, [
