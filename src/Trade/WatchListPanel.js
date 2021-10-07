@@ -89,6 +89,25 @@ const WatchListPanel = () => {
       )
   }, [userData.email])
 
+  const handleSymbolUpdate = (symbol) => {
+    let selectedWatchListSymbol = localStorage.getItem('myWatchListSymbol')
+    if (templateDrawingsOpen) {
+      selectedWatchListSymbol = localStorage.getItem('traderWatchListSymbol')
+    }
+
+    if (selectedWatchListSymbol) {
+      setSymbol(JSON.parse(selectedWatchListSymbol))
+    } else {
+      setSymbol(symbol)
+
+      if (templateDrawingsOpen) {
+        localStorage.setItem('traderWatchListSymbol', JSON.stringify(symbol))
+      } else {
+        localStorage.setItem('myWatchListSymbol', JSON.stringify(symbol))
+      }
+    }
+  }
+
   useEffect(() => {
     if (!templateDrawingsOpen) {
       try {
@@ -121,7 +140,7 @@ const WatchListPanel = () => {
                     activeList?.[activeExchange.exchange] &&
                     activeList?.[activeExchange.exchange][0]
                   ) {
-                    setSymbol(activeList?.[activeExchange.exchange][0])
+                    handleSymbolUpdate(activeList?.[activeExchange.exchange][0])
                   }
                 }
               }
@@ -161,7 +180,7 @@ const WatchListPanel = () => {
                   setWatchSymbolsList(activeList?.['binance'] ?? [])
                   setActiveWatchList(activeList)
                   if (activeList?.['binance'] && activeList?.['binance'][0]) {
-                    setSymbol(activeList?.['binance'][0])
+                    handleSymbolUpdate(activeList?.['binance'][0])
                   }
                 }
               }
@@ -480,7 +499,7 @@ const WatchListPanel = () => {
       setActiveWatchList(activeList)
       setWatchSymbolsList(activeList?.['binance'] ?? [])
       if (activeList?.['binance'] && activeList?.['binance'][0]) {
-        setSymbol(activeList?.['binance'][0])
+        handleSymbolUpdate(activeList?.['binance'][0])
       }
     }
     setWatchListPopoverOpen(false)

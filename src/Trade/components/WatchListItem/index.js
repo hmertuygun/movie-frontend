@@ -19,7 +19,14 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
   return (
     <div
       className={'watch-container'}
-      onClick={() => setSymbol(symbol)}
+      onClick={() => {
+        if (templateDrawingsOpen) {
+          localStorage.setItem('traderWatchListSymbol', JSON.stringify(symbol))
+        } else {
+          localStorage.setItem('myWatchListSymbol', JSON.stringify(symbol))
+        }
+        setSymbol(symbol)
+      }}
       onMouseOver={() => setShowRemoveBtn(true)}
       onMouseLeave={() => setShowRemoveBtn(false)}
     >
