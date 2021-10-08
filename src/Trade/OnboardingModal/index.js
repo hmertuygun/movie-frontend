@@ -43,9 +43,10 @@ const OnboardingModal = () => {
   const [apiProc, setIsApiProc] = useState(false)
   const [hasError, setError] = useState(false)
   const [exchange, setExchange] = useState({
-    value: 'binanceus',
-    label: 'Binance.US',
-    placeholder: 'BinanceUS',
+    value: 'binance',
+    label: 'Binance',
+    placeholder: 'Binance',
+    fields: { Key: 'apiKey', Secret: 'secret' },
   })
   const [apiName, setApiName] = useState('')
   const [validation, setValidation] = useState({})
@@ -172,7 +173,7 @@ const OnboardingModal = () => {
 
   let btnText = {
     1: {
-      primaryBtn: 'Continue with existing Binance account',
+      primaryBtn: 'Continue with existing exchange account',
       secBtn: 'Set up a new Binance account',
       title: 'Exchange Setup',
       heading: 'Welcome to CoinPanel!',

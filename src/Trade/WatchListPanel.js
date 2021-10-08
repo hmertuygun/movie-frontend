@@ -30,11 +30,9 @@ const DEFAULT_WATCHLIST = 'Watch List'
 const WatchListPanel = () => {
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.binanceus({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({
@@ -355,7 +353,15 @@ const WatchListPanel = () => {
     const selected = symbols.filter(
       (symbol) => !symbolsList.some((item) => item.value === symbol.value)
     )
-    return selected
+    const finalOptions =
+      selected &&
+      selected.map((item) => {
+        return {
+          ...item,
+          searchLabel: `${item.base_asset}${item.quote_asset}`,
+        }
+      })
+    return finalOptions
   }, [symbols, activeExchange, symbolsList])
 
   const handleChange = async (symbol) => {
@@ -580,8 +586,8 @@ const WatchListPanel = () => {
                   placeholder="Search"
                   ref={symbolsSelectRef}
                   onChange={handleChange}
-                  getOptionLabel={(symbol) => (
-                    <div>
+                  formatOptionLabel={(symbol) => (
+                    <span>
                       <img
                         src={getLogo(symbol)}
                         style={{
@@ -591,10 +597,11 @@ const WatchListPanel = () => {
                         }}
                       />
                       {symbol.label}
-                    </div>
+                    </span>
                   )}
                   isDisabled={isLoadingBalance || isLoading}
                   styles={customStyles}
+                  getOptionValue={(option) => option.searchLabel}
                 />
               </div>
             )}

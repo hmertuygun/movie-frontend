@@ -91,6 +91,7 @@ export default class TradingViewChart extends Component {
         const { setIsChartReady } = this.context
         setIsChartReady(true)
         this.setState({ isChartReady: true })
+        console.log('Chart loaded')
       })
     } catch (e) {
       console.log(e)
@@ -553,6 +554,7 @@ export default class TradingViewChart extends Component {
       this.chartEvent('onAutoSaveNeeded')
       // this.chartShortCutSave()
       this.chartEvent('drawing_event')
+      console.log('Drawings and Intervals loaded')
     }
   }
 
@@ -648,6 +650,7 @@ export default class TradingViewChart extends Component {
   }
 
   componentDidMount() {
+    console.log('Chart starting to load')
     this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
       this.widgetOptions
     )
@@ -662,14 +665,14 @@ export default class TradingViewChart extends Component {
     if (prevProps.exchange !== this.props.exchange && this.props.exchange) {
       localStorage.setItem('selectedExchange', this.props.exchange)
       const newWidget = this.widgetOptions
-      const aaa = new dataFeed({
+      const newFeed = new dataFeed({
         debug: false,
         exchange: this.props.exchange,
         marketSymbols: this.props.marketSymbols,
       })
       this.tradingViewWidget = window.tvWidget = new window.TradingView.widget({
         ...newWidget,
-        datafeed: aaa,
+        datafeed: newFeed,
       })
       this.chartReady()
     }

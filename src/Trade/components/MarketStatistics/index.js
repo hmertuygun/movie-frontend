@@ -15,11 +15,9 @@ function MarketStatistics() {
 
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.binanceus({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({

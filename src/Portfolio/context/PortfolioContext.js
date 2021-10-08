@@ -35,11 +35,9 @@ const PortfolioCTXProvider = ({ children }) => {
   const [marketData, setMarketData] = useState([])
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.binanceus({
-      proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({
