@@ -386,7 +386,8 @@ const SymbolContextProvider = ({ children }) => {
       binanceUSDD.length === 0 ||
       kucoinDD.length === 0 ||
       !exchangeType ||
-      !symbolType
+      !symbolType ||
+      watchListOpen
     ) {
       return
     }
@@ -406,9 +407,11 @@ const SymbolContextProvider = ({ children }) => {
       default:
         break
     }
+
     const selectedSymbol = selectedDD.find(
       (symbol) => symbol.symbolpair === symbolType
     )
+
     if (!selectedSymbol) {
       const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
