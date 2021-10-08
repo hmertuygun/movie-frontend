@@ -599,7 +599,6 @@ const WatchListPanel = () => {
                       {symbol.label}
                     </span>
                   )}
-                  isDisabled={isLoadingBalance || isLoading}
                   styles={customStyles}
                   getOptionValue={(option) => option.searchLabel}
                 />
