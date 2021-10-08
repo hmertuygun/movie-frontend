@@ -39,6 +39,7 @@ const TradeChart = () => {
         localStorage.getItem('chartMirroring') === 'true' ? true : false
       setTemplateDrawingsOpen(status)
     }
+    console.log('TV Parent loaded', exchangeType, symbolType)
   }, [])
 
   useEffect(() => {
@@ -152,6 +153,10 @@ const TradeChart = () => {
     return order.filter((item) => item.symbol.replace('-', '/') === symbol)
   }
 
+  const isLoadChart = () => {
+    return exchangeType && symbolType
+  }
+
   const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
   const symbolDetailsKeyValue = getSymbolsLS
     ? JSON.parse(getSymbolsLS)
@@ -165,7 +170,7 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      {exchangeType && symbolType ? (
+      {isLoadChart() ? (
         <TradingViewChart
           email={userData?.email}
           theme={theme}

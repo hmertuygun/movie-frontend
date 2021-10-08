@@ -196,8 +196,6 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const getChartDataOnInit = async () => {
-    // get chart data, like last selected symbols, fav chart intervals & drawings
-    // get market symbols
     try {
       const exchange =
         templateDrawingsOpen && watchListOpen
@@ -371,7 +369,7 @@ const SymbolContextProvider = ({ children }) => {
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
-      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
+      await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
       errorNotification.open({
         description: `Error activating this exchange key!`,
