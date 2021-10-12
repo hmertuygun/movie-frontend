@@ -79,7 +79,6 @@ const SymbolContextProvider = ({ children }) => {
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
-  let disableBtnInterval = null
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
       enableRateLimit: true,
@@ -94,7 +93,35 @@ const SymbolContextProvider = ({ children }) => {
   ]
 
   useEffect(() => {
-    checkDisableBtnStatus()
+    const interval = setInterval(() => {
+      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
+      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
+      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
+      const positionLS = localStorage.getItem('positionRefreshBtn')
+
+      if (
+        orderHistoryLS &&
+        Date.now() - orderHistoryLS < orderHistoryTimeInterval
+      )
+        setDisableOrderHistoryRefreshBtn(true)
+      else setDisableOrderHistoryRefreshBtn(false)
+
+      if (openOrdersLS && Date.now() - openOrdersLS < openOrdersTimeInterval)
+        setDisableOpenOrdesrRefreshBtn(true)
+      else setDisableOpenOrdesrRefreshBtn(false)
+
+      if (portfolioLS && Date.now() - portfolioLS < portfolioTimeInterval)
+        setDisablePortfolioRefreshBtn(true)
+      else setDisablePortfolioRefreshBtn(false)
+
+      if (positionLS && Date.now() - positionLS < positionTimeInterval)
+        setDisablePositionRefreshBtn(true)
+      else setDisablePositionRefreshBtn(false)
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
@@ -149,34 +176,6 @@ const SymbolContextProvider = ({ children }) => {
     if (!userData) return
     getChartDataOnInit()
   }, [userData, activeExchange, watchListOpen, templateDrawingsOpen])
-
-  const checkDisableBtnStatus = () => {
-    disableBtnInterval = setInterval(() => {
-      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
-      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
-      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
-      const positionLS = localStorage.getItem('positionRefreshBtn')
-
-      if (
-        orderHistoryLS &&
-        Date.now() - orderHistoryLS < orderHistoryTimeInterval
-      )
-        setDisableOrderHistoryRefreshBtn(true)
-      else setDisableOrderHistoryRefreshBtn(false)
-
-      if (openOrdersLS && Date.now() - openOrdersLS < openOrdersTimeInterval)
-        setDisableOpenOrdesrRefreshBtn(true)
-      else setDisableOpenOrdesrRefreshBtn(false)
-
-      if (portfolioLS && Date.now() - portfolioLS < portfolioTimeInterval)
-        setDisablePortfolioRefreshBtn(true)
-      else setDisablePortfolioRefreshBtn(false)
-
-      if (positionLS && Date.now() - positionLS < positionTimeInterval)
-        setDisablePositionRefreshBtn(true)
-      else setDisablePositionRefreshBtn(false)
-    }, 1000)
-  }
 
   const onRefreshBtnClicked = (type) => {
     const dateNow = Date.now()
