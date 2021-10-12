@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
+import ccxtpro from 'ccxt.pro'
 
 export const PositionContext = createContext()
 
@@ -19,10 +20,14 @@ const PositionCTXProvider = ({ children }) => {
 
   const [isLoading, setIsLoading] = useState(false)
   const [positions, setPositions] = useState([])
+  const [lastMessage, setLastMessage] = useState({})
 
   const fetchPositionsList = useCallback(async () => {
     try {
       setIsLoading(true)
+      const ccxt = new ccxtpro[exchange]()
+      const message = await ccxt.fetchTickers()
+      setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })
       if (data?.error) {
         errorNotification.open({
@@ -67,7 +72,7 @@ const PositionCTXProvider = ({ children }) => {
 
   return (
     <PositionContext.Provider
-      value={{ isLoading, setIsLoading, positions, refreshData }}
+      value={{ isLoading, setIsLoading, positions, refreshData, lastMessage }}
     >
       {children}
     </PositionContext.Provider>

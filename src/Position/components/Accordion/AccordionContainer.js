@@ -11,9 +11,9 @@ import scientificToDecimal from '../../../helpers/toDecimal'
 import { UserContext } from '../../../contexts/UserContext'
 
 const AccordionContainer = () => {
-  const { positions, isLoading } = useContext(PositionContext)
+  const { positions, isLoading, lastMessage } = useContext(PositionContext)
   const { activeExchange } = useContext(UserContext)
-  const { symbolDetails, lastMessage, liveUpdate } = useSymbolContext()
+  const { symbolDetails, liveUpdate } = useSymbolContext()
   const [data, setData] = useState([])
 
   useEffect(() => {
@@ -23,11 +23,7 @@ const AccordionContainer = () => {
         const { amount, dateOpened, entry, orders, symbol } = position
         const quoteAsset = symbol.split('-')?.[1]
         const currentPrice = scientificToDecimal(
-          Number(
-            lastMessage.find(
-              (lastMessage) => lastMessage.symbol === symbol.replace('-', '')
-            )?.lastPrice
-          )
+          Number(lastMessage[symbol.replace('-', '/')].last)
         )
 
         const { exchange } = activeExchange
@@ -93,11 +89,7 @@ const AccordionContainer = () => {
 
         let positionValue = currentPrice * amount
         if (quoteAsset !== 'USDT') {
-          const quotePrice = Number(
-            lastMessage.find(
-              (lastMessage) => lastMessage.symbol === `${quoteAsset}USDT`
-            )?.lastPrice
-          )
+          const quotePrice = Number(lastMessage[`${quoteAsset}/USDT`])
           positionValue *= quotePrice
         }
 
