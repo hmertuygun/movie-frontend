@@ -25,7 +25,9 @@ const PositionCTXProvider = ({ children }) => {
   const fetchPositionsList = useCallback(async () => {
     try {
       setIsLoading(true)
-      const ccxt = new ccxtpro[exchange]()
+      const ccxt = new ccxtpro[exchange]({
+        proxy: localStorage.getItem('proxyServer'),
+      })
       const message = await ccxt.fetchTickers()
       setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })

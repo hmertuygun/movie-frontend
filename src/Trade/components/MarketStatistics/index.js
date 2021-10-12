@@ -11,7 +11,6 @@ function MarketStatistics() {
   const quoteAsset = selectedSymbolDetail && selectedSymbolDetail.quote_asset
   const symbolPair = `${baseAsset}/${quoteAsset}`
   const [lastData, setLastData] = useState()
-  const [intervalId, setIntervalId] = useState()
 
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
@@ -75,11 +74,11 @@ function MarketStatistics() {
   }
 
   useEffect(() => {
-    for (let i = 1; i < intervalId; i++) {
-      window.clearInterval(i)
+    const id = setInterval(async () => await getData(), 700)
+
+    return () => {
+      clearInterval(id)
     }
-    let id = setInterval(async () => await getData(), 700)
-    setIntervalId(id)
   }, [marketData, selectedSymbolDetail])
 
   const getData = async () => {
