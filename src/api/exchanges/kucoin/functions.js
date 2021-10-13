@@ -89,7 +89,9 @@ const getSocketEndpoint = () => {
         const client = new XMLHttpRequest()
         client.open(
           'POST',
-          'https://cors.bridged.cc/https://api.kucoin.com/api/v1/bullet-public'
+          `${localStorage.getItem(
+            'proxyServer'
+          )}https://api.kucoin.com/api/v1/bullet-public`
         )
         client.send()
 
@@ -111,7 +113,9 @@ const getSocketEndpoint = () => {
       const client = new XMLHttpRequest()
       client.open(
         'POST',
-        'https://cors.bridged.cc/https://api.kucoin.com/api/v1/bullet-public'
+        `${localStorage.getItem(
+          'proxyServer'
+        )}https://api.kucoin.com/api/v1/bullet-public`
       )
       client.send()
 
