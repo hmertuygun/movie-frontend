@@ -69,6 +69,8 @@ const SymbolContextProvider = ({ children }) => {
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
+  const [isTradersModalOpen, setIsTradersModalOpen] = useState(false)
+  const [activeTrader, setActiveTrader] = useState({})
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
   const [exchangeUpdated, setExchangeUpdated] = useState(false)
@@ -545,6 +547,10 @@ const SymbolContextProvider = ({ children }) => {
         setTemplateDrawings,
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
+        isTradersModalOpen,
+        setIsTradersModalOpen,
+        activeTrader,
+        setActiveTrader,
         marketData,
         chartData,
       }}
