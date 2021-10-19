@@ -15,7 +15,7 @@ import { UserContext } from '../contexts/UserContext'
 import { TabNavigator, ButtonNavigator, Typography, Modal } from '../components'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
-import TradeTableContainer from './components/TradeTableContainer'
+import TradeTableContainer from './components/TradeTableContainer/TradeTableContainer'
 import TradeModal from './components/TradeModal/TradeModal'
 
 import LimitForm from './forms/LimitForm/LimitForm'
@@ -42,6 +42,7 @@ import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketF
 
 import { analytics } from '../firebase/firebase'
 import { Event } from '../Tracking'
+import * as Sentry from '@sentry/react'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -106,7 +107,7 @@ const Trade = () => {
       setIsTradePanelOpen(false)
       clear()
     } catch (error) {
-      console.error({ error, message: 'Order was not sent' })
+      Sentry.captureException(error)
       setIsModalVisible(false)
       errorNotification.open({
         description: `Order couldn't be created. Please try again later!`,

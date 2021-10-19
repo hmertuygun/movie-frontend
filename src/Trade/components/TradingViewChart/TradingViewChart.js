@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import * as Sentry from '@sentry/react'
 import _ from 'lodash'
 import dataFeed from '../../../api/dataFeed'
 import { firebase } from '../../../firebase/firebase'
@@ -96,8 +97,8 @@ export default class TradingViewChart extends Component {
         this.setState({ isChartReady: true })
         console.log('Chart loaded')
       })
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      Sentry.captureException(error)
     }
   }
 
@@ -113,12 +114,12 @@ export default class TradingViewChart extends Component {
             localStorage.setItem('selectedIntervalFtx', interval)
           } else if (this.props.exchange === 'binanceus') {
             localStorage.setItem('selectedIntervalBinanceus', interval)
-          } else if (this.props.exchange === 'binanceus') {
+          } else if (this.props.exchange === 'kucoin') {
             localStorage.setItem('selectedIntervalKucoin', interval)
           }
         })
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      Sentry.captureException(error)
     }
   }
 
@@ -183,8 +184,8 @@ export default class TradingViewChart extends Component {
           }
         }
       })
-    } catch (e) {
-      console.log(`Error while subscribing to chart events!`)
+    } catch (error) {
+      Sentry.captureException(error)
     }
   }
 
@@ -219,6 +220,7 @@ export default class TradingViewChart extends Component {
         errorNotification.open({
           description: e.message,
         })
+        Sentry.captureException(e)
       } finally {
         this.setState({ isSaved: true })
       }
@@ -232,7 +234,9 @@ export default class TradingViewChart extends Component {
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    } catch (e) {}
+    } catch (error) {
+      Sentry.captureException(error)
+    }
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
@@ -578,7 +582,7 @@ export default class TradingViewChart extends Component {
         })
       }
     } catch (e) {
-      console.error(e)
+      Sentry.captureException(e)
     } finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
@@ -638,8 +642,8 @@ export default class TradingViewChart extends Component {
             this.state.templateButton.innerText = 'View My Charts'
             this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
-        } catch (e) {
-          console.error(e)
+        } catch (error) {
+          Sentry.captureException(error)
         }
       }
     }
@@ -733,8 +737,8 @@ export default class TradingViewChart extends Component {
             this.tradingViewWidget.load(prep)
           })
         }
-      } catch (e) {
-        console.error(e)
+      } catch (error) {
+        Sentry.captureException(error)
       } finally {
         this.setState({
           templateDrawingsOpen: false,

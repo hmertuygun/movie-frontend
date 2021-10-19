@@ -1,5 +1,6 @@
 import { getExchangeProp, execExchangeFunc } from '../helpers/getExchangeProp'
 import ccxt from 'ccxt'
+import * as Sentry from '@sentry/react'
 
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
@@ -58,8 +59,8 @@ export default class dataFeed {
           has_weekly_and_monthly: true,
         })
       }, 0)
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      Sentry.captureException(error)
     }
   }
 
@@ -142,7 +143,7 @@ export default class dataFeed {
           }
         }
       } catch (e) {
-        console.error(e)
+        Sentry.captureException(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }
     }
