@@ -71,6 +71,7 @@ const SymbolContextProvider = ({ children }) => {
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
+  const [exchangeUpdated, setExchangeUpdated] = useState(false)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
@@ -171,7 +172,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-  }, [userData, activeExchange, watchListOpen, templateDrawingsOpen])
+  }, [userData, watchListOpen, activeExchange, templateDrawingsOpen])
 
   const onRefreshBtnClicked = (type) => {
     const dateNow = Date.now()
@@ -210,7 +211,11 @@ const SymbolContextProvider = ({ children }) => {
       setChartData({ ...chartData })
       let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
       exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+      symbolVal = exchangeUpdated
+        ? DEFAULT_SYMBOL_LOAD_SLASH
+        : symbolVal
+        ? symbolVal
+        : DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
       localStorage.setItem('selectedSymbol', symbolVal)
       const [baseAsset, qouteAsset] = symbolVal.split('/')
@@ -224,7 +229,7 @@ const SymbolContextProvider = ({ children }) => {
       loadExchanges(symbolVal, exchangeVal)
       setSelectedSymbol({
         label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
+        value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
       })
       loadLastPrice(symbolVal, exchangeVal)
 
@@ -359,11 +364,13 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         return
       }
+      setExchangeUpdated(true)
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+
       await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
       errorNotification.open({
@@ -409,6 +416,7 @@ const SymbolContextProvider = ({ children }) => {
 
     if (!selectedSymbol) {
       const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     }
   }, [
