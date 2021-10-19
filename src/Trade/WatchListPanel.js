@@ -61,7 +61,6 @@ const WatchListPanel = () => {
   const [watchLists, setWatchLists] = useState([])
   const [activeWatchList, setActiveWatchList] = useState()
   const [marketData, setMarketData] = useState([])
-  const [liveUpdate, setLiveUpdate] = useState(false)
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
