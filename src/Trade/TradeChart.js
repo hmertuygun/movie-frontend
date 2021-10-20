@@ -3,9 +3,11 @@ import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
+import TraderModal from './components/TradersModal/TradersModal'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
+import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import { exception } from 'react-ga'
 import { exchanges } from 'ccxt'
 
@@ -22,6 +24,13 @@ const TradeChart = () => {
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
     setSymbol,
+    kucoinDD,
+    binanceDD,
+    binanceUSDD,
+    isTradersModalOpen,
+    setIsTradersModalOpen,
+    activeTrader,
+    setActiveTrader,
     selectedSymbol,
   } = useSymbolContext()
   const db = firebase.firestore()
@@ -31,6 +40,8 @@ const TradeChart = () => {
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
+  const [allTemplateDrawings, setAllTemplateDrawings] = useState([])
+  const [defaultTrader, setDefaultTrader] = useState([])
   const [exchange, setExchange] = useState(exchangeType)
   const [onError, setOnError] = useState(false)
 
@@ -44,6 +55,41 @@ const TradeChart = () => {
   }, [])
 
   useEffect(() => {
+    if (!TEMPLATE_DRAWINGS_USERS.includes(userData.email)) {
+      db.collection('template_drawings').onSnapshot(
+        (snapshot) => {
+          const allTradersData = snapshot.docs.map((trader) => {
+            return { ...trader.data(), id: trader.id }
+          })
+          if (activeTrader?.id) {
+            const initTemplate = allTradersData.find(
+              (trader) => activeTrader.id === trader.id
+            )
+            setActiveTrader(initTemplate)
+          } else {
+            db.collection('chart_drawings')
+              .doc(userData.email)
+              .get()
+              .then((snapshotUser) => {
+                if (snapshotUser.data()?.activeTrader) {
+                  const init = allTradersData.find(
+                    (trader) => snapshotUser.data().activeTrader === trader.id
+                  )
+                  setActiveTrader(init)
+                }
+              })
+          }
+          setAllTemplateDrawings(allTradersData)
+        },
+        (error) => {
+          console.error(error)
+          setOnError(true)
+        }
+      )
+    }
+  }, [db, userData])
+
+  useEffect(() => {
     if (selectedSymbol.value) {
       localStorage.setItem(
         'selectedExchange',
@@ -54,20 +100,6 @@ const TradeChart = () => {
       setExchange(exchangeType)
     }
   }, [selectedSymbol])
-
-  useEffect(() => {
-    db.collection('template_drawings').onSnapshot(
-      (snapshot) => {
-        if (snapshot?.docs[0]) {
-          setTemplateDrawings(snapshot.docs[0].data())
-        }
-      },
-      (error) => {
-        console.error(error)
-        setOnError(true)
-      }
-    )
-  }, [db])
 
   useEffect(() => {
     const unsubscribe = db
@@ -131,6 +163,10 @@ const TradeChart = () => {
     })
   }
 
+  const onTradersBtnClick = () => {
+    setIsTradersModalOpen((isTradersModalOpen) => !isTradersModalOpen)
+  }
+
   useEffect(() => {
     const helpButtonElement = document.getElementById('launcher')
     if (!helpButtonElement) return
@@ -186,11 +222,15 @@ const TradeChart = () => {
           exchange={exchange}
           marketSymbols={symbolDetailsKeyValue}
           timeZone={chartData?.timeZone}
+          activeTrader={activeTrader}
           sniperBtnClicked={(e) => {
             onSniperBtnClick(e)
           }}
           drawingsBtnClicked={(e) => {
             onDrawingsBtnClick(e)
+          }}
+          tradersBtnClicked={(e) => {
+            onTradersBtnClick(e)
           }}
         />
       ) : (
