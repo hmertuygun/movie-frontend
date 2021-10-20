@@ -11,11 +11,9 @@ import scientificToDecimal from '../../../helpers/toDecimal'
 import { UserContext } from '../../../contexts/UserContext'
 
 const AccordionContainer = () => {
-  const { positions, isLoading, lastMessage, liveUpdate } =
-    useContext(PositionContext)
-
+  const { positions, isLoading, lastMessage } = useContext(PositionContext)
   const { activeExchange } = useContext(UserContext)
-  const { symbolDetails } = useSymbolContext()
+  const { symbolDetails, liveUpdate } = useSymbolContext()
   const [data, setData] = useState([])
 
   useEffect(() => {
