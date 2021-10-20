@@ -4,9 +4,7 @@ import React, {
   useState,
   useEffect,
   useContext,
-  useRef,
 } from 'react'
-import { useLocation } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
@@ -16,7 +14,6 @@ import ccxtpro from 'ccxt'
 export const PositionContext = createContext()
 
 const PositionCTXProvider = ({ children }) => {
-  const location = useLocation()
   const { activeExchange, userData, isLoggedIn, isOnboardingSkipped } =
     useContext(UserContext)
   const { exchange, apiKeyName } = activeExchange
@@ -24,28 +21,15 @@ const PositionCTXProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [positions, setPositions] = useState([])
   const [lastMessage, setLastMessage] = useState({})
-  const [liveUpdate, setLiveUpdate] = useState(true)
-  const intervalRef = useRef()
-
-  const fetchLastMessage = useCallback(async () => {
-    try {
-      const ccxt = new ccxtpro[exchange]({
-        proxy: localStorage.getItem('proxyServer'),
-      })
-      const message = await ccxt.fetchTickers()
-      setLiveUpdate(true)
-      setLastMessage(message)
-    } catch (error) {
-      console.error(error)
-      setLiveUpdate(false)
-    } finally {
-    }
-  }, [exchange])
 
   const fetchPositionsList = useCallback(async () => {
     try {
       setIsLoading(true)
-      await fetchLastMessage()
+      const ccxt = new ccxtpro[exchange]({
+        proxy: localStorage.getItem('proxyServer'),
+      })
+      const message = await ccxt.fetchTickers()
+      setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })
       if (data?.error) {
         errorNotification.open({
@@ -63,18 +47,7 @@ const PositionCTXProvider = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [apiKeyName, exchange, fetchLastMessage])
-
-  useEffect(() => {
-    if (location.pathname === '/positions' && positions.length > 0) {
-      intervalRef.current = setInterval(() => {
-        fetchLastMessage()
-      }, 3000)
-    }
-    return () => {
-      clearInterval(intervalRef.current)
-    }
-  }, [fetchLastMessage, location.pathname, positions.length])
+  }, [apiKeyName, exchange])
 
   useEffect(() => {
     if (
@@ -92,7 +65,6 @@ const PositionCTXProvider = ({ children }) => {
     exchange,
     fetchPositionsList,
     isLoggedIn,
-    isOnboardingSkipped,
     userData,
   ])
 
@@ -102,14 +74,7 @@ const PositionCTXProvider = ({ children }) => {
 
   return (
     <PositionContext.Provider
-      value={{
-        isLoading,
-        setIsLoading,
-        positions,
-        refreshData,
-        lastMessage,
-        liveUpdate,
-      }}
+      value={{ isLoading, setIsLoading, positions, refreshData, lastMessage }}
     >
       {children}
     </PositionContext.Provider>

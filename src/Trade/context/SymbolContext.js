@@ -61,6 +61,10 @@ const SymbolContextProvider = ({ children }) => {
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
+  const [lastMessage, setLastMessage] = useState([])
+  const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
+  const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
+  const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
   const [binanceDD, setBinanceDD] = useState([])
@@ -550,6 +554,8 @@ const SymbolContextProvider = ({ children }) => {
         setIsOrderPlaced,
         isOrderCancelled,
         setIsOrderCancelled,
+        lastMessage,
+        liveUpdate: socketLiveUpdate || pollingLiveUpdate,
         exchangeType,
         symbolType,
         binanceDD,
