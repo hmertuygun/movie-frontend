@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useMediaQuery } from 'react-responsive'
-import * as Sentry from '@sentry/react'
+
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
 import { PositionContext } from '../../../Position/context/PositionContext'
@@ -84,7 +84,6 @@ const TradeOrders = () => {
         setOpenOrderError(false)
       })
       .catch((e) => {
-        Sentry.captureException(e)
         errorNotification.open({
           description: 'Error fetching open orders!',
           duration: 20,
@@ -149,7 +148,7 @@ const TradeOrders = () => {
         setOrderHistoryLastElement(null)
       }
     } catch (e) {
-      Sentry.captureException(e)
+      console.log(`Error Fetching History Orders`)
       setOrderHistoryData([])
       errorNotification.open({
         description: 'Error fetching order history!',

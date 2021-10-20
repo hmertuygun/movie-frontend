@@ -7,7 +7,6 @@ import TraderModal from './components/TradersModal/TradersModal'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
-import * as Sentry from '@sentry/react'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import { exception } from 'react-ga'
 
@@ -82,7 +81,7 @@ const TradeChart = () => {
           setAllTemplateDrawings(allTradersData)
         },
         (error) => {
-          Sentry.captureException(error)
+          console.error(error)
           setOnError(true)
         }
       )
@@ -119,7 +118,7 @@ const TradeChart = () => {
           }
         },
         (error) => {
-          Sentry.captureException(error)
+          console.error(error)
           setOnError(true)
         }
       )

@@ -7,8 +7,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react'
-import * as Sentry from '@sentry/react'
-import Select from 'react-select'
+import Select, { components } from 'react-select'
 import { Popover } from 'react-tiny-popover'
 import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
 import ccxtpro from 'ccxt.pro'
@@ -19,7 +18,7 @@ import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { orderBy, template } from 'lodash'
 import { firebase } from '../firebase/firebase'
-import AddWatchListModal from './components/AddWatchListModal'
+import AddWatchListModal from './AddWatchListModal'
 import {
   successNotification,
   errorNotification,
@@ -77,21 +76,15 @@ const WatchListPanel = () => {
   const { activeExchange } = useContext(UserContext)
 
   const initWatchList = useCallback(() => {
-    try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            activeList: DEFAULT_WATCHLIST,
-            lists: {
-              [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST },
-            },
-          },
-          { merge: true }
-        )
-    } catch (err) {
-      Sentry.captureException(err)
-    }
+    db.collection('watch_list')
+      .doc(userData.email)
+      .set(
+        {
+          activeList: DEFAULT_WATCHLIST,
+          lists: { [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST } },
+        },
+        { merge: true }
+      )
   }, [userData.email])
 
   useEffect(() => {
@@ -136,7 +129,7 @@ const WatchListPanel = () => {
             }
           })
       } catch (error) {
-        Sentry.captureException(error)
+        console.log('Cannot fetch watch lists')
       } finally {
         setLoading(false)
       }
@@ -173,7 +166,7 @@ const WatchListPanel = () => {
             }
           })
       } catch (error) {
-        Sentry.captureException(error)
+        console.log('Cannot fetch watch lists')
       } finally {
         setLoading(false)
       }
@@ -394,7 +387,6 @@ const WatchListPanel = () => {
       errorNotification.open({
         description: `Cannot create watch lists, Please try again later.`,
       })
-      Sentry.captureException(error)
     }
   }
 
@@ -421,7 +413,7 @@ const WatchListPanel = () => {
           { merge: true }
         )
     } catch (error) {
-      Sentry.captureException(error)
+      console.log('Cannot save watch lists')
     }
   }
 
@@ -466,36 +458,31 @@ const WatchListPanel = () => {
       successNotification.open({ description: `Watch list created!` })
       setAddWatchListModalOpen(false)
     } catch (error) {
-      Sentry.captureException(error)
+      console.log('Cannot save watch lists')
     } finally {
       setAddWatchListLoading(false)
     }
   }
 
   const handleWatchListItemClick = (watchListName) => {
-    try {
-      if (!templateDrawingsOpen) {
-        db.collection('watch_list').doc(userData.email).set(
-          {
-            activeList: watchListName,
-          },
-          { merge: true }
-        )
-      } else {
-        const activeList = templateWatchlist.find(
-          (list) => list.watchListName === watchListName
-        )
-        setActiveWatchList(activeList)
-        setWatchSymbolsList(activeList?.['binance'] ?? [])
-        if (activeList?.['binance'] && activeList?.['binance'][0]) {
-          setSymbol(activeList?.['binance'][0])
-        }
+    if (!templateDrawingsOpen) {
+      db.collection('watch_list').doc(userData.email).set(
+        {
+          activeList: watchListName,
+        },
+        { merge: true }
+      )
+    } else {
+      const activeList = templateWatchlist.find(
+        (list) => list.watchListName === watchListName
+      )
+      setActiveWatchList(activeList)
+      setWatchSymbolsList(activeList?.['binance'] ?? [])
+      if (activeList?.['binance'] && activeList?.['binance'][0]) {
+        setSymbol(activeList?.['binance'][0])
       }
-    } catch (error) {
-      Sentry.captureException(error)
-    } finally {
-      setWatchListPopoverOpen(false)
     }
+    setWatchListPopoverOpen(false)
   }
 
   const handleDelete = async () => {
@@ -518,8 +505,8 @@ const WatchListPanel = () => {
       successNotification.open({
         description: 'Watch list deleted!',
       })
-    } catch (error) {
-      Sentry.captureException(error)
+    } catch (e) {
+      console.log(e)
     }
   }
 

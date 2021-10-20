@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
-import { TradeContext } from '../../context/SimpleTradeContext'
-import Table from '../Table/Table'
+import { TradeContext } from '../context/SimpleTradeContext'
+import Table from './Table/Table'
 
 const TradeTableContainer = () => {
   const { state } = useContext(TradeContext)
