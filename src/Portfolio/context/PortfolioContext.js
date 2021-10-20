@@ -8,7 +8,7 @@ import React, {
 import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
-import ccxtpro from 'ccxt.pro'
+import ccxt from 'ccxt'
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -33,62 +33,32 @@ const PortfolioCTXProvider = ({ children }) => {
   const [user, setUser] = useState()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [marketData, setMarketData] = useState([])
-  const [binance, binanceus, kucoin] = [
-    new ccxtpro.binance({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.binanceus({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-      enableRateLimit: true,
-    }),
-  ]
 
   const refreshData = useCallback(async () => {
     try {
       setLoading(true)
       const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
       const token = await firebase.auth().currentUser.getIdToken()
-
+      const exc = new ccxt[activeExchange.exchange]({
+        proxy: localStorage.getItem('proxyServer'),
+      })
       const exchanges = await axios(apiUrl, {
         headers: await getHeaders(token),
         method: 'GET',
       })
       let message = {}
-      if (activeExchange.exchange == 'binance') {
-        try {
-          let newData = await binance.fetchTickers()
-          exchanges.data.EstValue.forEach((element) => {
-            if (element.symbol !== 'BTC')
-              message[`BTC/${element.symbol}`] =
-                newData[`BTC/${element.symbol}`]
-          })
-          exchanges.data.BottomTable.forEach((element) => {
-            if (element.SYMBOL !== 'BTC' && element.SYMBOL !== 'USDT') {
-              message[`${element.SYMBOL}/BTC`] =
-                newData[`${element.SYMBOL}/BTC`]
-              message[`${element.SYMBOL}/USDT`] =
-                newData[`${element.SYMBOL}/USDT`]
-            }
-          })
-        } catch (error) {}
-      } else if (activeExchange.exchange == 'binanceus') {
-        try {
-          let newData = await binanceus.fetchTickers()
-          exchanges.data.EstValue.forEach((element) => {
-            message[`BTC/${element.symbol}`] = newData[`BTC/${element.symbol}`]
-          })
-        } catch (error) {}
-      } else if (activeExchange.exchange == 'kucoin') {
-        try {
-          let newData = await kucoin.fetchTickers()
-          exchanges.data.EstValue.forEach((element) => {
-            message[`BTC/${element.symbol}`] = newData[`BTC/${element.symbol}`]
-          })
-        } catch (error) {}
-      }
+      let newData = await exc.fetchTickers()
+      exchanges.data.EstValue.forEach((element) => {
+        if (element.symbol !== 'BTC')
+          message[`BTC/${element.symbol}`] = newData[`BTC/${element.symbol}`]
+      })
+      exchanges.data.BottomTable.forEach((element) => {
+        if (element.SYMBOL !== 'BTC' && element.SYMBOL !== 'USDT') {
+          message[`${element.SYMBOL}/BTC`] = newData[`${element.SYMBOL}/BTC`]
+          message[`${element.SYMBOL}/USDT`] = newData[`${element.SYMBOL}/USDT`]
+        }
+      })
+
       setLastMessage(message)
       setTicker(exchanges.data)
       setBalance(exchanges.data.BottomTable)

@@ -13,6 +13,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     symbol,
     type = 'limit',
     side = 'buy',
+    total,
   }) => {
     setState({
       ...state,
@@ -22,6 +23,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         symbol,
         type,
         side,
+        total,
       },
     })
   }
@@ -32,6 +34,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     symbol,
     type = 'market',
     side = 'buy',
+    total,
   }) => {
     setState({
       ...state,
@@ -41,6 +44,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         symbol,
         type,
         side,
+        total,
       },
     })
   }
@@ -52,6 +56,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     symbol,
     type = 'stop-limit',
     side = 'buy',
+    total,
   }) => {
     setState({
       ...state,
@@ -62,6 +67,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         symbol,
         type,
         side,
+        total,
       },
     })
   }
@@ -72,6 +78,7 @@ const SimpleTradeContextProvider = ({ children }) => {
     symbol,
     type = 'stop-market',
     side = 'buy',
+    total,
   }) => {
     setState({
       ...state,
@@ -81,6 +88,7 @@ const SimpleTradeContextProvider = ({ children }) => {
         symbol,
         type,
         side,
+        total,
       },
     })
   }

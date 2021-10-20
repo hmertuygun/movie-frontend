@@ -37,7 +37,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
       <div className="label-column">
         <span className="exchange-svg">
           <img
-            style={{ width: '18px', marginRight: '4px', marginTop: '-2px' }}
+            style={{ width: '18px', marginRight: '6px', marginTop: '-4px' }}
             src={getLogo()}
           ></img>
         </span>

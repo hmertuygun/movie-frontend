@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
+import { UserContext } from '../../../contexts/UserContext'
 import ccxtpro from 'ccxt.pro'
+import ccxt from 'ccxt'
+import { getExchangeProp } from '../../../helpers/getExchangeProp'
 import './MarketStatistics.css'
 
 function MarketStatistics() {
   const [message, setMessage] = useState(null)
 
   const { selectedSymbolDetail, marketData } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
   const baseAsset = selectedSymbolDetail && selectedSymbolDetail.base_asset
   const quoteAsset = selectedSymbolDetail && selectedSymbolDetail.quote_asset
   const symbolPair = `${baseAsset}/${quoteAsset}`
   const [lastData, setLastData] = useState()
+  const [socketData, setSocketData] = useState()
+  const [intervalId, setIntervalId] = useState()
+
+  const FETCH_INTERVAL =
+    activeExchange && activeExchange.exchange == 'bybit' ? 10000 : 700
 
   const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
@@ -21,6 +30,9 @@ function MarketStatistics() {
     }),
     new ccxtpro.kucoin({
       proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxt.bybit({
       enableRateLimit: true,
     }),
   ]
@@ -74,12 +86,12 @@ function MarketStatistics() {
   }
 
   useEffect(() => {
-    const id = setInterval(async () => await getData(), 700)
+    const id = setInterval(async () => await getData(), FETCH_INTERVAL)
 
     return () => {
       clearInterval(id)
     }
-  }, [marketData, selectedSymbolDetail])
+  }, [marketData, selectedSymbolDetail, FETCH_INTERVAL])
 
   const getData = async () => {
     let activeMarketData = {}
@@ -92,6 +104,8 @@ function MarketStatistics() {
         activeMarketData = await binanceus.watchTicker(symbolPair)
       } else if (key == 'kucoin') {
         activeMarketData = await kucoin.watchTicker(symbolPair)
+      } else if (key == 'bybit') {
+        activeMarketData = await kucoin.fetchTicker(symbolPair)
       }
       setNewMessage(activeMarketData)
     } catch (e) {

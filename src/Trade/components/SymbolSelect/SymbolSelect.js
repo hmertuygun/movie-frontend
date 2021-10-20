@@ -4,6 +4,7 @@ import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import Select from 'react-select'
 import { useMediaQuery } from 'react-responsive'
+import { bybit } from 'ccxt'
 
 const SymbolSelect = ({ showOnlyMarketSelection }) => {
   const {
@@ -16,6 +17,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     binanceUSDD,
     ftxDD,
     kucoinDD,
+    bybitDD,
   } = useSymbolContext()
 
   const EXCHANGES = useMemo(() => {
@@ -24,8 +26,9 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       binanceus: binanceUSDD,
       ftx: ftxDD,
       kucoin: kucoinDD,
+      bybit: bybitDD,
     }
-  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD])
+  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD, bybitDD])
 
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -117,6 +120,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     binanceDD,
     ftxDD,
     kucoinDD,
+    bybitDD,
     activeExchange?.exchange,
     binanceUSDD,
     activeExchange,

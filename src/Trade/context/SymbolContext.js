@@ -21,6 +21,8 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import ccxt from 'ccxt'
+import * as Sentry from '@sentry/react'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -65,6 +67,7 @@ const SymbolContextProvider = ({ children }) => {
   const [ftxDD, setFtxDD] = useState([])
   const [kucoinDD, setKucoinDD] = useState([])
   const [binanceUSDD, setBinanceUSDD] = useState([])
+  const [bybitDD, setByBitDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
@@ -76,7 +79,7 @@ const SymbolContextProvider = ({ children }) => {
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
-  const [binance, binanceus, kucoin] = [
+  const [binance, binanceus, kucoin, bybit] = [
     new ccxtpro.binance({
       enableRateLimit: true,
     }),
@@ -84,6 +87,10 @@ const SymbolContextProvider = ({ children }) => {
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxt.bybit({
       proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
@@ -160,6 +167,9 @@ const SymbolContextProvider = ({ children }) => {
       activeMarketData = await binanceus.fetchTicker(symbol)
     } else if (activeExchange.exchange == 'kucoin') {
       activeMarketData = await kucoin.fetchTicker(symbol)
+    } else if (activeExchange.exchange == 'bybit') {
+      console.log(symbol)
+      activeMarketData = await bybit.fetchTicker(symbol)
     }
     setMarketData(activeMarketData)
   }
@@ -387,6 +397,7 @@ const SymbolContextProvider = ({ children }) => {
       binanceDD.length === 0 ||
       binanceUSDD.length === 0 ||
       kucoinDD.length === 0 ||
+      bybitDD.length === 0 ||
       !exchangeType ||
       !symbolType ||
       watchListOpen
@@ -404,6 +415,9 @@ const SymbolContextProvider = ({ children }) => {
         break
       case 'kucoin':
         selectedDD = [...kucoinDD]
+        break
+      case 'bybit':
+        selectedDD = [...bybitDD]
         break
 
       default:
@@ -425,6 +439,7 @@ const SymbolContextProvider = ({ children }) => {
     binanceDD,
     binanceUSDD,
     kucoinDD,
+    bybitDD,
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
     DEFAULT_SYMBOL_LOAD_DASH,
@@ -439,11 +454,12 @@ const SymbolContextProvider = ({ children }) => {
         return
       }
 
-      const [binance, ftx, binanceus, kucoin] = data.exchanges
+      const [binance, ftx, binanceus, kucoin, bybit] = data.exchanges
       setSymbols(() => [
         ...binance.symbols,
         ...binanceus.symbols,
         ...kucoin.symbols,
+        ...bybit.symbols,
       ])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
@@ -454,6 +470,7 @@ const SymbolContextProvider = ({ children }) => {
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
       setKucoinDD(() => kucoin.symbols)
+      setByBitDD(() => bybit.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -539,6 +556,7 @@ const SymbolContextProvider = ({ children }) => {
         binanceUSDD,
         ftxDD,
         kucoinDD,
+        bybitDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,
