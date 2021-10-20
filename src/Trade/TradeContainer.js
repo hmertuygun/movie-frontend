@@ -28,9 +28,6 @@ const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
 const SymbolSelect = lazy(() =>
   import('./components/SymbolSelect/SymbolSelect')
 )
-const TradersModal = lazy(() =>
-  import('./components/TradersModal/TradersModal')
-)
 
 const db = firebase.firestore()
 const registerResizeObserver = (cb, elem) => {
@@ -41,7 +38,7 @@ const registerResizeObserver = (cb, elem) => {
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
   const { loadApiKeys, userData, isOnboardingSkipped } = useContext(UserContext)
-  const { watchListOpen, isTradersModalOpen } = useSymbolContext()
+  const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const totalHeight = window.innerHeight // - 40 - 75
@@ -153,15 +150,6 @@ const TradeContainer = () => {
 
   return (
     <>
-      {isTradersModalOpen && (
-        <section className="Traders-Modal">
-          <ErrorBoundary componentName="TradersModal">
-            <Suspense fallback={<div></div>}>
-              <TradersModal />
-            </Suspense>
-          </ErrorBoundary>
-        </section>
-      )}
       {!isMobile ? (
         <>
           {watchListOpen ? (
@@ -277,21 +265,11 @@ const TradeContainer = () => {
                     style={{
                       position: 'absolute',
                       marginLeft: '486px',
-                      width: '170px',
+                      width: '150px',
                       height: '38px',
                       zIndex: -1,
                     }}
                     id="mirroring-tour1"
-                  ></div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      marginLeft: '486px',
-                      width: '170px',
-                      height: '38px',
-                      zIndex: -1,
-                    }}
-                    id="mirroring-tour2"
                   ></div>
                   <div
                     style={{
@@ -301,7 +279,7 @@ const TradeContainer = () => {
                       height: '38px',
                       zIndex: -1,
                     }}
-                    id="mirroring-tour3"
+                    id="mirroring-tour2"
                   ></div>
                   <TradeChart />
                 </Suspense>
