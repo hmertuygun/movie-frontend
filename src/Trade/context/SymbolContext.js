@@ -21,6 +21,8 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import ccxt from 'ccxt'
+import * as Sentry from '@sentry/react'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -59,27 +61,25 @@ const SymbolContextProvider = ({ children }) => {
   const [isLoadingLastPrice, setIsLoadingLastPrice] = useState(false)
   const [isOrderPlaced, setIsOrderPlaced] = useState(false)
   const [isOrderCancelled, setIsOrderCancelled] = useState(false)
-  const [lastMessage, setLastMessage] = useState([])
-  const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
-  const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
-  const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
   const [binanceDD, setBinanceDD] = useState([])
   const [ftxDD, setFtxDD] = useState([])
   const [kucoinDD, setKucoinDD] = useState([])
   const [binanceUSDD, setBinanceUSDD] = useState([])
+  const [bybitDD, setByBitDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
+  const [exchangeUpdated, setExchangeUpdated] = useState(false)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
-  const [binance, binanceus, kucoin] = [
+  const [binance, binanceus, kucoin, bybit] = [
     new ccxtpro.binance({
       enableRateLimit: true,
     }),
@@ -87,6 +87,10 @@ const SymbolContextProvider = ({ children }) => {
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+    new ccxt.bybit({
       proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
@@ -163,6 +167,9 @@ const SymbolContextProvider = ({ children }) => {
       activeMarketData = await binanceus.fetchTicker(symbol)
     } else if (activeExchange.exchange == 'kucoin') {
       activeMarketData = await kucoin.fetchTicker(symbol)
+    } else if (activeExchange.exchange == 'bybit') {
+      console.log(symbol)
+      activeMarketData = await bybit.fetchTicker(symbol)
     }
     setMarketData(activeMarketData)
   }
@@ -175,7 +182,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-  }, [userData, activeExchange, watchListOpen, templateDrawingsOpen])
+  }, [userData, watchListOpen, activeExchange, templateDrawingsOpen])
 
   const onRefreshBtnClicked = (type) => {
     const dateNow = Date.now()
@@ -214,7 +221,11 @@ const SymbolContextProvider = ({ children }) => {
       setChartData({ ...chartData })
       let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
       exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
+      symbolVal = exchangeUpdated
+        ? DEFAULT_SYMBOL_LOAD_SLASH
+        : symbolVal
+        ? symbolVal
+        : DEFAULT_SYMBOL_LOAD_SLASH
       localStorage.setItem('selectedExchange', exchangeVal)
       localStorage.setItem('selectedSymbol', symbolVal)
       const [baseAsset, qouteAsset] = symbolVal.split('/')
@@ -228,7 +239,7 @@ const SymbolContextProvider = ({ children }) => {
       loadExchanges(symbolVal, exchangeVal)
       setSelectedSymbol({
         label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
+        value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
       })
       loadLastPrice(symbolVal, exchangeVal)
 
@@ -363,11 +374,13 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         return
       }
+      setExchangeUpdated(true)
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+
       await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
       errorNotification.open({
@@ -384,6 +397,7 @@ const SymbolContextProvider = ({ children }) => {
       binanceDD.length === 0 ||
       binanceUSDD.length === 0 ||
       kucoinDD.length === 0 ||
+      bybitDD.length === 0 ||
       !exchangeType ||
       !symbolType ||
       watchListOpen
@@ -402,6 +416,9 @@ const SymbolContextProvider = ({ children }) => {
       case 'kucoin':
         selectedDD = [...kucoinDD]
         break
+      case 'bybit':
+        selectedDD = [...bybitDD]
+        break
 
       default:
         break
@@ -413,6 +430,7 @@ const SymbolContextProvider = ({ children }) => {
 
     if (!selectedSymbol) {
       const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     }
   }, [
@@ -421,6 +439,7 @@ const SymbolContextProvider = ({ children }) => {
     binanceDD,
     binanceUSDD,
     kucoinDD,
+    bybitDD,
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
     DEFAULT_SYMBOL_LOAD_DASH,
@@ -435,11 +454,12 @@ const SymbolContextProvider = ({ children }) => {
         return
       }
 
-      const [binance, ftx, binanceus, kucoin] = data.exchanges
+      const [binance, ftx, binanceus, kucoin, bybit] = data.exchanges
       setSymbols(() => [
         ...binance.symbols,
         ...binanceus.symbols,
         ...kucoin.symbols,
+        ...bybit.symbols,
       ])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
@@ -450,6 +470,7 @@ const SymbolContextProvider = ({ children }) => {
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
       setKucoinDD(() => kucoin.symbols)
+      setByBitDD(() => bybit.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -529,14 +550,13 @@ const SymbolContextProvider = ({ children }) => {
         setIsOrderPlaced,
         isOrderCancelled,
         setIsOrderCancelled,
-        lastMessage,
-        liveUpdate: socketLiveUpdate || pollingLiveUpdate,
         exchangeType,
         symbolType,
         binanceDD,
         binanceUSDD,
         ftxDD,
         kucoinDD,
+        bybitDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,

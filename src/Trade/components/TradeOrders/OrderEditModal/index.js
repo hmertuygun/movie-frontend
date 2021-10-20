@@ -152,24 +152,29 @@ const OrderEditModal = ({
             )
         : null,
       price: showPrice
-        ? yup
-            .number()
-            .required('Price is required')
-            .typeError('Price is required')
-            .min(
-              minPrice,
-              `Price needs to meet min-price: ${addPrecisionToNumber(
+        ? minPrice
+          ? yup
+              .number()
+              .required('Price is required')
+              .typeError('Price is required')
+              .min(
                 minPrice,
-                pricePrecision
-              )}`
-            )
-            .max(
-              maxPrice,
-              `Price needs to meet max-price: ${addPrecisionToNumber(
+                `Price needs to meet min-price: ${addPrecisionToNumber(
+                  minPrice,
+                  pricePrecision
+                )}`
+              )
+              .max(
                 maxPrice,
-                pricePrecision
-              )}`
-            )
+                `Price needs to meet max-price: ${addPrecisionToNumber(
+                  maxPrice,
+                  pricePrecision
+                )}`
+              )
+          : yup
+              .number()
+              .required('Price is required')
+              .typeError('Price is required')
         : null,
     },
     [

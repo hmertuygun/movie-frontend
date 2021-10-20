@@ -3,10 +3,12 @@ import * as yup from 'yup'
 import Binance from '../api/exchanges/binance/functions'
 import BinanceUS from '../api/exchanges/binanceus/functions'
 import KuCoin from '../api/exchanges/kucoin/functions'
+import ByBit from '../api/exchanges/bybit/functions'
 
 import BinanceSocket from '../api/exchanges/binance/socket'
 import BinanceUSSocket from '../api/exchanges/binanceus/socket'
 import KuCoinSocket from '../api/exchanges/kucoin/socket'
+import ByBitSocket from '../api/exchanges/bybit/socket'
 
 export const EXCHANGE_SYMBOL = {
   binance: 'BINANCE',
@@ -23,6 +25,7 @@ export const options = [
     fields: { Key: 'apiKey', Secret: 'secret' },
     socketUrl: 'wss://stream.binance.com:9443/ws',
     apiUrl: 'https://api2.binance.com',
+    klineLimit: 500,
     socketClass: BinanceSocket,
     resolutions: [
       '1',
@@ -74,6 +77,7 @@ export const options = [
     socketUrl: 'wss://stream.binance.us:9443/ws',
     symbol: 'BINANCEUS',
     apiUrl: 'https://api.binance.us',
+    klineLimit: 500,
     socketClass: BinanceUSSocket,
     resolutions: [
       '1',
@@ -125,6 +129,7 @@ export const options = [
     socketUrl: KuCoin.getSocketEndpoint,
     symbol: 'KUCOIN',
     apiUrl: 'https://api.kucoin.com',
+    klineLimit: 1500,
     socketClass: KuCoinSocket,
     getKlines: KuCoin.getKlines,
     editSymbol: KuCoin.editSymbol,
@@ -181,6 +186,72 @@ export const options = [
       '1D': '1day',
       W: '1week',
       '1W': '1week',
+    },
+  },
+  {
+    value: 'bybit',
+    label: 'ByBit',
+    placeholder: 'ByBit',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketUrl: 'wss://stream.bybit.com/realtime_public',
+    symbol: 'BYBIT',
+    apiUrl: 'https://api.bybit.com',
+    klineLimit: 200,
+    socketClass: ByBitSocket,
+    getKlines: ByBit.getKlines,
+    editSymbol: ByBit.editSymbol,
+    editKline: ByBit.editKline,
+    onSocketMessage: ByBit.onSocketMessage,
+    initSubscribe: ByBit.initSubscribe,
+    fetchTickers: ByBit.fetchTickers,
+    editMessage: ByBit.editMessage,
+    resolutions: [
+      '1',
+      '3',
+      '5',
+      '15',
+      '30',
+      '60',
+      '120',
+      '240',
+      '360',
+      '480',
+      '720',
+      '1D',
+      '1W',
+    ],
+    mappedResolutions: {
+      1: '1m',
+      3: '3m',
+      5: '5m',
+      15: '15m',
+      30: '30m',
+      60: '1h',
+      120: '2h',
+      240: '4h',
+      360: '6h',
+      480: '8h',
+      720: '12h',
+      D: '1d',
+      '1D': '1d',
+      W: '1w',
+      '1W': '1w',
+    },
+    mappedResolutionsSocket: {
+      1: '1',
+      3: '3',
+      5: '5',
+      15: '15',
+      30: '30',
+      60: '60',
+      120: '120',
+      240: '240',
+      360: '360',
+      D: 'D',
+      '1D': 'D',
+      W: 'W',
+      '1W': 'W',
+      '1M': 'M',
     },
   },
 ]
