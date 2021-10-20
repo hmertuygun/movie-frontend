@@ -48,7 +48,6 @@ const WatchListPanel = () => {
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
-    activeTrader,
     watchlistOpen,
   } = useSymbolContext()
   const { userData } = useContext(UserContext)
@@ -137,7 +136,7 @@ const WatchListPanel = () => {
       try {
         setLoading(true)
         db.collection('watch_list')
-          .doc(activeTrader.id)
+          .doc('sheldonthesniper01@gmail.com')
           .onSnapshot((snapshot) => {
             if (snapshot.data()) {
               if (!snapshot.data()?.lists) {
@@ -176,7 +175,6 @@ const WatchListPanel = () => {
     initWatchList,
     userData.email,
     templateDrawingsOpen,
-    activeTrader.id,
   ])
 
   const useInterval = (callback, delay) => {
@@ -519,7 +517,7 @@ const WatchListPanel = () => {
       >
         {templateDrawingsOpen && (
           <span className={styles.headerTemplate}>
-            You are viewing {activeTrader.name}'s watchlist.
+            You are viewing Sniper's watchlist.
           </span>
         )}
         <Popover

@@ -94,19 +94,14 @@ export const secondTourSteps = [
 export const mirroringTourSteps = [
   {
     target: '#mirroring-tour1',
-    title: "Seeing Pro Traders' Charts",
+    title: 'Seeing Sheldon The Sniper’s Charts',
     content:
-      "Click this button to toggle between your charts and the trader's charts.",
+      'Click this button to toggle between your charts and Sniper’s charts.',
   },
   {
     target: '#mirroring-tour2',
-    title: 'Choose your trader using this button.',
-    content: "Then your favorite trader's chart toggle will be on the left.",
-  },
-  {
-    target: '#mirroring-tour3',
     title: 'Watchlist Mode',
     content:
-      "You can use the watchlist mode to mirror the trader's watchlist as well.",
+      'You can use the watchlist mode to mirror the trader’s watchlist as well.',
   },
 ]

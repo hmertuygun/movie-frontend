@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
 
-const QuickRegister = (props) => {
+const QuickRegister = () => {
   const { register } = useContext(UserContext)
 
   const [email, setEmail] = useState('')
@@ -23,38 +23,6 @@ const QuickRegister = (props) => {
     setError('')
     setValidForm(email && password && tos)
   }, [email, password, tos])
-
-  const findActiveTrader = async () => {
-    try {
-      const [symbol, trader] = props.location.search.split('?')
-      if (trader) {
-        try {
-          const snapshot = await firebase
-            .firestore()
-            .collection('template_drawings')
-            .get()
-          const allTraders = snapshot.docs.map((tr) => {
-            return { id: tr.id, ...tr.data() }
-          })
-          const activeTrader = allTraders.find((tr) => tr.nickname == trader)
-          if (activeTrader) {
-            return {
-              activeTrader: activeTrader.id,
-              lastSelectedSymbol: 'BINANCE:BTC/USDT',
-            }
-          }
-        } catch (error) {
-          return {
-            lastSelectedSymbol: 'BINANCE:BTC/USDT',
-          }
-        }
-      } else {
-        return {
-          lastSelectedSymbol: 'BINANCE:BTC/USDT',
-        }
-      }
-    } catch (error) {}
-  }
 
   const toggleTypeText = () => {
     if (type === 'text') {
@@ -87,7 +55,7 @@ const QuickRegister = (props) => {
           .firestore()
           .collection('chart_drawings')
           .doc(email)
-          .set(await findActiveTrader(), { merge: true })
+          .set({ lastSelectedSymbol: 'BINANCE:BTC/USDT' }, { merge: true })
       } catch (error) {
         console.log(error)
       }
@@ -174,13 +142,13 @@ const QuickRegister = (props) => {
           </div>
           <div className="col-md-12 text-center mx-auto">
             <h5 className="h3 text-white mt-0 mb-4">
-              Mirror Pro Traders' charts onto your chart. Live!
+              Mirror Sheldon’s charts onto your chart. Live!
             </h5>
             <p className="text-white opacity-9 mb-4">
-              Get direct access to the Pro Traders' charts without having to
-              redraw patterns and trend lines by yourself. Pro Traders' charts
-              are now available through Chart Mirroring – everything he charts
-              will be copied into yours, whenever you want to see it.
+              Get direct access to the Sniper’s charts without having to redraw
+              patterns and trend lines by yourself. Sheldon’s charts are now
+              available through Chart Mirroring – everything he charts will be
+              copied into yours, whenever you want to see it.
             </p>
             <div className="row align-items-center mx-auto">
               <div className="text-center mx-auto opacity-9">
@@ -207,7 +175,7 @@ const QuickRegister = (props) => {
                       </div>
                       <div>
                         <span className="mb-0">
-                          Everything on the chart will appear live when trader
+                          Everything on the chart will appear live when Sheldon
                           draws it
                         </span>
                       </div>
