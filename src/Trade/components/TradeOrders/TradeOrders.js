@@ -16,6 +16,7 @@ import { errorNotification } from '../../../components/Notifications'
 import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { openOrders as dummyOpenOrderData } from '../../../api/dummyData'
+import * as Sentry from '@sentry/react'
 import './TradeOrders.css'
 const db = firebase.firestore()
 
@@ -84,6 +85,7 @@ const TradeOrders = () => {
         setOpenOrderError(false)
       })
       .catch((e) => {
+        Sentry.captureException(e)
         errorNotification.open({
           description: 'Error fetching open orders!',
           duration: 20,
@@ -148,6 +150,7 @@ const TradeOrders = () => {
         setOrderHistoryLastElement(null)
       }
     } catch (e) {
+      Sentry.captureException(e)
       console.log(`Error Fetching History Orders`)
       setOrderHistoryData([])
       errorNotification.open({

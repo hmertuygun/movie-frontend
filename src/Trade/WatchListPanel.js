@@ -20,6 +20,7 @@ import { UserContext } from '../contexts/UserContext'
 import { orderBy, template } from 'lodash'
 import { firebase } from '../firebase/firebase'
 import AddWatchListModal from './AddWatchListModal'
+import * as Sentry from '@sentry/react'
 import {
   successNotification,
   errorNotification,
@@ -81,15 +82,21 @@ const WatchListPanel = () => {
   const { activeExchange } = useContext(UserContext)
 
   const initWatchList = useCallback(() => {
-    db.collection('watch_list')
-      .doc(userData.email)
-      .set(
-        {
-          activeList: DEFAULT_WATCHLIST,
-          lists: { [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST } },
-        },
-        { merge: true }
-      )
+    try {
+      db.collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            activeList: DEFAULT_WATCHLIST,
+            lists: {
+              [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST },
+            },
+          },
+          { merge: true }
+        )
+    } catch (err) {
+      Sentry.captureException(err)
+    }
   }, [userData.email])
 
   useEffect(() => {
@@ -134,6 +141,7 @@ const WatchListPanel = () => {
             }
           })
       } catch (error) {
+        Sentry.captureException(error)
         console.log('Cannot fetch watch lists')
       } finally {
         setLoading(false)
@@ -172,6 +180,7 @@ const WatchListPanel = () => {
           })
       } catch (error) {
         console.log('Cannot fetch watch lists')
+        Sentry.captureException(error)
       } finally {
         setLoading(false)
       }
@@ -246,6 +255,7 @@ const WatchListPanel = () => {
           }
         })
       } catch (e) {
+        Sentry.captureException(e)
         break
       }
     }
@@ -396,6 +406,7 @@ const WatchListPanel = () => {
           { merge: true }
         )
     } catch (error) {
+      Sentry.captureException(error)
       errorNotification.open({
         description: `Cannot create watch lists, Please try again later.`,
       })
@@ -425,6 +436,7 @@ const WatchListPanel = () => {
           { merge: true }
         )
     } catch (error) {
+      Sentry.captureException(error)
       console.log('Cannot save watch lists')
     }
   }
@@ -470,6 +482,7 @@ const WatchListPanel = () => {
       successNotification.open({ description: `Watch list created!` })
       setAddWatchListModalOpen(false)
     } catch (error) {
+      Sentry.captureException(error)
       console.log('Cannot save watch lists')
     } finally {
       setAddWatchListLoading(false)
@@ -518,6 +531,7 @@ const WatchListPanel = () => {
         description: 'Watch list deleted!',
       })
     } catch (e) {
+      Sentry.captureException(e)
       console.log(e)
     }
   }
