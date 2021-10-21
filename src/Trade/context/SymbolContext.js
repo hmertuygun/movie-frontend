@@ -312,6 +312,7 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedSymbolDetail(symbolDetails[symbol.value])
       setSelectedSymbol(symbol)
       if (!watchListOpen) {
+        loadBalance(symbol.quote_asset, symbol.base_asset)
         setInitMarketData(symbolT)
         try {
           await saveLastSelectedMarketSymbol(symbol.value)
