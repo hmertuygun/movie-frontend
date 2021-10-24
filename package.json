@@ -25,6 +25,7 @@
     "cra-append-sw": "^2.7.0",
     "exponential-backoff": "^3.1.0",
     "firebase": "^8.0.0",
+    "html-react-parser": "^1.4.0",
     "lodash": "^4.17.21",
     "ping.js": "^0.3.0",
     "qrcode": "^1.4.4",

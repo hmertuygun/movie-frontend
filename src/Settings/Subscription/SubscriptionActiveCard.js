@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
 
@@ -7,6 +7,7 @@ import { callCloudFunction } from '../../api/api'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
+  const [payCrypto, setPayCrypto] = useState(false)
   const { cancel_at_period_end } = subscription
 
   const subscriptionNames = {
@@ -14,8 +15,40 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
     year: 'Yearly',
   }
 
+  useEffect(() => {
+    var Tawk_API = Tawk_API || {}
+    ;(function () {
+      var s1 = document.createElement('script'),
+        s0 = document.getElementsByTagName('script')[0]
+      s1.async = true
+      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
+      s1.charset = 'UTF-8'
+      s1.setAttribute('crossorigin', '*')
+      s0.parentNode.insertBefore(s1, s0)
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (window.Tawk_API) {
+      window.Tawk_API.toggle()
+    }
+  }, [payCrypto])
+
   const getSubsName = () => {
     return subscriptionNames[subscription.items[0].plan.interval]
+  }
+
+  const isDiscount = () => {
+    console.log(subscription)
+    const date1 = new Date(subscription.current_period_end.seconds * 1000)
+    const isOver = new Date() > date1
+    const diffTime = Math.abs(new Date() - date1)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return (
+      (subscription.status == 'trialing' && diffDays > 15) ||
+      (subscription.status == 'active' &&
+        subscription.items[0].plan.interval == 'month')
+    )
   }
 
   const toCustomerPortal = async (needPayment) => {
@@ -158,6 +191,18 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               </div>
             )}
           </div>
+          {isDiscount() && (
+            <div
+              onClick={() => setPayCrypto((status) => !status)}
+              style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+              className="col-lg-12 m-2"
+            >
+              <span className="badge badge-soft-success">
+                Limited time discount!!! Save $100 when you pay with crypto.
+                <u style={{ marginLeft: '3px' }}>Click here.</u>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

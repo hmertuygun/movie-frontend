@@ -19,6 +19,7 @@ import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
+import Parser from 'html-react-parser'
 
 const WatchListPanel = lazy(() => import('./WatchListPanel'))
 const TradePanel = lazy(() => import('./TradePanel'))
@@ -37,7 +38,8 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys, userData, isOnboardingSkipped } = useContext(UserContext)
+  const { loadApiKeys, userData, isOnboardingSkipped, subscriptionData } =
+    useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -51,6 +53,34 @@ const TradeContainer = () => {
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
+
+  useEffect(() => {
+    if (history.location.search === '?paycrypto') {
+      var Tawk_API = Tawk_API || {}
+      ;(function () {
+        var s1 = document.createElement('script'),
+          s0 = document.getElementsByTagName('script')[0]
+        s1.async = true
+        s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
+        s1.charset = 'UTF-8'
+        s1.setAttribute('crossorigin', '*')
+        s0.parentNode.insertBefore(s1, s0)
+        if (window.Tawk_API) {
+          window.Tawk_API.hideWidget()
+        }
+      })()
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log(history.location.search == '?paycrypto')
+    if (window.Tawk_API && history.location.search === '?paycrypto') {
+      window.Tawk_API.showWidget()
+      window.Tawk_API.toggle()
+    } else if (window.Tawk_API && history.location.search !== '?paycrypto') {
+      window.Tawk_API.hideWidget()
+    }
+  }, [])
 
   const resizeCallBack = useCallback(
     (entries, observer) => {
@@ -68,7 +98,7 @@ const TradeContainer = () => {
 
   useEffect(() => {
     if (!isOnboardingSkipped) {
-      getPendingNotices()
+      //getPendingNotices()
     }
     const fBNotice = db
       .collection('platform_messages')
@@ -82,14 +112,46 @@ const TradeContainer = () => {
             shouldReturn = true
             return
           }
-          const { sendToEveryone, emails } = item.doc.data()
+          const { sendToEveryone, emails, isPrivate, exceptions } =
+            item.doc.data()
+          let payCrypto = false
           if (sendToEveryone) {
-            setFBNotice({
-              ...item.doc.data(),
-              id: item.doc.id,
-              action: item.type,
-            })
-          } else {
+            if (isPrivate) {
+              if (subscriptionData?.subscription?.trial_end?.seconds) {
+                const date1 = new Date(
+                  subscriptionData?.subscription?.trial_end?.seconds * 1000
+                )
+                const isOver = new Date() > date1
+                const diffTime = Math.abs(new Date() - date1)
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                payCrypto = !isOver && diffDays > 14
+              }
+              if (
+                !(subscriptionData?.priceData?.interval === 'year' || payCrypto)
+              ) {
+                setFBNotice({
+                  ...item.doc.data(),
+                  id: item.doc.id,
+                  action: item.type,
+                })
+              }
+            } else if (exceptions?.length) {
+              const isInExceptions = exceptions.includes(userData.email)
+              if (!isInExceptions) {
+                setFBNotice({
+                  ...item.doc.data(),
+                  id: item.doc.id,
+                  action: item.type,
+                })
+              }
+            } else {
+              setFBNotice({
+                ...item.doc.data(),
+                id: item.doc.id,
+                action: item.type,
+              })
+            }
+          } else if (emails) {
             const exists = emails.find((item) => item === userData.email)
             if (exists) {
               setFBNotice({
@@ -106,7 +168,11 @@ const TradeContainer = () => {
     return () => {
       fBNotice()
     }
-  }, [isOnboardingSkipped, userData.email])
+  }, [
+    subscriptionData?.priceData?.interval,
+    isOnboardingSkipped,
+    userData.email,
+  ])
 
   useEffect(() => {
     callObserver()
@@ -220,7 +286,7 @@ const TradeContainer = () => {
                         : 'exclamation-circle'
                     }`}
                   />{' '}
-                  {item.message}
+                  {Parser(item.message)}
                   <button
                     type="button"
                     className="close"
