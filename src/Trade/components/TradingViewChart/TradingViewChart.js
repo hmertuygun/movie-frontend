@@ -5,6 +5,7 @@ import { firebase } from '../../../firebase/firebase'
 import { errorNotification } from '../../../components/Notifications'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 import { UserContext } from '../../../contexts/UserContext'
+import * as Sentry from '@sentry/react'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -110,7 +111,7 @@ export default class TradingViewChart extends Component {
             localStorage.setItem('selectedIntervalFtx', interval)
           } else if (this.props.exchange === 'binanceus') {
             localStorage.setItem('selectedIntervalBinanceus', interval)
-          } else if (this.props.exchange === 'binanceus') {
+          } else if (this.props.exchange === 'kucoin') {
             localStorage.setItem('selectedIntervalKucoin', interval)
           }
         })
@@ -181,6 +182,7 @@ export default class TradingViewChart extends Component {
         }
       })
     } catch (e) {
+      Sentry.captureException(e)
       console.log(`Error while subscribing to chart events!`)
     }
   }
@@ -210,6 +212,7 @@ export default class TradingViewChart extends Component {
             .set({ drawings: str })
         }
       } catch (e) {
+        Sentry.captureException(e)
         errorNotification.open({
           description: e.message,
         })
@@ -226,7 +229,9 @@ export default class TradingViewChart extends Component {
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    } catch (e) {}
+    } catch (e) {
+      Sentry.captureException(e)
+    }
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
@@ -386,7 +391,9 @@ export default class TradingViewChart extends Component {
         }
       }
       this.state.processingOrder = false
-    } catch (e) {}
+    } catch (e) {
+      Sentry.captureException(e)
+    }
   }
 
   deleteOpenOrderLine = (trade_id) => {
@@ -547,6 +554,7 @@ export default class TradingViewChart extends Component {
         })
       }
     } catch (e) {
+      Sentry.captureException(e)
       console.error(e)
     } finally {
       this.setLastSelectedInterval()
@@ -607,6 +615,7 @@ export default class TradingViewChart extends Component {
             this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
         } catch (e) {
+          Sentry.captureException(e)
           console.error(e)
         }
       }

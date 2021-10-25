@@ -1,5 +1,6 @@
 import { getExchangeProp, execExchangeFunc } from '../helpers/getExchangeProp'
 import ccxt from 'ccxt'
+import * as Sentry from '@sentry/react'
 
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
@@ -59,6 +60,7 @@ export default class dataFeed {
         })
       }, 0)
     } catch (e) {
+      Sentry.captureException(e)
       console.log(e)
     }
   }
@@ -131,6 +133,18 @@ export default class dataFeed {
             } catch (error) {
               console.log('bad symbol')
             }
+          } else if (this.selectedExchange == 'bybit') {
+            kLinesLimit = 200
+            try {
+              data = await this.bybit.fetchOHLCV(
+                symbolAPI,
+                this.mappedResolutions[resolution],
+                from
+              )
+            } catch (error) {
+              Sentry.captureException(error)
+              console.log('bad symbol', error)
+            }
           }
 
           totalKlines = totalKlines && totalKlines.concat(data)
@@ -142,6 +156,7 @@ export default class dataFeed {
           }
         }
       } catch (e) {
+        Sentry.captureException(e)
         console.error(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }

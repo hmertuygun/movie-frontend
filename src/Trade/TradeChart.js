@@ -6,6 +6,7 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
+import * as Sentry from '@sentry/react'
 import { exception } from 'react-ga'
 
 const TradeChart = () => {
@@ -62,7 +63,7 @@ const TradeChart = () => {
         }
       },
       (error) => {
-        console.error(error)
+        Sentry.captureException(error)
         setOnError(true)
       }
     )
@@ -86,7 +87,7 @@ const TradeChart = () => {
           }
         },
         (error) => {
-          console.error(error)
+          Sentry.captureException(error)
           setOnError(true)
         }
       )

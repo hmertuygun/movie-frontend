@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 
 import { firebase, auth } from '../../firebase/firebase'
@@ -18,6 +18,25 @@ const SubscriptionCard = ({ product }) => {
   const getFPTid = () => {
     return window.FPROM && window.FPROM.data.tid
   }
+
+  useEffect(() => {
+    var Tawk_API = Tawk_API || {}
+    ;(function () {
+      var s1 = document.createElement('script'),
+        s0 = document.getElementsByTagName('script')[0]
+      s1.async = true
+      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
+      s1.charset = 'UTF-8'
+      s1.setAttribute('crossorigin', '*')
+      s0.parentNode.insertBefore(s1, s0)
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (window.Tawk_API) {
+      window.Tawk_API.showWidget()
+    }
+  }, [showCryptoModal])
 
   const subscribe = async (e) => {
     setSubscribing(true)
@@ -92,7 +111,7 @@ const SubscriptionCard = ({ product }) => {
             {name === 'Yearly Subscription' && (
               <div
                 className="btn btn-sm btn-neutral rounded-pill"
-                onClick={() => setShowCryptoModal(true)}
+                onClick={() => setShowCryptoModal((status) => !status)}
               >
                 Pay with crypto
               </div>
@@ -116,47 +135,15 @@ const SubscriptionCard = ({ product }) => {
               </>
             )}
           </div>
+          {name === 'Yearly Subscription' && (
+            <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2">
+              <span class="badge badge-soft-success">
+                Limited time discount!!! Save $100 when you pay with crypto.
+              </span>
+            </div>
+          )}
         </div>
       </div>
-      {showCryptoModal && (
-        <Modal>
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 10,
-                  right: 20,
-                  zIndex: 9,
-                }}
-              >
-                <X size="20" onClick={() => setShowCryptoModal(false)} />
-              </div>
-              <div
-                class="modal-body mt-4"
-                style={{
-                  textAlign: 'center',
-                }}
-              >
-                <div class="text-center">
-                  <h4 class="h6 mt-2 mb-2">
-                    Contact @panelboss on Telegram to pay with crypto.
-                  </h4>
-
-                  <h4 class="h6 mt-2 mb-2">
-                    Beware of scammers. We will never contact you first.
-                  </h4>
-                </div>
-                <a href="https://t.me/panelboss" target="_blank">
-                  <button type="button" class="btn btn-primary btn-sm mt-2">
-                    Contact on Telegram
-                  </button>
-                </a>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   )
 }
