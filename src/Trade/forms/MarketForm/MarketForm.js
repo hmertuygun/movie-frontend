@@ -380,7 +380,6 @@ const MarketForm = () => {
           balance: selectedSymbolBalance,
           symbol,
           type: 'market',
-          total: values.total,
         }
         addMarketEntry(payload)
       }

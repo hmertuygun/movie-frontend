@@ -337,7 +337,6 @@ const SellMarketForm = () => {
             side: 'SELL',
             symbol,
             quantity: convertCommaNumberToDot(values.quantity),
-            total: values.total,
           },
         }
         const { data } = await createBasicTrade(payload)

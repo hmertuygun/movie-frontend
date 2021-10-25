@@ -8,7 +8,6 @@ import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
 import * as Sentry from '@sentry/react'
 import { exception } from 'react-ga'
-import { exchanges } from 'ccxt'
 
 const TradeChart = () => {
   const {
@@ -156,13 +155,14 @@ const TradeChart = () => {
   }
 
   const isLoadChart = () => {
-    return exchange && symbolType
+    return exchangeType && symbolType
   }
 
   const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
   const symbolDetailsKeyValue = getSymbolsLS
     ? JSON.parse(getSymbolsLS)
     : symbolDetails
+
   const { intervals } = chartData || {}
 
   return (

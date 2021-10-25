@@ -93,29 +93,25 @@ const SellLimitForm = () => {
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
-    price: minPrice
-      ? yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required')
-          .min(
-            minPrice,
-            `Price needs to meet min-price: ${addPrecisionToNumber(
-              minPrice,
-              pricePrecision
-            )}`
-          )
-          .max(
-            maxPrice,
-            `Price needs to meet max-price: ${addPrecisionToNumber(
-              maxPrice,
-              pricePrecision
-            )}`
-          )
-      : yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required'),
+    price: yup
+      .number()
+      .required('Price is required')
+      .typeError('Price is required')
+      .positive()
+      .min(
+        minPrice,
+        `Price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
+      .max(
+        maxPrice,
+        `Price needs to meet max-price: ${addPrecisionToNumber(
+          maxPrice,
+          pricePrecision
+        )}`
+      ),
     quantity: yup
       .number()
       .required('Amount is required')
@@ -357,7 +353,6 @@ const SellLimitForm = () => {
           symbol,
           quantity: convertCommaNumberToDot(values.quantity),
           price: convertCommaNumberToDot(values.price),
-          total: values.total,
         },
       }
       const { data } = await createBasicTrade(payload)

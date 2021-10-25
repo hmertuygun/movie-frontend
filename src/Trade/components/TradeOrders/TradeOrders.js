@@ -87,7 +87,8 @@ const TradeOrders = () => {
       .catch((e) => {
         Sentry.captureException(e)
         errorNotification.open({
-          description: 'Error fetching open orders!',
+          description:
+            'Error fetching open orders! Your API key may expired, please check your API keys.',
           duration: 20,
           key: 'open_orders',
         })

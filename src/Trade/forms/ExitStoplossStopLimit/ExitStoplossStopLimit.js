@@ -118,56 +118,37 @@ const ExitStoplossStopLimit = () => {
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
-    triggerPrice: minPrice
-      ? yup
-          .number()
-          .required('Trigger price is required')
-          .typeError('Trigger price is required')
-          .min(
-            minPrice,
-            `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-              minPrice,
-              pricePrecision
-            )}`
-          )
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
-              entryPrice,
-              pricePrecision
-            )}`,
-            (value) => value < entryPrice
-          )
-      : yup
-          .number()
-          .required('Trigger price is required')
-          .typeError('Trigger price is required')
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
-              entryPrice,
-              pricePrecision
-            )}`,
-            (value) => value < entryPrice
-          ),
-
-    price: minPrice
-      ? yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required')
-          .min(
-            minPrice,
-            `Price needs to meet min-price: ${addPrecisionToNumber(
-              minPrice,
-              pricePrecision
-            )}`
-          )
-          .max(values.triggerPrice, 'Price cannot be higher than Trigger Price')
-      : yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required'),
+    triggerPrice: yup
+      .number()
+      .required('Trigger price is required')
+      .typeError('Trigger price is required')
+      .min(
+        minPrice,
+        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
+      .test(
+        'Trigger price',
+        `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
+          entryPrice,
+          pricePrecision
+        )}`,
+        (value) => value < entryPrice
+      ),
+    price: yup
+      .number()
+      .required('Price is required')
+      .typeError('Price is required')
+      .min(
+        minPrice,
+        `Price needs to meet min-price: ${addPrecisionToNumber(
+          minPrice,
+          pricePrecision
+        )}`
+      )
+      .max(values.triggerPrice, 'Price cannot be higher than Trigger Price'),
     quantity: yup
       .number()
       .required('Amount is required')

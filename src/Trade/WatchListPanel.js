@@ -11,7 +11,6 @@ import Select, { components } from 'react-select'
 import { Popover } from 'react-tiny-popover'
 import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
 import ccxtpro from 'ccxt.pro'
-import { getExchangeProp } from '../helpers/getExchangeProp'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -30,7 +29,7 @@ import { exchangeCreationOptions } from '../Settings/Exchanges/ExchangeOptions'
 const DEFAULT_WATCHLIST = 'Watch List'
 
 const WatchListPanel = () => {
-  const [binance, binanceus, kucoin, bybit] = [
+  const [binance, binanceus, kucoin] = [
     new ccxtpro.binance({
       enableRateLimit: true,
     }),
@@ -38,10 +37,6 @@ const WatchListPanel = () => {
       enableRateLimit: true,
     }),
     new ccxtpro.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-      enableRateLimit: true,
-    }),
-    new ccxtpro.bybit({
       proxy: localStorage.getItem('proxyServer'),
       enableRateLimit: true,
     }),
@@ -285,8 +280,6 @@ const WatchListPanel = () => {
         if (kucoin.has['watchTicker']) {
           Promise.all(value.map((symbol) => loop(kucoin, symbol)))
         }
-      } else if (key == 'bybit') {
-        Promise.all(value.map((symbol) => loop(bybit, symbol)))
       }
     }
   }
@@ -367,15 +360,9 @@ const WatchListPanel = () => {
 
   const selectedSymbols = useMemo(() => {
     const { exchange } = activeExchange
-    console.log(symbols)
-    let selected = symbols.filter(
+    const selected = symbols.filter(
       (symbol) => !symbolsList.some((item) => item.value === symbol.value)
     )
-    selected = selected.filter((symbol) => {
-      console.log(symbol.value.split(':')[0].toLowerCase())
-      return symbol.value.split(':')[0].toLowerCase() !== 'bybit'
-    })
-    console.log(selected)
     const finalOptions =
       selected &&
       selected.map((item) => {

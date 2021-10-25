@@ -9,7 +9,7 @@ import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
-import ccxtpro from 'ccxt'
+import ccxtpro from 'ccxt.pro'
 
 export const PositionContext = createContext()
 

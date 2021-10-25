@@ -329,7 +329,6 @@ const BuyMarketForm = () => {
             side: 'BUY',
             symbol,
             quantity: values.quantity,
-            total: values.total,
           },
         }
         const { data } = await createBasicTrade(payload)

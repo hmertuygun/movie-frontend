@@ -77,7 +77,6 @@ export default class socketClient {
                 if (Object.keys(this.streams).length) {
                   localStorage.setItem('lastSocketData', new Date().getTime())
                   localStorage.setItem('WS', 1)
-
                   this.streams[symbol].data = lastSocketData
                   this.streams[symbol].listener(lastSocketData)
                 }
@@ -129,17 +128,12 @@ export default class socketClient {
 
   unsubscribeFromStream(subscriberUID) {
     try {
-      let id = subscriberUID.split('_')[0].replace('/', '-')
-
+      let id = subscriberUID.split('_')[0].replace('/', '')
       if (!this.streams[id] || !this.streams[id].paramStr) return
-      const symbol = this.streams[id].paramStr.substring(
-        this.streams[id].paramStr.indexOf(':') + 1,
-        this.streams[id].paramStr.lastIndexOf('_')
-      )
       const obj = {
-        type: 'unsubscribe',
-        topic: `/market/candle:${symbol}`,
-        privateChannel: false,
+        method: 'UNSUBSCRIBE',
+        params: [this.streams[id]?.paramStr],
+        id: 1,
       }
       delete this.streams[id]
       if (this._ws.readyState === 1) {
