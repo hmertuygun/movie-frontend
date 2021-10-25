@@ -25,12 +25,18 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
       s1.charset = 'UTF-8'
       s1.setAttribute('crossorigin', '*')
       s0.parentNode.insertBefore(s1, s0)
+      if (window.Tawk_API) {
+        window.Tawk_API.hideWidget()
+      }
     })()
   }, [])
 
   useEffect(() => {
-    if (window.Tawk_API) {
+    if (window.Tawk_API && payCrypto) {
+      window.Tawk_API.showWidget()
       window.Tawk_API.toggle()
+    } else if (window.Tawk_API && !payCrypto) {
+      window.Tawk_API.hideWidget()
     }
   }, [payCrypto])
 
@@ -45,7 +51,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
     const diffTime = Math.abs(new Date() - date1)
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return (
-      (subscription.status == 'trialing' && diffDays > 15) ||
+      (subscription.status == 'trialing' && diffDays < 15) ||
       (subscription.status == 'active' &&
         subscription.items[0].plan.interval == 'month')
     )

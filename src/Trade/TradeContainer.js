@@ -50,9 +50,9 @@ const TradeContainer = () => {
     ? 'calc(100vh - 134px)'
     : window.innerHeight * 0.6 + 'px'
   const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
-  const [snapShotCount, setSnapShotCount] = useState(0)
   const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
+  const [finalNotices, setFinalNotices] = useState([])
 
   useEffect(() => {
     if (history.location.search === '?paycrypto') {
@@ -73,7 +73,6 @@ const TradeContainer = () => {
   }, [])
 
   useEffect(() => {
-    console.log(history.location.search == '?paycrypto')
     if (window.Tawk_API && history.location.search === '?paycrypto') {
       window.Tawk_API.showWidget()
       window.Tawk_API.toggle()
@@ -97,92 +96,91 @@ const TradeContainer = () => {
   }, [resizeCallBack])
 
   useEffect(() => {
-    if (!isOnboardingSkipped) {
-      //getPendingNotices()
-    }
-    const fBNotice = db
-      .collection('platform_messages')
-      .where('publishNow', '==', true)
-      .onSnapshot((doc) => {
-        let shouldReturn = false
-        doc.docChanges().forEach((item) => {
-          // item.type = added , removed, modified
-          // console.log(item.type, item.doc.id)
-          if (item.type === 'removed') {
-            shouldReturn = true
-            return
-          }
-          const { sendToEveryone, emails, isPrivate, exceptions } =
-            item.doc.data()
-          let payCrypto = false
-          if (sendToEveryone) {
-            if (isPrivate) {
-              if (subscriptionData?.subscription?.trial_end?.seconds) {
-                const date1 = new Date(
-                  subscriptionData?.subscription?.trial_end?.seconds * 1000
-                )
-                const isOver = new Date() > date1
-                const diffTime = Math.abs(new Date() - date1)
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-                payCrypto = !isOver && diffDays > 14
-              }
-              if (
-                !(subscriptionData?.priceData?.interval === 'year' || payCrypto)
-              ) {
-                setFBNotice({
-                  ...item.doc.data(),
-                  id: item.doc.id,
-                  action: item.type,
-                })
-              }
-            } else if (exceptions?.length) {
-              const isInExceptions = exceptions.includes(userData.email)
-              if (!isInExceptions) {
-                setFBNotice({
-                  ...item.doc.data(),
-                  id: item.doc.id,
-                  action: item.type,
-                })
-              }
-            } else {
-              setFBNotice({
-                ...item.doc.data(),
-                id: item.doc.id,
-                action: item.type,
-              })
-            }
-          } else if (emails) {
-            const exists = emails.find((item) => item === userData.email)
-            if (exists) {
-              setFBNotice({
-                ...item.doc.data(),
-                action: item.type,
-                id: item.doc.id,
-              })
-            }
-          }
+    db.collection('platform_messages')
+      .get()
+      .then((snapshot) => {
+        let obj = {}
+        let allNotices = snapshot.docs.map((item) => {
+          return { id: item.id, ...item.data() }
         })
-        if (shouldReturn) return
-        setSnapShotCount((prevValue) => prevValue + 1)
+        db.collection('user_notices')
+          .doc(userData.email)
+          .get()
+          .then((userSnapShot) => {
+            const date1 = new Date(
+              subscriptionData?.subscription?.trial_end?.seconds * 1000
+            )
+            const isOver = new Date() > date1
+            const diffTime = Math.abs(new Date() - date1)
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            let payCrypto = !isOver && diffDays > 14
+            if (userSnapShot.data()) {
+              const dismissed = Object.keys(userSnapShot.data())
+              allNotices = allNotices.filter(
+                (item) => !dismissed.includes(item.id)
+              )
+            }
+            allNotices.forEach((item) => {
+              if (
+                subscriptionData?.priceData?.interval ||
+                subscriptionData?.subscription?.trial_end?.seconds
+              )
+                if (item.sendToEveryone) {
+                  if (item.isPrivate) {
+                    if (
+                      !(
+                        subscriptionData?.priceData?.interval === 'year' ||
+                        payCrypto
+                      )
+                    ) {
+                      obj[item.id] = item
+                    }
+                  }
+                  if (item.exceptions?.length) {
+                    const isInExceptions = item.exceptions.includes(
+                      userData.email
+                    )
+                    if (isInExceptions && item.isPrivate) {
+                      delete obj[item.id]
+                    }
+                  } else {
+                    if (
+                      typeof subscriptionData?.priceData?.interval ==
+                        'string' &&
+                      !item.isPrivate
+                    )
+                      obj[item.id] = item
+                  }
+                } else if (item.emails) {
+                  const exists = item.emails.find(
+                    (element) => element === userData.email
+                  )
+                  if (exists) {
+                    obj[item.id] = item
+                  }
+                }
+            })
+
+            setNotices(obj)
+          })
       })
-    return () => {
-      fBNotice()
-    }
   }, [
-    subscriptionData?.priceData?.interval,
-    isOnboardingSkipped,
     userData.email,
+    subscriptionData?.priceData?.interval,
+    subscriptionData?.subscription?.trial_end?.seconds,
   ])
+
+  useEffect(() => {
+    let final = []
+    for (const [key, value] of Object.entries(notices)) {
+      final.push({ id: key, ...value })
+    }
+    setFinalNotices(final)
+  }, [notices])
 
   useEffect(() => {
     callObserver()
   }, [callObserver])
-
-  useEffect(() => {
-    if (snapShotCount > 1 && fbNotice && fbNotice.action === 'added') {
-      setNotices((prevState) => [fbNotice, ...prevState])
-    }
-  }, [fbNotice, snapShotCount])
 
   useEffect(() => {
     if (!loadApiKeys && !isOnboardingSkipped) {
@@ -190,22 +188,19 @@ const TradeContainer = () => {
     }
   }, [loadApiKeys, history, isOnboardingSkipped])
 
-  const getPendingNotices = async () => {
-    try {
-      let notices = await getNotices(5)
-      notices = notices.map((item) => ({ id: item.id, ...item.data }))
-      setNotices(notices)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
   const removeNotice = async (item, index) => {
     try {
-      let temp = [...notices]
-      temp.splice(index, 1)
-      setNotices([...temp])
-      await dismissNotice(item.id)
+      let final = []
+      setNotices((prev) => {
+        let a = prev
+        delete a[item]
+        return a
+      })
+      for (const [key, value] of Object.entries(notices)) {
+        if (key !== item) final.push({ id: key, ...value })
+      }
+      setFinalNotices(final)
+      await dismissNotice(item)
     } catch (e) {
       errorNotification.open({
         description: `Couldn't dismiss notice. Please try again later.`,
@@ -266,7 +261,7 @@ const TradeContainer = () => {
               className={`${notices.length ? 'alert-messages' : ''}`}
               style={{ margin: '0' }}
             >
-              {notices.map((item, index) => (
+              {finalNotices.map((item, index) => (
                 <div
                   style={{ padding: '10px' }}
                   className={`text-center my-1 alert alert-${
@@ -290,7 +285,7 @@ const TradeContainer = () => {
                   <button
                     type="button"
                     className="close"
-                    onClick={() => removeNotice(item, index)}
+                    onClick={() => removeNotice(item.id, index)}
                   >
                     <span>&times;</span>
                   </button>
