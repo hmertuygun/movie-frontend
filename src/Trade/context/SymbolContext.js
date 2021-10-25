@@ -21,6 +21,7 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import * as Sentry from '@sentry/react'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
