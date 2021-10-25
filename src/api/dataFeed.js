@@ -18,6 +18,9 @@ export default class dataFeed {
     this.kucoin = new ccxt.kucoin({
       proxy: localStorage.getItem('proxyServer'),
     })
+    this.bybit = new ccxt.bybit({
+      proxy: localStorage.getItem('proxyServer'),
+    })
   }
   onReady(callback) {
     setTimeout(() => {
@@ -74,16 +77,8 @@ export default class dataFeed {
     onErrorCallback,
     firstDataRequest
   ) {
-    const interval = getExchangeProp(
-      this.selectedExchange,
-      'mappedResolutions'
-    )[resolution]
-    if (!interval) {
-      onErrorCallback('Invalid interval')
-    }
-
     let totalKlines = []
-    const kLinesLimit = 500
+    let kLinesLimit = 500
     const finishKlines = () => {
       if (this.debug) {
         console.log('📊:', totalKlines.length)
@@ -116,7 +111,10 @@ export default class dataFeed {
           kLinesLimit
         ) {
           let data = []
-          if (this.selectedExchange !== 'kucoin') {
+          if (
+            this.selectedExchange == 'binance' ||
+            this.selectedExchange == 'binanceus'
+          ) {
             data = await execExchangeFunc(this.selectedExchange, 'getKlines', {
               symbol: symbolAPI,
               interval: this.mappedResolutions[resolution],
@@ -124,7 +122,7 @@ export default class dataFeed {
               endTime: to,
               limit: kLinesLimit,
             })
-          } else {
+          } else if (this.selectedExchange == 'kucoin') {
             try {
               data = await this.kucoin.fetchOHLCV(
                 symbolAPI,
@@ -148,7 +146,10 @@ export default class dataFeed {
           }
 
           totalKlines = totalKlines && totalKlines.concat(data)
-          if (data.length === kLinesLimit) {
+          if (
+            (data.length === kLinesLimit || totalKlines.length < 3000) &&
+            data.length > 0
+          ) {
             from = data[data.length - 1][0] + 1
             getKlines(from, to)
           } else {
