@@ -258,7 +258,7 @@ const TradeContainer = () => {
             style={{ display: 'unset' }}
           >
             <div
-              className={`${notices.length ? 'alert-messages' : ''}`}
+              className={`${finalNotices.length ? 'alert-messages' : ''}`}
               style={{ margin: '0' }}
             >
               {finalNotices.map((item, index) => (
@@ -384,8 +384,10 @@ const TradeContainer = () => {
         </div>
       ) : (
         <div className="TradeChart-Container TradeChart-Container-Mobile">
-          <div className={`${notices.length ? 'alert-messages mt-2' : ''}`}>
-            {notices.map((item, index) => (
+          <div
+            className={`${finalNotices.length ? 'alert-messages mt-2' : ''}`}
+          >
+            {finalNotices.map((item, index) => (
               <div
                 className={`text-center my-1 alert alert-${
                   item.noticeType || 'primary'
