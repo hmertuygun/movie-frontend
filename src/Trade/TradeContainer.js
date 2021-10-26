@@ -162,7 +162,7 @@ const TradeContainer = () => {
 
   const getAction = (param) => {
     if (param == 'crypto') {
-      window.open('https://cryptopayment.web.app', '_blank').focus()
+      window.open('https://cryptopayment.coinpanel.com/', '_blank').focus()
     }
   }
   const removeNotice = async (item, index) => {

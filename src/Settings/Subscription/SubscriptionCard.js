@@ -119,7 +119,9 @@ const SubscriptionCard = ({ product }) => {
           {name === 'Yearly Subscription' && (
             <div
               onClick={() =>
-                window.open('https://cryptopayment.web.app', '_blank').focus()
+                window
+                  .open('https://cryptopayment.coinpanel.com/', '_blank')
+                  .focus()
               }
               className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2"
             >
