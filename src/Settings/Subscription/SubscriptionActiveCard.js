@@ -175,7 +175,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
           {isDiscount() && (
             <div
               onClick={() =>
-                window.open('https://cryptopayment.web.app', '_blank').focus()
+                window
+                  .open('https://cryptopayment.coinpanel.com/', '_blank')
+                  .focus()
               }
               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               className="col-lg-12 m-2"
