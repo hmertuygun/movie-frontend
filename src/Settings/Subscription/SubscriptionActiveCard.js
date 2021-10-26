@@ -7,7 +7,6 @@ import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
-  const { setCryptoBot } = useContext(UserContext)
   const [portalLoading, setPortalLoading] = useState(false)
   const [payCrypto, setPayCrypto] = useState(false)
   const { cancel_at_period_end } = subscription
@@ -16,14 +15,6 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
     month: 'Monthly',
     year: 'Yearly',
   }
-
-  useEffect(() => {
-    if (window.Tawk_API && payCrypto) {
-      setCryptoBot(true)
-    } else if (window.Tawk_API && !payCrypto) {
-      setCryptoBot(false)
-    }
-  }, [payCrypto])
 
   const getSubsName = () => {
     return subscriptionNames[subscription.items[0].plan.interval]
@@ -183,7 +174,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
           </div>
           {isDiscount() && (
             <div
-              onClick={() => setPayCrypto((status) => !status)}
+              onClick={() =>
+                window.open('https://cryptopayment.web.app', '_blank').focus()
+              }
               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               className="col-lg-12 m-2"
             >
