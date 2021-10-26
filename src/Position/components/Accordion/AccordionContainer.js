@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react'
-import * as Sentry from '@sentry/browser'
 
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
@@ -117,7 +116,6 @@ const AccordionContainer = () => {
       }
       setData(positionsData)
     } catch (error) {
-      Sentry.captureException(error)
       console.warn(error)
     }
   }, [positions, lastMessage, symbolDetails, activeExchange])

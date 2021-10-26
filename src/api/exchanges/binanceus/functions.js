@@ -1,9 +1,7 @@
 import { Binance } from '../binance/functions'
 
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  const url = `${localStorage.getItem(
-    'proxyServer'
-  )}https://api.binance.us/api/v1/klines?symbol=${symbol}&interval=${interval}${
+  const url = `https://api.binance.us/api/v1/klines?symbol=${symbol}&interval=${interval}${
     startTime ? `&startTime=${startTime}` : ''
   }${endTime ? `&endTime=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
 

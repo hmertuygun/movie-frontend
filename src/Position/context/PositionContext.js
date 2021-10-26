@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useContext,
 } from 'react'
-import * as Sentry from '@sentry/browser'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
@@ -42,7 +41,6 @@ const PositionCTXProvider = ({ children }) => {
       errorNotification.open({
         description: 'Cannot fetch positions. Please try again later!',
       })
-      Sentry.captureException(error)
       // console.warn(error)
     } finally {
       setIsLoading(false)

@@ -1,6 +1,6 @@
 import { getExchangeProp, execExchangeFunc } from '../helpers/getExchangeProp'
 import ccxt from 'ccxt'
-import * as Sentry from '@sentry/react'
+import { ccxtConfigs } from '../constants/ccxtConfigs'
 
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
@@ -15,12 +15,8 @@ export default class dataFeed {
     this.debug = debug
     this.socketClass = getExchangeProp(this.selectedExchange, 'socketClass')
     this.ws = new this.socketClass()
-    this.kucoin = new ccxt.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-    })
-    this.bybit = new ccxt.bybit({
-      proxy: localStorage.getItem('proxyServer'),
-    })
+    this.kucoin = new ccxt.kucoin(ccxtConfigs('kucoin'))
+    this.bybit = new ccxt.bybit(ccxtConfigs('bybit'))
   }
   onReady(callback) {
     setTimeout(() => {
@@ -63,7 +59,6 @@ export default class dataFeed {
         })
       }, 0)
     } catch (e) {
-      Sentry.captureException(e)
       console.log(e)
     }
   }
@@ -140,16 +135,12 @@ export default class dataFeed {
                 from
               )
             } catch (error) {
-              Sentry.captureException(error)
               console.log('bad symbol', error)
             }
           }
 
           totalKlines = totalKlines && totalKlines.concat(data)
-          if (
-            (data.length === kLinesLimit || totalKlines.length < 3000) &&
-            data.length > 0
-          ) {
+          if (data.length === kLinesLimit) {
             from = data[data.length - 1][0] + 1
             getKlines(from, to)
           } else {
@@ -157,7 +148,6 @@ export default class dataFeed {
           }
         }
       } catch (e) {
-        Sentry.captureException(e)
         console.error(e)
         onErrorCallback(`Error in 'getKlines' func`)
       }

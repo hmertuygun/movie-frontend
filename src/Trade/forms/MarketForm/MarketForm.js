@@ -2,6 +2,7 @@ import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import ccxt from 'ccxt'
+import { ccxtConfigs } from '../../../constants/ccxtConfigs'
 
 import {
   addPrecisionToNumber,
@@ -324,7 +325,7 @@ const MarketForm = () => {
         switch (exchange) {
           case 'binance': {
             try {
-              const binance = new ccxt.binance()
+              const binance = new ccxt.binance(ccxtConfigs('binance'))
               const response = await binance.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -334,7 +335,7 @@ const MarketForm = () => {
           }
           case 'binanceus': {
             try {
-              const binanceus = new ccxt.binanceus()
+              const binanceus = new ccxt.binanceus(ccxtConfigs('binanceus'))
               const response = await binanceus.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -344,9 +345,7 @@ const MarketForm = () => {
           }
           case 'ftx': {
             try {
-              const ftx = new ccxt.ftx({
-                proxy: localStorage.getItem('proxyServer'),
-              })
+              const ftx = new ccxt.ftx(ccxtConfigs('ftx'))
               const response = await ftx.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -356,10 +355,8 @@ const MarketForm = () => {
           }
           case 'kucoin': {
             try {
-              const ftx = new ccxt.kucoin({
-                proxy: localStorage.getItem('proxyServer'),
-              })
-              const response = await ftx.fetchTicker(symbol)
+              const kucoin = new ccxt.kucoin(ccxtConfigs('kucoin'))
+              const response = await kucoin.fetchTicker(symbol)
               price = response.last
             } catch (error) {
               console.log(error)
