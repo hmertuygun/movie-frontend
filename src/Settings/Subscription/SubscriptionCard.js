@@ -9,7 +9,6 @@ const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
   const [showCryptoModal, setShowCryptoModal] = useState(false)
   const currentUser = auth.currentUser
-  const { setCryptoBot } = useContext(UserContext)
   const db = firebase.firestore()
   const { name, prices } = product
 
@@ -19,14 +18,6 @@ const SubscriptionCard = ({ product }) => {
   const getFPTid = () => {
     return window.FPROM && window.FPROM.data.tid
   }
-
-  useEffect(() => {
-    if (window.Tawk_API && showCryptoModal) {
-      setCryptoBot(true)
-    } else if (window.Tawk_API && !showCryptoModal) {
-      setCryptoBot(false)
-    }
-  }, [showCryptoModal])
 
   const subscribe = async (e) => {
     setSubscribing(true)
@@ -126,7 +117,12 @@ const SubscriptionCard = ({ product }) => {
             )}
           </div>
           {name === 'Yearly Subscription' && (
-            <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2">
+            <div
+              onClick={() =>
+                window.open('https://cryptopayment.web.app', '_blank').focus()
+              }
+              className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2"
+            >
               <span className="badge badge-soft-success ">
                 Limited time discount! Yearly Subscription for $199 when you pay
                 with crypto. Get 5 months free!

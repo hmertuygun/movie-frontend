@@ -37,14 +37,8 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const {
-    loadApiKeys,
-    userData,
-    isOnboardingSkipped,
-    subscriptionData,
-    cryptoBot,
-    setCryptoBot,
-  } = useContext(UserContext)
+  const { loadApiKeys, userData, isOnboardingSkipped, subscriptionData } =
+    useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -58,36 +52,6 @@ const TradeContainer = () => {
   const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
   const [finalNotices, setFinalNotices] = useState([])
-
-  useEffect(() => {
-    var Tawk_API = Tawk_API || {}
-    ;(function () {
-      var s1 = document.createElement('script'),
-        s0 = document.getElementsByTagName('script')[0]
-      s1.async = true
-      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
-      s1.charset = 'UTF-8'
-      s1.setAttribute('crossorigin', '*')
-      s0.parentNode.insertBefore(s1, s0)
-      if (window.Tawk_API) {
-        window.Tawk_API.hideWidget()
-      }
-    })()
-    return () => {
-      if (window.Tawk_API) {
-        window.Tawk_API.hideWidget()
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    if (cryptoBot && window.Tawk_API) {
-      window.Tawk_API.showWidget()
-      window.Tawk_API.maximize()
-    } else if (window.Tawk_API && !cryptoBot) {
-      window.Tawk_API.hideWidget()
-    }
-  }, [cryptoBot, history.location.search, window.Tawk_API])
 
   const resizeCallBack = useCallback(
     (entries, observer) => {
@@ -198,7 +162,7 @@ const TradeContainer = () => {
 
   const getAction = (param) => {
     if (param == 'crypto') {
-      setCryptoBot(true)
+      window.open('https://cryptopayment.web.app', '_blank').focus()
     }
   }
   const removeNotice = async (item, index) => {
