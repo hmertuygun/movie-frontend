@@ -21,7 +21,6 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
-import * as Sentry from '@sentry/react'
 export const SymbolContext = createContext()
 
 const SymbolContextProvider = ({ children }) => {
@@ -176,10 +175,6 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userData) return
     getChartDataOnInit()
-    Sentry.setTag('is_watchlist_open', watchListOpen.toString())
-    Sentry.setTag('active_exchange', activeExchange.exchange)
-    Sentry.setTag('is_template_drawings_open', templateDrawingsOpen.toString())
-    Sentry.setUser({ email: userData.email, id: userData.uid })
   }, [userData, watchListOpen, activeExchange, templateDrawingsOpen])
 
   const onRefreshBtnClicked = (type) => {
@@ -240,7 +235,6 @@ const SymbolContextProvider = ({ children }) => {
       setExchangeType(exchange.toLowerCase())
       localStorage.setItem('selectedExchange', exchange.toLowerCase())
     } catch (e) {
-      Sentry.captureException(e)
       console.error(e)
     } finally {
     }
@@ -278,7 +272,6 @@ const SymbolContextProvider = ({ children }) => {
       }
     } catch (err) {
       console.error(err)
-      Sentry.captureException(err)
       setSelectedSymbolBalance(0)
       setSelectedBaseSymbolBalance(0)
     } finally {
@@ -299,7 +292,6 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
     } catch (err) {
-      Sentry.captureException(err)
       errorNotification.open({
         description: `Error getting last price of market.`,
         key: 'last-price-warning',
@@ -378,7 +370,6 @@ const SymbolContextProvider = ({ children }) => {
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
-      Sentry.captureException(e)
       errorNotification.open({
         description: `Error activating this exchange key!`,
       })
@@ -462,7 +453,6 @@ const SymbolContextProvider = ({ children }) => {
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
-      Sentry.captureException(error)
       console.error(error)
     } finally {
       setIsLoadingExchanges(false)
@@ -479,7 +469,7 @@ const SymbolContextProvider = ({ children }) => {
         )
       }
     } catch (error) {
-      Sentry.captureException(error)
+      console.log(error)
     }
   }
 
@@ -506,7 +496,6 @@ const SymbolContextProvider = ({ children }) => {
       })
       setExchanges(apiKeys)
     } catch (error) {
-      Sentry.captureException(error)
       console.log(error)
     }
   }
