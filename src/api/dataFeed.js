@@ -140,10 +140,7 @@ export default class dataFeed {
           }
 
           totalKlines = totalKlines && totalKlines.concat(data)
-          if (
-            (data.length === kLinesLimit || totalKlines.length < 3000) &&
-            data.length > 0
-          ) {
+          if (data.length === kLinesLimit) {
             from = data[data.length - 1][0] + 1
             getKlines(from, to)
           } else {
