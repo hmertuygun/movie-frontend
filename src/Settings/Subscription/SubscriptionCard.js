@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-
+import { UserContext } from '../../contexts/UserContext'
 import { firebase, auth } from '../../firebase/firebase'
 import { Bell, X } from 'react-feather'
 import { Modal } from '../../components'
@@ -9,6 +9,7 @@ const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
   const [showCryptoModal, setShowCryptoModal] = useState(false)
   const currentUser = auth.currentUser
+  const { setCryptoBot } = useContext(UserContext)
   const db = firebase.firestore()
   const { name, prices } = product
 
@@ -20,21 +21,10 @@ const SubscriptionCard = ({ product }) => {
   }
 
   useEffect(() => {
-    var Tawk_API = Tawk_API || {}
-    ;(function () {
-      var s1 = document.createElement('script'),
-        s0 = document.getElementsByTagName('script')[0]
-      s1.async = true
-      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
-      s1.charset = 'UTF-8'
-      s1.setAttribute('crossorigin', '*')
-      s0.parentNode.insertBefore(s1, s0)
-    })()
-  }, [])
-
-  useEffect(() => {
-    if (window.Tawk_API) {
-      window.Tawk_API.showWidget()
+    if (window.Tawk_API && showCryptoModal) {
+      setCryptoBot(true)
+    } else if (window.Tawk_API && !showCryptoModal) {
+      setCryptoBot(false)
     }
   }, [showCryptoModal])
 
@@ -137,8 +127,10 @@ const SubscriptionCard = ({ product }) => {
           </div>
           {name === 'Yearly Subscription' && (
             <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2">
-              <span class="badge badge-soft-success">
-                Limited time discount!!! Save $100 when you pay with crypto.
+              <span className="badge badge-soft-success ">
+                Limited time discount! Yearly Subscription for $199 when you pay
+                with crypto. Get 5 months free!
+                <u style={{ marginLeft: '3px' }}>Click here.</u>
               </span>
             </div>
           )}

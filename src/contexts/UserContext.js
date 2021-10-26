@@ -83,6 +83,7 @@ const UserContextProvider = ({ children }) => {
   const [lastSelectedSymbol, setLastSelectedSymbol] = useState()
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
+  const [cryptoBot, setCryptoBot] = useState(false)
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
 
@@ -676,6 +677,8 @@ const UserContextProvider = ({ children }) => {
         hasSub,
         onTour,
         isTourStep5,
+        cryptoBot,
+        setCryptoBot,
         isTourFinished,
         onSecondTour,
         tour2CurrentStep,

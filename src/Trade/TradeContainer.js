@@ -19,7 +19,6 @@ import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
-import Parser from 'html-react-parser'
 
 const WatchListPanel = lazy(() => import('./WatchListPanel'))
 const TradePanel = lazy(() => import('./TradePanel'))
@@ -38,8 +37,14 @@ const registerResizeObserver = (cb, elem) => {
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { loadApiKeys, userData, isOnboardingSkipped, subscriptionData } =
-    useContext(UserContext)
+  const {
+    loadApiKeys,
+    userData,
+    isOnboardingSkipped,
+    subscriptionData,
+    cryptoBot,
+    setCryptoBot,
+  } = useContext(UserContext)
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -55,31 +60,34 @@ const TradeContainer = () => {
   const [finalNotices, setFinalNotices] = useState([])
 
   useEffect(() => {
-    if (history.location.search === '?paycrypto') {
-      var Tawk_API = Tawk_API || {}
-      ;(function () {
-        var s1 = document.createElement('script'),
-          s0 = document.getElementsByTagName('script')[0]
-        s1.async = true
-        s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
-        s1.charset = 'UTF-8'
-        s1.setAttribute('crossorigin', '*')
-        s0.parentNode.insertBefore(s1, s0)
-        if (window.Tawk_API) {
-          window.Tawk_API.hideWidget()
-        }
-      })()
+    var Tawk_API = Tawk_API || {}
+    ;(function () {
+      var s1 = document.createElement('script'),
+        s0 = document.getElementsByTagName('script')[0]
+      s1.async = true
+      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
+      s1.charset = 'UTF-8'
+      s1.setAttribute('crossorigin', '*')
+      s0.parentNode.insertBefore(s1, s0)
+      if (window.Tawk_API) {
+        window.Tawk_API.hideWidget()
+      }
+    })()
+    return () => {
+      if (window.Tawk_API) {
+        window.Tawk_API.hideWidget()
+      }
     }
   }, [])
 
   useEffect(() => {
-    if (window.Tawk_API && history.location.search === '?paycrypto') {
+    if (cryptoBot && window.Tawk_API) {
       window.Tawk_API.showWidget()
-      window.Tawk_API.toggle()
-    } else if (window.Tawk_API && history.location.search !== '?paycrypto') {
+      window.Tawk_API.maximize()
+    } else if (window.Tawk_API && !cryptoBot) {
       window.Tawk_API.hideWidget()
     }
-  }, [])
+  }, [cryptoBot, history.location.search, window.Tawk_API])
 
   const resizeCallBack = useCallback(
     (entries, observer) => {
@@ -188,6 +196,11 @@ const TradeContainer = () => {
     }
   }, [loadApiKeys, history, isOnboardingSkipped])
 
+  const getAction = (param) => {
+    if (param == 'crypto') {
+      setCryptoBot(true)
+    }
+  }
   const removeNotice = async (item, index) => {
     try {
       let final = []
@@ -281,7 +294,16 @@ const TradeContainer = () => {
                         : 'exclamation-circle'
                     }`}
                   />{' '}
-                  {Parser(item.message)}
+                  {item.message}
+                  {item.button?.text && (
+                    <span
+                      className="ml-2 badge badge-primary"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => getAction(item.button.type)}
+                    >
+                      {item.button.text}
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="close"
