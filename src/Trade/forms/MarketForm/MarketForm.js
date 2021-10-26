@@ -325,7 +325,7 @@ const MarketForm = () => {
         switch (exchange) {
           case 'binance': {
             try {
-              const binance = new ccxt.binance(ccxtConfigs('binance'))
+              const binance = new ccxt.binance(ccxtConfigs['binance'])
               const response = await binance.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -335,7 +335,7 @@ const MarketForm = () => {
           }
           case 'binanceus': {
             try {
-              const binanceus = new ccxt.binanceus(ccxtConfigs('binanceus'))
+              const binanceus = new ccxt.binanceus(ccxtConfigs['binanceus'])
               const response = await binanceus.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -345,7 +345,7 @@ const MarketForm = () => {
           }
           case 'ftx': {
             try {
-              const ftx = new ccxt.ftx(ccxtConfigs('ftx'))
+              const ftx = new ccxt.ftx(ccxtConfigs['ftx'])
               const response = await ftx.fetchTicker(symbol)
               price = response.last
             } catch (error) {
@@ -355,7 +355,7 @@ const MarketForm = () => {
           }
           case 'kucoin': {
             try {
-              const kucoin = new ccxt.kucoin(ccxtConfigs('kucoin'))
+              const kucoin = new ccxt.kucoin(ccxtConfigs['kucoin'])
               const response = await kucoin.fetchTicker(symbol)
               price = response.last
             } catch (error) {
