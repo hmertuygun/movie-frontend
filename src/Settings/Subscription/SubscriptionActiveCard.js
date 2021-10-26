@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
 
 import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
+import { UserContext } from '../../contexts/UserContext'
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
+  const { setCryptoBot } = useContext(UserContext)
   const [portalLoading, setPortalLoading] = useState(false)
   const [payCrypto, setPayCrypto] = useState(false)
   const { cancel_at_period_end } = subscription
@@ -16,27 +18,10 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   }
 
   useEffect(() => {
-    var Tawk_API = Tawk_API || {}
-    ;(function () {
-      var s1 = document.createElement('script'),
-        s0 = document.getElementsByTagName('script')[0]
-      s1.async = true
-      s1.src = 'https://embed.tawk.to/61717bab86aee40a5737b7b1/1fiifct22'
-      s1.charset = 'UTF-8'
-      s1.setAttribute('crossorigin', '*')
-      s0.parentNode.insertBefore(s1, s0)
-      if (window.Tawk_API) {
-        window.Tawk_API.hideWidget()
-      }
-    })()
-  }, [])
-
-  useEffect(() => {
     if (window.Tawk_API && payCrypto) {
-      window.Tawk_API.showWidget()
-      window.Tawk_API.toggle()
+      setCryptoBot(true)
     } else if (window.Tawk_API && !payCrypto) {
-      window.Tawk_API.hideWidget()
+      setCryptoBot(false)
     }
   }, [payCrypto])
 
@@ -45,7 +30,6 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   }
 
   const isDiscount = () => {
-    console.log(subscription)
     const date1 = new Date(subscription.current_period_end.seconds * 1000)
     const isOver = new Date() > date1
     const diffTime = Math.abs(new Date() - date1)
@@ -203,8 +187,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               className="col-lg-12 m-2"
             >
-              <span className="badge badge-soft-success">
-                Limited time discount!!! Save $100 when you pay with crypto.
+              <span className="badge badge-soft-success ">
+                Limited time discount! Yearly Subscription for $199 when you pay
+                with crypto. Get 5 months free!
                 <u style={{ marginLeft: '3px' }}>Click here.</u>
               </span>
             </div>
