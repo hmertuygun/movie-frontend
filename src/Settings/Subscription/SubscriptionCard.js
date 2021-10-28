@@ -89,6 +89,14 @@ const SubscriptionCard = ({ product }) => {
             </div>
           </div>
           <div className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right">
+            {name === 'Yearly Subscription' && (
+              <div
+                className="btn btn-sm btn-neutral rounded-pill"
+                onClick={() => setShowCryptoModal((status) => !status)}
+              >
+                Pay with crypto
+              </div>
+            )}
             {subscribing ? (
               <div className="btn btn-sm btn-neutral rounded-pill">
                 <span
@@ -108,6 +116,22 @@ const SubscriptionCard = ({ product }) => {
               </>
             )}
           </div>
+          {name === 'Yearly Subscription' && (
+            <div
+              onClick={() =>
+                window
+                  .open('https://cryptopayment.coinpanel.com/', '_blank')
+                  .focus()
+              }
+              className="col-auto flex-fill mt-4 mt-sm-0 text-sm-right m-md-2"
+            >
+              <span className="badge badge-soft-success ">
+                Limited time discount! Yearly Subscription for $199 when you pay
+                with crypto. Get 5 months free!
+                <u style={{ marginLeft: '3px' }}>Click here.</u>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
