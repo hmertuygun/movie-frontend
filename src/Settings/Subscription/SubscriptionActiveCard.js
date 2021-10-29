@@ -172,23 +172,6 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               </div>
             )}
           </div>
-          {isDiscount() && (
-            <div
-              onClick={() =>
-                window
-                  .open('https://cryptopayment.coinpanel.com/', '_blank')
-                  .focus()
-              }
-              style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-              className="col-lg-12 m-2"
-            >
-              <span className="badge badge-soft-success ">
-                Limited time discount! Yearly Subscription for $199 when you pay
-                with crypto. Get 5 months free!
-                <u style={{ marginLeft: '3px' }}>Click here.</u>
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </div>
