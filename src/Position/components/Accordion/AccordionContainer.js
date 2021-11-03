@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
-import useSortableData from '../../utils/useSortableData'
+import useSortableData from '../../../helpers/useSortableData'
 import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
