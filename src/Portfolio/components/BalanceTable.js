@@ -6,6 +6,7 @@ import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useCallback } from 'react'
+import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 
 const BalanceTable = () => {
   const { balance, lastMessage } = useContext(PortfolioContext)
@@ -13,8 +14,6 @@ const BalanceTable = () => {
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
-
-  const ITEMS_PER_PAGE = 8
 
   const getTableData = useMemo(() => {
     if (tableData) {
