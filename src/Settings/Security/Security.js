@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useRef, useState, useMemo } from 'react'
 import { X } from 'react-feather'
 import T2FARow from './T2FARow'
 import { ADD_2FA_FLOW, DeleteGoogleAuth, ModalsConf } from './T2FAModal'
@@ -9,13 +9,7 @@ import { UserX } from 'react-feather'
 import { deleteUserAccount } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
 import { useHistory } from 'react-router-dom'
-
-const T2FA_TYPES = {
-  googleAuth: {
-    title: 'Google Auth',
-    type: 'GOOGLE_AUTH',
-  },
-}
+import { T2FA_TYPES } from '../../constants/Security'
 
 const Security = () => {
   const { get2FADetails } = useContext(UserContext)
@@ -39,22 +33,27 @@ const Security = () => {
 
   const closeModal = () => setToggleModal(false)
 
-  const T2FAContent =
-    add2FAFlowPage < ADD_2FA_FLOW.length
-      ? ADD_2FA_FLOW[add2FAFlowPage]
-      : DeleteGoogleAuth
+  const T2FAContent = useMemo(
+    () =>
+      add2FAFlowPage < ADD_2FA_FLOW.length
+        ? ADD_2FA_FLOW[add2FAFlowPage]
+        : DeleteGoogleAuth,
+    [add2FAFlowPage, add2FAFlowPage]
+  )
 
   const reset2FAFlow = () => {
     setAdd2FAFlowPage(0)
     closeModal()
   }
 
-  const new2FAEntry = {
-    title: T2FA_TYPES.googleAuth.title,
-    description: desc,
-    date: new Date().getTime(),
-    type: T2FA_TYPES.googleAuth.type,
-  }
+  const new2FAEntry = useMemo(() => {
+    return {
+      title: T2FA_TYPES.googleAuth.title,
+      description: desc,
+      date: new Date().getTime(),
+      type: T2FA_TYPES.googleAuth.type,
+    }
+  }, [T2FA_TYPES, desc])
 
   const handleDeleteAccount = async () => {
     setAccountDeleteLoading(true)
