@@ -21,7 +21,9 @@ import {
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import { firebase } from '../../firebase/firebase'
 export const SymbolContext = createContext()
+const db = firebase.firestore()
 
 const SymbolContextProvider = ({ children }) => {
   const {
@@ -201,44 +203,50 @@ const SymbolContextProvider = ({ children }) => {
         templateDrawingsOpen && watchListOpen
           ? 'binance'
           : activeExchange.exchange
-      const { data } = await getAllChartData()
-      let { intervals, lastSelectedSymbol, timeZone } = data
-      let activeMarketData = {}
-      const chartData = {
-        intervals: intervals || [],
-        timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lastSelectedSymbol:
-          lastSelectedSymbol ||
-          `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
-      }
+      db.collection('chart_drawings')
+        .doc(userData.email)
+        .get()
+        .then((userSnapShot) => {
+          let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
+          let activeMarketData = {}
+          const chartData = {
+            intervals: intervals || [],
+            timeZone:
+              timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+            lastSelectedSymbol:
+              lastSelectedSymbol ||
+              `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
+          }
 
-      setChartData({ ...chartData })
-      let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
-      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-      symbolVal = exchangeUpdated
-        ? DEFAULT_SYMBOL_LOAD_SLASH
-        : symbolVal
-        ? symbolVal
-        : DEFAULT_SYMBOL_LOAD_SLASH
-      localStorage.setItem('selectedExchange', exchangeVal)
-      localStorage.setItem('selectedSymbol', symbolVal)
-      const [baseAsset, qouteAsset] = symbolVal.split('/')
-      loadBalance(qouteAsset, baseAsset)
-      setInitMarketData(symbolVal)
-      setSelectedSymbolDetail({
-        base_asset: baseAsset,
-        quote_asset: qouteAsset,
-      }) // to show balance in trade panel quickly
-      setSymbolType(symbolVal)
-      loadExchanges(symbolVal, exchangeVal)
-      setSelectedSymbol({
-        label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
-      })
-      loadLastPrice(symbolVal, exchangeVal)
+          setChartData({ ...chartData })
+          let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
+          exchangeVal =
+            exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+          symbolVal = exchangeUpdated
+            ? DEFAULT_SYMBOL_LOAD_SLASH
+            : symbolVal
+            ? symbolVal
+            : DEFAULT_SYMBOL_LOAD_SLASH
+          localStorage.setItem('selectedExchange', exchangeVal)
+          localStorage.setItem('selectedSymbol', symbolVal)
+          const [baseAsset, qouteAsset] = symbolVal.split('/')
+          loadBalance(qouteAsset, baseAsset)
+          setInitMarketData(symbolVal)
+          setSelectedSymbolDetail({
+            base_asset: baseAsset,
+            quote_asset: qouteAsset,
+          }) // to show balance in trade panel quickly
+          setSymbolType(symbolVal)
+          loadExchanges(symbolVal, exchangeVal)
+          setSelectedSymbol({
+            label: symbolVal.replace('/', '-'),
+            value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
+          })
+          loadLastPrice(symbolVal, exchangeVal)
 
-      setExchangeType(exchange.toLowerCase())
-      localStorage.setItem('selectedExchange', exchange.toLowerCase())
+          setExchangeType(exchange.toLowerCase())
+          localStorage.setItem('selectedExchange', exchange.toLowerCase())
+        })
     } catch (e) {
       console.error(e)
     } finally {
