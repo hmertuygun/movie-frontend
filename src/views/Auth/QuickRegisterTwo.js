@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { Key, AtSign } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
@@ -31,6 +31,10 @@ const QuickRegister = () => {
       setType('text')
     }
   }
+
+  const getFPTid = useMemo(() => {
+    return window.FPROM && window.FPROM.data.tid
+  }, [])
 
   const actualRegister = async () => {
     try {
@@ -72,10 +76,6 @@ const QuickRegister = () => {
         response.user
           .sendEmailVerification(actionCodeSettings)
           .then(async () => {
-            const getFPTid = () => {
-              return window.FPROM && window.FPROM.data.tid
-            }
-
             const refId = getFPTid()
             if (refId && response?.user) {
               try {

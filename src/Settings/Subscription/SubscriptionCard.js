@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useMemo } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-import { UserContext } from '../../contexts/UserContext'
 import { firebase, auth } from '../../firebase/firebase'
-import { Bell, X } from 'react-feather'
-import { Modal } from '../../components'
+import { Bell } from 'react-feather'
 
 const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
-  const [showCryptoModal, setShowCryptoModal] = useState(false)
   const currentUser = auth.currentUser
   const db = firebase.firestore()
   const { name, prices } = product
@@ -15,9 +12,9 @@ const SubscriptionCard = ({ product }) => {
   // only support one price
   const price = prices[0]
 
-  const getFPTid = () => {
+  const getFPTid = useMemo(() => {
     return window.FPROM && window.FPROM.data.tid
-  }
+  }, [])
 
   const subscribe = async (e) => {
     setSubscribing(true)
