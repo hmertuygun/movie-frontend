@@ -23,7 +23,7 @@ import {
   successNotification,
   errorNotification,
 } from '../components/Notifications'
-import { exchangeCreationOptions } from '../Settings/Exchanges/ExchangeOptions'
+import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 
 const DEFAULT_WATCHLIST = 'Watch List'
 

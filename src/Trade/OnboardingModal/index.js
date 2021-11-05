@@ -17,7 +17,7 @@ import {
   options,
   validationRules,
   exchangeCreationOptions,
-} from '../../Settings/Exchanges/ExchangeOptions'
+} from '../../constants/ExchangeOptions'
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
 

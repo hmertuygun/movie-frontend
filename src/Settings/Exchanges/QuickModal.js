@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
-import { options, validationRules } from './ExchangeOptions'
+import { options, validationRules } from '../../constants/ExchangeOptions'
 import { supportLinks } from '../../constants/SupportLinks'
 import {
   errorInitialValues,
