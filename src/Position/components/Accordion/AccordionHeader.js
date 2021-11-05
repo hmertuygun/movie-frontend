@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from 'react'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Offline, Online } from 'react-detect-offline'
@@ -6,6 +12,7 @@ import { Offline, Online } from 'react-detect-offline'
 import Tooltip from '../../../components/Tooltip'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
+import { pollingProp } from '../../../constants/positions'
 
 const AccordionHeader = (props) => {
   const wrapperRef = useRef(null)
@@ -20,9 +27,9 @@ const AccordionHeader = (props) => {
   } = useSymbolContext()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const ToggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+  const ToggleMenu = useCallback(() => {
+    setIsMenuOpen((value) => !value)
+  }, [isMenuOpen])
 
   function useOutsideAlerter(ref) {
     useEffect(() => {
@@ -43,9 +50,6 @@ const AccordionHeader = (props) => {
     onRefreshBtnClicked('position')
   }
 
-  const pollingProp = {
-    url: 'https://jsonplaceholder.typicode.com/todos',
-  }
   return (
     <>
       <div className="mb-4 row align-items-center">
