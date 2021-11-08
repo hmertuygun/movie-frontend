@@ -14,7 +14,7 @@ import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { getNotices, dismissNotice } from '../api/api'
+import { dismissNotice } from '../api/api'
 import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
@@ -49,7 +49,6 @@ const TradeContainer = () => {
     ? 'calc(100vh - 134px)'
     : window.innerHeight * 0.6 + 'px'
   const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
-  const [fbNotice, setFBNotice] = useState(null)
   const [notices, setNotices] = useState([])
   const [finalNotices, setFinalNotices] = useState([])
 
@@ -161,7 +160,7 @@ const TradeContainer = () => {
   }, [loadApiKeys, history, isOnboardingSkipped])
 
   const getAction = (param) => {
-    if (param == 'crypto') {
+    if (param === 'crypto') {
       window.open('https://cryptopayment.coinpanel.com/', '_blank').focus()
     }
   }
@@ -214,18 +213,6 @@ const TradeContainer = () => {
                       </Suspense>
                     </ErrorBoundary>
                   </div>
-                  {/* {isOnboardingSkipped && (
-                <div className="chart-view-content">
-                  <p>Add exchange to start trading</p>
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-primary btn-icon"
-                    onClick={handleAddExchange}
-                  >
-                    <span className="btn-inner--text">Add Exchange</span>
-                  </button>
-                </div>
-              )} */}
                 </section>
               )}
             </>
@@ -436,18 +423,6 @@ const TradeContainer = () => {
                   </Suspense>
                 </ErrorBoundary>
               </div>
-              {/* {isOnboardingSkipped && (
-              <div className="chart-view-content-mobile">
-                <p>Add exchange to start trading</p>
-                <button
-                  type="button"
-                  className="btn btn-xs btn-primary btn-icon"
-                  onClick={handleAddExchange}
-                >
-                  <span className="btn-inner--text">Add Exchange</span>
-                </button>
-              </div>
-            )} */}
             </section>
           )}
         </div>

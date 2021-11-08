@@ -34,6 +34,7 @@ const PositionCTXProvider = ({ children }) => {
         errorNotification.open({
           description: 'Cannot fetch positions. Please try again later!',
         })
+        console.log(data.error)
       } else if (data?.positions) {
         setPositions(data.positions)
       }
@@ -41,7 +42,7 @@ const PositionCTXProvider = ({ children }) => {
       errorNotification.open({
         description: 'Cannot fetch positions. Please try again later!',
       })
-      // console.warn(error)
+      console.log(error)
     } finally {
       setIsLoading(false)
     }

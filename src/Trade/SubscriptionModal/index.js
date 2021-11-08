@@ -1,8 +1,9 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const SubscriptionModal = () => {
+  const history = useHistory()
   const {
     hasSub,
     isLoggedIn,
@@ -12,7 +13,7 @@ const SubscriptionModal = () => {
     needPayment,
   } = useContext(UserContext)
 
-  const modalVisibility = () => {
+  const modalVisibility = useMemo(() => {
     if (isLoggedIn) {
       if (!hasSub || (showSubModalIfLessThan7Days && needPayment))
         return 'block'
@@ -20,14 +21,14 @@ const SubscriptionModal = () => {
     } else {
       return 'none'
     }
-  }
+  }, [hasSub, showSubModalIfLessThan7Days, needPayment])
 
-  const modalStyle = {
-    background: 'rgba(0,0,0,.5)',
-    display: modalVisibility(),
-  }
-
-  const history = useHistory()
+  const modalStyle = useMemo(() => {
+    return {
+      background: 'rgba(0,0,0,.5)',
+      display: modalVisibility,
+    }
+  }, [modalVisibility])
 
   const onBuySubClick = () => {
     setShowSubModal(false)

@@ -2,12 +2,13 @@ import React, { useState, useEffect, useContext } from 'react'
 
 import Tooltip from '../../../components/Tooltip'
 import AccordionHeader from './AccordionHeader'
-import useSortableData from '../../utils/useSortableData'
+import useSortableData from '../../../helpers/useSortableData'
 import Accordion from './Accordion'
 import { PositionContext } from '../../context/PositionContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import scientificToDecimal from '../../../helpers/toDecimal'
 import { UserContext } from '../../../contexts/UserContext'
+import { TWO_DECIMAL_ARRAY } from '../../../constants/Trade'
 
 const AccordionContainer = () => {
   const { positions, isLoading, lastMessage } = useContext(PositionContext)
@@ -33,7 +34,6 @@ const AccordionContainer = () => {
         let ROE = ''
         let PNL = ''
 
-        let twoDecimalArray = ['USDT', 'PAX', 'BUSD', 'USDC']
         if (entry > currentPrice) {
           ROE =
             '-' +
@@ -41,7 +41,7 @@ const AccordionContainer = () => {
               (((entry - currentPrice) * 100) / entry).toFixed(2)
             )
           const PNLValue = (entry - currentPrice) * amount
-          if (twoDecimalArray.includes(quoteAsset)) {
+          if (TWO_DECIMAL_ARRAY.includes(quoteAsset)) {
             PNL =
               '-' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
           } else {
@@ -57,7 +57,7 @@ const AccordionContainer = () => {
               (((currentPrice - entry) * 100) / entry).toFixed(2)
             )
           const PNLValue = (currentPrice - entry) * amount
-          if (twoDecimalArray.includes(quoteAsset)) {
+          if (TWO_DECIMAL_ARRAY.includes(quoteAsset)) {
             PNL =
               '+' + scientificToDecimal(PNLValue.toFixed(2)) + ` ${quoteAsset}`
           } else {
@@ -69,7 +69,7 @@ const AccordionContainer = () => {
         }
 
         let modifiedOrders = orders.orders.map((order) => {
-          if (twoDecimalArray.includes(quoteAsset)) {
+          if (TWO_DECIMAL_ARRAY.includes(quoteAsset)) {
             return {
               ...order,
               averageFillPrice: scientificToDecimal(
@@ -93,7 +93,7 @@ const AccordionContainer = () => {
         }
 
         let entryPrice = null
-        if (twoDecimalArray.includes(quoteAsset)) {
+        if (TWO_DECIMAL_ARRAY.includes(quoteAsset)) {
           entryPrice = scientificToDecimal(Number(entry.toFixed(2)))
         } else {
           entryPrice = scientificToDecimal(

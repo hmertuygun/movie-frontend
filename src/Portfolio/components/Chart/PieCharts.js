@@ -8,6 +8,7 @@ const PieCharts = ({ isHideBalance }) => {
   const [legend, setLegend] = useState({})
   const [data, setData] = useState([])
   const [extData, setExtData] = useState(null)
+  const [pieKeys, setPieKeys] = useState([])
   const { chart, balance } = useContext(PortfolioContext)
 
   const colorArray = useMemo(() => {
@@ -141,15 +142,6 @@ const PieCharts = ({ isHideBalance }) => {
         columns: data || [],
         type: 'pie',
         colors: legend,
-        onclick: function (d, i) {
-          // console.log('onclick', d, i)
-        },
-        onmouseover: function (d, i) {
-          // console.log('onmouseover', d, i)
-        },
-        onmouseout: function (d, i) {
-          // console.log('onmouseout', d, i)
-        },
       },
       legend: {
         show: false,
@@ -160,16 +152,20 @@ const PieCharts = ({ isHideBalance }) => {
     })
   }, [data, legend])
 
-  let rows = 5
-  let pieKeys = []
-  let legendArr = Object.entries(legend)
-  for (let i = 0; i < legendArr.length; i++) {
-    let item = legendArr[i]
-    if (i % rows === 0) pieKeys.push([])
-    let fIndex = Math.floor(i / rows)
-    let sIndex = i % rows
-    pieKeys[fIndex][sIndex] = { symbol: item[0], color: item[1] }
-  }
+  useEffect(() => {
+    let rows = 5
+    let pieKey = []
+    let legendArr = Object.entries(legend)
+    for (let i = 0; i < legendArr.length; i++) {
+      let item = legendArr[i]
+      if (i % rows === 0) pieKey.push([])
+      let fIndex = Math.floor(i / rows)
+      let sIndex = i % rows
+      pieKey[fIndex][sIndex] = { symbol: item[0], color: item[1] }
+    }
+    setPieKeys(pieKey)
+  }, [legend])
+
   return (
     <div className="chart-container">
       <div id="data"></div>

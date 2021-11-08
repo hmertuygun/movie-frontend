@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import GaugeChart from 'react-gauge-chart'
 import { stableCoins } from '../../constants/StableCoinsList'
 import { PortfolioContext } from '../context/PortfolioContext'
@@ -8,30 +8,53 @@ const CashoMeter = () => {
   const { balance } = useContext(PortfolioContext)
   const { theme } = useContext(ThemeContext)
 
-  let coins = stableCoins
-    .map((coin) =>
-      balance ? balance.filter((item) => item.SYMBOL === coin) : []
-    )
-    .flat()
-  let totalValue =
-    balance && balance.reduce((acc, value) => acc + Number(value.USD), 0)
+  let coins = useMemo(
+    () =>
+      stableCoins
+        .map((coin) =>
+          balance ? balance.filter((item) => item.SYMBOL === coin) : []
+        )
+        .flat(),
+    [balance]
+  )
 
-  let totalStableCoins =
-    coins && coins.reduce((acc, value) => acc + Number(value.USD), 0)
+  let totalValue = useMemo(
+    () => balance && balance.reduce((acc, value) => acc + Number(value.USD), 0),
+    [balance]
+  )
 
-  let percentageCalculation =
-    Math.abs((Number(totalStableCoins) * 100) / totalValue) / 100
+  let totalStableCoins = useMemo(
+    () => coins && coins.reduce((acc, value) => acc + Number(value.USD), 0),
+    [coins]
+  )
 
-  let resultPercentage = Number(percentageCalculation.toFixed(3))
+  let percentageCalculation = useMemo(
+    () => Math.abs((Number(totalStableCoins) * 100) / totalValue) / 100,
+    [totalStableCoins, totalValue]
+  )
 
-  let value = (resultPercentage * 100).toFixed(1)
+  let resultPercentage = useMemo(
+    () => Number(percentageCalculation.toFixed(3)),
+    [percentageCalculation]
+  )
 
-  let colors =
-    theme === 'LIGHT'
-      ? ['#5cc9a7', '#ffbe3d', '#f25767']
-      : ['#82d6bc', '#ffcf70', '#f68692']
+  let value = useMemo(
+    () => (resultPercentage * 100).toFixed(1),
+    [resultPercentage]
+  )
 
-  let textColor = theme === 'LIGHT' ? '#718096' : '#a2aab5'
+  let colors = useMemo(
+    () =>
+      theme === 'LIGHT'
+        ? ['#5cc9a7', '#ffbe3d', '#f25767']
+        : ['#82d6bc', '#ffcf70', '#f68692'],
+    [theme]
+  )
+
+  let textColor = useMemo(
+    () => (theme === 'LIGHT' ? '#718096' : '#a2aab5'),
+    [theme]
+  )
 
   const style = {
     height: 121.05,

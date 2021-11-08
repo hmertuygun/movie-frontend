@@ -5,7 +5,6 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
-import { backOff } from 'exponential-backoff'
 import ccxtpro from 'ccxt.pro'
 
 import {
@@ -15,25 +14,23 @@ import {
   getUserExchanges,
   getAllChartData,
   updateLastSelectedAPIKey,
-  get24hrTickerPrice,
-  getLastSelectedMarketSymbol,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import { ccxtClass } from '../../constants/ccxtConfigs'
+import { firebase } from '../../firebase/firebase'
 export const SymbolContext = createContext()
+const db = firebase.firestore()
 
 const SymbolContextProvider = ({ children }) => {
   const {
     activeExchange,
     setActiveExchange,
     totalExchanges,
-    loaderVisible,
     setLoaderVisibility,
     setOpenOrdersUC,
     userData,
-    lastSelectedSymbol,
-    loadApiKeys,
     isOnboardingSkipped,
   } = useContext(UserContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
@@ -75,22 +72,11 @@ const SymbolContextProvider = ({ children }) => {
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
+  const [exchangeUpdated, setExchangeUpdated] = useState(false)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
-  const [binance, binanceus, kucoin] = [
-    new ccxtpro.binance({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.binanceus({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-      enableRateLimit: true,
-    }),
-  ]
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -149,7 +135,6 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
-    const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
 
     //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
@@ -157,14 +142,12 @@ const SymbolContextProvider = ({ children }) => {
 
   const setInitMarketData = async (symbol) => {
     let activeMarketData = {}
-    if (activeExchange.exchange == 'binance') {
-      activeMarketData = await binance.fetchTicker(symbol)
-    } else if (activeExchange.exchange == 'binanceus') {
-      activeMarketData = await binanceus.fetchTicker(symbol)
-    } else if (activeExchange.exchange == 'kucoin') {
-      activeMarketData = await kucoin.fetchTicker(symbol)
+    if (activeExchange?.exchange) {
+      const ccxtExchange = ccxtClass[activeExchange.exchange]
+      activeMarketData = await ccxtExchange.fetchTicker(symbol)
+
+      setMarketData(activeMarketData)
     }
-    setMarketData(activeMarketData)
   }
 
   useEffect(() => {
@@ -200,40 +183,50 @@ const SymbolContextProvider = ({ children }) => {
         templateDrawingsOpen && watchListOpen
           ? 'binance'
           : activeExchange.exchange
-      const { data } = await getAllChartData()
-      let { intervals, lastSelectedSymbol, timeZone } = data
-      let activeMarketData = {}
-      const chartData = {
-        intervals: intervals || [],
-        timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        lastSelectedSymbol:
-          lastSelectedSymbol ||
-          `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
-      }
+      db.collection('chart_drawings')
+        .doc(userData.email)
+        .get()
+        .then((userSnapShot) => {
+          let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
+          let activeMarketData = {}
+          const chartData = {
+            intervals: intervals || [],
+            timeZone:
+              timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+            lastSelectedSymbol:
+              lastSelectedSymbol ||
+              `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
+          }
 
-      setChartData({ ...chartData })
-      let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
-      exchangeVal = exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
-      symbolVal = symbolVal || DEFAULT_SYMBOL_LOAD_SLASH
-      localStorage.setItem('selectedExchange', exchangeVal)
-      localStorage.setItem('selectedSymbol', symbolVal)
-      const [baseAsset, qouteAsset] = symbolVal.split('/')
-      loadBalance(qouteAsset, baseAsset)
-      setInitMarketData(symbolVal)
-      setSelectedSymbolDetail({
-        base_asset: baseAsset,
-        quote_asset: qouteAsset,
-      }) // to show balance in trade panel quickly
-      setSymbolType(symbolVal)
-      loadExchanges(symbolVal, exchangeVal)
-      setSelectedSymbol({
-        label: symbolVal.replace('/', '-'),
-        value: `${exchangeVal.toUpperCase()}:${symbolType}`,
-      })
-      loadLastPrice(symbolVal, exchangeVal)
+          setChartData({ ...chartData })
+          let [exchangeVal, symbolVal] = chartData.lastSelectedSymbol.split(':')
+          exchangeVal =
+            exchange || exchangeVal.toLowerCase() || DEFAULT_EXCHANGE
+          symbolVal = exchangeUpdated
+            ? DEFAULT_SYMBOL_LOAD_SLASH
+            : symbolVal
+            ? symbolVal
+            : DEFAULT_SYMBOL_LOAD_SLASH
+          localStorage.setItem('selectedExchange', exchangeVal)
+          localStorage.setItem('selectedSymbol', symbolVal)
+          const [baseAsset, qouteAsset] = symbolVal.split('/')
+          loadBalance(qouteAsset, baseAsset)
+          setInitMarketData(symbolVal)
+          setSelectedSymbolDetail({
+            base_asset: baseAsset,
+            quote_asset: qouteAsset,
+          }) // to show balance in trade panel quickly
+          setSymbolType(symbolVal)
+          loadExchanges(symbolVal, exchangeVal)
+          setSelectedSymbol({
+            label: symbolVal.replace('/', '-'),
+            value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
+          })
+          loadLastPrice(symbolVal, exchangeVal)
 
-      setExchangeType(exchange.toLowerCase())
-      localStorage.setItem('selectedExchange', exchange.toLowerCase())
+          setExchangeType(exchange.toLowerCase())
+          localStorage.setItem('selectedExchange', exchange.toLowerCase())
+        })
     } catch (e) {
       console.error(e)
     } finally {
@@ -283,10 +276,9 @@ const SymbolContextProvider = ({ children }) => {
     try {
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
-      const response = await backOff(
-        () =>
-          getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange),
-        { jitter: 'full', numOfAttempts: 3, timeMultiple: 10 }
+      const response = await getLastPrice(
+        symbolpair,
+        exchangeParam || activeExchange?.exchange
       )
       if (response?.data?.last_price !== 'NA')
         setSelectedSymbolLastPrice(response.data.last_price)
@@ -363,6 +355,7 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         return
       }
+      setExchangeUpdated(true)
       setLoaderVisibility(true)
       await updateLastSelectedAPIKey({ ...exchange })
       setActiveExchange(exchange)
@@ -424,6 +417,7 @@ const SymbolContextProvider = ({ children }) => {
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
     DEFAULT_SYMBOL_LOAD_DASH,
+    watchListOpen,
   ])
 
   const loadExchanges = async (symbol, exchange) => {

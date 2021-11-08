@@ -1,4 +1,11 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, {
+  Fragment,
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react'
 import { X } from 'react-feather'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -59,9 +66,12 @@ const Trade = () => {
   const { activeExchange } = useContext(UserContext)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
-  const hasEntry = state.entry?.quantity > 0 ? true : false
+  const hasEntry = useMemo(
+    () => (state.entry?.quantity > 0 ? true : false),
+    [state.entry?.quantity]
+  )
 
-  function checkAllTypes() {
+  const ableToPostFulltrade = useMemo(() => {
     const targets =
       state &&
       state.targets &&
@@ -74,11 +84,9 @@ const Trade = () => {
       state.stoploss[0].quantity > 0
 
     return targets && stoploss && hasEntry
-  }
+  }, [state, hasEntry])
 
-  const ableToPostFulltrade = checkAllTypes()
-
-  const doPlaceOrder = async () => {
+  const doPlaceOrder = useCallback(async () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
@@ -116,7 +124,15 @@ const Trade = () => {
       setIsOrderPlaced(true)
       setBtnVisibility(false)
     }
-  }
+  }, [
+    activeExchange,
+    clear,
+    isBtnDisabled,
+    refreshBalance,
+    setIsOrderPlaced,
+    setIsTradePanelOpen,
+    state,
+  ])
 
   useEffect(() => {
     clear()

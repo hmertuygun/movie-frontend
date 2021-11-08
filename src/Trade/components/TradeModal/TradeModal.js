@@ -4,15 +4,10 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './TradeModal.module.css'
 import { addPrecisionToNumber } from '../../../helpers/tradeForm'
+import { orderType } from '../../../constants/Trade'
 
 const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
   const { state } = useContext(TradeContext)
-  const orderType = {
-    limit: 'Limit',
-    'stop-limit': 'Stop-Limit',
-    'stop-market': 'Stop-Market',
-  }
-
   const { selectedSymbolDetail } = useSymbolContext()
 
   return (

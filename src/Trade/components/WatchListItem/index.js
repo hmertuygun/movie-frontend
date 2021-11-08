@@ -1,7 +1,7 @@
 import { exchanges } from 'ccxt'
 import React, { useState } from 'react'
 import { X } from 'react-feather'
-import { exchangeCreationOptions } from '../../../Settings/Exchanges/ExchangeOptions'
+import { exchangeCreationOptions } from '../../../constants/ExchangeOptions'
 
 import { useSymbolContext } from '../../context/SymbolContext'
 import './style.css'

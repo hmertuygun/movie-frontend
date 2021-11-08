@@ -5,16 +5,13 @@ import { Bell } from 'react-feather'
 import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
+import { subscriptionNames } from '../../constants/subscriptionNames'
+
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
   const [payCrypto, setPayCrypto] = useState(false)
   const { cancel_at_period_end } = subscription
-
-  const subscriptionNames = {
-    month: 'Monthly',
-    year: 'Yearly',
-  }
 
   const getSubsName = () => {
     return subscriptionNames[subscription.items[0].plan.interval]

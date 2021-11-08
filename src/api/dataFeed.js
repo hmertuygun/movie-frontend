@@ -1,6 +1,5 @@
 import { getExchangeProp, execExchangeFunc } from '../helpers/getExchangeProp'
-import ccxt from 'ccxt'
-import { ccxtConfigs } from '../constants/ccxtConfigs'
+import { ccxtClass } from '../constants/ccxtConfigs'
 
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
@@ -15,8 +14,8 @@ export default class dataFeed {
     this.debug = debug
     this.socketClass = getExchangeProp(this.selectedExchange, 'socketClass')
     this.ws = new this.socketClass()
-    this.kucoin = new ccxt.kucoin(ccxtConfigs['kucoin'])
-    this.bybit = new ccxt.bybit(ccxtConfigs['bybit'])
+    this.kucoin = ccxtClass['kucoin']
+    this.bybit = ccxtClass['bybit']
   }
   onReady(callback) {
     setTimeout(() => {
@@ -57,7 +56,7 @@ export default class dataFeed {
           has_daily: true,
           has_weekly_and_monthly: true,
         })
-      }, 0)
+      }, 100)
     } catch (e) {
       console.log(e)
     }

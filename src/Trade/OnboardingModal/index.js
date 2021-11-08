@@ -17,23 +17,22 @@ import {
   options,
   validationRules,
   exchangeCreationOptions,
-} from '../../Settings/Exchanges/ExchangeOptions'
+} from '../../constants/ExchangeOptions'
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
+import { ONBOARDING_MODAL_TEXTS } from '../../constants/Trade'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
   const {
     loadApiKeys,
     setLoadApiKeys,
-    loadApiKeysError,
     isLoggedIn,
     setTotalExchanges,
     setActiveExchange,
     getSubscriptionsData,
     onTour,
     setOnTour,
-    setLoadApiKeysError,
     handleOnboardingSkip,
     isOnboardingSkipped,
   } = useContext(UserContext)
@@ -171,29 +170,6 @@ const OnboardingModal = () => {
     </>
   )
 
-  let btnText = {
-    1: {
-      primaryBtn: 'Continue with existing exchange account',
-      secBtn: 'Set up a new Binance account',
-      title: 'Exchange Setup',
-      heading: 'Welcome to CoinPanel!',
-      terBtn: 'Go to Chart Mirroring',
-      text1: 'You need a Binance Exchange account to use CoinPanel.',
-      text2:
-        'Do you have an existing account that you would like to connect, or would you like to create a new Binance account?',
-    },
-    2: {
-      primaryBtn: 'Continue',
-      secBtn: 'Go Back',
-      heading: 'Connect your exchange account',
-    },
-    3: {
-      primaryBtn: 'Start the CoinPanel experience',
-      secBtn: 'Checkout the tutorials',
-      heading: 'Exchange integration complete!',
-    },
-  }
-
   const onSecondaryBtnClick = () => {
     if (step === 1) {
       window.open('https://www.binance.com/en/register?ref=UR7ZCKEJ')
@@ -248,7 +224,7 @@ const OnboardingModal = () => {
     control: (styles) => ({
       ...styles,
       backgroundColor: '#eff2f7',
-      padding: '5px 5px',
+      padding: '7px 10px',
       border: 0,
       boxShadow: 'none',
       '& div': {
@@ -264,7 +240,7 @@ const OnboardingModal = () => {
     placeholder: (styles) => ({
       ...styles,
       color: '#273444',
-      fontWeight: 'bold',
+      fontWeight: 600,
     }),
   }
 
@@ -298,6 +274,7 @@ const OnboardingModal = () => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
+            rel="noreferrer"
           >
             <img
               src={props.data.image}
@@ -325,7 +302,9 @@ const OnboardingModal = () => {
         <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title h6">{btnText[step].title}</h5>
+              <h5 className="modal-title h6">
+                {ONBOARDING_MODAL_TEXTS[step].title}
+              </h5>
               <div>
                 <Link to="/settings">
                   <button type="button" className="px-0 py-0 mr-3 btn btn-link">
@@ -341,7 +320,7 @@ const OnboardingModal = () => {
             </div>
             <div className="modal-body">
               <div className="mb-3 ml-0 text-center row">
-                {Object.entries(btnText).map((item, index) => (
+                {Object.entries(ONBOARDING_MODAL_TEXTS).map((item, index) => (
                   <div className="pl-0 col-4" key={`progressbar-${item}`}>
                     <div
                       className="rounded-sm progress"
@@ -357,10 +336,10 @@ const OnboardingModal = () => {
                   </div>
                 ))}
               </div>
-              <h4>{btnText[step].heading}</h4>
+              <h4>{ONBOARDING_MODAL_TEXTS[step].heading}</h4>
               <div className={`step1 ${step === 1 ? 'd-show' : 'd-none'}`}>
-                <p className="lead">{btnText[step].text1}</p>
-                <p className="lead">{btnText[step].text2}</p>
+                <p className="lead">{ONBOARDING_MODAL_TEXTS[step].text1}</p>
+                <p className="lead">{ONBOARDING_MODAL_TEXTS[step].text2}</p>
               </div>
               <div className={`step2 ${step === 2 ? 'd-show' : 'd-none'}`}>
                 <p>
@@ -465,7 +444,7 @@ const OnboardingModal = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <div style={step === 1 ? { width: '40%' } : null}>
+              <div className={step === 1 ? 'modal-footer-action' : ''}>
                 {step !== 1 ? (
                   <button
                     type="button"
@@ -473,7 +452,7 @@ const OnboardingModal = () => {
                     onClick={onSecondaryBtnClick}
                     disabled={apiProc}
                   >
-                    {btnText[step].secBtn}
+                    {ONBOARDING_MODAL_TEXTS[step].secBtn}
                   </button>
                 ) : (
                   <Select
@@ -483,6 +462,7 @@ const OnboardingModal = () => {
                       IndicatorSeparator: () => null,
                       Option,
                     }}
+                    className="exchange-dropdown"
                     onChange={handleExchangeCreation}
                     styles={customStyles}
                     options={exchangeCreationOptions}
@@ -498,7 +478,7 @@ const OnboardingModal = () => {
                   disabled={step === 2 && apiProc}
                 >
                   {!apiProc ? (
-                    btnText[step].primaryBtn
+                    ONBOARDING_MODAL_TEXTS[step].primaryBtn
                   ) : (
                     <span
                       className="spinner-border spinner-border-sm"
@@ -514,28 +494,13 @@ const OnboardingModal = () => {
                   className="btn btn-secondary terBtn"
                   onClick={onTertiaryBtnClick}
                 >
-                  {btnText[step].terBtn}
+                  {ONBOARDING_MODAL_TEXTS[step].terBtn}
                 </button>
               )}
             </div>
           </div>
         </div>
       </div>
-      {/* <div
-        className={`modal fade docs-example-modal-lg pt-5 show`}
-        style={errorModalStyle}
-      >
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content">
-            <div className="modal-body">
-              <p className="lead lead-warning">
-                We are having difficulty reaching to CoinPanel servers. Your
-                trades are safe. Please refresh the page and try again.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </>
   )
 }

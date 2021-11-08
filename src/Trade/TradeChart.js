@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
@@ -153,16 +153,20 @@ const TradeChart = () => {
     return order.filter((item) => item.symbol.replace('-', '/') === symbol)
   }
 
-  const isLoadChart = () => {
+  const isLoadChart = useMemo(() => {
     return exchangeType && symbolType
-  }
+  }, [exchangeType, symbolType])
 
-  const getSymbolsLS = localStorage.getItem('symbolsKeyValue')
-  const symbolDetailsKeyValue = getSymbolsLS
-    ? JSON.parse(getSymbolsLS)
-    : symbolDetails
+  const getSymbolsLS = useMemo(
+    () => localStorage.getItem('symbolsKeyValue'),
+    [localStorage.getItem('symbolsKeyValue')]
+  )
+  const symbolDetailsKeyValue = useMemo(
+    () => (getSymbolsLS ? JSON.parse(getSymbolsLS) : symbolDetails),
+    [getSymbolsLS, symbolDetails]
+  )
 
-  const { intervals } = chartData || {}
+  const { intervals } = useMemo(() => chartData || {}, [chartData])
 
   return (
     <div
@@ -170,7 +174,7 @@ const TradeChart = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ width: '100%', height: '100%' }}
     >
-      {isLoadChart() ? (
+      {isLoadChart ? (
         <TradingViewChart
           email={userData?.email}
           theme={theme}

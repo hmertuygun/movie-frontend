@@ -6,7 +6,7 @@ import {
   successNotification,
 } from '../../components/Notifications'
 
-const QuickModal = ({ onClose, connected }) => {
+const TelegramSettingModal = ({ onClose, connected }) => {
   const connectTelegramLoadKeyQuery = useQuery(
     'connectTelegramLoadKey',
     connectTelegramLoadKey
@@ -119,4 +119,4 @@ const QuickModal = ({ onClose, connected }) => {
   )
 }
 
-export default QuickModal
+export default TelegramSettingModal

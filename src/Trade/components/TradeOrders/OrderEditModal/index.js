@@ -25,6 +25,7 @@ const OrderEditModal = ({
   targetOrders,
 }) => {
   const { activeExchange } = useContext(UserContext)
+  const { symbolDetails } = useSymbolContext()
 
   const [values, setValues] = useState({
     triggerPrice: '',
@@ -41,20 +42,31 @@ const OrderEditModal = ({
   const [selectedSymbolDetail, setselectedSymbolDetail] = useState(null)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState(0)
-  const isEntry = isFullTrade
-    ? selectedOrder.order_id === entryOrder.order_id
-    : false
-  const isStoploss = isFullTrade
-    ? selectedOrder.order_id === stoplossOrder.order_id
-    : false
-  const entryPrice =
-    entryOrder?.type === 'STOP-MARKET' ? entryOrder?.trigger : entryOrder?.price
+  const isEntry = useMemo(
+    () =>
+      isFullTrade ? selectedOrder.order_id === entryOrder.order_id : false,
+    [isFullTrade, selectedOrder, entryOrder]
+  )
+  const isStoploss = useMemo(
+    () =>
+      isFullTrade ? selectedOrder.order_id === stoplossOrder.order_id : false,
+    [isFullTrade, selectedOrder, stoplossOrder]
+  )
+  const entryPrice = useMemo(
+    () =>
+      entryOrder?.type === 'STOP-MARKET'
+        ? entryOrder?.trigger
+        : entryOrder?.price,
+    [entryOrder]
+  )
 
-  const { symbolDetails } = useSymbolContext()
-
-  const activeIndex = findIndex(targetOrders, {
-    order_id: selectedOrder.order_id,
-  })
+  const activeIndex = useMemo(
+    () =>
+      findIndex(targetOrders, {
+        order_id: selectedOrder.order_id,
+      }),
+    [selectedOrder, targetOrders]
+  )
 
   const nextTriggerPrice = useMemo(() => {
     const nextTarget =

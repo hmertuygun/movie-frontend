@@ -38,21 +38,23 @@ const Exchanges = () => {
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
-  let exchanges = []
+  const [exchanges, setExchanges] = useState([])
   const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
   useEffect(() => {
     exchangeQuery.refetch()
   }, [loadApiKeys])
 
-  if (exchangeQuery.data) {
-    exchanges = exchangeQuery.data?.data?.apiKeys
-    if (exchanges.length !== 0) {
-      setTotalExchanges(exchanges)
+  useEffect(() => {
+    if (exchangeQuery.data) {
+      setExchanges(exchangeQuery.data?.data?.apiKeys)
+      if (exchanges.length !== 0) {
+        setTotalExchanges(exchanges)
+      }
+    } else {
+      setExchanges(false)
     }
-  } else {
-    exchanges = false
-  }
+  }, [exchangeQuery.data, exchanges])
 
   const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: async (res) => {

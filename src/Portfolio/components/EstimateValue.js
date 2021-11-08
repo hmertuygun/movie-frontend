@@ -10,26 +10,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import CashoMeter from './CashoMeter'
 import './EstimateValue.css'
+import { currencySymbols, options } from '../../constants/EstimateValues'
 
 const EstimateValue = () => {
   const { estimate, lastMessage } = useContext(PortfolioContext)
   const [estData, setEstData] = useState([])
   const [currentCurrency, setCurrentCurrency] = useState('USDT')
   const [showOptions, setShowOptions] = useState(false)
+  const [BTC, setBTC] = useState()
+  const [currency, setCurrency] = useState()
   const closeDropDownRef = useRef()
-  const currencySymbols = {
-    USDT: 'dollar-sign',
-    EUR: 'euro-sign',
-    GBP: 'pound-sign',
-    AUD: 'dollar-sign',
-  }
-
-  const options = [
-    { value: 'USDT', label: 'USD' },
-    { value: 'EUR', label: 'EUR' },
-    { value: 'GBP', label: 'GBP' },
-    { value: 'AUD', label: 'AUD' },
-  ]
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside)
@@ -47,7 +37,12 @@ const EstimateValue = () => {
       tempBalance.push(data)
     })
     setEstData(() => [...tempBalance])
-  }, [estimate, lastMessage])
+    let btc = tempBalance && tempBalance.find((data) => data.symbol === 'BTC')
+    setBTC(btc)
+    let currencyValues =
+      tempBalance && tempBalance.find((data) => data.symbol === currentCurrency)
+    setCurrency(currencyValues)
+  }, [estimate, lastMessage, currency])
 
   useEffect(() => {
     if (!estimate?.length || !lastMessage) return
@@ -74,10 +69,6 @@ const EstimateValue = () => {
     setCurrentCurrency(value)
     localStorage.setItem('selectedCurrency', value)
   }
-
-  let BTC = estData && estData.find((data) => data.symbol === 'BTC')
-  let currency =
-    estData && estData.find((data) => data.symbol === currentCurrency)
 
   return (
     <>
