@@ -47,7 +47,7 @@ const EstimateValue = () => {
   useEffect(() => {
     if (!estimate?.length || !lastMessage) return
     fetchLatestPrice()
-  }, [estimate?.length, fetchLatestPrice, lastMessage])
+  }, [estimate?.length, lastMessage])
 
   useEffect(() => {
     let value = localStorage.getItem('selectedCurrency')
