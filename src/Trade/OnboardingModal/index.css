@@ -15,8 +15,16 @@
   margin-top: -1.5em;
 }
 
+.modal-footer-action {
+  width: 40%;
+}
+
 @media (max-width: 575.98px) {
   .terBtn {
+    width: 100%;
+  }
+
+  .modal-footer-action {
     width: 100%;
   }
 }

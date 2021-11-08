@@ -444,7 +444,7 @@ const OnboardingModal = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <div style={step === 1 ? { width: '40%' } : null}>
+              <div className={step === 1 ? 'modal-footer-action' : ''}>
                 {step !== 1 ? (
                   <button
                     type="button"
