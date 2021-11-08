@@ -104,15 +104,11 @@ export default class TradingViewChart extends Component {
       this.chartObject
         .onIntervalChanged()
         .subscribe(null, (interval, timeframeObj) => {
-          if (this.props.exchange === 'binance') {
-            localStorage.setItem('selectedIntervalBinance', interval)
-          } else if (this.props.exchange === 'ftx') {
-            localStorage.setItem('selectedIntervalFtx', interval)
-          } else if (this.props.exchange === 'binanceus') {
-            localStorage.setItem('selectedIntervalBinanceus', interval)
-          } else if (this.props.exchange === 'kucoin') {
-            localStorage.setItem('selectedIntervalKucoin', interval)
-          }
+          const capitilizedExchange =
+            this.props.exchange.charAt(0).toUpperCase() +
+            this.props.exchange.slice(1)
+          const itemName = `selectedInterval${capitilizedExchange}`
+          localStorage.setItem(itemName, interval)
         })
     } catch (e) {
       console.log(e)
@@ -121,23 +117,10 @@ export default class TradingViewChart extends Component {
 
   setLastSelectedInterval = () => {
     if (!this.chartObject) return
-    if (this.props.exchange === 'binance') {
-      this.chartObject.setResolution(
-        localStorage.getItem('selectedIntervalBinance') || '1D'
-      )
-    } else if (this.props.exchange === 'ftx') {
-      this.chartObject.setResolution(
-        localStorage.getItem('selectedIntervalFtx') || '1D'
-      )
-    } else if (this.props.exchange === 'binanceus') {
-      this.chartObject.setResolution(
-        localStorage.getItem('selectedIntervalBinanceus') || '1D'
-      )
-    } else if (this.props.exchange === 'kucoin') {
-      this.chartObject.setResolution(
-        localStorage.getItem('selectedIntervalKucoin') || '1D'
-      )
-    }
+    const capitilizedExchange =
+      this.props.exchange.charAt(0).toUpperCase() + this.props.exchange.slice(1)
+    const itemName = `selectedInterval${capitilizedExchange}`
+    this.chartObject.setResolution(localStorage.getItem(itemName) || '1D')
   }
 
   chartEvent = (event) => {
@@ -226,9 +209,7 @@ export default class TradingViewChart extends Component {
       if (!symbObj) return
       this.tradingViewWidget.setSymbol(newSymbol, symbObj.interval, () => {})
       // this.chartObject.setSymbol(newSymbol)
-    } catch (e) {
-      console.log(e)
-    }
+    } catch (e) {}
   }
 
   drawOpenOrdersChartLines = async (openOrders) => {
@@ -666,6 +647,7 @@ export default class TradingViewChart extends Component {
     if (props.theme !== this.state.theme)
       this.tradingViewWidget.changeTheme(this.state.theme)
     this.changeSymbol(this.state.symbol)
+
     if (prevProps.exchange !== this.props.exchange && this.props.exchange) {
       localStorage.setItem('selectedExchange', this.props.exchange)
       const newWidget = this.widgetOptions

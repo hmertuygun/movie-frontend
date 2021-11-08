@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { Button } from '../../../components'
 import { addPrecisionToNumber } from '../../../helpers/tradeForm'
 import { TradeContext } from '../../context/SimpleTradeContext'
@@ -7,17 +7,18 @@ import styles from './Table.module.css'
 import { UserContext } from '../../../contexts/UserContext'
 const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
   const { selectedSymbolDetail } = useSymbolContext()
+  const { activeExchange } = useContext(UserContext)
   const { removeEntry, removeStoploss, removeTarget } = useContext(TradeContext)
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+
+  const totalPrecision = useMemo(() => {
+    return selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
       ? 7
       : selectedSymbolDetail['quote_asset_precision']
-
-  // To calculate total, use entry price but use entry trigger for stop-market order
-  const entryPrice = entry.price || entry.trigger
-  const total = addPrecisionToNumber(
-    entryPrice * entry.quantity,
-    totalPrecision
+  }, [selectedSymbolDetail])
+  const entryPrice = useMemo(() => entry.price || entry.trigger, [entry])
+  const total = useMemo(
+    () => addPrecisionToNumber(entryPrice * entry.quantity, totalPrecision),
+    [entry, entryPrice, totalPrecision]
   )
 
   const onClick = ({ type, index }) => {
@@ -50,7 +51,7 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
         break
     }
   }
-  const { activeExchange } = useContext(UserContext)
+
   return (
     <>
       <div className={styles['trade-overview']}>

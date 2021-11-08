@@ -7,16 +7,15 @@ import React, {
   useCallback,
   useRef,
 } from 'react'
-import Select, { components } from 'react-select'
+import Select from 'react-select'
 import { Popover } from 'react-tiny-popover'
 import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
-import ccxtpro from 'ccxt.pro'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
-import { orderBy, template } from 'lodash'
+import { orderBy } from 'lodash'
 import { firebase } from '../firebase/firebase'
 import AddWatchListModal from './AddWatchListModal'
 import {
@@ -24,32 +23,12 @@ import {
   errorNotification,
 } from '../components/Notifications'
 import { exchangeCreationOptions } from '../constants/ExchangeOptions'
-
-const DEFAULT_WATCHLIST = 'Watch List'
+import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
+import { ccxtClass } from '../constants/ccxtConfigs'
 
 const WatchListPanel = () => {
-  const [binance, binanceus, kucoin] = [
-    new ccxtpro.binance({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.binanceus({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-      enableRateLimit: true,
-    }),
-  ]
-  const {
-    symbols,
-    isLoading,
-    isLoadingBalance,
-    pureData,
-    symbolDetails,
-    templateDrawingsOpen,
-    setSymbol,
-    watchlistOpen,
-  } = useSymbolContext()
+  const { symbols, symbolDetails, templateDrawingsOpen, setSymbol } =
+    useSymbolContext()
   const { userData } = useContext(UserContext)
 
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
@@ -61,7 +40,6 @@ const WatchListPanel = () => {
   const [watchLists, setWatchLists] = useState([])
   const [activeWatchList, setActiveWatchList] = useState()
   const [marketData, setMarketData] = useState([])
-  const [liveUpdate, setLiveUpdate] = useState(false)
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
@@ -79,19 +57,11 @@ const WatchListPanel = () => {
     try {
       db.collection('watch_list')
         .doc(userData.email)
-        .set(
-          {
-            activeList: DEFAULT_WATCHLIST,
-            lists: {
-              [DEFAULT_WATCHLIST]: { watchListName: DEFAULT_WATCHLIST },
-            },
-          },
-          { merge: true }
-        )
+        .set(WATCHLIST_INIT_STATE, { merge: true })
     } catch (err) {
       console.log(err)
     }
-  }, [userData.email])
+  }, [userData.email, db])
 
   useEffect(() => {
     if (!templateDrawingsOpen) {
@@ -146,16 +116,13 @@ const WatchListPanel = () => {
           .doc('sheldonthesniper01@gmail.com')
           .onSnapshot((snapshot) => {
             if (snapshot.data()) {
-              if (!snapshot.data()?.lists) {
-                // TODO IF SHELDONS WATCH LİST
-              }
               const lists = Object.keys(snapshot.data()?.lists)
               setWatchLists(snapshot.data()?.lists)
               const listsData = Object.values(snapshot.data()?.lists)
 
               setTemplateWatchlist(listsData)
               if (lists.length === 0) {
-                // TODO IF SHELDONS WATCH LİST
+                // TODO IF SHELDONS WATCH LIST IS EMPTY
               } else {
                 const activeList = listsData.find(
                   (list) => list.watchListName === snapshot.data()?.activeList
@@ -172,7 +139,7 @@ const WatchListPanel = () => {
             }
           })
       } catch (error) {
-        console.log('Cannot fetch watch lists')
+        console.log(`Cannot fetch Sniper's watch lists`)
       } finally {
         setLoading(false)
       }
@@ -182,6 +149,7 @@ const WatchListPanel = () => {
     initWatchList,
     userData.email,
     templateDrawingsOpen,
+    db,
   ])
 
   const useInterval = (callback, delay) => {
@@ -201,10 +169,6 @@ const WatchListPanel = () => {
       }
     }, [delay])
   }
-
-  useEffect(() => {
-    setItems()
-  }, [watchSymbolsList])
 
   useInterval(async () => {
     const symbolArray = []
@@ -253,7 +217,7 @@ const WatchListPanel = () => {
     }
   }
 
-  const setItems = async () => {
+  const setItems = useCallback(async () => {
     let obj = {}
     watchSymbolsList.forEach((sy) => {
       let exc = sy.value.split(':')[0].toLowerCase()
@@ -265,27 +229,22 @@ const WatchListPanel = () => {
     })
 
     for (const [key, value] of Object.entries(obj)) {
-      if (key == 'binance') {
-        if (binance.has['watchTicker']) {
-          Promise.all(value.map((symbol) => loop(binance, symbol)))
-        }
-      } else if (key == 'binanceus') {
-        if (binanceus.has['watchTicker']) {
-          Promise.all(value.map((symbol) => loop(binanceus, symbol)))
-        }
-      } else if (key == 'kucoin') {
-        if (kucoin.has['watchTicker']) {
-          Promise.all(value.map((symbol) => loop(kucoin, symbol)))
-        }
+      const ccxtExchange = ccxtClass[key]
+      if (ccxtExchange.has['watchTicker']) {
+        Promise.all(value.map((symbol) => loop(ccxtExchange, symbol)))
       }
     }
-  }
+  }, [watchSymbolsList])
 
   const getLogo = (symbol) => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
-    const obj = exchangeCreationOptions.find((sy) => sy.value == exchange)
+    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
     return obj.logo
   }
+
+  useEffect(() => {
+    setItems()
+  }, [watchSymbolsList, setItems])
 
   const customStyles = {
     control: (styles) => ({
@@ -356,7 +315,6 @@ const WatchListPanel = () => {
   }
 
   const selectedSymbols = useMemo(() => {
-    const { exchange } = activeExchange
     const selected = symbols.filter(
       (symbol) => !symbolsList.some((item) => item.value === symbol.value)
     )
@@ -369,7 +327,7 @@ const WatchListPanel = () => {
         }
       })
     return finalOptions
-  }, [symbols, activeExchange, symbolsList])
+  }, [symbols, symbolsList])
 
   const handleChange = async (symbol) => {
     const symbols = [...symbolsList, symbol].map((item) => ({

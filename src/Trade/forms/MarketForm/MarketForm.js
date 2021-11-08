@@ -1,15 +1,13 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import ccxt from 'ccxt'
-import { ccxtConfigs } from '../../../constants/ccxtConfigs'
+import { ccxtClass } from '../../../constants/ccxtConfigs'
 
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-  convertCommaNumberToDot,
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
@@ -322,50 +320,11 @@ const MarketForm = () => {
 
         const { exchange } = activeExchange
         let price = selectedSymbolLastPrice
-        switch (exchange) {
-          case 'binance': {
-            try {
-              const binance = new ccxt.binance(ccxtConfigs['binance'])
-              const response = await binance.fetchTicker(symbol)
-              price = response.last
-            } catch (error) {
-              console.log(error)
-            }
-            break
-          }
-          case 'binanceus': {
-            try {
-              const binanceus = new ccxt.binanceus(ccxtConfigs['binanceus'])
-              const response = await binanceus.fetchTicker(symbol)
-              price = response.last
-            } catch (error) {
-              console.log(error)
-            }
-            break
-          }
-          case 'ftx': {
-            try {
-              const ftx = new ccxt.ftx(ccxtConfigs['ftx'])
-              const response = await ftx.fetchTicker(symbol)
-              price = response.last
-            } catch (error) {
-              console.log(error)
-            }
-            break
-          }
-          case 'kucoin': {
-            try {
-              const kucoin = new ccxt.kucoin(ccxtConfigs['kucoin'])
-              const response = await kucoin.fetchTicker(symbol)
-              price = response.last
-            } catch (error) {
-              console.log(error)
-            }
-            break
-          }
-
-          default:
-            break
+        try {
+          const response = await ccxtClass[exchange].fetchTicker(symbol)
+          price = response.last
+        } catch (err) {
+          console.log(err)
         }
 
         setSelectedSymbolLastPrice(price)

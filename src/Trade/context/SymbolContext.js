@@ -5,7 +5,6 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
-import { backOff } from 'exponential-backoff'
 import ccxtpro from 'ccxt.pro'
 
 import {
@@ -15,12 +14,11 @@ import {
   getUserExchanges,
   getAllChartData,
   updateLastSelectedAPIKey,
-  get24hrTickerPrice,
-  getLastSelectedMarketSymbol,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { errorNotification } from '../../components/Notifications'
+import { ccxtClass } from '../../constants/ccxtConfigs'
 import { firebase } from '../../firebase/firebase'
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -30,12 +28,9 @@ const SymbolContextProvider = ({ children }) => {
     activeExchange,
     setActiveExchange,
     totalExchanges,
-    loaderVisible,
     setLoaderVisibility,
     setOpenOrdersUC,
     userData,
-    lastSelectedSymbol,
-    loadApiKeys,
     isOnboardingSkipped,
   } = useContext(UserContext)
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
@@ -82,18 +77,6 @@ const SymbolContextProvider = ({ children }) => {
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
-  const [binance, binanceus, kucoin] = [
-    new ccxtpro.binance({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.binanceus({
-      enableRateLimit: true,
-    }),
-    new ccxtpro.kucoin({
-      proxy: localStorage.getItem('proxyServer'),
-      enableRateLimit: true,
-    }),
-  ]
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -152,7 +135,6 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!selectedSymbol || !Object.keys(symbolDetails).length) return
-    const [baseAsset, qouteAsset] = selectedSymbol.label.split('-')
 
     //loadBalance(qouteAsset, baseAsset)
     loadLastPrice(selectedSymbol.label.replace('-', '/'))
@@ -160,14 +142,12 @@ const SymbolContextProvider = ({ children }) => {
 
   const setInitMarketData = async (symbol) => {
     let activeMarketData = {}
-    if (activeExchange.exchange == 'binance') {
-      activeMarketData = await binance.fetchTicker(symbol)
-    } else if (activeExchange.exchange == 'binanceus') {
-      activeMarketData = await binanceus.fetchTicker(symbol)
-    } else if (activeExchange.exchange == 'kucoin') {
-      activeMarketData = await kucoin.fetchTicker(symbol)
+    if (activeExchange?.exchange) {
+      const ccxtExchange = ccxtClass[activeExchange.exchange]
+      activeMarketData = await ccxtExchange.fetchTicker(symbol)
+
+      setMarketData(activeMarketData)
     }
-    setMarketData(activeMarketData)
   }
 
   useEffect(() => {
@@ -296,10 +276,9 @@ const SymbolContextProvider = ({ children }) => {
     try {
       setIsLoadingLastPrice(true)
       // setSelectedSymbolLastPrice(0)
-      const response = await backOff(
-        () =>
-          getLastPrice(symbolpair, exchangeParam || activeExchange?.exchange),
-        { jitter: 'full', numOfAttempts: 3, timeMultiple: 10 }
+      const response = await getLastPrice(
+        symbolpair,
+        exchangeParam || activeExchange?.exchange
       )
       if (response?.data?.last_price !== 'NA')
         setSelectedSymbolLastPrice(response.data.last_price)
@@ -438,6 +417,7 @@ const SymbolContextProvider = ({ children }) => {
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
     DEFAULT_SYMBOL_LOAD_DASH,
+    watchListOpen,
   ])
 
   const loadExchanges = async (symbol, exchange) => {
