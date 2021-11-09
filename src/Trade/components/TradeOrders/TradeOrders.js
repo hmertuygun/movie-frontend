@@ -85,12 +85,12 @@ const TradeOrders = () => {
       })
       .catch((e) => {
         console.log(e)
-        errorNotification.open({
-          description:
-            'Error fetching open orders! Your API key may expired, please check your API keys.',
-          duration: 20,
-          key: 'open_orders',
-        })
+        // errorNotification.open({
+        //   description:
+        //     'Error fetching open orders! Your API key may expired, please check your API keys.',
+        //   duration: 20,
+        //   key: 'open_orders',
+        // })
         setOpenOrderData([])
         setOpenOrderError(true)
       })

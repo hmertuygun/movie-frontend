@@ -151,18 +151,18 @@ const Security = () => {
               </div>
               {/* CHANGE PASSWORD */}
               <div>
-                <div class="page-inner-header mb-4">
-                  <h5 class="mb-1">Delete account</h5>
-                  <p class="text-muted mb-0">
+                <div className="page-inner-header mb-4">
+                  <h5 className="mb-1">Delete account</h5>
+                  <p className="text-muted mb-0">
                     Once you delete your account, there is no going back. Please
                     be certain.
                   </p>
                 </div>
-                <div class="row">
-                  <div class="col-md-8">
+                <div className="row">
+                  <div className="col-md-8">
                     <button
                       type="button"
-                      class="btn btn-danger"
+                      className="btn btn-danger"
                       onClick={() => setShowAccountDeleteModal(true)}
                     >
                       Delete your account
@@ -171,14 +171,16 @@ const Security = () => {
                 </div>
                 {showAccountDeleteModal && (
                   <Modal>
-                    <div class="modal-dialog modal-dialog-centered">
-                      <div class="modal-content">
-                        <div class="modal-body">
-                          <div class="pt-5 text-center">
-                            <div class="icon text-danger custom-icon-container">
+                    <div className="modal-dialog modal-dialog-centered">
+                      <div className="modal-content">
+                        <div className="modal-body">
+                          <div className="pt-5 text-center">
+                            <div className="icon text-danger custom-icon-container">
                               <UserX size={16} strokeWidth={3} />
                             </div>
-                            <h4 class="h5 mt-5 mb-3">Extremely important</h4>
+                            <h4 className="h5 mt-5 mb-3">
+                              Extremely important
+                            </h4>
                             <p>
                               We will immediately delete all of your personal
                               data from our database. This action can not be
@@ -186,11 +188,11 @@ const Security = () => {
                             </p>
                           </div>
                         </div>
-                        <div class="modal-footer">
+                        <div className="modal-footer">
                           <button
                             onClick={handleDeleteAccount}
                             type="button"
-                            class="btn btn-sm btn-link text-danger btn-zoom--hover font-weight-600"
+                            className="btn btn-sm btn-link text-danger btn-zoom--hover font-weight-600"
                           >
                             {accountDeleteLoading ? (
                               <span
@@ -204,7 +206,7 @@ const Security = () => {
                           </button>
                           <button
                             type="button"
-                            class="btn btn-sm btn-secondary"
+                            className="btn btn-sm btn-secondary"
                             onClick={() => setShowAccountDeleteModal(false)}
                           >
                             Cancel
