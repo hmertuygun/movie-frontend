@@ -34,7 +34,7 @@ const SubscriptionCard = ({ product }) => {
         line_items: [selectedPrice],
         success_url: window.location.origin,
         cancel_url: window.location.origin,
-        clientReferenceId: getFPTid(),
+        clientReferenceId: getFPTid,
         metadata: {
           key: 'value',
         },

@@ -62,7 +62,7 @@ const QuickRegister = () => {
         response.user
           .sendEmailVerification(actionCodeSettings)
           .then(async () => {
-            const refId = getFPTid()
+            const refId = getFPTid
             if (refId && response?.user) {
               try {
                 await firebase
