@@ -52,8 +52,9 @@ const SellLimitForm = () => {
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const totalPrecision =
-    symbolPair === 'ETHUSDT' ? 7 : selectedSymbolDetail['quote_asset_precision']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
   const quantityPrecision =
     selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
