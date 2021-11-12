@@ -4,7 +4,6 @@ import Table from '../../components/Table/Table'
 import { tableConstants } from './Table/tableConstant'
 import { PortfolioContext } from '../context/PortfolioContext'
 import Pagination from '../../components/Table/Pagination/Pagination'
-import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useCallback } from 'react'
 import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 
@@ -41,6 +40,8 @@ const BalanceTable = () => {
   }, [balance, setTableData, getTableData])
 
   const fetchLatestPrice = useCallback(() => {
+    if (!lastMessage) return
+
     const tempBalance = balance
     tempBalance.forEach((item, index, arr) => {
       const fData = lastMessage[`${item.SYMBOL}/BTC`]
@@ -52,9 +53,9 @@ const BalanceTable = () => {
   }, [balance, lastMessage])
 
   useEffect(() => {
-    if (!balance?.length || !lastMessage?.length) return
+    if (!balance?.length) return
     fetchLatestPrice()
-  }, [balance, lastMessage, fetchLatestPrice])
+  }, [balance, fetchLatestPrice])
 
   return (
     <>
