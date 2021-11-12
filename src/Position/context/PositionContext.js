@@ -31,17 +31,17 @@ const PositionCTXProvider = ({ children }) => {
       setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })
       if (data?.error) {
-        errorNotification.open({
-          description: 'Cannot fetch positions. Please try again later!',
-        })
+        // errorNotification.open({
+        //   description: 'Cannot fetch positions. Please try again later!',
+        // })
         console.log(data.error)
       } else if (data?.positions) {
         setPositions(data.positions)
       }
     } catch (error) {
-      errorNotification.open({
-        description: 'Cannot fetch positions. Please try again later!',
-      })
+      // errorNotification.open({
+      //   description: 'Cannot fetch positions. Please try again later!',
+      // })
       console.log(error)
     } finally {
       setIsLoading(false)
