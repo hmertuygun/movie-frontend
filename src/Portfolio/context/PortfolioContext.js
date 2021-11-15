@@ -4,13 +4,11 @@ import React, {
   useContext,
   createContext,
   useCallback,
-  useMemo,
 } from 'react'
 import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import ccxtpro from 'ccxt.pro'
-import { ccxtConfigs } from '../../constants/ccxtConfigs'
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -35,21 +33,18 @@ const PortfolioCTXProvider = ({ children }) => {
   const [user, setUser] = useState()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [marketData, setMarketData] = useState([])
-
-  const loop = async (ccxt, symbol) => {
-    while (true) {
-      try {
-        const message = await ccxt.watchTicker(symbol)
-
-        setLastMessage((lastMessage) => {
-          return { ...lastMessage, [message.symbol]: message }
-        })
-      } catch (error) {
-        console.error(error)
-        break
-      }
-    }
-  }
+  const [binance, binanceus, kucoin] = [
+    new ccxtpro.binance({
+      enableRateLimit: true,
+    }),
+    new ccxtpro.binanceus({
+      enableRateLimit: true,
+    }),
+    new ccxtpro.kucoin({
+      proxy: localStorage.getItem('proxyServer'),
+      enableRateLimit: true,
+    }),
+  ]
 
   const refreshData = useCallback(async () => {
     try {
@@ -61,39 +56,40 @@ const PortfolioCTXProvider = ({ children }) => {
         headers: await getHeaders(token),
         method: 'GET',
       })
-
-      const ccxt = new ccxtpro[activeExchange.exchange](
-        ccxtConfigs[activeExchange.exchange]
-      )
-
-      try {
-        exchanges.data.EstValue.forEach((element) => {
-          if (element.symbol !== 'BTC') {
-            if (ccxt.has['watchTicker']) {
-              loop(ccxt, `BTC/${element.symbol}`)
-            } else {
-              console.log(
-                `${activeExchange.exchange} doesn't support watchTicker`
-              )
+      let message = {}
+      if (activeExchange.exchange == 'binance') {
+        try {
+          let newData = await binance.fetchTickers()
+          exchanges.data.EstValue.forEach((element) => {
+            if (element.symbol !== 'BTC')
+              message[`BTC/${element.symbol}`] =
+                newData[`BTC/${element.symbol}`]
+          })
+          exchanges.data.BottomTable.forEach((element) => {
+            if (element.SYMBOL !== 'BTC' && element.SYMBOL !== 'USDT') {
+              message[`${element.SYMBOL}/BTC`] =
+                newData[`${element.SYMBOL}/BTC`]
+              message[`${element.SYMBOL}/USDT`] =
+                newData[`${element.SYMBOL}/USDT`]
             }
-          }
-        })
-        exchanges.data.BottomTable.forEach((element) => {
-          if (element.SYMBOL !== 'BTC' && element.SYMBOL !== 'USDT') {
-            if (ccxt.has['watchTicker']) {
-              loop(ccxt, `${element.SYMBOL}/BTC`)
-              loop(ccxt, `${element.SYMBOL}/USDT`)
-            } else {
-              console.log(
-                `${activeExchange.exchange} doesn't support watchTicker`
-              )
-            }
-          }
-        })
-      } catch (error) {
-        console.error(error)
+          })
+        } catch (error) {}
+      } else if (activeExchange.exchange == 'binanceus') {
+        try {
+          let newData = await binanceus.fetchTickers()
+          exchanges.data.EstValue.forEach((element) => {
+            message[`BTC/${element.symbol}`] = newData[`BTC/${element.symbol}`]
+          })
+        } catch (error) {}
+      } else if (activeExchange.exchange == 'kucoin') {
+        try {
+          let newData = await kucoin.fetchTickers()
+          exchanges.data.EstValue.forEach((element) => {
+            message[`BTC/${element.symbol}`] = newData[`BTC/${element.symbol}`]
+          })
+        } catch (error) {}
       }
-
+      setLastMessage(message)
       setTicker(exchanges.data)
       setBalance(exchanges.data.BottomTable)
       setChart(exchanges.data.Distribution)
@@ -101,7 +97,7 @@ const PortfolioCTXProvider = ({ children }) => {
 
       setLoading(false)
     } catch (error) {
-      console.error(error)
+      console.log(error)
       setLoading(false)
       setErrorLoading(true)
     }
