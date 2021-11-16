@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import OrderNotificationCard from './OrderNotificationCard'
 import OrderChannelCard from './OrderChannelCard'
 import { useQuery } from 'react-query'
@@ -16,17 +16,17 @@ const Notifications = () => {
   const notificationChannelsQuery = useQuery(
     'notification_channels',
     loadNotificationChannels,
-    { retry: false }
-  )
-
-  useEffect(() => {
-    if (notificationChannelsQuery.error) {
-      errorNotification.open({
-        description:
-          'Cannot fetch notification settings. Please try again later!',
-      })
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      onError: () => {
+        errorNotification.open({
+          description:
+            'Cannot fetch notification settings. Please try again later!',
+        })
+      },
     }
-  }, [notificationChannelsQuery.error])
+  )
 
   let notificationChannels = null
   if (notificationChannelsQuery.data) {
