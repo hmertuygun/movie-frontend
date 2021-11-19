@@ -1,0 +1,58 @@
+[
+  {
+    "id": "0",
+    "name": "Accounting"
+  },
+  {
+    "id": "1",
+    "name": "Communication"
+  },
+  {
+    "id": "2",
+    "name": "Finance"
+  },
+  {
+    "id": "3",
+    "name": "CRM and Sales"
+  },
+  {
+    "id": "4",
+    "name": "Customer support"
+  },
+  {
+    "id": "5",
+    "name": "Design and Creativity"
+  },
+  {
+    "id": "6",
+    "name": "E-commerce and Shopping"
+  },
+  {
+    "id": "7",
+    "name": "File sharing"
+  },
+  {
+    "id": "8",
+    "name": "Developer tools"
+  },
+  {
+    "id": "9",
+    "name": "Legal and HR"
+  },
+  {
+    "id": "10",
+    "name": "Marketing and Analitycs"
+  },
+  {
+    "id": "11",
+    "name": "Music and Art"
+  },
+  {
+    "id": "12",
+    "name": "Video and Entertainment"
+  },
+  {
+    "id": "13",
+    "name": "News and Politics"
+  }
+]

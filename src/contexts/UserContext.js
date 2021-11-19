@@ -342,7 +342,7 @@ const UserContextProvider = ({ children }) => {
       if (!hasKeys?.data?.apiKeys?.length && isOnboardingSkipped) {
         hasKeys = DEFAULT_EXCHANGE
       } else {
-        handleOnboardingShow()
+        await getChartMirroring()
       }
 
       if (hasKeys) {
@@ -505,7 +505,7 @@ const UserContextProvider = ({ children }) => {
     if (signedin) {
       await validateUser()
       let has2FADetails = null
-      getChartMirroring()
+      await getChartMirroring()
       try {
         getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()

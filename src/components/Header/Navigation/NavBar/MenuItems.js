@@ -76,6 +76,16 @@ const MenuItems = () => {
                       BETA
                     </span>
                   )}
+                  {item.title === 'Academy' && !isOnboardingSkipped && (
+                    <span
+                      className={`mt-3 badge badge-sm badge-success badge-pill badge-floating ${
+                        theme === 'DARK' ? 'border-dark' : 'border-white'
+                      }`}
+                      style={{ fontSize: '0.4rem', padding: '3px 5px' }}
+                    >
+                      NEW
+                    </span>
+                  )}
                 </NavLink>
               </>
             )}

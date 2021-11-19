@@ -25,6 +25,11 @@ export const MenuData = [
     id: 'cp-tour8',
   },
   {
+    title: 'Academy',
+    url: '/academy',
+    id: 'cp-tourPortfolio',
+  },
+  {
     title: 'Community',
     url: 'https://community.coinpanel.com/',
     externalLink: true,
