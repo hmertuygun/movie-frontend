@@ -22084,7 +22084,11 @@ textarea[resize='horizontal'] {
 .nav-link.active {
   font-weight: 600;
 
-  color: #273444;
+  color: rgba(0, 138, 255, 0.9)
+}
+
+.dark .nav-link.active {
+  color: white
 }
 
 @media (min-width: 992px) {

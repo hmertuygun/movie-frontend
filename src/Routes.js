@@ -49,6 +49,7 @@ const Settings = lazy(() => import('./views/Settings'))
 const Positions = lazy(() => import('./views/PositionView'))
 const Portfolio = lazy(() => import('./views/PortfolioView'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
+const Academy = lazy(() => import('./views/Academy'))
 
 const Routes = () => {
   const history = useHistory()
@@ -139,6 +140,9 @@ const Routes = () => {
               {!isOnboardingSkipped && (
                 <CacheRoute path="/positions" component={Positions} />
               )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/academy" component={Academy} />
+              )}
               <Redirect to="/trade" />
             </CacheSwitch>
           )}
@@ -152,6 +156,7 @@ const Routes = () => {
           <Route exact path="/register" component={Register} />
           <Route exact path="/chartmirroring" component={RegisterTwo} />
           <Route exact path="/register/confirm" component={RegisterConfirm} />
+          <Route exact path="/academy" component={Academy} />
           <Route
             exact
             path="/register/confirm/recieved"
