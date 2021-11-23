@@ -13,7 +13,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
   const getLogo = () => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
     const obj = exchangeCreationOptions.find((sy) => sy.value == exchange)
-    return obj.logo
+    return obj && obj.logo
   }
 
   return (

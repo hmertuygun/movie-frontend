@@ -144,8 +144,8 @@ const SymbolContextProvider = ({ children }) => {
     let activeMarketData = {}
     if (activeExchange?.exchange) {
       const ccxtExchange = ccxtClass[activeExchange.exchange]
-      activeMarketData = await ccxtExchange.fetchTicker(symbol)
-
+      activeMarketData =
+        ccxtExchange && (await ccxtExchange.fetchTicker(symbol))
       setMarketData(activeMarketData)
     }
   }
@@ -223,7 +223,6 @@ const SymbolContextProvider = ({ children }) => {
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
           loadLastPrice(symbolVal, exchangeVal)
-
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
         })
