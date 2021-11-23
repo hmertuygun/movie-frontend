@@ -92,6 +92,8 @@ export default class TradingViewChart extends Component {
         setIsChartReady(true)
         this.setState({ isChartReady: true })
         console.log('Chart loaded')
+        const theme = localStorage.getItem('theme')
+        this.tradingViewWidget.changeTheme(theme)
       })
     } catch (e) {
       console.log(e)
