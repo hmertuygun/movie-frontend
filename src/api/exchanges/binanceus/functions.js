@@ -1,17 +1,20 @@
 import { Binance } from '../binance/functions'
 
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  const url = `https://api.binance.us/api/v1/klines?symbol=${symbol}&interval=${interval}${
-    startTime ? `&startTime=${startTime}` : ''
-  }${endTime ? `&endTime=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
+  let currentSymbol = localStorage.getItem('selectedSymbol').split('/').join('')
+  if (symbol === currentSymbol) {
+    const url = `https://api.binance.us/api/v1/klines?symbol=${symbol}&interval=${interval}${
+      startTime ? `&startTime=${startTime}` : ''
+    }${endTime ? `&endTime=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
 
-  return fetch(url)
-    .then((res) => {
-      return res.json()
-    })
-    .then((json) => {
-      return json
-    })
+    return fetch(url)
+      .then((res) => {
+        return res.json()
+      })
+      .then((json) => {
+        return json
+      })
+  }
 }
 
 const editSymbol = ({ symbol }) => {

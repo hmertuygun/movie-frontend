@@ -33,12 +33,8 @@ export const ccxtClass = {
     proxy: localStorage.getItem('proxyServer'),
     rateLimit: true,
   }),
-  ftx: {
+  bybit: new ccxtPro.bybit({
     proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
-  bybit: {
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
+    ratelimit: true,
+  }),
 }

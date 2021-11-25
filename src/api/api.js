@@ -326,6 +326,26 @@ export async function getOpenOrders({
   return openOrders.data
 }
 
+export async function getAnalytics({
+  startDate,
+  endDate,
+  apiKeyName,
+  exchange,
+  skipCache,
+}) {
+  let apiUrl = `${process.env.REACT_APP_ANALYTICS_API}basic?api_key=${apiKeyName}&exchange=${exchange}`
+  if (startDate) apiUrl += `&start_date=${startDate}`
+  if (endDate) apiUrl += `&end_date=${endDate}`
+  if (skipCache) apiUrl += `&skip_cache=true`
+
+  const token = await firebase.auth().currentUser.getIdToken()
+  const { data } = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return data
+}
+
 export async function cancelTradeOrder({
   trade_id,
   symbol,

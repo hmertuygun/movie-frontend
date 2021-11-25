@@ -580,7 +580,9 @@ const UserContextProvider = ({ children }) => {
       .auth()
       .signOut()
       .then(() => {
+        const theme = localStorage.getItem('theme')
         localStorage.clear()
+        if (theme) localStorage.setItem('theme', theme)
         sessionStorage.clear()
         window.location = window.origin + '/login'
       })

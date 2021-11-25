@@ -1,15 +1,18 @@
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  const url = `https://cors.bridged.cc/https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${
-    startTime / 1000
-  }&endAt=${endTime / 1000}`
-  console.log(url)
-  return fetch(url)
-    .then((res) => {
-      return res.json()
-    })
-    .then((json) => {
-      return json.data
-    })
+  let currentSymbol = localStorage.getItem('selectedSymbol').split('/').join('')
+  if (symbol === currentSymbol) {
+    const url = `https://cors.bridged.cc/https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${
+      startTime / 1000
+    }&endAt=${endTime / 1000}`
+    console.log(url)
+    return fetch(url)
+      .then((res) => {
+        return res.json()
+      })
+      .then((json) => {
+        return json.data
+      })
+  }
 }
 
 const editSymbol = ({ symbol }) => {

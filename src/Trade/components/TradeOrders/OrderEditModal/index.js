@@ -105,83 +105,139 @@ const OrderEditModal = ({
   const formSchema = yup.object().shape(
     {
       triggerPrice: showTriggerPrice
-        ? yup
-            .number()
-            .required('Trigger price is required')
-            .typeError('Trigger price is required')
-            .min(
-              minPrice,
-              `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+        ? minPrice
+          ? yup
+              .number()
+              .required('Trigger price is required')
+              .typeError('Trigger price is required')
+              .min(
                 minPrice,
-                pricePrecision
-              )}`
-            )
-            .test(
-              'Trigger Price',
-              `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
-                entryPrice,
-                pricePrecision
-              )}`,
-              (value) =>
-                isFullTrade && !isStoploss && !isEntry
-                  ? value > entryPrice
-                  : true
-            )
-            .test(
-              'Trigger Price',
-              `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
-                prevTriggerPrice,
-                pricePrecision
-              )}`,
-              (value) =>
-                prevTriggerPrice
-                  ? isFullTrade && !isStoploss && !isEntry
-                    ? value > prevTriggerPrice
+                `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+                  minPrice,
+                  pricePrecision
+                )}`
+              )
+              .test(
+                'Trigger Price',
+                `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
+                  entryPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  isFullTrade && !isStoploss && !isEntry
+                    ? value > entryPrice
                     : true
-                  : true
-            )
-            .test(
-              'Trigger Price',
-              `Trigger Price must be lower than the Target ${
-                activeIndex + 2
-              } Price: ${addPrecisionToNumber(
-                nextTriggerPrice,
-                pricePrecision
-              )}`,
-              (value) =>
-                nextTriggerPrice
-                  ? isFullTrade && !isStoploss && !isEntry
-                    ? value < nextTriggerPrice
+              )
+              .test(
+                'Trigger Price',
+                `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
+                  prevTriggerPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  prevTriggerPrice
+                    ? isFullTrade && !isStoploss && !isEntry
+                      ? value > prevTriggerPrice
+                      : true
                     : true
-                  : true
-            )
-            .max(
-              maxPrice,
-              `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+              )
+              .test(
+                'Trigger Price',
+                `Trigger Price must be lower than the Target ${
+                  activeIndex + 2
+                } Price: ${addPrecisionToNumber(
+                  nextTriggerPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  nextTriggerPrice
+                    ? isFullTrade && !isStoploss && !isEntry
+                      ? value < nextTriggerPrice
+                      : true
+                    : true
+              )
+              .max(
                 maxPrice,
-                pricePrecision
-              )}`
-            )
+                `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+                  maxPrice,
+                  pricePrecision
+                )}`
+              )
+          : yup
+              .number()
+              .required('Trigger price is required')
+              .typeError('Trigger price is required')
+              .test(
+                'Trigger Price',
+                `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
+                  entryPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  isFullTrade && !isStoploss && !isEntry
+                    ? value > entryPrice
+                    : true
+              )
+              .test(
+                'Trigger Price',
+                `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
+                  prevTriggerPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  prevTriggerPrice
+                    ? isFullTrade && !isStoploss && !isEntry
+                      ? value > prevTriggerPrice
+                      : true
+                    : true
+              )
+              .test(
+                'Trigger Price',
+                `Trigger Price must be lower than the Target ${
+                  activeIndex + 2
+                } Price: ${addPrecisionToNumber(
+                  nextTriggerPrice,
+                  pricePrecision
+                )}`,
+                (value) =>
+                  nextTriggerPrice
+                    ? isFullTrade && !isStoploss && !isEntry
+                      ? value < nextTriggerPrice
+                      : true
+                    : true
+              )
+              .max(
+                maxPrice,
+                `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+                  maxPrice,
+                  pricePrecision
+                )}`
+              )
         : null,
       price: showPrice
-        ? yup
-            .number()
-            .required('Price is required')
-            .typeError('Price is required')
-            .min(
-              minPrice,
-              `Price needs to meet min-price: ${addPrecisionToNumber(
+        ? minPrice
+          ? yup
+              .number()
+              .required('Price is required')
+              .typeError('Price is required')
+              .min(
                 minPrice,
-                pricePrecision
-              )}`
-            )
-            .max(
-              maxPrice,
-              `Price needs to meet max-price: ${addPrecisionToNumber(
+                `Price needs to meet min-price: ${addPrecisionToNumber(
+                  minPrice,
+                  pricePrecision
+                )}`
+              )
+              .max(
                 maxPrice,
-                pricePrecision
-              )}`
-            )
+                `Price needs to meet max-price: ${addPrecisionToNumber(
+                  maxPrice,
+                  pricePrecision
+                )}`
+              )
+          : yup
+              .number()
+              .required('Price is required')
+              .typeError('Price is required')
         : null,
     },
     [

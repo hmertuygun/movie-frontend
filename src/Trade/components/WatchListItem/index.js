@@ -13,7 +13,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
   const getLogo = () => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
     const obj = exchangeCreationOptions.find((sy) => sy.value == exchange)
-    return obj.logo
+    return obj && obj.logo
   }
 
   return (
@@ -39,6 +39,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
           <img
             style={{ width: '18px', marginRight: '4px', marginTop: '-2px' }}
             src={getLogo()}
+            alt={symbol.label.replace('/', '-')}
           ></img>
         </span>
         {symbol.label.replace('/', '-')}

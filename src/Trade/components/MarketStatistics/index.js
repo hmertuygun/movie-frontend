@@ -20,7 +20,15 @@ function MarketStatistics() {
   useEffect(() => {
     if (!selectedSymbolDetail || !marketData) return
     setNewMessage(marketData)
-  }, [marketData])
+  }, [marketData, selectedSymbolDetail])
+
+  const fetchInterval = useMemo(() => {
+    if (selectedSymbolDetail?.value) {
+      let key = selectedSymbolDetail.value.split(':')[0].toLowerCase()
+      return key == 'bybit' ? 10000 : 700
+    }
+    return undefined
+  }, [selectedSymbolDetail])
 
   const setNewMessage = useCallback(
     ({
@@ -43,7 +51,6 @@ function MarketStatistics() {
         volume: baseVolume,
         quoteVolume,
       }
-
       let tickSize = TWO_DECIMAL_ARRAY.includes(quoteAsset)
         ? 2
         : selectedSymbolDetail.tickSize > 8
@@ -62,7 +69,7 @@ function MarketStatistics() {
       newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
 
       setMessage((prevMessage) => {
-        return { ...prevMessage, ...newMessage }
+        return newMessage
       })
     },
     [quoteAsset, selectedSymbolDetail]
@@ -73,7 +80,11 @@ function MarketStatistics() {
     let key = selectedSymbolDetail.value.split(':')[0].toLowerCase()
     try {
       const exchange = ccxtClass[key]
-      activeMarketData = await exchange.watch_ticker(symbolPair)
+      if (key == 'bybit') {
+        activeMarketData = await exchange.fetchTicker(symbolPair)
+      } else {
+        activeMarketData = await exchange.watchTicker(symbolPair)
+      }
       setNewMessage(activeMarketData)
     } catch (e) {
       console.log(e)
@@ -81,7 +92,7 @@ function MarketStatistics() {
   }, [selectedSymbolDetail, setNewMessage, symbolPair])
 
   useEffect(() => {
-    const id = setInterval(async () => await getData(), 1000)
+    const id = setInterval(async () => await getData(), fetchInterval)
 
     return () => {
       clearInterval(id)

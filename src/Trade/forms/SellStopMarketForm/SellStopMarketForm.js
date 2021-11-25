@@ -96,24 +96,29 @@ const SellStopMarketForm = () => {
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
-    price: yup
-      .number()
-      .required('Trigger Price is required')
-      .typeError('Trigger Price is required')
-      .min(
-        minPrice,
-        `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-          minPrice,
-          pricePrecision
-        )}`
-      )
-      .max(
-        maxPrice,
-        `Trigger Price needs to meet max-price: ${addPrecisionToNumber(
-          maxPrice,
-          pricePrecision
-        )}`
-      ),
+    triggerPrice: minPrice
+      ? yup
+          .number()
+          .required('Trigger price is required')
+          .typeError('Trigger price is required')
+          .min(
+            minPrice,
+            `Trigger price needs to meet min-price: ${addPrecisionToNumber(
+              minPrice,
+              pricePrecision
+            )}`
+          )
+          .max(
+            maxPrice,
+            `Trigger price needs to meet max-price: ${addPrecisionToNumber(
+              maxPrice,
+              pricePrecision
+            )}`
+          )
+      : yup
+          .number()
+          .required('Trigger price is required')
+          .typeError('Trigger price is required'),
     quantity: yup
       .number()
       .required('Amount is required')
@@ -363,6 +368,7 @@ const SellStopMarketForm = () => {
             trigger: convertCommaNumberToDot(values.price),
             quantity: convertCommaNumberToDot(values.quantity),
             price_trigger: values.price_trigger.value,
+            total: values.total,
           },
         }
         const { data } = await createBasicTrade(payload)

@@ -273,6 +273,7 @@ const OnboardingModal = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              maxHeight: '1rem',
             }}
             rel="noreferrer"
           >
@@ -284,6 +285,8 @@ const OnboardingModal = () => {
                   ? { width: 100 }
                   : props.data.value === 'kucoin'
                   ? { width: 105 }
+                  : props.data.value === 'bybit'
+                  ? { width: 80 }
                   : { width: 120 }
               }
             />

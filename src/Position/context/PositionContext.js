@@ -8,7 +8,7 @@ import React, {
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
-import ccxtpro from 'ccxt.pro'
+import { ccxtClass } from '../../constants/ccxtConfigs'
 
 export const PositionContext = createContext()
 
@@ -24,9 +24,7 @@ const PositionCTXProvider = ({ children }) => {
   const fetchPositionsList = useCallback(async () => {
     try {
       setIsLoading(true)
-      const ccxt = new ccxtpro[exchange]({
-        proxy: localStorage.getItem('proxyServer'),
-      })
+      const ccxt = ccxtClass[exchange]
       const message = await ccxt.fetchTickers()
       setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })

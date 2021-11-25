@@ -11,6 +11,7 @@ import TabContextProvider from './contexts/TabContext'
 import SymbolContextProvider from './Trade/context/SymbolContext'
 import PositionCTXProvider from './Position/context/PositionContext'
 import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
+import AnalyticsProvider from './Analytics/context/AnalyticsContext'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
@@ -34,12 +35,14 @@ export default function App() {
                 <TabContextProvider>
                   <PositionCTXProvider>
                     <PortfolioCTXProvider>
-                      <ErrorBoundary componentName="Header">
-                        <Suspense fallback={<div></div>}>
-                          <Header />
-                        </Suspense>
-                      </ErrorBoundary>
-                      <Routes />
+                      <AnalyticsProvider>
+                        <ErrorBoundary componentName="Header">
+                          <Suspense fallback={<div></div>}>
+                            <Header />
+                          </Suspense>
+                        </ErrorBoundary>
+                        <Routes />
+                      </AnalyticsProvider>
                     </PortfolioCTXProvider>
                   </PositionCTXProvider>
                 </TabContextProvider>

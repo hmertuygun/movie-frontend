@@ -44,6 +44,8 @@ const SymbolContextProvider = ({ children }) => {
     useState(false)
   const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] =
     useState(false)
+  const [disableAnalyticsRefreshBtn, setDisableAnalyticsRefreshBtn] =
+    useState(false)
   const [exchanges, setExchanges] = useState([])
   const [symbols, setSymbols] = useState([])
   const [symbolDetails, setSymbolDetails] = useState({})
@@ -66,6 +68,7 @@ const SymbolContextProvider = ({ children }) => {
   const [ftxDD, setFtxDD] = useState([])
   const [kucoinDD, setKucoinDD] = useState([])
   const [binanceUSDD, setBinanceUSDD] = useState([])
+  const [bybitDD, setBybitDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
@@ -77,6 +80,7 @@ const SymbolContextProvider = ({ children }) => {
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const positionTimeInterval = 20000
+  const analyticsTimeInterval = 20000
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,6 +88,7 @@ const SymbolContextProvider = ({ children }) => {
       const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
       const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
       const positionLS = localStorage.getItem('positionRefreshBtn')
+      const analyticsLS = localStorage.getItem('analyticsRefreshBtn')
 
       if (
         orderHistoryLS &&
@@ -101,6 +106,10 @@ const SymbolContextProvider = ({ children }) => {
       else setDisablePortfolioRefreshBtn(false)
 
       if (positionLS && Date.now() - positionLS < positionTimeInterval)
+        setDisablePositionRefreshBtn(true)
+      else setDisablePositionRefreshBtn(false)
+
+      if (analyticsLS && Date.now() - analyticsLS < analyticsTimeInterval)
         setDisablePositionRefreshBtn(true)
       else setDisablePositionRefreshBtn(false)
     }, 1000)
@@ -143,10 +152,13 @@ const SymbolContextProvider = ({ children }) => {
   const setInitMarketData = async (symbol) => {
     let activeMarketData = {}
     if (activeExchange?.exchange) {
-      const ccxtExchange = ccxtClass[activeExchange.exchange]
-      activeMarketData = await ccxtExchange.fetchTicker(symbol)
-
-      setMarketData(activeMarketData)
+      try {
+        const ccxtExchange = ccxtClass[activeExchange.exchange]
+        activeMarketData = await ccxtExchange.fetchTicker(symbol)
+        setMarketData(activeMarketData)
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -174,6 +186,9 @@ const SymbolContextProvider = ({ children }) => {
     } else if (type === 'position') {
       setDisablePositionRefreshBtn(true)
       localStorage.setItem('positionRefreshBtn', dateNow)
+    } else if (type === 'analytics') {
+      setDisableAnalyticsRefreshBtn(true)
+      localStorage.setItem('analyticsRefreshBtn', dateNow)
     }
   }
 
@@ -211,7 +226,7 @@ const SymbolContextProvider = ({ children }) => {
           localStorage.setItem('selectedSymbol', symbolVal)
           const [baseAsset, qouteAsset] = symbolVal.split('/')
           loadBalance(qouteAsset, baseAsset)
-          setInitMarketData(symbolVal)
+
           setSelectedSymbolDetail({
             base_asset: baseAsset,
             quote_asset: qouteAsset,
@@ -223,7 +238,6 @@ const SymbolContextProvider = ({ children }) => {
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
           loadLastPrice(symbolVal, exchangeVal)
-
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
         })
@@ -302,9 +316,9 @@ const SymbolContextProvider = ({ children }) => {
       setSymbolType(symbolT)
       setSelectedSymbolDetail(symbolDetails[symbol.value])
       setSelectedSymbol(symbol)
+      setInitMarketData(symbolT)
       if (!watchListOpen) {
         loadBalance(symbol.quote_asset, symbol.base_asset)
-        setInitMarketData(symbolT)
         try {
           await saveLastSelectedMarketSymbol(symbol.value)
         } catch (e) {
@@ -377,6 +391,7 @@ const SymbolContextProvider = ({ children }) => {
       binanceDD.length === 0 ||
       binanceUSDD.length === 0 ||
       kucoinDD.length === 0 ||
+      bybitDD.length === 0 ||
       !exchangeType ||
       !symbolType ||
       watchListOpen
@@ -394,6 +409,9 @@ const SymbolContextProvider = ({ children }) => {
         break
       case 'kucoin':
         selectedDD = [...kucoinDD]
+        break
+      case 'bybit':
+        selectedDD = [...bybitDD]
         break
 
       default:
@@ -414,6 +432,7 @@ const SymbolContextProvider = ({ children }) => {
     binanceDD,
     binanceUSDD,
     kucoinDD,
+    bybitDD,
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
     DEFAULT_SYMBOL_LOAD_DASH,
@@ -429,11 +448,12 @@ const SymbolContextProvider = ({ children }) => {
         return
       }
 
-      const [binance, ftx, binanceus, kucoin] = data.exchanges
+      const [binance, ftx, binanceus, kucoin, bybit] = data.exchanges
       setSymbols(() => [
         ...binance.symbols,
         ...binanceus.symbols,
         ...kucoin.symbols,
+        ...bybit.symbols,
       ])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
@@ -444,6 +464,7 @@ const SymbolContextProvider = ({ children }) => {
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
       setKucoinDD(() => kucoin.symbols)
+      setBybitDD(() => bybit.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -504,6 +525,7 @@ const SymbolContextProvider = ({ children }) => {
         disableOpenOrdersRefreshBtn,
         disablePortfolioRefreshBtn,
         disablePositionRefreshBtn,
+        disableAnalyticsRefreshBtn,
         orderHistoryTimeInterval,
         openOrdersTimeInterval,
         positionTimeInterval,
@@ -535,6 +557,7 @@ const SymbolContextProvider = ({ children }) => {
         binanceUSDD,
         ftxDD,
         kucoinDD,
+        bybitDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,

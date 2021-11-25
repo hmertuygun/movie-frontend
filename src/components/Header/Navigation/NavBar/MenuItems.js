@@ -66,14 +66,14 @@ const MenuItems = () => {
                   to={item.url}
                 >
                   {item.title}
-                  {item.title === 'Positions' && !isOnboardingSkipped && (
+                  {item.title === 'Analytics' && !isOnboardingSkipped && (
                     <span
-                      className={`mt-3 badge badge-sm badge-danger badge-pill badge-floating ${
+                      className={`mt-3 badge badge-sm badge-success badge-pill badge-floating ${
                         theme === 'DARK' ? 'border-dark' : 'border-white'
                       }`}
                       style={{ fontSize: '0.4rem', padding: '3px 5px' }}
                     >
-                      BETA
+                      NEW
                     </span>
                   )}
                   {item.title === 'Academy' && !isOnboardingSkipped && (

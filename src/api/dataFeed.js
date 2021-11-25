@@ -106,8 +106,8 @@ export default class dataFeed {
         ) {
           let data = []
           if (
-            this.selectedExchange == 'binance' ||
-            this.selectedExchange == 'binanceus'
+            this.selectedExchange === 'binance' ||
+            this.selectedExchange === 'binanceus'
           ) {
             data = await execExchangeFunc(this.selectedExchange, 'getKlines', {
               symbol: symbolAPI,
@@ -116,7 +116,7 @@ export default class dataFeed {
               endTime: to,
               limit: kLinesLimit,
             })
-          } else if (this.selectedExchange == 'kucoin') {
+          } else if (this.selectedExchange === 'kucoin') {
             try {
               data = await this.kucoin.fetchOHLCV(
                 symbolAPI,
@@ -125,13 +125,13 @@ export default class dataFeed {
             } catch (error) {
               console.log('bad symbol')
             }
-          } else if (this.selectedExchange == 'bybit') {
+          } else if (this.selectedExchange === 'bybit') {
             kLinesLimit = 200
             try {
               data = await this.bybit.fetchOHLCV(
                 symbolAPI,
                 this.mappedResolutions[resolution],
-                from
+                from + 1000
               )
             } catch (error) {
               console.log('bad symbol', error)
@@ -148,7 +148,7 @@ export default class dataFeed {
         }
       } catch (e) {
         console.error(e)
-        onErrorCallback(`Error in 'getKlines' func`)
+        onErrorCallback(`Error in 'getKlines' function`)
       }
     }
 
