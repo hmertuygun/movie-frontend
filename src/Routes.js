@@ -48,6 +48,7 @@ const TradeView = lazy(() => import('./views/TradeView'))
 const Settings = lazy(() => import('./views/Settings'))
 const Positions = lazy(() => import('./views/PositionView'))
 const Portfolio = lazy(() => import('./views/PortfolioView'))
+const Analytics = lazy(() => import('./views/Analytics'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
 const Academy = lazy(() => import('./views/Academy'))
 
@@ -139,6 +140,9 @@ const Routes = () => {
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/positions" component={Positions} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute path="/analytics" component={Analytics} />
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/academy" component={Academy} />

@@ -39,6 +39,7 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
           <img
             style={{ width: '18px', marginRight: '4px', marginTop: '-2px' }}
             src={getLogo()}
+            alt={symbol.label.replace('/', '-')}
           ></img>
         </span>
         {symbol.label.replace('/', '-')}

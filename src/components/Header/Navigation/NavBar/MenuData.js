@@ -4,15 +4,19 @@ export const MenuData = [
     url: '/trade',
     id: 'cp-tour2',
   },
-  {
-    title: 'Positions',
-    url: '/positions',
-    id: 'cp-tourPositions',
-  },
+  // {
+  //   title: 'Positions',
+  //   url: '/positions',
+  //   id: 'cp-tourPositions',
+  // },
   {
     title: 'Portfolio',
     url: '/portfolio',
     id: 'cp-tourPortfolio',
+  },
+  {
+    title: 'Analytics',
+    url: '/analytics',
   },
   // {
   //   title: 'Price Alerts',

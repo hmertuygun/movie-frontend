@@ -19,6 +19,12 @@ export const options = [
     placeholder: 'KuCoin',
     fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
   },
+  {
+    value: 'bybit',
+    label: 'ByBit',
+    placeholder: 'ByBit',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+  },
 ]
 
 export const validationRules = {
@@ -60,5 +66,12 @@ export const exchangeCreationOptions = [
     image: 'img/svg/exchange/kucoin.svg',
     logo: 'img/icons/brands/kucoin.svg',
     label: 'KuCoin',
+  },
+  {
+    value: 'bybit',
+    url: 'https://www.bybit.com/register',
+    image: 'img/svg/exchange/bybit.svg',
+    logo: 'img/icons/brands/ByBit_Icon.png',
+    label: 'ByBit',
   },
 ]

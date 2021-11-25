@@ -8,7 +8,7 @@ const SubscriptionCard = ({ product }) => {
   const currentUser = auth.currentUser
   const db = firebase.firestore()
   const { name, prices } = product
-
+  console.log(product)
   // only support one price
   const price = prices[0]
 
