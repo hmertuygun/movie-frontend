@@ -96,7 +96,7 @@ const SellStopMarketForm = () => {
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
-    triggerPrice: minPrice
+    price: minPrice
       ? yup
           .number()
           .required('Trigger price is required')
