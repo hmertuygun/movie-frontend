@@ -54,7 +54,7 @@ const MobileTab = () => {
             <NavLink
               activeClassName="nav-link active"
               className="nav-link"
-              to="/positions"
+              to="/analytics"
             >
               <div className="svg-icon">
                 <FontAwesomeIcon icon={faPercentage} size="2x" />
