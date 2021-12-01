@@ -55,7 +55,7 @@ const TradeContainer = () => {
   const resizeCallBack = useCallback(
     (entries, observer) => {
       const { contentRect } = entries[0]
-      setOrderHeight(totalHeight - contentRect.height + 200 + 'px')
+      setOrderHeight(totalHeight - contentRect.height - 138 + 'px')
     },
     [totalHeight]
   )
@@ -325,7 +325,7 @@ const TradeContainer = () => {
                   isOnboardingSkipped ? 'chart-order-view-position' : ''
                 }`}
                 style={{
-                  height: orderHeight,
+                  minHeight: orderHeight,
                   display: watchListOpen ? 'none' : '',
                 }}
               >

@@ -76,7 +76,6 @@
 }
 
 .TradeOrders {
-  height: 40vh;
   background: var(--trade-background);
   border-top: 4px solid var(--trade-borders);
 }
