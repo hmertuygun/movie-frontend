@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
+import { UserContext } from '../../contexts/UserContext'
 import { options, validationRules } from '../../constants/ExchangeOptions'
 import { supportLinks } from '../../constants/SupportLinks'
 import {
@@ -11,8 +12,8 @@ import {
 } from '../../constants/QuickModal'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
+  const { isPaidUser } = useContext(UserContext)
   const [exchange, setExchange] = useState(defaultExchange)
-
   const [apiName, setApiName] = useState('')
   const [validation, setValidation] = useState({})
   const [exchangeForm, setExchangeForm] = useState()
@@ -22,6 +23,15 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     ...errorInitialValues,
     ...exchangeForm,
   })
+
+  const exchangeOptions = useMemo(() => {
+    return options.map((element) => {
+      if (element.value === 'bybit' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+      return element
+    })
+  }, [isPaidUser])
 
   const setExchangeFormFields = () => {
     let exchangeFields = {}
@@ -169,7 +179,20 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                       validateInput({ name: 'exchange', value: exchange.value })
                     }}
                     styles={customStyles}
-                    options={options}
+                    options={exchangeOptions}
+                    formatOptionLabel={(element) => (
+                      <div>
+                        <span>{element.placeholder}</span>
+                        {!isPaidUser && element.value === 'bybit' && (
+                          <span
+                            style={{ marginLeft: '1rem' }}
+                            class="badge badge-warning"
+                          >
+                            Only paid users
+                          </span>
+                        )}
+                      </div>
+                    )}
                   />
                 </div>
                 {renderInputValidationError('exchange')}

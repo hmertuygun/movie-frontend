@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { firebase, auth } from '../../firebase/firebase'
 import { Bell } from 'react-feather'
+import { coinBaseUrls } from '../../constants/coinbaseUrls'
 
 const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
@@ -15,6 +16,10 @@ const SubscriptionCard = ({ product }) => {
   const getFPTid = useMemo(() => {
     return window.FPROM && window.FPROM.data.tid
   }, [])
+
+  const redirectForCrypto = (type) => {
+    return (window.location = coinBaseUrls[type])
+  }
 
   const subscribe = async (e) => {
     setSubscribing(true)
@@ -104,6 +109,14 @@ const SubscriptionCard = ({ product }) => {
                 </div>
               </>
             )}
+          </div>
+          <div className="col-auto flex-fill mt-3 mt-sm-0 text-sm-right">
+            <div
+              className="btn btn-sm btn-neutral rounded-pill"
+              onClick={() => redirectForCrypto(price.interval)}
+            >
+              Pay with Crypto
+            </div>
           </div>
         </div>
       </div>
