@@ -12,7 +12,9 @@ import { getAnalytics } from '../../api/api'
 export const AnalyticsContext = createContext()
 
 const AnalyticsProvider = ({ children }) => {
-  const [tickers, setTicker] = useState()
+  const [pairOperations, setPairOperations] = useState()
+  const [pairPerformance, setPairPerformance] = useState()
+  const [assetPerformance, setAssetPerformance] = useState()
   const [loading, setLoading] = useState(false)
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
@@ -30,7 +32,10 @@ const AnalyticsProvider = ({ children }) => {
       if (skipCache) payload.skipCache = skipCache
 
       const analytics = await getAnalytics(payload)
-      setTicker(analytics.data)
+      setPairOperations(analytics.pair_operations)
+      setPairPerformance(analytics.pair_performance)
+      setAssetPerformance(analytics.asset_performance)
+
       setLoading(false)
     } catch (error) {
       console.log(error)
@@ -63,7 +68,9 @@ const AnalyticsProvider = ({ children }) => {
     <AnalyticsContext.Provider
       value={{
         loading,
-        tickers,
+        pairOperations,
+        pairPerformance,
+        assetPerformance,
         refreshData,
         error,
       }}

@@ -57,3 +57,106 @@ export const tableConstants = (handleEdit) => {
       }, */
   ]
 }
+
+export const assetPerformanceTable = (handleEdit) => {
+  return [
+    {
+      title: 'ASSET',
+      render: (rowData) => {
+        return rowData.asset
+      },
+    },
+    {
+      title: 'VALUE',
+      render: (rowData) => {
+        if (rowData.value > 0) {
+          return (
+            <span
+              style={{ fontSize: '0.8rem' }}
+              className="badge badge-success"
+            >
+              {rowData.value}
+            </span>
+          )
+        } else if (rowData.value === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
+              {rowData.value}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
+              {rowData.value}
+            </span>
+          )
+        }
+      },
+    },
+  ]
+}
+
+export const pairPerformanceTable = (handleEdit) => {
+  return [
+    {
+      title: 'SYMBOL',
+      render: (rowData) => {
+        return rowData.symbol
+      },
+    },
+    {
+      title: 'QUOTE',
+      render: (rowData) => {
+        if (rowData.quote > 0) {
+          return (
+            <span
+              style={{ fontSize: '0.8rem' }}
+              className="badge badge-success"
+            >
+              {rowData.quote}
+            </span>
+          )
+        } else if (rowData.quote === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
+              {rowData.quote}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
+              {rowData.quote}
+            </span>
+          )
+        }
+      },
+    },
+    {
+      title: 'BASE',
+      render: (rowData) => {
+        if (rowData.base > 0) {
+          return (
+            <span
+              style={{ fontSize: '0.8rem' }}
+              className="badge badge-success"
+            >
+              {rowData.base}
+            </span>
+          )
+        } else if (rowData.base === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
+              {rowData.base}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
+              {rowData.base}
+            </span>
+          )
+        }
+      },
+    },
+  ]
+}

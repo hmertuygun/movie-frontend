@@ -333,7 +333,7 @@ export async function getAnalytics({
   exchange,
   skipCache,
 }) {
-  let apiUrl = `${process.env.REACT_APP_ANALYTICS_API}basic?api_key=${apiKeyName}&exchange=${exchange}`
+  let apiUrl = `${process.env.REACT_APP_ANALYTICS_API}?api_key=${apiKeyName}&exchange=${exchange}`
   if (startDate) apiUrl += `&start_date=${startDate}`
   if (endDate) apiUrl += `&end_date=${endDate}`
   if (skipCache) apiUrl += `&skip_cache=true`
