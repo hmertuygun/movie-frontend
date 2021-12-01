@@ -379,7 +379,7 @@ export async function getOrdersHistory({
     apiKeyName +
     '&exchange=' +
     capitalize(exchange) +
-    (updateTime ? '&updateTime=' + updateTime : '') +
+    (updateTime ? '&updateTime=' + parseInt(updateTime) : '') +
     (symbol ? '&symbol=' + symbol : '') +
     (orderId ? '&orderId=' + orderId : '')
 
