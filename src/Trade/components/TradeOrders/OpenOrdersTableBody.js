@@ -351,7 +351,7 @@ const OpenOrdersTableBody = ({
     <div
       style={{
         minHeight: '90px',
-        overflowY: data.length ? 'scroll' : 'hidden',
+        overflowY: data.length ? 'auto' : 'hidden',
         overflowX: 'auto',
       }}
     >

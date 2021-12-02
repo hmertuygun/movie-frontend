@@ -127,7 +127,7 @@ const OrderHistoryTableBody = ({
     <div
       className="ordersTable"
       style={{
-        overflowY: data.length ? 'scroll' : 'hidden',
+        overflowY: data.length ? 'auto' : 'hidden',
         overflowX: 'auto',
         marginRight: '-12px',
         paddingBottom: '12px',

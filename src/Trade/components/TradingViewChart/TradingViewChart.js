@@ -27,6 +27,7 @@ export default class TradingViewChart extends Component {
     drawingRendered,
     templateDrawings,
     templateDrawingsOpen,
+    selectEmojiPopoverOpen,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -53,6 +54,7 @@ export default class TradingViewChart extends Component {
       symbol,
       theme,
     }
+    console.log(symbol)
     this.tradingViewWidget = null
     this.chartObject = null
     this.orderLinesDrawn = []
@@ -189,12 +191,33 @@ export default class TradingViewChart extends Component {
         }
 
         if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+          let value = {
+            drawings: str,
+            ...(this.props.templateDrawings &&
+              this.props.templateDrawings.email && {
+                name: this.props.templateDrawings.email,
+              }),
+            ...(this.props.templateDrawings &&
+              this.props.templateDrawings.email && {
+                nickname: this.props.templateDrawings.email,
+              }),
+            ...(this.props.templateDrawings &&
+              this.props.templateDrawings.emojis && {
+                flags: this.props.templateDrawings.emojis,
+              }),
+            ...(this.props.templateDrawings &&
+              this.props.templateDrawings.lastUpdate && {
+                lastUpdate: this.props.templateDrawings.lastUpdate,
+              }),
+          }
+
           await db
             .collection('template_drawings')
             .doc(this.state.email)
-            .set({ drawings: str })
+            .set({ ...value }, { merge: true })
         }
       } catch (e) {
+        console.log(e)
         errorNotification.open({
           description: e.message,
         })

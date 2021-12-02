@@ -6,29 +6,19 @@ import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { subscriptionNames } from '../../constants/subscriptionNames'
+import dayjs from 'dayjs'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
-  const [payCrypto, setPayCrypto] = useState(false)
   const { cancel_at_period_end } = subscription
 
   const getSubsName = () => {
-    return subscriptionNames[subscription.items[0].plan.interval]
+    return subscription.type !== 'crypto'
+      ? subscriptionNames[subscription.items[0].plan.interval]
+      : 'Crypto'
   }
-
-  const isDiscount = () => {
-    const date1 = new Date(subscription.current_period_end.seconds * 1000)
-    const isOver = new Date() > date1
-    const diffTime = Math.abs(new Date() - date1)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return (
-      (subscription.status == 'trialing' && diffDays < 15) ||
-      (subscription.status == 'active' &&
-        subscription.items[0].plan.interval == 'month')
-    )
-  }
-
+  console.log(priceData)
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
@@ -129,17 +119,27 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               ) : (
                 <div className="media-body">
                   <h5 className="mb-0">{getSubsName()} Subscription</h5>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    You are paying {` `}
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: priceData?.currency,
-                    }).format((priceData?.unit_amount / 100).toFixed(2))}
-                    {` `}
-                    per {priceData?.interval}
-                    {` `}
-                  </p>
-                  {!cancel_at_period_end ? (
+                  {subscription.type !== 'crypto' ? (
+                    <p className="mb-0 text-sm text-muted lh-150">
+                      You are paying {` `}
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: priceData?.currency,
+                      }).format((priceData?.unit_amount / 100).toFixed(2))}
+                      {` `}
+                      per {priceData?.interval}
+                      {` `}
+                    </p>
+                  ) : (
+                    <p className="mb-0 text-sm text-muted lh-150">
+                      You paid {`${priceData.unit_amount}${priceData.currency}`}
+                      . Subscription needs to be renewed after{' '}
+                      {dayjs(subscriptionData.due * 1000).format(
+                        'hh:mm A MMMM DD, YYYY'
+                      )}
+                    </p>
+                  )}
+                  {!cancel_at_period_end && subscription.type !== 'crypto' ? (
                     <p className="mb-0 text-sm text-muted lh-150">
                       Your subscription will auto-renew on {` `}
                       <Moment unix format="hh:mm A MMMM DD, YYYY">
@@ -151,24 +151,26 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
               )}
             </div>
           </div>
-          <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right">
-            {portalLoading ? (
-              <div className="btn btn-sm btn-neutral rounded-pill">
-                <span
-                  className="spinner-border spinner-border-sm"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-              </div>
-            ) : (
-              <div
-                className="btn btn-sm btn-neutral rounded-pill"
-                onClick={() => toCustomerPortal(needPayment)}
-              >
-                {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
-              </div>
-            )}
-          </div>
+          {subscription.type !== 'crypto' && (
+            <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right">
+              {portalLoading ? (
+                <div className="btn btn-sm btn-neutral rounded-pill">
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                </div>
+              ) : (
+                <div
+                  className="btn btn-sm btn-neutral rounded-pill"
+                  onClick={() => toCustomerPortal(needPayment)}
+                >
+                  {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

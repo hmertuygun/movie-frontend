@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Select, { components } from 'react-select'
 import * as yup from 'yup'
@@ -35,6 +35,7 @@ const OnboardingModal = () => {
     setOnTour,
     handleOnboardingSkip,
     isOnboardingSkipped,
+    isPaidUser,
   } = useContext(UserContext)
   const history = useHistory()
 
@@ -62,6 +63,24 @@ const OnboardingModal = () => {
     ...errorInitialValues,
     ...exchangeForm,
   })
+
+  const exchangeOptions = useMemo(() => {
+    return options.map((element) => {
+      if (element.value === 'bybit' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+      return element
+    })
+  }, [isPaidUser])
+
+  const newExchangeOptions = useMemo(() => {
+    return options.map((element) => {
+      if (element.value === 'bybit' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+      return element
+    })
+  }, [isPaidUser])
 
   const setExchangeFormFields = () => {
     let exchangeFields = {}
@@ -272,7 +291,7 @@ const OnboardingModal = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'left',
               maxHeight: '1rem',
             }}
             rel="noreferrer"
@@ -290,6 +309,14 @@ const OnboardingModal = () => {
                   : { width: 120 }
               }
             />
+            {!isPaidUser && props.data.value === 'bybit' && (
+              <span
+                style={{ marginLeft: '1rem' }}
+                className="badge badge-warning"
+              >
+                Only paid users
+              </span>
+            )}
           </a>
         </components.Option>
       </>
@@ -372,7 +399,20 @@ const OnboardingModal = () => {
                         })
                       }}
                       styles={customStyles}
-                      options={options}
+                      options={exchangeOptions}
+                      formatOptionLabel={(element) => (
+                        <div key={element.value}>
+                          <span>{element.placeholder}</span>
+                          {!isPaidUser && element.value === 'bybit' && (
+                            <span
+                              style={{ marginLeft: '1rem' }}
+                              className="badge badge-warning"
+                            >
+                              Only paid users
+                            </span>
+                          )}
+                        </div>
+                      )}
                     />
                   </div>
                   {renderInputValidationError('exchange')}

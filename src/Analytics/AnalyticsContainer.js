@@ -6,6 +6,8 @@ import { AnalyticsContext } from './context/AnalyticsContext'
 import Tooltip from '../components/Tooltip'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import AnalyticsTable from './components/AnalyticsTable'
+import AssetPerformance from './components/AssetPerformance'
+import PairPerformance from './components/PairPerformance'
 
 function AnalyticsContainer() {
   const { refreshData, loading } = useContext(AnalyticsContext)
@@ -70,6 +72,14 @@ function AnalyticsContainer() {
                       </button>
                     </div>
                   )}
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-lg-6">
+                  <AssetPerformance />
+                </div>
+                <div className="col-lg-6">
+                  <PairPerformance />
                 </div>
               </div>
               <div className="row">

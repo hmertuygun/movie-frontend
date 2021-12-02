@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import 'react-datepicker/dist/react-datepicker.css'
 
 const AnalyticsTable = () => {
-  const { tickers, refreshData } = useContext(AnalyticsContext)
+  const { pairOperations, refreshData } = useContext(AnalyticsContext)
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -50,10 +50,10 @@ const AnalyticsTable = () => {
   }, [startDate, endDate])
 
   useEffect(() => {
-    if (tickers) {
-      setTableData(tickers)
+    if (pairOperations) {
+      setTableData(pairOperations)
     }
-  }, [tickers, setTableData, getTableData])
+  }, [pairOperations, setTableData, getTableData])
 
   return (
     <>
@@ -103,7 +103,7 @@ const AnalyticsTable = () => {
           </div>
         </div>
         <div className="card-body">
-          {tickers && (
+          {pairOperations && (
             <div style={{ marginBottom: '0.5rem' }}>
               {itemNumber} items found.
             </div>
