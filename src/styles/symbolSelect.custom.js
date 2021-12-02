@@ -11,7 +11,7 @@ export const customStyle = (
       border: '4px solid var(--trade-borders)',
       backgroundColor: 'var(--trade-background)',
       opacity: isLoading ? 0.4 : 1,
-      borderLeft: (!isMobile ? 0 : '') || (isOnboardingSkipped ? '' : 0),
+      borderLeft: (!isMobile ? 0 : 'null') || (isOnboardingSkipped ? '' : 0),
       borderRadius: 0,
       height: isOnboardingSkipped && isTablet ? '52px' : '56px',
       minHeight: isOnboardingSkipped && isTablet ? '52px' : '56px',

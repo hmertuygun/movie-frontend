@@ -49,6 +49,7 @@
     /* height: 52px; */
     /* border-top: none; */
     border-right: 4px solid var(--trade-borders);
+    border-top: none;
   }
 }
 
