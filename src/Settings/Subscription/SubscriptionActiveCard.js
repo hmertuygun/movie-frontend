@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
-
+import { coinBaseUrls } from '../../constants/coinbaseUrls'
 import { errorNotification } from '../../components/Notifications'
 import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
@@ -18,7 +18,11 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
       ? subscriptionNames[subscription.items[0].plan.interval]
       : 'Crypto'
   }
-  console.log(priceData)
+
+  const redirectForCrypto = (type) => {
+    return (window.location = coinBaseUrls[type])
+  }
+
   const toCustomerPortal = async (needPayment) => {
     setPortalLoading(true)
     try {
@@ -167,6 +171,28 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   onClick={() => toCustomerPortal(needPayment)}
                 >
                   {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
+                </div>
+              )}
+              {needPayment && (
+                <div>
+                  <div
+                    style={{ width: '13rem', marginTop: '0.6rem' }}
+                    className="btn btn-sm btn-neutral rounded-pill"
+                    onClick={() => redirectForCrypto('year')}
+                  >
+                    Pay Crypto for a Year
+                  </div>
+                  <div
+                    style={{
+                      width: '13rem',
+                      marginTop: '0.6rem',
+                      left: '-0.5rem',
+                    }}
+                    className="btn btn-sm btn-neutral rounded-pill"
+                    onClick={() => redirectForCrypto('month')}
+                  >
+                    Pay Crypto for a Month
+                  </div>
                 </div>
               )}
             </div>
