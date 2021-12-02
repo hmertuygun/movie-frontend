@@ -38,7 +38,6 @@ const AssetPerformance = () => {
 
   useEffect(() => {
     if (assetPerformance) {
-      console.log(assetPerformance)
       setTableData(assetPerformance)
     }
   }, [assetPerformance, setTableData, getTableData])

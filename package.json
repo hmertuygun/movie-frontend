@@ -23,6 +23,7 @@
     "ccxt": "link:./ccxt",
     "ccxt.pro": "link:./ccxt.pro",
     "cra-append-sw": "^2.7.0",
+    "emoji-picker-react": "^3.4.8",
     "dayjs": "^1.10.7",
     "exponential-backoff": "^3.1.0",
     "firebase": "^8.0.0",

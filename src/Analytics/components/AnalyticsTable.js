@@ -51,7 +51,6 @@ const AnalyticsTable = () => {
 
   useEffect(() => {
     if (pairOperations) {
-      console.log(pairOperations)
       setTableData(pairOperations)
     }
   }, [pairOperations, setTableData, getTableData])

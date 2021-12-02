@@ -75,16 +75,16 @@ function AnalyticsContainer() {
                 </div>
               </div>
               <div className="row">
-                <div className="col-lg-12">
-                  <AnalyticsTable />
-                </div>
-              </div>
-              <div className="row">
                 <div className="col-lg-6">
                   <AssetPerformance />
                 </div>
                 <div className="col-lg-6">
                   <PairPerformance />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-lg-12">
+                  <AnalyticsTable />
                 </div>
               </div>
             </div>

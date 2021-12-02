@@ -67,26 +67,23 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'VALUE',
+      title: 'DELTA',
       render: (rowData) => {
         if (rowData.value > 0) {
           return (
-            <span
-              style={{ fontSize: '0.8rem' }}
-              className="badge badge-success"
-            >
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
               {rowData.value}
             </span>
           )
         } else if (rowData.value === 0) {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
               {rowData.value}
             </span>
           )
         } else {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
               {rowData.value}
             </span>
           )
@@ -105,54 +102,48 @@ export const pairPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'QUOTE',
+      title: 'BASE',
       render: (rowData) => {
-        if (rowData.quote > 0) {
+        if (rowData.base > 0) {
           return (
-            <span
-              style={{ fontSize: '0.8rem' }}
-              className="badge badge-success"
-            >
-              {rowData.quote}
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.base}
             </span>
           )
-        } else if (rowData.quote === 0) {
+        } else if (rowData.base === 0) {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
-              {rowData.quote}
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.base}
             </span>
           )
         } else {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
-              {rowData.quote}
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.base}
             </span>
           )
         }
       },
     },
     {
-      title: 'BASE',
+      title: 'QUOTE',
       render: (rowData) => {
-        if (rowData.base > 0) {
+        if (rowData.quote > 0) {
           return (
-            <span
-              style={{ fontSize: '0.8rem' }}
-              className="badge badge-success"
-            >
-              {rowData.base}
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.quote}
             </span>
           )
-        } else if (rowData.base === 0) {
+        } else if (rowData.quote === 0) {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-soft">
-              {rowData.base}
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.quote}
             </span>
           )
         } else {
           return (
-            <span style={{ fontSize: '0.8rem' }} className="badge badge-danger">
-              {rowData.base}
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.quote}
             </span>
           )
         }

@@ -17,9 +17,14 @@ import {
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
-import { errorNotification } from '../../components/Notifications'
+import {
+  errorNotification,
+  successNotification,
+} from '../../components/Notifications'
 import { ccxtClass } from '../../constants/ccxtConfigs'
 import { firebase } from '../../firebase/firebase'
+import { defaultEmojis } from '../../constants/emojiDefault'
+
 export const SymbolContext = createContext()
 const db = firebase.firestore()
 
@@ -76,6 +81,8 @@ const SymbolContextProvider = ({ children }) => {
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
   const [exchangeUpdated, setExchangeUpdated] = useState(false)
+  const [emojis, setEmojis] = useState(defaultEmojis)
+  const [selectEmojiPopoverOpen, setSelectEmojiPopoverOpen] = useState(false)
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
@@ -191,6 +198,54 @@ const SymbolContextProvider = ({ children }) => {
       localStorage.setItem('analyticsRefreshBtn', dateNow)
     }
   }
+
+  const handleSaveEmojis = async () => {
+    try {
+      const value = {
+        drawings: templateDrawings && templateDrawings.drawings,
+        name: userData.email,
+        nickname: userData.email,
+        flags: emojis,
+      }
+      await db
+        .collection('template_drawings')
+        .doc(userData.email)
+        .set(
+          {
+            ...value,
+          },
+          { merge: true }
+        )
+      successNotification.open({
+        description: 'Emojis saved successfully',
+      })
+    } catch (error) {
+      errorNotification.open({
+        description: `Emojis not saved. Please try again later`,
+      })
+    }
+  }
+
+  useEffect(() => {
+    db.collection('template_drawings')
+      .doc('sheldonthesniper01@gmail.com')
+      .onSnapshot(
+        (snapshot) => {
+          if (snapshot.data()) {
+            if (snapshot.data()?.flags) {
+              localStorage.setItem(
+                'flags',
+                JSON.stringify(snapshot.data()?.flags)
+              )
+              setEmojis(snapshot.data()?.flags)
+            }
+          }
+        },
+        (error) => {
+          console.log(error)
+        }
+      )
+  }, [db, watchListOpen])
 
   const getChartDataOnInit = async () => {
     try {
@@ -566,6 +621,11 @@ const SymbolContextProvider = ({ children }) => {
         setTemplateDrawingsOpen,
         marketData,
         chartData,
+        setEmojis,
+        emojis,
+        handleSaveEmojis,
+        selectEmojiPopoverOpen,
+        setSelectEmojiPopoverOpen,
       }}
     >
       {children}

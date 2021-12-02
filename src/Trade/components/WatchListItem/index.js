@@ -1,19 +1,25 @@
 import { exchanges } from 'ccxt'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { X } from 'react-feather'
 import { exchangeCreationOptions } from '../../../constants/ExchangeOptions'
-
+import { UserContext } from '../../../contexts/UserContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './style.css'
 
-const WatchListItem = ({ symbol, removeWatchList }) => {
-  const { setSymbol, templateDrawingsOpen } = useSymbolContext()
+const WatchListItem = ({ symbol, removeWatchList, group }) => {
+  const { setSymbol, templateDrawingsOpen, emojis } = useSymbolContext()
+  const { userData, isPaidUser } = useContext(UserContext)
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
 
   const getLogo = () => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
     const obj = exchangeCreationOptions.find((sy) => sy.value == exchange)
     return obj && obj.logo
+  }
+
+  const getEmoji = (value) => {
+    const emoji = emojis && emojis.find((emoji) => emoji.id === value)
+    return emoji && emoji.emoji
   }
 
   return (
@@ -35,6 +41,14 @@ const WatchListItem = ({ symbol, removeWatchList }) => {
         </div>
       )}
       <div className="label-column">
+        {((!group && templateDrawingsOpen) ||
+          (!group && userData.email === 'sheldonthesniper01@gmail.com')) &&
+        isPaidUser ? (
+          <span style={symbol.flag ? { marginRight: 7 } : { marginRight: 20 }}>
+            {symbol.flag ? <span>{getEmoji(symbol.flag)}</span> : null}
+          </span>
+        ) : null}
+
         <span className="exchange-svg">
           <img
             style={{ width: '18px', marginRight: '4px', marginTop: '-2px' }}

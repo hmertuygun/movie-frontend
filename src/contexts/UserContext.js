@@ -305,7 +305,7 @@ const UserContextProvider = ({ children }) => {
         }
 
         setIsPaidUser(lastSubscription.status === 'active')
-        console.log(lastSubscription)
+
         if (lastSubscription.status === 'canceled' && NoneActive) {
           // Subscribe button case
           setHasSub(false)

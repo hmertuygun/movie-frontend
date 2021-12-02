@@ -9,7 +9,14 @@ import React, {
 } from 'react'
 import Select from 'react-select'
 import { Popover } from 'react-tiny-popover'
-import { Plus, ChevronDown, MoreHorizontal } from 'react-feather'
+import {
+  Plus,
+  ChevronDown,
+  MoreHorizontal,
+  Flag,
+  Edit,
+  Slash,
+} from 'react-feather'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -18,6 +25,7 @@ import { UserContext } from '../contexts/UserContext'
 import { orderBy } from 'lodash'
 import { firebase } from '../firebase/firebase'
 import AddWatchListModal from './AddWatchListModal'
+import AddEmojiModal from './AddEmojiModal'
 import {
   successNotification,
   errorNotification,
@@ -27,15 +35,24 @@ import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
 
 const WatchListPanel = () => {
-  const { symbols, symbolDetails, templateDrawingsOpen, setSymbol } =
-    useSymbolContext()
-  const { userData } = useContext(UserContext)
+  const {
+    symbols,
+    symbolDetails,
+    templateDrawingsOpen,
+    setSymbol,
+    emojis,
+    handleSaveEmojis,
+    selectEmojiPopoverOpen,
+    setSelectEmojiPopoverOpen,
+  } = useSymbolContext()
+  const { userData, isPaidUser } = useContext(UserContext)
 
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
   const [watchListOptionPopoverOpen, setWatchListOptionPopoverOpen] =
     useState(false)
   const [addWatchListModalOpen, setAddWatchListModalOpen] = useState(false)
+  const [addEmojiModalOpen, setAddEmojiModalOpen] = useState(false)
   const [addWatchListLoading, setAddWatchListLoading] = useState(false)
   const [watchLists, setWatchLists] = useState([])
   const [activeWatchList, setActiveWatchList] = useState()
@@ -48,6 +65,8 @@ const WatchListPanel = () => {
   const [orderSetting, setOrderSetting] = useState({
     label: 'asc',
   })
+  const [isGroupByFlag, setIsGroupByFlag] = useState(false)
+  const [isEmojiDeleted, setIsEmojiDeleted] = useState([])
 
   const db = firebase.firestore()
   const FieldValue = firebase.firestore.FieldValue
@@ -91,12 +110,12 @@ const WatchListPanel = () => {
                     activeList?.[activeExchange.exchange] ?? []
                   )
                   setActiveWatchList(activeList)
-                  if (
-                    activeList?.[activeExchange.exchange] &&
-                    activeList?.[activeExchange.exchange][0]
-                  ) {
-                    setSymbol(activeList?.[activeExchange.exchange][0])
-                  }
+                  // if (
+                  //   activeList?.[activeExchange.exchange] &&
+                  //   activeList?.[activeExchange.exchange][0]
+                  // ) {
+                  //   setSymbol(activeList?.[activeExchange.exchange][0])
+                  // }
                 }
               }
             } else {
@@ -330,9 +349,10 @@ const WatchListPanel = () => {
   }, [symbols, symbolsList])
 
   const handleChange = async (symbol) => {
-    const symbols = [...symbolsList, symbol].map((item) => ({
+    const symbols = [...symbolsList, { ...symbol, flag: 0 }].map((item) => ({
       label: item.label,
       value: item.value,
+      flag: item.flag,
     }))
     try {
       db.collection('watch_list')
@@ -354,6 +374,50 @@ const WatchListPanel = () => {
     }
   }
 
+  const handleEmojiAssigning = async (value) => {
+    try {
+      const selectedSymbol = localStorage
+        .getItem('selectedSymbol')
+        .toUpperCase()
+      const selectedExchange = localStorage
+        .getItem('selectedExchange')
+        .toUpperCase()
+      const list = symbolsList
+        .map((item) => ({
+          label: item.label,
+          value: item.value,
+          flag: item.flag ? item.flag : 0,
+        }))
+        .map((item) => {
+          if (item.value === `${selectedExchange}:${selectedSymbol}`) {
+            return {
+              ...item,
+              flag: value,
+            }
+          }
+          return item
+        })
+      await db
+        .collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            lists: {
+              [activeWatchList.watchListName]: {
+                [activeExchange.exchange]: list,
+              },
+            },
+          },
+          { merge: true }
+        )
+    } catch (error) {
+      console.log(error)
+      errorNotification.open({
+        description: `Cannot add emoji, Please try again later.`,
+      })
+    }
+  }
+
   const removeWatchList = async (symbol) => {
     const symbols = symbolsList
       .filter((item) => {
@@ -362,6 +426,7 @@ const WatchListPanel = () => {
       .map((item) => ({
         label: item.label,
         value: item.value,
+        flag: item.flag,
       }))
     try {
       db.collection('watch_list')
@@ -428,6 +493,45 @@ const WatchListPanel = () => {
     }
   }
 
+  const handleSaveEmoji = () => {
+    handleSaveEmojis()
+    setAddEmojiModalOpen(false)
+    if (isEmojiDeleted.length) {
+      handleEmojiDeleteAssigning()
+      setIsEmojiDeleted([])
+    }
+  }
+
+  const handleEmojiDeleteAssigning = async () => {
+    const symbol = symbolsList.map((symbol) => {
+      if (isEmojiDeleted.includes(symbol.flag)) {
+        return { ...symbol, flag: 0 }
+      }
+      return symbol
+    })
+    const symbols = symbol.map((item) => ({
+      label: item.label,
+      value: item.value,
+      flag: item.flag,
+    }))
+    try {
+      db.collection('watch_list')
+        .doc(userData.email)
+        .set(
+          {
+            lists: {
+              [activeWatchList.watchListName]: {
+                [activeExchange.exchange]: symbols,
+              },
+            },
+          },
+          { merge: true }
+        )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleWatchListItemClick = (watchListName) => {
     if (!templateDrawingsOpen) {
       db.collection('watch_list').doc(userData.email).set(
@@ -474,6 +578,8 @@ const WatchListPanel = () => {
     }
   }
 
+  let unassignedList = orderedSymbolsList.filter((lists) => lists.flag === 0)
+
   return (
     <div>
       <div
@@ -497,15 +603,17 @@ const WatchListPanel = () => {
           content={({ position, nudgedLeft, nudgedTop }) => (
             <div className={styles.watchListModal}>
               {!templateDrawingsOpen && (
-                <div
-                  className={styles.watchListRow}
-                  onClick={() => {
-                    setWatchListPopoverOpen(false)
-                    setAddWatchListModalOpen(true)
-                  }}
-                >
-                  Create new list...
-                </div>
+                <>
+                  <div
+                    className={styles.watchListRow}
+                    onClick={() => {
+                      setWatchListPopoverOpen(false)
+                      setAddWatchListModalOpen(true)
+                    }}
+                  >
+                    Create new list...
+                  </div>
+                </>
               )}
               {Object.keys(watchLists).map((list) => {
                 return (
@@ -531,7 +639,55 @@ const WatchListPanel = () => {
             <ChevronDown size={15} style={{ marginLeft: '5px' }} />
           </div>
         </Popover>
-
+        {userData.email === 'sheldonthesniper01@gmail.com' &&
+          !templateDrawingsOpen && (
+            <Popover
+              key="watchlist-emoji-popover"
+              isOpen={selectEmojiPopoverOpen}
+              positions={['bottom', 'top', 'right', 'left']}
+              align="center"
+              padding={10}
+              reposition={false}
+              onClickOutside={() => setSelectEmojiPopoverOpen(false)}
+              content={({ position, nudgedLeft, nudgedTop }) => (
+                <div className={styles.emojiPopover}>
+                  <div className={styles.emojiContainer}>
+                    <div className={styles.emojiWrapper}>
+                      {emojis &&
+                        emojis.map((emoji) => (
+                          <div key={emoji.id}>
+                            {emoji.emoji && (
+                              <span
+                                className={styles.selectedEmojiWrapper}
+                                onClick={() => handleEmojiAssigning(emoji.id)}
+                              >
+                                {emoji.emoji}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                    <span className={styles.settingsWrapper}>
+                      <Edit onClick={() => setAddEmojiModalOpen(true)} />
+                    </span>
+                  </div>
+                </div>
+              )}
+            >
+              <div
+                className={`${styles.watchListPlus} ${
+                  styles.watchListControl
+                } ${
+                  selectEmojiPopoverOpen ? styles.watchListControlSelected : ''
+                }`}
+                onClick={() => {
+                  setSelectEmojiPopoverOpen(true)
+                }}
+              >
+                <Flag />
+              </div>
+            </Popover>
+          )}
         {!templateDrawingsOpen && (
           <Popover
             key="watchlist-creation-popover"
@@ -585,7 +741,7 @@ const WatchListPanel = () => {
             </div>
           </Popover>
         )}
-        {!templateDrawingsOpen && (
+        {!templateDrawingsOpen ? (
           <Popover
             key="watchlist-option"
             isOpen={watchListOptionPopoverOpen}
@@ -596,6 +752,17 @@ const WatchListPanel = () => {
             onClickOutside={() => setWatchListOptionPopoverOpen(false)}
             content={({ position, nudgedLeft, nudgedTop }) => (
               <div className={styles.watchListModal}>
+                {userData.email === 'sheldonthesniper01@gmail.com' && (
+                  <div
+                    className={styles.watchListRow}
+                    onClick={() => {
+                      setIsGroupByFlag(!isGroupByFlag)
+                      setWatchListOptionPopoverOpen(false)
+                    }}
+                  >
+                    Group by flag
+                  </div>
+                )}
                 <div
                   className={styles.watchListRow}
                   onClick={() => handleDelete()}
@@ -618,6 +785,44 @@ const WatchListPanel = () => {
               <MoreHorizontal />
             </div>
           </Popover>
+        ) : (
+          isPaidUser && (
+            <Popover
+              key="watchlist-option"
+              isOpen={watchListOptionPopoverOpen}
+              positions={['bottom', 'top', 'right']}
+              align="end"
+              padding={10}
+              reposition={false}
+              onClickOutside={() => setWatchListOptionPopoverOpen(false)}
+              content={({ position, nudgedLeft, nudgedTop }) => (
+                <div className={styles.watchListModal}>
+                  <div
+                    className={styles.watchListRow}
+                    onClick={() => {
+                      setIsGroupByFlag(!isGroupByFlag)
+                      setWatchListOptionPopoverOpen(false)
+                    }}
+                  >
+                    Group by flag
+                  </div>
+                </div>
+              )}
+            >
+              <div
+                className={`${styles.watchListOption} ${styles.groupMore} ${
+                  styles.watchListControl
+                } ${
+                  watchListOptionPopoverOpen
+                    ? styles.watchListControlSelected
+                    : ''
+                }`}
+                onClick={() => setWatchListOptionPopoverOpen(true)}
+              >
+                <MoreHorizontal />
+              </div>
+            </Popover>
+          )
         )}
       </div>
       <div className={styles.contentHeader}>
@@ -658,13 +863,59 @@ const WatchListPanel = () => {
             </div>
           </div>
         ) : (
-          orderedSymbolsList.map((symbol) => (
-            <WatchListItem
-              key={symbol.value}
-              symbol={symbol}
-              removeWatchList={removeWatchList}
-            />
-          ))
+          <>
+            {(templateDrawingsOpen && isGroupByFlag) ||
+            (userData.email === 'sheldonthesniper01@gmail.com' &&
+              isGroupByFlag) ? (
+              <>
+                {emojis &&
+                  emojis.map((emoji) => {
+                    let list = orderedSymbolsList.filter(
+                      (lists) => lists.flag === emoji.id
+                    )
+
+                    return (
+                      <>
+                        <div className={styles.groupEmojiWrapper}>
+                          <span className={styles.groupEmoji}>
+                            {emoji.emoji}
+                          </span>
+                          {list.map((symbol) => (
+                            <WatchListItem
+                              key={symbol.value}
+                              symbol={symbol}
+                              group={true}
+                              removeWatchList={removeWatchList}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )
+                  })}
+                <div className={styles.groupEmojiWrapper}>
+                  <span className={styles.groupEmoji}>Unassigned</span>
+                  {unassignedList &&
+                    unassignedList.length > 0 &&
+                    unassignedList.map((symbol) => (
+                      <WatchListItem
+                        key={symbol.value}
+                        symbol={symbol}
+                        group={true}
+                        removeWatchList={removeWatchList}
+                      />
+                    ))}
+                </div>
+              </>
+            ) : (
+              orderedSymbolsList.map((symbol) => (
+                <WatchListItem
+                  key={symbol.value}
+                  symbol={symbol}
+                  removeWatchList={removeWatchList}
+                />
+              ))
+            )}
+          </>
         )}
       </div>
       {addWatchListModalOpen ? (
@@ -674,6 +925,14 @@ const WatchListPanel = () => {
           isLoading={addWatchListLoading}
         />
       ) : null}
+      {addEmojiModalOpen && (
+        <AddEmojiModal
+          onClose={() => setAddEmojiModalOpen(false)}
+          onSave={handleSaveEmoji}
+          setIsEmojiDeleted={setIsEmojiDeleted}
+          isEmojiDeleted={isEmojiDeleted}
+        />
+      )}
     </div>
   )
 }

@@ -22,6 +22,7 @@ const TradeChart = () => {
     setTemplateDrawingsOpen,
     setSymbol,
     selectedSymbol,
+    selectEmojiPopoverOpen,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
@@ -196,6 +197,7 @@ const TradeChart = () => {
           drawingsBtnClicked={(e) => {
             onDrawingsBtnClick(e)
           }}
+          selectEmojiPopoverOpen={selectEmojiPopoverOpen}
         />
       ) : (
         <span className="spinner-border spinner-border-sm text-primary" />

@@ -23,7 +23,7 @@
 }
 
 .WatchList-Panel {
-  width: 288px;
+  width: 300px;
   min-width: 288px;
   background: var(--trade-background);
   border-top: 4px solid var(--trade-borders);

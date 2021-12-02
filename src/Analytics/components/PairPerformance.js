@@ -38,7 +38,6 @@ const PairPerformance = () => {
 
   useEffect(() => {
     if (pairPerformance) {
-      console.log(pairPerformance)
       setTableData(pairPerformance)
     }
   }, [pairPerformance, setTableData, getTableData])
