@@ -873,24 +873,25 @@ const WatchListPanel = () => {
                     let list = orderedSymbolsList.filter(
                       (lists) => lists.flag === emoji.id
                     )
-
-                    return (
-                      <>
-                        <div className={styles.groupEmojiWrapper}>
-                          <span className={styles.groupEmoji}>
-                            {emoji.emoji}
-                          </span>
-                          {list.map((symbol) => (
-                            <WatchListItem
-                              key={symbol.value}
-                              symbol={symbol}
-                              group={true}
-                              removeWatchList={removeWatchList}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )
+                    if (emoji.emoji) {
+                      return (
+                        <>
+                          <div className={styles.groupEmojiWrapper}>
+                            <span className={styles.groupEmoji}>
+                              {emoji.emoji}
+                            </span>
+                            {list.map((symbol) => (
+                              <WatchListItem
+                                key={symbol.value}
+                                symbol={symbol}
+                                group={true}
+                                removeWatchList={removeWatchList}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )
+                    }
                   })}
                 <div className={styles.groupEmojiWrapper}>
                   <span className={styles.groupEmoji}>Unassigned</span>
