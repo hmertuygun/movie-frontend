@@ -182,17 +182,6 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   >
                     Pay Crypto for a Year
                   </div>
-                  <div
-                    style={{
-                      width: '13rem',
-                      marginTop: '0.6rem',
-                      left: '-0.5rem',
-                    }}
-                    className="btn btn-sm btn-neutral rounded-pill"
-                    onClick={() => redirectForCrypto('month')}
-                  >
-                    Pay Crypto for a Month
-                  </div>
                 </div>
               )}
             </div>

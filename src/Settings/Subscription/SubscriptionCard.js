@@ -110,14 +110,16 @@ const SubscriptionCard = ({ product }) => {
               </>
             )}
           </div>
-          <div className="col-auto flex-fill mt-3 mt-sm-0 text-sm-right">
-            <div
-              className="btn btn-sm btn-neutral rounded-pill"
-              onClick={() => redirectForCrypto(price.interval)}
-            >
-              Pay with Crypto
+          {price.interval === 'month' && (
+            <div className="col-auto flex-fill mt-3 mt-sm-0 text-sm-right">
+              <div
+                className="btn btn-sm btn-neutral rounded-pill"
+                onClick={() => redirectForCrypto(price.interval)}
+              >
+                Pay with Crypto
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
