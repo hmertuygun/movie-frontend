@@ -113,7 +113,6 @@ export default class socketClient {
   unsubscribeFromStream(subscriberUID) {
     try {
       let id = subscriberUID.split('_')[0].replace('/', '')
-      console.log(this.streams[id].paramStr)
       if (this.streams[id]?.paramStr)
         this._ws.send(
           `{"op":"unsubscribe","args":[${this.streams[id].paramStr}]}`

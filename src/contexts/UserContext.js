@@ -95,6 +95,10 @@ const UserContextProvider = ({ children }) => {
   ]
 
   useEffect(() => {
+    localStorage.setItem(
+      'proxyServer',
+      'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/'
+    )
     getUserExchangesAfterFBInit()
     getProducts()
     findFastServer(urls)
