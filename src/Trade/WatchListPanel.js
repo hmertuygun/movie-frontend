@@ -193,7 +193,7 @@ const WatchListPanel = () => {
     const symbolArray = []
     for (const symbol of watchSymbolsList) {
       let previousData = {}
-      const activeMarketData = marketData[symbol.value]
+      const activeMarketData = marketData[symbol.value.replace('/', '')]
 
       const tickSize = symbolDetails?.[symbol.value]?.tickSize
       if (!activeMarketData?.last) {
@@ -208,7 +208,7 @@ const WatchListPanel = () => {
           ? previousData?.percentage
           : 0,
         last: activeMarketData?.last
-          ? Number(activeMarketData?.last)?.toFixed(tickSize)
+          ? parseFloat(activeMarketData?.last)?.toFixed(tickSize)
           : previousData?.last
           ? previousData?.last
           : '',
@@ -226,7 +226,7 @@ const WatchListPanel = () => {
         setMarketData((prevState) => {
           return {
             ...prevState,
-            [`${exchange.id.toUpperCase()}:${symbol}`]: ticker,
+            [`${exchange.id.toUpperCase()}:${symbol.replace('/', '')}`]: ticker,
           }
         })
       } catch (e) {
@@ -235,6 +235,60 @@ const WatchListPanel = () => {
       }
     }
   }
+
+  useEffect(() => {
+    let obj = {}
+    let id = null
+    watchSymbolsList.forEach((sy) => {
+      let exc = sy.value.split(':')[0].toLowerCase()
+      if (obj[exc]) {
+        obj[exc].push(sy.label.replace('-', '/'))
+      } else {
+        obj[exc] = [sy.label.replace('-', '/')]
+      }
+    })
+    if (obj?.bybit?.length) {
+      var socket = new WebSocket('wss://stream.bybit.com/spot/quote/ws/v2')
+      socket.onopen = function (event) {
+        obj['bybit'].forEach((element) => {
+          socket.send(
+            JSON.stringify({
+              topic: 'realtimes',
+              event: 'sub',
+              params: {
+                symbol: element.replace('/', ''),
+                binary: false,
+              },
+            })
+          )
+        })
+      }
+      socket.onmessage = function (event) {
+        const { data } = JSON.parse(event.data)
+        if (data) {
+          setMarketData((prevState) => {
+            return {
+              ...prevState,
+              [`BYBIT:${data.s}`]: { last: data.c, percentage: data.m },
+            }
+          })
+        }
+      }
+      socket.onerror = (err) => {
+        console.log(err)
+      }
+
+      id = setInterval(() => {
+        socket.send(JSON.stringify({ ping: 1535975085052 }))
+      }, 25000)
+    }
+    return () => {
+      if (socket && id) {
+        socket.close()
+        clearInterval(id)
+      }
+    }
+  }, [watchSymbolsList])
 
   const setItems = useCallback(async () => {
     let obj = {}
@@ -249,7 +303,7 @@ const WatchListPanel = () => {
 
     for (const [key, value] of Object.entries(obj)) {
       const ccxtExchange = ccxtClass[key]
-      if (ccxtExchange.has['watchTicker']) {
+      if (ccxtExchange.has['watchTicker'] && key !== 'bybit') {
         Promise.all(value.map((symbol) => loop(ccxtExchange, symbol)))
       }
     }

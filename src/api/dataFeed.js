@@ -126,12 +126,18 @@ export default class dataFeed {
               console.log('bad symbol')
             }
           } else if (this.selectedExchange === 'bybit') {
-            kLinesLimit = 200
+            kLinesLimit = 1000
             try {
-              data = await this.bybit.fetchOHLCV(
-                symbolAPI,
-                this.mappedResolutions[resolution],
-                from + 1000
+              data = await execExchangeFunc(
+                this.selectedExchange,
+                'getKlines',
+                {
+                  symbol: symbolAPI,
+                  interval: this.mappedResolutions[resolution],
+                  startTime: from,
+                  endTime: to,
+                  limit: kLinesLimit,
+                }
               )
             } catch (error) {
               console.log('bad symbol', error)

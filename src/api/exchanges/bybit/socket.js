@@ -8,6 +8,7 @@ export default class socketClient {
     this.intervals = getExchangeProp(currentExchange, 'mappedResolutionsSocket')
     this.streams = {}
     this.symbol = ''
+    this._ws = null
     this._createSocket()
   }
 
@@ -42,23 +43,22 @@ export default class socketClient {
         let sData = JSON.parse(msg.data)
         try {
           if (sData && sData?.data && sData?.data[0]) {
-            let { open, high, low, volume, close, timestamp, start, end } =
-              sData.data[0]
+            let { o, h, l, v, c, t } = sData.data[0]
             // Update data
             let lastSocketData = {
-              time: start * 1000,
-              close,
-              open,
-              high,
-              low,
-              volume: parseFloat(volume),
-              closeTime: end * 1000,
-              openTime: start * 1000,
+              close: parseFloat(c),
+              open: parseFloat(o),
+              high: parseFloat(h),
+              low: parseFloat(l),
+              volume: parseFloat(v),
+              closeTime: t,
+              openTime: t,
+              time: t,
             }
             if (
               Object.keys(this.streams).length &&
               localStorage.getItem('selectedSymbol').replace('/', '') ==
-                sData.topic.split('.')[2]
+                sData.symbol
             ) {
               localStorage.setItem('lastSocketData', new Date().getTime())
               localStorage.setItem('WS', 1)
@@ -74,6 +74,9 @@ export default class socketClient {
           console.log(e)
         }
       }
+      setInterval(() => {
+        this._ws.send(JSON.stringify({ ping: 1535975085052 }))
+      }, 25000)
     } catch (e) {
       console.log(e)
     }
@@ -92,19 +95,26 @@ export default class socketClient {
     try {
       this.symbol = symbolInfo.name.replace('/', '')
       const symbol = symbolInfo.name.replace('/', '')
-      let paramStr = `candle.${this.intervals[resolution]}.${symbol}`
       const obj = {
-        op: 'subscribe',
-        args: [paramStr],
+        topic: `kline_${this.intervals[resolution]}`,
+        event: 'sub',
+        symbol: symbol,
+        params: {
+          binary: false,
+        },
       }
-      if (this._ws.readyState === 1) {
-        this._ws.send(JSON.stringify(obj))
-        this.streams[symbol] = {
-          // register multiple streams in streams object
-          paramStr,
-          listener: onRealtimeCallback,
+      let paramStr = JSON.stringify({ ...obj, event: 'cancel' })
+
+      setTimeout(() => {
+        if (this._ws.readyState === 1) {
+          this._ws.send(JSON.stringify(obj))
+          this.streams[symbol] = {
+            // register multiple streams in streams object
+            paramStr,
+            listener: onRealtimeCallback,
+          }
         }
-      }
+      }, 3000)
     } catch (e) {
       console.log(e)
     }
@@ -113,10 +123,7 @@ export default class socketClient {
   unsubscribeFromStream(subscriberUID) {
     try {
       let id = subscriberUID.split('_')[0].replace('/', '')
-      if (this.streams[id]?.paramStr)
-        this._ws.send(
-          `{"op":"unsubscribe","args":[${this.streams[id].paramStr}]}`
-        )
+      if (this.streams[id]?.paramStr) this._ws.send(this.streams[id].paramStr)
     } catch (e) {
       console.log(e)
     }
