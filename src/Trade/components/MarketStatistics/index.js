@@ -80,11 +80,8 @@ function MarketStatistics() {
     let key = selectedSymbolDetail.value.split(':')[0].toLowerCase()
     try {
       const exchange = ccxtClass[key]
-      if (key == 'bybit') {
-        activeMarketData = await exchange.fetchTicker(symbolPair)
-      } else {
-        activeMarketData = await exchange.watchTicker(symbolPair)
-      }
+      activeMarketData = await exchange.watchTicker(symbolPair)
+
       setNewMessage(activeMarketData)
     } catch (e) {
       console.log(e)
@@ -92,10 +89,53 @@ function MarketStatistics() {
   }, [selectedSymbolDetail, setNewMessage, symbolPair])
 
   useEffect(() => {
-    const id = setInterval(async () => await getData(), fetchInterval)
+    if (selectedSymbolDetail?.value?.split(':')[0].toLowerCase() !== 'bybit') {
+      const id = setInterval(async () => await getData(), fetchInterval)
+      return () => {
+        clearInterval(id)
+      }
+    } else {
+      var socket = new WebSocket('wss://stream.bybit.com/spot/quote/ws/v2')
+      socket.onopen = function (event) {
+        socket.send(
+          JSON.stringify({
+            topic: 'realtimes',
+            event: 'sub',
+            params: {
+              symbol: selectedSymbolDetail.symbolpair.replace('/', ''),
+              binary: false,
+            },
+          })
+        )
+      }
+      socket.onmessage = function (event) {
+        const { data } = JSON.parse(event.data)
+        if (data) {
+          setNewMessage({
+            last: data.c,
+            change: null,
+            percentage: data.m,
+            high: data.h,
+            low: data.l,
+            baseVolume: data.v,
+            quoteVolume: data.qv,
+            symbol: data.s,
+          })
+        }
+      }
 
-    return () => {
-      clearInterval(id)
+      socket.onerror = function (error) {
+        console.log(error)
+      }
+
+      const id = setInterval(() => {
+        socket.send(JSON.stringify({ ping: 1535975085052 }))
+      }, 25000)
+
+      return () => {
+        socket.close()
+        clearInterval(id)
+      }
     }
   }, [marketData, selectedSymbolDetail])
 
