@@ -30,6 +30,21 @@ const AddEmojiModal = ({
     setEmojis(updatedEmojis)
   }
 
+  const handleTextChange = (e, id) => {
+    const updatedEmojis =
+      emojis &&
+      emojis.map((emoji) => {
+        if (id === emoji.id) {
+          return {
+            ...emoji,
+            text: e.target.value,
+          }
+        }
+        return emoji
+      })
+    setEmojis(updatedEmojis)
+  }
+
   const handleDeleteEmoji = async (value) => {
     const updatedEmojis = await emojis.map((emoji) => {
       if (value === emoji.id) {
@@ -90,6 +105,23 @@ const AddEmojiModal = ({
                       >
                         {emoji.emoji ? emoji.emoji : 'NA'}
                       </span>
+                      {emoji.emoji && (
+                        <input
+                          type="text"
+                          class="form-control"
+                          style={{
+                            width: 140,
+                            padding: 5,
+                            minHeight: 40,
+                            height: 40,
+                          }}
+                          value={emoji.text}
+                          onChange={(e) => handleTextChange(e, emoji.id)}
+                          placeholder="Tooltip"
+                          aria-label="Tooltip"
+                          aria-describedby="Tooltip"
+                        />
+                      )}
                       <div>
                         {emoji.emoji ? (
                           <Edit2 onClick={() => setShowEmojis(emoji.id)} />

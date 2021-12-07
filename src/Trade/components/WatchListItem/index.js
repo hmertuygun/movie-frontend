@@ -5,6 +5,7 @@ import { exchangeCreationOptions } from '../../../constants/ExchangeOptions'
 import { UserContext } from '../../../contexts/UserContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './style.css'
+import Tooltip from '../../../components/Tooltip'
 
 const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const { setSymbol, templateDrawingsOpen, emojis } = useSymbolContext()
@@ -20,6 +21,11 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const getEmoji = (value) => {
     const emoji = emojis && emojis.find((emoji) => emoji.id === value)
     return emoji && emoji.emoji
+  }
+
+  const getText = (value) => {
+    const text = emojis && emojis.find((emoji) => emoji.id === value)
+    return text && text.text
   }
 
   return (
@@ -44,9 +50,19 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
         {((!group && templateDrawingsOpen) ||
           (!group && userData.email === 'sheldonthesniper01@gmail.com')) &&
         isPaidUser ? (
-          <span style={symbol.flag ? { marginRight: 7 } : { marginRight: 20 }}>
-            {symbol.flag ? <span>{getEmoji(symbol.flag)}</span> : null}
-          </span>
+          <>
+            {symbol.flag ? <Tooltip id={symbol.value} place="right" /> : null}
+            <span
+              style={symbol.flag ? { marginRight: 7 } : { marginRight: 20 }}
+              // data-toggle="tooltip"
+              // data-placement="right"
+              // title={getText(symbol.flag)}
+              data-for={symbol.value}
+              data-tip={getText(symbol.flag)}
+            >
+              {symbol.flag ? <span>{getEmoji(symbol.flag)}</span> : null}
+            </span>
+          </>
         ) : null}
 
         <span className="exchange-svg">
