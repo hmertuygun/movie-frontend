@@ -685,6 +685,7 @@ const UserContextProvider = ({ children }) => {
   const isLoggedIn =
     state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
+
   if (isLoggedIn) sessionStorage.setItem('remember', true)
   return (
     <UserContext.Provider
@@ -733,6 +734,7 @@ const UserContextProvider = ({ children }) => {
         // setSubInfo,
         setHasSub,
         isPaidUser,
+        setIsPaidUser,
         setOnTour,
         setIsTourStep5,
         setIsTourFinished,
@@ -760,6 +762,7 @@ const UserContextProvider = ({ children }) => {
         handleOnboardingShow,
         isChartReady,
         setIsChartReady,
+        setSubscriptionData,
       }}
     >
       {children}
