@@ -749,3 +749,13 @@ export async function deleteUserAccount() {
   })
   return response
 }
+
+export async function getSubscriptionDetails() {
+  const apiUrl = process.env.REACT_APP_API_SUBSCRIPTION
+  const token = await firebase.auth().currentUser.getIdToken()
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+  })
+  return response
+}
