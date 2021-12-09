@@ -48,6 +48,32 @@ export const tableConstants = (handleEdit) => {
         return rowData.operations
       },
     },
+    {
+      title: 'CURRENT PRICE',
+      render: (rowData) => {
+        if (rowData.currentPrice == 0) return '-'
+        return rowData.currentPrice
+      },
+    },
+    {
+      title: 'POSITION',
+      render: (rowData) => {
+        if (rowData.currentPrice == 0) return '-'
+        if (rowData.position < 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.position.toFixed(2)}%
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              +{rowData.position.toFixed(2)}%
+            </span>
+          )
+        }
+      },
+    },
 
     /*  {
         title: 'Action',
