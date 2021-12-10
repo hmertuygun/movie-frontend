@@ -406,7 +406,7 @@ const WatchListPanel = () => {
     const symbols = [...symbolsList, { ...symbol, flag: 0 }].map((item) => ({
       label: item.label,
       value: item.value,
-      flag: item.flag,
+      flag: item.flag || 0,
     }))
     try {
       db.collection('watch_list')
@@ -480,7 +480,7 @@ const WatchListPanel = () => {
       .map((item) => ({
         label: item.label,
         value: item.value,
-        flag: item.flag,
+        flag: item.flag || 0,
       }))
     try {
       db.collection('watch_list')
