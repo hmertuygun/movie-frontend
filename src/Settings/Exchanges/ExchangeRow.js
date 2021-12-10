@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import './ExchangeRow.css'
 
 const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
   return (
@@ -10,7 +11,7 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
           </h6>
         </div>
 
-        <div className="col-md-4 text-center">
+        <div className="col-md-4 text-center exchange-logo">
           <img
             width={
               row.exchange === 'binance'
