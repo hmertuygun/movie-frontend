@@ -4,6 +4,8 @@ import { stableCoins } from '../../constants/StableCoinsList'
 import { PortfolioContext } from '../context/PortfolioContext'
 import { ThemeContext } from '../../contexts/ThemeContext'
 
+import './CashoMeter.css'
+
 const CashoMeter = () => {
   const { balance } = useContext(PortfolioContext)
   const { theme } = useContext(ThemeContext)
@@ -78,7 +80,7 @@ const CashoMeter = () => {
             style={style}
             hideText={true}
           />
-          <p className="text-muted text-sm font-weight-bold text-center">
+          <p className="text-muted text-sm font-weight-bold text-center value-mobile">
             {value}%
           </p>
         </>

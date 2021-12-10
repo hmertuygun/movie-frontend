@@ -51,24 +51,24 @@ export const tableConstants = (handleEdit) => {
     {
       title: 'CURRENT PRICE',
       render: (rowData) => {
-        if (rowData.currentPrice == 0) return '-'
-        return rowData.currentPrice
+        if (rowData.current_price === null) return '-'
+        return rowData.current_price
       },
     },
     {
       title: 'POSITION',
       render: (rowData) => {
-        if (rowData.currentPrice == 0) return '-'
+        if (rowData.current_price === null) return '-'
         if (rowData.position < 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.position.toFixed(2)}%
+              {rowData.position}%
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              +{rowData.position.toFixed(2)}%
+              +{rowData.position}%
             </span>
           )
         }
