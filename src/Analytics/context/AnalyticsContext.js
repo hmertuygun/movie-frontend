@@ -10,6 +10,7 @@ import { UserContext } from '../../contexts/UserContext'
 import { getAnalytics } from '../../api/api'
 import { ccxtClass } from '../../constants/ccxtConfigs'
 import axios from 'axios'
+import { errorNotification } from '../../components/Notifications'
 
 export const AnalyticsContext = createContext()
 
@@ -32,47 +33,53 @@ const AnalyticsProvider = ({ children }) => {
       if (startDate) payload.startDate = startDate
       if (endDate) payload.endDate = endDate
       if (skipCache) payload.skipCache = skipCache
+      try {
+        const analytics = await getAnalytics(payload)
+        let tickers = {}
 
-      const analytics = await getAnalytics(payload)
-      let tickers = {}
-      if (activeExchange.exchange !== 'bybit') {
-        tickers = await ccxtClass[activeExchange.exchange].fetchTickers()
-      } else {
-        const {
-          data: { result },
-        } = await axios.get(
-          `${localStorage.getItem(
-            'proxyServer'
-          )}https://api.bybit.com/spot/quote/v1/ticker/24hr`
-        )
-        result.forEach((element) => {
-          tickers[element.symbol] = { last: element.lastPrice }
+        if (activeExchange.exchange !== 'bybit') {
+          tickers = await ccxtClass[activeExchange.exchange].fetchTickers()
+        } else {
+          const {
+            data: { result },
+          } = await axios.get(
+            `${localStorage.getItem(
+              'proxyServer'
+            )}https://api.bybit.com/spot/quote/v1/ticker/24hr`
+          )
+          result.forEach((element) => {
+            tickers[element.symbol] = { last: element.lastPrice }
+          })
+        }
+        setPairOperations(() => {
+          let final = analytics.pair_operations.map((element) => {
+            const foundElement =
+              activeExchange.exchange === 'bybit'
+                ? tickers[element?.symbol.replace('-', '')]
+                : tickers[element?.symbol.replace('-', '/')]
+            const position =
+              element.side === 'buy'
+                ? (100 * foundElement.last) / element['avg. price'] - 100
+                : (100 * element['avg. price']) / foundElement.last - 100
+            if (tickers && foundElement) {
+              return {
+                ...element,
+                currentPrice: foundElement.last,
+                position,
+              }
+            }
+            return element
+          })
+          return final
+        })
+        setPairPerformance(analytics.pair_performance)
+        setAssetPerformance(analytics.asset_performance)
+      } catch (error) {
+        console.log(error)
+        errorNotification.open({
+          description: `Analytics could not fetched. Please try again later!`,
         })
       }
-      setPairOperations(() => {
-        let final = analytics.pair_operations.map((element) => {
-          const foundElement =
-            activeExchange.exchange === 'bybit'
-              ? tickers[element?.symbol.replace('-', '')]
-              : tickers[element?.symbol.replace('-', '/')]
-          const position =
-            element.side === 'buy'
-              ? (100 * foundElement.last) / element['avg. price'] - 100
-              : (100 * element['avg. price']) / foundElement.last - 100
-          if (tickers && foundElement) {
-            return {
-              ...element,
-              currentPrice: foundElement.last,
-              position,
-            }
-          }
-          return element
-        })
-        return final
-      })
-
-      setPairPerformance(analytics.pair_performance)
-      setAssetPerformance(analytics.asset_performance)
 
       setLoading(false)
     } catch (error) {
