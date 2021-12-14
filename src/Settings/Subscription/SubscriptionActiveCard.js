@@ -7,6 +7,7 @@ import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { subscriptionNames } from '../../constants/subscriptionNames'
 import dayjs from 'dayjs'
+import './SubscriptionActiveCard.css'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData } = subscriptionData
@@ -49,7 +50,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
       <div className="card-body">
         <div className="row row-grid align-items-center">
           <div className="col-lg-8">
-            <div className="media align-items-center">
+            <div className="media align-items-center subscription-card">
               <span className="mr-3 text-white avatar bg-danger rounded-circle">
                 <Bell size={16} strokeWidth="3" />
               </span>
@@ -156,7 +157,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
             </div>
           </div>
           {subscription.type !== 'crypto' && (
-            <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right">
+            <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right payment-buttons">
               {portalLoading ? (
                 <div className="btn btn-sm btn-neutral rounded-pill">
                   <span
@@ -169,6 +170,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div
                   className="btn btn-sm btn-neutral rounded-pill"
                   onClick={() => toCustomerPortal(needPayment)}
+                  style={{ width: '13rem' }}
                 >
                   {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
                 </div>
