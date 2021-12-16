@@ -10,13 +10,12 @@ import dayjs from 'dayjs'
 import './SubscriptionActiveCard.css'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
-  const { subscription, priceData } = subscriptionData
+  const { subscription, priceData, due } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
-  const { cancel_at_period_end } = subscription
 
   const getSubsName = () => {
     return subscription.type !== 'crypto'
-      ? subscriptionNames[subscription.items[0].plan.interval]
+      ? subscriptionNames[priceData.interval]
       : 'Crypto'
   }
 
@@ -64,7 +63,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       currency: priceData?.currency,
                     }).format((priceData?.unit_amount / 100).toFixed(2))}
                     {` `}
-                    per {priceData?.interval} after trial.
+                    {priceData?.interval} after trial.
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial will end on {` `}
@@ -130,9 +129,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: priceData?.currency,
-                      }).format((priceData?.unit_amount / 100).toFixed(2))}
+                      }).format(priceData?.unit_amount)}
                       {` `}
-                      per {priceData?.interval}
+                      {priceData?.interval.toLowerCase()}
                       {` `}
                     </p>
                   ) : (
@@ -144,11 +143,11 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       )}
                     </p>
                   )}
-                  {!cancel_at_period_end && subscription.type !== 'crypto' ? (
+                  {subscription.type !== 'crypto' ? (
                     <p className="mb-0 text-sm text-muted lh-150">
                       Your subscription will auto-renew on {` `}
                       <Moment unix format="hh:mm A MMMM DD, YYYY">
-                        {subscription.current_period_end.seconds}
+                        {due}
                       </Moment>
                     </p>
                   ) : null}

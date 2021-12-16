@@ -12,7 +12,7 @@ import {
 } from '../../constants/QuickModal'
 
 const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
-  const { isPaidUser } = useContext(UserContext)
+  const { isPaidUser, isException } = useContext(UserContext)
   const [exchange, setExchange] = useState(defaultExchange)
   const [apiName, setApiName] = useState('')
   const [validation, setValidation] = useState({})
@@ -26,12 +26,12 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
 
   const exchangeOptions = useMemo(() => {
     return options.map((element) => {
-      if (element.value === 'bybit' && !isPaidUser) {
+      if (element.value === 'bybit' && !isPaidUser && !isException) {
         return { ...element, isDisabled: true }
       }
       return element
     })
-  }, [isPaidUser])
+  }, [isPaidUser, isException])
 
   const setExchangeFormFields = () => {
     let exchangeFields = {}
@@ -183,14 +183,16 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     formatOptionLabel={(element) => (
                       <div>
                         <span>{element.placeholder}</span>
-                        {!isPaidUser && element.value === 'bybit' && (
-                          <span
-                            style={{ marginLeft: '1rem' }}
-                            class="badge badge-warning"
-                          >
-                            Only paid users
-                          </span>
-                        )}
+                        {!isPaidUser &&
+                          element.value === 'bybit' &&
+                          !isException && (
+                            <span
+                              style={{ marginLeft: '1rem' }}
+                              class="badge badge-warning"
+                            >
+                              Only paid users
+                            </span>
+                          )}
                       </div>
                     )}
                   />

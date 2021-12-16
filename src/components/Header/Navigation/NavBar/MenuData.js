@@ -30,8 +30,8 @@ export const MenuData = [
   },
   {
     title: 'Academy',
-    url: '/academy',
-    id: 'cp-tourPortfolio',
+    url: 'https://coinpanelacademy.co.uk/',
+    externalLink: true,
   },
   {
     title: 'Community',
@@ -48,9 +48,8 @@ export const ChartMirroringMenuData = [
     id: 'cp-tour2',
   },
   {
-    title: 'Positions',
-    url: '/positions',
-    id: 'cp-tourPositions',
+    title: 'Analytics',
+    url: '/analytics',
   },
   {
     title: 'Portfolio',
