@@ -30,7 +30,7 @@ export const MenuData = [
   },
   {
     title: 'Academy',
-    url: 'https://coinpanelacademy.co.uk/',
+    url: 'https://academy.coinpanel.com/',
     externalLink: true,
   },
   {

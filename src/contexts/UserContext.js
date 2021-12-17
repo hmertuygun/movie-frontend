@@ -139,6 +139,7 @@ const UserContextProvider = ({ children }) => {
   }
 
   const getChartMirroring = async () => {
+    //test
     try {
       const db = firebase.firestore()
       const currentUser = firebase.auth().currentUser

@@ -110,7 +110,7 @@ const SubscriptionCard = ({ product }) => {
               </>
             )}
           </div>
-          {price.interval === 'month' && (
+          {price.interval === 'year' && (
             <div className="col-auto flex-fill mt-3 mt-sm-0 text-sm-right">
               <div
                 className="btn btn-sm btn-neutral rounded-pill"
