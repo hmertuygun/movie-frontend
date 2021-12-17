@@ -36,6 +36,7 @@ const OnboardingModal = () => {
     handleOnboardingSkip,
     isOnboardingSkipped,
     isPaidUser,
+    isException,
   } = useContext(UserContext)
   const history = useHistory()
 
@@ -66,7 +67,7 @@ const OnboardingModal = () => {
 
   const exchangeOptions = useMemo(() => {
     return options.map((element) => {
-      if (element.value === 'bybit' && !isPaidUser) {
+      if (element.value === 'bybit' && !isPaidUser && !isException) {
         return { ...element, isDisabled: true }
       }
       return element
@@ -309,7 +310,7 @@ const OnboardingModal = () => {
                   : { width: 120 }
               }
             />
-            {!isPaidUser && props.data.value === 'bybit' && (
+            {!isPaidUser && props.data.value === 'bybit' && !isException && (
               <span
                 style={{ marginLeft: '1rem' }}
                 className="badge badge-warning"
@@ -403,14 +404,16 @@ const OnboardingModal = () => {
                       formatOptionLabel={(element) => (
                         <div key={element.value}>
                           <span>{element.placeholder}</span>
-                          {!isPaidUser && element.value === 'bybit' && (
-                            <span
-                              style={{ marginLeft: '1rem' }}
-                              className="badge badge-warning"
-                            >
-                              Only paid users
-                            </span>
-                          )}
+                          {!isPaidUser &&
+                            element.value === 'bybit' &&
+                            !isException && (
+                              <span
+                                style={{ marginLeft: '1rem' }}
+                                className="badge badge-warning"
+                              >
+                                Only paid users
+                              </span>
+                            )}
                         </div>
                       )}
                     />

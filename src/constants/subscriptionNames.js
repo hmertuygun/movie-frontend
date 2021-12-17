@@ -1,4 +1,4 @@
 export const subscriptionNames = {
-  month: 'Monthly',
-  year: 'Yearly',
+  Monthly: 'Monthly',
+  Yearly: 'Yearly',
 }

@@ -69,7 +69,7 @@ export const exchangeCreationOptions = [
   },
   {
     value: 'bybit',
-    url: 'https://www.bybit.com/register',
+    url: 'https://partner.bybit.com/b/coinpanel',
     image: 'img/svg/exchange/bybit.svg',
     logo: 'img/icons/brands/ByBit_Icon.png',
     label: 'ByBit',

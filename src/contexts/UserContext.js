@@ -85,6 +85,8 @@ const UserContextProvider = ({ children }) => {
   const [showSubModalIfLessThan7Days, setShowSubModal] = useState(false)
   const [trialDaysLeft, setDaysLeft] = useState(0)
   const [isPaidUser, setIsPaidUser] = useState(false)
+  const [isException, setIsException] = useState(false)
+  const [endTrial, setEndTrial] = useState(false)
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
 
@@ -224,139 +226,87 @@ const UserContextProvider = ({ children }) => {
     const db = firebase.firestore()
     const currentUser = firebase.auth().currentUser
     const cryptoPayments = await db
-      .collection('coinbase_subscriptions')
+      .collection('subscriptions')
       .doc(currentUser.email)
       .get()
-    let isCryptoExpired = true
-
-    if (cryptoPayments?.data()) {
-      const { seconds } = cryptoPayments.data().expiration_date
+    const subData = cryptoPayments.data()
+    console.log(subData)
+    if (subData) {
+      const { subscription_status, provider, currency, plan, amount } = subData
+      const { seconds } = subData.expiration_date
       const exp = dayjs(seconds * 1000)
       const isExpired = exp.isBefore(dayjs())
-      isCryptoExpired = isExpired
-    }
 
-    if (isCryptoExpired) {
-      try {
-        const response = await db
-          .collection('stripe_users')
-          .doc(currentUser.uid)
-          .collection('subscriptions')
-          .orderBy('created', 'asc')
-          .get()
-        const all = await Promise.all(
-          response.docs.map(async (doc) => {
-            const subscriptionData = doc.data()
-            const response = await db
-              .collection('stripe_users')
-              .doc(currentUser.uid)
-              .collection('subscriptions')
-              .doc(doc.id)
-              .collection('invoices')
-              .get()
-            const invoices = response.docs.map((doc) => doc.data())
-            return {
-              ...subscriptionData,
-              invoices,
-            }
-          })
-        )
-        // console.log('All ==>', all)
-        if (all.length === 0) return
-        const lastSubscription = all[all.length - 1]
-        // console.log('last ==>', lastSubscription)
-        const neverPaid = !lastSubscription.invoices.some(
-          (invoice) => invoice.amount_paid > 0
-        )
-        const NoneActive = !all.some((sub) => sub.status === 'active')
-        const stripeUser = await db
-          .collection('stripe_users')
-          .doc(currentUser.uid)
-          .get()
-        const NoDefaultPayment = !stripeUser.data()?.payment_method_added_ever
-        // const NoDefaultPayment = !lastSubscription.invoices.some(
-        //   (invoice) => invoice.default_payment_method
-        // )
-        // Show days left on sub modal if less than 7 days on trial
+      if (provider === 'coinbase') {
+        setNeedPayment(isExpired)
+        setHasSub(!isExpired)
+        setIsPaidUser(!isExpired)
+        setSubscriptionData({
+          subscription: {
+            type: 'crypto',
+            status: subscription_status,
+          },
+          due: seconds,
+          priceData: {
+            currency,
+            unit_amount: amount,
+            interval: plan,
+          },
+        })
+      } else if (provider === 'stripe') {
+        let trialDays = seconds * 1000 - Date.now()
+        trialDays = trialDays / 1000 / 60 / 60 / 24
         let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
         getSubModalShownLastTime = getSubModalShownLastTime
           ? Number(getSubModalShownLastTime)
           : true
-        let trialDays = lastSubscription?.trial_end?.seconds * 1000 - Date.now()
-        trialDays = trialDays / 1000 / 60 / 60 / 24
         let showSubModal =
-          lastSubscription?.status === 'trialing' &&
-          trialDays < 7 &&
+          subscription_status === 'trialing' &&
+          trialDays < 3 &&
           getSubModalShownLastTime + 86400 < Date.now() / 1000
-        setShowSubModal(showSubModal)
-        setDaysLeft(trialDays)
         if (showSubModal) {
           localStorage.setItem('lastSubModal', parseInt(Date.now() / 1000))
         }
-        // Add Payment Method case
-        if (
-          (lastSubscription.status === 'active' &&
-            lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
-            neverPaid &&
-            NoDefaultPayment) ||
-          (lastSubscription.status === 'trialing' && NoDefaultPayment) ||
-          lastSubscription.status === 'past_due'
-        ) {
-          setNeedPayment(true)
-          // console.log('==> need payment')
-        } else {
-          setNeedPayment(false)
-        }
-
-        setIsPaidUser(lastSubscription.status === 'active')
-
-        if (lastSubscription.status === 'canceled' && NoneActive) {
-          // Subscribe button case
-          setHasSub(false)
-        }
-        // Manage subscription case
-        if (
-          (lastSubscription.status === 'active' &&
-            lastSubscription.trial_end?.seconds + 86400 < new Date() / 1000) ||
-          ((lastSubscription.status === 'active' ||
-            lastSubscription.status === 'trialing') &&
-            lastSubscription.trial_end?.seconds + 86400 > new Date() / 1000 &&
-            !NoDefaultPayment)
-        ) {
-          console.log('has sub ==> true')
-          setHasSub(true)
-        }
-        const priceData = (await lastSubscription.price.get()).data()
-        const plan = await getCustomClaimRole()
-        // console.log('sub, priceData, plan ==>', lastSubscription, priceData, plan)
+        setShowSubModal(showSubModal)
+        setDaysLeft(trialDays)
+        setHasSub(
+          (subscription_status === 'trialing' ||
+            subscription_status === 'active') &&
+            !isExpired
+        )
+        setNeedPayment(
+          subscription_status === 'past_due' ||
+            subscription_status === 'trialing'
+        )
+        if (subData?.payment_method_attached)
+          setEndTrial(subData.payment_method_attached)
+        setIsPaidUser(subscription_status === 'active')
         setSubscriptionData({
-          subscription: lastSubscription,
-          priceData,
-          plan,
+          subscription: {
+            type: 'stripe',
+            status: subscription_status,
+          },
+          due: seconds,
+          priceData: {
+            currency,
+            unit_amount: amount,
+            interval: plan,
+          },
         })
-      } catch (error) {
-        console.log('==>', error)
       }
     } else {
-      const { seconds } = cryptoPayments.data().expiration_date
-      const paymentCurrency = cryptoPayments.data().currency
-      const paymentPlan = cryptoPayments.data().plan
-      const amount = cryptoPayments.data().amount
-      setNeedPayment(isCryptoExpired)
-      setHasSub(!isCryptoExpired)
-      setIsPaidUser(!isCryptoExpired)
-      setSubscriptionData({
-        subscription: {
-          type: 'crypto',
-          status: isCryptoExpired ? 'past_due' : 'active',
-        },
-        due: seconds,
-        priceData: {
-          currency: paymentCurrency,
-          unit_amount: amount,
-          interval: paymentPlan,
-        },
-      })
+      setNeedPayment(true)
+      setHasSub(false)
+      setIsPaidUser(false)
+    }
+
+    const exception = await db
+      .collection('referrals')
+      .doc(currentUser.email)
+      .get()
+    console.log(exception?.data())
+    if (exception?.data()) {
+      setIsException(true)
     }
     setIsCheckingSub(false)
   }
@@ -715,10 +665,12 @@ const UserContextProvider = ({ children }) => {
         loaderText,
         setLoaderText,
         userData,
+        isException,
         setUserData,
         rememberCheck,
         setRememberCheck,
         devENV,
+        endTrial,
         isCheckingSub,
         hasSub,
         onTour,

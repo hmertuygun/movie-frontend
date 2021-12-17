@@ -1,0 +1,13 @@
+@media (max-width: 575.98px) {
+  .subscription-card {
+    flex-direction: column;
+  }
+
+  .subscription-card .avatar {
+    margin-bottom: 10px;
+  }
+
+  .payment-buttons {
+    text-align: center;
+  }
+}

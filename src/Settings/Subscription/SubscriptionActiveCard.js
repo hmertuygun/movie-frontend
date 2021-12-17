@@ -7,15 +7,15 @@ import { callCloudFunction } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { subscriptionNames } from '../../constants/subscriptionNames'
 import dayjs from 'dayjs'
+import './SubscriptionActiveCard.css'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
-  const { subscription, priceData } = subscriptionData
+  const { subscription, priceData, due } = subscriptionData
   const [portalLoading, setPortalLoading] = useState(false)
-  const { cancel_at_period_end } = subscription
 
   const getSubsName = () => {
     return subscription.type !== 'crypto'
-      ? subscriptionNames[subscription.items[0].plan.interval]
+      ? subscriptionNames[priceData.interval]
       : 'Crypto'
   }
 
@@ -49,26 +49,18 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
       <div className="card-body">
         <div className="row row-grid align-items-center">
           <div className="col-lg-8">
-            <div className="media align-items-center">
+            <div className="media align-items-center subscription-card">
               <span className="mr-3 text-white avatar bg-danger rounded-circle">
                 <Bell size={16} strokeWidth="3" />
               </span>
               {subscription.status === 'trialing' ? (
                 <div className="media-body">
                   <h5 className="mb-0">{getSubsName()} Subscription | Trial</h5>
-                  <p className="mb-0 text-sm text-muted lh-150">
-                    You will pay {` `}
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: priceData?.currency,
-                    }).format((priceData?.unit_amount / 100).toFixed(2))}
-                    {` `}
-                    per {priceData?.interval} after trial.
-                  </p>
+
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial will end on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.current_period_end.seconds}
+                      {due}
                     </Moment>
                     .
                   </p>
@@ -90,13 +82,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your trial expired at {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.trial_end?.seconds}
+                      {due}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.trial_end?.seconds + 86400}
+                      {due + 86400}
                     </Moment>
                     {` `}
                     to keep your subscription active.
@@ -108,13 +100,13 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                   <p className="mb-0 text-sm text-muted lh-150">
                     Your free trial expired on {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.trial_end?.seconds}
+                      {due}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
                     Please add a payment method before {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {subscription.trial_end?.seconds + 86400}
+                      {due + 86400}
                     </Moment>
                     {` `}
                     to keep your subscription active.
@@ -129,9 +121,9 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: priceData?.currency,
-                      }).format((priceData?.unit_amount / 100).toFixed(2))}
+                      }).format(priceData?.unit_amount)}
                       {` `}
-                      per {priceData?.interval}
+                      {priceData?.interval.toLowerCase()}
                       {` `}
                     </p>
                   ) : (
@@ -143,11 +135,11 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                       )}
                     </p>
                   )}
-                  {!cancel_at_period_end && subscription.type !== 'crypto' ? (
+                  {subscription.type !== 'crypto' ? (
                     <p className="mb-0 text-sm text-muted lh-150">
                       Your subscription will auto-renew on {` `}
                       <Moment unix format="hh:mm A MMMM DD, YYYY">
-                        {subscription.current_period_end.seconds}
+                        {due}
                       </Moment>
                     </p>
                   ) : null}
@@ -156,7 +148,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
             </div>
           </div>
           {subscription.type !== 'crypto' && (
-            <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right">
+            <div className="mt-4 col-lg-4 flex-fill mt-sm-0 text-sm-right payment-buttons">
               {portalLoading ? (
                 <div className="btn btn-sm btn-neutral rounded-pill">
                   <span
@@ -169,6 +161,7 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                 <div
                   className="btn btn-sm btn-neutral rounded-pill"
                   onClick={() => toCustomerPortal(needPayment)}
+                  style={{ width: '13rem' }}
                 >
                   {needPayment ? 'Add Payment Method' : 'Manage Subscription'}
                 </div>
