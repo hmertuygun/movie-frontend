@@ -19,6 +19,7 @@ const Subscription = () => {
     getSubscriptionsData,
     setSubscriptionData,
     setIsPaidUser,
+    endTrial,
   } = useContext(UserContext)
   const history = useHistory()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
@@ -64,7 +65,7 @@ const Subscription = () => {
           )
         ) : null}
         <>
-          {subscriptionStatus === 'trialing' && !needPayment ? (
+          {subscriptionStatus === 'trialing' && endTrial ? (
             <div className="card shadow-lg border-0" style={{ width: '100%' }}>
               <div className="card-body px-5 py-5 text-center text-md-left">
                 <div className="row align-items-center">

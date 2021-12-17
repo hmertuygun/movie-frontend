@@ -86,6 +86,7 @@ const UserContextProvider = ({ children }) => {
   const [trialDaysLeft, setDaysLeft] = useState(0)
   const [isPaidUser, setIsPaidUser] = useState(false)
   const [isException, setIsException] = useState(false)
+  const [endTrial, setEndTrial] = useState(false)
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
 
@@ -273,7 +274,12 @@ const UserContextProvider = ({ children }) => {
             subscription_status === 'active') &&
             !isExpired
         )
-        setNeedPayment(subscription_status === 'past_due')
+        setNeedPayment(
+          subscription_status === 'past_due' ||
+            subscription_status === 'trialing'
+        )
+        if (subData?.payment_method_attached)
+          setEndTrial(subData.payment_method_attached)
         setIsPaidUser(subscription_status === 'active')
         setSubscriptionData({
           subscription: {
@@ -664,6 +670,7 @@ const UserContextProvider = ({ children }) => {
         rememberCheck,
         setRememberCheck,
         devENV,
+        endTrial,
         isCheckingSub,
         hasSub,
         onTour,
