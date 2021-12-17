@@ -312,7 +312,7 @@ const SymbolContextProvider = ({ children }) => {
             label: symbolVal.replace('/', '-'),
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
-          loadLastPrice(symbolVal, exchangeVal)
+          // loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
         })

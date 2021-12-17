@@ -37,7 +37,7 @@ const PortfolioCTXProvider = ({ children }) => {
   const refreshData = useCallback(async () => {
     try {
       setLoading(true)
-      const apiUrl = `${process.env.REACT_APP_API_V2}getPortfolio?apiKeyName=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
+      const apiUrl = `${process.env.REACT_APP_PORTFOLIO_API}balance?api_key=${activeExchange.apiKeyName}&exchange=${activeExchange.exchange}`
       const token = await firebase.auth().currentUser.getIdToken()
 
       const exchanges = await axios(apiUrl, {
