@@ -7,7 +7,6 @@ import {
   validateUser,
   verifyGoogleAuth2FA,
   getUserExchanges,
-  updateLastSelectedAPIKey,
   storeNotificationToken,
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
@@ -320,6 +319,7 @@ const UserContextProvider = ({ children }) => {
 
   async function getExchanges() {
     try {
+      const db = firebase.firestore()
       let hasKeys = await getUserExchanges()
       if (!hasKeys?.data?.apiKeys?.length && isOnboardingSkipped) {
         hasKeys = DEFAULT_EXCHANGE
@@ -370,7 +370,13 @@ const UserContextProvider = ({ children }) => {
           // find the first one that is 'Active'
           let active = apiKeys.find((item) => item.status === 'Active')
           if (active) {
-            await updateLastSelectedAPIKey({ ...active })
+            let value = `${active.apiKeyName}-${active.exchange}`
+            await db.collection('apiKeyIDs').doc(userData.email).set(
+              {
+                activeLastSelected: value,
+              },
+              { merge: true }
+            )
             const data = {
               ...active,
               label: `${active.exchange} - ${active.apiKeyName}`,

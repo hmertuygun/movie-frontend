@@ -7,11 +7,7 @@ import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../context/SymbolContext'
 import { successNotification } from '../../components/Notifications'
-import {
-  addUserExchange,
-  getUserExchanges,
-  updateLastSelectedAPIKey,
-} from '../../api/api'
+import { addUserExchange, getUserExchanges } from '../../api/api'
 import { useHistory } from 'react-router-dom'
 import {
   options,
@@ -21,6 +17,9 @@ import {
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from '../../constants/Trade'
+import { firebase } from '../../firebase/firebase'
+
+const db = firebase.firestore()
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -36,6 +35,7 @@ const OnboardingModal = () => {
     handleOnboardingSkip,
     isOnboardingSkipped,
     isPaidUser,
+    userData,
     isException,
   } = useContext(UserContext)
   const history = useHistory()
@@ -164,10 +164,13 @@ const OnboardingModal = () => {
       if (result.status !== 200) {
         setError(true)
       } else {
-        await updateLastSelectedAPIKey({
-          apiKeyName: apiName,
-          exchange: exchange.value,
-        })
+        let value = `${apiName}-${exchange.value}`
+        await db.collection('apiKeyIDs').doc(userData.email).set(
+          {
+            activeLastSelected: value,
+          },
+          { merge: true }
+        )
         setStepNo(step + 1)
         successNotification.open({ description: 'API key added!' })
         analytics.logEvent('api_keys_added')

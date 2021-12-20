@@ -15,13 +15,15 @@ import {
   getUserExchanges,
   addUserExchange,
   activateUserExchange,
-  updateLastSelectedAPIKey,
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { firebase } from '../../firebase/firebase'
+
+const db = firebase.firestore()
 
 const Exchanges = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -35,6 +37,7 @@ const Exchanges = () => {
     activeExchange,
     setActiveExchange,
     isOnboardingSkipped,
+    userData,
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
@@ -104,7 +107,13 @@ const Exchanges = () => {
             )
             if (newActiveKey) {
               await refreshExchanges()
-              await updateLastSelectedAPIKey({ ...newActiveKey })
+              let value = `${newActiveKey.apiKeyName}-${newActiveKey.exchange}`
+              await db.collection('apiKeyIDs').doc(userData.email).set(
+                {
+                  activeLastSelected: value,
+                },
+                { merge: true }
+              )
               setActiveExchange({
                 ...newActiveKey,
                 label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,

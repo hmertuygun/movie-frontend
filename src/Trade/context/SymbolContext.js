@@ -12,8 +12,6 @@ import {
   getBalance,
   getLastPrice,
   getUserExchanges,
-  getAllChartData,
-  updateLastSelectedAPIKey,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
@@ -446,7 +444,13 @@ const SymbolContextProvider = ({ children }) => {
       }
       setExchangeUpdated(true)
       setLoaderVisibility(true)
-      await updateLastSelectedAPIKey({ ...exchange })
+      let value = `${exchange.apiKeyName}-${exchange.exchange}`
+      await db.collection('apiKeyIDs').doc(userData.email).set(
+        {
+          activeLastSelected: value,
+        },
+        { merge: true }
+      )
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
