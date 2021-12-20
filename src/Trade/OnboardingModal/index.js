@@ -7,7 +7,11 @@ import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../context/SymbolContext'
 import { successNotification } from '../../components/Notifications'
-import { addUserExchange, getUserExchanges } from '../../api/api'
+import {
+  addUserExchange,
+  updateLastSelectedAPIKey,
+  getUserExchanges,
+} from '../../api/api'
 import { useHistory } from 'react-router-dom'
 import {
   options,
@@ -18,6 +22,7 @@ import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from '../../constants/Trade'
 import { firebase } from '../../firebase/firebase'
+import { sortExchangesData } from '../../helpers/apiKeys'
 
 const db = firebase.firestore()
 
@@ -221,20 +226,27 @@ const OnboardingModal = () => {
     } else if (step === 3) {
       sessionStorage.clear()
       try {
-        const hasKeys = await getUserExchanges()
-        if (hasKeys?.data?.apiKeys) {
-          const { apiKeys } = hasKeys.data
-          setTotalExchanges(apiKeys)
-          setActiveExchange({
-            label: `${exchange.value} - ${apiName}`,
-            value: `${exchange.value} - ${apiName}`,
-            apiKeyName: apiName,
-            exchange: exchange.value,
+        const db = firebase.firestore()
+        db.collection('apiKeyIDs')
+          .doc(userData.email)
+          .get()
+          .then((apiKey) => {
+            if (apiKey.data()) {
+              let apiKeys = sortExchangesData(apiKey.data())
+              if (apiKeys) {
+                setTotalExchanges(apiKeys)
+                setActiveExchange({
+                  label: `${exchange.value} - ${apiName}`,
+                  value: `${exchange.value} - ${apiName}`,
+                  apiKeyName: apiName,
+                  exchange: exchange.value,
+                })
+                refreshExchanges()
+                setOnTour(!onTour)
+                getSubscriptionsData()
+              }
+            }
           })
-          refreshExchanges()
-          setOnTour(!onTour)
-          getSubscriptionsData()
-        }
       } catch (e) {
         console.log(e)
       } finally {

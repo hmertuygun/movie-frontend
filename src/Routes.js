@@ -75,6 +75,7 @@ const Routes = () => {
     setIsAppOnline,
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
+    isApiKeysLoading,
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
@@ -124,7 +125,16 @@ const Routes = () => {
             userContextLoaded &&
             !loadApiKeys &&
             !isSettingsPage &&
-            !isOnboardingSkipped && <OnboardingModal />}
+            !isOnboardingSkipped &&
+            !isApiKeysLoading && <OnboardingModal />}
+          {isApiKeysLoading && (
+            <p
+              className="d-flex justify-content-center align-items-center"
+              style={{ height: 'calc(100vh - 150px)' }}
+            >
+              Loading your chart...
+            </p>
+          )}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

@@ -12,7 +12,6 @@ import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import ExchangeRow from './ExchangeRow'
 import {
-  getUserExchanges,
   addUserExchange,
   activateUserExchange,
   deleteUserExchange,
@@ -22,6 +21,7 @@ import DeletionModal from './DeletionModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { firebase } from '../../firebase/firebase'
+import { sortExchangesData } from '../../helpers/apiKeys'
 
 const db = firebase.firestore()
 
@@ -42,22 +42,41 @@ const Exchanges = () => {
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   const [exchanges, setExchanges] = useState([])
-  const exchangeQuery = useQuery('exchanges', getUserExchanges)
+  const [isLoading, setIsLoading] = useState(false)
+  // const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
-  useEffect(() => {
-    exchangeQuery.refetch()
-  }, [loadApiKeys])
-
-  useEffect(() => {
-    if (exchangeQuery.data) {
-      setExchanges(exchangeQuery.data?.data?.apiKeys)
-      if (exchanges.length !== 0) {
-        setTotalExchanges(exchanges)
-      }
-    } else {
-      setExchanges(false)
+  const getExchanges = () => {
+    setIsLoading(true)
+    try {
+      const db = firebase.firestore()
+      db.collection('apiKeyIDs')
+        .doc(userData.email)
+        .get()
+        .then(
+          (apiKey) => {
+            setIsLoading(false)
+            if (apiKey.data()) {
+              let apiKeys = sortExchangesData(apiKey.data())
+              setExchanges(apiKeys)
+              if (apiKeys.length !== 0) {
+                setTotalExchanges(exchanges)
+              }
+            }
+          },
+          (error) => {
+            console.log(error)
+            setIsLoading(false)
+          }
+        )
+    } catch (e) {
+      console.log(e)
+      setIsLoading(false)
     }
-  }, [exchangeQuery.data, exchanges])
+  }
+
+  useEffect(() => {
+    getExchanges()
+  }, [loadApiKeys])
 
   const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: async (res) => {
@@ -223,7 +242,7 @@ const Exchanges = () => {
           <div className="col-xl-12">
             <div className="card card-fluid">
               <div className="card-body">
-                {!exchangeQuery.isLoading &&
+                {!isLoading &&
                   exchanges &&
                   exchanges
                     .sort((a, b) => {
@@ -249,11 +268,9 @@ const Exchanges = () => {
                       />
                     ))}
 
-                {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
+                {isLoading && <div>Fetching exchanges..</div>}
 
-                {!exchanges && !exchangeQuery.isLoading && (
-                  <div>No exchange added yet.</div>
-                )}
+                {!exchanges && !isLoading && <div>No exchange added yet.</div>}
               </div>
             </div>
           </div>

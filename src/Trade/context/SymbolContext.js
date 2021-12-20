@@ -5,12 +5,12 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
-import ccxtpro from 'ccxt.pro'
 
 import {
   getExchanges,
   getBalance,
   getLastPrice,
+  updateLastSelectedAPIKey,
   getUserExchanges,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
@@ -23,6 +23,7 @@ import { ccxtClass } from '../../constants/ccxtConfigs'
 import { firebase } from '../../firebase/firebase'
 import { defaultEmojis } from '../../constants/emojiDefault'
 import axios from 'axios'
+import { sortExchangesData } from '../../helpers/apiKeys'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -578,19 +579,29 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const refreshExchanges = async () => {
-    try {
-      const response = await getUserExchanges()
-      if (response?.data?.error) return
-      const apiKeys = response.data.apiKeys.map((item) => {
-        return {
-          ...item,
-          label: `${item.exchange} - ${item.apiKeyName}`,
-          value: `${item.exchange} - ${item.apiKeyName}`,
-        }
-      })
-      setExchanges(apiKeys)
-    } catch (error) {
-      console.log(error)
+    if (userData.email) {
+      try {
+        const db = firebase.firestore()
+        db.collection('apiKeyIDs')
+          .doc(userData.email)
+          .get()
+          .then((apiKey) => {
+            if (apiKey.data()) {
+              let apiKeys = sortExchangesData(apiKey.data())
+              if (!apiKeys.length) return
+              const keys = apiKeys.map((item) => {
+                return {
+                  ...item,
+                  label: `${item.exchange} - ${item.apiKeyName}`,
+                  value: `${item.exchange} - ${item.apiKeyName}`,
+                }
+              })
+              setExchanges(keys)
+            }
+          })
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
