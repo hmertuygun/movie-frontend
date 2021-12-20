@@ -1,7 +1,6 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { ccxtClass } from '../../../constants/ccxtConfigs'
 
 import {
   addPrecisionToNumber,
@@ -24,6 +23,7 @@ import * as yup from 'yup'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
+import { execExchangeFunc } from '../../../helpers/getExchangeProp'
 
 const MarketForm = () => {
   const {
@@ -321,7 +321,9 @@ const MarketForm = () => {
         const { exchange } = activeExchange
         let price = selectedSymbolLastPrice
         try {
-          const response = await ccxtClass[exchange].fetchTicker(symbol)
+          const response = await execExchangeFunc(exchange, 'fetchTicker', {
+            symbol,
+          })
           price = response.last
         } catch (err) {
           console.log(err)

@@ -8,8 +8,6 @@ import React, {
 import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { getAnalytics } from '../../api/api'
-import { ccxtClass } from '../../constants/ccxtConfigs'
-import axios from 'axios'
 import { errorNotification } from '../../components/Notifications'
 
 export const AnalyticsContext = createContext()
@@ -41,9 +39,9 @@ const AnalyticsProvider = ({ children }) => {
         setAssetPerformance(analytics.asset_performance)
       } catch (error) {
         console.log(error)
-        errorNotification.open({
-          description: `Analytics could not fetched. Please try again later!`,
-        })
+        // errorNotification.open({
+        //   description: `Analytics could not fetched. Please try again later!`,
+        // })
       }
 
       setLoading(false)

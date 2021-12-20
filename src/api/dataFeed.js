@@ -1,12 +1,9 @@
 import { getExchangeProp, execExchangeFunc } from '../helpers/getExchangeProp'
-import { ccxtClass } from '../constants/ccxtConfigs'
-
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
     this.selectedExchange = exchange
     this.symbolList = symbolList
     this.marketSymbols = marketSymbols
-    this.pollingInterval = null
     this.mappedResolutions = getExchangeProp(
       this.selectedExchange,
       'mappedResolutions'
@@ -14,8 +11,6 @@ export default class dataFeed {
     this.debug = debug
     this.socketClass = getExchangeProp(this.selectedExchange, 'socketClass')
     this.ws = new this.socketClass()
-    this.kucoin = ccxtClass['kucoin']
-    this.bybit = ccxtClass['bybit']
   }
   onReady(callback) {
     setTimeout(() => {
@@ -98,59 +93,31 @@ export default class dataFeed {
           { symbol: symbolInfo }
         )
         if (
-          symbolAPI &&
-          this.mappedResolutions[resolution] &&
-          from &&
-          to &&
-          kLinesLimit
-        ) {
-          let data = []
-          if (
-            this.selectedExchange === 'binance' ||
-            this.selectedExchange === 'binanceus'
-          ) {
-            data = await execExchangeFunc(this.selectedExchange, 'getKlines', {
-              symbol: symbolAPI,
-              interval: this.mappedResolutions[resolution],
-              startTime: from,
-              endTime: to,
-              limit: kLinesLimit,
-            })
-          } else if (this.selectedExchange === 'kucoin') {
-            try {
-              data = await this.kucoin.fetchOHLCV(
-                symbolAPI,
-                this.mappedResolutions[resolution]
-              )
-            } catch (error) {
-              console.log('bad symbol')
-            }
-          } else if (this.selectedExchange === 'bybit') {
-            kLinesLimit = 1000
-            try {
-              data = await execExchangeFunc(
-                this.selectedExchange,
-                'getKlines',
-                {
-                  symbol: symbolAPI,
-                  interval: this.mappedResolutions[resolution],
-                  startTime: from,
-                  endTime: to,
-                  limit: kLinesLimit,
-                }
-              )
-            } catch (error) {
-              console.log('bad symbol', error)
-            }
-          }
+          !(
+            symbolAPI ||
+            this.mappedResolutions[resolution] ||
+            from ||
+            to ||
+            kLinesLimit
+          )
+        )
+          return
+        let data = []
 
-          totalKlines = totalKlines && totalKlines.concat(data)
-          if (data.length === kLinesLimit) {
-            from = data[data.length - 1][0] + 1
-            getKlines(from, to)
-          } else {
-            finishKlines()
-          }
+        data = await execExchangeFunc(this.selectedExchange, 'getKlines', {
+          symbol: symbolAPI,
+          interval: this.mappedResolutions[resolution],
+          startTime: from,
+          endTime: to,
+          limit: kLinesLimit,
+        })
+
+        totalKlines = totalKlines && totalKlines.concat(data)
+        if (data.length === kLinesLimit) {
+          from = data[data.length - 1][0] + 1
+          getKlines(from, to)
+        } else {
+          finishKlines()
         }
       } catch (e) {
         console.error(e)

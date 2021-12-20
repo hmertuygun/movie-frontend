@@ -10,8 +10,6 @@ import {
   getExchanges,
   getBalance,
   getLastPrice,
-  updateLastSelectedAPIKey,
-  getUserExchanges,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
@@ -19,10 +17,9 @@ import {
   errorNotification,
   successNotification,
 } from '../../components/Notifications'
-import { ccxtClass } from '../../constants/ccxtConfigs'
 import { firebase } from '../../firebase/firebase'
 import { defaultEmojis } from '../../constants/emojiDefault'
-import axios from 'axios'
+import { execExchangeFunc } from '../../helpers/getExchangeProp'
 import { sortExchangesData } from '../../helpers/apiKeys'
 
 export const SymbolContext = createContext()
@@ -160,28 +157,12 @@ const SymbolContextProvider = ({ children }) => {
     let activeMarketData = {}
     if (activeExchange?.exchange) {
       try {
-        if (activeExchange.exchange !== 'bybit') {
-          const ccxtExchange = ccxtClass[activeExchange.exchange]
-          activeMarketData = await ccxtExchange.fetchTicker(symbol)
-          setMarketData(activeMarketData)
-        } else {
-          const { data } = await axios.get(
-            `${localStorage.getItem(
-              'proxyServer'
-            )}https://api.bybit.com/spot/quote/v1/ticker/24hr?symbol=${symbol.replace(
-              '/',
-              ''
-            )}`
-          )
-          setMarketData({
-            last: data.result.lastPrice,
-            high: data.result.highPrice,
-            low: data.result.lowPrice,
-            baseVolume: data.result.volume,
-            quoteVolume: data.result.quoteVolume,
-            symbol: data.result.symbol,
-          })
-        }
+        activeMarketData = await execExchangeFunc(
+          activeExchange?.exchange,
+          'fetchTicker',
+          { symbol }
+        )
+        setMarketData(activeMarketData)
       } catch (error) {
         console.log(error)
       }

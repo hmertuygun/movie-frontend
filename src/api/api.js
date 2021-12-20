@@ -1,14 +1,6 @@
 import axios from 'axios'
 import { firebase } from '../firebase/firebase'
 import capitalize from '../helpers/capitalizeFirstLetter'
-import { getExchangeProp } from '../helpers/getExchangeProp'
-
-function getLocalUserData() {
-  let userData = localStorage.getItem('user')
-  if (!userData) return ''
-  userData = JSON.parse(userData)
-  return userData?.stsTokenManager?.accessToken || ''
-}
 
 async function getHeaders(token) {
   return {
@@ -19,22 +11,6 @@ async function getHeaders(token) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
-}
-
-export async function get24hrTickerPrice(exchange) {
-  let type = getExchangeProp(exchange, 'apiUrl')
-  const result = await axios(`${type}v3/ticker/24hr`, {
-    method: 'GET',
-  })
-  return result.data
-}
-
-export async function getSymbolPriceTicker(exchange, symbols) {
-  let type = getExchangeProp(exchange, 'apiUrl')
-  const result = await axios(`${type}v3/ticker/price`, {
-    method: 'GET',
-  })
-  return result.data
 }
 
 export async function placeOrder({
@@ -157,11 +133,6 @@ export async function getLastPrice(symbol, exchange) {
   return response
 }
 
-// {
-//   "apiKey": "FriendshipIsMagic",
-//   "signSecret": "Tralalala",
-//   "exchange": "binance"
-// }
 export async function addUserExchange(data) {
   const apiUrl = process.env.REACT_APP_API_V2 + 'addApiKey'
   const token = await firebase.auth().currentUser.getIdToken()
@@ -472,17 +443,7 @@ export async function getPositionsList({ apiKeyName, exchange }) {
 
   return response
 }
-export async function getChartIntervals() {
-  const apiUrl = `${process.env.REACT_APP_API}chart/interval`
-  const token = await firebase.auth().currentUser.getIdToken()
 
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-
-  return response?.data?.intervals || []
-}
 export async function saveChartIntervals(cIntervals) {
   const apiUrl = `${process.env.REACT_APP_API}chart/interval`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -495,63 +456,7 @@ export async function saveChartIntervals(cIntervals) {
 
   return response?.data?.intervals || []
 }
-export async function createUserSubscription() {
-  const apiUrl = `${process.env.REACT_APP_API.replace(
-    'usercomp',
-    'subscriptions'
-  )}users`
-  const token = await firebase.auth().currentUser.getIdToken()
 
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'POST',
-  })
-  return response?.data
-}
-export async function buySubscription(payment_id) {
-  const apiUrl = `${process.env.REACT_APP_API.replace(
-    'usercomp',
-    'subscriptions'
-  )}users/payment_status`
-  const token = await firebase.auth().currentUser.getIdToken()
-
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'PATCH',
-    data: { id: payment_id },
-  })
-  return response?.data
-}
-export async function checkSubscription() {
-  const apiUrl = `${process.env.REACT_APP_API.replace(
-    'usercomp',
-    'subscriptions'
-  )}users/payment_status`
-  const token = await firebase.auth().currentUser.getIdToken()
-
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  }).catch((error) => {
-    return error?.response
-  })
-
-  return response?.data
-}
-export async function deleteSubscription() {
-  const apiUrl = `${process.env.REACT_APP_API.replace(
-    'usercomp',
-    'subscriptions'
-  )}users/payment_method`
-  const token = await firebase.auth().currentUser.getIdToken()
-
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'DELETE',
-  })
-
-  return response?.data
-}
 export async function createPriceAlert(data) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/create`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -564,6 +469,7 @@ export async function createPriceAlert(data) {
 
   return response?.data
 }
+
 export async function updatePriceAlert(id, data) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/update/${id}`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -576,6 +482,7 @@ export async function updatePriceAlert(id, data) {
 
   return response?.data
 }
+
 export async function getPriceAlerts() {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/list`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -587,6 +494,7 @@ export async function getPriceAlerts() {
 
   return response?.data
 }
+
 export async function deletePriceAlert(id) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/delete/${id}`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -598,6 +506,7 @@ export async function deletePriceAlert(id) {
 
   return response?.data
 }
+
 export async function reactivatePriceAlert(id) {
   const apiUrl = `${process.env.REACT_APP_API_V2}PriceAlert/reactive/${id}`
   const token = await firebase.auth().currentUser.getIdToken()
@@ -609,15 +518,7 @@ export async function reactivatePriceAlert(id) {
 
   return response?.data
 }
-export async function getNotices(limit) {
-  const apiUrl = process.env.REACT_APP_API + `notice/list/${limit}`
-  const token = await firebase.auth().currentUser?.getIdToken()
-  const noticeData = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-  return noticeData?.data?.data || []
-}
+
 export async function dismissNotice(notice_id) {
   const apiUrl = process.env.REACT_APP_API + `notice`
   const token = await firebase.auth().currentUser?.getIdToken()
@@ -628,39 +529,7 @@ export async function dismissNotice(notice_id) {
   })
   return resp?.data
 }
-export async function getEmails(str) {
-  const apiUrl = process.env.REACT_APP_API + `admin/getEmails/${str}`
-  let idTokenResult = await firebase.auth()?.currentUser?.getIdTokenResult()
-  const isAdmin = idTokenResult?.claims?.admin
-  if (!isAdmin) return []
-  const emailData = await axios(apiUrl, {
-    headers: await getHeaders(idTokenResult.token),
-    method: 'GET',
-  })
-  return emailData?.data?.data || []
-}
-export async function createNotice(data) {
-  const apiUrl = process.env.REACT_APP_API + `admin/notice/create`
-  let idTokenResult = await firebase.auth()?.currentUser?.getIdTokenResult()
-  const isAdmin = idTokenResult?.claims?.admin
-  if (!isAdmin) return { error: 'Not Admin' }
-  const respData = await axios(apiUrl, {
-    headers: await getHeaders(idTokenResult.token),
-    method: 'POST',
-    data: data,
-  })
-  return respData.data
-}
 
-export async function getLastSelectedMarketSymbol() {
-  const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
-  const token = await firebase.auth().currentUser?.getIdToken()
-  const noticeData = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-  return noticeData?.data
-}
 export async function saveLastSelectedMarketSymbol(symbol) {
   const apiUrl = process.env.REACT_APP_API + `chart/lastSelectedSymbol`
   const token = await firebase.auth().currentUser?.getIdToken()
@@ -683,39 +552,6 @@ export async function saveTimeZone(timezone) {
   return noticeData?.data
 }
 
-export async function saveWatchLists(symbols) {
-  const apiUrl = `${process.env.REACT_APP_API}chart/watchlist`
-  const token = await firebase.auth().currentUser?.getIdToken()
-  const watchLists = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'POST',
-    data: { symbols: symbols },
-  })
-  return watchLists?.data
-}
-
-export async function getWatchLists() {
-  const apiUrl = `${process.env.REACT_APP_API}chart/watchlist`
-  const token = await firebase.auth().currentUser?.getIdToken()
-
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-
-  return response
-}
-export async function getAllChartData() {
-  const apiUrl = `${process.env.REACT_APP_API}chart/data`
-  const token = await firebase.auth().currentUser?.getIdToken()
-
-  const response = await axios(apiUrl, {
-    headers: await getHeaders(token),
-    method: 'GET',
-  })
-
-  return response?.data
-}
 export async function callCloudFunction(funcName) {
   const apiUrl = `https://europe-west1-${process.env.REACT_APP_FIREBASE_PROJECT_ID}.cloudfunctions.net/${funcName}`
   const token = await firebase.auth().currentUser?.getIdToken()
@@ -739,7 +575,6 @@ export async function editOrder(payload) {
   return response?.data
 }
 
-//To delete current account
 export async function deleteUserAccount() {
   const apiUrl = `${process.env.REACT_APP_API_V2}delete`
   const token = await firebase.auth().currentUser.getIdToken()

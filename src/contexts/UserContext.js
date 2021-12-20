@@ -14,6 +14,7 @@ import { successNotification } from '../components/Notifications'
 import { useHistory } from 'react-router'
 import Ping from 'ping.js'
 import dayjs from 'dayjs'
+import { execExchangeFunc } from '../helpers/getExchangeProp'
 import { sortExchangesData } from '../helpers/apiKeys'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
@@ -192,11 +193,13 @@ const UserContextProvider = ({ children }) => {
   }
 
   async function findFastServer(urls) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       var results = []
       urls.forEach((url) => {
         results.push(makePing(url))
       })
+
+      await execExchangeFunc('kucoin', 'socketUrl')
 
       Promise.all(results).then(function (values) {
         values.sort((a, b) => {

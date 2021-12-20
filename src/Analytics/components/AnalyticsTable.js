@@ -47,7 +47,7 @@ const AnalyticsTable = () => {
       startDate: startString,
       endDate: endString,
     })
-  }, [startDate, endDate])
+  }, [startDate, endDate, refreshData])
 
   useEffect(() => {
     if (pairOperations) {
