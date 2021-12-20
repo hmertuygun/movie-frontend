@@ -1,7 +1,10 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useContext } from 'react'
+import { ThemeContext } from '../../contexts/ThemeContext'
 import './ExchangeRow.css'
 
 const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
+  const { theme } = useContext(ThemeContext)
+
   return (
     <Fragment>
       <div className="row align-items-center">
@@ -20,7 +23,9 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
                 ? '65'
                 : '120'
             }
-            src={`img/svg/exchange/${row.exchange}.svg`}
+            src={`img/svg/exchange/${
+              theme === 'LIGHT' ? row.exchange : `${row.exchange}-white`
+            }.svg`}
             alt={row.exchange}
           />
         </div>
