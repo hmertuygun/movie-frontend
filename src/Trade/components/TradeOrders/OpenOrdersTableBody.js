@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import { useNotifications } from 'reapop'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Tooltip from '../../../components/Tooltip'
 import { cancelTradeOrder, editOrder } from '../../../api/api'
@@ -6,10 +7,6 @@ import { Icon } from '../../../components'
 import Moment from 'react-moment'
 import { UserContext } from '../../../contexts/UserContext'
 import { ThemeContext } from '../../../contexts/ThemeContext'
-import {
-  errorNotification,
-  successNotification,
-} from '../../../components/Notifications'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './TradeOrders.module.css'
 import OrderEditModal from './OrderEditModal'
@@ -70,6 +67,8 @@ const openOrdersColumns = [
 ]
 
 const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
+  const { notify } = useNotifications()
+
   const [show, setShow] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
@@ -97,19 +96,27 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         ...activeExchange,
       })
       if (data?.status === 'error') {
-        errorNotification.open({
-          description:
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
             data?.error ||
-            `Order couldn't be cancelled. Please try again later.`,
+            "Order couldn't be cancelled. Please try again later!",
         })
       } else {
         setDeletedRows(order.trade_id)
         deletedRow(order)
-        successNotification.open({ description: `Order Cancelled!` })
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'Order Cancelled!',
+        })
       }
     } catch (error) {
-      errorNotification.open({
-        description: `Order couldn't be cancelled. Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Order couldn't be cancelled. Please try again later!",
       })
     } finally {
       setCancelOrderRow(null)
@@ -144,14 +151,20 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         payload.price = formData.price
       }
       await editOrder(payload)
-      successNotification.open({ description: `Order Edited!` })
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'Order Edited!',
+      })
       setOrderEdited(true)
       setEditModalOpen(false)
     } catch (error) {
       const { data } = error.response
-      errorNotification.open({
-        description:
-          data?.detail || `Order couldn't be edited. Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message:
+          data?.detail || `Order couldn't be edited. Please try again later!`,
       })
     } finally {
       setEditLoading(false)

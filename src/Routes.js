@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, Suspense, lazy } from 'react'
+import React, { useContext, useEffect, Suspense, lazy } from 'react'
 import {
   Switch,
   Route,
@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from './contexts/UserContext'
+import NotificationsSystem, { useNotifications } from 'reapop'
 
 // import Login from './views/Auth/QuickLogin'
 // import LoginVerify2FA from './views/Auth/QuickLoginVerify2FA'
@@ -28,11 +29,8 @@ import SubscriptionModal from './Trade/SubscriptionModal'
 import FullScreenLoader from './components/FullScreenLoader'
 import { PageView } from './Tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
-import { Detector, Offline, Online } from 'react-detect-offline'
-import {
-  successNotification,
-  warningNotification,
-} from './components/Notifications'
+import { Detector } from 'react-detect-offline'
+import { customTheme } from './customTheme'
 
 const Login = lazy(() => import('./views/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('./views/Auth/QuickLoginVerify2FA'))
@@ -58,6 +56,7 @@ const Routes = () => {
   const { pathname } = useLocation()
   const isSettingsPage = pathname === '/settings'
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+  const { notifications, dismissNotification } = useNotifications()
 
   useEffect(() => {
     PageView()
@@ -70,20 +69,26 @@ const Routes = () => {
     userContextLoaded,
     loadApiKeys,
     hasSub,
-    loaderVisible,
-    loaderText,
-    setIsAppOnline,
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
     isApiKeysLoading,
   } = useContext(UserContext)
+  const { notify } = useNotifications()
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
-      successNotification.open({ description: 'You are back online!' })
+      notify({
+        id: 'back-online',
+        status: 'success',
+        title: 'Success',
+        message: 'You are back online!',
+      })
     } else {
-      warningNotification.open({
-        description: "You don't seem to be online anymore!",
+      notify({
+        id: 'not-online',
+        status: 'warning',
+        title: 'Warning',
+        message: "You don't seem to be online anymore!",
       })
     }
     return null
@@ -93,6 +98,11 @@ const Routes = () => {
 
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
+      <NotificationsSystem
+        notifications={notifications}
+        dismissNotification={(id) => dismissNotification(id)}
+        theme={customTheme}
+      />
       <FullScreenLoader />
       <Detector
         polling={{

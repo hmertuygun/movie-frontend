@@ -1,5 +1,6 @@
 import React, { useContext, useRef, useState, useMemo } from 'react'
 import { X } from 'react-feather'
+import { useNotifications } from 'reapop'
 import T2FARow from './T2FARow'
 import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
 import { UserContext } from '../../contexts/UserContext'
@@ -7,13 +8,14 @@ import { Modal } from '../../components'
 import Button from '../../components/Button/Button'
 import { UserX } from 'react-feather'
 import { deleteUserAccount } from '../../api/api'
-import { errorNotification } from '../../components/Notifications'
 import { useHistory } from 'react-router-dom'
 import { ModalsConf } from '../../constants/ModalsConf'
 import { T2FA_TYPES } from '../../constants/Security'
 
 const Security = () => {
   const { get2FADetails } = useContext(UserContext)
+  const { notify } = useNotifications()
+
   const [t2FAList, set2FAList] = useState(() => {
     const t2FAEntry = get2FADetails()
     return t2FAEntry ? [t2FAEntry] : []
@@ -64,8 +66,10 @@ const Security = () => {
       history.push('/logout')
     } catch (err) {
       setAccountDeleteLoading(false)
-      errorNotification.open({
-        description: `It seems something wrong. Please try again later`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'It seems something wrong. Please try again later!',
       })
     }
   }

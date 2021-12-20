@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNotifications } from 'reapop'
 import OrderNotificationCard from './OrderNotificationCard'
 import OrderChannelCard from './OrderChannelCard'
 import { useQuery } from 'react-query'
@@ -7,16 +8,13 @@ import {
   setTelegramNotification,
   setEmailNotification,
 } from '../../api/api'
-import {
-  errorNotification,
-  successNotification,
-} from '../../components/Notifications'
 
 const Notifications = () => {
   const notificationChannelsQuery = useQuery(
     'notification_channels',
     loadNotificationChannels
   )
+  const { notify } = useNotifications()
 
   let notificationChannels = null
   if (notificationChannelsQuery.data) {
@@ -29,19 +27,25 @@ const Notifications = () => {
     try {
       const { data } = await setTelegramNotification(enable)
       if (data?.status === 'error') {
-        errorNotification.open({
-          description:
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
             data?.error ||
-            `Telegram notification setting couldn't be saved. Please try again later`,
+            "Telegram notification setting couldn't be saved. Please try again later",
         })
       } else {
-        successNotification.open({
-          description: `Telegram notification setting saved!`,
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'Telegram notification setting saved!',
         })
       }
     } catch (error) {
-      errorNotification.open({
-        description: 'Please click Telegram settings to setup the bot first!',
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Please click Telegram settings to setup the bot first!',
       })
     } finally {
       notificationChannelsQuery.refetch()
@@ -52,20 +56,26 @@ const Notifications = () => {
     try {
       const { data } = await setEmailNotification(enable)
       if (data?.status === 'error') {
-        errorNotification.open({
-          description:
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
             data?.error ||
-            `Email notification setting couldn't be saved. Please try again later`,
+            `Email notification setting couldn't be saved. Please try again later!`,
         })
       } else {
-        successNotification.open({
-          description: `Email notification setting saved!`,
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'Email notification setting saved!',
         })
       }
     } catch (error) {
-      errorNotification.open({
-        description:
-          "Email notification setting couldn't be saved. Please try again later",
+      notify({
+        status: 'error',
+        title: 'Error',
+        message:
+          "Email notification setting couldn't be saved. Please try again later!",
       })
     } finally {
       notificationChannelsQuery.refetch()

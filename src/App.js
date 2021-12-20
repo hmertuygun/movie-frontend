@@ -12,6 +12,7 @@ import SymbolContextProvider from './Trade/context/SymbolContext'
 import PositionCTXProvider from './Position/context/PositionContext'
 import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
 import AnalyticsProvider from './Analytics/context/AnalyticsContext'
+import { NotificationsProvider, setUpNotifications } from 'reapop'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
@@ -25,33 +26,43 @@ library.add(fab, fas)
 const queryClient = new QueryClient()
 
 export default function App() {
+  setUpNotifications({
+    defaultProps: {
+      position: 'bottom-right',
+      dismissible: true,
+      showDismissButton: true,
+      dismissAfter: 5000,
+    },
+  })
   return (
-    <ChunkLoadErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <ThemeContextProvider>
-            <UserContextProvider>
-              <SymbolContextProvider>
-                <TabContextProvider>
-                  <PositionCTXProvider>
-                    <PortfolioCTXProvider>
-                      <AnalyticsProvider>
-                        <ErrorBoundary componentName="Header">
-                          <Suspense fallback={<div></div>}>
-                            <Header />
-                          </Suspense>
-                        </ErrorBoundary>
-                        <Routes />
-                      </AnalyticsProvider>
-                    </PortfolioCTXProvider>
-                  </PositionCTXProvider>
-                </TabContextProvider>
-              </SymbolContextProvider>
-            </UserContextProvider>
-          </ThemeContextProvider>
-        </Router>
-        {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
-      </QueryClientProvider>
-    </ChunkLoadErrorBoundary>
+    <NotificationsProvider>
+      <ChunkLoadErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <ThemeContextProvider>
+              <UserContextProvider>
+                <SymbolContextProvider>
+                  <TabContextProvider>
+                    <PositionCTXProvider>
+                      <PortfolioCTXProvider>
+                        <AnalyticsProvider>
+                          <ErrorBoundary componentName="Header">
+                            <Suspense fallback={<div></div>}>
+                              <Header />
+                            </Suspense>
+                          </ErrorBoundary>
+                          <Routes />
+                        </AnalyticsProvider>
+                      </PortfolioCTXProvider>
+                    </PositionCTXProvider>
+                  </TabContextProvider>
+                </SymbolContextProvider>
+              </UserContextProvider>
+            </ThemeContextProvider>
+          </Router>
+          {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+        </QueryClientProvider>
+      </ChunkLoadErrorBoundary>
+    </NotificationsProvider>
   )
 }

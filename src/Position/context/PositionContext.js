@@ -5,9 +5,9 @@ import React, {
   useEffect,
   useContext,
 } from 'react'
+import { useNotifications } from 'reapop'
 import { UserContext } from '../../contexts/UserContext'
 import { getPositionsList } from '../../api/api'
-import { errorNotification } from '../../components/Notifications'
 import { ccxtClass } from '../../constants/ccxtConfigs'
 
 export const PositionContext = createContext()
@@ -15,6 +15,8 @@ export const PositionContext = createContext()
 const PositionCTXProvider = ({ children }) => {
   const { activeExchange, userData, isLoggedIn, isOnboardingSkipped } =
     useContext(UserContext)
+  const { notify } = useNotifications()
+
   const { exchange, apiKeyName } = activeExchange
 
   const [isLoading, setIsLoading] = useState(false)
@@ -29,16 +31,22 @@ const PositionCTXProvider = ({ children }) => {
       setLastMessage(message)
       const { data } = await getPositionsList({ exchange, apiKeyName })
       if (data?.error) {
-        // errorNotification.open({
-        //   description: 'Cannot fetch positions. Please try again later!',
+        // notify({
+        //   id: 'fetch-position',
+        //   status: 'error',
+        //   title: 'Error',
+        //   message: 'Cannot fetch positions. Please try again later!',
         // })
         console.log(data.error)
       } else if (data?.positions) {
         setPositions(data.positions)
       }
     } catch (error) {
-      // errorNotification.open({
-      //   description: 'Cannot fetch positions. Please try again later!',
+      // notify({
+      //   id: 'fetch-position',
+      //   status: 'error',
+      //   title: 'Error',
+      //   message: 'Cannot fetch positions. Please try again later!',
       // })
       console.log(error)
     } finally {

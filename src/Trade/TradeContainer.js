@@ -9,13 +9,13 @@ import React, {
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
+import { useNotifications } from 'reapop'
 import { firebase } from '../firebase/firebase'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { dismissNotice } from '../api/api'
-import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -42,6 +42,8 @@ const TradeContainer = () => {
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+  const { notify } = useNotifications()
+
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = watchListOpen
     ? window.innerHeight + 'px'
@@ -178,8 +180,10 @@ const TradeContainer = () => {
       setFinalNotices(final)
       await dismissNotice(item)
     } catch (e) {
-      errorNotification.open({
-        description: `Couldn't dismiss notice. Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't dismiss notice. Please try again later!",
       })
       console.log(e)
     }

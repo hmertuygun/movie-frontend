@@ -1,13 +1,12 @@
 import React, { useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-
+import { useNotifications } from 'reapop'
 import SubscriptionCard from './SubscriptionCard'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from '../../contexts/UserContext'
 import { UserCheck } from 'react-feather'
 import { Modal } from '../../components'
 import { getSubscriptionDetails } from '../../api/api'
-import { errorNotification } from '../../components/Notifications'
 
 const Subscription = () => {
   const {
@@ -22,6 +21,8 @@ const Subscription = () => {
     endTrial,
   } = useContext(UserContext)
   const history = useHistory()
+  const { notify } = useNotifications()
+
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const handleClickYes = async () => {
@@ -41,8 +42,10 @@ const Subscription = () => {
     } catch (err) {
       setIsLoading(false)
       setShowEndTrialModal(false)
-      errorNotification.open({
-        description: `Cannot end trial. Please contact support`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Cannot end trial. Please contact support!',
       })
     }
   }

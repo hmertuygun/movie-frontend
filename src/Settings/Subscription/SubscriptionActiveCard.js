@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState } from 'react'
 import Moment from 'react-moment'
 import { Bell } from 'react-feather'
-import { coinBaseUrls } from '../../constants/coinbaseUrls'
-import { errorNotification } from '../../components/Notifications'
-import { callCloudFunction } from '../../api/api'
-import { UserContext } from '../../contexts/UserContext'
-import { subscriptionNames } from '../../constants/subscriptionNames'
 import dayjs from 'dayjs'
+import { useNotifications } from 'reapop'
+import { coinBaseUrls } from '../../constants/coinbaseUrls'
+import { callCloudFunction } from '../../api/api'
+import { subscriptionNames } from '../../constants/subscriptionNames'
 import './SubscriptionActiveCard.css'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   const { subscription, priceData, due } = subscriptionData
+  const { notify } = useNotifications()
+
   const [portalLoading, setPortalLoading] = useState(false)
 
   const getSubsName = () => {
@@ -35,8 +36,10 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
         window.location.assign(response?.result?.url)
       }
     } catch (error) {
-      errorNotification.open({
-        description: error,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: error,
       })
       console.log('CustomerPortal Error: ', error)
     } finally {

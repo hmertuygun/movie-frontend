@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
+import { useNotifications } from 'reapop'
 import { firebase, messaging } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -10,8 +11,6 @@ import {
   getUserExchanges,
   storeNotificationToken,
 } from '../api/api'
-import { successNotification } from '../components/Notifications'
-import { useHistory } from 'react-router'
 import Ping from 'ping.js'
 import dayjs from 'dayjs'
 import { execExchangeFunc } from '../helpers/getExchangeProp'
@@ -29,6 +28,7 @@ const DEFAULT_EXCHANGE = [
 ]
 
 const UserContextProvider = ({ children }) => {
+  const { notify } = useNotifications()
   const localStorageUser = localStorage.getItem('user')
   const localStorageRemember = localStorage.getItem('remember')
   const sessionStorageRemember = sessionStorage.getItem('remember')
@@ -430,10 +430,10 @@ const UserContextProvider = ({ children }) => {
             <p className="mb-0">API Key: {apiKey}</p>
           </>
         )
-        successNotification.open({
-          message: data.title,
-          duration: 3,
-          description,
+        notify({
+          status: 'success',
+          title: data.title,
+          message: description,
         })
       })
       navigator.serviceWorker.addEventListener('message', () => {

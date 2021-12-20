@@ -5,6 +5,7 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
+import { useNotifications } from 'reapop'
 
 import {
   getExchanges,
@@ -13,10 +14,6 @@ import {
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
-import {
-  errorNotification,
-  successNotification,
-} from '../../components/Notifications'
 import { firebase } from '../../firebase/firebase'
 import { defaultEmojis } from '../../constants/emojiDefault'
 import { execExchangeFunc } from '../../helpers/getExchangeProp'
@@ -35,6 +32,8 @@ const SymbolContextProvider = ({ children }) => {
     userData,
     isOnboardingSkipped,
   } = useContext(UserContext)
+  const { notify } = useNotifications()
+
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
   const DEFAULT_EXCHANGE = 'BINANCE'
@@ -216,12 +215,17 @@ const SymbolContextProvider = ({ children }) => {
           },
           { merge: true }
         )
-      successNotification.open({
-        description: 'Emojis saved successfully',
+
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'Emojis saved successfully!',
       })
     } catch (error) {
-      errorNotification.open({
-        description: `Emojis not saved. Please try again later`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Emojis not saved. Please try again later!',
       })
     }
   }
@@ -353,9 +357,11 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedSymbolLastPrice(response.data.last_price)
       else setSelectedSymbolLastPrice(0)
     } catch (err) {
-      errorNotification.open({
-        description: `Error getting last price of market.`,
-        key: 'last-price-warning',
+      notify({
+        id: 'last-price-warning',
+        status: 'error',
+        title: 'Error',
+        message: 'Error getting last price of market!',
       })
       setSelectedSymbolLastPrice(0)
     } finally {
@@ -438,8 +444,10 @@ const SymbolContextProvider = ({ children }) => {
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
-      errorNotification.open({
-        description: `Error activating this exchange key!`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Error activating this exchange key!',
       })
     } finally {
     }

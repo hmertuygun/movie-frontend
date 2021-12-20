@@ -1,16 +1,14 @@
 import React from 'react'
+import { useNotifications } from 'reapop'
 import { useQuery } from 'react-query'
 import { connectTelegramLoadKey, disconnectTelegram } from '../../api/api'
-import {
-  errorNotification,
-  successNotification,
-} from '../../components/Notifications'
 
 const TelegramSettingModal = ({ onClose, connected }) => {
   const connectTelegramLoadKeyQuery = useQuery(
     'connectTelegramLoadKey',
     connectTelegramLoadKey
   )
+  const { notify } = useNotifications()
 
   let telegramKey = null
   if (connectTelegramLoadKeyQuery.data) {
@@ -23,19 +21,23 @@ const TelegramSettingModal = ({ onClose, connected }) => {
     try {
       const { data } = await disconnectTelegram()
       if (data?.status === 'error') {
-        errorNotification.open({
-          description:
-            data?.error ||
-            `Couldn't be disconnect Telegram. Please try again later`,
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: "Couldn't be disconnect Telegram. Please try again later!",
         })
       } else {
-        successNotification.open({
-          description: `Successfully disconnected!`,
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'Successfully disconnected!',
         })
       }
     } catch (error) {
-      errorNotification.open({
-        description: `Couldn't be disconnect Telegram. Please try again later`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't be disconnect Telegram. Please try again later!",
       })
     }
   }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useMediaQuery } from 'react-responsive'
+import { useNotifications } from 'reapop'
 
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
@@ -12,7 +13,6 @@ import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from '../../../helpers/precisionRound'
-import { errorNotification } from '../../../components/Notifications'
 import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { openOrders as dummyOpenOrderData } from '../../../api/dummyData'
@@ -45,6 +45,8 @@ const TradeOrders = () => {
   } = useContext(UserContext)
   const { isLoading: isPositionLoading } = useContext(PositionContext)
   const { loading: isPortfolioLoading } = useContext(PortfolioContext)
+  const { notify } = useNotifications()
+
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
   const [loadBtnOO, setLoadBtnOO] = useState(false)
@@ -85,11 +87,12 @@ const TradeOrders = () => {
       })
       .catch((e) => {
         console.log(e)
-        // errorNotification.open({
-        //   description:
+        // notify({
+        //   id: 'open-orders-error',
+        //   status: 'error',
+        //   title: 'Error',
+        //   message:
         //     'Error fetching open orders! Your API key may expired, please check your API keys.',
-        //   duration: 20,
-        //   key: 'open_orders',
         // })
         setOpenOrderData([])
         setOpenOrderError(true)
@@ -152,10 +155,11 @@ const TradeOrders = () => {
     } catch (e) {
       console.log(`Error Fetching History Orders`)
       setOrderHistoryData([])
-      errorNotification.open({
-        description: 'Error fetching order history!',
-        duration: 3,
-        key: 'order_history',
+      notify({
+        id: 'order-history-error',
+        status: 'error',
+        title: 'Error',
+        message: 'Error fetching order history!',
       })
     } finally {
       setIsOrderHistoryFetching(false)

@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
+import { notify } from 'reapop'
+
 import dataFeed from '../../../api/dataFeed'
 import { firebase } from '../../../firebase/firebase'
-import { errorNotification } from '../../../components/Notifications'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 import { UserContext } from '../../../contexts/UserContext'
 
@@ -218,8 +219,10 @@ export default class TradingViewChart extends Component {
         }
       } catch (e) {
         console.log(e)
-        errorNotification.open({
-          description: e.message,
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: e.message,
         })
       } finally {
         this.setState({ isSaved: true })
@@ -780,10 +783,11 @@ export default class TradingViewChart extends Component {
       this.chartReady()
 
       setTimeout(() => {
-        errorNotification.open({
-          description:
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
             'Unable to load your chart drawings. Please take a screenshot of your chrome console and send to support.',
-          duration: 120,
         })
       }, 2000)
     }
