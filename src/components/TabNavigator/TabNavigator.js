@@ -40,7 +40,7 @@ const TabInfo = () => {
             A stop-market order uses a Trigger Price as a trigger. When the
             trigger price is reached, it triggers a market order.
           </p>
-          <a
+          {/* <a
             href="https://support.coinpanel.com/hc/en-us/articles/360020673540-What-is-a-Take-Profit-Limit-Order-"
             target="_blank"
             rel="noopener noreferrer"
@@ -67,7 +67,7 @@ const TabInfo = () => {
             the trigger price is reached, it triggers a market order. Make sure
             you learn about market orders before using take-profit-market
             orders.
-          </p>
+          </p> */}
         </div>
       )}
     </div>
