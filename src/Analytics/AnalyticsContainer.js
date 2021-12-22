@@ -8,8 +8,11 @@ import { useSymbolContext } from '../Trade/context/SymbolContext'
 import AnalyticsTable from './components/AnalyticsTable'
 import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
+import DatePicker from 'react-datepicker'
 
 function AnalyticsContainer() {
+  const [startDate, setStartDate] = useState()
+  const [endDate, setEndDate] = useState()
   const { refreshData, loading } = useContext(AnalyticsContext)
   const { activeExchange } = useContext(UserContext)
   const {
@@ -22,7 +25,6 @@ function AnalyticsContainer() {
     refreshData({ skipCache: true })
     onRefreshBtnClicked('analytics')
   }
-
   return (
     <>
       <section className="py-5 slice bg-section-secondary">
@@ -74,6 +76,37 @@ function AnalyticsContainer() {
                   )}
                 </div>
               </div>
+              <div className="row ml-1 mb-3">
+                <div className="col-4-lg m-1" style={{ width: '10rem' }}>
+                  <label className="form-control-label">Start Date</label>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    selectsStart
+                    startDate={startDate}
+                    endDate={endDate}
+                    className="form-control"
+                    placeholderText="MM-DD-YYYY"
+                    clearButtonTitle="Clear filter"
+                    isClearable={true}
+                  />
+                </div>
+                <div className="col-4-lg m-1" style={{ width: '10rem' }}>
+                  <label className="form-control-label">End Date</label>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    selectsEnd
+                    startDate={startDate}
+                    endDate={endDate}
+                    minDate={startDate}
+                    placeholderText="MM-DD-YYYY"
+                    className="form-control"
+                    clearButtonTitle="Clear filter"
+                    isClearable={true}
+                  />
+                </div>
+              </div>
               <div className="row">
                 <div className="col-lg-6">
                   <AssetPerformance />
@@ -84,7 +117,12 @@ function AnalyticsContainer() {
               </div>
               <div className="row">
                 <div className="col-lg-12">
-                  <AnalyticsTable />
+                  <AnalyticsTable
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                  />
                 </div>
               </div>
             </div>

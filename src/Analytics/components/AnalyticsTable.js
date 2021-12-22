@@ -9,13 +9,11 @@ import DatePicker from 'react-datepicker'
 import dayjs from 'dayjs'
 import 'react-datepicker/dist/react-datepicker.css'
 
-const AnalyticsTable = () => {
+const AnalyticsTable = ({ startDate, endDate, setStartDate, setEndDate }) => {
   const { pairOperations, refreshData } = useContext(AnalyticsContext)
   const [tableData, setTableData] = useState([])
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [startDate, setStartDate] = useState()
-  const [endDate, setEndDate] = useState()
   const [itemNumber, setItemNumber] = useState(0)
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
@@ -68,35 +66,6 @@ const AnalyticsTable = () => {
                     setSearch(value)
                     setCurrentPage(1)
                   }}
-                />
-              </div>
-              <div className="col-4-lg m-1" style={{ width: '10rem' }}>
-                <label className="form-control-label">Start Date</label>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  selectsStart
-                  startDate={startDate}
-                  endDate={endDate}
-                  className="form-control"
-                  placeholderText="MM-DD-YYYY"
-                  clearButtonTitle="Clear filter"
-                  isClearable={true}
-                />
-              </div>
-              <div className="col-4-lg m-1" style={{ width: '10rem' }}>
-                <label className="form-control-label">End Date</label>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  selectsEnd
-                  startDate={startDate}
-                  endDate={endDate}
-                  minDate={startDate}
-                  placeholderText="MM-DD-YYYY"
-                  className="form-control"
-                  clearButtonTitle="Clear filter"
-                  isClearable={true}
                 />
               </div>
             </div>
