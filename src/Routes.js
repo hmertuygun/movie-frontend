@@ -93,7 +93,7 @@ const Routes = () => {
 
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
-      <FullScreenLoader />
+      {/* <FullScreenLoader /> */}
       <Detector
         polling={{
           url: 'https://jsonplaceholder.typicode.com/posts/1',
