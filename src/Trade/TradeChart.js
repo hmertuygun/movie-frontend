@@ -7,6 +7,10 @@ import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
 import { exception } from 'react-ga'
+import {
+  getSnapShotCollection,
+  getSnapShotDocument,
+} from '../api/firestoreCall'
 
 const TradeChart = () => {
   const {
@@ -56,7 +60,7 @@ const TradeChart = () => {
   }, [selectedSymbol])
 
   useEffect(() => {
-    db.collection('template_drawings').onSnapshot(
+    getSnapShotCollection('template_drawings').onSnapshot(
       (snapshot) => {
         if (snapshot?.docs[0]) {
           setTemplateDrawings(snapshot.docs[0].data())
@@ -70,27 +74,28 @@ const TradeChart = () => {
   }, [db])
 
   useEffect(() => {
-    const unsubscribe = db
-      .collection('chart_drawings')
-      .doc(userData.email)
-      .onSnapshot(
-        (snapshot) => {
-          if (snapshot.data()?.drawings?.[userData.email]) {
-            setDrawings(snapshot.data().drawings[userData.email])
-          } else if (
-            !snapshot.data()?.drawings &&
-            snapshot.data()?.lastSelectedSymbol
-          ) {
-            setDrawings([])
-          } else {
-            setOnError(true)
-          }
-        },
-        (error) => {
-          console.log(error)
+    console.log(getSnapShotDocument('chart_drawings', userData.email))
+    const unsubscribe = getSnapShotDocument(
+      'chart_drawings',
+      userData.email
+    ).onSnapshot(
+      (snapshot) => {
+        if (snapshot.data()?.drawings?.[userData.email]) {
+          setDrawings(snapshot.data().drawings[userData.email])
+        } else if (
+          !snapshot.data()?.drawings &&
+          snapshot.data()?.lastSelectedSymbol
+        ) {
+          setDrawings([])
+        } else {
           setOnError(true)
         }
-      )
+      },
+      (error) => {
+        console.log(error)
+        setOnError(true)
+      }
+    )
     return () => unsubscribe()
   }, [db, userData])
 

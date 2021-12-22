@@ -16,6 +16,11 @@ import Ping from 'ping.js'
 import dayjs from 'dayjs'
 import { execExchangeFunc } from '../helpers/getExchangeProp'
 import { sortExchangesData } from '../helpers/apiKeys'
+import {
+  getFirestoreCollectionData,
+  getFirestoreDocumentData,
+} from '../api/firestoreCall'
+
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -106,12 +111,8 @@ const UserContextProvider = ({ children }) => {
   }, [])
 
   const getProducts = async () => {
-    const db = firebase.firestore()
-    await db
-      .collection('stripe_plans')
-      .where('active', '==', true)
-      .get()
-      .then(async (querySnapshot) => {
+    await getFirestoreCollectionData('stripe_plans', true).then(
+      async (querySnapshot) => {
         querySnapshot.forEach(async (doc) => {
           const priceSnap = await doc.ref
             .collection('prices')
@@ -134,26 +135,24 @@ const UserContextProvider = ({ children }) => {
           })
           setProducts((products) => [...products, productData])
         })
-      })
+      }
+    )
   }
 
   const getChartMirroring = async () => {
     //test
     try {
-      const db = firebase.firestore()
       const currentUser = firebase.auth().currentUser
-      await db
-        .collection('stripe_users')
-        .doc(currentUser.uid)
-        .get()
-        .then(async (doc) => {
+      await getFirestoreDocumentData('stripe_users', currentUser.uid).then(
+        async (doc) => {
           if (doc.data()?.chartMirroringSignUp) {
             handleOnboardingSkip()
             setChartMirroring(doc.data().chartMirroringSignUp)
           } else {
             setChartMirroring(false)
           }
-        })
+        }
+      )
     } catch (error) {
       console.log(error)
     }
@@ -225,12 +224,12 @@ const UserContextProvider = ({ children }) => {
 
   const getSubscriptionsData = async () => {
     setIsCheckingSub(true)
-    const db = firebase.firestore()
     const currentUser = firebase.auth().currentUser
-    const cryptoPayments = await db
-      .collection('subscriptions')
-      .doc(currentUser.email)
-      .get()
+    const cryptoPayments = await getFirestoreDocumentData(
+      'subscriptions',
+      currentUser.email
+    )
+
     const subData = cryptoPayments.data()
     console.log(subData)
     if (subData) {
@@ -302,11 +301,11 @@ const UserContextProvider = ({ children }) => {
       setIsPaidUser(false)
     }
 
-    const exception = await db
-      .collection('referrals')
-      .doc(currentUser.email)
-      .get()
-    console.log(exception?.data())
+    const exception = await getFirestoreDocumentData(
+      'referrals',
+      currentUser.email
+    )
+
     if (exception?.data()) {
       setIsException(true)
     }
@@ -327,80 +326,76 @@ const UserContextProvider = ({ children }) => {
     if (userData.email) {
       setIsApiKeysLoading(true)
       try {
-        const db = firebase.firestore()
-        db.collection('apiKeyIDs')
-          .doc(userData.email)
-          .get()
-          .then((apiKey) => {
-            if (apiKey.data()) {
-              setIsApiKeysLoading(false)
-              setUserContextLoaded(true)
-              let apiKeys = sortExchangesData(apiKey.data())
-              if (!apiKeys?.length && isOnboardingSkipped) {
-                apiKeys = DEFAULT_EXCHANGE
-              } else {
-                handleOnboardingShow()
-              }
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            setIsApiKeysLoading(false)
+            setUserContextLoaded(true)
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (!apiKeys?.length && isOnboardingSkipped) {
+              apiKeys = DEFAULT_EXCHANGE
+            } else {
+              handleOnboardingShow()
+            }
 
-              if (apiKeys) {
-                if (!apiKeys?.length) {
-                  setUserContextLoaded(true)
-                  return
-                }
-              } else {
-                setLoadApiKeysError(true)
+            if (apiKeys) {
+              if (!apiKeys?.length) {
+                setUserContextLoaded(true)
+                return
               }
-              setTotalExchanges(apiKeys)
-              let getSavedKey = sessionStorage.getItem('exchangeKey')
-              const ssData = JSON.parse(getSavedKey)
-              if (
-                ssData &&
-                apiKeys.findIndex(
-                  (item) =>
-                    item.apiKeyName === ssData.apiKeyName &&
-                    item.exchange === ssData.exchange
-                ) > -1
-              ) {
-                setActiveExchange({ ...ssData })
-                if (!isOnboardingSkipped) {
-                  setLoadApiKeys(true)
+            } else {
+              setLoadApiKeysError(true)
+            }
+            setTotalExchanges(apiKeys)
+            let getSavedKey = sessionStorage.getItem('exchangeKey')
+            const ssData = JSON.parse(getSavedKey)
+            if (
+              ssData &&
+              apiKeys.findIndex(
+                (item) =>
+                  item.apiKeyName === ssData.apiKeyName &&
+                  item.exchange === ssData.exchange
+              ) > -1
+            ) {
+              setActiveExchange({ ...ssData })
+              if (!isOnboardingSkipped) {
+                setLoadApiKeys(true)
+              }
+            } else {
+              let activeKey = apiKeys.find(
+                (item) =>
+                  item.isLastSelected === true && item.status === 'Active'
+              )
+              if (activeKey) {
+                const data = {
+                  ...activeKey,
+                  label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+                  value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
                 }
+                if (!isOnboardingSkipped) {
+                  setLoadApiKeys(true) // Only check active api exchange eventually
+                }
+                setActiveExchange(data)
+                sessionStorage.setItem('exchangeKey', JSON.stringify(data))
               } else {
-                let activeKey = apiKeys.find(
-                  (item) =>
-                    item.isLastSelected === true && item.status === 'Active'
-                )
-                if (activeKey) {
+                // find the first one that is 'Active'
+                let active = apiKeys.find((item) => item.status === 'Active')
+                if (active) {
+                  updateLastSelectedAPIKey({ ...active })
                   const data = {
-                    ...activeKey,
-                    label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-                    value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-                  }
-                  if (!isOnboardingSkipped) {
-                    setLoadApiKeys(true) // Only check active api exchange eventually
+                    ...active,
+                    label: `${active.exchange} - ${active.apiKeyName}`,
+                    value: `${active.exchange} - ${active.apiKeyName}`,
                   }
                   setActiveExchange(data)
                   sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-                } else {
-                  // find the first one that is 'Active'
-                  let active = apiKeys.find((item) => item.status === 'Active')
-                  if (active) {
-                    updateLastSelectedAPIKey({ ...active })
-                    const data = {
-                      ...active,
-                      label: `${active.exchange} - ${active.apiKeyName}`,
-                      value: `${active.exchange} - ${active.apiKeyName}`,
-                    }
-                    setActiveExchange(data)
-                    sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-                    if (!isOnboardingSkipped) {
-                      setLoadApiKeys(true)
-                    }
+                  if (!isOnboardingSkipped) {
+                    setLoadApiKeys(true)
                   }
                 }
               }
             }
-          })
+          }
+        })
       } catch (e) {
         console.log(e)
         setIsApiKeysLoading(false)

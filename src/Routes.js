@@ -127,7 +127,7 @@ const Routes = () => {
             !isSettingsPage &&
             !isOnboardingSkipped &&
             !isApiKeysLoading && <OnboardingModal />}
-          {isApiKeysLoading && (
+          {isLoggedIn && isApiKeysLoading && (
             <p
               className="d-flex justify-content-center align-items-center"
               style={{ height: 'calc(100vh - 150px)' }}

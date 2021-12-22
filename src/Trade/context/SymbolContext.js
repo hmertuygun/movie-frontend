@@ -19,6 +19,11 @@ import {
 } from '../../components/Notifications'
 import { firebase } from '../../firebase/firebase'
 import { defaultEmojis } from '../../constants/emojiDefault'
+import {
+  updateTemplateDrawings,
+  getFirestoreDocumentData,
+  updateLastSelectedValue,
+} from '../../api/firestoreCall'
 import { execExchangeFunc } from '../../helpers/getExchangeProp'
 import { sortExchangesData } from '../../helpers/apiKeys'
 
@@ -207,15 +212,7 @@ const SymbolContextProvider = ({ children }) => {
         nickname: userData.email,
         flags: emojis,
       }
-      await db
-        .collection('template_drawings')
-        .doc(userData.email)
-        .set(
-          {
-            ...value,
-          },
-          { merge: true }
-        )
+      await updateTemplateDrawings(userData.email, value)
       successNotification.open({
         description: 'Emojis saved successfully',
       })
@@ -227,24 +224,19 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    db.collection('template_drawings')
-      .doc('sheldonthesniper01@gmail.com')
-      .onSnapshot(
-        (snapshot) => {
-          if (snapshot.data()) {
-            if (snapshot.data()?.flags) {
-              localStorage.setItem(
-                'flags',
-                JSON.stringify(snapshot.data()?.flags)
-              )
-              setEmojis(snapshot.data()?.flags)
-            }
+    getFirestoreDocumentData(
+      'template_drawings',
+      'sheldonthesniper01@gmail.com'
+    )
+      .then((emoji) => {
+        if (emoji.data()) {
+          if (emoji.data()?.flags) {
+            localStorage.setItem('flags', JSON.stringify(emoji.data()?.flags))
+            setEmojis(emoji.data()?.flags)
           }
-        },
-        (error) => {
-          console.log(error)
         }
-      )
+      })
+      .catch((err) => console.log(err))
   }, [db, watchListOpen])
 
   const getChartDataOnInit = async () => {
@@ -253,10 +245,8 @@ const SymbolContextProvider = ({ children }) => {
         templateDrawingsOpen && watchListOpen
           ? 'binance'
           : activeExchange.exchange
-      db.collection('chart_drawings')
-        .doc(userData.email)
-        .get()
-        .then((userSnapShot) => {
+      getFirestoreDocumentData('chart_drawings', userData.email).then(
+        (userSnapShot) => {
           let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
           let activeMarketData = {}
           const chartData = {
@@ -295,7 +285,8 @@ const SymbolContextProvider = ({ children }) => {
           // loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
-        })
+        }
+      )
     } catch (e) {
       console.error(e)
     } finally {
@@ -427,12 +418,7 @@ const SymbolContextProvider = ({ children }) => {
       setExchangeUpdated(true)
       setLoaderVisibility(true)
       let value = `${exchange.apiKeyName}-${exchange.exchange}`
-      await db.collection('apiKeyIDs').doc(userData.email).set(
-        {
-          activeLastSelected: value,
-        },
-        { merge: true }
-      )
+      await updateLastSelectedValue(userData.email, value)
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
@@ -562,24 +548,20 @@ const SymbolContextProvider = ({ children }) => {
   const refreshExchanges = async () => {
     if (userData.email) {
       try {
-        const db = firebase.firestore()
-        db.collection('apiKeyIDs')
-          .doc(userData.email)
-          .get()
-          .then((apiKey) => {
-            if (apiKey.data()) {
-              let apiKeys = sortExchangesData(apiKey.data())
-              if (!apiKeys.length) return
-              const keys = apiKeys.map((item) => {
-                return {
-                  ...item,
-                  label: `${item.exchange} - ${item.apiKeyName}`,
-                  value: `${item.exchange} - ${item.apiKeyName}`,
-                }
-              })
-              setExchanges(keys)
-            }
-          })
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (!apiKeys.length) return
+            const keys = apiKeys.map((item) => {
+              return {
+                ...item,
+                label: `${item.exchange} - ${item.apiKeyName}`,
+                value: `${item.exchange} - ${item.apiKeyName}`,
+              }
+            })
+            setExchanges(keys)
+          }
+        })
       } catch (error) {
         console.log(error)
       }
