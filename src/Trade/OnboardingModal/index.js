@@ -21,10 +21,11 @@ import {
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from '../../constants/Trade'
-import { firebase } from '../../firebase/firebase'
 import { sortExchangesData } from '../../helpers/apiKeys'
-
-const db = firebase.firestore()
+import {
+  updateLastSelectedValue,
+  getFirestoreDocumentData,
+} from '../../api/firestoreCall'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -171,12 +172,7 @@ const OnboardingModal = () => {
         setError(true)
       } else {
         let value = `${apiName}-${exchange.value}`
-        await db.collection('apiKeyIDs').doc(userData.email).set(
-          {
-            activeLastSelected: value,
-          },
-          { merge: true }
-        )
+        await updateLastSelectedValue(userData.email, value)
         setStepNo(step + 1)
         notify({
           status: 'success',
@@ -231,27 +227,23 @@ const OnboardingModal = () => {
     } else if (step === 3) {
       sessionStorage.clear()
       try {
-        const db = firebase.firestore()
-        db.collection('apiKeyIDs')
-          .doc(userData.email)
-          .get()
-          .then((apiKey) => {
-            if (apiKey.data()) {
-              let apiKeys = sortExchangesData(apiKey.data())
-              if (apiKeys) {
-                setTotalExchanges(apiKeys)
-                setActiveExchange({
-                  label: `${exchange.value} - ${apiName}`,
-                  value: `${exchange.value} - ${apiName}`,
-                  apiKeyName: apiName,
-                  exchange: exchange.value,
-                })
-                refreshExchanges()
-                setOnTour(!onTour)
-                getSubscriptionsData()
-              }
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (apiKeys) {
+              setTotalExchanges(apiKeys)
+              setActiveExchange({
+                label: `${exchange.value} - ${apiName}`,
+                value: `${exchange.value} - ${apiName}`,
+                apiKeyName: apiName,
+                exchange: exchange.value,
+              })
+              refreshExchanges()
+              setOnTour(!onTour)
+              getSubscriptionsData()
             }
-          })
+          }
+        })
       } catch (e) {
         console.log(e)
       } finally {

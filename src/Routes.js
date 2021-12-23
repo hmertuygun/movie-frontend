@@ -103,7 +103,7 @@ const Routes = () => {
         dismissNotification={(id) => dismissNotification(id)}
         theme={customTheme}
       />
-      <FullScreenLoader />
+      {/* <FullScreenLoader /> */}
       <Detector
         polling={{
           url: 'https://jsonplaceholder.typicode.com/posts/1',
@@ -137,7 +137,7 @@ const Routes = () => {
             !isSettingsPage &&
             !isOnboardingSkipped &&
             !isApiKeysLoading && <OnboardingModal />}
-          {isApiKeysLoading && (
+          {isLoggedIn && isApiKeysLoading && (
             <p
               className="d-flex justify-content-center align-items-center"
               style={{ height: 'calc(100vh - 150px)' }}

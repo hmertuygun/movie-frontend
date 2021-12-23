@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-import { firebase, auth } from '../../firebase/firebase'
+import { auth } from '../../firebase/firebase'
 import { Bell } from 'react-feather'
 import { coinBaseUrls } from '../../constants/coinbaseUrls'
+import { getFireStoreDoubleCollectionData } from '../../api/firestoreCall'
 
 const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
   const currentUser = auth.currentUser
-  const db = firebase.firestore()
   const { name, prices } = product
   console.log(product)
   // only support one price
@@ -30,20 +30,23 @@ const SubscriptionCard = ({ product }) => {
       quantity: 1,
     }
 
-    const docRef = await db
-      .collection('stripe_users')
-      .doc(currentUser.uid)
-      .collection('checkout_sessions')
-      .add({
-        allow_promotion_codes: true,
-        line_items: [selectedPrice],
-        success_url: window.location.origin,
-        cancel_url: window.location.origin,
-        clientReferenceId: getFPTid,
-        metadata: {
-          key: 'value',
-        },
-      })
+    let data = {
+      allow_promotion_codes: true,
+      line_items: [selectedPrice],
+      success_url: window.location.origin,
+      cancel_url: window.location.origin,
+      clientReferenceId: getFPTid,
+      metadata: {
+        key: 'value',
+      },
+    }
+
+    const docRef = await getFireStoreDoubleCollectionData(
+      'stripe_users',
+      currentUser.uid,
+      'checkout_sessions',
+      data
+    )
     // Wait for the CheckoutSession to get attached by the extension
     docRef.onSnapshot(async (snap) => {
       const { error, sessionId } = snap.data()

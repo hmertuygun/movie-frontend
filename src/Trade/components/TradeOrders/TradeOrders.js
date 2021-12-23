@@ -17,7 +17,7 @@ import Tooltip from '../../../components/Tooltip'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { openOrders as dummyOpenOrderData } from '../../../api/dummyData'
 import './TradeOrders.css'
-const db = firebase.firestore()
+import { getSnapShotDocument } from '../../../api/firestoreCall'
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -286,26 +286,26 @@ const TradeOrders = () => {
     // setOpenOrderData([])
     // setOrderHistoryData([])
 
-    FBOrderUpdate = db
-      .collection('order_update')
-      .doc(userData.email)
-      .onSnapshot((doc) => {
-        setOrderUpdateFB((prevState) => prevState + 1)
-      })
+    FBOrderUpdate = getSnapShotDocument(
+      'order_update',
+      userData.email
+    ).onSnapshot((doc) => {
+      setOrderUpdateFB((prevState) => prevState + 1)
+    })
 
-    FBOrderHistory = db
-      .collection('order_history_update')
-      .doc(userData.email)
-      .onSnapshot((doc) => {
-        setOrderHistoryFB((prevState) => prevState + 1)
-      })
+    FBOrderHistory = getSnapShotDocument(
+      'order_history_update',
+      userData.email
+    ).onSnapshot((doc) => {
+      setOrderHistoryFB((prevState) => prevState + 1)
+    })
 
-    FBOrderHistoryLoad = db
-      .collection('order_history_load')
-      .doc(userData.email)
-      .onSnapshot(orderHistoryLoadedFBCallback, (err) => {
+    FBOrderHistoryLoad = getSnapShotDocument('load', userData.email).onSnapshot(
+      orderHistoryLoadedFBCallback,
+      (err) => {
         console.error(err)
-      })
+      }
+    )
 
     return () => {
       FBOrderUpdate()

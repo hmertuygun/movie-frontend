@@ -15,10 +15,8 @@ import {
   updatePriceAlert,
 } from '../api/api'
 import precisionRound from '../helpers/precisionRound'
-import { firebase } from '../firebase/firebase'
 import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter'
-
-const db = firebase.firestore()
+import { getSnapShotCollection } from '../api/firestoreCall'
 
 const parseSymbol = (symbol) => {
   if (!symbol) return ''
@@ -608,8 +606,7 @@ const PriceAlerts = () => {
 
   useEffect(() => {
     getAllPriceAlerts()
-    const fBNotice = db
-      .collection('price_alerts')
+    const fBNotice = getSnapShotCollection('price_alerts')
       .where('user', '==', userData.email)
       .onSnapshot((doc) => {
         doc.docChanges().forEach((item) => {

@@ -6,6 +6,10 @@ import dataFeed from '../../../api/dataFeed'
 import { firebase } from '../../../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 import { UserContext } from '../../../contexts/UserContext'
+import {
+  setChartDrawings,
+  updateTemplateDrawings,
+} from '../../../api/firestoreCall'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -174,7 +178,6 @@ export default class TradingViewChart extends Component {
   }
 
   saveChartDrawingToServer = async (event) => {
-    const db = firebase.firestore()
     this.tradingViewWidget.save(async (obj) => {
       const str = JSON.stringify(obj.charts[0].panes)
       try {
@@ -183,12 +186,7 @@ export default class TradingViewChart extends Component {
             [this.state.email]: str,
           }
 
-          await db.collection('chart_drawings').doc(this.state.email).set(
-            {
-              drawings,
-            },
-            { merge: true }
-          )
+          await setChartDrawings(this.state.email, drawings)
         }
 
         if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
@@ -212,10 +210,7 @@ export default class TradingViewChart extends Component {
               }),
           }
 
-          await db
-            .collection('template_drawings')
-            .doc(this.state.email)
-            .set({ ...value }, { merge: true })
+          await updateTemplateDrawings(this.state.email, value)
         }
       } catch (e) {
         console.log(e)

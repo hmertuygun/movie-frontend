@@ -17,13 +17,14 @@ import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { firebase } from '../../firebase/firebase'
 import { sortExchangesData } from '../../helpers/apiKeys'
-
-const db = firebase.firestore()
+import {
+  getFirestoreDocumentData,
+  updateLastSelectedValue,
+} from '../../api/firestoreCall'
 
 const Exchanges = () => {
-  const { refreshExchanges } = useSymbolContext()
+  const { refreshExchanges, exchanges } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const { notify } = useNotifications()
@@ -40,33 +41,27 @@ const Exchanges = () => {
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
-  const [exchanges, setExchanges] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   // const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
   const getExchanges = () => {
     setIsLoading(true)
     try {
-      const db = firebase.firestore()
-      db.collection('apiKeyIDs')
-        .doc(userData.email)
-        .get()
-        .then(
-          (apiKey) => {
-            setIsLoading(false)
-            if (apiKey.data()) {
-              let apiKeys = sortExchangesData(apiKey.data())
-              setExchanges(apiKeys)
-              if (apiKeys.length !== 0) {
-                setTotalExchanges(exchanges)
-              }
+      getFirestoreDocumentData('apiKeyIDs', userData.email).then(
+        (apiKey) => {
+          setIsLoading(false)
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (apiKeys.length !== 0) {
+              setTotalExchanges(exchanges)
             }
-          },
-          (error) => {
-            console.log(error)
-            setIsLoading(false)
           }
-        )
+        },
+        (error) => {
+          console.log(error)
+          setIsLoading(false)
+        }
+      )
     } catch (e) {
       console.log(e)
       setIsLoading(false)
@@ -136,12 +131,7 @@ const Exchanges = () => {
             if (newActiveKey) {
               await refreshExchanges()
               let value = `${newActiveKey.apiKeyName}-${newActiveKey.exchange}`
-              await db.collection('apiKeyIDs').doc(userData.email).set(
-                {
-                  activeLastSelected: value,
-                },
-                { merge: true }
-              )
+              await updateLastSelectedValue(userData.email, value)
               setActiveExchange({
                 ...newActiveKey,
                 label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
