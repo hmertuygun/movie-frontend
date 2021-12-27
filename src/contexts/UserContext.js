@@ -441,7 +441,6 @@ const UserContextProvider = ({ children }) => {
 
   const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged(async (user) => {
-      let sessionTimeout = null
       if (user) {
         // User is signed in.
         setUserData(user)
@@ -449,20 +448,8 @@ const UserContextProvider = ({ children }) => {
         if (firebase.messaging.isSupported()) {
           FCMSubscription()
         }
-        user.getIdTokenResult().then((idTokenResult) => {
-          // Make sure all the times are in milliseconds!
-          const authTime = idTokenResult.claims.auth_time * 1000
-          const sessionDuration = 1000 * 60 * 60 * 24
-          const millisecondsUntilExpiration =
-            sessionDuration - (Date.now() - authTime)
-          sessionTimeout = setTimeout(() => {
-            logout()
-          }, millisecondsUntilExpiration)
-        })
       } else {
         // User is signed out.
-        sessionTimeout && clearTimeout(sessionTimeout)
-        sessionTimeout = null
       }
     })
   }
