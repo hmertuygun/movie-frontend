@@ -58,16 +58,8 @@ const AnalyticsTable = ({ startDate, endDate, setStartDate, setEndDate }) => {
       <div className="card card-fluid">
         <div className="pb-0 card-header">
           <div className="d-flex justify-content-between align-items-end">
-            <div className="row">
-              <div className="col-5-lg m-1">
-                <label className="form-control-label">Symbol</label>
-                <Search
-                  onSearch={(value) => {
-                    setSearch(value)
-                    setCurrentPage(1)
-                  }}
-                />
-              </div>
+            <div>
+              <span className="h6">Trading Performance</span>
             </div>
           </div>
         </div>
