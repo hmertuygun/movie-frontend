@@ -52,7 +52,6 @@ export default class socketClient {
                 sData,
               }
             )
-            console.log(getData)
             if (sData && getData) {
               let lastSocketData = execExchangeFunc(
                 this.exchange,
@@ -107,7 +106,6 @@ export default class socketClient {
       )
 
       setTimeout(() => {
-        console.log(obj)
         if (this._ws.readyState === 1) {
           this._ws.send(JSON.stringify(obj))
           this.streams[symbol] = {
