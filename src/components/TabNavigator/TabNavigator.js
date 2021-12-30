@@ -80,7 +80,7 @@ const TabNavigator = ({
   children,
   hadDropDown = true,
 }) => {
-  const { showMarketItems, tour2CurrentStep } = useContext(UserContext)
+  const { showMarketItems, tour2CurrentStep, state } = useContext(UserContext)
   const [contentIndex, setContentIndex] = useState(index)
   const [selectedDropDownOption, setSelectedDropdownOption] = useState(
     labelArray[2]
@@ -198,6 +198,11 @@ const TabNavigator = ({
                 }}
               >
                 {label}
+                {!state.has2FADetails && label === 'Security' ? (
+                  <span class="badge badge-danger badge-circle badge-floating border-white warning-badge">
+                    !
+                  </span>
+                ) : null}
               </div>
             ))}
           </nav>

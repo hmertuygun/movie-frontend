@@ -76,6 +76,7 @@ const Routes = () => {
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
     isApiKeysLoading,
+    state,
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
@@ -89,8 +90,16 @@ const Routes = () => {
     return null
   }
 
-  const isLocalEnv = window.location.hostname === 'localhost'
+  useEffect(() => {
+    if (
+      (isLoggedIn && loadApiKeys && !state) ||
+      (isLoggedIn && loadApiKeys && !state.has2FADetails)
+    ) {
+      history.push('/settings#security')
+    }
+  }, [state, history.location.pathname])
 
+  const isLocalEnv = window.location.hostname === 'localhost'
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       {/* <FullScreenLoader /> */}
@@ -121,6 +130,7 @@ const Routes = () => {
               }}
             />
           )}
+
           {isLoggedIn &&
             userContextLoaded &&
             !loadApiKeys &&
@@ -135,6 +145,9 @@ const Routes = () => {
               Loading your chart...
             </p>
           )}
+          {/* {isLoggedIn && !state.has2FADetails && (
+            <Route path="/settings#security" component={Settings} />
+          )} */}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

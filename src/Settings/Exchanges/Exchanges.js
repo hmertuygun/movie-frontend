@@ -25,6 +25,7 @@ import {
   getFirestoreDocumentData,
   updateLastSelectedValue,
 } from '../../api/firestoreCall'
+import Tooltip from '../../components/Tooltip'
 
 const Exchanges = () => {
   const { refreshExchanges, exchanges } = useSymbolContext()
@@ -39,6 +40,7 @@ const Exchanges = () => {
     setActiveExchange,
     isOnboardingSkipped,
     userData,
+    state,
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
@@ -193,13 +195,23 @@ const Exchanges = () => {
             <div className="col">
               <h6 className="mb-0">Exchange Integrations</h6>
             </div>
-            <div className="col-auto">
+            <div
+              className="col-auto"
+              data-for="integrate-button"
+              data-tip="You need to add 2FA"
+            >
+              {!state.has2FADetails ? (
+                <Tooltip id="integrate-button" place="top" />
+              ) : null}
               <button
                 type="button"
-                className="btn btn-xs btn-primary btn-icon rounded-pill"
+                className={`btn btn-xs ${
+                  !state.has2FADetails ? 'btn-secondary' : 'btn-primary'
+                } btn-icon rounded-pill`}
                 onClick={() => {
                   setIsModalVisible(true)
                 }}
+                disabled={!state.has2FADetails}
               >
                 <span className="btn-inner--icon">
                   <FontAwesomeIcon icon={faPlus} />

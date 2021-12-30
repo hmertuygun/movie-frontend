@@ -93,6 +93,7 @@ const UserContextProvider = ({ children }) => {
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
   const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
+  const [twofaSecretKey, setTwofaSecretKey] = useState('')
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -717,6 +718,9 @@ const UserContextProvider = ({ children }) => {
         setIsChartReady,
         setSubscriptionData,
         isApiKeysLoading,
+        state,
+        setTwofaSecretKey,
+        twofaSecretKey,
       }}
     >
       {children}
