@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Search from '../../components/Table/Search/Search'
 import Tooltip from '../../components/Tooltip'
+import { HelpCircle } from 'react-feather'
 
 const AnalyticsFilter = ({
   setSearch,
@@ -17,10 +18,59 @@ const AnalyticsFilter = ({
   portfolioTimeInterval,
   onPortfolioRefresh,
 }) => {
+  const [infoShow, setInfoShow] = useState(false)
   return (
     <div className="card">
-      <div className="row p-4">
-        <div className="col-5-lg m-1 ml-2">
+      <div className="pb-0 card-header">
+        <div
+          className={`tab-info-wrapper ${infoShow ? 'show' : ''}`}
+          onMouseEnter={() => setInfoShow(true)}
+          onMouseLeave={() => setInfoShow(false)}
+        >
+          <span className="h6">Search</span> <HelpCircle size={18} />
+          {infoShow && (
+            <div className="tab-info">
+              <p className="mb-2">
+                This is a place where the user should specify the exact period
+                for which analytics should be calculated.
+              </p>
+              At the present moment it has eight columns: <br />
+              <a href="#" rel="noopener noreferrer">
+                SYMBOL{' '}
+              </a>
+              a particular symbol that should be present in a trading pair,
+              allows narrowing analytics <br />
+              <a href="#" rel="noopener noreferrer">
+                Start Date{' '}
+              </a>
+              the date when the user entered the position <br />
+              <a href="#" rel="noopener noreferrer">
+                End Date{' '}
+              </a>
+              the date when the user has closed the position (or put current
+              date if the position is still open) <br />
+              <a href="#" rel="noopener noreferrer">
+                Refresh button{' '}
+              </a>
+              this button refreshes all data that is used by analytics. <br />
+              <p className="my-2">
+                The user should clearly state the date when he has entered the
+                position and when he has closed it. If the position is still
+                open, the user may leave the End Date field empty, or enter the
+                current date.
+              </p>
+              <p className="my-2">
+                New analytics allows a user not only to monitor his Long (asset
+                bought to be sold at a higher price later) positions, but short
+                positions as well (asset sold to be bought back at a lower price
+                later on).
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="row pl-5 p-4">
+        <div className="col-5-lg m-1">
           <label className="form-control-label">Symbol</label>
           <Search
             onSearch={(value) => {

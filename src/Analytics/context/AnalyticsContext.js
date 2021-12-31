@@ -70,7 +70,7 @@ const AnalyticsProvider = ({ children }) => {
     if (!isOnboardingSkipped) {
       fetchData()
     }
-  }, [user, activeExchange, fetchData, isOnboardingSkipped])
+  }, [user, activeExchange, isOnboardingSkipped])
 
   return (
     <AnalyticsContext.Provider

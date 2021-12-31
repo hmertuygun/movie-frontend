@@ -6,6 +6,7 @@ import AnalyticsTable from './components/AnalyticsTable'
 import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
 import AnalyticsFilter from './components/AnalyticsFilter'
+import dayjs from 'dayjs'
 
 function AnalyticsContainer() {
   const [startDate, setStartDate] = useState()
@@ -21,7 +22,12 @@ function AnalyticsContainer() {
   } = useSymbolContext()
 
   const onPortfolioRefresh = () => {
-    refreshData({ skipCache: true })
+    let value = {
+      startDate: startDate && dayjs(startDate).format('YYYY-MM-DD'),
+      endDate: endDate && dayjs(endDate).format('YYYY-MM-DD'),
+      skipCache: true,
+    }
+    refreshData(value)
     onRefreshBtnClicked('analytics')
   }
   return (
@@ -49,10 +55,18 @@ function AnalyticsContainer() {
               />
               <div className="row">
                 <div className="col-lg-6">
-                  <AssetPerformance />
+                  <AssetPerformance
+                    search={search}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 </div>
                 <div className="col-lg-6">
-                  <PairPerformance />
+                  <PairPerformance
+                    search={search}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 </div>
               </div>
               <div className="row">
@@ -62,6 +76,7 @@ function AnalyticsContainer() {
                     setStartDate={setStartDate}
                     endDate={endDate}
                     setEndDate={setEndDate}
+                    search={search}
                   />
                 </div>
               </div>

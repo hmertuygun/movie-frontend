@@ -13,6 +13,7 @@ const Table = ({ cols, data, onSort, setSortAscending, sortAscending }) => {
     onSort(e, value)
     setSortAscending(!sortAscending)
   }
+
   return (
     <table className={styles['table']}>
       <thead>

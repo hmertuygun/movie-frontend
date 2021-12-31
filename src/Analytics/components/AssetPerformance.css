@@ -1,0 +1,35 @@
+.tab-info-wrapper svg {
+  color: var(--tab-color);
+}
+
+.tab-info-wrapper:hover svg {
+  color: var(--border-color-active);
+}
+
+.tab-info-wrapper.show:before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  bottom: 9px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent var(--border-color) transparent;
+}
+
+.tab-info {
+  position: absolute;
+  background-color: var(--border-color);
+  width: 600px;
+  border-radius: 4px;
+  padding: 1rem 0.75rem 0 0.5rem;
+  font-size: 0.875rem;
+  box-shadow: 0 0 1.25rem rgb(31 45 61 / 5%);
+  z-index: 2;
+}
+
+@media (max-width: 991.98px) {
+  .tab-info {
+    right: -10px;
+    width: 300px;
+  }
+}
