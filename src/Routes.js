@@ -92,12 +92,18 @@ const Routes = () => {
 
   useEffect(() => {
     if (
-      (isLoggedIn && loadApiKeys && !state) ||
-      (isLoggedIn && loadApiKeys && !state.has2FADetails)
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state.has2FADetails)
     ) {
       history.push('/settings#security')
     }
-  }, [state, history.location.pathname])
+  }, [
+    state,
+    isLoggedIn,
+    isApiKeysLoading,
+    history.location.pathname,
+    loadApiKeys,
+  ])
 
   const isLocalEnv = window.location.hostname === 'localhost'
   return (
