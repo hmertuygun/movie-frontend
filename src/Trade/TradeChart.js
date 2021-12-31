@@ -74,7 +74,6 @@ const TradeChart = () => {
   }, [db])
 
   useEffect(() => {
-    console.log(getSnapShotDocument('chart_drawings', userData.email))
     const unsubscribe = getSnapShotDocument(
       'chart_drawings',
       userData.email

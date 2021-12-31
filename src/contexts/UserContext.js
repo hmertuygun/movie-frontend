@@ -232,7 +232,7 @@ const UserContextProvider = ({ children }) => {
     )
 
     const subData = cryptoPayments.data()
-    console.log(subData)
+
     if (subData) {
       const { subscription_status, provider, currency, plan, amount } = subData
       const { seconds } = subData.expiration_date

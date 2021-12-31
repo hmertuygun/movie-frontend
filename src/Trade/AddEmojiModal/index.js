@@ -108,7 +108,7 @@ const AddEmojiModal = ({
                       {emoji.emoji && (
                         <input
                           type="text"
-                          class="form-control"
+                          className="form-control"
                           style={{
                             width: 140,
                             padding: 5,

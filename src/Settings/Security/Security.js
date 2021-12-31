@@ -75,15 +75,15 @@ const Security = () => {
     <div className="slice slice-sm bg-section-secondary">
       {hash === '#security' || !state.has2FADetails ? (
         <div
-          class="alert alert-group alert-outline-warning alert-dismissible fade show alert-icon mb-0"
+          className="alert alert-group alert-outline-warning alert-dismissible fade show alert-icon mb-0"
           role="alert"
         >
-          <div class="alert-group-prepend">
-            <span class="alert-group-icon text-">
+          <div className="alert-group-prepend">
+            <span className="alert-group-icon text-">
               <AlertTriangle size={16} strokeWidth={3} />
             </span>
           </div>
-          <div class="alert-content">
+          <div className="alert-content">
             <strong>Important!</strong> At CoinPanel we are all about security.
             That's you must now activate 2FA login on CoinPanel in order to
             continue trading - stay safe.

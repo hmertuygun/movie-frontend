@@ -9,7 +9,6 @@ const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)
   const currentUser = auth.currentUser
   const { name, prices } = product
-  console.log(product)
   // only support one price
   const price = prices[0]
 

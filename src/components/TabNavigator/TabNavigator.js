@@ -199,7 +199,7 @@ const TabNavigator = ({
               >
                 {label}
                 {!state.has2FADetails && label === 'Security' ? (
-                  <span class="badge badge-danger badge-circle badge-floating border-white warning-badge">
+                  <span className="badge badge-danger badge-circle badge-floating border-white warning-badge">
                     !
                   </span>
                 ) : null}

@@ -61,8 +61,10 @@ export default class socketClient {
               if (Object.keys(this.streams).length) {
                 localStorage.setItem('lastSocketData', new Date().getTime())
                 localStorage.setItem('WS', 1)
-                this.streams[s].data = lastSocketData
-                this.streams[s].listener(lastSocketData)
+                if (this.streams[s]) {
+                  this.streams[s].data = lastSocketData
+                  this.streams[s].listener(lastSocketData)
+                }
               }
             }
           } catch (e) {

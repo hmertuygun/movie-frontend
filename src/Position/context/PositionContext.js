@@ -54,7 +54,7 @@ const PositionCTXProvider = ({ children }) => {
       apiKeyName &&
       !isOnboardingSkipped
     ) {
-      fetchPositionsList()
+      //fetchPositionsList()
     }
   }, [
     activeExchange,
@@ -66,7 +66,7 @@ const PositionCTXProvider = ({ children }) => {
   ])
 
   const refreshData = () => {
-    fetchPositionsList()
+    // fetchPositionsList()
   }
 
   return (
