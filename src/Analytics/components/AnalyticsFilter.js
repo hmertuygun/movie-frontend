@@ -22,12 +22,13 @@ const AnalyticsFilter = ({
   return (
     <div className="card">
       <div className="pb-0 card-header">
-        <div
-          className={`tab-info-wrapper ${infoShow ? 'show' : ''}`}
-          onMouseEnter={() => setInfoShow(true)}
-          onMouseLeave={() => setInfoShow(false)}
-        >
-          <span className="h6">Search</span> <HelpCircle size={18} />
+        <div className={`tab-info-wrapper ${infoShow ? 'show' : ''}`}>
+          <span className="h6">Search</span>{' '}
+          <HelpCircle
+            size={18}
+            onMouseEnter={() => setInfoShow(true)}
+            onMouseLeave={() => setInfoShow(false)}
+          />
           {infoShow && (
             <div className="tab-info">
               <p className="mb-2">
