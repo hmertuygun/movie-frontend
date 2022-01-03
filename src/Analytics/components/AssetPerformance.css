@@ -24,7 +24,7 @@
   padding: 1rem 0.75rem 0 0.5rem;
   font-size: 0.875rem;
   box-shadow: 0 0 1.25rem rgb(31 45 61 / 5%);
-  z-index: 2;
+  z-index: 5;
 }
 
 @media (max-width: 991.98px) {
