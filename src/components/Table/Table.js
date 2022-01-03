@@ -2,25 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './Table.module.css'
 
-const Table = ({ cols, data }) => {
+const Table = ({ cols, data, onSort, setSortAscending, sortAscending }) => {
   const [dataTable, setTableData] = useState()
-
-  const [, updateState] = useState()
-  const forceUpdate = useCallback(() => updateState({}), [])
-
-  const onSort = (event, sortKey) => {
-    data.sort(function (a, b) {
-      if (parseFloat(a[sortKey]) - parseFloat(b[sortKey])) {
-        return -1
-      }
-      return 1
-    })
-    forceUpdate()
-  }
 
   useEffect(() => {
     setTableData(data)
   }, [data])
+
+  const handleSorting = (e, value) => {
+    onSort(e, value)
+    setSortAscending(!sortAscending)
+  }
 
   return (
     <table className={styles['table']}>
@@ -28,7 +20,11 @@ const Table = ({ cols, data }) => {
         <tr>
           {cols.map((item, idx) => {
             return (
-              <th scope="col" key={idx} onClick={(e) => onSort(e, 'TOTAL')}>
+              <th
+                scope="col"
+                key={idx}
+                onClick={(e) => handleSorting(e, item.title)}
+              >
                 {item.title}
               </th>
             )

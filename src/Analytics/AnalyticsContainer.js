@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import { UserContext } from '../contexts/UserContext'
-import { faSync } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AnalyticsContext } from './context/AnalyticsContext'
-import Tooltip from '../components/Tooltip'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import AnalyticsTable from './components/AnalyticsTable'
 import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
+import AnalyticsFilter from './components/AnalyticsFilter'
+import dayjs from 'dayjs'
 
 function AnalyticsContainer() {
+  const [startDate, setStartDate] = useState()
+  const [endDate, setEndDate] = useState()
+  const [search, setSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const { refreshData, loading } = useContext(AnalyticsContext)
   const { activeExchange } = useContext(UserContext)
   const {
@@ -19,10 +22,14 @@ function AnalyticsContainer() {
   } = useSymbolContext()
 
   const onPortfolioRefresh = () => {
-    refreshData({ skipCache: true })
+    let value = {
+      startDate: startDate && dayjs(startDate).format('YYYY-MM-DD'),
+      endDate: endDate && dayjs(endDate).format('YYYY-MM-DD'),
+      skipCache: true,
+    }
+    refreshData(value)
     onRefreshBtnClicked('analytics')
   }
-
   return (
     <>
       <section className="py-5 slice bg-section-secondary">
@@ -33,58 +40,44 @@ function AnalyticsContainer() {
                 <div className="col">
                   <h1 className="mb-0 h4">Analytics</h1>
                 </div>{' '}
-                <div className="col-auto">
-                  {loading ? (
-                    <button
-                      className="btn btn-sm btn-neutral btn-icon"
-                      type="button"
-                      disabled
-                    >
-                      Refresh{'  '}
-                      <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                    </button>
-                  ) : (
-                    <div>
-                      {disablePortfolioRefreshBtn && <Tooltip id="portfolio" />}
-                      <button
-                        type="button"
-                        data-for="portfolio"
-                        data-tip={`You can only use this button every ${
-                          portfolioTimeInterval / 1000
-                        } seconds`}
-                        className={`btn btn-sm btn-neutral btn-icon btn-neutral-disable ${
-                          disablePortfolioRefreshBtn ? 'disabled' : ''
-                        }`}
-                        onClick={() =>
-                          disablePortfolioRefreshBtn
-                            ? null
-                            : onPortfolioRefresh()
-                        }
-                      >
-                        <span className="btn-inner--text">Refresh</span>
-                        <span className="btn-inner--icon">
-                          <FontAwesomeIcon icon={faSync} />
-                        </span>
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
+              <AnalyticsFilter
+                setSearch={setSearch}
+                setCurrentPage={setCurrentPage}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                loading={loading}
+                disablePortfolioRefreshBtn={disablePortfolioRefreshBtn}
+                portfolioTimeInterval={portfolioTimeInterval}
+                onPortfolioRefresh={onPortfolioRefresh}
+              />
               <div className="row">
                 <div className="col-lg-6">
-                  <AssetPerformance />
+                  <AssetPerformance
+                    search={search}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 </div>
                 <div className="col-lg-6">
-                  <PairPerformance />
+                  <PairPerformance
+                    search={search}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 </div>
               </div>
               <div className="row">
                 <div className="col-lg-12">
-                  <AnalyticsTable />
+                  <AnalyticsTable
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                    search={search}
+                  />
                 </div>
               </div>
             </div>

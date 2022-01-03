@@ -1,17 +1,12 @@
+import { ccxtClass } from '../../constants/ccxtConfigs'
+const EXCHANGE = 'kucoin'
+
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  let currentSymbol = localStorage.getItem('selectedSymbol').split('/').join('')
-  if (symbol === currentSymbol) {
-    const url = `https://cors.bridged.cc/https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${
-      startTime / 1000
-    }&endAt=${endTime / 1000}`
-    console.log(url)
-    return fetch(url)
-      .then((res) => {
-        return res.json()
-      })
-      .then((json) => {
-        return json.data
-      })
+  try {
+    const data = await ccxtClass[EXCHANGE].fetchOHLCV(symbol, interval)
+    return data
+  } catch (error) {
+    console.log('bad symbol')
   }
 }
 
@@ -53,12 +48,28 @@ const onSocketMessage = ({ lastMessage }) => {
   }
 }
 
+const editSocketData = (getData) => {
+  const [time, open, close, high, low, volume, amount] = getData
+  // Update data
+  let lastSocketData = {
+    time: parseInt(time) * 1000,
+    open: parseFloat(open),
+    high: parseFloat(high),
+    low: parseFloat(low),
+    close: parseFloat(close),
+    volume: parseFloat(volume),
+    openTime: parseInt(time),
+  }
+  return lastSocketData
+}
+
 const initSubscribe = ({ label }) => {
   return JSON.stringify({
     id: Date.now(),
     type: 'subscribe',
     topic: `/market/snapshot:${label}`,
     response: true,
+    privateChannel: false,
   })
 }
 //using proxy
@@ -76,6 +87,35 @@ const fetchTickers = () => {
       resolve(ticker)
     }
   })
+}
+
+const preparePing = () => {
+  return {
+    id: '1545910590801',
+    type: 'ping',
+  }
+}
+
+const socketSubscribe = ({ symbolInfo, interval }) => {
+  const symbol = symbolInfo.name.replace('/', '-')
+  let paramStr = `/market/candles:${symbol}_${interval}`
+
+  const obj = {
+    id: Date.now(),
+    type: 'subscribe',
+    topic: paramStr,
+    response: true,
+  }
+  return { obj, paramStr }
+}
+
+const klineSocketUnsubscribe = ({ param }) => {
+  const obj = {
+    type: 'unsubscribe',
+    topic: param,
+    id: 1,
+  }
+  return obj
 }
 
 const getSocketEndpoint = () => {
@@ -155,15 +195,29 @@ const editMessage = (data) => {
   })
 }
 
+const getIncomingSocket = ({ sData }) => {
+  return sData.data?.candles ? sData.data.candles : null
+}
+
+const fetchTicker = async ({ symbol }) => {
+  return await ccxtClass[EXCHANGE].fetchTicker(symbol)
+}
+
 const KuCoin = {
   getKlines,
   editSymbol,
   editKline,
   onSocketMessage,
   initSubscribe,
+  fetchTicker,
   getSocketEndpoint,
   fetchTickers,
+  editSocketData,
   editMessage,
+  klineSocketUnsubscribe,
+  socketSubscribe,
+  preparePing,
+  getIncomingSocket,
 }
 
 export default KuCoin

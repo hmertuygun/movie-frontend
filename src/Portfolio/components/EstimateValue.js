@@ -42,12 +42,12 @@ const EstimateValue = () => {
     let currencyValues =
       tempBalance && tempBalance.find((data) => data.symbol === currentCurrency)
     setCurrency(currencyValues)
-  }, [estimate, lastMessage, currency])
+  }, [estimate, lastMessage, currency, currentCurrency])
 
   useEffect(() => {
     if (!estimate?.length || !lastMessage) return
     fetchLatestPrice()
-  }, [estimate?.length, lastMessage])
+  }, [estimate?.length, lastMessage, currentCurrency])
 
   useEffect(() => {
     let value = localStorage.getItem('selectedCurrency')
@@ -69,7 +69,6 @@ const EstimateValue = () => {
     setCurrentCurrency(value)
     localStorage.setItem('selectedCurrency', value)
   }
-
   return (
     <>
       <div className="card card-fluid d-flex flex-row">

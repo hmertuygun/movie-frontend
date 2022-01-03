@@ -75,6 +75,8 @@ const Routes = () => {
     setIsAppOnline,
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
+    isApiKeysLoading,
+    state,
   } = useContext(UserContext)
 
   const showNotifOnNetworkChange = (online) => {
@@ -88,11 +90,25 @@ const Routes = () => {
     return null
   }
 
-  const isLocalEnv = window.location.hostname === 'localhost'
+  useEffect(() => {
+    if (
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state.has2FADetails)
+    ) {
+      history.push('/settings#security')
+    }
+  }, [
+    state,
+    isLoggedIn,
+    isApiKeysLoading,
+    history.location.pathname,
+    loadApiKeys,
+  ])
 
+  const isLocalEnv = window.location.hostname === 'localhost'
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
-      <FullScreenLoader />
+      {/* <FullScreenLoader /> */}
       <Detector
         polling={{
           url: 'https://jsonplaceholder.typicode.com/posts/1',
@@ -120,11 +136,24 @@ const Routes = () => {
               }}
             />
           )}
+
           {isLoggedIn &&
             userContextLoaded &&
             !loadApiKeys &&
             !isSettingsPage &&
-            !isOnboardingSkipped && <OnboardingModal />}
+            !isOnboardingSkipped &&
+            !isApiKeysLoading && <OnboardingModal />}
+          {isLoggedIn && isApiKeysLoading && (
+            <p
+              className="d-flex justify-content-center align-items-center"
+              style={{ height: 'calc(100vh - 150px)' }}
+            >
+              Loading your chart...
+            </p>
+          )}
+          {/* {isLoggedIn && !state.has2FADetails && (
+            <Route path="/settings#security" component={Settings} />
+          )} */}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

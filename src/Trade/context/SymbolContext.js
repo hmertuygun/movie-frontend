@@ -5,15 +5,11 @@ import React, {
   useContext,
   useCallback,
 } from 'react'
-import ccxtpro from 'ccxt.pro'
 
 import {
   getExchanges,
   getBalance,
   getLastPrice,
-  getUserExchanges,
-  getAllChartData,
-  updateLastSelectedAPIKey,
   saveLastSelectedMarketSymbol,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
@@ -21,10 +17,15 @@ import {
   errorNotification,
   successNotification,
 } from '../../components/Notifications'
-import { ccxtClass } from '../../constants/ccxtConfigs'
 import { firebase } from '../../firebase/firebase'
 import { defaultEmojis } from '../../constants/emojiDefault'
-import axios from 'axios'
+import {
+  updateTemplateDrawings,
+  getFirestoreDocumentData,
+  updateLastSelectedValue,
+} from '../../api/firestoreCall'
+import { execExchangeFunc } from '../../helpers/getExchangeProp'
+import { sortExchangesData } from '../../helpers/apiKeys'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -161,28 +162,12 @@ const SymbolContextProvider = ({ children }) => {
     let activeMarketData = {}
     if (activeExchange?.exchange) {
       try {
-        if (activeExchange.exchange !== 'bybit') {
-          const ccxtExchange = ccxtClass[activeExchange.exchange]
-          activeMarketData = await ccxtExchange.fetchTicker(symbol)
-          setMarketData(activeMarketData)
-        } else {
-          const { data } = await axios.get(
-            `${localStorage.getItem(
-              'proxyServer'
-            )}https://api.bybit.com/spot/quote/v1/ticker/24hr?symbol=${symbol.replace(
-              '/',
-              ''
-            )}`
-          )
-          setMarketData({
-            last: data.result.lastPrice,
-            high: data.result.highPrice,
-            low: data.result.lowPrice,
-            baseVolume: data.result.volume,
-            quoteVolume: data.result.quoteVolume,
-            symbol: data.result.symbol,
-          })
-        }
+        activeMarketData = await execExchangeFunc(
+          activeExchange?.exchange,
+          'fetchTicker',
+          { symbol }
+        )
+        setMarketData(activeMarketData)
       } catch (error) {
         console.log(error)
       }
@@ -227,15 +212,7 @@ const SymbolContextProvider = ({ children }) => {
         nickname: userData.email,
         flags: emojis,
       }
-      await db
-        .collection('template_drawings')
-        .doc(userData.email)
-        .set(
-          {
-            ...value,
-          },
-          { merge: true }
-        )
+      await updateTemplateDrawings(userData.email, value)
       successNotification.open({
         description: 'Emojis saved successfully',
       })
@@ -247,24 +224,19 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    db.collection('template_drawings')
-      .doc('sheldonthesniper01@gmail.com')
-      .onSnapshot(
-        (snapshot) => {
-          if (snapshot.data()) {
-            if (snapshot.data()?.flags) {
-              localStorage.setItem(
-                'flags',
-                JSON.stringify(snapshot.data()?.flags)
-              )
-              setEmojis(snapshot.data()?.flags)
-            }
+    getFirestoreDocumentData(
+      'template_drawings',
+      'sheldonthesniper01@gmail.com'
+    )
+      .then((emoji) => {
+        if (emoji.data()) {
+          if (emoji.data()?.flags) {
+            localStorage.setItem('flags', JSON.stringify(emoji.data()?.flags))
+            setEmojis(emoji.data()?.flags)
           }
-        },
-        (error) => {
-          console.log(error)
         }
-      )
+      })
+      .catch((err) => console.log(err))
   }, [db, watchListOpen])
 
   const getChartDataOnInit = async () => {
@@ -273,10 +245,8 @@ const SymbolContextProvider = ({ children }) => {
         templateDrawingsOpen && watchListOpen
           ? 'binance'
           : activeExchange.exchange
-      db.collection('chart_drawings')
-        .doc(userData.email)
-        .get()
-        .then((userSnapShot) => {
+      getFirestoreDocumentData('chart_drawings', userData.email).then(
+        (userSnapShot) => {
           let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
           let activeMarketData = {}
           const chartData = {
@@ -312,10 +282,11 @@ const SymbolContextProvider = ({ children }) => {
             label: symbolVal.replace('/', '-'),
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
-          // loadLastPrice(symbolVal, exchangeVal)
+          loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
-        })
+        }
+      )
     } catch (e) {
       console.error(e)
     } finally {
@@ -419,11 +390,6 @@ const SymbolContextProvider = ({ children }) => {
     if (watchListOpen) return
 
     if (selectedSymbol.value !== selectedSymbolDetail.value) {
-      console.log(
-        'Trade panel issue log: ',
-        selectedSymbol,
-        selectedSymbolDetail
-      )
       setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
     }
   }, [
@@ -446,7 +412,8 @@ const SymbolContextProvider = ({ children }) => {
       }
       setExchangeUpdated(true)
       setLoaderVisibility(true)
-      await updateLastSelectedAPIKey({ ...exchange })
+      let value = `${exchange.apiKeyName}-${exchange.exchange}`
+      await updateLastSelectedValue(userData.email, value)
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
@@ -574,19 +541,25 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const refreshExchanges = async () => {
-    try {
-      const response = await getUserExchanges()
-      if (response?.data?.error) return
-      const apiKeys = response.data.apiKeys.map((item) => {
-        return {
-          ...item,
-          label: `${item.exchange} - ${item.apiKeyName}`,
-          value: `${item.exchange} - ${item.apiKeyName}`,
-        }
-      })
-      setExchanges(apiKeys)
-    } catch (error) {
-      console.log(error)
+    if (userData.email) {
+      try {
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (!apiKeys.length) return
+            const keys = apiKeys.map((item) => {
+              return {
+                ...item,
+                label: `${item.exchange} - ${item.apiKeyName}`,
+                value: `${item.exchange} - ${item.apiKeyName}`,
+              }
+            })
+            setExchanges(keys)
+          }
+        })
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 

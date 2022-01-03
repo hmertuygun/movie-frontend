@@ -33,6 +33,7 @@ import {
 import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
+import { setWatchlistData, getSnapShotDocument } from '../api/firestoreCall'
 
 const WatchListPanel = () => {
   const {
@@ -74,9 +75,7 @@ const WatchListPanel = () => {
 
   const initWatchList = useCallback(() => {
     try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(WATCHLIST_INIT_STATE, { merge: true })
+      setWatchlistData(userData.email, WATCHLIST_INIT_STATE)
     } catch (err) {
       console.log(err)
     }
@@ -86,9 +85,8 @@ const WatchListPanel = () => {
     if (!templateDrawingsOpen) {
       try {
         setLoading(true)
-        db.collection('watch_list')
-          .doc(userData.email)
-          .onSnapshot((snapshot) => {
+        getSnapShotDocument('watch_list', userData.email).onSnapshot(
+          (snapshot) => {
             if (snapshot.data()) {
               if (!snapshot.data()?.lists) {
                 initWatchList()
@@ -122,7 +120,8 @@ const WatchListPanel = () => {
               initWatchList()
               setWatchSymbolsList([])
             }
-          })
+          }
+        )
       } catch (error) {
         console.log('Cannot fetch watch lists')
       } finally {
@@ -131,32 +130,33 @@ const WatchListPanel = () => {
     } else {
       try {
         setLoading(true)
-        db.collection('watch_list')
-          .doc('sheldonthesniper01@gmail.com')
-          .onSnapshot((snapshot) => {
-            if (snapshot.data()) {
-              const lists = Object.keys(snapshot.data()?.lists)
-              setWatchLists(snapshot.data()?.lists)
-              const listsData = Object.values(snapshot.data()?.lists)
+        getSnapShotDocument(
+          'watch_list',
+          'sheldonthesniper01@gmail.com'
+        ).onSnapshot((snapshot) => {
+          if (snapshot.data()) {
+            const lists = Object.keys(snapshot.data()?.lists)
+            setWatchLists(snapshot.data()?.lists)
+            const listsData = Object.values(snapshot.data()?.lists)
 
-              setTemplateWatchlist(listsData)
-              if (lists.length === 0) {
-                // TODO IF SHELDONS WATCH LIST IS EMPTY
-              } else {
-                const activeList = listsData.find(
-                  (list) => list.watchListName === snapshot.data()?.activeList
-                )
+            setTemplateWatchlist(listsData)
+            if (lists.length === 0) {
+              // TODO IF SHELDONS WATCH LIST IS EMPTY
+            } else {
+              const activeList = listsData.find(
+                (list) => list.watchListName === snapshot.data()?.activeList
+              )
 
-                if (activeList) {
-                  setWatchSymbolsList(activeList?.['binance'] ?? [])
-                  setActiveWatchList(activeList)
-                  if (activeList?.['binance'] && activeList?.['binance'][0]) {
-                    setSymbol(activeList?.['binance'][0])
-                  }
+              if (activeList) {
+                setWatchSymbolsList(activeList?.['binance'] ?? [])
+                setActiveWatchList(activeList)
+                if (activeList?.['binance'] && activeList?.['binance'][0]) {
+                  setSymbol(activeList?.['binance'][0])
                 }
               }
             }
-          })
+          }
+        })
       } catch (error) {
         console.log(`Cannot fetch Sniper's watch lists`)
       } finally {
@@ -409,18 +409,14 @@ const WatchListPanel = () => {
       flag: item.flag || 0,
     }))
     try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            lists: {
-              [activeWatchList.watchListName]: {
-                [activeExchange.exchange]: symbols,
-              },
-            },
+      let data = {
+        lists: {
+          [activeWatchList.watchListName]: {
+            [activeExchange.exchange]: symbols,
           },
-          { merge: true }
-        )
+        },
+      }
+      setWatchlistData(userData.email, data)
     } catch (error) {
       errorNotification.open({
         description: `Cannot create watch lists, Please try again later.`,
@@ -451,19 +447,14 @@ const WatchListPanel = () => {
           }
           return item
         })
-      await db
-        .collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            lists: {
-              [activeWatchList.watchListName]: {
-                [activeExchange.exchange]: list,
-              },
-            },
+      let data = {
+        lists: {
+          [activeWatchList.watchListName]: {
+            [activeExchange.exchange]: list,
           },
-          { merge: true }
-        )
+        },
+      }
+      await setWatchlistData(userData.email, data)
     } catch (error) {
       console.log(error)
       errorNotification.open({
@@ -483,18 +474,14 @@ const WatchListPanel = () => {
         flag: item.flag || 0,
       }))
     try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            lists: {
-              [activeWatchList.watchListName]: {
-                [activeExchange.exchange]: symbols,
-              },
-            },
+      let data = {
+        lists: {
+          [activeWatchList.watchListName]: {
+            [activeExchange.exchange]: symbols,
           },
-          { merge: true }
-        )
+        },
+      }
+      setWatchlistData(userData.email, data)
     } catch (error) {
       console.log('Cannot save watch lists')
     }
@@ -528,16 +515,13 @@ const WatchListPanel = () => {
   const handleAddWatchList = ({ watchListName }) => {
     setAddWatchListLoading(true)
     try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            lists: {
-              [watchListName]: { watchListName },
-            },
-          },
-          { merge: true }
-        )
+      let data = {
+        lists: {
+          [watchListName]: { watchListName },
+        },
+      }
+      setWatchlistData(userData.email, data)
+
       successNotification.open({ description: `Watch list created!` })
       setAddWatchListModalOpen(false)
     } catch (error) {
@@ -569,18 +553,14 @@ const WatchListPanel = () => {
       flag: item.flag,
     }))
     try {
-      db.collection('watch_list')
-        .doc(userData.email)
-        .set(
-          {
-            lists: {
-              [activeWatchList.watchListName]: {
-                [activeExchange.exchange]: symbols,
-              },
-            },
+      let data = {
+        lists: {
+          [activeWatchList.watchListName]: {
+            [activeExchange.exchange]: symbols,
           },
-          { merge: true }
-        )
+        },
+      }
+      setWatchlistData(userData.email, data)
     } catch (error) {
       console.log(error)
     }
@@ -588,12 +568,10 @@ const WatchListPanel = () => {
 
   const handleWatchListItemClick = (watchListName) => {
     if (!templateDrawingsOpen) {
-      db.collection('watch_list').doc(userData.email).set(
-        {
-          activeList: watchListName,
-        },
-        { merge: true }
-      )
+      let data = {
+        activeList: watchListName,
+      }
+      setWatchlistData(userData.email, data)
     } else {
       const activeList = templateWatchlist.find(
         (list) => list.watchListName === watchListName
@@ -616,7 +594,7 @@ const WatchListPanel = () => {
       return
     }
     try {
-      const ref = db.collection('watch_list').doc(userData.email)
+      const ref = getSnapShotDocument('watch_list', userData.email)
       const filedName = `lists.${activeWatchList.watchListName}`
       await ref.update({
         [filedName]: FieldValue.delete(),

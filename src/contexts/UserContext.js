@@ -6,29 +6,32 @@ import {
   saveGoogleAuth2FA,
   validateUser,
   verifyGoogleAuth2FA,
-  getUserExchanges,
   updateLastSelectedAPIKey,
+  getUserExchanges,
   storeNotificationToken,
 } from '../api/api'
 import { successNotification } from '../components/Notifications'
 import { useHistory } from 'react-router'
 import Ping from 'ping.js'
 import dayjs from 'dayjs'
+import { execExchangeFunc } from '../helpers/getExchangeProp'
+import { sortExchangesData } from '../helpers/apiKeys'
+import {
+  getFirestoreCollectionData,
+  getFirestoreDocumentData,
+} from '../api/firestoreCall'
+
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
-const DEFAULT_EXCHANGE = {
-  data: {
-    apiKeys: [
-      {
-        apiKeyName: 'binance1',
-        exchange: 'binance',
-        status: 'Active',
-        isLastSelected: true,
-      },
-    ],
+const DEFAULT_EXCHANGE = [
+  {
+    apiKeyName: 'binance1',
+    exchange: 'binance',
+    status: 'Active',
+    isLastSelected: true,
   },
-}
+]
 
 const UserContextProvider = ({ children }) => {
   const localStorageUser = localStorage.getItem('user')
@@ -89,6 +92,8 @@ const UserContextProvider = ({ children }) => {
   const [endTrial, setEndTrial] = useState(false)
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
+  const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
+  const [twofaSecretKey, setTwofaSecretKey] = useState('')
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -107,12 +112,8 @@ const UserContextProvider = ({ children }) => {
   }, [])
 
   const getProducts = async () => {
-    const db = firebase.firestore()
-    await db
-      .collection('stripe_plans')
-      .where('active', '==', true)
-      .get()
-      .then(async (querySnapshot) => {
+    await getFirestoreCollectionData('stripe_plans', true).then(
+      async (querySnapshot) => {
         querySnapshot.forEach(async (doc) => {
           const priceSnap = await doc.ref
             .collection('prices')
@@ -135,26 +136,24 @@ const UserContextProvider = ({ children }) => {
           })
           setProducts((products) => [...products, productData])
         })
-      })
+      }
+    )
   }
 
   const getChartMirroring = async () => {
     //test
     try {
-      const db = firebase.firestore()
       const currentUser = firebase.auth().currentUser
-      await db
-        .collection('stripe_users')
-        .doc(currentUser.uid)
-        .get()
-        .then(async (doc) => {
+      await getFirestoreDocumentData('stripe_users', currentUser.uid).then(
+        async (doc) => {
           if (doc.data()?.chartMirroringSignUp) {
             handleOnboardingSkip()
             setChartMirroring(doc.data().chartMirroringSignUp)
           } else {
             setChartMirroring(false)
           }
-        })
+        }
+      )
     } catch (error) {
       console.log(error)
     }
@@ -194,11 +193,13 @@ const UserContextProvider = ({ children }) => {
   }
 
   async function findFastServer(urls) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       var results = []
       urls.forEach((url) => {
         results.push(makePing(url))
       })
+
+      await execExchangeFunc('kucoin', 'socketUrl')
 
       Promise.all(results).then(function (values) {
         values.sort((a, b) => {
@@ -224,14 +225,14 @@ const UserContextProvider = ({ children }) => {
 
   const getSubscriptionsData = async () => {
     setIsCheckingSub(true)
-    const db = firebase.firestore()
     const currentUser = firebase.auth().currentUser
-    const cryptoPayments = await db
-      .collection('subscriptions')
-      .doc(currentUser.email)
-      .get()
+    const cryptoPayments = await getFirestoreDocumentData(
+      'subscriptions',
+      currentUser.email
+    )
+
     const subData = cryptoPayments.data()
-    console.log(subData)
+
     if (subData) {
       const { subscription_status, provider, currency, plan, amount } = subData
       const { seconds } = subData.expiration_date
@@ -301,11 +302,11 @@ const UserContextProvider = ({ children }) => {
       setIsPaidUser(false)
     }
 
-    const exception = await db
-      .collection('referrals')
-      .doc(currentUser.email)
-      .get()
-    console.log(exception?.data())
+    const exception = await getFirestoreDocumentData(
+      'referrals',
+      currentUser.email
+    )
+
     if (exception?.data()) {
       setIsException(true)
     }
@@ -318,77 +319,90 @@ const UserContextProvider = ({ children }) => {
     }
   }, [isOnboardingSkipped])
 
-  async function getExchanges() {
-    try {
-      let hasKeys = await getUserExchanges()
-      if (!hasKeys?.data?.apiKeys?.length && isOnboardingSkipped) {
-        hasKeys = DEFAULT_EXCHANGE
-      } else {
-        handleOnboardingShow()
-      }
+  useEffect(() => {
+    getExchanges()
+  }, [userData.email])
 
-      if (hasKeys) {
-        if (!hasKeys?.data?.apiKeys?.length) {
-          setUserContextLoaded(true)
-          return
-        }
-      } else {
+  function getExchanges() {
+    if (userData.email) {
+      setIsApiKeysLoading(true)
+      try {
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            setIsApiKeysLoading(false)
+            setUserContextLoaded(true)
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (!apiKeys?.length && isOnboardingSkipped) {
+              apiKeys = DEFAULT_EXCHANGE
+            } else {
+              handleOnboardingShow()
+            }
+
+            if (apiKeys) {
+              if (!apiKeys?.length) {
+                setUserContextLoaded(true)
+                return
+              }
+            } else {
+              setLoadApiKeysError(true)
+            }
+            setTotalExchanges(apiKeys)
+            let getSavedKey = sessionStorage.getItem('exchangeKey')
+            const ssData = JSON.parse(getSavedKey)
+            if (
+              ssData &&
+              apiKeys.findIndex(
+                (item) =>
+                  item.apiKeyName === ssData.apiKeyName &&
+                  item.exchange === ssData.exchange
+              ) > -1
+            ) {
+              setActiveExchange({ ...ssData })
+              if (!isOnboardingSkipped) {
+                setLoadApiKeys(true)
+              }
+            } else {
+              let activeKey = apiKeys.find(
+                (item) =>
+                  item.isLastSelected === true && item.status === 'Active'
+              )
+              if (activeKey) {
+                const data = {
+                  ...activeKey,
+                  label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+                  value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+                }
+                if (!isOnboardingSkipped) {
+                  setLoadApiKeys(true) // Only check active api exchange eventually
+                }
+                setActiveExchange(data)
+                sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+              } else {
+                // find the first one that is 'Active'
+                let active = apiKeys.find((item) => item.status === 'Active')
+                if (active) {
+                  updateLastSelectedAPIKey({ ...active })
+                  const data = {
+                    ...active,
+                    label: `${active.exchange} - ${active.apiKeyName}`,
+                    value: `${active.exchange} - ${active.apiKeyName}`,
+                  }
+                  setActiveExchange(data)
+                  sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+                  if (!isOnboardingSkipped) {
+                    setLoadApiKeys(true)
+                  }
+                }
+              }
+            }
+          }
+        })
+      } catch (e) {
+        console.log(e)
+        setIsApiKeysLoading(false)
         setLoadApiKeysError(true)
+        setUserContextLoaded(true)
       }
-      const { apiKeys } = hasKeys.data
-      setTotalExchanges(apiKeys)
-      let getSavedKey = sessionStorage.getItem('exchangeKey')
-      const ssData = JSON.parse(getSavedKey)
-      if (
-        ssData &&
-        apiKeys.findIndex(
-          (item) =>
-            item.apiKeyName === ssData.apiKeyName &&
-            item.exchange === ssData.exchange
-        ) > -1
-      ) {
-        setActiveExchange({ ...ssData })
-        if (!isOnboardingSkipped) {
-          setLoadApiKeys(true)
-        }
-      } else {
-        let activeKey = apiKeys.find(
-          (item) => item.isLastSelected === true && item.status === 'Active'
-        )
-        if (activeKey) {
-          const data = {
-            ...activeKey,
-            label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-            value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-          }
-          if (!isOnboardingSkipped) {
-            setLoadApiKeys(true) // Only check active api exchange eventually
-          }
-          setActiveExchange(data)
-          sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-        } else {
-          // find the first one that is 'Active'
-          let active = apiKeys.find((item) => item.status === 'Active')
-          if (active) {
-            await updateLastSelectedAPIKey({ ...active })
-            const data = {
-              ...active,
-              label: `${active.exchange} - ${active.apiKeyName}`,
-              value: `${active.exchange} - ${active.apiKeyName}`,
-            }
-            setActiveExchange(data)
-            sessionStorage.setItem('exchangeKey', JSON.stringify(data))
-            if (!isOnboardingSkipped) {
-              setLoadApiKeys(true)
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.log(e)
-      setLoadApiKeysError(true)
-    } finally {
-      setUserContextLoaded(true)
     }
   }
 
@@ -428,7 +442,6 @@ const UserContextProvider = ({ children }) => {
 
   const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged(async (user) => {
-      let sessionTimeout = null
       if (user) {
         // User is signed in.
         setUserData(user)
@@ -436,20 +449,8 @@ const UserContextProvider = ({ children }) => {
         if (firebase.messaging.isSupported()) {
           FCMSubscription()
         }
-        user.getIdTokenResult().then((idTokenResult) => {
-          // Make sure all the times are in milliseconds!
-          const authTime = idTokenResult.claims.auth_time * 1000
-          const sessionDuration = 1000 * 60 * 60 * 24
-          const millisecondsUntilExpiration =
-            sessionDuration - (Date.now() - authTime)
-          sessionTimeout = setTimeout(() => {
-            logout()
-          }, millisecondsUntilExpiration)
-        })
       } else {
         // User is signed out.
-        sessionTimeout && clearTimeout(sessionTimeout)
-        sessionTimeout = null
       }
     })
   }
@@ -716,6 +717,10 @@ const UserContextProvider = ({ children }) => {
         isChartReady,
         setIsChartReady,
         setSubscriptionData,
+        isApiKeysLoading,
+        state,
+        setTwofaSecretKey,
+        twofaSecretKey,
       }}
     >
       {children}

@@ -1,7 +1,11 @@
+import { ccxtClass } from '../../constants/ccxtConfigs'
+import { getExchangeProp } from '../../helpers/getExchangeProp'
+const EXCHANGE = 'binanceus'
+
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
   let currentSymbol = localStorage.getItem('selectedSymbol').split('/').join('')
   if (symbol === currentSymbol) {
-    const url = `https://api2.binance.com/api/v1/klines?symbol=${symbol}&interval=${interval}${
+    const url = `https://api.binance.us/api/v1/klines?symbol=${symbol}&interval=${interval}${
       startTime ? `&startTime=${startTime}` : ''
     }${endTime ? `&endTime=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
 
@@ -17,6 +21,12 @@ const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
 
 const editSymbol = ({ symbol }) => {
   return symbol.name.replace('/', '')
+}
+
+const getSocketEndpoint = () => {
+  return new Promise((resolve) =>
+    resolve(getExchangeProp('binanceus', 'socketEndpoint'))
+  )
 }
 
 const editKline = ({ klines }) => {
@@ -49,6 +59,39 @@ const onSocketMessage = ({ lastMessage }) => {
   }
 }
 
+const editSocketData = ({ o, h, l, v, c, T, t }) => {
+  return {
+    time: t,
+    close: parseFloat(c),
+    open: parseFloat(o),
+    high: parseFloat(h),
+    low: parseFloat(l),
+    volume: parseFloat(v),
+    closeTime: T,
+    openTime: t,
+  }
+}
+
+const socketSubscribe = ({ symbolInfo, interval }) => {
+  const symbol = symbolInfo.name.replace('/', '')
+  let paramStr = `${symbol.toLowerCase()}@kline_${interval}`
+  const obj = {
+    method: 'SUBSCRIBE',
+    params: [paramStr],
+    id: 1,
+  }
+  return { obj, paramStr }
+}
+
+const klineSocketUnsubscribe = ({ param }) => {
+  const obj = {
+    method: 'UNSUBSCRIBE',
+    params: [param],
+    id: 1,
+  }
+  return obj
+}
+
 const initSubscribe = ({ label }) => {
   return JSON.stringify({
     id: 1,
@@ -59,9 +102,17 @@ const initSubscribe = ({ label }) => {
 
 const fetchTickers = () => {}
 
+const fetchTicker = async ({ symbol }) => {
+  return await ccxtClass[EXCHANGE].fetchTicker(symbol)
+}
+
 const editMessage = () => {}
 
-const Binance = {
+const getIncomingSocket = ({ sData }) => {
+  return sData.k
+}
+
+const BinanceUS = {
   getKlines,
   editSymbol,
   editKline,
@@ -69,6 +120,12 @@ const Binance = {
   initSubscribe,
   editMessage,
   fetchTickers,
+  editSocketData,
+  klineSocketUnsubscribe,
+  getSocketEndpoint,
+  socketSubscribe,
+  fetchTicker,
+  getIncomingSocket,
 }
 
-export default Binance
+export default BinanceUS

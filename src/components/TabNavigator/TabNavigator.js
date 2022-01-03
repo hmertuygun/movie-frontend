@@ -40,7 +40,7 @@ const TabInfo = () => {
             A stop-market order uses a Trigger Price as a trigger. When the
             trigger price is reached, it triggers a market order.
           </p>
-          <a
+          {/* <a
             href="https://support.coinpanel.com/hc/en-us/articles/360020673540-What-is-a-Take-Profit-Limit-Order-"
             target="_blank"
             rel="noopener noreferrer"
@@ -67,7 +67,7 @@ const TabInfo = () => {
             the trigger price is reached, it triggers a market order. Make sure
             you learn about market orders before using take-profit-market
             orders.
-          </p>
+          </p> */}
         </div>
       )}
     </div>
@@ -80,7 +80,7 @@ const TabNavigator = ({
   children,
   hadDropDown = true,
 }) => {
-  const { showMarketItems, tour2CurrentStep } = useContext(UserContext)
+  const { showMarketItems, tour2CurrentStep, state } = useContext(UserContext)
   const [contentIndex, setContentIndex] = useState(index)
   const [selectedDropDownOption, setSelectedDropdownOption] = useState(
     labelArray[2]
@@ -198,6 +198,11 @@ const TabNavigator = ({
                 }}
               >
                 {label}
+                {!state.has2FADetails && label === 'Security' ? (
+                  <span className="badge badge-danger badge-circle badge-floating border-white warning-badge">
+                    !
+                  </span>
+                ) : null}
               </div>
             ))}
           </nav>

@@ -3,6 +3,7 @@ import QRCode from 'qrcode'
 import { createGoogleAuth2FA } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { ModalsConf } from '../../constants/ModalsConf'
+import { useLocation, useHistory } from 'react-router-dom'
 
 const HeaderSteps = [
   ModalsConf.DownloadApp,
@@ -30,6 +31,9 @@ const withCard =
   (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) =>
   ({ next, onBack, ...props }) => {
     const [isLoading, setIsLoading] = useState(false)
+    const { hash } = useLocation()
+    const history = useHistory()
+    const { state } = useContext(UserContext)
     const onNext = useRef()
     const onClickNext = async () => {
       try {
@@ -38,7 +42,12 @@ const withCard =
           const data = await onNext.current()
           next(data)
         } else {
-          next()
+          if (hash === '#security' || state.has2FADetails) {
+            history.push('/trade')
+            next()
+          } else {
+            next()
+          }
         }
       } catch (error) {
         throw error
@@ -153,12 +162,13 @@ export const ScanQRCode = withCard(
   ModalsConf.ScanQRCode.step,
   ({ onNext, data }) => {
     const [t2FASecretCode, setT2FASecretCode] = useState('')
-
+    const { setTwofaSecretKey } = useContext(UserContext)
     useEffect(() => {
       const generateSecret = async () => {
         const otpauth = `otpauth://totp/${data.label}?secret=${data.secret}`
         QRCode.toDataURL(otpauth, function (err, data_url) {
           setT2FASecretCode(data_url)
+          setTwofaSecretKey(data.secret)
         })
       }
       generateSecret()
@@ -258,19 +268,15 @@ export const EnableGoogleAuth = withCard(
 export const BackUpKey = withCard(
   ModalsConf.BackUpKey.step,
   ({ data }) => {
+    const { twofaSecretKey } = useContext(UserContext)
     return (
       <>
         <h4 className="text-center">
-          Please save these keys. They will allow you to recover your 2FA in the
-          event of device loss.
+          Please save this setup key. They will allow you to recover your 2FA in
+          in the event of device loss.
         </h4>
         <div className="mt-4">
-          {data.backup_codes &&
-            data.backup_codes.map((code) => (
-              <>
-                <p className="text-center">{code}</p>
-              </>
-            ))}
+          <h3 className="text-center">{twofaSecretKey}</h3>
         </div>
       </>
     )

@@ -9,7 +9,6 @@ import React, {
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
-import { firebase } from '../firebase/firebase'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
@@ -19,6 +18,10 @@ import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
+import {
+  getFirestoreDocumentData,
+  getFirestoreCollectionData,
+} from '../api/firestoreCall'
 
 const WatchListPanel = lazy(() => import('./WatchListPanel'))
 const TradePanel = lazy(() => import('./TradePanel'))
@@ -28,8 +31,6 @@ const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
 const SymbolSelect = lazy(() =>
   import('./components/SymbolSelect/SymbolSelect')
 )
-
-const db = firebase.firestore()
 const registerResizeObserver = (cb, elem) => {
   const resizeObserver = new ResizeObserver(cb)
   resizeObserver.observe(elem)
@@ -67,74 +68,70 @@ const TradeContainer = () => {
   }, [resizeCallBack])
 
   useEffect(() => {
-    db.collection('platform_messages')
-      .get()
-      .then((snapshot) => {
-        let obj = {}
-        let allNotices = snapshot.docs.map((item) => {
-          return { id: item.id, ...item.data() }
-        })
-        db.collection('user_notices')
-          .doc(userData.email)
-          .get()
-          .then((userSnapShot) => {
-            const date1 = new Date(
-              subscriptionData?.subscription?.trial_end?.seconds * 1000
+    getFirestoreCollectionData('platform_messages').then((snapshot) => {
+      let obj = {}
+      let allNotices = snapshot.docs.map((item) => {
+        return { id: item.id, ...item.data() }
+      })
+      getFirestoreDocumentData('user_notices', userData.email).then(
+        (userSnapShot) => {
+          const date1 = new Date(
+            subscriptionData?.subscription?.trial_end?.seconds * 1000
+          )
+          const isOver = new Date() > date1
+          const diffTime = Math.abs(new Date() - date1)
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+          let payCrypto = !isOver && diffDays > 14
+          if (userSnapShot.data()) {
+            const dismissed = Object.keys(userSnapShot.data())
+            allNotices = allNotices.filter(
+              (item) => !dismissed.includes(item.id)
             )
-            const isOver = new Date() > date1
-            const diffTime = Math.abs(new Date() - date1)
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-            let payCrypto = !isOver && diffDays > 14
-            if (userSnapShot.data()) {
-              const dismissed = Object.keys(userSnapShot.data())
-              allNotices = allNotices.filter(
-                (item) => !dismissed.includes(item.id)
-              )
-            }
-            allNotices.forEach((item) => {
-              if (
-                subscriptionData?.priceData?.interval ||
-                subscriptionData?.subscription?.trial_end?.seconds
-              )
-                if (item.sendToEveryone) {
-                  if (item.isPrivate) {
-                    if (
-                      !(
-                        subscriptionData?.priceData?.interval === 'year' ||
-                        payCrypto
-                      )
-                    ) {
-                      obj[item.id] = item
-                    }
-                  }
-                  if (item.exceptions?.length) {
-                    const isInExceptions = item.exceptions.includes(
-                      userData.email
+          }
+          allNotices.forEach((item) => {
+            if (
+              subscriptionData?.priceData?.interval ||
+              subscriptionData?.subscription?.trial_end?.seconds
+            )
+              if (item.sendToEveryone) {
+                if (item.isPrivate) {
+                  if (
+                    !(
+                      subscriptionData?.priceData?.interval === 'year' ||
+                      payCrypto
                     )
-                    if (isInExceptions && item.isPrivate) {
-                      delete obj[item.id]
-                    }
-                  } else {
-                    if (
-                      typeof subscriptionData?.priceData?.interval ==
-                        'string' &&
-                      !item.isPrivate
-                    )
-                      obj[item.id] = item
-                  }
-                } else if (item.emails) {
-                  const exists = item.emails.find(
-                    (element) => element === userData.email
-                  )
-                  if (exists) {
+                  ) {
                     obj[item.id] = item
                   }
                 }
-            })
-
-            setNotices(obj)
+                if (item.exceptions?.length) {
+                  const isInExceptions = item.exceptions.includes(
+                    userData.email
+                  )
+                  if (isInExceptions && item.isPrivate) {
+                    delete obj[item.id]
+                  }
+                } else {
+                  if (
+                    typeof subscriptionData?.priceData?.interval == 'string' &&
+                    !item.isPrivate
+                  )
+                    obj[item.id] = item
+                }
+              } else if (item.emails) {
+                const exists = item.emails.find(
+                  (element) => element === userData.email
+                )
+                if (exists) {
+                  obj[item.id] = item
+                }
+              }
           })
-      })
+
+          setNotices(obj)
+        }
+      )
+    })
   }, [
     userData.email,
     subscriptionData?.priceData?.interval,

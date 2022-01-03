@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import SubscriptionCard from './SubscriptionCard'
@@ -6,8 +6,12 @@ import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from '../../contexts/UserContext'
 import { UserCheck } from 'react-feather'
 import { Modal } from '../../components'
+import { firebase } from '../../firebase/firebase'
 import { getSubscriptionDetails } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
+import './index.css'
 
 const Subscription = () => {
   const {
@@ -20,10 +24,37 @@ const Subscription = () => {
     setSubscriptionData,
     setIsPaidUser,
     endTrial,
+    userData,
   } = useContext(UserContext)
   const history = useHistory()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [country, setCountry] = useState('')
+  const options = useMemo(() => countryList().getData(), [])
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('user_data')
+      .doc(userData.email)
+      .get()
+      .then((doc) => {
+        if (doc) {
+          console.log(doc.data())
+          setCountry(doc.data().country)
+        }
+      })
+  }, [])
+
+  const handleCountrySelection = async (value) => {
+    setCountry(value)
+    await firebase
+      .firestore()
+      .collection('user_data')
+      .doc(userData.email)
+      .set({ country: value }, { merge: true })
+  }
+
   const handleClickYes = async () => {
     setIsLoading(true)
     try {
@@ -51,6 +82,18 @@ const Subscription = () => {
 
   return (
     <div className="row pt-5">
+      <div className="col-lg-6">
+        <div className="form-group">
+          <label className="form-control-label">Country</label>
+          <Select
+            options={options}
+            value={country}
+            isDisabled={!!country.value}
+            onChange={handleCountrySelection}
+            className="input-group-merge country-border"
+          />
+        </div>
+      </div>
       <div className="col-lg-12">
         {!isCheckingSub ? (
           hasSub ? (

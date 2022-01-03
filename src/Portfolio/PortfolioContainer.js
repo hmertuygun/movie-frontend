@@ -11,7 +11,7 @@ import Tooltip from '../components/Tooltip'
 
 function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
-  const { loading, refreshData } = useContext(PortfolioContext)
+  const { loading, refreshData, balance } = useContext(PortfolioContext)
   const { activeExchange } = useContext(UserContext)
   const {
     onRefreshBtnClicked,
@@ -47,7 +47,12 @@ function PortfolioContainer() {
 
   return (
     <>
-      <section className="py-5 slice bg-section-secondary">
+      <section
+        className="py-5 slice bg-section-secondary"
+        style={
+          !balance || !balance.length ? { height: 'calc(100vh - 74px)' } : null
+        }
+      >
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
@@ -96,19 +101,29 @@ function PortfolioContainer() {
                   )}
                 </div>
               </div>
-              <div className="row">
-                <div className="col-lg-6">
-                  <EstimateValue />
+              {balance && balance.length ? (
+                <>
+                  <div className="row">
+                    <div className="col-lg-6">
+                      <EstimateValue />
+                    </div>
+                    <div className="col-lg-6">
+                      <PortfolioDistribution />
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <BalanceTable />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="row">
+                  <div className="col-lg-12">
+                    <p className="text-center">No balances to display</p>
+                  </div>
                 </div>
-                <div className="col-lg-6">
-                  <PortfolioDistribution />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-lg-12">
-                  <BalanceTable />
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

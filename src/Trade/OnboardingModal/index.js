@@ -9,8 +9,8 @@ import { useSymbolContext } from '../context/SymbolContext'
 import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
-  getUserExchanges,
   updateLastSelectedAPIKey,
+  getUserExchanges,
 } from '../../api/api'
 import { useHistory } from 'react-router-dom'
 import {
@@ -21,6 +21,11 @@ import {
 import './index.css'
 import { supportLinks } from '../../constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from '../../constants/Trade'
+import { sortExchangesData } from '../../helpers/apiKeys'
+import {
+  updateLastSelectedValue,
+  getFirestoreDocumentData,
+} from '../../api/firestoreCall'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -36,7 +41,9 @@ const OnboardingModal = () => {
     handleOnboardingSkip,
     isOnboardingSkipped,
     isPaidUser,
+    userData,
     isException,
+    state,
   } = useContext(UserContext)
   const history = useHistory()
 
@@ -164,10 +171,8 @@ const OnboardingModal = () => {
       if (result.status !== 200) {
         setError(true)
       } else {
-        await updateLastSelectedAPIKey({
-          apiKeyName: apiName,
-          exchange: exchange.value,
-        })
+        let value = `${apiName}-${exchange.value}`
+        await updateLastSelectedValue(userData.email, value)
         setStepNo(step + 1)
         successNotification.open({ description: 'API key added!' })
         analytics.logEvent('api_keys_added')
@@ -208,7 +213,11 @@ const OnboardingModal = () => {
 
   const onPrimaryBtnClick = async () => {
     if (step === 1) {
-      setStepNo(step + 1)
+      if (state && state.has2FADetails) {
+        setStepNo(step + 1)
+      } else {
+        history.push('/settings#security')
+      }
     } else if (step === 2) {
       const isFormValid = await validateForm()
 
@@ -218,20 +227,23 @@ const OnboardingModal = () => {
     } else if (step === 3) {
       sessionStorage.clear()
       try {
-        const hasKeys = await getUserExchanges()
-        if (hasKeys?.data?.apiKeys) {
-          const { apiKeys } = hasKeys.data
-          setTotalExchanges(apiKeys)
-          setActiveExchange({
-            label: `${exchange.value} - ${apiName}`,
-            value: `${exchange.value} - ${apiName}`,
-            apiKeyName: apiName,
-            exchange: exchange.value,
-          })
-          refreshExchanges()
-          setOnTour(!onTour)
-          getSubscriptionsData()
-        }
+        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (apiKeys) {
+              setTotalExchanges(apiKeys)
+              setActiveExchange({
+                label: `${exchange.value} - ${apiName}`,
+                value: `${exchange.value} - ${apiName}`,
+                apiKeyName: apiName,
+                exchange: exchange.value,
+              })
+              refreshExchanges()
+              setOnTour(!onTour)
+              getSubscriptionsData()
+            }
+          }
+        })
       } catch (e) {
         console.log(e)
       } finally {

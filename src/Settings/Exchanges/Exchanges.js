@@ -12,19 +12,23 @@ import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import ExchangeRow from './ExchangeRow'
 import {
-  getUserExchanges,
   addUserExchange,
   activateUserExchange,
-  updateLastSelectedAPIKey,
   deleteUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { sortExchangesData } from '../../helpers/apiKeys'
+import {
+  getFirestoreDocumentData,
+  updateLastSelectedValue,
+} from '../../api/firestoreCall'
+import Tooltip from '../../components/Tooltip'
 
 const Exchanges = () => {
-  const { refreshExchanges } = useSymbolContext()
+  const { refreshExchanges, exchanges } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -35,26 +39,41 @@ const Exchanges = () => {
     activeExchange,
     setActiveExchange,
     isOnboardingSkipped,
+    userData,
+    state,
   } = useContext(UserContext)
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
-  const [exchanges, setExchanges] = useState([])
-  const exchangeQuery = useQuery('exchanges', getUserExchanges)
+  const [isLoading, setIsLoading] = useState(false)
+  // const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
-  useEffect(() => {
-    exchangeQuery.refetch()
-  }, [loadApiKeys])
-
-  useEffect(() => {
-    if (exchangeQuery.data) {
-      setExchanges(exchangeQuery.data?.data?.apiKeys)
-      if (exchanges.length !== 0) {
-        setTotalExchanges(exchanges)
-      }
-    } else {
-      setExchanges(false)
+  const getExchanges = () => {
+    setIsLoading(true)
+    try {
+      getFirestoreDocumentData('apiKeyIDs', userData.email).then(
+        (apiKey) => {
+          setIsLoading(false)
+          if (apiKey.data()) {
+            let apiKeys = sortExchangesData(apiKey.data())
+            if (apiKeys.length !== 0) {
+              setTotalExchanges(exchanges)
+            }
+          }
+        },
+        (error) => {
+          console.log(error)
+          setIsLoading(false)
+        }
+      )
+    } catch (e) {
+      console.log(e)
+      setIsLoading(false)
     }
-  }, [exchangeQuery.data, exchanges])
+  }
+
+  useEffect(() => {
+    getExchanges()
+  }, [loadApiKeys])
 
   const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: async (res) => {
@@ -104,7 +123,8 @@ const Exchanges = () => {
             )
             if (newActiveKey) {
               await refreshExchanges()
-              await updateLastSelectedAPIKey({ ...newActiveKey })
+              let value = `${newActiveKey.apiKeyName}-${newActiveKey.exchange}`
+              await updateLastSelectedValue(userData.email, value)
               setActiveExchange({
                 ...newActiveKey,
                 label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
@@ -175,13 +195,23 @@ const Exchanges = () => {
             <div className="col">
               <h6 className="mb-0">Exchange Integrations</h6>
             </div>
-            <div className="col-auto">
+            <div
+              className="col-auto"
+              data-for="integrate-button"
+              data-tip="You need to add 2FA"
+            >
+              {!state.has2FADetails ? (
+                <Tooltip id="integrate-button" place="top" />
+              ) : null}
               <button
                 type="button"
-                className="btn btn-xs btn-primary btn-icon rounded-pill"
+                className={`btn btn-xs ${
+                  !state.has2FADetails ? 'btn-secondary' : 'btn-primary'
+                } btn-icon rounded-pill`}
                 onClick={() => {
                   setIsModalVisible(true)
                 }}
+                disabled={!state.has2FADetails}
               >
                 <span className="btn-inner--icon">
                   <FontAwesomeIcon icon={faPlus} />
@@ -214,7 +244,7 @@ const Exchanges = () => {
           <div className="col-xl-12">
             <div className="card card-fluid">
               <div className="card-body">
-                {!exchangeQuery.isLoading &&
+                {!isLoading &&
                   exchanges &&
                   exchanges
                     .sort((a, b) => {
@@ -240,11 +270,9 @@ const Exchanges = () => {
                       />
                     ))}
 
-                {exchangeQuery.isLoading && <div>Fetching exchanges..</div>}
+                {isLoading && <div>Fetching exchanges..</div>}
 
-                {!exchanges && !exchangeQuery.isLoading && (
-                  <div>No exchange added yet.</div>
-                )}
+                {!exchanges && !isLoading && <div>No exchange added yet.</div>}
               </div>
             </div>
           </div>

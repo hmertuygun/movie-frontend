@@ -4,7 +4,7 @@ import { UserContext } from '../contexts/UserContext'
 import precisionRound from '../helpers/precisionRound'
 import { firebase } from '../firebase/firebase'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
-const db = firebase.firestore()
+import { getSnapShotDocument } from '../api/firestoreCall'
 
 const Position = () => {
   const [checkProgress, setCheckProgress] = useState(false)
@@ -73,12 +73,12 @@ const Position = () => {
   }
 
   useEffect(() => {
-    FBOrderHistoryLoad = db
-      .collection('order_history_load')
-      .doc(userData.email)
-      .onSnapshot(orderHistoryLoadedFBCallback, (err) => {
-        console.error(err)
-      })
+    FBOrderHistoryLoad = getSnapShotDocument(
+      'order_history_load',
+      userData.email
+    ).onSnapshot(orderHistoryLoadedFBCallback, (err) => {
+      console.error(err)
+    })
 
     return () => {
       FBOrderHistoryLoad()

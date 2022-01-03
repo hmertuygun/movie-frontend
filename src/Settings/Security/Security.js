@@ -5,15 +5,15 @@ import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
 import { UserContext } from '../../contexts/UserContext'
 import { Modal } from '../../components'
 import Button from '../../components/Button/Button'
-import { UserX } from 'react-feather'
+import { UserX, AlertTriangle } from 'react-feather'
 import { deleteUserAccount } from '../../api/api'
 import { errorNotification } from '../../components/Notifications'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { ModalsConf } from '../../constants/ModalsConf'
 import { T2FA_TYPES } from '../../constants/Security'
 
 const Security = () => {
-  const { get2FADetails } = useContext(UserContext)
+  const { get2FADetails, state } = useContext(UserContext)
   const [t2FAList, set2FAList] = useState(() => {
     const t2FAEntry = get2FADetails()
     return t2FAEntry ? [t2FAEntry] : []
@@ -26,6 +26,7 @@ const Security = () => {
   const nextDataRef = useRef()
 
   const history = useHistory()
+  const { hash } = useLocation()
 
   const handleEntryRemove = () => {
     setAdd2FAFlowPage(ADD_2FA_FLOW.length)
@@ -72,6 +73,23 @@ const Security = () => {
 
   return (
     <div className="slice slice-sm bg-section-secondary">
+      {hash === '#security' || !state.has2FADetails ? (
+        <div
+          className="alert alert-group alert-outline-warning alert-dismissible fade show alert-icon mb-0"
+          role="alert"
+        >
+          <div className="alert-group-prepend">
+            <span className="alert-group-icon text-">
+              <AlertTriangle size={16} strokeWidth={3} />
+            </span>
+          </div>
+          <div className="alert-content">
+            <strong>Important!</strong> At CoinPanel we are all about security.
+            That's you must now activate 2FA login on CoinPanel in order to
+            continue trading - stay safe.
+          </div>
+        </div>
+      ) : null}
       {toggleModal ? (
         <Modal onClose={reset2FAFlow}>
           <div style={{ position: 'relative' }}>
