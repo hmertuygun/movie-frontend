@@ -9,6 +9,7 @@
 .TradeView-Panel {
   width: 288px;
   min-width: 288px;
+  min-height: calc(100vh - 72.05px);
   padding: 1rem;
   background-color: var(--trade-background);
   color: var(--dark-color);
