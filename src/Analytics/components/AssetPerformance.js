@@ -28,7 +28,12 @@ const AssetPerformance = ({ search }) => {
 
   const onSort = (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
-    let key = value === 'delta' ? 'value' : value
+    let key =
+      value === 'delta'
+        ? 'value'
+        : value === 'btc' || value === 'usdt'
+        ? value.toUpperCase()
+        : value
     let data = tableData.sort(function (a, b) {
       if (typeof a[key] === 'string') {
         if (sortAscending) {
@@ -48,10 +53,11 @@ const AssetPerformance = ({ search }) => {
         }
         return 0
       } else {
-        if (parseFloat(a[key]) - parseFloat(b[key])) {
-          return -1
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
         }
-        return 1
       }
     })
     setTableData(data)

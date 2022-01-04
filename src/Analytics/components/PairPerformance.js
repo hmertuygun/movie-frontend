@@ -28,7 +28,7 @@ const PairPerformance = ({ search }) => {
 
   const onSort = (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
-    let key = value
+    let key = value === 'btc' || value === 'usdt' ? value.toUpperCase() : value
     let data = tableData.sort(function (a, b) {
       if (typeof a[key] === 'string') {
         if (sortAscending) {
@@ -48,10 +48,11 @@ const PairPerformance = ({ search }) => {
         }
         return 0
       } else {
-        if (parseFloat(a[key]) - parseFloat(b[key])) {
-          return -1
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
         }
-        return 1
       }
     })
     setTableData(data)
@@ -132,9 +133,9 @@ const PairPerformance = ({ search }) => {
             </div>
           </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ padding: '0.75rem' }}>
           {pairPerformance && (
-            <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '0.5rem', marginLeft: 15 }}>
               {itemNumber} items found.
             </div>
           )}
