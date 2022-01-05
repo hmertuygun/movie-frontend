@@ -12,6 +12,7 @@ import Pagination from '../../components/Table/Pagination/Pagination'
 import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
+import dayjs from 'dayjs'
 
 const AnalyticsTable = ({ startDate, endDate, search }) => {
   const { pairOperations, refreshData } = useContext(AnalyticsContext)
@@ -81,14 +82,14 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
     }
   }, [currentPage, search, tableData, sortAscending])
 
-  // useEffect(() => {
-  //   const endString = endDate && dayjs(endDate).format('YYYY-MM-DD')
-  //   const startString = startDate && dayjs(startDate).format('YYYY-MM-DD')
-  //   refreshData({
-  //     startDate: startString,
-  //     endDate: endString,
-  //   })
-  // }, [startDate, endDate])
+  useEffect(() => {
+    const endString = endDate && dayjs(endDate).format('YYYY-MM-DD')
+    const startString = startDate && dayjs(startDate).format('YYYY-MM-DD')
+    refreshData({
+      startDate: startString,
+      endDate: endString,
+    })
+  }, [startDate, endDate])
 
   useEffect(() => {
     if (pairOperations) {
