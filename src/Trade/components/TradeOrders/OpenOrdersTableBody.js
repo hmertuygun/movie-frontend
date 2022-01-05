@@ -321,6 +321,7 @@ const OpenOrdersTableBody = ({
   isHideOtherPairs,
   deleteRow,
   sortColumn,
+  isFetching,
 }) => {
   const [deletedRows, setDeletedRows] = useState([])
   const [columns, setColumns] = useState(openOrdersColumns)
@@ -377,36 +378,45 @@ const OpenOrdersTableBody = ({
             ))}
           </tr>
         </thead>
-        <tbody>
-          {data.map((item) => {
-            const { trade_id, symbol } = item
-            // Order Symbol for all orders.
-            const orderArray = item.orders.map((order) => ({
-              trade_id,
-              orderSymbol: symbol,
-              ...order,
-            }))
-            // Order ID for Basic Trade
-            if (item.type !== 'Full Trade') {
-              item.order_id = item.orders[0].order_id
-            }
-            const orders = [{ orderSymbol: symbol, ...item }, ...orderArray]
-            return (
-              <Expandable
-                entry={orders}
-                key={item.trade_id}
-                setDeletedRows={(row) => {
-                  setDeletedRows((rows) => [...rows, row])
-                  setTimeout(() => {
-                    setDeletedRows((rows) => rows.splice(0, 1))
-                  }, 3600000)
-                }}
-                deletedRow={(row) => deleteRow(row)}
-              />
-            )
-          })}
-        </tbody>
+        {!isFetching ? (
+          <tbody>
+            {data.map((item) => {
+              const { trade_id, symbol } = item
+              // Order Symbol for all orders.
+              const orderArray = item.orders.map((order) => ({
+                trade_id,
+                orderSymbol: symbol,
+                ...order,
+              }))
+              // Order ID for Basic Trade
+              if (item.type !== 'Full Trade') {
+                item.order_id = item.orders[0].order_id
+              }
+              const orders = [{ orderSymbol: symbol, ...item }, ...orderArray]
+              return (
+                <Expandable
+                  entry={orders}
+                  key={item.trade_id}
+                  setDeletedRows={(row) => {
+                    setDeletedRows((rows) => [...rows, row])
+                    setTimeout(() => {
+                      setDeletedRows((rows) => rows.splice(0, 1))
+                    }, 3600000)
+                  }}
+                  deletedRow={(row) => deleteRow(row)}
+                />
+              )
+            })}
+          </tbody>
+        ) : null}
       </table>
+      {isFetching ? (
+        <div className="text-center w-100">
+          <p className="pt-3">
+            <span className="spinner-border text-primary spinner-border-sm" />
+          </p>
+        </div>
+      ) : null}
     </div>
   )
 }
