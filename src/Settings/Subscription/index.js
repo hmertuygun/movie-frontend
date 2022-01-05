@@ -217,7 +217,7 @@ const Subscription = () => {
                     <p>
                       For regulatory purposes we must ask you to register your
                       country of residency. Please make sure to choose
-                      correctly, as it is not possible to change.
+                      correctly, as it is not possible to change. Are you sure?
                     </p>
                   </div>
                 </div>
