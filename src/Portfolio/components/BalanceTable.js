@@ -40,10 +40,11 @@ const BalanceTable = () => {
         }
         return 0
       } else {
-        if (parseFloat(a[key]) - parseFloat(b[key])) {
-          return -1
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
         }
-        return 1
       }
     })
     setTableData(data)
