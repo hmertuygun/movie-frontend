@@ -495,6 +495,7 @@ const TradeOrders = () => {
           sortColumn={sortTable}
           deleteRow={(rData) => deleteOpenOrdersRow(rData)}
           isHideOtherPairs={isHideOtherPairs}
+          isFetching={isOpenOrderFetching}
         />
       ) : (
         // ) : !isOpenOrders && showProgressBar ? ProgressBar : (
@@ -508,11 +509,11 @@ const TradeOrders = () => {
       )}
       {isOpenOrders && (
         <div className="open-orders-msg d-flex flex-wrap justify-content-center">
-          {isOpenOrderFetching && (
+          {/* {isOpenOrderFetching && (
             <div className="text-center pt-3">
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
-          )}
+          )} */}
           {!openOrderData.length && !isOpenOrderFetching && !openOrderError && (
             <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>
               You have no open orders.
