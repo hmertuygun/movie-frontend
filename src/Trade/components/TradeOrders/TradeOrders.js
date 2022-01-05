@@ -122,8 +122,6 @@ const TradeOrders = () => {
         : orderHistoryLastFetchedData && !refreshTable
         ? {
             updateTime: orderHistoryLastFetchedData.update_time,
-            symbol: orderHistoryLastFetchedData.symbol,
-            orderId: orderHistoryLastFetchedData.order_id,
             orderHistoryLimit,
             ...activeExchange,
           }
