@@ -13,7 +13,7 @@ const WarningAlert = () => {
 
   if (isLoggedIn && !isCountryAvailable) {
     return (
-      <div className="alert alert-warning custom-alert px-4" role="alert">
+      <div className="alert alert-danger custom-alert px-4" role="alert">
         <AlertTriangle size={30} strokeWidth={3} />
         <strong>Attention CoinPaneler!</strong> For regulatory purposes we must
         ask you to register your country of residency. To register your country,
