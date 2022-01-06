@@ -25,26 +25,13 @@ const Subscription = () => {
     setIsPaidUser,
     endTrial,
     userData,
+    setCountry,
+    country,
   } = useContext(UserContext)
   const history = useHistory()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [country, setCountry] = useState('')
   const options = useMemo(() => countryList().getData(), [])
-
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('user_data')
-      .doc(userData.email)
-      .get()
-      .then((doc) => {
-        if (doc) {
-          console.log(doc.data())
-          setCountry(doc.data().country)
-        }
-      })
-  }, [])
 
   const handleCountrySelection = async (value) => {
     setCountry(value)

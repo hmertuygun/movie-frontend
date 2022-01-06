@@ -94,6 +94,8 @@ const UserContextProvider = ({ children }) => {
   const [isChartReady, setIsChartReady] = useState(false)
   const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
+  const [country, setCountry] = useState('')
+  const [isCountryAvailable, setIsCountryAvailable] = useState(true)
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -110,6 +112,28 @@ const UserContextProvider = ({ children }) => {
     getProducts()
     findFastServer(urls)
   }, [])
+
+  useEffect(() => {
+    if (userData.email) {
+      handleCountry()
+    }
+  }, [country, isCountryAvailable, userData])
+
+  const handleCountry = async () => {
+    await firebase
+      .firestore()
+      .collection('user_data')
+      .doc(userData.email)
+      .get()
+      .then((doc) => {
+        if (doc && doc.data()) {
+          setCountry(doc.data().country)
+          setIsCountryAvailable(true)
+        } else {
+          setIsCountryAvailable(false)
+        }
+      })
+  }
 
   const getProducts = async () => {
     await getFirestoreCollectionData('stripe_plans', true).then(
@@ -721,6 +745,9 @@ const UserContextProvider = ({ children }) => {
         state,
         setTwofaSecretKey,
         twofaSecretKey,
+        country,
+        isCountryAvailable,
+        setCountry,
       }}
     >
       {children}
