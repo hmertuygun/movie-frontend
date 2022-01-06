@@ -54,6 +54,17 @@ function AnalyticsContainer() {
                 onPortfolioRefresh={onPortfolioRefresh}
               />
               <div className="row">
+                <div className="col-lg-12">
+                  <AnalyticsTable
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                    search={search}
+                  />
+                </div>
+              </div>
+              <div className="row">
                 <div className="col-lg-6">
                   <AssetPerformance
                     search={search}
@@ -66,17 +77,6 @@ function AnalyticsContainer() {
                     search={search}
                     startDate={startDate}
                     endDate={endDate}
-                  />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-lg-12">
-                  <AnalyticsTable
-                    startDate={startDate}
-                    setStartDate={setStartDate}
-                    endDate={endDate}
-                    setEndDate={setEndDate}
-                    search={search}
                   />
                 </div>
               </div>
