@@ -133,7 +133,7 @@ const PairPerformance = ({ search }) => {
             </div>
           </div>
         </div>
-        <div className="card-body" style={{ padding: '0.75rem' }}>
+        <div className="card-body" style={{ overflowY: 'auto' }}>
           {pairPerformance && (
             <div style={{ marginBottom: '0.5rem', marginLeft: 15 }}>
               {itemNumber} items found.

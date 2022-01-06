@@ -129,7 +129,7 @@ const AssetPerformance = ({ search }) => {
             </div>
           </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ overflowY: 'auto' }}>
           {assetPerformance && (
             <div style={{ marginBottom: '0.5rem' }}>
               {itemNumber} items found.
