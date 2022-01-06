@@ -117,7 +117,7 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'BTC',
+      title: 'BTC VALUE',
       render: (rowData) => {
         if (rowData.BTC > 0) {
           return (
@@ -141,7 +141,7 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'USDT',
+      title: 'USDT VALUE',
       render: (rowData) => {
         if (rowData.USDT > 0) {
           return (
@@ -224,7 +224,7 @@ export const pairPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'BTC',
+      title: 'BTC VALUE',
       render: (rowData) => {
         if (rowData.BTC > 0) {
           return (
@@ -248,7 +248,7 @@ export const pairPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'USDT',
+      title: 'USDT VALUE',
       render: (rowData) => {
         if (rowData.USDT > 0) {
           return (

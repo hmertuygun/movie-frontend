@@ -65,14 +65,14 @@ function AnalyticsContainer() {
                 </div>
               </div>
               <div className="row">
-                <div className="col-lg-6">
+                <div className="col-lg-5">
                   <AssetPerformance
                     search={search}
                     startDate={startDate}
                     endDate={endDate}
                   />
                 </div>
-                <div className="col-lg-6">
+                <div className="col-lg-7">
                   <PairPerformance
                     search={search}
                     startDate={startDate}
