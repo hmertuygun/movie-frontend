@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Search from '../../components/Table/Search/Search'
 import Tooltip from '../../components/Tooltip'
 import { HelpCircle } from 'react-feather'
+import './AnalyticsFilter.css'
 
 const AnalyticsFilter = ({
   setSearch,
@@ -109,7 +110,7 @@ const AnalyticsFilter = ({
             isClearable={true}
           />
         </div>
-        <div className="col-auto ml-auto mt-4">
+        <div className="col-auto ml-auto mt-4 refresh-button">
           {loading ? (
             <button
               className="btn btn-sm btn-neutral btn-icon"
