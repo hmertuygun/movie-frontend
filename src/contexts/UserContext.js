@@ -93,6 +93,9 @@ const UserContextProvider = ({ children }) => {
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
   const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
+  const [twofaSecretKey, setTwofaSecretKey] = useState('')
+  const [country, setCountry] = useState('')
+  const [isCountryAvailable, setIsCountryAvailable] = useState(true)
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -109,6 +112,28 @@ const UserContextProvider = ({ children }) => {
     getProducts()
     findFastServer(urls)
   }, [])
+
+  useEffect(() => {
+    if (userData.email) {
+      handleCountry()
+    }
+  }, [country, isCountryAvailable, userData])
+
+  const handleCountry = async () => {
+    await firebase
+      .firestore()
+      .collection('user_data')
+      .doc(userData.email)
+      .get()
+      .then((doc) => {
+        if (doc && doc.data()) {
+          setCountry(doc.data().country)
+          setIsCountryAvailable(true)
+        } else {
+          setIsCountryAvailable(false)
+        }
+      })
+  }
 
   const getProducts = async () => {
     await getFirestoreCollectionData('stripe_plans', true).then(
@@ -231,7 +256,7 @@ const UserContextProvider = ({ children }) => {
     )
 
     const subData = cryptoPayments.data()
-    console.log(subData)
+
     if (subData) {
       const { subscription_status, provider, currency, plan, amount } = subData
       const { seconds } = subData.expiration_date
@@ -441,7 +466,6 @@ const UserContextProvider = ({ children }) => {
 
   const getUserExchangesAfterFBInit = () => {
     firebase.auth().onAuthStateChanged(async (user) => {
-      let sessionTimeout = null
       if (user) {
         // User is signed in.
         setUserData(user)
@@ -449,20 +473,8 @@ const UserContextProvider = ({ children }) => {
         if (firebase.messaging.isSupported()) {
           FCMSubscription()
         }
-        user.getIdTokenResult().then((idTokenResult) => {
-          // Make sure all the times are in milliseconds!
-          const authTime = idTokenResult.claims.auth_time * 1000
-          const sessionDuration = 1000 * 60 * 60 * 24
-          const millisecondsUntilExpiration =
-            sessionDuration - (Date.now() - authTime)
-          sessionTimeout = setTimeout(() => {
-            logout()
-          }, millisecondsUntilExpiration)
-        })
       } else {
         // User is signed out.
-        sessionTimeout && clearTimeout(sessionTimeout)
-        sessionTimeout = null
       }
     })
   }
@@ -730,6 +742,12 @@ const UserContextProvider = ({ children }) => {
         setIsChartReady,
         setSubscriptionData,
         isApiKeysLoading,
+        state,
+        setTwofaSecretKey,
+        twofaSecretKey,
+        country,
+        isCountryAvailable,
+        setCountry,
       }}
     >
       {children}

@@ -69,6 +69,7 @@ const initSubscribe = ({ label }) => {
     type: 'subscribe',
     topic: `/market/snapshot:${label}`,
     response: true,
+    privateChannel: false,
   })
 }
 //using proxy
@@ -195,7 +196,7 @@ const editMessage = (data) => {
 }
 
 const getIncomingSocket = ({ sData }) => {
-  return sData.data.candles
+  return sData.data?.candles ? sData.data.candles : null
 }
 
 const fetchTicker = async ({ symbol }) => {

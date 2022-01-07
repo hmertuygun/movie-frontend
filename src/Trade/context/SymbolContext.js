@@ -285,7 +285,7 @@ const SymbolContextProvider = ({ children }) => {
             label: symbolVal.replace('/', '-'),
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
-          // loadLastPrice(symbolVal, exchangeVal)
+          loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
           localStorage.setItem('selectedExchange', exchange.toLowerCase())
         }
@@ -395,11 +395,6 @@ const SymbolContextProvider = ({ children }) => {
     if (watchListOpen) return
 
     if (selectedSymbol.value !== selectedSymbolDetail.value) {
-      console.log(
-        'Trade panel issue log: ',
-        selectedSymbol,
-        selectedSymbolDetail
-      )
       setSelectedSymbolDetail(symbolDetails[selectedSymbol.value])
     }
   }, [

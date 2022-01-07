@@ -14,8 +14,44 @@ const BalanceTable = () => {
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
+  const [sortAscending, setSortAscending] = useState(false)
+  const [, updateState] = useState()
+  const forceUpdate = useCallback(() => updateState({}), [])
 
-  const getTableData = useMemo(() => {
+  const onSort = (event, sortKey) => {
+    let value = sortKey.split(' ')[0]
+    let key = value === 'AVAILABLE' ? 'BALANCE' : value
+    let data = tableData.sort(function (a, b) {
+      if (typeof a[key] === 'string') {
+        if (sortAscending) {
+          if (a[key] > b[key]) {
+            return 1
+          }
+          if (a[key] < b[key]) {
+            return -1
+          }
+        } else {
+          if (a[key] > b[key]) {
+            return -1
+          }
+          if (a[key] < b[key]) {
+            return 1
+          }
+        }
+        return 0
+      } else {
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
+        }
+      }
+    })
+    setTableData(data)
+    forceUpdate()
+  }
+
+  const getTableData = () => {
     if (tableData) {
       let data = tableData
 
@@ -32,13 +68,13 @@ const BalanceTable = () => {
     } else {
       return []
     }
-  }, [currentPage, search, tableData])
+  }
 
   useEffect(() => {
     if (balance) {
       setTableData(balance)
     }
-  }, [balance, setTableData, getTableData])
+  }, [balance, setTableData])
 
   const fetchLatestPrice = useCallback(() => {
     const tempBalance = balance
@@ -73,7 +109,13 @@ const BalanceTable = () => {
           </div>
         </div>
         <div className="card-body">
-          <Table cols={tableConstants()} data={getTableData} />
+          <Table
+            cols={tableConstants()}
+            data={getTableData}
+            onSort={onSort}
+            setSortAscending={setSortAscending}
+            sortAscending={sortAscending}
+          />
           {
             <Pagination
               postsPerPage={ITEMS_PER_PAGE}

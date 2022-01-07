@@ -808,9 +808,8 @@ export default class TradingViewChart extends Component {
         <div
           id="chart_container"
           style={{
-            width: '100%',
             height: '100%',
-            display: this.state.isChartReady ? 'block' : 'none',
+            width: this.state.isChartReady ? '100%' : '0',
           }}
         ></div>
         {!this.state.isChartReady ? (

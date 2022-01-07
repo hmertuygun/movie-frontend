@@ -10,6 +10,7 @@ import {
   mirroringTourSteps,
 } from '../helpers/tourSteps'
 import { firebase } from '../firebase/firebase'
+import { useIdleTimer } from 'react-idle-timer'
 
 const TradeView = () => {
   const {
@@ -21,6 +22,7 @@ const TradeView = () => {
     setShowMarketItems,
     setIsTourFinished,
     isChartReady,
+    logout,
   } = useContext(UserContext)
   const [stepIndex, setStepIndex] = useState(0)
   const [mirroringStepIndex, setMirroringStepIndex] = useState(0)
@@ -31,6 +33,19 @@ const TradeView = () => {
   const [stepsMirroringTour] = useState(mirroringTourSteps)
   const [chartMirroringTourNeeded, setChartMirroringTourNeeded] =
     useState(false)
+
+  const handleOnIdle = (event) => {
+    logout()
+  }
+
+  useIdleTimer({
+    timeout: 1000 * 60 * 60 * 24 * 2,
+    onIdle: handleOnIdle,
+    debounce: 500,
+    crossTab: {
+      emitOnAllTabs: true,
+    },
+  })
 
   const userId = firebase.auth().currentUser?.uid
   useEffect(() => {

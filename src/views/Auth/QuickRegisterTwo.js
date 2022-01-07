@@ -339,7 +339,7 @@ const QuickRegister = () => {
                     {isSubmitted &&
                       password &&
                       !validationPattern.test(password) && (
-                        <div class="text-sm text-danger">
+                        <div className="text-sm text-danger">
                           Password must contain at least 6 characters, including
                           1 uppercase letter, 1 lowercase letter and 1 number.
                         </div>

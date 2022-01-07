@@ -43,6 +43,7 @@ const OnboardingModal = () => {
     isPaidUser,
     userData,
     isException,
+    state,
   } = useContext(UserContext)
   const history = useHistory()
   const { notify } = useNotifications()
@@ -217,7 +218,11 @@ const OnboardingModal = () => {
 
   const onPrimaryBtnClick = async () => {
     if (step === 1) {
-      setStepNo(step + 1)
+      if (state && state.has2FADetails) {
+        setStepNo(step + 1)
+      } else {
+        history.push('/settings#security')
+      }
     } else if (step === 2) {
       const isFormValid = await validateForm()
 

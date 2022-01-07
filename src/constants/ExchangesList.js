@@ -176,7 +176,7 @@ export const options = [
     label: 'KuCoin',
     placeholder: 'KuCoin',
     fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
-    socketUrl: ByBit.getSocketEndpoint,
+    socketUrl: KuCoin.getSocketEndpoint,
     symbol: 'KUCOIN',
     apiUrl: 'https://api.kucoin.com',
     socketClass: KlineSocket,

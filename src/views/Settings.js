@@ -11,7 +11,7 @@ import { ThemeContext } from '../contexts/ThemeContext'
 
 const Settings = () => {
   const { hash } = useLocation()
-  const tabIndex = hash === '#subscription' ? 3 : 0
+  const tabIndex = hash === '#subscription' ? 3 : hash === '#security' ? 1 : 0
   const { theme, setTheme } = useContext(ThemeContext)
 
   const toggleTheme = () => {

@@ -1,12 +1,16 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useNotifications } from 'reapop'
 import SubscriptionCard from './SubscriptionCard'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from '../../contexts/UserContext'
-import { UserCheck } from 'react-feather'
+import { UserCheck, AlertTriangle } from 'react-feather'
 import { Modal } from '../../components'
+import { firebase } from '../../firebase/firebase'
 import { getSubscriptionDetails } from '../../api/api'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
+import './index.css'
 
 const Subscription = () => {
   const {
@@ -19,12 +23,47 @@ const Subscription = () => {
     setSubscriptionData,
     setIsPaidUser,
     endTrial,
+    userData,
+    setCountry,
+    country,
   } = useContext(UserContext)
   const history = useHistory()
   const { notify } = useNotifications()
 
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const options = useMemo(() => countryList().getData(), [])
+  const [showCountryModal, setShowCountryModal] = useState(false)
+  const [countrySelectionLoading, setCountrySelectionLoading] = useState(false)
+
+  const handleCountrySelection = async (value) => {
+    setCountry(value)
+    setShowCountryModal(true)
+  }
+
+  const handleClickConfirm = async () => {
+    setCountrySelectionLoading(true)
+    try {
+      await firebase
+        .firestore()
+        .collection('user_data')
+        .doc(userData.email)
+        .set({ country: country }, { merge: true })
+      setCountrySelectionLoading(false)
+    } catch (err) {
+      console.log(err)
+      setCountrySelectionLoading(false)
+    } finally {
+      setCountrySelectionLoading(false)
+    }
+    setShowCountryModal(false)
+  }
+
+  const handleClickNo = () => {
+    setShowCountryModal(false)
+    setCountry('')
+  }
+
   const handleClickYes = async () => {
     setIsLoading(true)
     try {
@@ -54,6 +93,18 @@ const Subscription = () => {
 
   return (
     <div className="row pt-5">
+      <div className="col-lg-6">
+        <div className="form-group">
+          <label className="form-control-label">Country of Residency</label>
+          <Select
+            options={options}
+            value={country}
+            isDisabled={country && !!country.value}
+            onChange={handleCountrySelection}
+            className="input-group-merge country-border"
+          />
+        </div>
+      </div>
       <div className="col-lg-12">
         {!isCheckingSub ? (
           hasSub ? (
@@ -133,6 +184,52 @@ const Subscription = () => {
                     type="button"
                     className="btn btn-sm "
                     onClick={() => setShowEndTrialModal(false)}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+        {showCountryModal && (
+          <Modal>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-body">
+                  <div className="pt-5 text-center">
+                    <div className="icon text-warning custom-icon-container">
+                      <AlertTriangle size={16} strokeWidth={3} />
+                    </div>
+                    <h4 className="h5 mt-2 mb-3">Attention CoinPaneler</h4>
+                    <h4 className="h5 mb-2">Your country of residency</h4>
+                    <p>
+                      For regulatory purposes we must ask you to register your
+                      country of residency. Please make sure to choose
+                      correctly, as it is not possible to change. Are you sure?
+                    </p>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    onClick={handleClickConfirm}
+                    type="button"
+                    className="btn btn-sm btn-link text-warning btn-zoom--hover font-weight-600"
+                  >
+                    {countrySelectionLoading ? (
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      'Yes'
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm "
+                    onClick={handleClickNo}
                   >
                     No
                   </button>

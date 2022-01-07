@@ -55,6 +55,7 @@ const Routes = () => {
   const history = useHistory()
   const { pathname } = useLocation()
   const isSettingsPage = pathname === '/settings'
+  const isTradePage = pathname === '/trade'
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const { notifications, dismissNotification } = useNotifications()
 
@@ -72,6 +73,7 @@ const Routes = () => {
     showSubModalIfLessThan7Days,
     isOnboardingSkipped,
     isApiKeysLoading,
+    state,
   } = useContext(UserContext)
   const { notify } = useNotifications()
 
@@ -94,8 +96,22 @@ const Routes = () => {
     return null
   }
 
-  const isLocalEnv = window.location.hostname === 'localhost'
+  useEffect(() => {
+    if (
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
+      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state.has2FADetails)
+    ) {
+      history.push('/settings#security')
+    }
+  }, [
+    state,
+    isLoggedIn,
+    isApiKeysLoading,
+    history.location.pathname,
+    loadApiKeys,
+  ])
 
+  const isLocalEnv = window.location.hostname === 'localhost'
   return (
     <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
       <NotificationsSystem
@@ -131,13 +147,14 @@ const Routes = () => {
               }}
             />
           )}
+
           {isLoggedIn &&
             userContextLoaded &&
             !loadApiKeys &&
             !isSettingsPage &&
             !isOnboardingSkipped &&
             !isApiKeysLoading && <OnboardingModal />}
-          {isLoggedIn && isApiKeysLoading && (
+          {isTradePage && isLoggedIn && isApiKeysLoading && (
             <p
               className="d-flex justify-content-center align-items-center"
               style={{ height: 'calc(100vh - 150px)' }}
@@ -145,6 +162,9 @@ const Routes = () => {
               Loading your chart...
             </p>
           )}
+          {/* {isLoggedIn && !state.has2FADetails && (
+            <Route path="/settings#security" component={Settings} />
+          )} */}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

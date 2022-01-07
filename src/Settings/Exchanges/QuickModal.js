@@ -188,7 +188,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                           !isException && (
                             <span
                               style={{ marginLeft: '1rem' }}
-                              class="badge badge-warning"
+                              className="badge badge-warning"
                             >
                               Only paid users
                             </span>

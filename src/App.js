@@ -17,6 +17,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { initGA } from './Tracking'
+import WarningAlert from './components/WarningAlert'
 
 initGA(process.env.REACT_APP_TRACKING_ID)
 
@@ -51,6 +52,7 @@ export default function App() {
                               <Header />
                             </Suspense>
                           </ErrorBoundary>
+                          <WarningAlert />
                           <Routes />
                         </AnalyticsProvider>
                       </PortfolioCTXProvider>

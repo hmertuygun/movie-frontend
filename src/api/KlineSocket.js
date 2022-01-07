@@ -52,7 +52,6 @@ export default class socketClient {
                 sData,
               }
             )
-            console.log(getData)
             if (sData && getData) {
               let lastSocketData = execExchangeFunc(
                 this.exchange,
@@ -62,8 +61,10 @@ export default class socketClient {
               if (Object.keys(this.streams).length) {
                 localStorage.setItem('lastSocketData', new Date().getTime())
                 localStorage.setItem('WS', 1)
-                this.streams[s].data = lastSocketData
-                this.streams[s].listener(lastSocketData)
+                if (this.streams[s]) {
+                  this.streams[s].data = lastSocketData
+                  this.streams[s].listener(lastSocketData)
+                }
               }
             }
           } catch (e) {
@@ -107,7 +108,6 @@ export default class socketClient {
       )
 
       setTimeout(() => {
-        console.log(obj)
         if (this._ws.readyState === 1) {
           this._ws.send(JSON.stringify(obj))
           this.streams[symbol] = {
