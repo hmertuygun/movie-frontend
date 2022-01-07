@@ -72,9 +72,14 @@ const PieCharts = ({ isHideBalance }) => {
     } else {
       let pieColors = {}
       let copyData = [...chart]
-      copyData.forEach((item, index, arr) => {
+      let sortedData = copyData.sort((a, b) => {
+        return b[1] - a[1]
+      })
+
+      sortedData.forEach((item, index, arr) => {
         pieColors[item[0]] = colorArray[index]
       })
+
       const filteredPieColors = Object.fromEntries(
         Object.entries(pieColors).filter(([key, val]) => {
           if (isHideBalance) {
@@ -87,8 +92,7 @@ const PieCharts = ({ isHideBalance }) => {
           }
         })
       )
-
-      const filteredData = copyData
+      const filteredData = sortedData
         .filter((item) => {
           if (extData) {
             return item[0] !== extData.item[0]
@@ -112,22 +116,22 @@ const PieCharts = ({ isHideBalance }) => {
   }, [chart, balance, isHideBalance, colorArray, extData])
 
   const onLegendItemClick = (id) => {
-    let copyData = [...data]
+    let sortedData = [...data]
     if (extData) {
-      copyData = [...copyData, extData.item]
+      sortedData = [...sortedData, extData.item]
       if (extData.item[0] === id) {
         setExtData(null)
       } else {
-        let index = copyData.findIndex((item) => item[0] === id)
-        let item = copyData.splice(index, 1)
+        let index = sortedData.findIndex((item) => item[0] === id)
+        let item = sortedData.splice(index, 1)
         setExtData({ item: item[0], index })
       }
     } else {
-      let index = copyData.findIndex((item) => item[0] === id)
-      let item = copyData.splice(index, 1)
+      let index = sortedData.findIndex((item) => item[0] === id)
+      let item = sortedData.splice(index, 1)
       setExtData({ item: item[0], index })
     }
-    setData(copyData)
+    setData(sortedData)
   }
 
   useEffect(() => {
