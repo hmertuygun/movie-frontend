@@ -57,6 +57,7 @@ const Routes = () => {
   const history = useHistory()
   const { pathname } = useLocation()
   const isSettingsPage = pathname === '/settings'
+  const isTradePage = pathname === '/trade'
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   useEffect(() => {
@@ -143,7 +144,7 @@ const Routes = () => {
             !isSettingsPage &&
             !isOnboardingSkipped &&
             !isApiKeysLoading && <OnboardingModal />}
-          {isLoggedIn && isApiKeysLoading && (
+          {isTradePage && isLoggedIn && isApiKeysLoading && (
             <p
               className="d-flex justify-content-center align-items-center"
               style={{ height: 'calc(100vh - 150px)' }}
