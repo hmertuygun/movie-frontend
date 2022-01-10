@@ -27,6 +27,7 @@ const Subscription = () => {
     userData,
     setCountry,
     country,
+    setIsCountryAvailable,
   } = useContext(UserContext)
   const history = useHistory()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
@@ -49,6 +50,7 @@ const Subscription = () => {
         .doc(userData.email)
         .set({ country: country }, { merge: true })
       setCountrySelectionLoading(false)
+      setIsCountryAvailable(true)
     } catch (err) {
       console.log(err)
       setCountrySelectionLoading(false)

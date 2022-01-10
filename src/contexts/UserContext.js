@@ -115,7 +115,9 @@ const UserContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (userData.email) {
-      handleCountry()
+      if (!country) {
+        handleCountry()
+      }
     }
   }, [country, isCountryAvailable, userData])
 
@@ -747,6 +749,7 @@ const UserContextProvider = ({ children }) => {
         twofaSecretKey,
         country,
         isCountryAvailable,
+        setIsCountryAvailable,
         setCountry,
       }}
     >
