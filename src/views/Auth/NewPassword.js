@@ -99,8 +99,17 @@ const NewPassword = ({ actionCode }) => {
                   <form
                     onSubmit={(event) => {
                       event.preventDefault()
-
+                      let validationPattern =
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/
                       if (password) {
+                        let validPassword = validationPattern.test(password)
+                        if (!validPassword) {
+                          setError({
+                            message:
+                              'Password must contain at least 6 characters, including 1 uppercase letter, 1 lowercase letter and 1 number',
+                          })
+                          return
+                        }
                         setLoading(true)
                         resetPassword(password)
                       } else {
@@ -119,6 +128,7 @@ const NewPassword = ({ actionCode }) => {
                           <div
                             className="small text-muted text-underline--dashed border-primary"
                             onClick={() => toggleTypeText()}
+                            style={{ cursor: 'pointer' }}
                           >
                             Show password
                           </div>
@@ -170,15 +180,8 @@ const NewPassword = ({ actionCode }) => {
               )}
 
               <div className="mt-4 text-center">
-                <small>Not registered? </small>
-                <Link to="/register" className="small font-weight-bold">
-                  Create account
-                </Link>
-              </div>
-
-              <div className="mt-4 text-center">
                 <Link to="/login" className="small font-weight-bold">
-                  Back to login.
+                  Back to log in
                 </Link>
               </div>
             </div>
