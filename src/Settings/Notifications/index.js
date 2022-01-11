@@ -17,8 +17,10 @@ const Notifications = () => {
       retry: false,
       refetchOnWindowFocus: false,
       onError: () => {
-        errorNotification.open({
-          description:
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
             'Cannot fetch notification settings. Please try again later!',
         })
       },
