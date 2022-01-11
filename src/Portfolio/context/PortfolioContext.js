@@ -10,6 +10,7 @@ import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { ccxtClass } from '../../constants/ccxtConfigs'
 import { useNotifications } from 'reapop'
+import { useLocation } from 'react-router-dom'
 
 async function getHeaders(token) {
   return {
@@ -26,6 +27,9 @@ export const PortfolioContext = createContext()
 
 const PortfolioCTXProvider = ({ children }) => {
   const { notify } = useNotifications()
+  const { pathname } = useLocation()
+  const isPortfolioPage = pathname === '/portfolio'
+
   const [tickers, setTicker] = useState()
   const [chart, setChart] = useState()
   const [lastMessage, setLastMessage] = useState()
@@ -72,16 +76,23 @@ const PortfolioCTXProvider = ({ children }) => {
       setLoading(false)
     } catch (error) {
       console.log(error)
-      notify({
-        id: 'portfolio-fetch-error',
-        status: 'error',
-        title: 'Error',
-        message: "Portfolio couldn't be created. Please try again later!",
-      })
+      if (isPortfolioPage) {
+        notify({
+          id: 'portfolio-fetch-error',
+          status: 'error',
+          title: 'Error',
+          message: "Portfolio couldn't be created. Please try again later!",
+        })
+      }
       setLoading(false)
       setErrorLoading(true)
     }
-  }, [activeExchange.apiKeyName, activeExchange.exchange, notify])
+  }, [
+    activeExchange.apiKeyName,
+    activeExchange.exchange,
+    isPortfolioPage,
+    notify,
+  ])
 
   const fetchData = useCallback(async () => {
     if (user && activeExchange.exchange) {
