@@ -4,6 +4,7 @@ import roundNumbers from '../../../helpers/roundNumbers'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import Slider from 'rc-slider'
+import { useNotifications } from 'reapop'
 
 import {
   addPrecisionToNumber,
@@ -20,10 +21,6 @@ import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { createBasicTrade } from '../../../api/api'
-import {
-  errorNotification,
-  successNotification,
-} from '../../../components/Notifications'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
@@ -48,6 +45,7 @@ const SellStopLimitForm = () => {
     selectedSymbolLastPrice,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
+  const { notify } = useNotifications()
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
@@ -402,13 +400,19 @@ const SellStopLimitForm = () => {
         }
         const { data } = await createBasicTrade(payload)
         if (data?.status === 'error') {
-          errorNotification.open({
-            description:
+          notify({
+            status: 'error',
+            title: 'Error',
+            message:
               data?.error ||
               `Order couldn't be created. Please try again later!`,
           })
         } else {
-          successNotification.open({ description: `Order Created!` })
+          notify({
+            status: 'success',
+            title: 'Success',
+            message: 'Order Created!',
+          })
           analytics.logEvent('placed_sell_stop_limit_order')
           Event(
             'user',
@@ -423,8 +427,10 @@ const SellStopLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        errorNotification.open({
-          description: (
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: (
             <p>
               Order couldn’t be created. Unknown error. Please report at:{' '}
               <a

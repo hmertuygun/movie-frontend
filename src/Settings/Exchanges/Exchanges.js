@@ -1,13 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { ExternalLink } from 'react-feather'
+import { useNotifications } from 'reapop'
 import { ThemeContext } from '../../contexts/ThemeContext'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import {
-  errorNotification,
-  successNotification,
-} from '../../components/Notifications'
 import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import ExchangeRow from './ExchangeRow'
@@ -31,6 +28,8 @@ const Exchanges = () => {
   const { refreshExchanges, exchanges } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
+  const { notify } = useNotifications()
+
   const [isModalVisible, setIsModalVisible] = useState(false)
   const {
     loadApiKeys,
@@ -78,19 +77,29 @@ const Exchanges = () => {
   const addExchangeMutation = useMutation(addUserExchange, {
     onSuccess: async (res) => {
       if (res.status !== 200) {
-        errorNotification.open({ description: res.data.detail })
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: res.data.detail,
+        })
         return
       }
       queryClient.invalidateQueries('exchanges')
       setIsModalVisible(false)
-      successNotification.open({ description: `API key added!` })
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'API key added!',
+      })
       analytics.logEvent('api_keys_added')
       Event('user', 'api_keys_added', 'user')
       refreshExchanges()
     },
     onError: () => {
-      errorNotification.open({
-        description: `Couldn't add API key. Please try again later!`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't add API key. Please try again later!",
       })
     },
   })
@@ -137,12 +146,18 @@ const Exchanges = () => {
       queryClient.invalidateQueries('exchanges')
       setSelectedExchange(null)
       setIsDeletionModalVisible(false)
-      successNotification.open({ description: `API key deleted!` })
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'API key deleted!',
+      })
       refreshExchanges()
     },
     onError: () => {
-      errorNotification.open({
-        description: `Couldn't delete API key. Please try again later!`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't delete API key. Please try again later!",
       })
     },
   })

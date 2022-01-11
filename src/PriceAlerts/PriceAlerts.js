@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext, useCallback, useState, useEffect } from 'react'
+import { useNotifications } from 'reapop'
 import Tooltip from '../components/Tooltip'
 import DropDownSelect from 'react-dropdown-select'
 import Select from 'react-select'
@@ -13,10 +14,6 @@ import {
   reactivatePriceAlert,
   updatePriceAlert,
 } from '../api/api'
-import {
-  errorNotification,
-  successNotification,
-} from '../components/Notifications'
 import precisionRound from '../helpers/precisionRound'
 import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter'
 import { getSnapShotCollection } from '../api/firestoreCall'
@@ -106,6 +103,7 @@ const AddOrEditPriceAlert = ({
 }) => {
   const { symbols, symbolDetails, binanceDD, ftxDD, binanceUSDD, kucoinDD } =
     useSymbolContext()
+  const { notify } = useNotifications()
 
   const [state, setState] = useState(INITIAL_STATE)
   const roundOff = (price) => {
@@ -220,18 +218,33 @@ const AddOrEditPriceAlert = ({
       }
       const resp = await createPriceAlert(reqPayload)
       if (resp?.status === 'OK') {
-        successNotification.open({ description: 'Price alert created!' })
+        notify({
+          id: 'price-alert-success',
+          status: 'success',
+          title: 'Success',
+          message: 'Price alert created!',
+        })
         cardOp('add', {
           ...currState,
           alert_id: resp.alert_id,
           status: 'active',
         })
       } else {
-        errorNotification.open({ description: resp?.error })
+        notify({
+          id: 'price-alert-error',
+          status: 'error',
+          title: 'Error',
+          message: resp?.error,
+        })
       }
     } catch (e) {
       console.log(e)
-      errorNotification.open({ description: 'Price alert creation failed!' })
+      notify({
+        id: 'price-alert-failed',
+        status: 'error',
+        title: 'Error',
+        message: 'Price alert creation failed!',
+      })
     } finally {
     }
   }
@@ -251,7 +264,13 @@ const AddOrEditPriceAlert = ({
       }
       const resp = await updatePriceAlert(alert_id, reqPayload)
       if (resp?.status === 'OK') {
-        successNotification.open({ description: 'Price alert updated!' })
+        notify({
+          id: 'price-alert-update-success',
+          status: 'success',
+          title: 'Success',
+          message: 'Price alert updated!',
+        })
+
         cardOp('edit', {
           ...currState,
           old_alert_id: alert_id,
@@ -259,12 +278,20 @@ const AddOrEditPriceAlert = ({
           status: 'active',
         })
       } else {
-        errorNotification.open({ description: resp?.error })
+        notify({
+          id: 'price-alert-update-error',
+          status: 'error',
+          title: 'Error',
+          message: resp?.error,
+        })
       }
     } catch (e) {
       console.log(e)
-      errorNotification.open({
-        description: 'Price alert modification failed!',
+      notify({
+        id: 'price-alert-update-failed',
+        status: 'error',
+        title: 'Error',
+        message: 'Price alert modification failed!',
       })
     } finally {
     }
@@ -575,6 +602,7 @@ const PriceAlerts = () => {
   const [fBData, setFBData] = useState(null)
   const { userData } = useContext(UserContext)
   const { symbolDetails } = useSymbolContext()
+  const { notify } = useNotifications()
 
   useEffect(() => {
     getAllPriceAlerts()
@@ -687,15 +715,27 @@ const PriceAlerts = () => {
           tempAlerts.splice(fIndex, 1)
           return tempAlerts
         })
-        successNotification.open({
-          description: 'Price alert deleted',
-          key: 'deleted',
+        notify({
+          id: 'price-alert-delete-success',
+          status: 'success',
+          title: 'Success',
+          message: 'Price alert deleted',
         })
       } else {
-        errorNotification.open({ description: resp?.error })
+        notify({
+          id: 'price-alert-delete-error',
+          status: 'error',
+          title: 'Error',
+          message: resp?.error,
+        })
       }
     } catch (e) {
-      errorNotification.open({ description: `Alert couldn't be deleted!` })
+      notify({
+        id: 'price-alert-delete-failed',
+        status: 'error',
+        title: 'Error',
+        message: "Alert couldn't be deleted!",
+      })
     } finally {
       setDelId(null)
     }
@@ -739,16 +779,28 @@ const PriceAlerts = () => {
           { ...data, alert_id: resp.alert_id },
           ...prevState,
         ])
-        successNotification.open({
-          description: 'Price alert deleted',
-          key: 'deleted',
+        notify({
+          id: 'price-alert-reactivate-success',
+          status: 'success',
+          title: 'Success',
+          message: 'Price alert reactivated',
         })
       } else {
-        errorNotification.open({ description: resp?.error })
+        notify({
+          id: 'price-alert-reactivate-error',
+          status: 'error',
+          title: 'Error',
+          message: resp?.error,
+        })
       }
     } catch (e) {
       console.log(e)
-      errorNotification.open({ description: `Alert didn't re-activate!` })
+      notify({
+        id: 'price-alert-reactivate-failed',
+        status: 'error',
+        title: 'Error',
+        message: "Alert didn't re-activate!",
+      })
     } finally {
       setDelId(null)
     }

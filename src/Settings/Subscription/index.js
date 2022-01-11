@@ -1,6 +1,6 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-
+import { useNotifications } from 'reapop'
 import SubscriptionCard from './SubscriptionCard'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from '../../contexts/UserContext'
@@ -8,7 +8,6 @@ import { UserCheck, AlertTriangle } from 'react-feather'
 import { Modal } from '../../components'
 import { firebase } from '../../firebase/firebase'
 import { getSubscriptionDetails } from '../../api/api'
-import { errorNotification } from '../../components/Notifications'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import './index.css'
@@ -30,6 +29,8 @@ const Subscription = () => {
     setIsCountryAvailable,
   } = useContext(UserContext)
   const history = useHistory()
+  const { notify } = useNotifications()
+
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const options = useMemo(() => countryList().getData(), [])
@@ -82,8 +83,10 @@ const Subscription = () => {
     } catch (err) {
       setIsLoading(false)
       setShowEndTrialModal(false)
-      errorNotification.open({
-        description: `Cannot end trial. Please contact support`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Cannot end trial. Please contact support!',
       })
     }
   }
