@@ -29,10 +29,12 @@ const AssetPerformance = ({ search }) => {
   const onSort = (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
     let key =
-      value === 'delta'
+      value === 'change'
         ? 'value'
-        : value === 'btc' || value === 'usdt'
+        : value === 'btc'
         ? value.toUpperCase()
+        : value === 'usd'
+        ? 'USDT'
         : value
     let data = tableData.sort(function (a, b) {
       if (typeof a[key] === 'string') {
@@ -106,32 +108,47 @@ const AssetPerformance = ({ search }) => {
                 <div className="tab-info">
                   <p className="mb-2">
                     Shows the performance per each asset that has been traded
-                    during the chosen time period. Even if it has been traded on
+                    during the chosen period. Even if it has been traded on
                     multiple different pairs.
                   </p>
-                  At the present moment it has two columns: <br />
+                  At the present moment it has four columns: <br />
                   <a href="#" rel="noopener noreferrer">
                     ASSET{' '}
                   </a>
                   names the symbol, that has been traded <br />
                   <a href="#" rel="noopener noreferrer">
-                    DELTA{' '}
+                    CHANGE{' '}
                   </a>
                   shows the deposit change as a final result of all trades where
                   this asset has been involved.
+                  <br />
+                  <a href="#" rel="noopener noreferrer">
+                    BTC VALUE{' '}
+                  </a>
+                  shows the deposit change in terms of BTC <br />
+                  <a href="#" rel="noopener noreferrer">
+                    USD VALUE{' '}
+                  </a>
+                  shows the deposit change in terms of USD <br />
                   <p className="my-2">
-                    Positive green green color) means the user has increased the
-                    deposit by this value. A negative delta (in red color) means
-                    the deposit has decreased by the amount shown.
+                    A positive change (in green color) means the trader has
+                    increased the deposit by this value.
+                  </p>
+                  <p className="my-2">
+                    A negative change (in red color) means the deposit has
+                    decreased by the amount shown.
                   </p>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="card-body" style={{ overflowY: 'auto' }}>
+        <div
+          className="card-body"
+          style={{ overflowY: 'auto', padding: '0.75rem' }}
+        >
           {assetPerformance && (
-            <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '0.5rem', marginLeft: '1rem' }}>
               {itemNumber} items found.
             </div>
           )}

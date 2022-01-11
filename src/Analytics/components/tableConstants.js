@@ -1,7 +1,7 @@
 export const tableConstants = (handleEdit) => {
   return [
     {
-      title: 'SYMBOL',
+      title: 'PAIR',
       render: (rowData) => {
         return rowData.symbol
       },
@@ -25,9 +25,35 @@ export const tableConstants = (handleEdit) => {
       },
     },
     {
+      title: 'ROE%',
+      render: (rowData) => {
+        if (rowData.current_price === null) return '-'
+        if (rowData.position < 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.position}%
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              +{rowData.position}%
+            </span>
+          )
+        }
+      },
+    },
+    {
       title: 'AVERAGE PRICE',
       render: (rowData) => {
         return rowData['avg. price']
+      },
+    },
+    {
+      title: 'CURRENT PRICE',
+      render: (rowData) => {
+        if (rowData.current_price === null) return '-'
+        return rowData.current_price
       },
     },
     {
@@ -48,33 +74,6 @@ export const tableConstants = (handleEdit) => {
         return rowData.operations
       },
     },
-    {
-      title: 'CURRENT PRICE',
-      render: (rowData) => {
-        if (rowData.current_price === null) return '-'
-        return rowData.current_price
-      },
-    },
-    {
-      title: 'POSITION',
-      render: (rowData) => {
-        if (rowData.current_price === null) return '-'
-        if (rowData.position < 0) {
-          return (
-            <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.position}%
-            </span>
-          )
-        } else {
-          return (
-            <span style={{ fontSize: '0.8rem' }} className="text-success">
-              +{rowData.position}%
-            </span>
-          )
-        }
-      },
-    },
-
     /*  {
         title: 'Action',
         render: rowData => {
@@ -93,7 +92,7 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'DELTA',
+      title: 'CHANGE',
       render: (rowData) => {
         if (rowData.value > 0) {
           return (
@@ -141,7 +140,7 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'USDT VALUE',
+      title: 'USD VALUE',
       render: (rowData) => {
         if (rowData.USDT > 0) {
           return (
@@ -170,7 +169,7 @@ export const assetPerformanceTable = (handleEdit) => {
 export const pairPerformanceTable = (handleEdit) => {
   return [
     {
-      title: 'SYMBOL',
+      title: 'PAIR',
       render: (rowData) => {
         return rowData.symbol
       },
@@ -248,7 +247,7 @@ export const pairPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'USDT VALUE',
+      title: 'USD VALUE',
       render: (rowData) => {
         if (rowData.USDT > 0) {
           return (
