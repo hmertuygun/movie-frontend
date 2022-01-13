@@ -128,7 +128,7 @@ const preparePing = () => {
 }
 
 const getIncomingSocket = ({ sData }) => {
-  return sData.data[0]
+  return sData?.data ? sData.data[0] : null
 }
 
 const fetchTicker = async ({ symbol }) => {
