@@ -1,11 +1,8 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
+import { useNotifications } from 'reapop'
 
 import { createBasicTrade } from '../../../api/api'
-import {
-  errorNotification,
-  successNotification,
-} from '../../../components/Notifications'
 
 import {
   addPrecisionToNumber,
@@ -39,6 +36,7 @@ const SellTrailingStopForm = () => {
     selectedSymbolLastPrice,
   } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
+  const { notify } = useNotifications()
 
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
@@ -398,13 +396,19 @@ const SellTrailingStopForm = () => {
         }
         const { data, status } = await createBasicTrade(payload)
         if (data?.status === 'error') {
-          errorNotification.open({
-            description:
+          notify({
+            status: 'error',
+            title: 'Error',
+            message:
               data?.error ||
               `Order couldn't be created. Please try again later!`,
           })
         } else {
-          successNotification.open({ description: `Order Created!` })
+          notify({
+            status: 'success',
+            title: 'Success',
+            message: 'Order Created!',
+          })
           refreshBalance()
         }
         setValues({
@@ -415,8 +419,10 @@ const SellTrailingStopForm = () => {
         })
       } catch (error) {
         console.log(error)
-        errorNotification.open({
-          description: (
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: (
             <p>
               Order couldn’t be created. Unknown error. Please report at:{' '}
               <a

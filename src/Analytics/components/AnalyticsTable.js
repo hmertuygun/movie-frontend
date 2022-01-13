@@ -12,6 +12,7 @@ import Pagination from '../../components/Table/Pagination/Pagination'
 import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
+import dayjs from 'dayjs'
 
 const AnalyticsTable = ({ startDate, endDate, search }) => {
   const { pairOperations, refreshData } = useContext(AnalyticsContext)
@@ -31,6 +32,10 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
         ? 'avg. price'
         : value === 'current'
         ? 'current_price'
+        : value === 'pair'
+        ? 'symbol'
+        : value === 'roe%'
+        ? 'position'
         : value
     let data = tableData.sort(function (a, b) {
       if (typeof a[key] === 'string') {
@@ -51,10 +56,11 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
         }
         return 0
       } else {
-        if (parseFloat(a[key]) - parseFloat(b[key])) {
-          return -1
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
         }
-        return 1
       }
     })
     setTableData(data)
@@ -81,14 +87,14 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
     }
   }, [currentPage, search, tableData, sortAscending])
 
-  // useEffect(() => {
-  //   const endString = endDate && dayjs(endDate).format('YYYY-MM-DD')
-  //   const startString = startDate && dayjs(startDate).format('YYYY-MM-DD')
-  //   refreshData({
-  //     startDate: startString,
-  //     endDate: endString,
-  //   })
-  // }, [startDate, endDate])
+  useEffect(() => {
+    const endString = endDate && dayjs(endDate).format('YYYY-MM-DD')
+    const startString = startDate && dayjs(startDate).format('YYYY-MM-DD')
+    refreshData({
+      startDate: startString,
+      endDate: endString,
+    })
+  }, [startDate, endDate])
 
   useEffect(() => {
     if (pairOperations) {
@@ -111,18 +117,36 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
                 <div className="tab-info">
                   <p className="mb-2">
                     This table shows all positions for each trading pair for the
-                    chosen period of time. It fully replaces the previous
-                    positions section in a more flexible and robust way.
+                    chosen period. It fully replaces the previous positions
+                    section to be more flexible and robust.
                   </p>
-                  At the present moment it has eight columns: <br />
+                  At the present moment it has nine columns: <br />
                   <a href="#" rel="noopener noreferrer">
-                    SYMBOL{' '}
+                    PAIR{' '}
                   </a>
                   trading pair that the user has traded <br />
                   <a href="#" rel="noopener noreferrer">
                     SIDE{' '}
                   </a>
                   direction of the trade (buy or sell) <br />
+                  <a href="#" rel="noopener noreferrer">
+                    ROE%{' '}
+                  </a>
+                  the percentage of return on equity. It compares the AVERAGE
+                  PRICE against the current market price and shows the percent
+                  difference between the two. If the position is green
+                  (positive), it means that the trader will make a profit by
+                  closing it now. Note that the position is green for the Buy
+                  direction if the current price is higher than the average
+                  buying price. However, the position is green in the Sell
+                  direction if the current price is lower than the average
+                  selling price. <br />
+                  <a href="#" rel="noopener noreferrer">
+                    PNL{' '}
+                  </a>
+                  the value of your profits or losses in the Quote asset (2nd in
+                  the pair)
+                  <br />
                   <a href="#" rel="noopener noreferrer">
                     AVERAGE PRICE{' '}
                   </a>
@@ -133,6 +157,12 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
                   cheaper than it cost now. And if the average selling price
                   (Side = Sell) is above the current market price, it means the
                   user has sold an asset at a higher price than it cost now.{' '}
+                  <br />
+                  <a href="#" rel="noopener noreferrer">
+                    CURRENT PRICE{' '}
+                  </a>
+                  current market price for one unit of the Base asset in units
+                  of Quote asset
                   <br />
                   <a href="#" rel="noopener noreferrer">
                     QUANTITY{' '}
@@ -149,29 +179,13 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
                     OPERATIONS{' '}
                   </a>
                   total count of trading operations executed in that direction
-                  during the chosen time period. <br />
-                  <a href="#" rel="noopener noreferrer">
-                    CURRENT PRICE{' '}
-                  </a>
-                  current market price for one unit of the Base asset in units
-                  of Quote asset. <br />
-                  <a href="#" rel="noopener noreferrer">
-                    POSITION{' '}
-                  </a>
-                  compares the average price against the current market price
-                  and shows the percent difference between the two. If the
-                  position is green (positive) it means that the user will make
-                  a profit by closing it now. Note that the position is green
-                  for the Buy direction if the current price is higher than the
-                  average buying price. But the position is green for the Sell
-                  direction if the current price is lower than the average
-                  selling price. <br />
+                  during the chosen period. <br />
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ overflowY: 'auto' }}>
           {pairOperations && (
             <div style={{ marginBottom: '0.5rem' }}>
               {itemNumber} items found.

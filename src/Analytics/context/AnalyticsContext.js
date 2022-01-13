@@ -5,10 +5,10 @@ import React, {
   createContext,
   useCallback,
 } from 'react'
+import { useNotifications } from 'reapop'
 import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { getAnalytics } from '../../api/api'
-import { errorNotification } from '../../components/Notifications'
 
 export const AnalyticsContext = createContext()
 
@@ -20,6 +20,7 @@ const AnalyticsProvider = ({ children }) => {
   const [error, setErrorLoading] = useState(false)
   const [user, setUser] = useState()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
+  const { notify } = useNotifications()
 
   const refreshData = async ({ startDate, endDate, skipCache }) => {
     try {
@@ -39,8 +40,11 @@ const AnalyticsProvider = ({ children }) => {
         setAssetPerformance(analytics.asset_performance)
       } catch (error) {
         console.log(error)
-        // errorNotification.open({
-        //   description: `Analytics could not fetched. Please try again later!`,
+        // notify({
+        //   id: 'analytics-fetch',
+        //   status: 'error',
+        //   title: 'Error',
+        //   message: 'Analytics could not fetched. Please try again later!',
         // })
       }
 

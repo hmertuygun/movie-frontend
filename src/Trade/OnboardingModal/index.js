@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
+import { useNotifications } from 'reapop'
 import { Link } from 'react-router-dom'
 import Select, { components } from 'react-select'
 import * as yup from 'yup'
@@ -6,7 +7,6 @@ import { analytics } from '../../firebase/firebase'
 import { Event } from '../../Tracking'
 import { UserContext } from '../../contexts/UserContext'
 import { useSymbolContext } from '../context/SymbolContext'
-import { successNotification } from '../../components/Notifications'
 import {
   addUserExchange,
   updateLastSelectedAPIKey,
@@ -46,6 +46,7 @@ const OnboardingModal = () => {
     state,
   } = useContext(UserContext)
   const history = useHistory()
+  const { notify } = useNotifications()
 
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -174,7 +175,11 @@ const OnboardingModal = () => {
         let value = `${apiName}-${exchange.value}`
         await updateLastSelectedValue(userData.email, value)
         setStepNo(step + 1)
-        successNotification.open({ description: 'API key added!' })
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'API key added!',
+        })
         analytics.logEvent('api_keys_added')
         Event('user', 'api_keys_added', 'user')
       }

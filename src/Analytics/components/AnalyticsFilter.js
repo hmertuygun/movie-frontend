@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Search from '../../components/Table/Search/Search'
 import Tooltip from '../../components/Tooltip'
 import { HelpCircle } from 'react-feather'
+import './AnalyticsFilter.css'
 
 const AnalyticsFilter = ({
   setSearch,
@@ -32,39 +33,39 @@ const AnalyticsFilter = ({
           {infoShow && (
             <div className="tab-info">
               <p className="mb-2">
-                This is a place where the user should specify the exact period
-                for which analytics should be calculated.
+                This is where the trader should specify the exact period for
+                which analytics should be calculated.
               </p>
-              At the present moment it has eight columns: <br />
               <a href="#" rel="noopener noreferrer">
-                SYMBOL{' '}
+                Symbol{' '}
               </a>
               a particular symbol that should be present in a trading pair,
-              allows narrowing analytics <br />
+              allows narrowing analytics
+              <br />
               <a href="#" rel="noopener noreferrer">
                 Start Date{' '}
               </a>
-              the date when the user entered the position <br />
+              the date when the trader entered the position
+              <br />
               <a href="#" rel="noopener noreferrer">
                 End Date{' '}
               </a>
-              the date when the user has closed the position (or put current
-              date if the position is still open) <br />
+              the date when the trader has closed the position (or current date
+              if the position is still open)
+              <br />
               <a href="#" rel="noopener noreferrer">
                 Refresh button{' '}
               </a>
-              this button refreshes all data that is used by analytics. <br />
+              this button refreshes all data that is used by analytics <br />
               <p className="my-2">
-                The user should clearly state the date when he has entered the
-                position and when he has closed it. If the position is still
-                open, the user may leave the End Date field empty, or enter the
-                current date.
+                The trader should clearly state the date when the position was
+                entered and closed. If the position is still open, the trader
+                may leave the End Date field empty or enter the current date.
               </p>
               <p className="my-2">
-                New analytics allows a user not only to monitor his Long (asset
-                bought to be sold at a higher price later) positions, but short
-                positions as well (asset sold to be bought back at a lower price
-                later on).
+                New analytics shows long positions (assets bought to be sold at
+                a higher price later) and short positions as well (assets sold
+                to be bought back at a lower price later on).
               </p>
             </div>
           )}
@@ -109,7 +110,7 @@ const AnalyticsFilter = ({
             isClearable={true}
           />
         </div>
-        <div className="col-auto ml-auto mt-4">
+        <div className="col-auto ml-auto mt-4 refresh-button">
           {loading ? (
             <button
               className="btn btn-sm btn-neutral btn-icon"

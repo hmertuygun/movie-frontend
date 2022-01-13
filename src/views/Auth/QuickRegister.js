@@ -26,8 +26,8 @@ const QuickRegister = () => {
   // clear errors
   useEffect(() => {
     setError('')
-    setValidForm(email && password && tos)
-  }, [email, password, tos])
+    setValidForm(email && password && tos && country)
+  }, [email, password, tos, country])
 
   const toggleTypeText = () => {
     if (type === 'text') {

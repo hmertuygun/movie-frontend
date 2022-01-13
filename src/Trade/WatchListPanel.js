@@ -17,6 +17,7 @@ import {
   Edit,
   Slash,
 } from 'react-feather'
+import { useNotifications } from 'reapop'
 
 import WatchListItem from './components/WatchListItem'
 import styles from './WatchListPanel.module.css'
@@ -26,10 +27,6 @@ import { orderBy } from 'lodash'
 import { firebase } from '../firebase/firebase'
 import AddWatchListModal from './AddWatchListModal'
 import AddEmojiModal from './AddEmojiModal'
-import {
-  successNotification,
-  errorNotification,
-} from '../components/Notifications'
 import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
@@ -47,6 +44,7 @@ const WatchListPanel = () => {
     setSelectEmojiPopoverOpen,
   } = useSymbolContext()
   const { userData, isPaidUser } = useContext(UserContext)
+  const { notify } = useNotifications()
 
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
@@ -418,8 +416,10 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
     } catch (error) {
-      errorNotification.open({
-        description: `Cannot create watch lists, Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Cannot create watch lists, Please try again later.',
       })
     }
   }
@@ -457,8 +457,10 @@ const WatchListPanel = () => {
       await setWatchlistData(userData.email, data)
     } catch (error) {
       console.log(error)
-      errorNotification.open({
-        description: `Cannot add emoji, Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Cannot add emoji, Please try again later!',
       })
     }
   }
@@ -522,7 +524,11 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
 
-      successNotification.open({ description: `Watch list created!` })
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'Watch list created!',
+      })
       setAddWatchListModalOpen(false)
     } catch (error) {
       console.log('Cannot save watch lists')
@@ -588,8 +594,10 @@ const WatchListPanel = () => {
   const handleDelete = async () => {
     setWatchListOptionPopoverOpen(false)
     if (activeWatchList.watchListName === DEFAULT_WATCHLIST) {
-      errorNotification.open({
-        description: `Cannot delete Default Watchlist.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Cannot delete Default Watchlist.',
       })
       return
     }
@@ -602,8 +610,10 @@ const WatchListPanel = () => {
       await ref.update({
         activeList: DEFAULT_WATCHLIST,
       })
-      successNotification.open({
-        description: 'Watch list deleted!',
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'Watch list deleted!',
       })
     } catch (e) {
       console.log(e)

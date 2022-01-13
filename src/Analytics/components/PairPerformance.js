@@ -28,7 +28,14 @@ const PairPerformance = ({ search }) => {
 
   const onSort = (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
-    let key = value
+    let key =
+      value === 'pair'
+        ? 'symbol'
+        : value === 'btc'
+        ? value.toUpperCase()
+        : value === 'usd'
+        ? 'USDT'
+        : value
     let data = tableData.sort(function (a, b) {
       if (typeof a[key] === 'string') {
         if (sortAscending) {
@@ -48,10 +55,11 @@ const PairPerformance = ({ search }) => {
         }
         return 0
       } else {
-        if (parseFloat(a[key]) - parseFloat(b[key])) {
-          return -1
+        if (sortAscending) {
+          return a[key] - b[key]
+        } else {
+          return b[key] - a[key]
         }
-        return 1
       }
     })
     setTableData(data)
@@ -100,12 +108,11 @@ const PairPerformance = ({ search }) => {
                 <div className="tab-info">
                   <p className="mb-2">
                     Shows the final gain or loss for base and quote assets as a
-                    result of all trades performed during the chosen time
-                    period.
+                    result of all trades performed during the chosen period.
                   </p>
-                  At the present moment it has three columns: <br />
+                  At the present moment it has five columns: <br />
                   <a href="#" rel="noopener noreferrer">
-                    SYMBOL{' '}
+                    PAIR{' '}
                   </a>
                   names the symbol, that has been traded <br />
                   <a href="#" rel="noopener noreferrer">
@@ -118,23 +125,34 @@ const PairPerformance = ({ search }) => {
                   </a>
                   the second symbol of the pair, shows how much of the quote
                   asset has been gained or lost as a result of all trades during
-                  the chosen time period. <br />
+                  the chosen period.
+                  <br />
+                  <a href="#" rel="noopener noreferrer">
+                    BTC VALUE{' '}
+                  </a>
+                  shows the deposit change in terms of BTC.
+                  <br />
+                  <a href="#" rel="noopener noreferrer">
+                    USD VALUE{' '}
+                  </a>
+                  shows the deposit change in terms of USD
+                  <br />
                   <p className="my-2">
-                    A positive number (in green color) means the user has gained
-                    this amount.
+                    A positive number (in green color) means the trader has
+                    gained this amount.
                   </p>
                   <p>
-                    A negative delta (in red color) means the user has lost this
-                    amount.
+                    A negative number (in red color) means the trader has lost
+                    this amount.
                   </p>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ overflowY: 'auto' }}>
           {pairPerformance && (
-            <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '0.5rem', marginLeft: 15 }}>
               {itemNumber} items found.
             </div>
           )}

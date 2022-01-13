@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
+import { useNotifications } from 'reapop'
 import { firebase, messaging } from '../firebase/firebase'
 import {
   checkGoogleAuth2FA,
@@ -10,8 +11,6 @@ import {
   getUserExchanges,
   storeNotificationToken,
 } from '../api/api'
-import { successNotification } from '../components/Notifications'
-import { useHistory } from 'react-router'
 import Ping from 'ping.js'
 import dayjs from 'dayjs'
 import { execExchangeFunc } from '../helpers/getExchangeProp'
@@ -34,6 +33,7 @@ const DEFAULT_EXCHANGE = [
 ]
 
 const UserContextProvider = ({ children }) => {
+  const { notify } = useNotifications()
   const localStorageUser = localStorage.getItem('user')
   const localStorageRemember = localStorage.getItem('remember')
   const sessionStorageRemember = sessionStorage.getItem('remember')
@@ -94,6 +94,8 @@ const UserContextProvider = ({ children }) => {
   const [isChartReady, setIsChartReady] = useState(false)
   const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
+  const [country, setCountry] = useState('')
+  const [isCountryAvailable, setIsCountryAvailable] = useState(true)
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -110,6 +112,30 @@ const UserContextProvider = ({ children }) => {
     getProducts()
     findFastServer(urls)
   }, [])
+
+  useEffect(() => {
+    if (userData.email) {
+      if (!country) {
+        handleCountry()
+      }
+    }
+  }, [country, isCountryAvailable, userData])
+
+  const handleCountry = async () => {
+    await firebase
+      .firestore()
+      .collection('user_data')
+      .doc(userData.email)
+      .get()
+      .then((doc) => {
+        if (doc && doc.data()) {
+          setCountry(doc.data().country)
+          setIsCountryAvailable(true)
+        } else {
+          setIsCountryAvailable(false)
+        }
+      })
+  }
 
   const getProducts = async () => {
     await getFirestoreCollectionData('stripe_plans', true).then(
@@ -426,10 +452,10 @@ const UserContextProvider = ({ children }) => {
             <p className="mb-0">API Key: {apiKey}</p>
           </>
         )
-        successNotification.open({
-          message: data.title,
-          duration: 3,
-          description,
+        notify({
+          status: 'success',
+          title: data.title,
+          message: description,
         })
       })
       navigator.serviceWorker.addEventListener('message', () => {
@@ -721,6 +747,10 @@ const UserContextProvider = ({ children }) => {
         state,
         setTwofaSecretKey,
         twofaSecretKey,
+        country,
+        isCountryAvailable,
+        setIsCountryAvailable,
+        setCountry,
       }}
     >
       {children}

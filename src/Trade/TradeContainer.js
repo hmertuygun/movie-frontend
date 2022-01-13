@@ -1,20 +1,13 @@
-import React, {
-  useEffect,
-  useContext,
-  useCallback,
-  useState,
-  lazy,
-  Suspense,
-} from 'react'
+import React, { useEffect, useContext, useState, lazy, Suspense } from 'react'
 import { Route } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
+import { useNotifications } from 'reapop'
 import { TabContext } from '../contexts/TabContext'
 import { UserContext } from '../contexts/UserContext'
 import { useSymbolContext } from './context/SymbolContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { dismissNotice } from '../api/api'
-import { errorNotification } from '../components/Notifications'
 import './TradeContainer.css'
 import Logo from '../components/Header/Logo/Logo'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -31,10 +24,6 @@ const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
 const SymbolSelect = lazy(() =>
   import('./components/SymbolSelect/SymbolSelect')
 )
-const registerResizeObserver = (cb, elem) => {
-  const resizeObserver = new ResizeObserver(cb)
-  resizeObserver.observe(elem)
-}
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
@@ -43,29 +32,18 @@ const TradeContainer = () => {
   const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
+  const { notify } = useNotifications()
+
   const totalHeight = window.innerHeight // - 40 - 75
   let chartHeight = watchListOpen
     ? window.innerHeight + 'px'
     : isOnboardingSkipped
     ? 'calc(100vh - 134px)'
     : window.innerHeight * 0.6 + 'px'
-  const [orderHeight, setOrderHeight] = useState(totalHeight * 0.4 + 'px')
+  const orderHeight = (totalHeight * 0.4).toFixed(0) + 'px'
+
   const [notices, setNotices] = useState([])
   const [finalNotices, setFinalNotices] = useState([])
-
-  const resizeCallBack = useCallback(
-    (entries, observer) => {
-      const { contentRect } = entries[0]
-      setOrderHeight(totalHeight - contentRect.height - 138 + 'px')
-    },
-    [totalHeight]
-  )
-
-  const callObserver = useCallback(() => {
-    const elem = document.querySelector('.TradeView-Chart')
-    if (!elem) return
-    registerResizeObserver(resizeCallBack, elem)
-  }, [resizeCallBack])
 
   useEffect(() => {
     getFirestoreCollectionData('platform_messages').then((snapshot) => {
@@ -147,10 +125,6 @@ const TradeContainer = () => {
   }, [notices])
 
   useEffect(() => {
-    callObserver()
-  }, [callObserver])
-
-  useEffect(() => {
     if (!loadApiKeys && !isOnboardingSkipped) {
       history.push('/settings')
     }
@@ -175,10 +149,12 @@ const TradeContainer = () => {
       setFinalNotices(final)
       await dismissNotice(item)
     } catch (e) {
-      errorNotification.open({
-        description: `Couldn't dismiss notice. Please try again later.`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't dismiss notice. Please try again later!",
       })
-      console.log(e)
+      console.error(e)
     }
   }
 

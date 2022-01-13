@@ -9,14 +9,11 @@ import React, {
 import { X } from 'react-feather'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useNotifications } from 'reapop'
 
 import { placeOrder } from '../api/api'
 import SimpleTradeContext, { TradeContext } from './context/SimpleTradeContext'
 import { TabContext } from '../contexts/TabContext'
-import {
-  errorNotification,
-  successNotification,
-} from '../components/Notifications'
 import { SymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { TabNavigator, ButtonNavigator, Typography, Modal } from '../components'
@@ -58,6 +55,8 @@ const TradePanel = () => (
 
 const Trade = () => {
   const { removeEntry } = useContext(TradeContext)
+  const { notify } = useNotifications()
+
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { state, clear } = useContext(TradeContext)
@@ -93,12 +92,18 @@ const Trade = () => {
       setIsOrderPlaced(false)
       const { data } = await placeOrder({ ...state, ...activeExchange })
       if (data?.status === 'error') {
-        errorNotification.open({
-          description:
-            data?.error || `Order couldn't be created. Please try again later!`,
+        notify({
+          status: 'error',
+          title: 'Error',
+          message:
+            data?.error || "Order couldn't be created. Please try again later!",
         })
       } else {
-        successNotification.open({ description: `Order Created!` })
+        notify({
+          status: 'success',
+          title: 'Success',
+          message: 'Order Created!',
+        })
         const { entry } = state
         analytics.logEvent(`placed_full_trade_${entry.type}_order`)
         Event(
@@ -116,8 +121,10 @@ const Trade = () => {
     } catch (error) {
       console.error({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
-      errorNotification.open({
-        description: `Order couldn't be created. Please try again later!`,
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Order couldn't be created. Please try again later!",
       })
       clear()
     } finally {
@@ -165,14 +172,7 @@ const Trade = () => {
               </TabNavigator>
               <TabNavigator
                 key="sell-tab-nav"
-                labelArray={[
-                  'Limit',
-                  'Market',
-                  'Stop-limit',
-                  'Stop-market',
-                  'Take-Profit-Limit',
-                  'Take-Profit-Market',
-                ]}
+                labelArray={['Limit', 'Market', 'Stop-limit', 'Stop-market']}
               >
                 <SellLimitForm />
                 <SellMarketForm />

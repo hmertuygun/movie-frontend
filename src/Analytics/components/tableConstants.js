@@ -1,7 +1,7 @@
 export const tableConstants = (handleEdit) => {
   return [
     {
-      title: 'SYMBOL',
+      title: 'PAIR',
       render: (rowData) => {
         return rowData.symbol
       },
@@ -25,9 +25,35 @@ export const tableConstants = (handleEdit) => {
       },
     },
     {
+      title: 'ROE%',
+      render: (rowData) => {
+        if (rowData.current_price === null) return '-'
+        if (rowData.position < 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.position}%
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              +{rowData.position}%
+            </span>
+          )
+        }
+      },
+    },
+    {
       title: 'AVERAGE PRICE',
       render: (rowData) => {
         return rowData['avg. price']
+      },
+    },
+    {
+      title: 'CURRENT PRICE',
+      render: (rowData) => {
+        if (rowData.current_price === null) return '-'
+        return rowData.current_price
       },
     },
     {
@@ -48,33 +74,6 @@ export const tableConstants = (handleEdit) => {
         return rowData.operations
       },
     },
-    {
-      title: 'CURRENT PRICE',
-      render: (rowData) => {
-        if (rowData.current_price === null) return '-'
-        return rowData.current_price
-      },
-    },
-    {
-      title: 'POSITION',
-      render: (rowData) => {
-        if (rowData.current_price === null) return '-'
-        if (rowData.position < 0) {
-          return (
-            <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.position}%
-            </span>
-          )
-        } else {
-          return (
-            <span style={{ fontSize: '0.8rem' }} className="text-success">
-              +{rowData.position}%
-            </span>
-          )
-        }
-      },
-    },
-
     /*  {
         title: 'Action',
         render: rowData => {
@@ -93,7 +92,7 @@ export const assetPerformanceTable = (handleEdit) => {
       },
     },
     {
-      title: 'DELTA',
+      title: 'CHANGE',
       render: (rowData) => {
         if (rowData.value > 0) {
           return (
@@ -116,13 +115,61 @@ export const assetPerformanceTable = (handleEdit) => {
         }
       },
     },
+    {
+      title: 'BTC VALUE',
+      render: (rowData) => {
+        if (rowData.BTC > 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.BTC}
+            </span>
+          )
+        } else if (rowData.BTC === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.BTC}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.BTC}
+            </span>
+          )
+        }
+      },
+    },
+    {
+      title: 'USD VALUE',
+      render: (rowData) => {
+        if (rowData.USDT > 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.USDT}
+            </span>
+          )
+        } else if (rowData.USDT === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.USDT}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.USDT}
+            </span>
+          )
+        }
+      },
+    },
   ]
 }
 
 export const pairPerformanceTable = (handleEdit) => {
   return [
     {
-      title: 'SYMBOL',
+      title: 'PAIR',
       render: (rowData) => {
         return rowData.symbol
       },
@@ -170,6 +217,54 @@ export const pairPerformanceTable = (handleEdit) => {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
               {rowData.quote}
+            </span>
+          )
+        }
+      },
+    },
+    {
+      title: 'BTC VALUE',
+      render: (rowData) => {
+        if (rowData.BTC > 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.BTC}
+            </span>
+          )
+        } else if (rowData.BTC === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.BTC}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.BTC}
+            </span>
+          )
+        }
+      },
+    },
+    {
+      title: 'USD VALUE',
+      render: (rowData) => {
+        if (rowData.USDT > 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-success">
+              {rowData.USDT}
+            </span>
+          )
+        } else if (rowData.USDT === 0) {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-soft">
+              {rowData.USDT}
+            </span>
+          )
+        } else {
+          return (
+            <span style={{ fontSize: '0.8rem' }} className="text-danger">
+              {rowData.USDT}
             </span>
           )
         }

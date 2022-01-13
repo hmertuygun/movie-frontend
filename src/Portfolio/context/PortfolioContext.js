@@ -9,6 +9,9 @@ import axios from 'axios'
 import { firebase } from '../../firebase/firebase'
 import { UserContext } from '../../contexts/UserContext'
 import { ccxtClass } from '../../constants/ccxtConfigs'
+import { useNotifications } from 'reapop'
+import { useLocation } from 'react-router-dom'
+
 async function getHeaders(token) {
   return {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -23,6 +26,10 @@ async function getHeaders(token) {
 export const PortfolioContext = createContext()
 
 const PortfolioCTXProvider = ({ children }) => {
+  const { notify } = useNotifications()
+  const { pathname } = useLocation()
+  const isPortfolioPage = pathname === '/portfolio'
+
   const [tickers, setTicker] = useState()
   const [chart, setChart] = useState()
   const [lastMessage, setLastMessage] = useState()
@@ -69,16 +76,29 @@ const PortfolioCTXProvider = ({ children }) => {
       setLoading(false)
     } catch (error) {
       console.log(error)
+      if (isPortfolioPage) {
+        notify({
+          id: 'portfolio-fetch-error',
+          status: 'error',
+          title: 'Error',
+          message: "Portfolio couldn't be created. Please try again later!",
+        })
+      }
       setLoading(false)
       setErrorLoading(true)
     }
-  }, [activeExchange.apiKeyName, activeExchange.exchange])
+  }, [
+    activeExchange.apiKeyName,
+    activeExchange.exchange,
+    isPortfolioPage,
+    notify,
+  ])
 
   const fetchData = useCallback(async () => {
     if (user && activeExchange.exchange) {
       refreshData()
     }
-  }, [user, activeExchange.exchange, refreshData])
+  }, [activeExchange.exchange, refreshData, user])
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {

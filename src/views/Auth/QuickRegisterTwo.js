@@ -4,6 +4,8 @@ import { Link, Redirect } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
 
 const QuickRegister = () => {
   const { register } = useContext(UserContext)
@@ -17,12 +19,14 @@ const QuickRegister = () => {
   const [tos, setTos] = useState(false)
   const [validForm, setValidForm] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [country, setCountry] = useState('')
+  const options = useMemo(() => countryList().getData(), [])
 
   // clear errors
   useEffect(() => {
     setError('')
-    setValidForm(email && password && tos)
-  }, [email, password, tos])
+    setValidForm(email && password && tos && country)
+  }, [email, password, tos, country])
 
   const toggleTypeText = () => {
     if (type === 'text') {
@@ -30,6 +34,10 @@ const QuickRegister = () => {
     } else {
       setType('text')
     }
+  }
+
+  const handleCountrySelection = (value) => {
+    setCountry(value)
   }
 
   const getFPTid = useMemo(() => {
@@ -63,6 +71,12 @@ const QuickRegister = () => {
       } catch (error) {
         console.log(error)
       }
+
+      await firebase
+        .firestore()
+        .collection('user_data')
+        .doc(email)
+        .set({ country: country }, { merge: true })
 
       try {
         const actionCodeSettings = {
@@ -344,6 +358,16 @@ const QuickRegister = () => {
                           1 uppercase letter, 1 lowercase letter and 1 number.
                         </div>
                       )}
+
+                    <div className="form-group  mb-0">
+                      <label className="form-control-label">Country</label>
+                      <Select
+                        options={options}
+                        value={country}
+                        onChange={handleCountrySelection}
+                        className="input-group-merge country-border"
+                      />
+                    </div>
 
                     <div className="my-4">
                       <div className="custom-control custom-checkbox mb-3">
