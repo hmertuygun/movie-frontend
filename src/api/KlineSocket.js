@@ -114,15 +114,6 @@ export default class socketClient {
           paramStr,
           listener: onRealtimeCallback,
         }
-      } else {
-        setTimeout(() => {
-          this._ws.send(JSON.stringify(obj))
-          this.streams[symbol] = {
-            // register multiple streams in streams object
-            paramStr,
-            listener: onRealtimeCallback,
-          }
-        }, 2000)
       }
     } catch (e) {
       console.log(e)
