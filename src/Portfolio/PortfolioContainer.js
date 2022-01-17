@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import BalanceTable from './components/BalanceTable'
 import EstimateValue from './components/EstimateValue'
 import PortfolioDistribution from './components/PortfolioDistribution'
@@ -18,19 +18,6 @@ function PortfolioContainer() {
     disablePortfolioRefreshBtn,
     portfolioTimeInterval,
   } = useSymbolContext()
-
-  const onUnload = useCallback(() => {
-    localStorage.removeItem(
-      `portfolio_${activeExchange.apiKeyName}_${activeExchange.exchange}`
-    )
-  }, [activeExchange])
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', onUnload)
-    return () => {
-      window.removeEventListener('beforeunload', onUnload)
-    }
-  }, [onUnload])
 
   useEffect(() => {
     if (loading) {
