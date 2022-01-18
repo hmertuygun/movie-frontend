@@ -172,7 +172,14 @@ const Trade = () => {
               </TabNavigator>
               <TabNavigator
                 key="sell-tab-nav"
-                labelArray={['Limit', 'Market', 'Stop-limit', 'Stop-market']}
+                labelArray={[
+                  'Limit',
+                  'Market',
+                  'Stop-limit',
+                  'Stop-market',
+                  'Take-Profit-Limit',
+                  'Take-Profit-Market',
+                ]}
               >
                 <SellLimitForm />
                 <SellMarketForm />

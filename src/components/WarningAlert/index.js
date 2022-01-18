@@ -6,12 +6,12 @@ import { UserContext } from '../../contexts/UserContext'
 
 const WarningAlert = () => {
   const history = useHistory()
-  const { isLoggedIn, isCountryAvailable } = useContext(UserContext)
+  const { isLoggedIn, isCountryAvailable, state } = useContext(UserContext)
   const handleNavigate = () => {
     history.push('/settings#subscription')
   }
 
-  if (isLoggedIn && !isCountryAvailable) {
+  if (isLoggedIn && state.has2FADetails && !isCountryAvailable) {
     return (
       <div className="alert alert-danger custom-alert px-4" role="alert">
         <AlertTriangle size={30} strokeWidth={3} />

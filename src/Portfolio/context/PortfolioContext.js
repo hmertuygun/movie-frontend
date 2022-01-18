@@ -84,6 +84,10 @@ const PortfolioCTXProvider = ({ children }) => {
           message: "Portfolio couldn't be created. Please try again later!",
         })
       }
+      setBalance(null)
+      setChart(null)
+      setEstimate(null)
+
       setLoading(false)
       setErrorLoading(true)
     }
