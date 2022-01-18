@@ -31,6 +31,8 @@ import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
 import { setWatchlistData, getSnapShotDocument } from '../api/firestoreCall'
+import { execExchangeFunc, getExchangeProp } from '../helpers/getExchangeProp'
+import { exchangeSystems } from '../constants/ExchangeOptions'
 
 const WatchListPanel = () => {
   const {
@@ -237,6 +239,8 @@ const WatchListPanel = () => {
   useEffect(() => {
     let obj = {}
     let id = null
+    let sockets = []
+
     watchSymbolsList.forEach((sy) => {
       let exc = sy.value.split(':')[0].toLowerCase()
       if (obj[exc]) {
@@ -245,45 +249,80 @@ const WatchListPanel = () => {
         obj[exc] = [sy.label.replace('-', '/')]
       }
     })
-    if (obj?.bybit?.length) {
-      var socket = new WebSocket('wss://stream.bybit.com/spot/quote/ws/v2')
+
+    let exchanges = [...new Set(Object.keys(obj))]
+
+    exchanges.forEach((exchangeValue) => {
+      if (!exchangeSystems.own.includes(exchangeValue)) return
+      var socket = new WebSocket(
+        getExchangeProp(exchangeValue, 'socketEndpoint')
+      )
+
       socket.onopen = function (event) {
-        obj['bybit'].forEach((element) => {
-          socket.send(
-            JSON.stringify({
-              topic: 'realtimes',
-              event: 'sub',
-              params: {
-                symbol: element.replace('/', ''),
-                binary: false,
-              },
-            })
+        obj[exchangeValue].forEach((element) => {
+          let subData = execExchangeFunc(
+            exchangeValue,
+            'ticketSocketSubscribe',
+            element
           )
+          socket.send(subData)
         })
       }
-      socket.onmessage = function (event) {
-        const { data } = JSON.parse(event.data)
-        if (data) {
+      socket.onmessage = async function (event) {
+        let data = {}
+        let symbol = ''
+        if (event.data instanceof Blob) {
+          data = await execExchangeFunc(
+            exchangeValue,
+            'resolveGzip',
+            event.data
+          )
+          data = execExchangeFunc(exchangeValue, 'getIncomingSocket', {
+            sData: data,
+          })
+          if (data?.topic) symbol = data.topic.split('.')[1].toUpperCase()
+        } else {
+          data = execExchangeFunc(exchangeValue, 'getIncomingSocket', {
+            sData: JSON.parse(event.data),
+          })
+          if (data?.s) symbol = data.s
+        }
+        if (data && symbol) {
           setMarketData((prevState) => {
+            let evaluatedData = execExchangeFunc(
+              exchangeValue,
+              'getLastAndPercent',
+              {
+                data,
+              }
+            )
             return {
               ...prevState,
-              [`BYBIT:${data.s}`]: { last: data.c, percentage: data.m },
+              [`${exchangeValue.toUpperCase()}:${symbol}`]: evaluatedData,
             }
           })
         }
       }
+
       socket.onerror = (err) => {
         console.log(err)
       }
 
       id = setInterval(() => {
         socket.send(JSON.stringify({ ping: 1535975085052 }))
-      }, 25000)
-    }
+      }, 10000)
+
+      sockets.push({ socket, id })
+    })
+
     return () => {
-      if (socket && id) {
-        socket.close()
-        clearInterval(id)
+      if (sockets.length) {
+        sockets.forEach((element) => {
+          if (element.socket && element.id) {
+            element.socket.close()
+            clearInterval(element.id)
+          }
+        })
       }
     }
   }, [watchSymbolsList])
@@ -301,7 +340,10 @@ const WatchListPanel = () => {
 
     for (const [key, value] of Object.entries(obj)) {
       const ccxtExchange = ccxtClass[key]
-      if (ccxtExchange.has['watchTicker'] && key !== 'bybit') {
+      if (
+        ccxtExchange.has['watchTicker'] &&
+        exchangeSystems.ccxt.includes(key)
+      ) {
         Promise.all(value.map((symbol) => loop(ccxtExchange, symbol)))
       }
     }

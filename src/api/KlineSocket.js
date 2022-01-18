@@ -39,11 +39,19 @@ export default class socketClient {
           console.warn(`${this.exchangeName}  Error`, err)
         }
 
-        this._ws.onmessage = (msg) => {
+        this._ws.onmessage = async (msg) => {
           if (!msg?.data) return
           let s = localStorage.getItem('selectedSymbol').replace('/', '')
-          let sData = JSON.parse(msg.data)
-
+          let sData = ''
+          if (msg.data instanceof Blob) {
+            sData = await execExchangeFunc(
+              this.exchange,
+              'resolveGzip',
+              msg.data
+            )
+          } else {
+            sData = JSON.parse(msg.data)
+          }
           try {
             const getData = execExchangeFunc(
               this.exchange,
@@ -52,6 +60,7 @@ export default class socketClient {
                 sData,
               }
             )
+
             if (sData && getData) {
               let lastSocketData = execExchangeFunc(
                 this.exchange,
@@ -68,7 +77,7 @@ export default class socketClient {
               }
             }
           } catch (e) {
-            console.log(e)
+            //console.log(e)
           }
         }
 
@@ -77,7 +86,7 @@ export default class socketClient {
           const pingPayload = execExchangeFunc(this.exchange, 'preparePing')
           setInterval(() => {
             this._ws.send(JSON.stringify(pingPayload))
-          }, 25000)
+          }, 10000)
         }
       })
     } catch (e) {

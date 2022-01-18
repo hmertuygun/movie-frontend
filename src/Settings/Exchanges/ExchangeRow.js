@@ -21,6 +21,8 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
                 ? '100'
                 : row.exchange === 'bybit'
                 ? '65'
+                : row.exchange === 'huobipro'
+                ? '90'
                 : '120'
             }
             src={`img/svg/exchange/${

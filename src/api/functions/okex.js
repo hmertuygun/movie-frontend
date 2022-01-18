@@ -1,36 +1,25 @@
-import axios from 'axios'
 import { ccxtClass } from '../../constants/ccxtConfigs'
 import { getExchangeProp } from '../../helpers/getExchangeProp'
-const EXCHANGE = 'bybit'
+const EXCHANGE = 'okex'
 
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
-  let currentSymbol = localStorage.getItem('selectedSymbol').split('/').join('')
-  const proxyServer = localStorage.getItem('proxyServer')
-
-  const url = `${proxyServer}https://api.bybit.com/spot/quote/v1/kline?symbol=${currentSymbol}&interval=${interval}${
-    startTime ? `&startTime=${startTime}` : ''
-  }${endTime ? `&endTime=${endTime}` : ''}${limit ? `&limit=${limit}` : ''}`
-
-  return axios
-    .get(url)
-    .then((res) => {
-      return res.data
-    })
-    .then((json) => {
-      return json.result
-    })
-    .catch((err) => console.log(err))
+  try {
+    const data = await ccxtClass[EXCHANGE].fetchOHLCV(
+      symbol,
+      interval,
+      startTime,
+      limit
+    )
+    return data
+  } catch (error) {
+    console.log('bad symbol')
+  }
 }
 
 const fetchTickers = async () => {
-  const {
-    data: { result },
-  } = await axios.get(
-    `${localStorage.getItem(
-      'proxyServer'
-    )}https://api.bybit.com/spot/quote/v1/ticker/24hr`
-  )
-  return result
+  return new Promise(async (resolve) => {
+    resolve(await ccxtClass[EXCHANGE].fetchTickers())
+  })
 }
 
 const editSymbol = ({ symbol }) => {
@@ -71,40 +60,50 @@ const onSocketMessage = ({ lastMessage }) => {
   }
 }
 
-const editSocketData = ({ o, h, l, v, c, t }) => {
+const editSocketData = ([t, o, h, l, c, v]) => {
   return {
     close: parseFloat(c),
     open: parseFloat(o),
     high: parseFloat(h),
     low: parseFloat(l),
     volume: parseFloat(v),
-    closeTime: t,
-    openTime: t,
-    time: t,
+    closeTime: Number(t),
+    openTime: Number(t),
+    time: Number(t),
   }
 }
 
 const getSocketEndpoint = () => {
   return new Promise((resolve) =>
-    resolve(getExchangeProp('bybit', 'socketEndpoint'))
+    resolve(getExchangeProp('okex', 'socketEndpoint'))
   )
 }
 
 const socketSubscribe = ({ symbolInfo, interval }) => {
-  const symbol = symbolInfo.name.replace('/', '')
+  const symbol = symbolInfo.name.replace('/', '-')
   const obj = {
-    topic: `kline_${interval}`,
-    event: 'sub',
-    symbol: symbol,
-    params: {
-      binary: false,
-    },
+    op: 'subscribe',
+    args: [
+      {
+        channel: interval,
+        instId: `${symbol}`,
+      },
+    ],
   }
-  return { obj, paramStr: { ...obj, event: 'cancel' } }
+  return { obj, paramStr: `${symbol}/${interval}` }
 }
 
 const klineSocketUnsubscribe = ({ param }) => {
-  return param
+  let [symbol, channel] = param.split('/')
+  return {
+    op: 'unsubscribe',
+    args: [
+      {
+        channel,
+        instId: `${symbol}`,
+      },
+    ],
+  }
 }
 
 const editMessage = (data) => {
@@ -118,7 +117,7 @@ const editMessage = (data) => {
       lowPrice: sy.last,
       volume: sy.vol,
       quoteVolume: sy.volValue,
-      exchange: 'kucoin',
+      exchange: 'okex',
     }
   })
 }
@@ -128,36 +127,22 @@ const preparePing = () => {
 }
 
 const getIncomingSocket = ({ sData }) => {
-  return sData?.data ? sData.data[0] : null
+  return sData?.data ? sData?.data[0] : {}
 }
 
 const fetchTicker = async ({ symbol }) => {
-  const { data } = await axios.get(
-    `${localStorage.getItem(
-      'proxyServer'
-    )}https://api.bybit.com/spot/quote/v1/ticker/24hr?symbol=${symbol.replace(
-      '/',
-      ''
-    )}`
-  )
-  return {
-    last: data.result.lastPrice,
-    high: data.result.highPrice,
-    low: data.result.lowPrice,
-    baseVolume: data.result.volume,
-    quoteVolume: data.result.quoteVolume,
-    symbol: data.result.symbol,
-  }
+  return await ccxtClass[EXCHANGE].fetchTicker(symbol)
 }
 
-const ticketSocketSubscribe = (symbol) => {
+const ticketSocketSubscribe = ({ symbol, interval }) => {
   return JSON.stringify({
-    topic: 'realtimes',
-    event: 'sub',
-    symbol: symbol.replace('/', ''),
-    params: {
-      binary: false,
-    },
+    op: 'unsubscribe',
+    args: [
+      {
+        channel: interval,
+        instId: `${symbol}`,
+      },
+    ],
   })
 }
 
@@ -181,7 +166,7 @@ const getLastAndPercent = ({ data }) => {
   }
 }
 
-const ByBit = {
+const OKEx = {
   editSymbol,
   editKline,
   onSocketMessage,
@@ -200,4 +185,4 @@ const ByBit = {
   getLastAndPercent,
 }
 
-export default ByBit
+export default OKEx

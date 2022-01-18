@@ -25,7 +25,24 @@ export const options = [
     placeholder: 'ByBit',
     fields: { Key: 'apiKey', Secret: 'secret' },
   },
+  {
+    value: 'huobipro',
+    label: 'HuobiPro',
+    placeholder: 'Huobi Pro',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+  },
+  {
+    value: 'okex',
+    label: 'OKEx',
+    placeholder: 'OKEx',
+    fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
+  },
 ]
+
+export const exchangeSystems = {
+  ccxt: ['binance', 'binanceus', 'kucoin', 'okex'],
+  own: ['bybit', 'huobipro'],
+}
 
 export const validationRules = {
   exchange: yup.string().required('Exchange is required'),
@@ -73,5 +90,19 @@ export const exchangeCreationOptions = [
     image: 'img/svg/exchange/bybit.svg',
     logo: 'img/icons/brands/ByBit_Icon.png',
     label: 'ByBit',
+  },
+  {
+    value: 'huobipro',
+    url: ' https://www.huobi.com/en-us/register/?inviter_id=11339800',
+    image: 'img/svg/exchange/huobipro.svg',
+    logo: 'img/icons/brands/huobi.png',
+    label: 'Huobi',
+  },
+  {
+    value: 'okex',
+    url: ' https://www.huobi.com/en-us/register/?inviter_id=11339800',
+    image: 'img/svg/exchange/okex.svg',
+    logo: 'img/icons/brands/okex.png',
+    label: 'OKEx',
   },
 ]
