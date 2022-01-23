@@ -252,7 +252,11 @@ const SymbolContextProvider = ({ children }) => {
           : activeExchange.exchange
       getFirestoreDocumentData('chart_drawings', userData.email).then(
         (userSnapShot) => {
-          let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
+          let value = userSnapShot?.data()
+
+          let intervals = value && value.intervals
+          let lastSelectedSymbol = value && value.lastSelectedSymbol
+          let timeZone = value && value.timeZone
           let activeMarketData = {}
           const chartData = {
             intervals: intervals || [],
