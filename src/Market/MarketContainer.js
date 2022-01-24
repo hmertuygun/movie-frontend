@@ -6,6 +6,8 @@ import { useSymbolContext } from '../Trade/context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { firebase } from '../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
 function MarketContainer() {
   const db = firebase.firestore()
@@ -55,28 +57,8 @@ function MarketContainer() {
   }, [templateDrawingsOpen, userData, activeTrader])
 
   const timestampToDate = (time) => {
-    var a = new Date(time)
-    var months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ]
-    var year = a.getFullYear()
-    var month = months[a.getMonth()]
-    var date = a.getDate()
-    var hour = a.getHours()
-    var min = a.getMinutes()
-    var time = ' ' + date + ' ' + month + ' ' + hour + ':' + min
-    return time
+    dayjs.extend(relativeTime)
+    return ` ${dayjs().to(time)}`
   }
 
   const setActiveTraderList = async (e) => {
@@ -112,7 +94,7 @@ function MarketContainer() {
     <>
       <section className="m-1">
         <div className="row">
-          <div className="col-lg-3">
+          <div className="col-lg-3 col-md-4">
             <div className="card p-3 mb-1 pb-2">
               <div class="form-group">
                 <label class="form-control-label">Trader</label>
@@ -147,7 +129,7 @@ function MarketContainer() {
               <WatchListPanel />
             </div>
           </div>
-          <div className="col-lg-9">
+          <div className="col-lg-9 col-md-8">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card m-1">
