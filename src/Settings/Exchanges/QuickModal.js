@@ -29,6 +29,13 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
       if (element.value === 'bybit' && !isPaidUser && !isException) {
         return { ...element, isDisabled: true }
       }
+      if (element.value === 'huobipro' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+
+      if (element.value === 'okex' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
       return element
     })
   }, [isPaidUser, isException])
@@ -186,6 +193,16 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                         {!isPaidUser &&
                           element.value === 'bybit' &&
                           !isException && (
+                            <span
+                              style={{ marginLeft: '1rem' }}
+                              className="badge badge-warning"
+                            >
+                              Only paid users
+                            </span>
+                          )}
+                        {!isPaidUser &&
+                          (element.value === 'huobipro' ||
+                            element.value === 'okex') && (
                             <span
                               style={{ marginLeft: '1rem' }}
                               className="badge badge-warning"

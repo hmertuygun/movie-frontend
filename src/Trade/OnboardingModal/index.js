@@ -78,6 +78,15 @@ const OnboardingModal = () => {
       if (element.value === 'bybit' && !isPaidUser && !isException) {
         return { ...element, isDisabled: true }
       }
+
+      if (element.value === 'huobipro' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+
+      if (element.value === 'okex' && !isPaidUser) {
+        return { ...element, isDisabled: true }
+      }
+
       return element
     })
   }, [isPaidUser])
@@ -335,6 +344,16 @@ const OnboardingModal = () => {
                 Only paid users
               </span>
             )}
+            {!isPaidUser &&
+              (props.data.value === 'huobipro' ||
+                props.data.value === 'okex') && (
+                <span
+                  style={{ marginLeft: '1rem' }}
+                  className="badge badge-warning"
+                >
+                  Only paid users
+                </span>
+              )}
           </a>
         </components.Option>
       </>
@@ -424,6 +443,16 @@ const OnboardingModal = () => {
                           {!isPaidUser &&
                             element.value === 'bybit' &&
                             !isException && (
+                              <span
+                                style={{ marginLeft: '1rem' }}
+                                className="badge badge-warning"
+                              >
+                                Only paid users
+                              </span>
+                            )}
+                          {!isPaidUser &&
+                            (element.value === 'huobipro' ||
+                              element.value === 'okex') && (
                               <span
                                 style={{ marginLeft: '1rem' }}
                                 className="badge badge-warning"
