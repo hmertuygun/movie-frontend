@@ -572,17 +572,8 @@ export default class TradingViewChart extends Component {
           console.log('Init Drawings')
         }
       } else if (this.props.templateDrawingsOpen) {
-        let pData = ''
-        if (this.props.exchange !== 'binance') {
-          pData = JSON.parse(
-            this.props.activeTrader.drawings.replaceAll(
-              'BINANCE:',
-              `${this.props.exchange.toUpperCase()}:`
-            )
-          )
-        } else {
-          pData = JSON.parse(this.props.activeTrader.drawings)
-        }
+        let pData = JSON.parse(this.props.activeTrader.drawings)
+
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
@@ -630,18 +621,7 @@ export default class TradingViewChart extends Component {
         try {
           let pData = ''
           if (this.props.activeTrader) {
-            if (this.props.exchange !== 'binance') {
-              if (this.props.activeTrader.drawings) {
-                pData = JSON.parse(
-                  this.props.activeTrader.drawings.replaceAll(
-                    'BINANCE:',
-                    `${this.props.exchange.toUpperCase()}:`
-                  )
-                )
-              }
-            } else {
-              pData = JSON.parse(this.props.activeTrader.drawings)
-            }
+            pData = JSON.parse(this.props.activeTrader.drawings)
           }
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
