@@ -30,7 +30,7 @@ const Header = () => {
     isOnboardingSkipped,
   } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
-  const { watchListOpen } = useSymbolContext()
+  const { watchListOpen, setWatchListOpen } = useSymbolContext()
 
   const [settingToggle, setSettingToggle] = useState(false)
   const [stepIndex2, setStepIndex2] = useState(0)
@@ -113,9 +113,14 @@ const Header = () => {
         setRun2(true)
       }, 1000)
     }
+    if (history.location.pathname === '/market') {
+      setWatchListOpen(true)
+    } else {
+      setWatchListOpen(false)
+    }
   }, [history, stepIndex2, tour2CurrentStep])
 
-  if (!isLoggedIn || watchListOpen) {
+  if (!isLoggedIn) {
     return null
   }
 

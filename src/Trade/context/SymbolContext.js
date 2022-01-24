@@ -23,6 +23,7 @@ import {
 } from '../../api/firestoreCall'
 import { execExchangeFunc } from '../../helpers/getExchangeProp'
 import { sortExchangesData } from '../../helpers/apiKeys'
+import { TEMPLATE_DRAWINGS_USERS } from '../../constants/TemplateDrawingsList'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -81,6 +82,8 @@ const SymbolContextProvider = ({ children }) => {
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
+  const [isTradersModalOpen, setIsTradersModalOpen] = useState(false)
+  const [activeTrader, setActiveTrader] = useState({})
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
   const [exchangeUpdated, setExchangeUpdated] = useState(false)
@@ -209,8 +212,6 @@ const SymbolContextProvider = ({ children }) => {
     try {
       const value = {
         drawings: templateDrawings && templateDrawings.drawings,
-        name: userData.email,
-        nickname: userData.email,
         flags: emojis,
       }
       await updateTemplateDrawings(userData.email, value)
@@ -229,10 +230,11 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    getFirestoreDocumentData(
-      'template_drawings',
-      'sheldonthesniper01@gmail.com'
-    )
+    let userEmail = TEMPLATE_DRAWINGS_USERS.includes(userData.email)
+      ? userData.email
+      : activeTrader.id
+
+    getFirestoreDocumentData('template_drawings', userEmail)
       .then((emoji) => {
         if (emoji.data()) {
           if (emoji.data()?.flags) {
@@ -242,7 +244,7 @@ const SymbolContextProvider = ({ children }) => {
         }
       })
       .catch((err) => console.log(err))
-  }, [db, watchListOpen])
+  }, [db, watchListOpen, activeTrader, userData.email])
 
   const getChartDataOnInit = async () => {
     try {
@@ -642,6 +644,10 @@ const SymbolContextProvider = ({ children }) => {
         setTemplateDrawings,
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
+        isTradersModalOpen,
+        setIsTradersModalOpen,
+        activeTrader,
+        setActiveTrader,
         marketData,
         chartData,
         setEmojis,

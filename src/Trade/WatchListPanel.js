@@ -31,15 +31,21 @@ import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
 import { setWatchlistData, getSnapShotDocument } from '../api/firestoreCall'
+import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import { execExchangeFunc, getExchangeProp } from '../helpers/getExchangeProp'
 import { exchangeSystems } from '../constants/ExchangeOptions'
 
 const WatchListPanel = () => {
   const {
     symbols,
+    isLoading,
+    isLoadingBalance,
+    pureData,
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
+    activeTrader,
+    watchlistOpen,
     emojis,
     handleSaveEmojis,
     selectEmojiPopoverOpen,
@@ -130,33 +136,32 @@ const WatchListPanel = () => {
     } else {
       try {
         setLoading(true)
-        getSnapShotDocument(
-          'watch_list',
-          'sheldonthesniper01@gmail.com'
-        ).onSnapshot((snapshot) => {
-          if (snapshot.data()) {
-            const lists = Object.keys(snapshot.data()?.lists)
-            setWatchLists(snapshot.data()?.lists)
-            const listsData = Object.values(snapshot.data()?.lists)
+        getSnapShotDocument('watch_list', activeTrader.id).onSnapshot(
+          (snapshot) => {
+            if (snapshot.data()) {
+              const lists = Object.keys(snapshot.data()?.lists)
+              setWatchLists(snapshot.data()?.lists)
+              const listsData = Object.values(snapshot.data()?.lists)
 
-            setTemplateWatchlist(listsData)
-            if (lists.length === 0) {
-              // TODO IF SHELDONS WATCH LIST IS EMPTY
-            } else {
-              const activeList = listsData.find(
-                (list) => list.watchListName === snapshot.data()?.activeList
-              )
+              setTemplateWatchlist(listsData)
+              if (lists.length === 0) {
+                // TODO IF SHELDONS WATCH LIST IS EMPTY
+              } else {
+                const activeList = listsData.find(
+                  (list) => list.watchListName === snapshot.data()?.activeList
+                )
 
-              if (activeList) {
-                setWatchSymbolsList(activeList?.['binance'] ?? [])
-                setActiveWatchList(activeList)
-                if (activeList?.['binance'] && activeList?.['binance'][0]) {
-                  setSymbol(activeList?.['binance'][0])
+                if (activeList) {
+                  setWatchSymbolsList(activeList?.['binance'] ?? [])
+                  setActiveWatchList(activeList)
+                  if (activeList?.['binance'] && activeList?.['binance'][0]) {
+                    setSymbol(activeList?.['binance'][0])
+                  }
                 }
               }
             }
           }
-        })
+        )
       } catch (error) {
         console.log(`Cannot fetch Sniper's watch lists`)
       } finally {
@@ -168,6 +173,7 @@ const WatchListPanel = () => {
     initWatchList,
     userData.email,
     templateDrawingsOpen,
+    activeTrader.id,
     db,
   ])
 
@@ -223,10 +229,17 @@ const WatchListPanel = () => {
     while (true) {
       try {
         const ticker = await exchange.watchTicker(symbol)
+
+        let lastData = !ticker?.percentage
+          ? execExchangeFunc(exchange.id, 'getLastAndPercent', {
+              data: ticker,
+            })
+          : ticker
         setMarketData((prevState) => {
           return {
             ...prevState,
-            [`${exchange.id.toUpperCase()}:${symbol.replace('/', '')}`]: ticker,
+            [`${exchange.id.toUpperCase()}:${symbol.replace('/', '')}`]:
+              lastData,
           }
         })
       } catch (e) {
@@ -671,11 +684,6 @@ const WatchListPanel = () => {
           templateDrawingsOpen ? styles.headerFlex : ''
         }`}
       >
-        {templateDrawingsOpen && (
-          <span className={styles.headerTemplate}>
-            You are viewing Sniper's watchlist.
-          </span>
-        )}
         <Popover
           key="watchlist-select-popover"
           isOpen={watchListPopoverOpen}
@@ -723,7 +731,7 @@ const WatchListPanel = () => {
             <ChevronDown size={15} style={{ marginLeft: '5px' }} />
           </div>
         </Popover>
-        {userData.email === 'sheldonthesniper01@gmail.com' &&
+        {TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
           !templateDrawingsOpen && (
             <Popover
               key="watchlist-emoji-popover"
@@ -836,7 +844,7 @@ const WatchListPanel = () => {
             onClickOutside={() => setWatchListOptionPopoverOpen(false)}
             content={({ position, nudgedLeft, nudgedTop }) => (
               <div className={styles.watchListModal}>
-                {userData.email === 'sheldonthesniper01@gmail.com' && (
+                {TEMPLATE_DRAWINGS_USERS.includes(userData.email) && (
                   <div
                     className={styles.watchListRow}
                     onClick={() => {
@@ -949,7 +957,7 @@ const WatchListPanel = () => {
         ) : (
           <>
             {(templateDrawingsOpen && isGroupByFlag) ||
-            (userData.email === 'sheldonthesniper01@gmail.com' &&
+            (TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
               isGroupByFlag) ? (
               <>
                 {emojis &&

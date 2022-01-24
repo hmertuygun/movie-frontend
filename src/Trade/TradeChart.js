@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
+import TraderModal from './components/TradersModal/TradersModal'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
+import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import { exception } from 'react-ga'
 import {
   getSnapShotCollection,
@@ -25,18 +28,29 @@ const TradeChart = () => {
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
     setSymbol,
+    kucoinDD,
+    binanceDD,
+    binanceUSDD,
+    isTradersModalOpen,
+    setIsTradersModalOpen,
+    activeTrader,
+    setActiveTrader,
     selectedSymbol,
     selectEmojiPopoverOpen,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
+  const history = useHistory()
   const { userData, openOrdersUC, isOnboardingSkipped, activeExchange } =
     useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
+  const [allTemplateDrawings, setAllTemplateDrawings] = useState([])
+  const [defaultTrader, setDefaultTrader] = useState([])
   const [exchange, setExchange] = useState(exchangeType)
   const [onError, setOnError] = useState(false)
+  const [onMarket, setOnMarket] = useState(false)
 
   useEffect(() => {
     if (typeof localStorage.getItem('chartMirroring') === 'string') {
@@ -44,8 +58,44 @@ const TradeChart = () => {
         localStorage.getItem('chartMirroring') === 'true' ? true : false
       setTemplateDrawingsOpen(status)
     }
+    setOnMarket(history.location.pathname === '/market')
     console.log('TV Parent loaded', exchangeType, symbolType)
   }, [])
+
+  useEffect(() => {
+    if (!TEMPLATE_DRAWINGS_USERS.includes(userData.email)) {
+      db.collection('template_drawings').onSnapshot(
+        (snapshot) => {
+          const allTradersData = snapshot.docs.map((trader) => {
+            return { ...trader.data(), id: trader.id }
+          })
+          if (activeTrader?.id) {
+            const initTemplate = allTradersData.find(
+              (trader) => activeTrader.id === trader.id
+            )
+            setActiveTrader(initTemplate)
+          } else {
+            db.collection('chart_drawings')
+              .doc(userData.email)
+              .get()
+              .then((snapshotUser) => {
+                if (snapshotUser.data()?.activeTrader) {
+                  const init = allTradersData.find(
+                    (trader) => snapshotUser.data().activeTrader === trader.id
+                  )
+                  setActiveTrader(init)
+                }
+              })
+          }
+          setAllTemplateDrawings(allTradersData)
+        },
+        (error) => {
+          console.error(error)
+          setOnError(true)
+        }
+      )
+    }
+  }, [db, userData])
 
   useEffect(() => {
     if (selectedSymbol.value) {
@@ -135,6 +185,10 @@ const TradeChart = () => {
     })
   }
 
+  const onTradersBtnClick = () => {
+    setIsTradersModalOpen((isTradersModalOpen) => !isTradersModalOpen)
+  }
+
   useEffect(() => {
     const helpButtonElement = document.getElementById('launcher')
     if (!helpButtonElement) return
@@ -180,29 +234,36 @@ const TradeChart = () => {
       style={{ width: '100%', height: '100%' }}
     >
       {isLoadChart ? (
-        <TradingViewChart
-          email={userData?.email}
-          theme={theme}
-          intervals={intervals}
-          drawings={drawings}
-          watchListOpen={watchListOpen}
-          templateDrawings={templateDrawings}
-          templateDrawingsOpen={templateDrawingsOpen}
-          onError={onError}
-          openOrders={filterOrders(openOrdersUC, symbolType)}
-          key={`${exchangeType}`}
-          symbol={symbolType}
-          exchange={exchange}
-          marketSymbols={symbolDetailsKeyValue}
-          timeZone={chartData?.timeZone}
-          sniperBtnClicked={(e) => {
-            onSniperBtnClick(e)
-          }}
-          drawingsBtnClicked={(e) => {
-            onDrawingsBtnClick(e)
-          }}
-          selectEmojiPopoverOpen={selectEmojiPopoverOpen}
-        />
+        <>
+          <TradingViewChart
+            email={userData?.email}
+            theme={theme}
+            intervals={intervals}
+            drawings={drawings}
+            onMarketPage={onMarket}
+            watchListOpen={watchListOpen}
+            templateDrawings={templateDrawings}
+            templateDrawingsOpen={templateDrawingsOpen}
+            onError={onError}
+            openOrders={filterOrders(openOrdersUC, symbolType)}
+            key={`${exchangeType}`}
+            symbol={symbolType}
+            exchange={exchange}
+            marketSymbols={symbolDetailsKeyValue}
+            timeZone={chartData?.timeZone}
+            activeTrader={activeTrader}
+            sniperBtnClicked={(e) => {
+              onSniperBtnClick(e)
+            }}
+            drawingsBtnClicked={(e) => {
+              onDrawingsBtnClick(e)
+            }}
+            tradersBtnClicked={(e) => {
+              onTradersBtnClick(e)
+            }}
+            selectEmojiPopoverOpen={selectEmojiPopoverOpen}
+          />
+        </>
       ) : (
         <span className="spinner-border spinner-border-sm text-primary" />
       )}

@@ -6,7 +6,7 @@
 }
 
 .headerFlex {
-  flex-direction: column;
+  /* flex-direction: column; */
   align-items: flex-start;
 }
 
@@ -165,12 +165,12 @@
 }
 
 .watchLists {
-  height: calc(100vh - 184px);
+  height: calc(100vh - 320px);
   overflow: auto;
 }
 
 .watchLists2 {
-  height: calc(100vh - 220px);
+  height: calc(100vh - 320px);
   overflow: auto;
 }
 
@@ -186,7 +186,7 @@
 }
 
 .groupMore {
-  position: absolute;
+  /* position: absolute; */
   left: 232px;
   top: 130px;
 }

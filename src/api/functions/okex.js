@@ -161,8 +161,8 @@ const getTickerData = (data) => {
 
 const getLastAndPercent = ({ data }) => {
   return {
-    last: data.c,
-    percentage: data.m,
+    last: data.last,
+    percentage: ((data.open - data.close) / data.close) * 100,
   }
 }
 

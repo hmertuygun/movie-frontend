@@ -8,7 +8,7 @@ import {
   getExchangeProp,
 } from '../../../helpers/getExchangeProp'
 
-function MarketStatistics() {
+function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
   const { selectedSymbolDetail, marketData } = useSymbolContext()
@@ -180,7 +180,7 @@ function MarketStatistics() {
   }, 2000)
 
   return (
-    <div className="marketDataContainer">
+    <div className={`marketDataContainer ${!market ? 'marketBorder' : ''}`}>
       {finalData && (
         <div className="d-flex">
           <div className="lastPriceBlock">

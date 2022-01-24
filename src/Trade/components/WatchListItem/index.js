@@ -6,6 +6,7 @@ import { UserContext } from '../../../contexts/UserContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import './style.css'
 import Tooltip from '../../../components/Tooltip'
+import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 
 const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const { setSymbol, templateDrawingsOpen, emojis } = useSymbolContext()
@@ -48,7 +49,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
       )}
       <div className="label-column">
         {((!group && templateDrawingsOpen) ||
-          (!group && userData.email === 'sheldonthesniper01@gmail.com')) &&
+          (!group && TEMPLATE_DRAWINGS_USERS.includes(userData.email))) &&
         isPaidUser ? (
           <>
             {symbol.flag ? <Tooltip id={symbol.value} place="right" /> : null}

@@ -50,6 +50,7 @@ const Portfolio = lazy(() => import('./views/PortfolioView'))
 const Analytics = lazy(() => import('./views/Analytics'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
 const Academy = lazy(() => import('./views/Academy'))
+const Market = lazy(() => import('./views/Market'))
 
 const Routes = () => {
   const history = useHistory()
@@ -188,7 +189,9 @@ const Routes = () => {
               {!isOnboardingSkipped && (
                 <CacheRoute path="/academy" component={Academy} />
               )}
-              <Redirect to="/trade" />
+              <CacheRoute path="/market" component={Market} />
+
+              <Redirect to="/market" />
             </CacheSwitch>
           )}
           {userContextLoaded && (

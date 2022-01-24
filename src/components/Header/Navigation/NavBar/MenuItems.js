@@ -19,9 +19,9 @@ const MenuItems = () => {
           <NavLink
             activeClassName={`nav-link active`}
             className={`nav-link btn`}
-            to="/trade"
+            to="/market"
           >
-            Chart Mirroring
+            Market
           </NavLink>
         </li>
       )}
@@ -66,17 +66,7 @@ const MenuItems = () => {
                   to={item.url}
                 >
                   {item.title}
-                  {item.title === 'Analytics' && !isOnboardingSkipped && (
-                    <span
-                      className={`mt-3 badge badge-sm badge-success badge-pill badge-floating ${
-                        theme === 'DARK' ? 'border-dark' : 'border-white'
-                      }`}
-                      style={{ fontSize: '0.4rem', padding: '3px 5px' }}
-                    >
-                      NEW
-                    </span>
-                  )}
-                  {item.title === 'Academy' && !isOnboardingSkipped && (
+                  {item.title === 'Market' && !isOnboardingSkipped && (
                     <span
                       className={`mt-3 badge badge-sm badge-success badge-pill badge-floating ${
                         theme === 'DARK' ? 'border-dark' : 'border-white'

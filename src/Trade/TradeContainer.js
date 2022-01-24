@@ -24,12 +24,15 @@ const MarketStatistics = lazy(() => import('./components/MarketStatistics'))
 const SymbolSelect = lazy(() =>
   import('./components/SymbolSelect/SymbolSelect')
 )
+const TradersModal = lazy(() =>
+  import('./components/TradersModal/TradersModal')
+)
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
+  const { watchListOpen, isTradersModalOpen } = useSymbolContext()
   const { loadApiKeys, userData, isOnboardingSkipped, subscriptionData } =
     useContext(UserContext)
-  const { watchListOpen } = useSymbolContext()
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const { notify } = useNotifications()
@@ -160,35 +163,27 @@ const TradeContainer = () => {
 
   return (
     <>
+      {isTradersModalOpen && (
+        <section className="Traders-Modal">
+          <ErrorBoundary componentName="TradersModal">
+            <Suspense fallback={<div></div>}>
+              <TradersModal />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+      )}
       {!isMobile ? (
         <>
-          {watchListOpen ? (
-            <div className="WatchListContainer">
-              <div className="Logo-In-WatchList">
-                <Logo />
-              </div>
-              <section className="WatchList-Panel">
-                <ErrorBoundary componentName="WatchListPanel">
+          {!isOnboardingSkipped && (
+            <section className={`TradeView-Panel`}>
+              <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+                <ErrorBoundary componentName="TradePanel">
                   <Suspense fallback={<div></div>}>
-                    <WatchListPanel />
+                    <Route path="/trade/" component={TradePanel} />
                   </Suspense>
                 </ErrorBoundary>
-              </section>
-            </div>
-          ) : (
-            <>
-              {!isOnboardingSkipped && (
-                <section className={`TradeView-Panel`}>
-                  <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
-                    <ErrorBoundary componentName="TradePanel">
-                      <Suspense fallback={<div></div>}>
-                        <Route path="/trade/" component={TradePanel} />
-                      </Suspense>
-                    </ErrorBoundary>
-                  </div>
-                </section>
-              )}
-            </>
+              </div>
+            </section>
           )}
           <section
             className="TradeChart-Container"
@@ -238,25 +233,23 @@ const TradeContainer = () => {
                 </div>
               ))}
             </div>
-            {!watchListOpen && (
-              <section
-                className={`TradeView-Symbol ${
-                  isOnboardingSkipped ? 'skipped-trade-view' : ''
-                }`}
-              >
-                <ErrorBoundary componentName="SymbolSelect">
-                  <Suspense fallback={<div></div>}>
-                    <SymbolSelect />
-                  </Suspense>
-                </ErrorBoundary>
+            <section
+              className={`TradeView-Symbol ${
+                isOnboardingSkipped ? 'skipped-trade-view' : ''
+              }`}
+            >
+              <ErrorBoundary componentName="SymbolSelect">
+                <Suspense fallback={<div></div>}>
+                  <SymbolSelect />
+                </Suspense>
+              </ErrorBoundary>
 
-                <ErrorBoundary componentName="MarketStatistics">
-                  <Suspense fallback={<div></div>}>
-                    <MarketStatistics />
-                  </Suspense>
-                </ErrorBoundary>
-              </section>
-            )}
+              <ErrorBoundary componentName="MarketStatistics">
+                <Suspense fallback={<div></div>}>
+                  <MarketStatistics />
+                </Suspense>
+              </ErrorBoundary>
+            </section>
             <section
               className="TradeView-Chart"
               style={{
@@ -272,11 +265,21 @@ const TradeContainer = () => {
                     style={{
                       position: 'absolute',
                       marginLeft: '486px',
-                      width: '150px',
+                      width: '170px',
                       height: '38px',
                       zIndex: -1,
                     }}
                     id="mirroring-tour1"
+                  ></div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      marginLeft: '486px',
+                      width: '170px',
+                      height: '38px',
+                      zIndex: -1,
+                    }}
+                    id="mirroring-tour2"
                   ></div>
                   <div
                     style={{
@@ -286,7 +289,7 @@ const TradeContainer = () => {
                       height: '38px',
                       zIndex: -1,
                     }}
-                    id="mirroring-tour2"
+                    id="mirroring-tour3"
                   ></div>
                   <TradeChart />
                 </Suspense>
