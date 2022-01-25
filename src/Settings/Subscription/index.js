@@ -75,11 +75,13 @@ const Subscription = () => {
       setIsLoading(false)
       setShowEndTrialModal(false)
       setIsPaidUser(true)
-      let values = {
-        ...subscriptionData,
-        subscription: { ...subscriptionData.subscription, status: 'active' },
+      if (subscriptionData) {
+        let values = {
+          ...subscriptionData,
+          subscription: { ...subscriptionData.subscription, status: 'active' },
+        }
+        setSubscriptionData(values)
       }
-      setSubscriptionData(values)
     } catch (err) {
       setIsLoading(false)
       setShowEndTrialModal(false)
