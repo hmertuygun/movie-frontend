@@ -9,7 +9,7 @@
 }
 .tab-bar {
   width: 100%;
-  height: 80px;
+  height: 60px;
   background-color: var(--tab-background);
   position: relative;
   display: flex;
@@ -21,14 +21,14 @@
   z-index: 2;
   position: absolute;
   bottom: 35px;
-  background-color: #008aff;
+  background-color: #1652f1;
   width: 70px;
   height: 70px;
   border-radius: 40px;
   border: 5px solid var(--border-color);
   transition: 0.5s;
 }
-.expandable svg {
+.expandable img {
   width: 90px;
 }
 .expandable.expanded {
@@ -42,29 +42,33 @@
   transform: rotate(90deg);
 }
 
+.nav-link {
+  padding: 10px;
+}
+
 .svg-icon {
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
 }
-.svg-icon.expandable svg {
+.svg-icon.expandable img {
   width: 50px;
   height: 50px;
 }
-.svg-icon.expandable svg path {
+.svg-icon.expandable img path {
   fill: white;
 }
-.svg-icon svg {
+.svg-icon img {
   width: 40px;
   height: 40px;
 }
 .nav-link.active .svg-icon path {
-  fill: #008aff;
+  fill: #1652f1;
 }
 
 .svg-icon path {
-  fill: #57acf7;
+  fill: #1652f1;
 }
 @keyframes expand-button {
   0% {

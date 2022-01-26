@@ -197,12 +197,11 @@ const TabNavigator = ({
                   setContentIndex(labelIndex)
                 }}
               >
-                {label}
                 {!state.has2FADetails && label === 'Security' ? (
-                  <span className="badge badge-danger badge-circle badge-floating border-white warning-badge">
-                    !
-                  </span>
-                ) : null}
+                  <span className="text-danger">{label}</span>
+                ) : (
+                  <span>{label}</span>
+                )}
               </div>
             ))}
           </nav>

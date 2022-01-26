@@ -333,7 +333,11 @@ const OnboardingModal = () => {
                   ? { width: 105 }
                   : props.data.value === 'bybit'
                   ? { width: 80 }
-                  : { width: 120 }
+                  : props.data.value === 'huobipro'
+                  ? { width: 80 }
+                  : props.data.value === 'okex'
+                  ? { width: 80, left: '-20px' }
+                  : { width: 80 }
               }
             />
             {!isPaidUser && props.data.value === 'bybit' && !isException && (

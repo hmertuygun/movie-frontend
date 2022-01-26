@@ -20,7 +20,7 @@ export const ONBOARDING_MODAL_TEXTS = {
     secBtn: 'Set up a new Binance account',
     title: 'Exchange Setup',
     heading: 'Welcome to CoinPanel!',
-    terBtn: 'Go to Chart Mirroring',
+    terBtn: 'Go to Market section',
     text1: 'You need an exchange account to use CoinPanel.',
     text2:
       'Do you have an existing account that you would like to connect, or would you like to create a new exchange account?',

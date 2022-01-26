@@ -70,7 +70,6 @@ function MarketContainer() {
       setActiveValue(e.target.value)
     } else {
       const trader = traders.find((el) => el.id === e.target.value)
-      console.log(trader, e.target.value)
       if (!trader) return
       await db.collection('chart_drawings').doc(userData.email).set(
         {
@@ -94,16 +93,16 @@ function MarketContainer() {
     <>
       <section className="m-1">
         <div className="row">
-          <div className="col-lg-3 col-md-4 pr-0">
-            <div className="card p-3 mb-2 pb-2 m-1">
-              <div class="form-group">
-                <label class="form-control-label">Trader</label>
+          <div className="col-lg-3">
+            <div className="card p-3 mb-1 pb-2">
+              <div className="form-group">
+                <label className="form-control-label">Trader</label>
                 <div>
                   <select
                     disabled={TEMPLATE_DRAWINGS_USERS.includes(userData.email)}
                     value={activeValue}
                     onChange={(e) => setActiveTraderList(e)}
-                    class="custom-select custom-select-sm"
+                    className="custom-select custom-select-sm"
                   >
                     <option value={userData.email}>Me</option>
                     {traders.map((element) => {

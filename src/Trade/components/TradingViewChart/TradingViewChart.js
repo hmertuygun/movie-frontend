@@ -156,13 +156,6 @@ export default class TradingViewChart extends Component {
             this.setState({ isSaved: false })
             this.saveChartDrawingToServer(event)
           }
-          console.log(
-            event,
-            this.props.templateDrawingsOpen,
-            this.state.templateDrawingsOpen,
-            this.props.activeTrader.drawings === this.state.templateDrawings,
-            !this.state.processingOrder
-          )
           if (
             event === 'drawing_event' &&
             this.props.templateDrawingsOpen &&
