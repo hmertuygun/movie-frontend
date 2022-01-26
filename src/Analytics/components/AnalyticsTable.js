@@ -13,6 +13,7 @@ import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
 import dayjs from 'dayjs'
+import { tableDataSorting } from '../../helpers/tableSorting'
 
 const AnalyticsTable = ({ startDate, endDate, search }) => {
   const { pairOperations, refreshData } = useContext(AnalyticsContext)
@@ -25,7 +26,7 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
   const [, updateState] = useState()
   const forceUpdate = useCallback(() => updateState({}), [])
   const [infoShow, setInfoShow] = useState(false)
-  const onSort = (event, sortKey) => {
+  const onSort = async (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
     let key =
       value === 'average'
@@ -37,32 +38,7 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
         : value === 'roe%'
         ? 'position'
         : value
-    let data = tableData.sort(function (a, b) {
-      if (typeof a[key] === 'string') {
-        if (sortAscending) {
-          if (a[key] > b[key]) {
-            return 1
-          }
-          if (a[key] < b[key]) {
-            return -1
-          }
-        } else {
-          if (a[key] > b[key]) {
-            return -1
-          }
-          if (a[key] < b[key]) {
-            return 1
-          }
-        }
-        return 0
-      } else {
-        if (sortAscending) {
-          return a[key] - b[key]
-        } else {
-          return b[key] - a[key]
-        }
-      }
-    })
+    let data = await tableDataSorting(tableData, key, sortAscending)
     setTableData(data)
     forceUpdate()
   }

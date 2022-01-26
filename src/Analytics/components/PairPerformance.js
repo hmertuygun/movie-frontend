@@ -12,6 +12,7 @@ import Pagination from '../../components/Table/Pagination/Pagination'
 import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
+import { tableDataSorting } from '../../helpers/tableSorting'
 
 const PairPerformance = ({ search }) => {
   const { pairPerformance } = useContext(AnalyticsContext)
@@ -26,7 +27,7 @@ const PairPerformance = ({ search }) => {
   const forceUpdate = useCallback(() => updateState({}), [])
   const [infoShow, setInfoShow] = useState(false)
 
-  const onSort = (event, sortKey) => {
+  const onSort = async (event, sortKey) => {
     let value = sortKey.split(' ')[0].toLowerCase()
     let key =
       value === 'pair'
@@ -36,32 +37,7 @@ const PairPerformance = ({ search }) => {
         : value === 'usd'
         ? 'USDT'
         : value
-    let data = tableData.sort(function (a, b) {
-      if (typeof a[key] === 'string') {
-        if (sortAscending) {
-          if (a[key] > b[key]) {
-            return 1
-          }
-          if (a[key] < b[key]) {
-            return -1
-          }
-        } else {
-          if (a[key] > b[key]) {
-            return -1
-          }
-          if (a[key] < b[key]) {
-            return 1
-          }
-        }
-        return 0
-      } else {
-        if (sortAscending) {
-          return a[key] - b[key]
-        } else {
-          return b[key] - a[key]
-        }
-      }
-    })
+    let data = await tableDataSorting(tableData, key, sortAscending)
     setTableData(data)
     forceUpdate()
   }

@@ -7,6 +7,7 @@ import Pagination from '../../components/Table/Pagination/Pagination'
 import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useCallback } from 'react'
 import { ITEMS_PER_PAGE } from '../../constants/balanceTable'
+import { tableDataSorting } from '../../helpers/tableSorting'
 
 const BalanceTable = () => {
   const { balance, lastMessage } = useContext(PortfolioContext)
@@ -18,35 +19,10 @@ const BalanceTable = () => {
   const [, updateState] = useState()
   const forceUpdate = useCallback(() => updateState({}), [])
 
-  const onSort = (event, sortKey) => {
+  const onSort = async (event, sortKey) => {
     let value = sortKey.split(' ')[0]
     let key = value === 'AVAILABLE' ? 'BALANCE' : value
-    let data = tableData.sort(function (a, b) {
-      if (typeof a[key] === 'string') {
-        if (sortAscending) {
-          if (a[key] > b[key]) {
-            return 1
-          }
-          if (a[key] < b[key]) {
-            return -1
-          }
-        } else {
-          if (a[key] > b[key]) {
-            return -1
-          }
-          if (a[key] < b[key]) {
-            return 1
-          }
-        }
-        return 0
-      } else {
-        if (sortAscending) {
-          return a[key] - b[key]
-        } else {
-          return b[key] - a[key]
-        }
-      }
-    })
+    let data = await tableDataSorting(tableData, key, sortAscending)
     setTableData(data)
     forceUpdate()
   }
