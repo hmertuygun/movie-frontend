@@ -165,12 +165,12 @@
 }
 
 .watchLists {
-  height: calc(100vh - 320px);
+  height: calc(100vh - 370px);
   overflow: auto;
 }
 
 .watchLists2 {
-  height: calc(100vh - 320px);
+  height: calc(100vh - 370px);
   overflow: auto;
 }
 

@@ -94,8 +94,8 @@ function MarketContainer() {
     <>
       <section className="m-1">
         <div className="row">
-          <div className="col-lg-3 col-md-4">
-            <div className="card p-3 mb-1 pb-2">
+          <div className="col-lg-3 col-md-4 pr-0">
+            <div className="card p-3 mb-2 pb-2 m-1">
               <div class="form-group">
                 <label class="form-control-label">Trader</label>
                 <div>
@@ -125,11 +125,11 @@ function MarketContainer() {
                 )}
               </div>
             </div>
-            <div className="card m-1">
+            <div className="card mb-0 mx-1">
               <WatchListPanel />
             </div>
           </div>
-          <div className="col-lg-9 col-md-8">
+          <div className="col-lg-9 col-md-8 pl-0">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card m-1">
@@ -138,7 +138,10 @@ function MarketContainer() {
                 </div>
               </div>
             </div>
-            <div style={{ height: 'calc(100vh - 146px)' }} className="row">
+            <div
+              style={{ height: 'calc(100vh - 146px)', marginRight: -7 }}
+              className="row"
+            >
               <div className="col-lg-12 m-1">
                 <div
                   className="card mb-0 p-2"
