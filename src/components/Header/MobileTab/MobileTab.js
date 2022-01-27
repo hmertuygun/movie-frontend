@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import {
   faPercentage,
@@ -28,7 +28,7 @@ const MobileTab = () => {
   const menuData = useMemo(() => {
     return [
       {
-        name: 'Trade',
+        name: 'TRADE',
         svg: {
           dark: 'img/svg/menu/trade_text_black_and_white.svg',
           light: 'img/svg/menu/trade_text_blue.svg',
@@ -52,67 +52,76 @@ const MobileTab = () => {
         },
       },
       {
-        name: 'Home',
+        name: 'HOME',
         svg: {
           dark: 'img/svg/menu/home_text_white.svg',
           light: 'img/svg/menu/home_text_black.svg',
           active: 'img/svg/menu/home_text_blue.svg',
         },
         function: () => {
-          setActivePage('Home')
+          setActivePage('HOME')
+          if (setIsTradePanelOpen) setIsTradePanelOpen(false)
           return history.push('/trade')
         },
       },
       {
-        name: 'Analytics',
+        name: 'ANALYTICS',
         svg: {
           dark: 'img/svg/menu/analytics_text_white.svg',
           light: 'img/svg/menu/analytics_text_black.svg',
           active: 'img/svg/menu/analytics_text_blue.svg',
         },
         function: () => {
-          setActivePage('Analytics')
+          setActivePage('ANALYTICS')
           return history.push('/analytics')
         },
       },
       {
-        name: 'Portfolio',
+        name: 'PORTFOLIO',
         svg: {
           dark: 'img/svg/menu/portfolio_text_white.svg',
           light: 'img/svg/menu/portfolio_text_black.svg',
           active: 'img/svg/menu/portfolio_text_blue.svg',
         },
         function: () => {
-          setActivePage('Portfolio')
+          setActivePage('PORTFOLIO')
           return history.push('/portfolio')
         },
       },
       {
-        name: 'Market',
+        name: 'MARKET',
         svg: {
           dark: 'img/svg/menu/market_text_white.svg',
           light: 'img/svg/menu/market_text_black.svg',
           active: 'img/svg/menu/market_text_blue.svg',
         },
         function: () => {
-          setActivePage('Market')
+          setActivePage('MARKET')
           return history.push('/market')
         },
       },
       {
-        name: 'Settings',
+        name: 'SETTINGS',
         svg: {
           dark: 'img/svg/menu/settings_text_white.svg',
           light: 'img/svg/menu/settings_text_black.svg',
           active: 'img/svg/menu/settings_text_blue.svg',
         },
         function: () => {
-          setActivePage('Settings')
+          setActivePage('SETTINGS')
           return history.push('/settings')
         },
       },
     ]
   })
+
+  useEffect(() => {
+    setActivePage(
+      history.location.pathname == '/trade'
+        ? 'Home'
+        : history.location.pathname.split('/')[1].toUpperCase()
+    )
+  }, [history])
 
   const handleClick = (object) => {
     object.function()
