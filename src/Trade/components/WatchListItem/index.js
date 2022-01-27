@@ -32,7 +32,15 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
   return (
     <div
       className={'watch-container'}
-      onClick={() => setSymbol(symbol)}
+      onClick={() => {
+        if (window.screen.width <= 1000) {
+          window.scroll({
+            top: 1000,
+            behavior: 'smooth',
+          })
+        }
+        setSymbol(symbol)
+      }}
       onMouseOver={() => setShowRemoveBtn(true)}
       onMouseLeave={() => setShowRemoveBtn(false)}
     >
