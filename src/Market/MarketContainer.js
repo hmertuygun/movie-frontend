@@ -128,7 +128,7 @@ function MarketContainer() {
               <WatchListPanel />
             </div>
           </div>
-          <div className="col-lg-9 col-md-8 pl-0">
+          <div className="col-lg-9 col-md-12 pl-0">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card m-1">
