@@ -258,7 +258,7 @@ const UserContextProvider = ({ children }) => {
     )
 
     if (window.screen.width <= 1000) {
-      window.postMessage({ email: currentUser.email, action: 'LOGIN' })
+      console.log({ email: currentUser.email, action: 'LOGIN' })
     }
 
     const subData = cryptoPayments.data()
@@ -611,7 +611,7 @@ const UserContextProvider = ({ children }) => {
         if (theme) localStorage.setItem('theme', theme)
         sessionStorage.clear()
         if (window.screen.width <= 1000) {
-          window.postMessage({ email: userData.email, action: 'LOGOUT' })
+          console.log({ email: userData.email, action: 'LOGOUT' })
         }
         window.location = window.origin + '/login'
       })
