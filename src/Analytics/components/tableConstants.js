@@ -44,6 +44,12 @@ export const tableConstants = (handleEdit) => {
       },
     },
     {
+      title: 'PNL',
+      render: (rowData) => {
+        return rowData.pnl
+      },
+    },
+    {
       title: 'AVERAGE PRICE',
       render: (rowData) => {
         return rowData['avg. price']
