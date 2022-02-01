@@ -190,3 +190,15 @@
   left: 232px;
   top: 130px;
 }
+
+@media (max-width: 767px) {
+  .watchLists {
+    height: 500px;
+    overflow: auto;
+  }
+
+  .watchLists2 {
+    height: 500px;
+    overflow: auto;
+  }
+}
