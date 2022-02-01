@@ -84,7 +84,7 @@ const BalanceTable = () => {
             />
           </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ overflowY: 'auto' }}>
           <Table
             cols={tableConstants()}
             data={getTableData}
