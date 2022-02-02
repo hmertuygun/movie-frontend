@@ -18,6 +18,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { initGA } from './Tracking'
 import WarningAlert from './components/WarningAlert'
+import TrialAlert from './components/TrialAlert'
 
 initGA(process.env.REACT_APP_TRACKING_ID)
 
@@ -53,6 +54,7 @@ export default function App() {
                             </Suspense>
                           </ErrorBoundary>
                           <WarningAlert />
+                          <TrialAlert />
                           <Routes />
                         </AnalyticsProvider>
                       </PortfolioCTXProvider>
