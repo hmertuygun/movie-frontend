@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react'
 import { useNotifications } from 'reapop'
 import { firebase, messaging } from '../firebase/firebase'
+import { useHistory } from 'react-router-dom'
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
@@ -39,6 +40,7 @@ const UserContextProvider = ({ children }) => {
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   localStorage.removeItem('tradingview.IntervalWidget.quicks')
+  const history = useHistory()
   const p = new Ping()
   let initialState = {}
   if (
@@ -258,7 +260,16 @@ const UserContextProvider = ({ children }) => {
     )
 
     if (window.screen.width <= 1000) {
-      console.log({ email: currentUser.email, action: 'LOGIN' })
+      window.postMessage({
+        email: currentUser.email,
+        action: 'LOGIN',
+      })
+      if (window.CHANNEL_NAME) {
+        window.CHANNEL_NAME.postMessage({
+          email: currentUser.email,
+          action: 'LOGIN',
+        })
+      }
     }
 
     const subData = cryptoPayments.data()
@@ -611,7 +622,12 @@ const UserContextProvider = ({ children }) => {
         if (theme) localStorage.setItem('theme', theme)
         sessionStorage.clear()
         if (window.screen.width <= 1000) {
-          console.log({ email: userData.email, action: 'LOGOUT' })
+          if (window?.CHANNEL_NAME) {
+            window.CHANNEL_NAME.postMessage({
+              email: userData.email,
+              action: 'LOGOUT',
+            })
+          }
         }
         window.location = window.origin + '/login'
       })
