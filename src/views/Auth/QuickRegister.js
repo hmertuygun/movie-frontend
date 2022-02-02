@@ -132,7 +132,7 @@ const QuickRegister = () => {
             <figure className="w-100">
               <img
                 alt="CoinPanel - Easy cryptocurrency trading bot"
-                src="https://coinpanel.com/assets/img/homepage/CoinPanel_trading.png"
+                src="https://coinpanel.com/images/CoinPanel_trading.png"
                 className="img-fluid mw-50"
               />
             </figure>
