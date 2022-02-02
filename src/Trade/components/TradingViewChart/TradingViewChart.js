@@ -31,13 +31,17 @@ export default class TradingViewChart extends Component {
     onError,
     drawingRendered,
     templateDrawings,
+    onMarketPage,
     templateDrawingsOpen,
+    tradersBtnClicked,
+    activeTrader,
     selectEmojiPopoverOpen,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
+    this.chartId = `chart_${Math.round(Math.random() * 1000)}`
     this.widgetOptions = {
-      container_id: 'chart_container',
+      container_id: this.chartId,
       datafeed: this.dF,
       library_path: '/scripts/charting/charting_library/',
       debug: false,
@@ -59,11 +63,11 @@ export default class TradingViewChart extends Component {
       symbol,
       theme,
     }
-    console.log(symbol)
     this.tradingViewWidget = null
     this.chartObject = null
     this.orderLinesDrawn = []
     this.orderLineCount = 0
+    this.onMarketPage = onMarketPage
     this.TEMPLATE_LOAD_INTERVAL = 60000
     this.state = {
       isChartReady: false,
@@ -71,6 +75,7 @@ export default class TradingViewChart extends Component {
       symbol,
       theme,
       email,
+      onMarketPage,
       openOrderLines: [],
       templateDrawings,
       templateDrawingsOpen,
@@ -80,6 +85,7 @@ export default class TradingViewChart extends Component {
       isSaved: true,
       setError: false,
       intervalId: '',
+      activeTrader,
       watchListOpen: false,
     }
   }
@@ -92,8 +98,8 @@ export default class TradingViewChart extends Component {
       this.tradingViewWidget.onChartReady(() => {
         this.chartObject = this.tradingViewWidget.activeChart()
         this.initChart()
-        this.addSniperModeButton()
         this.addLoadDrawingsButton()
+
         this.addHeaderButtons()
         const { setIsChartReady } = this.context
         setIsChartReady(true)
@@ -150,12 +156,10 @@ export default class TradingViewChart extends Component {
             this.setState({ isSaved: false })
             this.saveChartDrawingToServer(event)
           }
-
           if (
             event === 'drawing_event' &&
             this.props.templateDrawingsOpen &&
             this.state.templateDrawingsOpen &&
-            this.props.templateDrawings === this.state.templateDrawings &&
             !this.state.processingOrder
           ) {
             this.tradingViewWidget.showConfirmDialog({
@@ -193,20 +197,12 @@ export default class TradingViewChart extends Component {
           let value = {
             drawings: str,
             ...(this.props.templateDrawings &&
-              this.props.templateDrawings.email && {
-                name: this.props.templateDrawings.email,
-              }),
-            ...(this.props.templateDrawings &&
-              this.props.templateDrawings.email && {
-                nickname: this.props.templateDrawings.email,
-              }),
-            ...(this.props.templateDrawings &&
               this.props.templateDrawings.emojis && {
                 flags: this.props.templateDrawings.emojis,
               }),
             ...(this.props.templateDrawings &&
               this.props.templateDrawings.lastUpdate && {
-                lastUpdate: this.props.templateDrawings.lastUpdate,
+                lastUpdate: new Date().getTime(),
               }),
           }
 
@@ -447,6 +443,27 @@ export default class TradingViewChart extends Component {
     text.setAttribute('style', 'display:flex;align-items:center;')
     text.prepend(img)
     button.append(text)
+
+    if (!TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+      const traderValue = 'View Pro Traders Charts'
+      await this.tradingViewWidget.headerReady()
+      let traderButton = this.tradingViewWidget.createButton()
+      traderButton.setAttribute('title', traderValue)
+      traderButton.setAttribute('data-toggle', 'modal')
+      traderButton.setAttribute('data-target', '#exampleModal')
+      traderButton.addEventListener('click', this.props.tradersBtnClicked)
+      let traderImg = document.createElement('div')
+      img.setAttribute(
+        'style',
+        'background-color: currentColor;height: 20px;width: 20px;margin-right: 6px;-webkit-mask: url(/img/icons/sniper.svg) no-repeat center / contain;'
+      )
+      let traderText = document.createElement('div')
+      traderText.innerText = traderValue
+      traderText.setAttribute('class', 'button-2ioYhFEY')
+      traderText.setAttribute('style', 'display:flex;align-items:center;')
+      traderText.prepend(traderImg)
+      traderButton.append(traderText)
+    }
   }
 
   headerButtonOnClick = (event) => {
@@ -494,8 +511,18 @@ export default class TradingViewChart extends Component {
   addLoadDrawingsButton = async () => {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
-    if (!TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+    if (
+      !TEMPLATE_DRAWINGS_USERS.includes(this.state.email) &&
+      this.props.activeTrader
+    ) {
       let button = this.tradingViewWidget.createButton()
+      button.innerText = `View ${this.props.activeTrader?.name}'s Chart`
+      if (this.onMarketPage) {
+        button.setAttribute(
+          'style',
+          'display:flex;align-items:center;margin:10px;'
+        )
+      }
       this.state.templateButton = button
       button.setAttribute('title', `Click to toggle drawings`)
       button.addEventListener('click', () => {
@@ -504,10 +531,14 @@ export default class TradingViewChart extends Component {
       let text = document.createElement('div')
       text.innerText = ''
       button.setAttribute('class', 'button-2ioYhFEY')
-      button.setAttribute(
-        'style',
-        'display:flex;align-items:center;margin:10px;'
-      )
+      if (!this.onMarketPage) {
+        button.setAttribute(
+          'style',
+          'display:flex;align-items:center;margin:10px;'
+        )
+      } else {
+        button.parentNode.parentNode.setAttribute('style', 'display:none;')
+      }
       button.append(text)
     }
     let loadingButton = this.tradingViewWidget.createButton({ align: 'right' })
@@ -534,22 +565,13 @@ export default class TradingViewChart extends Component {
           console.log('Init Drawings')
         }
       } else if (this.props.templateDrawingsOpen) {
-        let pData = ''
-        if (this.props.exchange !== 'binance') {
-          pData = JSON.parse(
-            this.props.templateDrawings.drawings.replaceAll(
-              'BINANCE:',
-              `${this.props.exchange.toUpperCase()}:`
-            )
-          )
-        } else {
-          pData = JSON.parse(this.props.templateDrawings.drawings)
-        }
+        let pData = JSON.parse(this.props.activeTrader.drawings)
+
         this.tradingViewWidget.save((obj) => {
           const prep = { ...obj.charts[0], panes: pData }
           this.tradingViewWidget.load(prep)
           this.setState({
-            templateDrawings: this.props.templateDrawings,
+            templateDrawings: this.props.activeTrader,
             templateDrawingsOpen: true,
           })
         })
@@ -585,33 +607,23 @@ export default class TradingViewChart extends Component {
   setTemplateDrawings() {
     if (this.props.templateDrawingsOpen && this.state.isChartReady) {
       if (
-        this.props.templateDrawings !== this.state.templateDrawings ||
+        this.props.activeTrader.drawings !==
+          this.state.templateDrawings.drawings ||
         !this.state.templateDrawingsOpen
       ) {
         try {
           let pData = ''
-          if (this.props.templateDrawings) {
-            if (this.props.exchange !== 'binance') {
-              if (this.props.templateDrawings.drawings) {
-                pData = JSON.parse(
-                  this.props.templateDrawings.drawings.replaceAll(
-                    'BINANCE:',
-                    `${this.props.exchange.toUpperCase()}:`
-                  )
-                )
-              }
-            } else {
-              pData = JSON.parse(this.props.templateDrawings.drawings)
-            }
+          if (this.props.activeTrader) {
+            pData = JSON.parse(this.props.activeTrader.drawings)
           }
           this.tradingViewWidget.save((obj) => {
             const prep = { ...obj.charts[0], panes: pData }
             this.tradingViewWidget.load(prep)
             this.setState({
-              templateDrawings: this.props.templateDrawings,
+              templateDrawings: this.props.activeTrader,
               templateDrawingsOpen: true,
             })
-            this.state.templateButton.innerText = 'Show My Charts'
+            this.state.templateButton.innerText = 'View My Charts'
             this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
         } catch (e) {
@@ -735,12 +747,26 @@ export default class TradingViewChart extends Component {
     }
 
     if (
+      this.onMarketPage &&
       !this.props.templateDrawingsOpen &&
       this.state.loadingButton.style &&
-      this.state.loadingButton.parentNode.parentNode
+      this.state.loadingButton.parentNode.parentNode &&
+      this.state.templateButton &&
+      this.props.activeTrader?.name
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'block'
-      this.state.templateButton.innerText = 'Show Sniper’s Charts'
+      this.state.templateButton.innerText = `View ${this.props.activeTrader?.name}'s Chart`
+    }
+    if (
+      !this.props.activeTrader?.name &&
+      this.state.templateButton?.parentNode
+    ) {
+      this.state.templateButton.parentNode.parentNode.style.display = 'none'
+    } else if (
+      this.props.activeTrader?.name &&
+      this.state.templateButton?.parentNode
+    ) {
+      this.state.templateButton.parentNode.parentNode.style.display = 'flex'
     }
 
     if (
@@ -749,10 +775,11 @@ export default class TradingViewChart extends Component {
       this.state.loadingButton.parentNode.parentNode
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'none'
-      this.state.templateButton.innerText = 'Show My Charts'
+      this.state.templateButton.innerText = 'View My Charts'
     }
 
     if (
+      this.onMarketPage &&
       this.props.templateDrawingsOpen &&
       this.state.screenShotButton.style &&
       this.state.screenShotButton.parentNode.parentNode
@@ -761,6 +788,7 @@ export default class TradingViewChart extends Component {
     }
 
     if (
+      this.onMarketPage &&
       !this.props.templateDrawingsOpen &&
       this.state.screenShotButton.style &&
       this.state.screenShotButton.parentNode.parentNode
@@ -786,6 +814,11 @@ export default class TradingViewChart extends Component {
         })
       }, 2000)
     }
+
+    if (this.state.activeTrader?.id !== this.props.activeTrader?.id) {
+      this.setTemplateDrawings()
+      this.setState({ activeTrader: this.props.activeTrader })
+    }
   }
 
   componentWillUnmount() {
@@ -806,7 +839,7 @@ export default class TradingViewChart extends Component {
     return (
       <>
         <div
-          id="chart_container"
+          id={this.chartId}
           style={{
             height: '100%',
             width: this.state.isChartReady ? '100%' : '0',

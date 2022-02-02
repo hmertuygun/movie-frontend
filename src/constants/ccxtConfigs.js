@@ -20,6 +20,10 @@ export const ccxtConfigs = {
     proxy: localStorage.getItem('proxyServer'),
     rateLimit: true,
   },
+  okex: {
+    proxy: localStorage.getItem('proxyServer'),
+    rateLimit: true,
+  },
 }
 
 export const ccxtClass = {
@@ -38,6 +42,13 @@ export const ccxtClass = {
     rateLimit: true,
   }),
   bybit: new ccxtPro.bybit({
+    proxy: localStorage.getItem('proxyServer'),
+    rateLimit: true,
+  }),
+  huobipro: new ccxtPro.huobi({
+    rateLimit: true,
+  }),
+  okex: new ccxtPro.okex({
     proxy: localStorage.getItem('proxyServer'),
     rateLimit: true,
   }),

@@ -23,6 +23,7 @@ import {
 } from '../../api/firestoreCall'
 import { execExchangeFunc } from '../../helpers/getExchangeProp'
 import { sortExchangesData } from '../../helpers/apiKeys'
+import { TEMPLATE_DRAWINGS_USERS } from '../../constants/TemplateDrawingsList'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -75,10 +76,14 @@ const SymbolContextProvider = ({ children }) => {
   const [kucoinDD, setKucoinDD] = useState([])
   const [binanceUSDD, setBinanceUSDD] = useState([])
   const [bybitDD, setBybitDD] = useState([])
+  const [huobiDD, setHuobiDD] = useState([])
+  const [okexDD, setOkexDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
   const [templateDrawingsOpen, setTemplateDrawingsOpen] = useState(false)
+  const [isTradersModalOpen, setIsTradersModalOpen] = useState(false)
+  const [activeTrader, setActiveTrader] = useState({})
   const [chartData, setChartData] = useState(null)
   const [marketData, setMarketData] = useState({})
   const [exchangeUpdated, setExchangeUpdated] = useState(false)
@@ -207,8 +212,6 @@ const SymbolContextProvider = ({ children }) => {
     try {
       const value = {
         drawings: templateDrawings && templateDrawings.drawings,
-        name: userData.email,
-        nickname: userData.email,
         flags: emojis,
       }
       await updateTemplateDrawings(userData.email, value)
@@ -227,10 +230,11 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    getFirestoreDocumentData(
-      'template_drawings',
-      'sheldonthesniper01@gmail.com'
-    )
+    let userEmail = TEMPLATE_DRAWINGS_USERS.includes(userData.email)
+      ? userData.email
+      : activeTrader.id
+
+    getFirestoreDocumentData('template_drawings', userEmail)
       .then((emoji) => {
         if (emoji.data()) {
           if (emoji.data()?.flags) {
@@ -240,7 +244,7 @@ const SymbolContextProvider = ({ children }) => {
         }
       })
       .catch((err) => console.log(err))
-  }, [db, watchListOpen])
+  }, [db, watchListOpen, activeTrader, userData.email])
 
   const getChartDataOnInit = async () => {
     try {
@@ -250,7 +254,11 @@ const SymbolContextProvider = ({ children }) => {
           : activeExchange.exchange
       getFirestoreDocumentData('chart_drawings', userData.email).then(
         (userSnapShot) => {
-          let { intervals, lastSelectedSymbol, timeZone } = userSnapShot?.data()
+          let value = userSnapShot?.data()
+
+          let intervals = value && value.intervals
+          let lastSelectedSymbol = value && value.lastSelectedSymbol
+          let timeZone = value && value.timeZone
           let activeMarketData = {}
           const chartData = {
             intervals: intervals || [],
@@ -440,7 +448,9 @@ const SymbolContextProvider = ({ children }) => {
       binanceDD.length === 0 ||
       binanceUSDD.length === 0 ||
       kucoinDD.length === 0 ||
+      huobiDD.length === 0 ||
       bybitDD.length === 0 ||
+      okexDD.length === 0 ||
       !exchangeType ||
       !symbolType ||
       watchListOpen
@@ -462,6 +472,12 @@ const SymbolContextProvider = ({ children }) => {
       case 'bybit':
         selectedDD = [...bybitDD]
         break
+      case 'huobipro':
+        selectedDD = [...huobiDD]
+        break
+      case 'okex':
+        selectedDD = [...okexDD]
+        break
 
       default:
         break
@@ -481,6 +497,8 @@ const SymbolContextProvider = ({ children }) => {
     binanceDD,
     binanceUSDD,
     kucoinDD,
+    huobiDD,
+    okexDD,
     bybitDD,
     setSymbol,
     DEFAULT_SYMBOL_LOAD_SLASH,
@@ -497,12 +515,15 @@ const SymbolContextProvider = ({ children }) => {
         return
       }
 
-      const [binance, ftx, binanceus, kucoin, bybit] = data.exchanges
+      const [binance, ftx, binanceus, kucoin, bybit, huobipro, okex] =
+        data.exchanges
       setSymbols(() => [
         ...binance.symbols,
         ...binanceus.symbols,
         ...kucoin.symbols,
         ...bybit.symbols,
+        ...huobipro.symbols,
+        ...okex.symbols,
       ])
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
@@ -513,7 +534,9 @@ const SymbolContextProvider = ({ children }) => {
       setFtxDD(() => ftx.symbols)
       setBinanceUSDD(() => binanceus.symbols)
       setKucoinDD(() => kucoin.symbols)
+      setHuobiDD(() => huobipro.symbols)
       setBybitDD(() => bybit.symbols)
+      setOkexDD(() => okex.symbols)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
@@ -612,13 +635,19 @@ const SymbolContextProvider = ({ children }) => {
         binanceUSDD,
         ftxDD,
         kucoinDD,
+        huobiDD,
         bybitDD,
+        okexDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,
         setTemplateDrawings,
         templateDrawingsOpen,
         setTemplateDrawingsOpen,
+        isTradersModalOpen,
+        setIsTradersModalOpen,
+        activeTrader,
+        setActiveTrader,
         marketData,
         chartData,
         setEmojis,

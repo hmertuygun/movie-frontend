@@ -10,6 +10,7 @@ import { firebase } from '../../firebase/firebase'
 import { getSubscriptionDetails } from '../../api/api'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
+import { HelpCircle } from 'react-feather'
 import './index.css'
 
 const Subscription = () => {
@@ -36,6 +37,7 @@ const Subscription = () => {
   const options = useMemo(() => countryList().getData(), [])
   const [showCountryModal, setShowCountryModal] = useState(false)
   const [countrySelectionLoading, setCountrySelectionLoading] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
 
   const handleCountrySelection = async (value) => {
     setCountry(value)
@@ -75,11 +77,13 @@ const Subscription = () => {
       setIsLoading(false)
       setShowEndTrialModal(false)
       setIsPaidUser(true)
-      let values = {
-        ...subscriptionData,
-        subscription: { ...subscriptionData.subscription, status: 'active' },
+      if (subscriptionData) {
+        let values = {
+          ...subscriptionData,
+          subscription: { ...subscriptionData.subscription, status: 'active' },
+        }
+        setSubscriptionData(values)
       }
-      setSubscriptionData(values)
     } catch (err) {
       setIsLoading(false)
       setShowEndTrialModal(false)
@@ -96,8 +100,29 @@ const Subscription = () => {
   return (
     <div className="row pt-5">
       <div className="col-lg-6">
-        <div className="form-group">
-          <label className="form-control-label">Country of Residency</label>
+        <div className="form-group custom-label-container">
+          <label className="form-control-label">Country of Residency</label>{' '}
+          <HelpCircle
+            size={18}
+            onMouseEnter={() => setShowInfo(true)}
+            onMouseLeave={() => setShowInfo(false)}
+          />
+          {showInfo && (
+            <div className="tab-info">
+              <p className="mb-2">
+                CoinPanel only asks for country of residence for internal
+                accounting purposes and applies VAT rate applicable in
+                respective country.
+              </p>
+              <p className="mb-2">
+                We take all steps necessary to ensure that your personal data is
+                treated securely and will not be shared to any third parties.
+              </p>
+              <p className="mb-2">
+                This will not affect accessibility and trading functions.
+              </p>
+            </div>
+          )}
           <Select
             options={options}
             value={country}

@@ -2,9 +2,11 @@
   height: 56px;
   display: flex;
   align-items: center;
+  padding-left: 14px;
+}
+.marketBorder {
   border-top: 4px solid var(--trade-borders);
   border-bottom: 4px solid var(--trade-borders);
-  padding-left: 14px;
 }
 .marketData {
   display: flex;

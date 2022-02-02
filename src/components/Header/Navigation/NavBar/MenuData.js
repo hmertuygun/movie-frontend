@@ -18,6 +18,10 @@ export const MenuData = [
     title: 'Analytics',
     url: '/analytics',
   },
+  {
+    title: 'Market',
+    url: '/market',
+  },
   // {
   //   title: 'Price Alerts',
   //   url: '/alerts',

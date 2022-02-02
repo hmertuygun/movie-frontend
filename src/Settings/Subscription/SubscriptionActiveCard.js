@@ -9,7 +9,9 @@ import { subscriptionNames } from '../../constants/subscriptionNames'
 import './SubscriptionActiveCard.css'
 
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
-  const { subscription, priceData, due } = subscriptionData
+  let subscription = subscriptionData && subscriptionData.subscription
+  let priceData = subscriptionData && subscriptionData.priceData
+  let due = subscriptionData && subscriptionData.due
   const { notify } = useNotifications()
 
   const [portalLoading, setPortalLoading] = useState(false)

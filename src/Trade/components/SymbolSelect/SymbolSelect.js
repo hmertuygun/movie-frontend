@@ -18,6 +18,8 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     ftxDD,
     kucoinDD,
     bybitDD,
+    okexDD,
+    huobiDD,
   } = useSymbolContext()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -28,8 +30,10 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       ftx: ftxDD,
       kucoin: kucoinDD,
       bybit: bybitDD,
+      huobipro: huobiDD,
+      okex: okexDD,
     }
-  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD, bybitDD])
+  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD, bybitDD, huobiDD, okexDD])
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const isTablet = useMediaQuery({ query: `(max-width: 1230px)` })
 
@@ -53,6 +57,9 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     kucoinDD,
     activeExchange?.exchange,
     binanceUSDD,
+    bybitDD,
+    okexDD,
+    huobiDD,
     activeExchange,
     allExchanges,
   ])

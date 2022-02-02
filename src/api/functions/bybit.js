@@ -150,6 +150,37 @@ const fetchTicker = async ({ symbol }) => {
   }
 }
 
+const ticketSocketSubscribe = (symbol) => {
+  return JSON.stringify({
+    topic: 'realtimes',
+    event: 'sub',
+    symbol: symbol.replace('/', ''),
+    params: {
+      binary: false,
+    },
+  })
+}
+
+const getTickerData = (data) => {
+  return {
+    last: data.c,
+    change: null,
+    percentage: data.m,
+    high: data.h,
+    low: data.l,
+    baseVolume: data.v,
+    quoteVolume: data.qv,
+    symbol: data.s,
+  }
+}
+
+const getLastAndPercent = ({ data }) => {
+  return {
+    last: data.c,
+    percentage: data.m,
+  }
+}
+
 const ByBit = {
   editSymbol,
   editKline,
@@ -164,6 +195,9 @@ const ByBit = {
   preparePing,
   getIncomingSocket,
   getSocketEndpoint,
+  ticketSocketSubscribe,
+  getTickerData,
+  getLastAndPercent,
 }
 
 export default ByBit

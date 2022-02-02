@@ -31,13 +31,21 @@ import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from '../constants/Trade'
 import { ccxtClass } from '../constants/ccxtConfigs'
 import { setWatchlistData, getSnapShotDocument } from '../api/firestoreCall'
+import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
+import { execExchangeFunc, getExchangeProp } from '../helpers/getExchangeProp'
+import { exchangeSystems } from '../constants/ExchangeOptions'
 
 const WatchListPanel = () => {
   const {
     symbols,
+    isLoading,
+    isLoadingBalance,
+    pureData,
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
+    activeTrader,
+    watchlistOpen,
     emojis,
     handleSaveEmojis,
     selectEmojiPopoverOpen,
@@ -128,33 +136,32 @@ const WatchListPanel = () => {
     } else {
       try {
         setLoading(true)
-        getSnapShotDocument(
-          'watch_list',
-          'sheldonthesniper01@gmail.com'
-        ).onSnapshot((snapshot) => {
-          if (snapshot.data()) {
-            const lists = Object.keys(snapshot.data()?.lists)
-            setWatchLists(snapshot.data()?.lists)
-            const listsData = Object.values(snapshot.data()?.lists)
+        getSnapShotDocument('watch_list', activeTrader.id).onSnapshot(
+          (snapshot) => {
+            if (snapshot.data()) {
+              const lists = Object.keys(snapshot.data()?.lists)
+              setWatchLists(snapshot.data()?.lists)
+              const listsData = Object.values(snapshot.data()?.lists)
 
-            setTemplateWatchlist(listsData)
-            if (lists.length === 0) {
-              // TODO IF SHELDONS WATCH LIST IS EMPTY
-            } else {
-              const activeList = listsData.find(
-                (list) => list.watchListName === snapshot.data()?.activeList
-              )
+              setTemplateWatchlist(listsData)
+              if (lists.length === 0) {
+                // TODO IF SHELDONS WATCH LIST IS EMPTY
+              } else {
+                const activeList = listsData.find(
+                  (list) => list.watchListName === snapshot.data()?.activeList
+                )
 
-              if (activeList) {
-                setWatchSymbolsList(activeList?.['binance'] ?? [])
-                setActiveWatchList(activeList)
-                if (activeList?.['binance'] && activeList?.['binance'][0]) {
-                  setSymbol(activeList?.['binance'][0])
+                if (activeList) {
+                  setWatchSymbolsList(activeList?.['binance'] ?? [])
+                  setActiveWatchList(activeList)
+                  if (activeList?.['binance'] && activeList?.['binance'][0]) {
+                    setSymbol(activeList?.['binance'][0])
+                  }
                 }
               }
             }
           }
-        })
+        )
       } catch (error) {
         console.log(`Cannot fetch Sniper's watch lists`)
       } finally {
@@ -166,6 +173,7 @@ const WatchListPanel = () => {
     initWatchList,
     userData.email,
     templateDrawingsOpen,
+    activeTrader.id,
     db,
   ])
 
@@ -221,10 +229,17 @@ const WatchListPanel = () => {
     while (true) {
       try {
         const ticker = await exchange.watchTicker(symbol)
+
+        let lastData = !ticker?.percentage
+          ? execExchangeFunc(exchange.id, 'getLastAndPercent', {
+              data: ticker,
+            })
+          : ticker
         setMarketData((prevState) => {
           return {
             ...prevState,
-            [`${exchange.id.toUpperCase()}:${symbol.replace('/', '')}`]: ticker,
+            [`${exchange.id.toUpperCase()}:${symbol.replace('/', '')}`]:
+              lastData,
           }
         })
       } catch (e) {
@@ -237,6 +252,8 @@ const WatchListPanel = () => {
   useEffect(() => {
     let obj = {}
     let id = null
+    let sockets = []
+
     watchSymbolsList.forEach((sy) => {
       let exc = sy.value.split(':')[0].toLowerCase()
       if (obj[exc]) {
@@ -245,45 +262,80 @@ const WatchListPanel = () => {
         obj[exc] = [sy.label.replace('-', '/')]
       }
     })
-    if (obj?.bybit?.length) {
-      var socket = new WebSocket('wss://stream.bybit.com/spot/quote/ws/v2')
+
+    let exchanges = [...new Set(Object.keys(obj))]
+
+    exchanges.forEach((exchangeValue) => {
+      if (!exchangeSystems.own.includes(exchangeValue)) return
+      var socket = new WebSocket(
+        getExchangeProp(exchangeValue, 'socketEndpoint')
+      )
+
       socket.onopen = function (event) {
-        obj['bybit'].forEach((element) => {
-          socket.send(
-            JSON.stringify({
-              topic: 'realtimes',
-              event: 'sub',
-              params: {
-                symbol: element.replace('/', ''),
-                binary: false,
-              },
-            })
+        obj[exchangeValue].forEach((element) => {
+          let subData = execExchangeFunc(
+            exchangeValue,
+            'ticketSocketSubscribe',
+            element
           )
+          socket.send(subData)
         })
       }
-      socket.onmessage = function (event) {
-        const { data } = JSON.parse(event.data)
-        if (data) {
+      socket.onmessage = async function (event) {
+        let data = {}
+        let symbol = ''
+        if (event.data instanceof Blob) {
+          data = await execExchangeFunc(
+            exchangeValue,
+            'resolveGzip',
+            event.data
+          )
+          data = execExchangeFunc(exchangeValue, 'getIncomingSocket', {
+            sData: data,
+          })
+          if (data?.topic) symbol = data.topic.split('.')[1].toUpperCase()
+        } else {
+          data = execExchangeFunc(exchangeValue, 'getIncomingSocket', {
+            sData: JSON.parse(event.data),
+          })
+          if (data?.s) symbol = data.s
+        }
+        if (data && symbol) {
           setMarketData((prevState) => {
+            let evaluatedData = execExchangeFunc(
+              exchangeValue,
+              'getLastAndPercent',
+              {
+                data,
+              }
+            )
             return {
               ...prevState,
-              [`BYBIT:${data.s}`]: { last: data.c, percentage: data.m },
+              [`${exchangeValue.toUpperCase()}:${symbol}`]: evaluatedData,
             }
           })
         }
       }
+
       socket.onerror = (err) => {
         console.log(err)
       }
 
       id = setInterval(() => {
         socket.send(JSON.stringify({ ping: 1535975085052 }))
-      }, 25000)
-    }
+      }, 10000)
+
+      sockets.push({ socket, id })
+    })
+
     return () => {
-      if (socket && id) {
-        socket.close()
-        clearInterval(id)
+      if (sockets.length) {
+        sockets.forEach((element) => {
+          if (element.socket && element.id) {
+            element.socket.close()
+            clearInterval(element.id)
+          }
+        })
       }
     }
   }, [watchSymbolsList])
@@ -301,7 +353,10 @@ const WatchListPanel = () => {
 
     for (const [key, value] of Object.entries(obj)) {
       const ccxtExchange = ccxtClass[key]
-      if (ccxtExchange.has['watchTicker'] && key !== 'bybit') {
+      if (
+        ccxtExchange.has['watchTicker'] &&
+        exchangeSystems.ccxt.includes(key)
+      ) {
         Promise.all(value.map((symbol) => loop(ccxtExchange, symbol)))
       }
     }
@@ -629,11 +684,6 @@ const WatchListPanel = () => {
           templateDrawingsOpen ? styles.headerFlex : ''
         }`}
       >
-        {templateDrawingsOpen && (
-          <span className={styles.headerTemplate}>
-            You are viewing Sniper's watchlist.
-          </span>
-        )}
         <Popover
           key="watchlist-select-popover"
           isOpen={watchListPopoverOpen}
@@ -681,7 +731,7 @@ const WatchListPanel = () => {
             <ChevronDown size={15} style={{ marginLeft: '5px' }} />
           </div>
         </Popover>
-        {userData.email === 'sheldonthesniper01@gmail.com' &&
+        {TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
           !templateDrawingsOpen && (
             <Popover
               key="watchlist-emoji-popover"
@@ -794,7 +844,7 @@ const WatchListPanel = () => {
             onClickOutside={() => setWatchListOptionPopoverOpen(false)}
             content={({ position, nudgedLeft, nudgedTop }) => (
               <div className={styles.watchListModal}>
-                {userData.email === 'sheldonthesniper01@gmail.com' && (
+                {TEMPLATE_DRAWINGS_USERS.includes(userData.email) && (
                   <div
                     className={styles.watchListRow}
                     onClick={() => {
@@ -907,7 +957,7 @@ const WatchListPanel = () => {
         ) : (
           <>
             {(templateDrawingsOpen && isGroupByFlag) ||
-            (userData.email === 'sheldonthesniper01@gmail.com' &&
+            (TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
               isGroupByFlag) ? (
               <>
                 {emojis &&
