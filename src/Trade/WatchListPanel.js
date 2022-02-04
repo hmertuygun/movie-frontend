@@ -972,24 +972,29 @@ const WatchListPanel = () => {
                             <span className={styles.groupEmoji}>
                               {emoji.emoji}
                             </span>
-                            {list.map((symbol) => (
-                              <WatchListItem
-                                key={symbol.value}
-                                symbol={symbol}
-                                group={true}
-                                removeWatchList={removeWatchList}
-                              />
-                            ))}
+                            {list.length ? (
+                              list.map((symbol) => (
+                                <WatchListItem
+                                  key={symbol.value}
+                                  symbol={symbol}
+                                  group={true}
+                                  removeWatchList={removeWatchList}
+                                />
+                              ))
+                            ) : (
+                              <p className="text-center">
+                                No market assigned to this flag
+                              </p>
+                            )}
                           </div>
                         </>
                       )
                     }
                   })}
-                <div className={styles.groupEmojiWrapper}>
-                  <span className={styles.groupEmoji}>Unassigned</span>
-                  {unassignedList &&
-                    unassignedList.length > 0 &&
-                    unassignedList.map((symbol) => (
+                {unassignedList && unassignedList.length > 0 && (
+                  <div className={styles.groupEmojiWrapper}>
+                    <span className={styles.groupEmoji}>Unassigned</span>
+                    {unassignedList.map((symbol) => (
                       <WatchListItem
                         key={symbol.value}
                         symbol={symbol}
@@ -997,7 +1002,8 @@ const WatchListPanel = () => {
                         removeWatchList={removeWatchList}
                       />
                     ))}
-                </div>
+                  </div>
+                )}
               </>
             ) : (
               orderedSymbolsList.map((symbol) => (
