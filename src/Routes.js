@@ -45,7 +45,6 @@ const HandleEmailActions = lazy(() => import('./views/Auth/HandleEmailActions'))
 
 const TradeView = lazy(() => import('./views/TradeView'))
 const Settings = lazy(() => import('./views/Settings'))
-const Positions = lazy(() => import('./views/PositionView'))
 const Portfolio = lazy(() => import('./views/PortfolioView'))
 const Analytics = lazy(() => import('./views/Analytics'))
 const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
@@ -179,9 +178,6 @@ const Routes = () => {
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/alerts" component={PriceAlerts} />
-              )}
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/positions" component={Positions} />
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/analytics" component={Analytics} />

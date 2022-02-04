@@ -9,7 +9,6 @@ import ThemeContextProvider from './contexts/ThemeContext'
 import UserContextProvider from './contexts/UserContext'
 import TabContextProvider from './contexts/TabContext'
 import SymbolContextProvider from './Trade/context/SymbolContext'
-import PositionCTXProvider from './Position/context/PositionContext'
 import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
 import AnalyticsProvider from './Analytics/context/AnalyticsContext'
 import { NotificationsProvider, setUpNotifications } from 'reapop'
@@ -45,20 +44,18 @@ export default function App() {
               <UserContextProvider>
                 <SymbolContextProvider>
                   <TabContextProvider>
-                    <PositionCTXProvider>
-                      <PortfolioCTXProvider>
-                        <AnalyticsProvider>
-                          <ErrorBoundary componentName="Header">
-                            <Suspense fallback={<div></div>}>
-                              <Header />
-                            </Suspense>
-                          </ErrorBoundary>
-                          <WarningAlert />
-                          <TrialAlert />
-                          <Routes />
-                        </AnalyticsProvider>
-                      </PortfolioCTXProvider>
-                    </PositionCTXProvider>
+                    <PortfolioCTXProvider>
+                      <AnalyticsProvider>
+                        <ErrorBoundary componentName="Header">
+                          <Suspense fallback={<div></div>}>
+                            <Header />
+                          </Suspense>
+                        </ErrorBoundary>
+                        <WarningAlert />
+                        <TrialAlert />
+                        <Routes />
+                      </AnalyticsProvider>
+                    </PortfolioCTXProvider>
                   </TabContextProvider>
                 </SymbolContextProvider>
               </UserContextProvider>

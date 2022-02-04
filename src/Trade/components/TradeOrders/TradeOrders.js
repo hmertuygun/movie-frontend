@@ -4,7 +4,6 @@ import { useNotifications } from 'reapop'
 
 import { getOpenOrders, getOrdersHistory } from '../../../api/api'
 import { UserContext } from '../../../contexts/UserContext'
-import { PositionContext } from '../../../Position/context/PositionContext'
 import { PortfolioContext } from '../../../Portfolio/context/PortfolioContext'
 import { firebase } from '../../../firebase/firebase'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
@@ -43,7 +42,6 @@ const TradeOrders = () => {
     setOrderEdited,
     isOnboardingSkipped,
   } = useContext(UserContext)
-  const { isLoading: isPositionLoading } = useContext(PositionContext)
   const { loading: isPortfolioLoading } = useContext(PortfolioContext)
   const { notify } = useNotifications()
 
@@ -215,7 +213,6 @@ const TradeOrders = () => {
       setShowProgressBar(progress !== '100.00')
       if (progress !== '100') {
         onRefreshBtnClicked('order-history')
-        onRefreshBtnClicked('position')
         onRefreshBtnClicked('portfolio')
       }
       sessionStorage.setItem('showProgressBar', progress !== '100.00')
@@ -317,7 +314,6 @@ const TradeOrders = () => {
       !isLoadingBalance &&
       !isOpenOrderFetching &&
       !isOrderHistoryFetching &&
-      !isPositionLoading &&
       !isPortfolioLoading
     ) {
       setLoaderVisibility(false)
@@ -326,7 +322,6 @@ const TradeOrders = () => {
     isLoadingBalance,
     isOpenOrderFetching,
     isOrderHistoryFetching,
-    isPositionLoading,
     isPortfolioLoading,
   ])
 
