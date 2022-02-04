@@ -655,6 +655,7 @@ const SymbolContextProvider = ({ children }) => {
         handleSaveEmojis,
         selectEmojiPopoverOpen,
         setSelectEmojiPopoverOpen,
+        setExchanges,
       }}
     >
       {children}

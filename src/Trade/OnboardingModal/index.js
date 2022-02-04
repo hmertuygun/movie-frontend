@@ -183,6 +183,7 @@ const OnboardingModal = () => {
       } else {
         let value = `${apiName}-${exchange.value}`
         await updateLastSelectedValue(userData.email, value)
+        refreshExchanges()
         setStepNo(step + 1)
         notify({
           status: 'success',

@@ -25,7 +25,7 @@ import {
 import Tooltip from '../../components/Tooltip'
 
 const Exchanges = () => {
-  const { refreshExchanges, exchanges } = useSymbolContext()
+  const { refreshExchanges, exchanges, setExchanges } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const { notify } = useNotifications()
@@ -119,6 +119,7 @@ const Exchanges = () => {
         if (exchanges.length - 1 === 0) {
           setLoadApiKeys(false)
           sessionStorage.clear()
+          setExchanges([])
         } else {
           // What if we just deleted an active exchange key, set first one as active by default
           if (
