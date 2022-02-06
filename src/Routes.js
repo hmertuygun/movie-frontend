@@ -171,10 +171,12 @@ const Routes = () => {
             (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
-              <CacheRoute exact path="/trade" component={TradeView} />
               <Route path="/settings" component={Settings} />
               {!isOnboardingSkipped && (
                 <CacheRoute path="/portfolio" component={Portfolio} />
+              )}
+              {!isOnboardingSkipped && (
+                <CacheRoute exact path="/trade" component={TradeView} />
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/alerts" component={PriceAlerts} />
