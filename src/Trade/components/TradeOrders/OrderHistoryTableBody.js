@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './TradeOrders.module.css'
+import { handleChangeTickSize } from '../../../helpers/useTickSize'
+
 const OrderHistoryTableBody = ({
   data,
   isFetching,
@@ -175,11 +177,23 @@ const OrderHistoryTableBody = ({
                   >
                     {order?.side}
                   </td>
-                  <td>{order?.average}</td>
-                  <td>{order?.price}</td>
-                  <td>{order?.amount}</td>
-                  <td>{order?.filled}</td>
-                  <td>{order?.total}</td>
+                  <td>
+                    {order.average === 'Market'
+                      ? order.average
+                      : handleChangeTickSize(order.average, order.symbol)}
+                  </td>
+                  <td>
+                    {order.price === 'Market'
+                      ? order.price
+                      : handleChangeTickSize(order.price, order.symbol)}
+                  </td>
+                  <td>
+                    {handleChangeTickSize(order.amount, order.symbol, true)}
+                  </td>
+                  <td>
+                    {handleChangeTickSize(order.filled, order.symbol, true)}
+                  </td>
+                  <td>{handleChangeTickSize(order.total, order.symbol)}</td>
                   <td>{order?.trigger}</td>
                   <td
                     style={{

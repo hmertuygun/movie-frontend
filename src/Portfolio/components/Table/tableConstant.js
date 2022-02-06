@@ -1,3 +1,5 @@
+import { handleChangeTickSize } from '../../../helpers/useTickSize'
+
 export const tableConstants = (handleEdit) => {
   return [
     {
@@ -9,25 +11,25 @@ export const tableConstants = (handleEdit) => {
     {
       title: 'AVAILABLE BALANCE',
       render: (rowData) => {
-        return rowData.BALANCE
+        return handleChangeTickSize(rowData.BALANCE, rowData.SYMBOL)
       },
     },
     {
       title: 'RESERVED',
       render: (rowData) => {
-        return rowData.RESERVED
+        return handleChangeTickSize(rowData.RESERVED, rowData.SYMBOL)
       },
     },
     {
       title: 'TOTAL',
       render: (rowData) => {
-        return rowData.TOTAL
+        return handleChangeTickSize(rowData.TOTAL, rowData.SYMBOL)
       },
     },
     {
       title: 'BTC VALUE',
       render: (rowData) => {
-        return rowData.BTC
+        return handleChangeTickSize(rowData.BALANCE, 'BTC-USDT')
       },
     },
     {

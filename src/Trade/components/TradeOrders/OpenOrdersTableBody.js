@@ -10,6 +10,7 @@ import { ThemeContext } from '../../../contexts/ThemeContext'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './TradeOrders.module.css'
 import OrderEditModal from './OrderEditModal'
+import { handleChangeTickSize } from '../../../helpers/useTickSize'
 
 const openOrdersColumns = [
   {
@@ -258,7 +259,6 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
               ) : null}
             </td>
           ) : null
-
         const PlacedOrderTooltip = 'Order is on the exchange order book.'
         const PendingOrderTooltip =
           'Order is waiting to be placed in the order book.'
@@ -279,13 +279,24 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
             </td>
             <td style={tdStyle}>{order.type}</td>
             <td style={sideColumnStyle}>{order.side}</td>
-            <td style={hideFirst}>{order.price}</td>
-            <td style={hideFirst}>{order.amount}</td>
-            <td style={hideFirst}>{order.filled}</td>
             <td style={hideFirst}>
-              {order.total} {order.quote_asset}
+              {order.price === 'Market'
+                ? order.price
+                : handleChangeTickSize(order.price, order.orderSymbol)}
             </td>
-            <td style={hideFirst}>{order.trigger}</td>
+            <td style={hideFirst}>
+              {handleChangeTickSize(order.amount, order.orderSymbol)}
+            </td>
+            <td style={hideFirst}>
+              {handleChangeTickSize(order.filled, order.orderSymbol)}
+            </td>
+            <td style={hideFirst}>
+              {handleChangeTickSize(order.total, order.orderSymbol)}{' '}
+              {order.quote_asset}
+            </td>
+            <td style={hideFirst}>
+              {handleChangeTickSize(order.trigger, order.orderSymbol)}
+            </td>
             <td style={hideFirst}>
               <div
                 data-for={`open-orders-${order.trade_id}`}
