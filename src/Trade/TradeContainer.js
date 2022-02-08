@@ -23,11 +23,7 @@ const TradeContainer = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 
   const totalHeight = window.innerHeight // - 40 - 75
-  let chartHeight = watchListOpen
-    ? window.innerHeight + 'px'
-    : isOnboardingSkipped
-    ? 'calc(100vh - 134px)'
-    : window.innerHeight * 0.6 + 'px'
+  let chartHeight = window.innerHeight * 0.6 + 'px'
   const orderHeight = (totalHeight * 0.4).toFixed(0) + 'px'
 
   useEffect(() => {
@@ -40,17 +36,16 @@ const TradeContainer = () => {
     <>
       {!isMobile ? (
         <>
-          {!isOnboardingSkipped && (
-            <section className={`TradeView-Panel`}>
-              <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
-                <ErrorBoundary componentName="TradePanel">
-                  <Suspense fallback={<div></div>}>
-                    <Route path="/trade/" component={TradePanel} />
-                  </Suspense>
-                </ErrorBoundary>
-              </div>
-            </section>
-          )}
+          <section className={`TradeView-Panel`}>
+            <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+              <ErrorBoundary componentName="TradePanel">
+                <Suspense fallback={<div></div>}>
+                  <Route path="/trade/" component={TradePanel} />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+          </section>
+
           <section
             className="TradeChart-Container"
             style={{ display: 'unset' }}
@@ -117,32 +112,29 @@ const TradeContainer = () => {
                 </Suspense>
               </ErrorBoundary>
             </section>
-            {!isOnboardingSkipped && (
-              <section
-                className={`TradeOrders ${
-                  isOnboardingSkipped ? 'chart-order-view-position' : ''
-                }`}
-                style={{
-                  minHeight: orderHeight,
-                  display: watchListOpen ? 'none' : '',
-                }}
+            <section
+              className={`TradeOrders ${
+                isOnboardingSkipped ? 'chart-order-view-position' : ''
+              }`}
+              style={{
+                minHeight: orderHeight,
+              }}
+            >
+              <div
+                className={`${isOnboardingSkipped ? 'chart-order-view' : ''}`}
               >
-                <div
-                  className={`${isOnboardingSkipped ? 'chart-order-view' : ''}`}
-                >
-                  <ErrorBoundary componentName="TradeOrders">
-                    <Suspense fallback={<div></div>}>
-                      <TradeOrders />
-                    </Suspense>
-                  </ErrorBoundary>
-                </div>
-                {/* {isOnboardingSkipped && (
+                <ErrorBoundary componentName="TradeOrders">
+                  <Suspense fallback={<div></div>}>
+                    <TradeOrders />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+              {/* {isOnboardingSkipped && (
                 <div className="chart-view-order-content">
                   <p>Add exchange to start trading</p>
                 </div>
               )} */}
-              </section>
-            )}
+            </section>
           </section>
         </>
       ) : isTradePanelOpen ? (
@@ -175,21 +167,19 @@ const TradeContainer = () => {
               </Suspense>
             </ErrorBoundary>
           </section>
-          {!isOnboardingSkipped && (
-            <section
-              className={`TradeOrders ${
-                isOnboardingSkipped ? 'chart-order-view-position' : ''
-              }`}
-            >
-              <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
-                <ErrorBoundary componentName="TradeOrders">
-                  <Suspense fallback={<div></div>}>
-                    <TradeOrders />
-                  </Suspense>
-                </ErrorBoundary>
-              </div>
-            </section>
-          )}
+          <section
+            className={`TradeOrders ${
+              isOnboardingSkipped ? 'chart-order-view-position' : ''
+            }`}
+          >
+            <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
+              <ErrorBoundary componentName="TradeOrders">
+                <Suspense fallback={<div></div>}>
+                  <TradeOrders />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+          </section>
         </div>
       )}
     </>
