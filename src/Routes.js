@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, Suspense, lazy } from 'react'
+import React, { useContext, useEffect, Suspense, lazy, Fragment } from 'react'
 import {
   Switch,
   Route,
@@ -134,82 +134,84 @@ const Routes = () => {
       />
       <Suspense fallback={<div></div>}>
         <Switch>
-          {isLoggedIn && userContextLoaded && (
-            <Route
-              path="/logout"
-              render={() => {
-                logout()
-                return (
-                  <div className="d-flex justify-content-center">
-                    <h3 className="mt-5">Logging you out..</h3>
-                  </div>
-                )
-              }}
-            />
-          )}
+          <Fragment>
+            {isLoggedIn && userContextLoaded && (
+              <Route
+                path="/logout"
+                render={() => {
+                  logout()
+                  return (
+                    <div className="d-flex justify-content-center">
+                      <h3 className="mt-5">Logging you out..</h3>
+                    </div>
+                  )
+                }}
+              />
+            )}
 
-          {isLoggedIn &&
-            userContextLoaded &&
-            !loadApiKeys &&
-            !isSettingsPage &&
-            !isOnboardingSkipped &&
-            !isApiKeysLoading && <OnboardingModal />}
-          {isTradePage && isLoggedIn && isApiKeysLoading && (
-            <p
-              className="d-flex justify-content-center align-items-center"
-              style={{ height: 'calc(100vh - 150px)' }}
-            >
-              Loading your chart...
-            </p>
-          )}
-          {/* {isLoggedIn && !state.has2FADetails && (
+            {isLoggedIn &&
+              userContextLoaded &&
+              !loadApiKeys &&
+              !isSettingsPage &&
+              !isOnboardingSkipped &&
+              !isApiKeysLoading && <OnboardingModal />}
+            {isTradePage && isLoggedIn && isApiKeysLoading && (
+              <p
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: 'calc(100vh - 150px)' }}
+              >
+                Loading your chart...
+              </p>
+            )}
+            {/* {isLoggedIn && !state.has2FADetails && (
             <Route path="/settings#security" component={Settings} />
           )} */}
-          {isLoggedIn &&
-            userContextLoaded &&
-            !isSettingsPage &&
-            (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
-          {isLoggedIn && userContextLoaded && (
-            <CacheSwitch>
-              <Route path="/settings" component={Settings} />
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/portfolio" component={Portfolio} />
-              )}
-              {!isOnboardingSkipped && (
-                <CacheRoute exact path="/trade" component={TradeView} />
-              )}
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/alerts" component={PriceAlerts} />
-              )}
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/analytics" component={Analytics} />
-              )}
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/academy" component={Academy} />
-              )}
-              <CacheRoute path="/market" component={Market} />
+            {isLoggedIn &&
+              userContextLoaded &&
+              !isSettingsPage &&
+              (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
+            {isLoggedIn && userContextLoaded && (
+              <CacheSwitch>
+                <Route path="/settings" component={Settings} />
+                {!isOnboardingSkipped && (
+                  <CacheRoute path="/portfolio" component={Portfolio} />
+                )}
+                {!isOnboardingSkipped && (
+                  <CacheRoute exact path="/trade" component={TradeView} />
+                )}
+                {!isOnboardingSkipped && (
+                  <CacheRoute path="/alerts" component={PriceAlerts} />
+                )}
+                {!isOnboardingSkipped && (
+                  <CacheRoute path="/analytics" component={Analytics} />
+                )}
+                {!isOnboardingSkipped && (
+                  <CacheRoute path="/academy" component={Academy} />
+                )}
+                <CacheRoute path="/market" component={Market} />
 
-              <Redirect to="/market" />
-            </CacheSwitch>
-          )}
-          {userContextLoaded && (
-            <Route path="/login/verify2fa" component={LoginVerify2FA} />
-          )}
-          <Route path="/login" component={Login} />
-          <Route path="/recover-password" component={RecoverPassword} />
-          <Route path="/new-password" component={NewPassword} />
-          <Route path="/action" component={HandleEmailActions} />
-          <Route exact path="/register" component={Register} />
-          <Route exact path="/chartmirroring" component={RegisterTwo} />
-          <Route exact path="/bybit" component={RegisterThree} />
-          <Route exact path="/register/confirm" component={RegisterConfirm} />
-          <Route exact path="/academy" component={Academy} />
-          <Route
-            exact
-            path="/register/confirm/recieved"
-            component={RegisterFinal}
-          />
-          {!isLoggedIn && <Redirect to="/login" />}
+                <Redirect to="/market" />
+              </CacheSwitch>
+            )}
+            {userContextLoaded && (
+              <Route path="/login/verify2fa" component={LoginVerify2FA} />
+            )}
+            <Route path="/login" component={Login} />
+            <Route path="/recover-password" component={RecoverPassword} />
+            <Route path="/new-password" component={NewPassword} />
+            <Route path="/action" component={HandleEmailActions} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/chartmirroring" component={RegisterTwo} />
+            <Route exact path="/bybit" component={RegisterThree} />
+            <Route exact path="/register/confirm" component={RegisterConfirm} />
+            <Route exact path="/academy" component={Academy} />
+            <Route
+              exact
+              path="/register/confirm/recieved"
+              component={RegisterFinal}
+            />
+            {!isLoggedIn && <Redirect to="/login" />}
+          </Fragment>
         </Switch>
       </Suspense>
     </div>

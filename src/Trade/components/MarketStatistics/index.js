@@ -429,9 +429,9 @@ function MarketStatistics({ market }) {
         <button
           onClick={() => setShowDrawingsModal(true)}
           type="button"
-          class="btn btn-outline-primary btn-icon-label ml-auto btn-sm mr-4"
+          className="btn btn-outline-primary btn-icon-label ml-auto btn-sm mr-4"
         >
-          <span class="btn-inner--text">Import / Export Drawings</span>
+          <span className="btn-inner--text">Import / Export Drawings</span>
         </button>
       )}
       {showDrawingsModal && (

@@ -27,7 +27,7 @@ const DrawingsMigrationModal = ({
           </div>
           <div className="modal-body">
             <div className="pt-2 text-center">
-              <p class="pb-2 text-left">
+              <p className="pb-2 text-left">
                 Export your Chart Drawings, by clicking the below button
               </p>
               <a
@@ -40,7 +40,7 @@ const DrawingsMigrationModal = ({
                 disabled={!chartDrawings}
               >
                 <Button
-                  class="btn btn-primary btn-icon rounded-pill"
+                  className="btn btn-primary btn-icon rounded-pill"
                   disabled={!chartDrawings}
                 >
                   Export Drawings{' '}
@@ -54,7 +54,7 @@ const DrawingsMigrationModal = ({
                 id="json-file-upload"
                 style={{ display: 'none' }}
               />
-              <p class="text-left">
+              <p className="text-left">
                 Import your Chart Drawings by upload the file below
               </p>
               <div
