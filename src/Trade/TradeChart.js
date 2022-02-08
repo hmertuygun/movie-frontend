@@ -4,12 +4,10 @@ import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
-import TraderModal from './components/TradersModal/TradersModal'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
-import { exception } from 'react-ga'
 import {
   getSnapShotCollection,
   getSnapShotDocument,

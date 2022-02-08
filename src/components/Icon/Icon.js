@@ -24,7 +24,7 @@ const Icon = ({
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
     >
-      <use href={`/assets/feather-sprite.svg#${icon}`} />
+      <use href={`/img/svg/misc/feather-sprite.svg#${icon}`} />
     </svg>
   )
 }

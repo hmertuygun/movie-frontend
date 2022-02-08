@@ -41,7 +41,7 @@ const UserContextProvider = ({ children }) => {
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   localStorage.removeItem('tradingview.IntervalWidget.quicks')
   const history = useHistory()
-  const p = new Ping()
+  const p = new Ping({ favicon: '/' })
   let initialState = {}
   if (
     localStorageUser !== 'undefined' &&
@@ -258,19 +258,6 @@ const UserContextProvider = ({ children }) => {
       'subscriptions',
       currentUser.email
     )
-
-    if (window.screen.width <= 1000) {
-      window.postMessage({
-        email: currentUser.email,
-        action: 'LOGIN',
-      })
-      if (window.CHANNEL_NAME) {
-        window.CHANNEL_NAME.postMessage({
-          email: currentUser.email,
-          action: 'LOGIN',
-        })
-      }
-    }
 
     const subData = cryptoPayments.data()
 
@@ -621,14 +608,6 @@ const UserContextProvider = ({ children }) => {
         localStorage.clear()
         if (theme) localStorage.setItem('theme', theme)
         sessionStorage.clear()
-        if (window.screen.width <= 1000) {
-          if (window?.CHANNEL_NAME) {
-            window.CHANNEL_NAME.postMessage({
-              email: userData.email,
-              action: 'LOGOUT',
-            })
-          }
-        }
         window.location = window.origin + '/login'
       })
       .catch((e) => {

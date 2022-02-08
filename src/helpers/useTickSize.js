@@ -1,5 +1,7 @@
 import { addPrecisionToNumber } from './tradeForm'
 
+const symbolObj = JSON.parse(localStorage.getItem('symbolsKeyValue'))
+
 const unknownPairs = [
   'USDT',
   'BUSD',
@@ -15,7 +17,6 @@ const unknownPairs = [
 ]
 
 export const handleChangeTickSize = (value, symbol, useQuote = false) => {
-  const symbolObj = JSON.parse(localStorage.getItem('symbolsKeyValue'))
   const exchange = localStorage.getItem('selectedExchange')
   const valueGot = useQuote ? 'quote_asset_precision' : 'base_asset_precision'
   if (symbol.includes('-') || symbol.includes('/')) {
