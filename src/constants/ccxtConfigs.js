@@ -1,30 +1,9 @@
 import ccxt from 'ccxt'
 import ccxtPro from 'ccxt.pro'
 
-export const ccxtConfigs = {
-  binance: {
-    ratelimit: true,
-  },
-  binanceus: {
-    ratelimit: true,
-  },
-  kucoin: {
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
-  ftx: {
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
-  bybit: {
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
-  okex: {
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  },
-}
+const proxyServer = localStorage.getItem('proxyServer')
+  ? localStorage.getItem('proxyServer')
+  : 'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/'
 
 export const ccxtClass = {
   binance: new ccxtPro.binance({
@@ -34,22 +13,18 @@ export const ccxtClass = {
     ratelimit: true,
   }),
   kucoin: new ccxtPro.kucoin({
-    proxy: localStorage.getItem('proxyServer'),
-    rateLimit: true,
-  }),
-  ftx: new ccxtPro.ftx({
-    proxy: localStorage.getItem('proxyServer'),
+    proxy: proxyServer,
     rateLimit: true,
   }),
   bybit: new ccxtPro.bybit({
-    proxy: localStorage.getItem('proxyServer'),
+    proxy: proxyServer,
     rateLimit: true,
   }),
   huobipro: new ccxtPro.huobi({
     rateLimit: true,
   }),
   okex: new ccxtPro.okex({
-    proxy: localStorage.getItem('proxyServer'),
+    proxy: proxyServer,
     rateLimit: true,
   }),
 }
