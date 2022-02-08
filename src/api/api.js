@@ -595,3 +595,16 @@ export async function getSubscriptionDetails() {
   })
   return response
 }
+
+export async function updateUserExchange(data) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}updateApiKey`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const updated = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data,
+  }).catch((error) => {
+    return error?.response
+  })
+  return updated
+}

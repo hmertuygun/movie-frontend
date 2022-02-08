@@ -2,7 +2,7 @@ import React, { Fragment, useContext } from 'react'
 import { ThemeContext } from '../../contexts/ThemeContext'
 import './ExchangeRow.css'
 
-const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
+const ExchangeRow = ({ row, onDeleteClick, isLast, onUpdateClick }) => {
   const { theme } = useContext(ThemeContext)
 
   return (
@@ -33,6 +33,13 @@ const ExchangeRow = ({ row, onDeleteClick, isLast }) => {
         </div>
 
         <div className="col-md-4 text-right">
+          <span
+            className={`text-sm text-primary mr-4`}
+            style={{ cursor: 'pointer' }}
+            onClick={onUpdateClick}
+          >
+            Update
+          </span>
           <span
             className={`text-sm text-danger`}
             style={{ cursor: 'pointer' }}
