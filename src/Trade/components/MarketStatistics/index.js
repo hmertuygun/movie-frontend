@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useContext,
+} from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { TWO_DECIMAL_ARRAY } from '../../../constants/Trade'
 import { ccxtClass } from '../../../constants/ccxtConfigs'
@@ -7,12 +13,29 @@ import {
   execExchangeFunc,
   getExchangeProp,
 } from '../../../helpers/getExchangeProp'
+import { UserContext } from '../../../contexts/UserContext'
+import { decryptData } from '../../../helpers/secureData'
+import { useNotifications } from 'reapop'
+import { setChartDrawings as setDrawings } from '../../../api/firestoreCall'
+import { useMediaQuery } from 'react-responsive'
+import DrawingsMigrationModal from '../DrawingsMigrationModal'
 
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
   const { selectedSymbolDetail, marketData } = useSymbolContext()
-
+  const {
+    chartDrawings,
+    setChartDrawings,
+    userData,
+    isSettingChartDrawings,
+    settingChartDrawings,
+  } = useContext(UserContext)
+  const [showDrawingsModal, setShowDrawingsModal] = useState(false)
+  const [fileName, setFileName] = useState('')
+  const [uploadedDrawings, setUploadedDrawings] = useState()
+  const { notify } = useNotifications()
+  const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const { baseAsset, quoteAsset, symbolPair } = useMemo(() => {
     if (!selectedSymbolDetail) return {}
     return {
@@ -179,6 +202,123 @@ function MarketStatistics({ market }) {
     if (!isNaN(message && message.lastPrice)) setFinalData(message)
   }, 2000)
 
+  const handleFileUpload = (e) => {
+    const fileReader = new FileReader()
+    let file = e.target.files[0]
+    if (file.type === 'application/json') {
+      fileReader.readAsText(file, 'UTF-8')
+      fileReader.onload = (e) => {
+        if (e.target.result) {
+          let value = JSON.parse(e.target.result)
+          let dataLength = Object.keys(value).length
+          if (dataLength === 1 && value.data) {
+            decryptData(value.data, 'key').then((data) => {
+              setFileName(file.name)
+              setUploadedDrawings(data)
+              isSettingChartDrawings(true)
+            })
+          } else {
+            notify({
+              status: 'error',
+              title: 'Error',
+              message: 'Please upload a valid drawings file',
+            })
+            setFileName('')
+            setUploadedDrawings()
+            isSettingChartDrawings(false)
+          }
+        }
+      }
+    } else {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Please upload a valid drawings file with .json format',
+      })
+      setFileName('')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    }
+  }
+
+  const dragOver = (e) => {
+    e.preventDefault()
+  }
+
+  const dragEnter = (e) => {
+    e.preventDefault()
+  }
+
+  const dragLeave = (e) => {
+    e.preventDefault()
+  }
+
+  const fileDrop = (e) => {
+    e.preventDefault()
+    const fileReader = new FileReader()
+    let file = e.dataTransfer.files[0]
+    if (file.type === 'application/json') {
+      fileReader.readAsText(e.dataTransfer.files[0], 'UTF-8')
+      fileReader.onload = (e) => {
+        if (e.target.result) {
+          let value = JSON.parse(e.target.result)
+          let dataLength = Object.keys(value).length
+          if (dataLength === 1 && value.data) {
+            decryptData(value.data, 'key').then((data) => {
+              setFileName(file.name)
+              setUploadedDrawings(data)
+              isSettingChartDrawings(true)
+            })
+          } else {
+            notify({
+              status: 'error',
+              title: 'Error',
+              message: 'Please drag and drop a valid drawings file',
+            })
+            setFileName('')
+            setUploadedDrawings()
+            isSettingChartDrawings(false)
+          }
+        }
+      }
+    } else {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Please drag and drop a valid drawings file with .json format',
+      })
+      setFileName('Failed to upload chart drawings. Please try again.')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    }
+  }
+
+  const handleProceedDrawings = async () => {
+    try {
+      setChartDrawings(uploadedDrawings)
+      const drawings = {
+        [userData.email]: uploadedDrawings,
+      }
+      setShowDrawingsModal(false)
+      await setDrawings(userData.email, drawings)
+      setFileName('')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    } catch (err) {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: '',
+      })
+    }
+  }
+
+  const handleModalClose = () => {
+    setShowDrawingsModal(false)
+    setFileName('')
+    setUploadedDrawings()
+  }
+
   return (
     <div className={`marketDataContainer ${!market ? 'marketBorder' : ''}`}>
       {finalData && (
@@ -246,6 +386,29 @@ function MarketStatistics({ market }) {
             )}
           </div>
         </div>
+      )}
+      {!isMobile && (
+        <button
+          onClick={() => setShowDrawingsModal(true)}
+          type="button"
+          class="btn btn-outline-primary btn-icon-label ml-auto btn-sm mr-4"
+        >
+          <span class="btn-inner--text">Import / Export Drawings</span>
+        </button>
+      )}
+      {showDrawingsModal && (
+        <DrawingsMigrationModal
+          chartDrawings={chartDrawings}
+          handleFileUpload={handleFileUpload}
+          fileDrop={fileDrop}
+          fileName={fileName}
+          handleModalClose={handleModalClose}
+          uploadedDrawings={uploadedDrawings}
+          handleProceedDrawings={handleProceedDrawings}
+          dragOver={dragOver}
+          dragEnter={dragEnter}
+          dragLeave={dragLeave}
+        />
       )}
     </div>
   )

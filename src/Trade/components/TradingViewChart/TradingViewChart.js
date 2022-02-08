@@ -679,6 +679,20 @@ export default class TradingViewChart extends Component {
 
   componentDidUpdate(prevProps, props) {
     if (!this.tradingViewWidget) return
+
+    try {
+      if (this.props.settingChartDrawings) {
+        if (prevProps.drawings !== this.props.drawings) {
+          if (this.props.drawings && !this.props.templateDrawingsOpen) {
+            const pData = JSON.parse(this.props.drawings)
+            this.tradingViewWidget.save((obj) => {
+              const prep = { ...obj.charts[0], panes: pData }
+              this.tradingViewWidget.load(prep)
+            })
+          }
+        }
+      }
+    } catch (err) {}
     if (props.theme !== this.state.theme)
       this.tradingViewWidget.changeTheme(this.state.theme)
     this.changeSymbol(this.state.symbol)

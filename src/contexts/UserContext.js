@@ -98,6 +98,8 @@ const UserContextProvider = ({ children }) => {
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
   const [country, setCountry] = useState('')
   const [isCountryAvailable, setIsCountryAvailable] = useState(true)
+  const [chartDrawings, setChartDrawings] = useState()
+  const [settingChartDrawings, isSettingChartDrawings] = useState(false)
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -753,6 +755,10 @@ const UserContextProvider = ({ children }) => {
         isCountryAvailable,
         setIsCountryAvailable,
         setCountry,
+        setChartDrawings,
+        chartDrawings,
+        settingChartDrawings,
+        isSettingChartDrawings,
       }}
     >
       {children}

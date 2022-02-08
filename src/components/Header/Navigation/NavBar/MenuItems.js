@@ -54,12 +54,12 @@ const MenuItems = () => {
                   activeClassName={`nav-link ${
                     !isOnboardingSkipped ? 'active' : ''
                   } ${
-                    isOnboardingSkipped && item.title === 'Chart Mirroring'
+                    isOnboardingSkipped && item.title === 'Market'
                       ? 'active'
                       : ''
                   }`}
                   className={`nav-link btn ${
-                    isOnboardingSkipped && item.title !== 'Chart Mirroring'
+                    isOnboardingSkipped && item.title !== 'Market'
                       ? 'disabled'
                       : ''
                   }`}

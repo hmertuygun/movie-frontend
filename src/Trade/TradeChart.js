@@ -39,8 +39,15 @@ const TradeChart = () => {
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
   const history = useHistory()
-  const { userData, openOrdersUC, isOnboardingSkipped, activeExchange } =
-    useContext(UserContext)
+  const {
+    userData,
+    openOrdersUC,
+    isOnboardingSkipped,
+    activeExchange,
+    setChartDrawings,
+    chartDrawings,
+    settingChartDrawings,
+  } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
@@ -129,6 +136,7 @@ const TradeChart = () => {
       (snapshot) => {
         if (snapshot.data()?.drawings?.[userData.email]) {
           setDrawings(snapshot.data().drawings[userData.email])
+          setChartDrawings(snapshot.data().drawings[userData.email])
         } else if (
           !snapshot.data()?.drawings &&
           snapshot.data()?.lastSelectedSymbol
@@ -237,7 +245,8 @@ const TradeChart = () => {
             email={userData?.email}
             theme={theme}
             intervals={intervals}
-            drawings={drawings}
+            drawings={chartDrawings}
+            settingChartDrawings={settingChartDrawings}
             onMarketPage={onMarket}
             watchListOpen={watchListOpen}
             templateDrawings={templateDrawings}
