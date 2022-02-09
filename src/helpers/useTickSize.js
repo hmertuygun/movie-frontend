@@ -17,21 +17,25 @@ const unknownPairs = [
 ]
 
 export const handleChangeTickSize = (value, symbol, useQuote = false) => {
-  if (!symbol || !value) return addPrecisionToNumber(value, 8)
-  const exchange = localStorage.getItem('selectedExchange')
-  const valueGot = useQuote ? 'quote_asset_precision' : 'base_asset_precision'
-  if (symbol.includes('-') || symbol.includes('/')) {
-    const tickSize =
-      symbolObj[`${exchange.toUpperCase()}:${symbol.replace('-', '/')}`][
-        valueGot
-      ]
-    return addPrecisionToNumber(value, tickSize)
-  } else {
-    if (!unknownPairs.includes(symbol)) {
+  try {
+    if (!symbol || !value) return addPrecisionToNumber(value, 8)
+    const exchange = localStorage.getItem('selectedExchange')
+    const valueGot = useQuote ? 'quote_asset_precision' : 'base_asset_precision'
+    if (symbol.includes('-') || symbol.includes('/')) {
       const tickSize =
-        symbolObj[`${exchange.toUpperCase()}:${symbol}/USDT`][valueGot]
+        symbolObj[`${exchange.toUpperCase()}:${symbol.replace('-', '/')}`][
+          valueGot
+        ]
       return addPrecisionToNumber(value, tickSize)
+    } else {
+      if (!unknownPairs.includes(symbol)) {
+        const tickSize =
+          symbolObj[`${exchange.toUpperCase()}:${symbol}/USDT`][valueGot]
+        return addPrecisionToNumber(value, tickSize)
+      }
+      return value
     }
-    return value
+  } catch (error) {
+    return addPrecisionToNumber(value, 8)
   }
 }
