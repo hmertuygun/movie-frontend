@@ -60,6 +60,8 @@ const WarningAlert = () => {
   const getAction = (param) => {
     if (param === 'payment') {
       history.push('/settings#subscription')
+    } else if (param === 'huobi') {
+      window.open('https://bit.ly/3GGX17Y')
     }
   }
 
