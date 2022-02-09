@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import MarketStatistics from '../Trade/components/MarketStatistics'
 import TradeChart from '../Trade/TradeChart'
-import WatchListPanel from '../Trade/WatchListPanel'
+import WatchListPanel from './components/Watchlist/WatchListPanel'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { firebase } from '../firebase/firebase'

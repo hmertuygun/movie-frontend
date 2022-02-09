@@ -41,7 +41,7 @@ const UserContextProvider = ({ children }) => {
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   localStorage.removeItem('tradingview.IntervalWidget.quicks')
   const history = useHistory()
-  const p = new Ping()
+  const p = new Ping({ favicon: '/' })
   let initialState = {}
   if (
     localStorageUser !== 'undefined' &&
@@ -98,6 +98,8 @@ const UserContextProvider = ({ children }) => {
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
   const [country, setCountry] = useState('')
   const [isCountryAvailable, setIsCountryAvailable] = useState(true)
+  const [chartDrawings, setChartDrawings] = useState()
+  const [settingChartDrawings, isSettingChartDrawings] = useState(false)
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -258,19 +260,6 @@ const UserContextProvider = ({ children }) => {
       'subscriptions',
       currentUser.email
     )
-
-    if (window.screen.width <= 1000) {
-      window.postMessage({
-        email: currentUser.email,
-        action: 'LOGIN',
-      })
-      if (window.CHANNEL_NAME) {
-        window.CHANNEL_NAME.postMessage({
-          email: currentUser.email,
-          action: 'LOGIN',
-        })
-      }
-    }
 
     const subData = cryptoPayments.data()
 
@@ -621,14 +610,6 @@ const UserContextProvider = ({ children }) => {
         localStorage.clear()
         if (theme) localStorage.setItem('theme', theme)
         sessionStorage.clear()
-        if (window.screen.width <= 1000) {
-          if (window?.CHANNEL_NAME) {
-            window.CHANNEL_NAME.postMessage({
-              email: userData.email,
-              action: 'LOGOUT',
-            })
-          }
-        }
         window.location = window.origin + '/login'
       })
       .catch((e) => {
@@ -774,6 +755,10 @@ const UserContextProvider = ({ children }) => {
         isCountryAvailable,
         setIsCountryAvailable,
         setCountry,
+        setChartDrawings,
+        chartDrawings,
+        settingChartDrawings,
+        isSettingChartDrawings,
       }}
     >
       {children}

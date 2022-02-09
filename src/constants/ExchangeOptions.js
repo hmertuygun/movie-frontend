@@ -100,7 +100,7 @@ export const exchangeCreationOptions = [
   },
   {
     value: 'okex',
-    url: ' https://www.huobi.com/en-us/register/?inviter_id=11339800',
+    url: 'https://www.okx.com/join/11966961',
     image: 'img/svg/exchange/okex.svg',
     logo: 'img/icons/brands/okex.png',
     label: 'OKEx',

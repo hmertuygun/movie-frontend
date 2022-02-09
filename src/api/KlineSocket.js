@@ -86,7 +86,7 @@ export default class socketClient {
           const pingPayload = execExchangeFunc(this.exchange, 'preparePing')
           setInterval(() => {
             this._ws.send(JSON.stringify(pingPayload))
-          }, 10000)
+          }, 5000)
         }
       })
     } catch (e) {

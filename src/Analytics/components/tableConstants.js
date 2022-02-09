@@ -1,3 +1,5 @@
+import { handleChangeTickSize } from '../../helpers/useTickSize'
+
 export const tableConstants = (handleEdit) => {
   return [
     {
@@ -52,26 +54,26 @@ export const tableConstants = (handleEdit) => {
     {
       title: 'AVERAGE PRICE',
       render: (rowData) => {
-        return rowData['avg. price']
+        return handleChangeTickSize(rowData['avg. price'], rowData.symbol)
       },
     },
     {
       title: 'CURRENT PRICE',
       render: (rowData) => {
         if (rowData.current_price === null) return '-'
-        return rowData.current_price
+        return handleChangeTickSize(rowData.current_price, rowData.symbol)
       },
     },
     {
       title: 'QUANTITY',
       render: (rowData) => {
-        return rowData.quantity
+        return handleChangeTickSize(rowData.quantity, rowData.symbol)
       },
     },
     {
       title: 'SUM',
       render: (rowData) => {
-        return rowData.sum
+        return handleChangeTickSize(rowData.sum, rowData.symbol)
       },
     },
     {
@@ -103,19 +105,19 @@ export const assetPerformanceTable = (handleEdit) => {
         if (rowData.value > 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              {rowData.value}
+              {handleChangeTickSize(rowData.value, rowData.asset)}
             </span>
           )
         } else if (rowData.value === 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-soft">
-              {rowData.value}
+              {handleChangeTickSize(rowData.value, rowData.asset)}
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.value}
+              {handleChangeTickSize(rowData.value, rowData.asset)}
             </span>
           )
         }
@@ -127,19 +129,19 @@ export const assetPerformanceTable = (handleEdit) => {
         if (rowData.BTC > 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         } else if (rowData.BTC === 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-soft">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         }
@@ -186,19 +188,19 @@ export const pairPerformanceTable = (handleEdit) => {
         if (rowData.base > 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              {rowData.base}
+              {handleChangeTickSize(rowData.base, rowData.symbol)}
             </span>
           )
         } else if (rowData.base === 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-soft">
-              {rowData.base}
+              {handleChangeTickSize(rowData.base, rowData.symbol)}
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.base}
+              {handleChangeTickSize(rowData.base, rowData.symbol)}
             </span>
           )
         }
@@ -210,19 +212,19 @@ export const pairPerformanceTable = (handleEdit) => {
         if (rowData.quote > 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              {rowData.quote}
+              {handleChangeTickSize(rowData.quote, rowData.symbol)}
             </span>
           )
         } else if (rowData.quote === 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-soft">
-              {rowData.quote}
+              {handleChangeTickSize(rowData.quote, rowData.symbol)}
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.quote}
+              {handleChangeTickSize(rowData.quote, rowData.symbol)}
             </span>
           )
         }
@@ -234,19 +236,19 @@ export const pairPerformanceTable = (handleEdit) => {
         if (rowData.BTC > 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-success">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         } else if (rowData.BTC === 0) {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-soft">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         } else {
           return (
             <span style={{ fontSize: '0.8rem' }} className="text-danger">
-              {rowData.BTC}
+              {handleChangeTickSize(rowData.BTC, 'BTC-USDT')}
             </span>
           )
         }

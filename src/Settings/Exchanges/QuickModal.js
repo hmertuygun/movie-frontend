@@ -11,7 +11,14 @@ import {
   defaultExchange,
 } from '../../constants/QuickModal'
 
-const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
+const QuickModal = ({
+  onClose,
+  onSave,
+  isLoading,
+  isVisible,
+  isUpdate,
+  selectedExchange,
+}) => {
   const { isPaidUser, isException } = useContext(UserContext)
   const [exchange, setExchange] = useState(defaultExchange)
   const [apiName, setApiName] = useState('')
@@ -39,6 +46,13 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
       return element
     })
   }, [isPaidUser, isException])
+
+  useEffect(() => {
+    if (isUpdate) {
+      let apiKeyName = selectedExchange && selectedExchange.apiKeyName
+      setApiName(apiKeyName)
+    }
+  }, [])
 
   const setExchangeFormFields = () => {
     let exchangeFields = {}
@@ -129,6 +143,14 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
     </>
   )
 
+  useEffect(() => {
+    if (isUpdate) {
+      let currentExchange = exchangeOptions.find(
+        (option) => option.value === selectedExchange.exchange
+      )
+      setExchange(currentExchange)
+    }
+  }, [])
   return (
     <div className="modal-open">
       <div
@@ -147,7 +169,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
                 <Key className="mr-3" size="20" strokeWidth="3" />
-                Connect new exchange
+                {isUpdate ? 'Update Exchange' : 'Connect new exchange'}
               </h5>
               <button
                 onClick={onClose}
@@ -181,6 +203,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                     components={{
                       IndicatorSeparator: () => null,
                     }}
+                    isDisabled={isUpdate}
                     onChange={(exchange) => {
                       setExchange(exchange)
                       validateInput({ name: 'exchange', value: exchange.value })
@@ -224,7 +247,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                   </div>
                   <input
                     type="text"
-                    disabled={isLoading}
+                    disabled={isLoading || isUpdate}
                     className="form-control"
                     name="apiName"
                     value={apiName}
@@ -235,7 +258,7 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
                       })
                       setApiName(event.target.value)
                     }}
-                    placeholder={`${exchange.placeholder}1`}
+                    placeholder={`${exchange?.placeholder}1`}
                   />
                 </div>
                 {renderInputValidationError('apiName')}
@@ -283,22 +306,39 @@ const QuickModal = ({ onClose, onSave, isLoading, isVisible }) => {
               >
                 Cancel
               </button>
-
-              <button
-                disabled={isLoading}
-                type="submit"
-                className="btn btn-primary"
-              >
-                {!isLoading ? (
-                  'Save'
-                ) : (
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
+              {!isUpdate ? (
+                <button
+                  disabled={isLoading}
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  {!isLoading ? (
+                    'Save'
+                  ) : (
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              ) : (
+                <button
+                  disabled={isLoading}
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  {!isLoading ? (
+                    'Update'
+                  ) : (
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </form>

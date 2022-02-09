@@ -16,7 +16,7 @@ export const TRADE_TABLE_LABELS = [
 
 export const ONBOARDING_MODAL_TEXTS = {
   1: {
-    primaryBtn: 'Continue with existing exchange account',
+    primaryBtn: 'Continue with an existing exchange account',
     secBtn: 'Set up a new Binance account',
     title: 'Exchange Setup',
     heading: 'Welcome to CoinPanel!',

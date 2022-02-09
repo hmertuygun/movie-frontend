@@ -4,12 +4,10 @@ import { useSymbolContext } from './context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { ThemeContext } from '../contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
-import TraderModal from './components/TradersModal/TradersModal'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
-import { exception } from 'react-ga'
 import {
   getSnapShotCollection,
   getSnapShotDocument,
@@ -41,8 +39,15 @@ const TradeChart = () => {
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
   const history = useHistory()
-  const { userData, openOrdersUC, isOnboardingSkipped, activeExchange } =
-    useContext(UserContext)
+  const {
+    userData,
+    openOrdersUC,
+    isOnboardingSkipped,
+    activeExchange,
+    setChartDrawings,
+    chartDrawings,
+    settingChartDrawings,
+  } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
@@ -131,6 +136,7 @@ const TradeChart = () => {
       (snapshot) => {
         if (snapshot.data()?.drawings?.[userData.email]) {
           setDrawings(snapshot.data().drawings[userData.email])
+          setChartDrawings(snapshot.data().drawings[userData.email])
         } else if (
           !snapshot.data()?.drawings &&
           snapshot.data()?.lastSelectedSymbol
@@ -239,7 +245,8 @@ const TradeChart = () => {
             email={userData?.email}
             theme={theme}
             intervals={intervals}
-            drawings={drawings}
+            drawings={chartDrawings}
+            settingChartDrawings={settingChartDrawings}
             onMarketPage={onMarket}
             watchListOpen={watchListOpen}
             templateDrawings={templateDrawings}

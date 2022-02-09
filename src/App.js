@@ -9,7 +9,6 @@ import ThemeContextProvider from './contexts/ThemeContext'
 import UserContextProvider from './contexts/UserContext'
 import TabContextProvider from './contexts/TabContext'
 import SymbolContextProvider from './Trade/context/SymbolContext'
-import PositionCTXProvider from './Position/context/PositionContext'
 import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
 import AnalyticsProvider from './Analytics/context/AnalyticsContext'
 import { NotificationsProvider, setUpNotifications } from 'reapop'
@@ -18,6 +17,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { initGA } from './Tracking'
 import WarningAlert from './components/WarningAlert'
+import Notification from './components/Notification'
 
 initGA(process.env.REACT_APP_TRACKING_ID)
 
@@ -44,19 +44,18 @@ export default function App() {
               <UserContextProvider>
                 <SymbolContextProvider>
                   <TabContextProvider>
-                    <PositionCTXProvider>
-                      <PortfolioCTXProvider>
-                        <AnalyticsProvider>
-                          <ErrorBoundary componentName="Header">
-                            <Suspense fallback={<div></div>}>
-                              <Header />
-                            </Suspense>
-                          </ErrorBoundary>
-                          <WarningAlert />
-                          <Routes />
-                        </AnalyticsProvider>
-                      </PortfolioCTXProvider>
-                    </PositionCTXProvider>
+                    <PortfolioCTXProvider>
+                      <AnalyticsProvider>
+                        <ErrorBoundary componentName="Header">
+                          <Suspense fallback={<div></div>}>
+                            <Header />
+                          </Suspense>
+                        </ErrorBoundary>
+                        <WarningAlert />
+                        <Notification />
+                        <Routes />
+                      </AnalyticsProvider>
+                    </PortfolioCTXProvider>
                   </TabContextProvider>
                 </SymbolContextProvider>
               </UserContextProvider>

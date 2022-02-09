@@ -12,13 +12,13 @@ const Logo = () => {
   return (
     <Link to="/" className="logo" style={style}>
       <img
-        alt="Part one logo"
-        src="/img/svg/icons/Coinpanel_Color.svg"
+        alt="CoinPanel"
+        src="/img/icons/Coinpanel_Color.svg"
         className="colorlogo"
       />
       <img
-        alt="Part one logo"
-        src="/img/svg/icons/Coinpanel_White.svg"
+        alt="CoinPanel"
+        src="/img/icons/Coinpanel_White.svg"
         className="whitelogo"
       />
       CoinPanel

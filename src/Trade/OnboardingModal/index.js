@@ -183,6 +183,7 @@ const OnboardingModal = () => {
       } else {
         let value = `${apiName}-${exchange.value}`
         await updateLastSelectedValue(userData.email, value)
+        refreshExchanges()
         setStepNo(step + 1)
         notify({
           status: 'success',
@@ -496,7 +497,7 @@ const OnboardingModal = () => {
                 {exchangeForm &&
                   formFields &&
                   Object.entries(formFields).map((key) => (
-                    <div className="form-group">
+                    <div key={key[1]} className="form-group">
                       <div className="input-group">
                         <div className="input-group-prepend">
                           <span className="input-group-text" id="basic-addon1">

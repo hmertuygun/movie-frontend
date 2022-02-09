@@ -49,8 +49,6 @@ const SymbolContextProvider = ({ children }) => {
     useState(false)
   const [disablePortfolioRefreshBtn, setDisablePortfolioRefreshBtn] =
     useState(false)
-  const [disablePositionRefreshBtn, setDisablePositionRefreshBtn] =
-    useState(false)
   const [disableAnalyticsRefreshBtn, setDisableAnalyticsRefreshBtn] =
     useState(false)
   const [exchanges, setExchanges] = useState([])
@@ -92,7 +90,6 @@ const SymbolContextProvider = ({ children }) => {
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
-  const positionTimeInterval = 20000
   const analyticsTimeInterval = 20000
 
   useEffect(() => {
@@ -100,7 +97,6 @@ const SymbolContextProvider = ({ children }) => {
       const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
       const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
       const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
-      const positionLS = localStorage.getItem('positionRefreshBtn')
       const analyticsLS = localStorage.getItem('analyticsRefreshBtn')
 
       if (
@@ -118,13 +114,9 @@ const SymbolContextProvider = ({ children }) => {
         setDisablePortfolioRefreshBtn(true)
       else setDisablePortfolioRefreshBtn(false)
 
-      if (positionLS && Date.now() - positionLS < positionTimeInterval)
-        setDisablePositionRefreshBtn(true)
-      else setDisablePositionRefreshBtn(false)
-
       if (analyticsLS && Date.now() - analyticsLS < analyticsTimeInterval)
-        setDisablePositionRefreshBtn(true)
-      else setDisablePositionRefreshBtn(false)
+        setDisableAnalyticsRefreshBtn(true)
+      else setDisableAnalyticsRefreshBtn(false)
     }, 1000)
 
     return () => {
@@ -199,9 +191,6 @@ const SymbolContextProvider = ({ children }) => {
     } else if (type === 'portfolio') {
       setDisablePortfolioRefreshBtn(true)
       localStorage.setItem('portfolioRefreshBtn', dateNow)
-    } else if (type === 'position') {
-      setDisablePositionRefreshBtn(true)
-      localStorage.setItem('positionRefreshBtn', dateNow)
     } else if (type === 'analytics') {
       setDisableAnalyticsRefreshBtn(true)
       localStorage.setItem('analyticsRefreshBtn', dateNow)
@@ -602,11 +591,9 @@ const SymbolContextProvider = ({ children }) => {
         disableOrderHistoryRefreshBtn,
         disableOpenOrdersRefreshBtn,
         disablePortfolioRefreshBtn,
-        disablePositionRefreshBtn,
         disableAnalyticsRefreshBtn,
         orderHistoryTimeInterval,
         openOrdersTimeInterval,
-        positionTimeInterval,
         portfolioTimeInterval,
         onRefreshBtnClicked,
         refreshExchanges,
@@ -655,6 +642,7 @@ const SymbolContextProvider = ({ children }) => {
         handleSaveEmojis,
         selectEmojiPopoverOpen,
         setSelectEmojiPopoverOpen,
+        setExchanges,
       }}
     >
       {children}

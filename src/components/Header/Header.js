@@ -32,7 +32,6 @@ const Header = () => {
   const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen, setWatchListOpen } = useSymbolContext()
 
-  const [settingToggle, setSettingToggle] = useState(false)
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
   const [stepsSecondTour] = useState(secondTourSteps)
@@ -46,10 +45,6 @@ const Header = () => {
       textColor: '#333',
       zIndex: 999999,
     },
-  }
-
-  const toggleSetting = () => {
-    setSettingToggle(!settingToggle)
   }
 
   const handleJoyrideCallback2 = (data) => {
@@ -245,11 +240,7 @@ const Header = () => {
                   <Moon size={15} className="chevron-down" strokeWidth="3" />
                 </span>
               </li>
-              <Menu
-                settingToggle={settingToggle}
-                toggleSetting={() => toggleSetting()}
-                setSettingToggle={(toggle) => setSettingToggle(toggle)}
-              />
+              <Menu />
             </ul>
             {/* <Notifications /> */}
           </div>

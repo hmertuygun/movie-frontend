@@ -135,7 +135,7 @@ const MobileTab = () => {
             {menuData.map((element) => {
               return (
                 <span
-                  activeClassName="nav-link active"
+                  key={element.name}
                   className="nav-link"
                   onClick={() => {
                     handleClick(element)

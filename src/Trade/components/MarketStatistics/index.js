@@ -1,18 +1,52 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useContext,
+} from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
-import { TWO_DECIMAL_ARRAY } from '../../../constants/Trade'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faArrowAltCircleUp,
+  faArrowCircleDown,
+  fas,
+  faStopCircle,
+} from '@fortawesome/free-solid-svg-icons'
 import { ccxtClass } from '../../../constants/ccxtConfigs'
 import './MarketStatistics.css'
 import {
   execExchangeFunc,
   getExchangeProp,
 } from '../../../helpers/getExchangeProp'
+import { UserContext } from '../../../contexts/UserContext'
+import { decryptData } from '../../../helpers/secureData'
+import { useNotifications } from 'reapop'
+import { setChartDrawings as setDrawings } from '../../../api/firestoreCall'
+import { useMediaQuery } from 'react-responsive'
+import { useLocation } from 'react-router-dom'
+import DrawingsMigrationModal from '../DrawingsMigrationModal'
 
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
   const { selectedSymbolDetail, marketData } = useSymbolContext()
-
+  const {
+    chartDrawings,
+    setChartDrawings,
+    userData,
+    isSettingChartDrawings,
+    settingChartDrawings,
+  } = useContext(UserContext)
+  const [showDrawingsModal, setShowDrawingsModal] = useState(false)
+  const [fileName, setFileName] = useState('')
+  const [uploadedDrawings, setUploadedDrawings] = useState()
+  const { notify } = useNotifications()
+  const isMobile = useMediaQuery({ query: `(max-width: 1207.98px)` })
+  const location = useLocation()
+  const isOnMarket = useMemo(() => {
+    return location.pathname === '/market'
+  }, [location])
   const { baseAsset, quoteAsset, symbolPair } = useMemo(() => {
     if (!selectedSymbolDetail) return {}
     return {
@@ -22,17 +56,25 @@ function MarketStatistics({ market }) {
     }
   }, [selectedSymbolDetail])
 
-  useEffect(() => {
-    if (!selectedSymbolDetail || !marketData) return
-    setNewMessage(marketData)
-  }, [marketData, selectedSymbolDetail])
-
-  const fetchInterval = useMemo(() => {
-    if (selectedSymbolDetail?.value) {
-      let key = selectedSymbolDetail.value.split(':')[0].toLowerCase()
-      return key == 'bybit' ? 10000 : 700
+  const setInitMarketData = async (symbol) => {
+    let activeExchange = localStorage.getItem('selectedExchange')
+    if (activeExchange) {
+      try {
+        let activeMarketData = await execExchangeFunc(
+          activeExchange,
+          'fetchTicker',
+          { symbol }
+        )
+        setNewMessage(activeMarketData)
+      } catch (error) {
+        console.log(error)
+      }
     }
-    return undefined
+  }
+
+  useEffect(() => {
+    if (!selectedSymbolDetail) return
+    setInitMarketData(symbolPair)
   }, [selectedSymbolDetail])
 
   const setNewMessage = useCallback(
@@ -44,6 +86,7 @@ function MarketStatistics({ market }) {
       low,
       baseVolume,
       quoteVolume,
+      open,
       symbol,
     }) => {
       const newMessage = {
@@ -54,13 +97,10 @@ function MarketStatistics({ market }) {
         highPrice: high,
         lowPrice: low,
         volume: baseVolume,
+        open,
         quoteVolume,
       }
-      let tickSize = TWO_DECIMAL_ARRAY.includes(quoteAsset)
-        ? 2
-        : selectedSymbolDetail.tickSize > 8
-        ? 8
-        : selectedSymbolDetail.tickSize ?? 3
+      let tickSize = 5
 
       newMessage.lastPrice = Number(newMessage.lastPrice).toFixed(tickSize)
       newMessage.worth = Number(newMessage.worth).toFixed(2)
@@ -72,11 +112,13 @@ function MarketStatistics({ market }) {
       newMessage.lowPrice = Number(newMessage.lowPrice).toFixed(tickSize)
       newMessage.volume = Number(newMessage.volume).toFixed(2)
       newMessage.quoteVolume = Number(newMessage.quoteVolume).toFixed(2)
+      newMessage.open = Number(newMessage.open).toFixed(8)
 
       setMessage(newMessage)
     },
     [quoteAsset, selectedSymbolDetail]
   )
+
   const getData = useCallback(async () => {
     let activeMarketData = {}
     if (!selectedSymbolDetail?.value) return
@@ -96,7 +138,7 @@ function MarketStatistics({ market }) {
       selectedSymbolDetail?.value?.split(':')[0].toLowerCase() !== 'bybit' &&
       selectedSymbolDetail?.value?.split(':')[0].toLowerCase() !== 'huobipro'
     ) {
-      const id = setInterval(async () => await getData(), fetchInterval)
+      const id = setInterval(async () => await getData(), 500)
       return () => {
         clearInterval(id)
       }
@@ -175,20 +217,156 @@ function MarketStatistics({ market }) {
     }, [delay])
   }
 
+  const lastPriceClass = useMemo(() => {
+    if (!finalData) return ''
+    return finalData.open < finalData.lastPrice
+      ? 'text-success'
+      : finalData.open > finalData.lastPrice
+      ? 'text-danger'
+      : ''
+  }, [finalData])
+
+  const arrowirection = useMemo(() => {
+    if (!finalData) return ''
+    return finalData.open > finalData.lastPrice ? (
+      <FontAwesomeIcon icon={faArrowCircleDown} />
+    ) : finalData.open < finalData.lastPrice ? (
+      <FontAwesomeIcon icon={faArrowAltCircleUp} />
+    ) : (
+      <FontAwesomeIcon icon={faStopCircle} />
+    )
+  }, [finalData])
+
   useInterval(async () => {
     if (!isNaN(message && message.lastPrice)) setFinalData(message)
   }, 2000)
+
+  const handleFileUpload = (e) => {
+    const fileReader = new FileReader()
+    let file = e.target.files[0]
+    if (file.type === 'application/json') {
+      fileReader.readAsText(file, 'UTF-8')
+      fileReader.onload = (e) => {
+        if (e.target.result) {
+          let value = JSON.parse(e.target.result)
+          let dataLength = Object.keys(value).length
+          if (dataLength === 1 && value.data) {
+            decryptData(value.data, 'key').then((data) => {
+              setFileName(file.name)
+              setUploadedDrawings(data)
+              isSettingChartDrawings(true)
+            })
+          } else {
+            notify({
+              status: 'error',
+              title: 'Error',
+              message: 'Please upload a valid drawings file',
+            })
+            setFileName('')
+            setUploadedDrawings()
+            isSettingChartDrawings(false)
+          }
+        }
+      }
+    } else {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Please upload a valid drawings file with .json format',
+      })
+      setFileName('')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    }
+  }
+
+  const dragOver = (e) => {
+    e.preventDefault()
+  }
+
+  const dragEnter = (e) => {
+    e.preventDefault()
+  }
+
+  const dragLeave = (e) => {
+    e.preventDefault()
+  }
+
+  const fileDrop = (e) => {
+    e.preventDefault()
+    const fileReader = new FileReader()
+    let file = e.dataTransfer.files[0]
+    if (file.type === 'application/json') {
+      fileReader.readAsText(e.dataTransfer.files[0], 'UTF-8')
+      fileReader.onload = (e) => {
+        if (e.target.result) {
+          let value = JSON.parse(e.target.result)
+          let dataLength = Object.keys(value).length
+          if (dataLength === 1 && value.data) {
+            decryptData(value.data, 'key').then((data) => {
+              setFileName(file.name)
+              setUploadedDrawings(data)
+              isSettingChartDrawings(true)
+            })
+          } else {
+            notify({
+              status: 'error',
+              title: 'Error',
+              message: 'Please drag and drop a valid drawings file',
+            })
+            setFileName('')
+            setUploadedDrawings()
+            isSettingChartDrawings(false)
+          }
+        }
+      }
+    } else {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: 'Please drag and drop a valid drawings file with .json format',
+      })
+      setFileName('Failed to upload chart drawings. Please try again.')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    }
+  }
+
+  const handleProceedDrawings = async () => {
+    try {
+      setChartDrawings(uploadedDrawings)
+      const drawings = {
+        [userData.email]: uploadedDrawings,
+      }
+      setShowDrawingsModal(false)
+      await setDrawings(userData.email, drawings)
+      setFileName('')
+      setUploadedDrawings()
+      isSettingChartDrawings(false)
+    } catch (err) {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: '',
+      })
+    }
+  }
+
+  const handleModalClose = () => {
+    setShowDrawingsModal(false)
+    setFileName('')
+    setUploadedDrawings()
+  }
 
   return (
     <div className={`marketDataContainer ${!market ? 'marketBorder' : ''}`}>
       {finalData && (
         <div className="d-flex">
           <div className="lastPriceBlock">
-            {!isNaN(finalData.worth) ? (
-              <div className="marketDataLastPrice">{finalData.lastPrice}</div>
-            ) : null}
-            {!isNaN(finalData.worth) ? (
-              <div className="marketDataWorth">${finalData.worth}</div>
+            {!isNaN(finalData.lastPrice) ? (
+              <div className={`marketDataLastPrice ${lastPriceClass}`}>
+                {finalData.lastPrice} {arrowirection}
+              </div>
             ) : null}
           </div>
           <div className="marketData">
@@ -219,7 +397,7 @@ function MarketStatistics({ market }) {
             {!isNaN(finalData.volume) ? (
               <div className="marketDataBlock">
                 <div className="marketDataBlockTitle">
-                  24h Volume({baseAsset})
+                  24h Volume ({baseAsset})
                 </div>
                 <div className="marketDataBlockValue">{finalData.volume}</div>
               </div>
@@ -227,7 +405,7 @@ function MarketStatistics({ market }) {
             {!isNaN(finalData.quoteVolume) ? (
               <div className="marketDataBlock">
                 <div className="marketDataBlockTitle">
-                  24h Volume({quoteAsset})
+                  24h Volume ({quoteAsset})
                 </div>
                 <div className="marketDataBlockValue">
                   {finalData.quoteVolume}
@@ -246,6 +424,29 @@ function MarketStatistics({ market }) {
             )}
           </div>
         </div>
+      )}
+      {!isMobile && isOnMarket && (
+        <button
+          onClick={() => setShowDrawingsModal(true)}
+          type="button"
+          className="btn btn-outline-primary btn-icon-label ml-auto btn-sm mr-4"
+        >
+          <span className="btn-inner--text">Import / Export Drawings</span>
+        </button>
+      )}
+      {showDrawingsModal && (
+        <DrawingsMigrationModal
+          chartDrawings={chartDrawings}
+          handleFileUpload={handleFileUpload}
+          fileDrop={fileDrop}
+          fileName={fileName}
+          handleModalClose={handleModalClose}
+          uploadedDrawings={uploadedDrawings}
+          handleProceedDrawings={handleProceedDrawings}
+          dragOver={dragOver}
+          dragEnter={dragEnter}
+          dragLeave={dragLeave}
+        />
       )}
     </div>
   )

@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import onClickOutside from 'react-onclickoutside'
+import useComponentVisible from '../../../hooks/useComponentVisible'
 
-function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
-  Menu.handleClickOutside = () => {
-    setSettingToggle(false)
-  }
+function Menu() {
+  const { ref, isComponentVisible, setIsComponentVisible } =
+    useComponentVisible(false)
+
   return (
-    <div id="cp-tour-b-2" onClick={() => toggleSetting()}>
+    <div
+      ref={ref}
+      id="cp-tour-b-2"
+      onClick={() => setIsComponentVisible(!isComponentVisible)}
+    >
       <li className="nav-item dropdown dropdown-animate">
         <button
           className="px-2 nav-link nav-link-icon btn btn-plain"
@@ -35,13 +39,13 @@ function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
 
       <div
         className={`dropdown-menu dropdown-menu-sm dropdown-menu-right dropdown-menu-arrow p-3 ${
-          settingToggle ? 'show' : ''
+          isComponentVisible ? 'show' : ''
         }`}
       >
         <Link
           to="/settings"
           className="dropdown-item"
-          onClick={() => setSettingToggle(false)}
+          onClick={() => setIsComponentVisible(false)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +69,7 @@ function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
         <Link
           to="/logout"
           className="dropdown-item"
-          onClick={() => setSettingToggle(false)}
+          onClick={() => setIsComponentVisible(false)}
         >
           <svg
             width="1em"
@@ -89,8 +93,4 @@ function Menu({ settingToggle, toggleSetting, setSettingToggle }) {
   )
 }
 
-const clickOutsideConfig = {
-  handleClickOutside: () => Menu.handleClickOutside,
-}
-
-export default onClickOutside(Menu, clickOutsideConfig)
+export default Menu

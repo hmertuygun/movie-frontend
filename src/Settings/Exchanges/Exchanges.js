@@ -12,6 +12,7 @@ import {
   addUserExchange,
   activateUserExchange,
   deleteUserExchange,
+  updateUserExchange,
 } from '../../api/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
@@ -25,7 +26,7 @@ import {
 import Tooltip from '../../components/Tooltip'
 
 const Exchanges = () => {
-  const { refreshExchanges, exchanges } = useSymbolContext()
+  const { refreshExchanges, exchanges, setExchanges } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const { notify } = useNotifications()
@@ -44,6 +45,7 @@ const Exchanges = () => {
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   // const exchangeQuery = useQuery('exchanges', getUserExchanges)
 
   const getExchanges = () => {
@@ -104,9 +106,47 @@ const Exchanges = () => {
     },
   })
 
+  const updateExchangeMutation = useMutation(updateUserExchange, {
+    onSuccess: async (res) => {
+      if (res.status !== 200) {
+        notify({
+          status: 'error',
+          title: 'Error',
+          message: res.data.detail,
+        })
+        return
+      }
+      queryClient.invalidateQueries('exchanges')
+      setIsModalVisible(false)
+      notify({
+        status: 'success',
+        title: 'Success',
+        message: 'API key added!',
+      })
+      analytics.logEvent('api_keys_added')
+      Event('user', 'api_keys_added', 'user')
+      refreshExchanges()
+    },
+    onError: () => {
+      notify({
+        status: 'error',
+        title: 'Error',
+        message: "Couldn't add API key. Please try again later!",
+      })
+    },
+  })
+
   const onAddExchange = async (formData) => {
     try {
       await addExchangeMutation.mutate(formData)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const onUpdateExchange = async (formData) => {
+    try {
+      await updateExchangeMutation.mutate(formData)
     } catch (error) {
       console.error(error)
     }
@@ -119,6 +159,7 @@ const Exchanges = () => {
         if (exchanges.length - 1 === 0) {
           setLoadApiKeys(false)
           sessionStorage.clear()
+          setExchanges([])
         } else {
           // What if we just deleted an active exchange key, set first one as active by default
           if (
@@ -203,6 +244,19 @@ const Exchanges = () => {
           }
         />
       )}
+      {isUpdateModalVisible && (
+        <QuickModal
+          onClose={() => {
+            setSelectedExchange(null)
+            setIsUpdateModalVisible(false)
+          }}
+          isUpdate={true}
+          selectedExchange={selectedExchange}
+          onSave={(formData) => {
+            onUpdateExchange(formData)
+          }}
+        />
+      )}
 
       <div className="">
         <div>
@@ -279,6 +333,10 @@ const Exchanges = () => {
                         onDeleteClick={() => {
                           setSelectedExchange(row)
                           setIsDeletionModalVisible(true)
+                        }}
+                        onUpdateClick={() => {
+                          setIsUpdateModalVisible(true)
+                          setSelectedExchange(row)
                         }}
                         setActive={() => setActive(row.apiKeyName)}
                         isLast={index === exchanges.length - 1}
