@@ -294,9 +294,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
               {handleChangeTickSize(order.total, order.orderSymbol)}{' '}
               {order.quote_asset}
             </td>
-            <td style={hideFirst}>
-              {handleChangeTickSize(order.trigger, order.orderSymbol)}
-            </td>
+            <td style={hideFirst}>{order.trigger}</td>
             <td style={hideFirst}>
               <div
                 data-for={`open-orders-${order.trade_id}`}
