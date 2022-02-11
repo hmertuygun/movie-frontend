@@ -426,7 +426,7 @@ const QuickRegister = () => {
                           </a>{' '}
                           and the{' '}
                           <a
-                            href="https://coinpanel.com/privacy"
+                            href="https://coinpanel.com/privacy-policy"
                             target="_blank"
                             rel="noreferrer"
                           >
