@@ -388,9 +388,18 @@ const SymbolContextProvider = ({ children }) => {
     )
 
     if (!selectedSymbol) {
-      getChartDataOnInit()
+      const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     }
-  }, [exchangeType, symbolType, activeDD, watchListOpen])
+  }, [
+    exchangeType,
+    symbolType,
+    activeDD,
+    setSymbol,
+    DEFAULT_SYMBOL_LOAD_SLASH,
+    DEFAULT_SYMBOL_LOAD_DASH,
+    watchListOpen,
+  ])
 
   useEffect(() => {
     if (!selectedSymbol || !selectedSymbolDetail) return
