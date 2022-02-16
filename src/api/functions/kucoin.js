@@ -16,17 +16,21 @@ const editSymbol = ({ symbol }) => {
 }
 
 const editKline = ({ klines }) => {
-  return klines.map((kline) => {
-    const [time, open, high, low, close, volume] = kline
-    return {
-      time: parseInt(time),
-      open: parseFloat(open),
-      high: parseFloat(high),
-      low: parseFloat(low),
-      close: parseFloat(close),
-      volume: parseFloat(volume),
-    }
-  })
+  try {
+    return klines.map((kline) => {
+      const [time, open, high, low, close, volume] = kline
+      return {
+        time: parseInt(time),
+        open: parseFloat(open),
+        high: parseFloat(high),
+        low: parseFloat(low),
+        close: parseFloat(close),
+        volume: parseFloat(volume),
+      }
+    })
+  } catch (error) {
+    console.log('bad kline')
+  }
 }
 
 const onSocketMessage = ({ lastMessage }) => {
