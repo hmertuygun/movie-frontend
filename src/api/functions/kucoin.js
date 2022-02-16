@@ -1,4 +1,5 @@
 import { ccxtClass } from '../../constants/ccxtConfigs'
+import { whitelistedUrl } from '../../constants/ccxtConfigs'
 const EXCHANGE = 'kucoin'
 
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
@@ -132,9 +133,7 @@ const getSocketEndpoint = () => {
         const client = new XMLHttpRequest()
         client.open(
           'POST',
-          `${localStorage.getItem(
-            'proxyServer'
-          )}https://api.kucoin.com/api/v1/bullet-public`
+          `${whitelistedUrl}https://api.kucoin.com/api/v1/bullet-public`
         )
         client.send()
 
@@ -156,9 +155,7 @@ const getSocketEndpoint = () => {
       const client = new XMLHttpRequest()
       client.open(
         'POST',
-        `${localStorage.getItem(
-          'proxyServer'
-        )}https://api.kucoin.com/api/v1/bullet-public`
+        `${whitelistedUrl}https://api.kucoin.com/api/v1/bullet-public`
       )
       client.send()
 

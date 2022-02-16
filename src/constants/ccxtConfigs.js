@@ -1,6 +1,7 @@
-import ccxt from 'ccxt'
 import ccxtPro from 'ccxt.pro'
 
+export const whitelistedUrl =
+  'https://cp-cors-proxy-eu-west-ywasypvnmq-ew.a.run.app/'
 const proxyServer = localStorage.getItem('proxyServer')
   ? localStorage.getItem('proxyServer')
   : 'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/'
@@ -13,7 +14,7 @@ export const ccxtClass = {
     ratelimit: true,
   }),
   kucoin: new ccxtPro.kucoin({
-    proxy: proxyServer,
+    proxy: whitelistedUrl,
     rateLimit: true,
   }),
   bybit: new ccxtPro.bybit({
