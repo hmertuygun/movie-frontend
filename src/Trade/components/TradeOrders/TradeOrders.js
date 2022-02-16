@@ -327,6 +327,7 @@ const TradeOrders = () => {
 
   useEffect(() => {
     setOpenOrdersUC(openOrderData)
+    refreshBalance()
   }, [openOrderData])
 
   const ProgressBar = (
