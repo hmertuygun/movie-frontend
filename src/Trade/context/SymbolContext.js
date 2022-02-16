@@ -37,6 +37,7 @@ const SymbolContextProvider = ({ children }) => {
     setOpenOrdersUC,
     userData,
     isOnboardingSkipped,
+    isLoggedIn,
   } = useContext(UserContext)
   const { notify } = useNotifications()
 
@@ -333,26 +334,28 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const loadLastPrice = async (symbolpair, exchangeParam) => {
-    try {
-      setIsLoadingLastPrice(true)
-      // setSelectedSymbolLastPrice(0)
-      const response = await getLastPrice(
-        symbolpair,
-        exchangeParam || activeExchange?.exchange
-      )
-      if (response?.data?.last_price !== 'NA')
-        setSelectedSymbolLastPrice(response.data.last_price)
-      else setSelectedSymbolLastPrice(0)
-    } catch (err) {
-      notify({
-        id: 'last-price-warning',
-        status: 'error',
-        title: 'Error',
-        message: 'Error getting last price of market!',
-      })
-      setSelectedSymbolLastPrice(0)
-    } finally {
-      setIsLoadingLastPrice(false)
+    if (isLoggedIn) {
+      try {
+        setIsLoadingLastPrice(true)
+        // setSelectedSymbolLastPrice(0)
+        const response = await getLastPrice(
+          symbolpair,
+          exchangeParam || activeExchange?.exchange
+        )
+        if (response?.data?.last_price !== 'NA')
+          setSelectedSymbolLastPrice(response.data.last_price)
+        else setSelectedSymbolLastPrice(0)
+      } catch (err) {
+        notify({
+          id: 'last-price-warning',
+          status: 'error',
+          title: 'Error',
+          message: 'Error getting last price of market!',
+        })
+        setSelectedSymbolLastPrice(0)
+      } finally {
+        setIsLoadingLastPrice(false)
+      }
     }
   }
 
