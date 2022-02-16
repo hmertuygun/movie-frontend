@@ -1,4 +1,5 @@
 import { ccxtClass } from '../../constants/ccxtConfigs'
+import { whitelistedUrl } from '../../constants/ccxtConfigs'
 const EXCHANGE = 'kucoin'
 
 const getKlines = async ({ symbol, interval, startTime, endTime, limit }) => {
@@ -15,17 +16,21 @@ const editSymbol = ({ symbol }) => {
 }
 
 const editKline = ({ klines }) => {
-  return klines.map((kline) => {
-    const [time, open, high, low, close, volume] = kline
-    return {
-      time: parseInt(time),
-      open: parseFloat(open),
-      high: parseFloat(high),
-      low: parseFloat(low),
-      close: parseFloat(close),
-      volume: parseFloat(volume),
-    }
-  })
+  try {
+    return klines.map((kline) => {
+      const [time, open, high, low, close, volume] = kline
+      return {
+        time: parseInt(time),
+        open: parseFloat(open),
+        high: parseFloat(high),
+        low: parseFloat(low),
+        close: parseFloat(close),
+        volume: parseFloat(volume),
+      }
+    })
+  } catch (error) {
+    console.log('bad kline')
+  }
 }
 
 const onSocketMessage = ({ lastMessage }) => {
@@ -132,9 +137,7 @@ const getSocketEndpoint = () => {
         const client = new XMLHttpRequest()
         client.open(
           'POST',
-          `${localStorage.getItem(
-            'proxyServer'
-          )}https://api.kucoin.com/api/v1/bullet-public`
+          `${whitelistedUrl}https://api.kucoin.com/api/v1/bullet-public`
         )
         client.send()
 
@@ -156,9 +159,7 @@ const getSocketEndpoint = () => {
       const client = new XMLHttpRequest()
       client.open(
         'POST',
-        `${localStorage.getItem(
-          'proxyServer'
-        )}https://api.kucoin.com/api/v1/bullet-public`
+        `${whitelistedUrl}https://api.kucoin.com/api/v1/bullet-public`
       )
       client.send()
 

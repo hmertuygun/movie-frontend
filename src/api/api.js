@@ -108,6 +108,16 @@ export async function getExchanges() {
   return exchanges.data
 }
 
+export async function getOneExchange(exchange) {
+  const apiUrl = `${process.env.REACT_APP_API_V2}exchange?exchange=${exchange}`
+  const token = await firebase.auth().currentUser?.getIdToken()
+  const exchanges = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+  return exchanges.data
+}
+
 export async function getBalance({ symbol, apiKeyName, exchange }) {
   const apiUrl = `${
     process.env.REACT_APP_PORTFOLIO_API
