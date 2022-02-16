@@ -12,6 +12,7 @@ import {
   getBalance,
   getLastPrice,
   saveLastSelectedMarketSymbol,
+  getOneExchange,
 } from '../../api/api'
 import { UserContext } from '../../contexts/UserContext'
 import { firebase } from '../../firebase/firebase'
@@ -67,16 +68,9 @@ const SymbolContextProvider = ({ children }) => {
   const [lastMessage, setLastMessage] = useState([])
   const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
   const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
-  const [timer, setTimer] = useState(null)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
-  const [binanceDD, setBinanceDD] = useState([])
-  const [ftxDD, setFtxDD] = useState([])
-  const [kucoinDD, setKucoinDD] = useState([])
-  const [binanceUSDD, setBinanceUSDD] = useState([])
-  const [bybitDD, setBybitDD] = useState([])
-  const [huobiDD, setHuobiDD] = useState([])
-  const [okexDD, setOkexDD] = useState([])
+  const [activeDD, setActiveDD] = useState([])
   const [isLoadingExchanges, setIsLoadingExchanges] = useState(true)
   const [watchListOpen, setWatchListOpen] = useState(false)
   const [templateDrawings, setTemplateDrawings] = useState(false)
@@ -272,7 +266,6 @@ const SymbolContextProvider = ({ children }) => {
           localStorage.setItem('selectedSymbol', symbolVal)
           const [baseAsset, qouteAsset] = symbolVal.split('/')
           loadBalance(qouteAsset, baseAsset)
-
           setSelectedSymbolDetail({
             base_asset: baseAsset,
             quote_asset: qouteAsset,
@@ -381,6 +374,34 @@ const SymbolContextProvider = ({ children }) => {
   )
 
   useEffect(() => {
+    if (
+      activeDD.length === 0 ||
+      !exchangeType ||
+      !symbolType ||
+      watchListOpen
+    ) {
+      return
+    }
+
+    const selectedSymbol = activeDD.find(
+      (symbol) => symbol.symbolpair === symbolType
+    )
+
+    if (!selectedSymbol) {
+      const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
+      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
+    }
+  }, [
+    exchangeType,
+    symbolType,
+    activeDD,
+    setSymbol,
+    DEFAULT_SYMBOL_LOAD_SLASH,
+    DEFAULT_SYMBOL_LOAD_DASH,
+    watchListOpen,
+  ])
+
+  useEffect(() => {
     if (!selectedSymbol || !selectedSymbolDetail) return
 
     const [baseAsset, quoteAsset] = selectedSymbol.label.split('-')
@@ -433,104 +454,46 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  // Handle no symbol type logic when exchange switched.
-  // when exchange switch, if new exchange doesn't have the old exchange's symbol, set default symbol.
-  useEffect(() => {
-    if (
-      binanceDD.length === 0 ||
-      binanceUSDD.length === 0 ||
-      kucoinDD.length === 0 ||
-      huobiDD.length === 0 ||
-      bybitDD.length === 0 ||
-      okexDD.length === 0 ||
-      !exchangeType ||
-      !symbolType ||
-      watchListOpen
-    ) {
-      return
-    }
-
-    let selectedDD = []
-    switch (exchangeType) {
-      case 'binance':
-        selectedDD = [...binanceDD]
-        break
-      case 'binanceus':
-        selectedDD = [...binanceUSDD]
-        break
-      case 'kucoin':
-        selectedDD = [...kucoinDD]
-        break
-      case 'bybit':
-        selectedDD = [...bybitDD]
-        break
-      case 'huobipro':
-        selectedDD = [...huobiDD]
-        break
-      case 'okex':
-        selectedDD = [...okexDD]
-        break
-
-      default:
-        break
-    }
-
-    const selectedSymbol = selectedDD.find(
-      (symbol) => symbol.symbolpair === symbolType
-    )
-
-    if (!selectedSymbol) {
-      const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
-      setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
-    }
-  }, [
-    exchangeType,
-    symbolType,
-    binanceDD,
-    binanceUSDD,
-    kucoinDD,
-    huobiDD,
-    okexDD,
-    bybitDD,
-    setSymbol,
-    DEFAULT_SYMBOL_LOAD_SLASH,
-    DEFAULT_SYMBOL_LOAD_DASH,
-    watchListOpen,
-  ])
-
   const loadExchanges = async (symbol, exchange) => {
     try {
       //if (!userData) return
       setIsLoadingExchanges(true)
+      const oneExchangeResp = await getOneExchange(exchange)
+      if (
+        !oneExchangeResp?.exchanges?.length ||
+        !oneExchangeResp?.symbolsChange
+      ) {
+        return
+      }
+      setActiveDD(oneExchangeResp.exchanges[0].symbols)
+      const val = `${exchange.toUpperCase()}:${symbol}`
+      setSelectedSymbolDetail(oneExchangeResp.symbolsChange[val])
       const data = await getExchanges()
       if (!data?.exchanges?.length || !data?.symbolsChange) {
         return
       }
 
-      const [binance, ftx, binanceus, kucoin, bybit, huobipro, okex] =
-        data.exchanges
-      setSymbols(() => [
-        ...binance.symbols,
-        ...binanceus.symbols,
-        ...kucoin.symbols,
-        ...bybit.symbols,
-        ...huobipro.symbols,
-        ...okex.symbols,
-      ])
+      //get all exchanges and symbols
+      const allSymbols = data.exchanges
+        .filter(function (e) {
+          return e.exchange !== 'ftx'
+        })
+        .map(function (val) {
+          return val.symbols
+        })
+        .reduce(function (pre, cur) {
+          return pre.concat(cur)
+        })
+        .map(function (e, i) {
+          return e
+        })
+
+      setSymbols(allSymbols)
       setSymbolDetails(data.symbolsChange)
       localStorage.setItem(
         'symbolsKeyValue',
         JSON.stringify(data.symbolsChange)
       )
-      setBinanceDD(() => binance.symbols)
-      setFtxDD(() => ftx.symbols)
-      setBinanceUSDD(() => binanceus.symbols)
-      setKucoinDD(() => kucoin.symbols)
-      setHuobiDD(() => huobipro.symbols)
-      setBybitDD(() => bybit.symbols)
-      setOkexDD(() => okex.symbols)
-      const val = `${exchange.toUpperCase()}:${symbol}`
-      setSelectedSymbolDetail(data.symbolsChange[val])
     } catch (error) {
       console.error(error)
     } finally {
@@ -588,8 +551,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading:
-          !selectedSymbolDetail || isLoadingExchanges || isLoadingLastPrice,
+        isLoading: !selectedSymbolDetail || !activeDD.length,
         exchanges,
         disableOrderHistoryRefreshBtn,
         disableOpenOrdersRefreshBtn,
@@ -610,6 +572,7 @@ const SymbolContextProvider = ({ children }) => {
         selectedBaseSymbolBalance,
         isLoadingBalance,
         isLoadingLastPrice,
+        activeDD,
         selectedSymbolLastPrice,
         setSelectedSymbolLastPrice,
         refreshBalance,
@@ -621,13 +584,6 @@ const SymbolContextProvider = ({ children }) => {
         liveUpdate: socketLiveUpdate || pollingLiveUpdate,
         exchangeType,
         symbolType,
-        binanceDD,
-        binanceUSDD,
-        ftxDD,
-        kucoinDD,
-        huobiDD,
-        bybitDD,
-        okexDD,
         watchListOpen,
         setWatchListOpen,
         templateDrawings,

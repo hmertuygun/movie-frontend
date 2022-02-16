@@ -373,8 +373,9 @@ const WatchListPanel = () => {
 
   const getLogo = (symbol) => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
+
     const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
-    return obj.logo
+    if (obj?.logo) return obj.logo
   }
 
   useEffect(() => {
@@ -450,6 +451,7 @@ const WatchListPanel = () => {
   }
 
   const selectedSymbols = useMemo(() => {
+    if (!symbols.length) return []
     const selected = symbols.filter(
       (symbol) => !symbolsList.some((item) => item.value === symbol.value)
     )
@@ -831,6 +833,9 @@ const WatchListPanel = () => {
               className={`${styles.watchListPlus} ${styles.watchListControl} ${
                 selectPopoverOpen ? styles.watchListControlSelected : ''
               }`}
+              style={{
+                pointerEvents: selectedSymbols.length > 0 ? 'auto' : 'none',
+              }}
               onClick={() => {
                 setSelectPopoverOpen(true)
                 setTimeout(() => {

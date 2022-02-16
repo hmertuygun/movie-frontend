@@ -13,56 +13,25 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     setSymbol,
     setExchange,
     isLoading,
-    binanceDD,
-    binanceUSDD,
-    ftxDD,
-    kucoinDD,
-    bybitDD,
-    okexDD,
-    huobiDD,
+    activeDD,
   } = useSymbolContext()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
-  const allExchanges = useMemo(() => {
-    return {
-      binance: binanceDD,
-      binanceus: binanceUSDD,
-      ftx: ftxDD,
-      kucoin: kucoinDD,
-      bybit: bybitDD,
-      huobipro: huobiDD,
-      okex: okexDD,
-    }
-  }, [binanceDD, binanceUSDD, ftxDD, kucoinDD, bybitDD, huobiDD, okexDD])
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const isTablet = useMediaQuery({ query: `(max-width: 1230px)` })
 
   useEffect(() => {
     if (!activeExchange?.exchange) return
-    let { exchange } = activeExchange
-    exchange = exchange.toLowerCase()
-    const selected = allExchanges[exchange]
     const finalOptions =
-      selected &&
-      selected.map((item) => {
+      activeDD &&
+      activeDD.map((item) => {
         return {
           ...item,
           searchLabel: `${item.base_asset}${item.quote_asset}`,
         }
       })
     setOptions(finalOptions)
-  }, [
-    binanceDD,
-    ftxDD,
-    kucoinDD,
-    activeExchange?.exchange,
-    binanceUSDD,
-    bybitDD,
-    okexDD,
-    huobiDD,
-    activeExchange,
-    allExchanges,
-  ])
+  }, [activeExchange?.exchange, activeExchange, activeDD])
 
   return (
     <div
