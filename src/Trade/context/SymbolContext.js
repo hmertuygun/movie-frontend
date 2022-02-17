@@ -249,9 +249,7 @@ const SymbolContextProvider = ({ children }) => {
             intervals: intervals || [],
             timeZone:
               timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-            lastSelectedSymbol:
-              lastSelectedSymbol ||
-              `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
+            lastSelectedSymbol: `${DEFAULT_EXCHANGE}:${DEFAULT_SYMBOL_LOAD_SLASH}`,
           }
 
           setChartData({ ...chartData })
