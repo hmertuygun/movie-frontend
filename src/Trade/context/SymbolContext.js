@@ -68,6 +68,7 @@ const SymbolContextProvider = ({ children }) => {
   const [lastMessage, setLastMessage] = useState([])
   const [socketLiveUpdate, setSocketLiveUpdate] = useState(true)
   const [pollingLiveUpdate, setPollingLiveUpdate] = useState(true)
+  const [isExchangeLoading, setIsExchangeLoading] = useState(true)
   const [exchangeType, setExchangeType] = useState(null)
   const [symbolType, setSymbolType] = useState(null)
   const [activeDD, setActiveDD] = useState([])
@@ -354,7 +355,12 @@ const SymbolContextProvider = ({ children }) => {
 
   const setSymbol = useCallback(
     async (symbol) => {
-      if (!symbol || symbol?.value === selectedSymbol?.value) return
+      if (
+        !symbol ||
+        symbol?.value === selectedSymbol?.value ||
+        !symbolDetails[symbol.value]
+      )
+        return
       const symbolT = symbol.label.replace('-', '/')
       localStorage.setItem('selectedSymbol', symbolT)
       setSymbolType(symbolT)
@@ -372,7 +378,6 @@ const SymbolContextProvider = ({ children }) => {
     },
     [selectedSymbol?.value, symbolDetails, watchListOpen]
   )
-
   useEffect(() => {
     if (
       activeDD.length === 0 ||
@@ -386,7 +391,6 @@ const SymbolContextProvider = ({ children }) => {
     const selectedSymbol = activeDD.find(
       (symbol) => symbol.symbolpair === symbolType
     )
-
     if (!selectedSymbol) {
       const val = `${exchangeType}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
@@ -458,6 +462,7 @@ const SymbolContextProvider = ({ children }) => {
     try {
       //if (!userData) return
       setIsLoadingExchanges(true)
+      setIsExchangeLoading(true)
       const oneExchangeResp = await getOneExchange(exchange)
       if (
         !oneExchangeResp?.exchanges?.length ||
@@ -465,7 +470,9 @@ const SymbolContextProvider = ({ children }) => {
       ) {
         return
       }
+      setSymbolDetails(oneExchangeResp.symbolsChange)
       setActiveDD(oneExchangeResp.exchanges[0].symbols)
+      setIsExchangeLoading(false)
       const val = `${exchange.toUpperCase()}:${symbol}`
       setSelectedSymbolDetail(oneExchangeResp.symbolsChange[val])
       const data = await getExchanges()
@@ -551,7 +558,7 @@ const SymbolContextProvider = ({ children }) => {
   return (
     <SymbolContext.Provider
       value={{
-        isLoading: !selectedSymbolDetail || !activeDD.length,
+        isLoading: !selectedSymbolDetail || isExchangeLoading,
         exchanges,
         disableOrderHistoryRefreshBtn,
         disableOpenOrdersRefreshBtn,
