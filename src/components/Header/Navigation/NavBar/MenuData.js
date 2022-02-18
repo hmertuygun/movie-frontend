@@ -33,11 +33,6 @@ export const MenuData = [
     id: 'cp-tour8',
   },
   {
-    title: 'Academy',
-    url: 'https://academy.coinpanel.com/',
-    externalLink: true,
-  },
-  {
     title: 'Community',
     url: 'https://community.coinpanel.com/',
     externalLink: true,
