@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useContext, useState } from 'react'
 import c3 from 'c3'
 import { PortfolioContext } from '../../context/PortfolioContext'
+import Slider from 'react-slick'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
+import { ChevronLeft, ChevronRight } from 'react-feather'
 
 import './PieChart.css'
 
@@ -139,8 +143,8 @@ const PieCharts = ({ isHideBalance }) => {
     c3.generate({
       bindto: '#data',
       size: {
-        height: 180,
-        width: 180,
+        height: 360,
+        width: 360,
       },
       data: {
         columns: data || [],
@@ -149,7 +153,6 @@ const PieCharts = ({ isHideBalance }) => {
       },
       legend: {
         show: false,
-        position: 'right',
         padding: 15,
         item: {},
       },
@@ -157,7 +160,7 @@ const PieCharts = ({ isHideBalance }) => {
   }, [data, legend])
 
   useEffect(() => {
-    let rows = 5
+    let rows = 8
     let pieKey = []
     let legendArr = Object.entries(legend)
     for (let i = 0; i < legendArr.length; i++) {
@@ -169,39 +172,85 @@ const PieCharts = ({ isHideBalance }) => {
     }
     setPieKeys(pieKey)
   }, [legend])
+  const settings = {
+    dots: false,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 2,
+    arrows: true,
+    slidesToScroll: 1,
+    adaptiveHeight: true,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
+  }
 
+  function NextArrow(props) {
+    const { className, style, onClick } = props
+    return (
+      <ChevronRight
+        className={className}
+        strokeWidth="2"
+        stroke="lightgrey"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        size={15}
+        style={{ ...style, display: 'block' }}
+        onClick={onClick}
+      />
+    )
+  }
+
+  function PrevArrow(props) {
+    const { className, style, onClick } = props
+    return (
+      <ChevronLeft
+        className={className}
+        strokeWidth="2"
+        stroke="lightgrey"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        size={15}
+        style={{ ...style, display: 'block' }}
+        onClick={onClick}
+      />
+    )
+  }
   return (
     <div className="chart-container">
       <div id="data"></div>
       <div className="custom-legend row">
-        {pieKeys.map((item, index) => (
-          <div className="col-auto pr-0" key={`col-${index}`}>
-            {item.map((item1) => (
-              <div
-                className="legend-item"
-                onClick={() => onLegendItemClick(item1.symbol)}
-                key={`${item1.symbol}-${item1.color}`}
-              >
+        <Slider {...settings}>
+          {pieKeys.map((item, index) => (
+            <div className="col-auto pr-0" key={`col-${index}`}>
+              {item.map((item1) => (
                 <div
-                  className="color-block"
-                  style={{ background: item1.color }}
+                  className="legend-item"
+                  onClick={() => onLegendItemClick(item1.symbol)}
+                  key={`${item1.symbol}-${item1.color}`}
                 >
-                  &nbsp;
+                  <div
+                    className="color-block"
+                    style={{ background: item1.color }}
+                  >
+                    &nbsp;
+                  </div>
+                  <span
+                    style={{
+                      textDecoration:
+                        extData && extData.item[0] === item1.symbol
+                          ? 'line-through'
+                          : 'none',
+                    }}
+                  >
+                    {item1.symbol}
+                  </span>
                 </div>
-                <span
-                  style={{
-                    textDecoration:
-                      extData && extData.item[0] === item1.symbol
-                        ? 'line-through'
-                        : 'none',
-                  }}
-                >
-                  {item1.symbol}
-                </span>
-              </div>
-            ))}
-          </div>
-        ))}
+              ))}
+            </div>
+          ))}
+        </Slider>
       </div>
     </div>
   )

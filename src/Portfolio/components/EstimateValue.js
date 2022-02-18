@@ -71,14 +71,14 @@ const EstimateValue = () => {
   }
   return (
     <>
-      <div className="card card-fluid d-flex flex-row">
-        <div className="card-content-left">
-          <div className="card-header">
+      <div className="card card-fluid d-flex flex-row flex-column px-4">
+        <div>
+          <div className="card-header estimate-value-header">
             <div className="d-flex align-items-center">
               <span className="h6">Estimated Value</span>
             </div>
           </div>
-          <div className="card-body">
+          <div className="card-body estimated-value">
             {BTC && (
               <div className="d-flex align-items-center mb-2">
                 <div>
@@ -127,7 +127,7 @@ const EstimateValue = () => {
             )}
           </div>
         </div>
-        <div className="card-content-right">
+        <div className="cashometer-container">
           <div className="card-header">
             <div className="d-flex align-items-center">
               <span className="h6">Cashometer</span>
