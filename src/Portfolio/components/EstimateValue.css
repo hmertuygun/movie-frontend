@@ -1,18 +1,10 @@
-.card-content-left {
-  width: 50%;
-}
-
-.card-content-right {
-  width: 50%;
-}
-
 .card-content-right .card-body {
   padding: 0;
   margin-top: 27px;
 }
 
 .card-content-right .card-body p {
-  width: 92%
+  width: 92%;
 }
 
 .card-content-right .gauge-chart text {
@@ -20,7 +12,7 @@
 }
 
 .icon-wrapper {
-  position: relative
+  position: relative;
 }
 
 .icon-wrapper svg:nth-child(2) {
@@ -35,23 +27,23 @@
   position: absolute;
   bottom: -110px;
   z-index: 1000;
-  padding: .35rem 0;
-  margin: .125rem 0 0;
-  font-size: .875rem;
+  padding: 0.35rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
   color: #718096;
   text-align: left;
   list-style: none;
   background-color: #fff;
   background-clip: padding-box;
   border: 1px solid #eaecf3;
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   box-shadow: 0 0 1.25rem rgb(31 45 61 / 5%);
 }
 
 .custom-dropdown p {
   display: block;
   width: 100%;
-  padding: .25rem 1rem;
+  padding: 0.25rem 1rem;
   clear: both;
   font-weight: 400;
   color: #4a5568;
@@ -59,24 +51,32 @@
   white-space: nowrap;
   background-color: transparent;
   border: 0;
-  font-size: .875rem;
+  font-size: 0.875rem;
   cursor: pointer;
   margin-bottom: 0;
 }
 
 .custom-dropdown p:hover {
-  color: #008aff
+  color: #008aff;
 }
 
-@media (max-width: 767px) {
-  .card {
-    flex-direction: column !important;
-  }
-  .card-content-left {
-    width: 100%;
+@media (max-width: 992px) {
+  .cashometer-container {
+    display: none;
   }
 
-  .card-content-right {
-    width: 100%;
+  .estimated-value {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+  }
+
+  .estimated-value .text-sm {
+    font-size: 0.8rem !important;
+  }
+
+  .estimate-value-header {
+    padding: 0.8rem;
+    padding-left: 0;
   }
 }

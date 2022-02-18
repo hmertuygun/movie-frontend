@@ -40,7 +40,7 @@
 
 .c3-chart-arc text {
   fill: #fff;
-  font-size: 13px;
+  font-size: 22px;
 }
 
 /*-- Axis --*/
@@ -274,10 +274,15 @@
 }
 .custom-legend .legend-item span {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 18px;
   margin-left: 8px;
   margin-top: 2px;
 }
+
+.custom-legend .slick-slider {
+  width: 250px;
+}
+
 @media (max-width: 767px) {
   .chart-container {
     flex-direction: column;
