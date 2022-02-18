@@ -62,6 +62,8 @@ const WarningAlert = () => {
       history.push('/settings#subscription')
     } else if (param === 'huobi') {
       window.open('https://bit.ly/3GGX17Y')
+    } else if (param === 'gomarket') {
+      window.open('https://bit.ly/3I1DReA')
     }
   }
 
