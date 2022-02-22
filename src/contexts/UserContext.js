@@ -12,7 +12,7 @@ import {
   getUserExchanges,
   storeNotificationToken,
 } from '../api/api'
-import Ping from 'ping.js'
+import Ping from '../helpers/ping'
 import dayjs from 'dayjs'
 import { execExchangeFunc } from '../helpers/getExchangeProp'
 import { sortExchangesData } from '../helpers/apiKeys'
@@ -40,8 +40,7 @@ const UserContextProvider = ({ children }) => {
   const sessionStorageRemember = sessionStorage.getItem('remember')
   const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
   localStorage.removeItem('tradingview.IntervalWidget.quicks')
-  const history = useHistory()
-  const p = new Ping({ favicon: '/' })
+  const p = new Ping({ favicon: '' })
   let initialState = {}
   if (
     localStorageUser !== 'undefined' &&
