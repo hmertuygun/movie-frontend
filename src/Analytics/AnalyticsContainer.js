@@ -7,6 +7,7 @@ import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
 import AnalyticsFilter from './components/AnalyticsFilter'
 import dayjs from 'dayjs'
+import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 
 function AnalyticsContainer() {
   const [startDate, setStartDate] = useState()
@@ -30,16 +31,39 @@ function AnalyticsContainer() {
     refreshData(value)
     onRefreshBtnClicked('analytics')
   }
+
+  const getLogo = (exchange) => {
+    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+    if (obj?.logo) return obj.logo
+  }
+
   return (
     <>
       <section className="py-5 slice bg-section-secondary">
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
-              <div className="mb-4 row align-items-center">
+              <div className="row align-items-center">
                 <div className="col">
                   <h1 className="mb-0 h4">Analytics</h1>
                 </div>{' '}
+              </div>
+              <div className="row mt-1">
+                <div className="col-auto">
+                  <h4>
+                    <span class="badge badge-secondary ">
+                      <img
+                        className="mb-1"
+                        src={getLogo(activeExchange.exchange)}
+                        style={{
+                          width: '24px',
+                          marginRight: '0.4rem',
+                        }}
+                      />
+                      {activeExchange.apiKeyName}
+                    </span>
+                  </h4>
+                </div>
               </div>
               <AnalyticsFilter
                 setSearch={setSearch}
