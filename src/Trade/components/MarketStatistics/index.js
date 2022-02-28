@@ -30,7 +30,8 @@ import DrawingsMigrationModal from '../DrawingsMigrationModal'
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
-  const { selectedSymbolDetail, marketData } = useSymbolContext()
+  const { selectedSymbolDetail, marketData, setLastMarketPrice } =
+    useSymbolContext()
   const {
     chartDrawings,
     setChartDrawings,
@@ -238,7 +239,10 @@ function MarketStatistics({ market }) {
   }, [finalData])
 
   useInterval(async () => {
-    if (!isNaN(message && message.lastPrice)) setFinalData(message)
+    if (!isNaN(message && message.lastPrice)) {
+      setFinalData(message)
+      setLastMarketPrice(message?.lastPrice)
+    }
   }, 2000)
 
   const handleFileUpload = (e) => {

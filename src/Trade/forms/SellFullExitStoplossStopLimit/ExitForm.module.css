@@ -1,0 +1,40 @@
+.SliderRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+}
+
+.SliderText {
+  width: 35px;
+  height: 25px;
+}
+
+.SliderSlider {
+  width: calc(100% - 130px);
+  height: 15px;
+}
+
+.SliderInput {
+  width: 75px;
+  min-width: 75px;
+}
+
+.Input {
+  margin-bottom: 1rem;
+}
+
+.InputDropdownContainer {
+  margin-bottom: 1rem;
+  display: flex;
+}
+
+.Error {
+  background-color: var(--trade-background);
+  border: 1px solid var(--trade-border-danger-color);
+  color: var(--trade-text-danger-color);
+  margin-top: 5px;
+  font-size: 12px;
+  text-align: center;
+}

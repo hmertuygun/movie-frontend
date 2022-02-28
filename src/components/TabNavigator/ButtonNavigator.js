@@ -1,4 +1,10 @@
-import React, { useState, Fragment, useContext, useEffect } from 'react'
+import React, {
+  useState,
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react'
 import { UserContext } from '../../contexts/UserContext'
 import Button from '../Button/Button'
 import './ButtonNavigator.css'
@@ -7,9 +13,20 @@ const ButtonNavigator = ({
   index = 0,
   children,
   labelArray = ['Target', 'Stop-loss'],
+  tabButtonOutline = false,
+  isDisabled = false,
 }) => {
   const [viewIndex, setViewIndex] = useState(index)
   const { isTourStep5, isTourFinished } = useContext(UserContext)
+  const disabledStyle = useMemo(() => {
+    return isDisabled
+      ? {
+          pointerEvents: 'none',
+          cursor: 'not-allowed',
+          opacity: '0.7',
+        }
+      : null
+  }, [isDisabled])
 
   useEffect(() => {
     if (isTourStep5) {
@@ -25,26 +42,51 @@ const ButtonNavigator = ({
 
   return (
     <Fragment>
-      <nav
-        className="ButtonNavigator-container"
-        id={labelArray[0] === 'BUY' ? 'cp-tour5' : ''}
-      >
-        <Button
-          variant={viewIndex === 0 ? 'buy' : 'trade-nav'}
-          onClick={() => setViewIndex(0)}
-          id={labelArray[0] === 'BUY' ? 'buy-btn' : ''}
+      {tabButtonOutline ? (
+        <nav
+          className="ButtonNavigator-outline-container"
+          id={labelArray[0] === 'BUY' ? 'cp-tour5' : ''}
         >
-          {labelArray[0]}
-        </Button>
+          <Button
+            variant={viewIndex === 0 ? 'buy' : 'buy-outline'}
+            onClick={() => setViewIndex(0)}
+            id={labelArray[0] === 'BUY' ? 'buy-btn' : ''}
+          >
+            {labelArray[0]}
+          </Button>
 
-        <Button
-          variant={viewIndex === 1 ? 'sell' : 'trade-nav'}
-          onClick={() => setViewIndex(1)}
-          id={labelArray[1] === 'SELL' ? 'sell-btn' : ''}
+          <Button
+            variant={viewIndex === 1 ? 'sell' : 'sell-outline'}
+            onClick={() => setViewIndex(1)}
+            id={labelArray[1] === 'SELL' ? 'sell-btn' : ''}
+          >
+            {labelArray[1]}
+          </Button>
+        </nav>
+      ) : (
+        <nav
+          className="ButtonNavigator-container"
+          id={labelArray[0] === 'BUY' ? 'cp-tour5' : ''}
         >
-          {labelArray[1]}
-        </Button>
-      </nav>
+          <Button
+            variant={viewIndex === 0 ? 'buy' : 'trade-nav'}
+            onClick={() => setViewIndex(0)}
+            id={labelArray[0] === 'BUY' ? 'buy-btn' : ''}
+            style={disabledStyle}
+          >
+            {labelArray[0]}
+          </Button>
+
+          <Button
+            variant={viewIndex === 1 ? 'sell' : 'trade-nav'}
+            onClick={() => setViewIndex(1)}
+            id={labelArray[1] === 'SELL' ? 'sell-btn' : ''}
+            style={disabledStyle}
+          >
+            {labelArray[1]}
+          </Button>
+        </nav>
+      )}
 
       {children[viewIndex]}
     </Fragment>

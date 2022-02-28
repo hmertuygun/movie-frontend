@@ -15,6 +15,7 @@ const Button = ({
   disabled,
   remove,
   pageLink,
+  outline,
   ...props
 }) => {
   const ButtonStyle = () => {
