@@ -8,6 +8,7 @@ import ButtonNavigator from './TabNavigator/ButtonNavigator'
 import Modal from './Modal/Modal'
 import Header from './Header/Header'
 import Icon from './Icon/Icon'
+import Loader from './Loader'
 
 export {
   Button,
@@ -20,4 +21,5 @@ export {
   Modal,
   Header,
   Icon,
+  Loader,
 }

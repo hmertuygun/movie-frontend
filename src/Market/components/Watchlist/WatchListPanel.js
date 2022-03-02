@@ -1,22 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-loop-func */
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useContext,
-  useCallback,
-  useRef,
-} from 'react'
-import Select from 'react-select'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
+
 import { Popover } from 'react-tiny-popover'
-import {
-  Plus,
-  ChevronDown,
-  MoreHorizontal,
-  Flag,
-  Edit,
-  Slash,
-} from 'react-feather'
+import { ChevronDown, MoreHorizontal, Flag, Edit } from 'react-feather'
 import { useNotifications } from 'reapop'
 
 import WatchListItem from '../WatchListItem'
@@ -27,7 +14,6 @@ import { orderBy } from 'lodash'
 import { firebase } from '../../../firebase/firebase'
 import AddWatchListModal from '../AddWatchListModal'
 import AddEmojiModal from '../AddEmojiModal'
-import { exchangeCreationOptions } from '../../../constants/ExchangeOptions'
 import {
   WATCHLIST_INIT_STATE,
   DEFAULT_WATCHLIST,
@@ -43,18 +29,14 @@ import {
   getExchangeProp,
 } from '../../../helpers/getExchangeProp'
 import { exchangeSystems } from '../../../constants/ExchangeOptions'
+import NewWatchListItem from './NewWatchListItem'
 
 const WatchListPanel = () => {
   const {
-    symbols,
-    isLoading,
-    isLoadingBalance,
-    pureData,
     symbolDetails,
     templateDrawingsOpen,
     setSymbol,
     activeTrader,
-    watchlistOpen,
     emojis,
     handleSaveEmojis,
     selectEmojiPopoverOpen,
@@ -63,7 +45,6 @@ const WatchListPanel = () => {
   const { userData, isPaidUser } = useContext(UserContext)
   const { notify } = useNotifications()
 
-  const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
   const [watchListOptionPopoverOpen, setWatchListOptionPopoverOpen] =
     useState(false)
@@ -76,7 +57,7 @@ const WatchListPanel = () => {
   const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
   const [symbolsList, setSymbolsList] = useState([])
-  const symbolsSelectRef = useRef(null)
+
   const [templateWatchlist, setTemplateWatchlist] = useState()
   const [orderSetting, setOrderSetting] = useState({
     label: 'asc',
@@ -371,100 +352,9 @@ const WatchListPanel = () => {
     }
   }, [watchSymbolsList])
 
-  const getLogo = (symbol) => {
-    const exchange = symbol.value.split(':')[0].toLowerCase()
-
-    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
-    if (obj?.logo) return obj.logo
-  }
-
   useEffect(() => {
     setItems()
   }, [watchSymbolsList, setItems])
-
-  const customStyles = {
-    control: (styles) => ({
-      ...styles,
-      boxShadow: 'none',
-      backgroundColor: 'var(--modal-background)',
-      border: 0,
-      borderRadius: '4px',
-      height: '45px',
-      minHeight: '45px',
-      color: 'var(--grey)',
-
-      '&:hover': {
-        cursor: 'pointer',
-      },
-    }),
-
-    input: (styles) => ({
-      ...styles,
-      color: 'var(--grey)',
-    }),
-
-    valueContainer: (styles) => ({
-      ...styles,
-      height: '41px',
-      padding: '0 5px',
-    }),
-
-    singleValue: (styles) => ({
-      ...styles,
-      textTransform: 'capitalize',
-      color: 'var(--grey)',
-    }),
-
-    menu: (styles) => ({
-      ...styles,
-      margin: 0,
-      background: 'var(--modal-background)',
-    }),
-
-    option: (styles, { isDisabled, isFocused, isSelected }) => ({
-      ...styles,
-      textTransform: 'capitalize',
-      padding: '5px 5px',
-      backgroundColor: isDisabled
-        ? 'var(--modal-background)'
-        : isSelected
-        ? 'var(--symbol-select-background-selected)'
-        : isFocused
-        ? 'var(--symbol-select-background-focus)'
-        : 'var(--modal-background)',
-      color: 'var(--grey)',
-
-      '&:hover': {
-        cursor: 'pointer',
-      },
-    }),
-
-    placeholder: (styles) => ({
-      ...styles,
-      textTransform: 'capitalize',
-    }),
-
-    indicatorsContainer: (styles) => ({
-      ...styles,
-      height: '41px',
-    }),
-  }
-
-  const selectedSymbols = useMemo(() => {
-    if (!symbols.length) return []
-    const selected = symbols.filter(
-      (symbol) => !symbolsList.some((item) => item.value === symbol.value)
-    )
-    const finalOptions =
-      selected &&
-      selected.map((item) => {
-        return {
-          ...item,
-          searchLabel: `${item.base_asset}${item.quote_asset}`,
-        }
-      })
-    return finalOptions
-  }, [symbols, symbolsList])
 
   const handleChange = async (symbol) => {
     const symbols = [...symbolsList, { ...symbol, flag: 0 }].map((item) => ({
@@ -792,60 +682,10 @@ const WatchListPanel = () => {
             </Popover>
           )}
         {!templateDrawingsOpen && (
-          <Popover
-            key="watchlist-creation-popover"
-            isOpen={selectPopoverOpen}
-            positions={['bottom', 'top', 'right', 'left']}
-            align="end"
-            padding={10}
-            reposition={false}
-            onClickOutside={() => setSelectPopoverOpen(false)}
-            content={({ position, nudgedLeft, nudgedTop }) => (
-              <div className={styles.newWatchListModal}>
-                <Select
-                  components={{
-                    IndicatorSeparator: () => null,
-                  }}
-                  options={Object.values(selectedSymbols)}
-                  placeholder="Search"
-                  ref={symbolsSelectRef}
-                  onChange={handleChange}
-                  formatOptionLabel={(symbol) => (
-                    <span>
-                      <img
-                        src={getLogo(symbol)}
-                        style={{
-                          width: '18px',
-                          marginRight: '4px',
-                          marginTop: '-2px',
-                        }}
-                      />
-                      {symbol.label}
-                    </span>
-                  )}
-                  styles={customStyles}
-                  getOptionValue={(option) => option.searchLabel}
-                />
-              </div>
-            )}
-          >
-            <div
-              className={`${styles.watchListPlus} ${styles.watchListControl} ${
-                selectPopoverOpen ? styles.watchListControlSelected : ''
-              }`}
-              style={{
-                pointerEvents: selectedSymbols.length > 0 ? 'auto' : 'none',
-              }}
-              onClick={() => {
-                setSelectPopoverOpen(true)
-                setTimeout(() => {
-                  symbolsSelectRef?.current?.select?.focus()
-                }, 0)
-              }}
-            >
-              <Plus />
-            </div>
-          </Popover>
+          <NewWatchListItem
+            symbolsList={symbolsList}
+            handleChange={handleChange}
+          ></NewWatchListItem>
         )}
         {!templateDrawingsOpen ? (
           <Popover
