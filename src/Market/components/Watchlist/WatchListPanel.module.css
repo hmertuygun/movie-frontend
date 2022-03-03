@@ -291,12 +291,12 @@
 
 @media (max-width: 767px) {
   .watchLists {
-    height: 500px;
-    overflow: auto;
+    margin-bottom: 20px;
+    height: auto;
   }
 
   .watchLists2 {
-    height: 500px;
-    overflow: auto;
+    height: auto;
+    margin-bottom: 20px;
   }
 }

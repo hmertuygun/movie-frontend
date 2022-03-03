@@ -1,0 +1,20 @@
+@media (max-width: 767px) {
+  .market-stat-chart {
+    padding-left: 15px !important;
+  }
+
+  .market-stat-chart .marketDataContainer {
+    border-left: none;
+    border-right: none;
+  }
+
+  .market-chart-mobile {
+    margin-right: -15px !important;
+    height: calc(100vh - 160px) !important;
+  }
+
+  .market-chart-mobile-container {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}

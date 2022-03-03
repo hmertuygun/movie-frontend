@@ -161,3 +161,8 @@
 .skipped-trade-view {
   grid-template-columns: 200px auto;
 }
+@media (max-width: 767px) {
+  .TradeView-Chart-Mobile {
+    height: calc(100vh - 262px);
+  }
+}

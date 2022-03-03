@@ -45,7 +45,7 @@ const MobileTab = () => {
                 return true
               } else {
                 setActivePage('Home')
-                return false
+                return true
               }
             })
           }
@@ -97,6 +97,10 @@ const MobileTab = () => {
         },
         function: () => {
           setActivePage('MARKET')
+          window.scroll({
+            top: 0,
+            behavior: 'smooth',
+          })
           return history.push('/market')
         },
       },

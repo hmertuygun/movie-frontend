@@ -93,6 +93,10 @@
   position: absolute;
 }
 
+.lastPriceBlockMobile {
+  display: none;
+}
+
 @media (max-width: 1230px) {
   .marketDataContainer {
     /* height: 52px; */
@@ -108,10 +112,38 @@
   }
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767px) {
   .marketDataContainer {
-    overflow: auto;
+    padding: 5px;
+    overflow-x: auto;
     width: 100%;
-    padding: 0 5px;
+    height: 65px;
+  }
+
+  .market-stat-chart .marketDataContainer {
+    padding: 5px;
+    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    height: 85px;
+  }
+
+  .market-stat-chart .lastPriceBlockMobile {
+    display: block;
+    margin-bottom: 4px;
+    margin-top: 2px;
+  }
+  .market-stat-chart .lastPriceBlock {
+    display: none;
+  }
+
+  .market-stat-chart .lastPriceMarketDataBlock {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 5px;
+  }
+
+  .market-stat-chart .marketDataBlock {
+    width: 100px;
   }
 }

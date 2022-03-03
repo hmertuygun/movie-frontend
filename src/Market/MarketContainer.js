@@ -8,6 +8,7 @@ import { firebase } from '../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import './MarketContainer.css'
 
 function MarketContainer() {
   const db = firebase.firestore()
@@ -128,20 +129,20 @@ function MarketContainer() {
               <WatchListPanel />
             </div>
           </div>
-          <div className="col-lg-9 col-md-12 pl-0">
+          <div className="col-lg-9 col-md-12 pl-0 market-stat-chart">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card m-1">
-                  {' '}
                   <MarketStatistics market={true} />
                 </div>
               </div>
             </div>
             <div
               style={{ height: 'calc(100vh - 146px)', marginRight: -7 }}
-              className="row"
+              className="row market-chart-mobile"
+              id="market-chart-container"
             >
-              <div className="col-lg-12 m-1">
+              <div className="col-lg-12 m-1 market-chart-mobile-container">
                 <div
                   className="card mb-0 p-2"
                   style={{ width: '100%', height: '100%' }}
