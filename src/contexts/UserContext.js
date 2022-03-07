@@ -99,6 +99,8 @@ const UserContextProvider = ({ children }) => {
   const [isCountryAvailable, setIsCountryAvailable] = useState(true)
   const [chartDrawings, setChartDrawings] = useState()
   const [settingChartDrawings, isSettingChartDrawings] = useState(false)
+  const [createSubscription, setCreateSubscription] = useState(false)
+  const [subscriptionError, setSubscriptionError] = useState('')
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -264,14 +266,23 @@ const UserContextProvider = ({ children }) => {
 
     if (subData) {
       const { subscription_status, provider, currency, plan, amount } = subData
+      let errorMessage = subData && subData.error_message
+      if (errorMessage) {
+        setSubscriptionError(errorMessage)
+      } else {
+        setSubscriptionError('')
+      }
       const { seconds } = subData.expiration_date
       const exp = dayjs(seconds * 1000)
       const isExpired = exp.isBefore(dayjs())
-
       if (provider === 'coinbase') {
-        setNeedPayment(isExpired)
+        setNeedPayment(subscription_status === 'trailing')
         setHasSub(!isExpired)
         setIsPaidUser(!isExpired)
+        setCreateSubscription(
+          subscription_status === 'cancelled' ||
+            subscription_status === 'canceled'
+        )
         setSubscriptionData({
           subscription: {
             type: 'crypto',
@@ -305,10 +316,11 @@ const UserContextProvider = ({ children }) => {
             subscription_status === 'active') &&
             !isExpired
         )
-        setNeedPayment(
-          subscription_status === 'past_due' ||
-            subscription_status === 'trialing'
+        setCreateSubscription(
+          subscription_status === 'canceled' ||
+            subscription_status === 'cancelled'
         )
+        setNeedPayment(subscription_status === 'trialing')
         if (subData?.payment_method_attached)
           setEndTrial(subData.payment_method_attached)
         setIsPaidUser(subscription_status === 'active')
@@ -329,6 +341,7 @@ const UserContextProvider = ({ children }) => {
       setNeedPayment(true)
       setHasSub(false)
       setIsPaidUser(false)
+      setCreateSubscription(true)
     }
 
     const exception = await getFirestoreDocumentData(
@@ -758,6 +771,8 @@ const UserContextProvider = ({ children }) => {
         chartDrawings,
         settingChartDrawings,
         isSettingChartDrawings,
+        createSubscription,
+        subscriptionError,
       }}
     >
       {children}

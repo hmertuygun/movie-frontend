@@ -3,7 +3,6 @@ import { loadStripe } from '@stripe/stripe-js'
 import { auth, firebase } from '../../firebase/firebase'
 import { Bell } from 'react-feather'
 import { coinBaseUrls } from '../../constants/coinbaseUrls'
-import { getFireStoreDoubleCollectionData } from '../../api/firestoreCall'
 
 const SubscriptionCard = ({ product }) => {
   const [subscribing, setSubscribing] = useState(false)

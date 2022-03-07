@@ -28,6 +28,8 @@ const Subscription = () => {
     setCountry,
     country,
     setIsCountryAvailable,
+    createSubscription,
+    subscriptionError,
   } = useContext(UserContext)
   const history = useHistory()
   const { notify } = useNotifications()
@@ -133,8 +135,16 @@ const Subscription = () => {
         </div>
       </div>
       <div className="col-lg-12">
+        {subscriptionError && (
+          <div class="alert alert-danger" role="alert">
+            <AlertTriangle size={24} strokeWidth={3} />
+            <span className="ml-3 mt-2" style={{ fontSize: 18 }}>
+              {subscriptionError}
+            </span>
+          </div>
+        )}
         {!isCheckingSub ? (
-          hasSub ? (
+          !createSubscription ? (
             <SubscriptionActiveCard
               subscriptionData={subscriptionData}
               needPayment={needPayment}
