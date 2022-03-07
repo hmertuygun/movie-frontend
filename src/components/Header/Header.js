@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react'
 import {
-  faTwitter,
+  faTelegramPlane,
   faTelegram,
   faMediumM,
 } from '@fortawesome/free-brands-svg-icons'
@@ -18,7 +18,8 @@ import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from '../../helpers/tourSteps'
-import { Moon, Gift } from 'react-feather'
+import { Moon, Sun, Twitter, Gift, HelpCircle } from 'react-feather'
+import './Header.css'
 
 const Header = () => {
   const {
@@ -176,6 +177,28 @@ const Header = () => {
                   </a>
                 )}
               </li>
+              <li className="nav-item">
+                <div
+                  className={`switch-container ${
+                    theme === 'DARK'
+                      ? 'switch-container-light'
+                      : 'switch-container-dark'
+                  }`}
+                  onClick={toggleTheme}
+                >
+                  {theme === 'DARK' ? (
+                    <>
+                      <Sun size={13} strokeWidth="3" />
+                      <span className="switch-container-circle">&nbsp;</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="switch-container-circle">&nbsp;</span>
+                      <Moon size={13} strokeWidth="3" />
+                    </>
+                  )}
+                </div>
+              </li>
               {!isOnboardingSkipped && (
                 <>
                   <li className="nav-item">
@@ -201,7 +224,12 @@ const Header = () => {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                      <FontAwesomeIcon
+                        icon={faMediumM}
+                        className={`mt-2 ${
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }`}
+                      />
                     </a>
                   </li>{' '}
                   <li className="nav-item">
@@ -212,7 +240,12 @@ const Header = () => {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                      <Twitter
+                        size={15}
+                        className={
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }
+                      />
                     </a>
                   </li>{' '}
                   <li className="nav-item">
@@ -223,12 +256,17 @@ const Header = () => {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTelegram} className="mt-2" />
+                      <FontAwesomeIcon
+                        icon={faTelegramPlane}
+                        className={`mt-2 ${
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }`}
+                      />
                     </a>
                   </li>
                 </>
               )}
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <span
                   type="button"
                   id="btnSwitchMode"
@@ -239,8 +277,14 @@ const Header = () => {
                 >
                   <Moon size={15} className="chevron-down" strokeWidth="3" />
                 </span>
-              </li>
+              </li> */}
               <Menu />
+              <li className="nav-item">
+                <button className="btn btn-primary custom-help-button">
+                  <HelpCircle size={16} />
+                  &nbsp; Help
+                </button>
+              </li>
             </ul>
             {/* <Notifications /> */}
           </div>
