@@ -195,13 +195,13 @@ const SellOrderEditModal = ({
               .typeError('Trigger price is required')
               .test(
                 'Trigger Price',
-                `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
+                `Trigger Price must be lower than Entry Price: ${addPrecisionToNumber(
                   entryPrice,
                   pricePrecision
                 )}`,
                 (value) =>
                   isFullTrade && !isStoploss && !isEntry
-                    ? value > entryPrice
+                    ? value < entryPrice
                     : true
               )
               .test(
