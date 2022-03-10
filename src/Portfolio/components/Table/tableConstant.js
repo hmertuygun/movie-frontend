@@ -29,7 +29,7 @@ export const tableConstants = (handleEdit) => {
     {
       title: 'BTC VALUE',
       render: (rowData) => {
-        return handleChangeTickSize(rowData.BALANCE, 'BTC-USDT')
+        return handleChangeTickSize(rowData.BTC, 'BTC-USDT')
       },
     },
     {
