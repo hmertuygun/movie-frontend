@@ -36,3 +36,7 @@
 .minus {
   color: var(--sell);
 }
+
+.react-tiny-popover-container {
+  z-index: 104;
+}

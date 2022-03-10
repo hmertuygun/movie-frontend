@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useContext, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-
+import roundNumbers from '../../../helpers/roundNumbers'
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
@@ -25,11 +25,11 @@ import * as yup from 'yup'
 import styles from '../LimitForm/LimitForm.module.css'
 import { execExchangeFunc } from '../../../helpers/getExchangeProp'
 
-const MarketForm = () => {
+const SellFullMarketForm = () => {
   const {
     isLoading,
     selectedSymbolDetail,
-    selectedSymbolBalance,
+    selectedBaseSymbolBalance,
     isLoadingBalance,
     isLoadingLastPrice,
     selectedSymbolLastPrice,
@@ -57,7 +57,8 @@ const MarketForm = () => {
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
-
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
   const quantityPrecision =
     selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const amountPercentagePrecision = 1
@@ -89,7 +90,6 @@ const MarketForm = () => {
       .number()
       .required('Amount is required')
       .typeError('Amount is required')
-      .positive()
       .min(
         minQty,
         `Amount needs to meet min-price: ${addPrecisionToNumber(
@@ -97,26 +97,18 @@ const MarketForm = () => {
           quantityPrecision
         )}`
       )
-      .max(
-        maxQty,
-        `Amount needs to meet max-price: ${addPrecisionToNumber(
-          maxQty,
-          quantityPrecision
-        )}`
-      ),
+      .max(selectedBaseSymbolBalance, `Amount cannot not exceed your balance.`),
     total: yup
       .number()
       .required('Total is required')
       .typeError('Total is required')
-      .positive()
       .min(
         minNotional,
         `Total needs to meet min-trading: ${addPrecisionToNumber(
           minNotional,
           totalPrecision
         )}`
-      )
-      .max(selectedSymbolBalance, 'Total cannot not exceed your balance.'),
+      ),
   })
 
   const calculatePercentageQuantityAndQuantityFromTotal = (value) => {
@@ -128,25 +120,12 @@ const MarketForm = () => {
     const quantityWithPrecision =
       quantity === 0 ? '' : addPrecisionToNumber(quantity, quantityPrecision)
 
-    const balance = selectedSymbolBalance
+    const balance = selectedBaseSymbolBalance
     const pq = (total * 100) / balance
     const percentageQuantityWithPrecision =
       pq > 100 ? 100 : parseFloat(pq.toFixed(0))
 
     return { quantityWithPrecision, percentageQuantityWithPrecision }
-  }
-
-  const calculateTotalAndPercentageQuantity = (value) => {
-    const total = Number(value) * selectedSymbolLastPrice
-    const balance = selectedSymbolBalance
-
-    const totalWithPrecision =
-      total === 0 ? '' : addPrecisionToNumber(total, totalPrecision)
-
-    const pq = (totalWithPrecision * 100) / balance
-    const percentageQuantityWithPrecision =
-      pq > 100 ? 100 : parseFloat(pq.toFixed(0))
-    return { totalWithPrecision, percentageQuantityWithPrecision }
   }
 
   const validateInput = (target) => {
@@ -169,10 +148,44 @@ const MarketForm = () => {
 
   const handleChange = ({ target }) => {
     if (!allowOnlyNumberDecimalAndComma(target.value)) return
-    setErrors((errors) => ({
-      ...errors,
-      [target.name]: '',
-    }))
+    const { name, value } = target
+
+    if (name === 'price') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.quantity),
+        totalPrecision
+      )
+
+      setValues((values) => ({
+        ...values,
+        price: value,
+        total,
+      }))
+
+      priceAndProfitSync(name, value)
+    }
+    if (name === 'quantity') {
+      const maxLength = getMaxInputLength(target.value, quantityPrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+
+      const total = addPrecisionToNumber(
+        Number(value) * Number(selectedSymbolLastPrice),
+        totalPrecision
+      )
+
+      setValues((values) => ({
+        ...values,
+        quantity: value,
+        total,
+      }))
+
+      priceAndProfitSync(name, value)
+    }
 
     if (target.name === 'total') {
       const maxLength = getMaxInputLength(target.value, totalPrecision)
@@ -188,24 +201,10 @@ const MarketForm = () => {
         quantityPercentage: percentageQuantityWithPrecision,
         [target.name]: target.value,
       }))
-    } else if (target.name === 'quantity') {
-      const maxLength = getMaxInputLength(target.value, quantityPrecision)
-      const inputLength = getInputLength(target.value)
-      if (inputLength > maxLength) return
-
-      const { totalWithPrecision, percentageQuantityWithPrecision } =
-        calculateTotalAndPercentageQuantity(target.value)
-
-      setValues((values) => ({
-        ...values,
-        [target.name]: target.value,
-        total: totalWithPrecision,
-        quantityPercentage: percentageQuantityWithPrecision,
-      }))
 
       validateInput({
-        name: 'total',
-        value: totalWithPrecision,
+        name: 'quantity',
+        value: quantityWithPrecision,
       })
     }
 
@@ -220,50 +219,12 @@ const MarketForm = () => {
     }))
   }
 
-  const calculateTotalAndQuantityFromSliderPercentage = (
-    sliderValue,
-    symbolBalance
-  ) => {
-    const balance = selectedSymbolBalance
-    const sliderPercentage = Number(sliderValue) / 100
-    const cost = addPrecisionToNumber(
-      sliderPercentage * balance,
-      totalPrecision
-    )
-
-    const quantityWithPrecision = addPrecisionToNumber(
-      cost / parseFloat(symbolBalance || selectedSymbolLastPrice),
-      quantityPrecision
-    )
-
-    const totalWithPrecision = addPrecisionToNumber(
-      quantityWithPrecision * selectedSymbolLastPrice,
-      totalPrecision
-    )
-
-    return { totalWithPrecision, quantityWithPrecision }
-  }
-
   const handleSlider = (newValue) => {
-    const { quantityWithPrecision, totalWithPrecision } =
-      calculateTotalAndQuantityFromSliderPercentage(newValue)
-
     setValues((values) => ({
       ...values,
       quantityPercentage: newValue,
-      quantity: quantityWithPrecision,
-      total: totalWithPrecision,
     }))
-
-    validateInput({
-      name: 'quantity',
-      value: quantityWithPrecision,
-    })
-
-    validateInput({
-      name: 'total',
-      value: totalWithPrecision,
-    })
+    priceAndProfitSync('quantityPercentage', newValue)
   }
 
   const handleSliderInputChange = ({ target }) => {
@@ -271,28 +232,66 @@ const MarketForm = () => {
     const inputLength = getInputLength(target.value)
     if (inputLength > maxLength) return
 
-    const value = removeTrailingZeroFromInput(Math.abs(target.value))
+    const value = !target.value
+      ? ''
+      : removeTrailingZeroFromInput(Math.abs(target.value))
 
     const validatedValue = value > 100 ? 100 : value
 
-    const { quantityWithPrecision, totalWithPrecision } =
-      calculateTotalAndQuantityFromSliderPercentage(validatedValue)
     setValues((values) => ({
       ...values,
-      [target.name]: validatedValue,
-      quantity: quantityWithPrecision,
-      total: totalWithPrecision,
+      quantityPercentage: validatedValue,
     }))
+    priceAndProfitSync(target.name, validatedValue)
+  }
 
-    validateInput({
-      name: 'quantity',
-      value: quantityWithPrecision,
-    })
+  const priceAndProfitSync = (inputName, inputValue) => {
+    if (inputName === 'quantity') {
+      const pq =
+        (inputValue * 100) /
+        roundNumbers(selectedBaseSymbolBalance, quantityPrecision)
+      const percentageQuantityWithPrecision =
+        pq > 100 ? 100 : parseFloat(pq.toFixed(0))
+      setValues((values) => ({
+        ...values,
+        quantityPercentage: percentageQuantityWithPrecision,
+      }))
+    }
 
-    validateInput({
-      name: 'total',
-      value: totalWithPrecision,
-    })
+    if (inputName === 'quantityPercentage') {
+      const theQuantity =
+        (roundNumbers(selectedBaseSymbolBalance, quantityPrecision) *
+          inputValue) /
+        100
+
+      const derivedQuantity = addPrecisionToNumber(
+        theQuantity,
+        quantityPrecision
+      )
+
+      const total = addPrecisionToNumber(
+        derivedQuantity * Number(selectedSymbolLastPrice),
+        totalPrecision
+      )
+
+      setValues((values) => ({
+        ...values,
+        quantity: derivedQuantity,
+        total,
+      }))
+
+      validateInput({
+        name: 'quantity',
+        value: derivedQuantity,
+      })
+
+      if (values.quantity) {
+        validateInput({
+          name: 'total',
+          value: total,
+        })
+      }
+    }
   }
 
   const validateForm = () => {
@@ -336,10 +335,11 @@ const MarketForm = () => {
         const payload = {
           price: price,
           quantity: values.quantity,
-          balance: selectedSymbolBalance,
+          balance: selectedBaseSymbolBalance,
           symbol,
           type: 'market',
           total: values.total,
+          side: 'sell',
         }
         addMarketEntry(payload)
       }
@@ -362,9 +362,9 @@ const MarketForm = () => {
         <div style={{ marginTop: '0.8rem', marginBottom: '0.8rem' }}>
           <FontAwesomeIcon icon={faWallet} />
           {'  '}
-          {isLoadingBalance ? ' ' : selectedSymbolBalance}
+          {isLoadingBalance ? ' ' : selectedBaseSymbolBalance}
           {'  '}
-          {selectedSymbolDetail && selectedSymbolDetail['quote_asset']}
+          {selectedSymbolDetail && selectedSymbolDetail['base_asset']}
           {'  '}
         </div>
         {isLoadingBalance ? (
@@ -482,4 +482,4 @@ const MarketForm = () => {
   )
 }
 
-export default MarketForm
+export default SellFullMarketForm

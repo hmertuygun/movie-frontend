@@ -94,6 +94,28 @@
   border: 2px solid var(--sell);
 }
 
+.Button-buy-outline {
+  composes: Button-small;
+  border: 2px solid var(--buy);
+  background: #fff;
+  color: var(--buy) !important;
+}
+
+.Button-buy-outline:hover {
+  border: 2px solid var(--buy);
+}
+
+.Button-sell-outline {
+  composes: Button-small;
+  border: 2px solid var(--sell);
+  background: #fff;
+  color: var(--sell) !important;
+}
+
+.Button-sell-outline:hover {
+  border: 2px solid var(--sell);
+}
+
 .Button-exits {
   composes: Button;
   border: 2px solid var(--button-default-border-color);

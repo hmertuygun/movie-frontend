@@ -9,7 +9,6 @@ import { orderType } from '../../../constants/Trade'
 const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
   const { state } = useContext(TradeContext)
   const { selectedSymbolDetail } = useSymbolContext()
-
   return (
     <article className={styles['TradeModal-Container']}>
       <div className={styles['TradeModal-close']}>
@@ -32,7 +31,10 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
         </Button>
       </div>
       <header className={styles['TradeModal-header']}>
-        <Typography as="h4">{state.entry.symbol} Full Trade</Typography>
+        <Typography as="h4">
+          {state.entry.symbol} Full{' '}
+          {state.entry.side === 'buy' ? 'Buy' : 'Sell'} Trade
+        </Typography>
         <Typography className={styles['TradeModal-header__description']}>
           {state.entry.type} Buy
         </Typography>

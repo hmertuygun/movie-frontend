@@ -44,7 +44,7 @@ const errorInitialValues = {
   total: '',
 }
 
-const ExitStoplossStopMarket = () => {
+const SellFullExitStoplossStopMarket = () => {
   const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
     useSymbolContext()
 
@@ -125,16 +125,16 @@ const ExitStoplossStopMarket = () => {
           )
           .test(
             'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
+            `Trigger price has to be higher than Entry price: ${addPrecisionToNumber(
               entryPrice,
               pricePrecision
             )}`,
-            (value) => value < entryPrice
+            (value) => value > entryPrice
           )
           .test(
             'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
+            `Trigger price has to be higher than current market price`,
+            (value) => value > selectedSymbolLastPrice
           )
       : yup
           .number()
@@ -142,16 +142,16 @@ const ExitStoplossStopMarket = () => {
           .typeError('Trigger price is required')
           .test(
             'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
+            `Trigger price has to be higher than Entry price: ${addPrecisionToNumber(
               entryPrice,
               pricePrecision
             )}`,
-            (value) => value < entryPrice
+            (value) => value > entryPrice
           )
           .test(
             'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
+            `Trigger price has to be higher than current market price`,
+            (value) => value > selectedSymbolLastPrice
           ),
     quantity: yup
       .number()
@@ -165,8 +165,8 @@ const ExitStoplossStopMarket = () => {
         )}`
       )
       .max(
-        entry.quantity,
-        `Amount cannot be higher than entry amount: ${entry.quantity}`
+        entry?.quantity,
+        `Amount cannot be higher than entry amount: ${entry?.quantity}`
       ),
     total: yup
       .number()
@@ -182,7 +182,6 @@ const ExitStoplossStopMarket = () => {
   })
 
   const handleSliderChange = (newValue) => {
-    newValue = 0 - newValue
     setValues((values) => ({
       ...values,
       profit: newValue,
@@ -408,6 +407,7 @@ const ExitStoplossStopMarket = () => {
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
+        side: 'buy',
       })
     }
   }
@@ -448,19 +448,18 @@ const ExitStoplossStopMarket = () => {
               </div>
               <div className={styles['SliderSlider']}>
                 <Slider
-                  reverse
                   defaultValue={0}
                   step={1}
                   marks={marks2}
                   min={0}
-                  max={99}
+                  max={100}
                   onChange={handleSliderChange}
-                  value={0 - values.profit}
+                  value={values.profit}
                 />
               </div>
               <div className={styles['SliderInput']}>
                 <InlineInput
-                  value={values.profit}
+                  value={0 - values.profit}
                   margin="dense"
                   onChange={handleSliderInputChange}
                   postLabel={'%'}
@@ -526,4 +525,4 @@ const ExitStoplossStopMarket = () => {
   )
 }
 
-export default ExitStoplossStopMarket
+export default SellFullExitStoplossStopMarket

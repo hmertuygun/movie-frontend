@@ -5,7 +5,13 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import styles from './Table.module.css'
 import { UserContext } from '../../../contexts/UserContext'
-const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
+const Table = ({
+  labels = [],
+  entry = {},
+  targets = [],
+  stoploss = [],
+  sell,
+}) => {
   const { selectedSymbolDetail } = useSymbolContext()
   const { activeExchange } = useContext(UserContext)
   const { removeEntry, removeStoploss, removeTarget } = useContext(TradeContext)
@@ -88,8 +94,12 @@ const Table = ({ labels = [], entry = {}, targets = [], stoploss = [] }) => {
             <TableTradeRow>
               <td>
                 <div className={styles['Table-type-container']}>
-                  <div className={styles['Table-dot-buy']}></div>
-                  Buy
+                  <div
+                    className={
+                      styles[sell ? 'Table-dot-stoploss' : 'Table-dot-buy']
+                    }
+                  ></div>
+                  {sell ? 'Sell' : 'Buy'}
                 </div>
               </td>
 

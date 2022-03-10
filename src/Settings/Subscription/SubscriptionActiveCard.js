@@ -8,6 +8,13 @@ import { callCloudFunction } from '../../api/api'
 import { subscriptionNames } from '../../constants/subscriptionNames'
 import './SubscriptionActiveCard.css'
 
+const SUBSCRIPTION_STATUSES = [
+  'incomplete',
+  'incomplete_expired',
+  'past_due',
+  'unpaid',
+]
+
 const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
   let subscription = subscriptionData && subscriptionData.subscription
   let priceData = subscriptionData && subscriptionData.priceData
@@ -81,22 +88,17 @@ const SubscriptionActiveCard = ({ subscriptionData, needPayment }) => {
                     </>
                   ) : null}
                 </div>
-              ) : subscription.status === 'past_due' ? (
+              ) : SUBSCRIPTION_STATUSES.includes(subscription.status) ? (
                 <div className="media-body">
                   <h5 className="mb-0">{getSubsName()} Subscription</h5>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Your trial expired at {` `}
+                    Your subscription has expired at {` `}
                     <Moment unix format="hh:mm A MMMM DD, YYYY">
                       {due}
                     </Moment>
                   </p>
                   <p className="mb-0 text-sm text-muted lh-150">
-                    Please add a payment method before {` `}
-                    <Moment unix format="hh:mm A MMMM DD, YYYY">
-                      {due + 86400}
-                    </Moment>
-                    {` `}
-                    to keep your subscription active.
+                    Please check your payment menthod or add a new one.
                   </p>
                 </div>
               ) : needPayment ? (

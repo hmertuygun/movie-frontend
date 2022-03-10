@@ -37,7 +37,7 @@ export const getMaxInputLength = (value, precision) => {
 export const getInputLength = (value) => value.split('.').join('').length
 
 export const detectEntryPrice = (entry, selectedSymbolLastPrice) => {
-  switch (entry.type) {
+  switch (entry?.type) {
     case 'limit':
     case 'stop-limit':
       return entry.price

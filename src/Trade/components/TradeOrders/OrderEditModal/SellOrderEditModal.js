@@ -15,7 +15,7 @@ import styles from '../../../forms/LimitForm/LimitForm.module.css'
 import { findIndex } from 'lodash'
 import { execExchangeFunc } from '../../../../helpers/getExchangeProp'
 
-const OrderEditModal = ({
+const SellOrderEditModal = ({
   onClose,
   onSave,
   isLoading,
@@ -39,10 +39,10 @@ const OrderEditModal = ({
 
   const [pricePrecision, setPricePrecision] = useState(0)
   const [showPrice, setShowPrice] = useState(false)
-  const [showTriggerPrice, setShowTriggerPrice] = useState(true)
-  const [selectedSymbolDetail, setselectedSymbolDetail] = useState(null)
   const [lastPrice, setLastPrice] = useState(0)
   const [isLastPriceLoading, setIsLastPriceLoading] = useState(true)
+  const [showTriggerPrice, setShowTriggerPrice] = useState(true)
+  const [selectedSymbolDetail, setselectedSymbolDetail] = useState(null)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState(0)
   const isEntry = useMemo(
@@ -71,6 +71,21 @@ const OrderEditModal = ({
     [selectedOrder, targetOrders]
   )
 
+  const getLastPrice = async () => {
+    try {
+      setIsLastPriceLoading(true)
+      const { exchange } = activeExchange
+      const symbol = selectedOrder.orderSymbol.replace('-', '/')
+      const response = await execExchangeFunc(exchange, 'fetchTicker', {
+        symbol,
+      })
+      setIsLastPriceLoading(false)
+      setLastPrice(response.last)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const nextTriggerPrice = useMemo(() => {
     const nextTarget =
       activeIndex === targetOrders?.length - 1
@@ -88,21 +103,6 @@ const OrderEditModal = ({
     }
     return trigger
   }, [targetOrders, activeIndex])
-
-  const getLastPrice = async () => {
-    try {
-      setIsLastPriceLoading(true)
-      const { exchange } = activeExchange
-      const symbol = selectedOrder.orderSymbol.replace('-', '/')
-      const response = await execExchangeFunc(exchange, 'fetchTicker', {
-        symbol,
-      })
-      setIsLastPriceLoading(false)
-      setLastPrice(response.last)
-    } catch (err) {
-      console.log(err)
-    }
-  }
 
   const prevTriggerPrice = useMemo(() => {
     const prevTarget =
@@ -137,31 +137,31 @@ const OrderEditModal = ({
               )
               .test(
                 'Trigger Price',
-                `Trigger Price must be higher than Entry Price: ${addPrecisionToNumber(
+                `Trigger Price must be lower than Entry Price: ${addPrecisionToNumber(
                   entryPrice,
                   pricePrecision
                 )}`,
                 (value) =>
                   isFullTrade && !isStoploss && !isEntry
-                    ? value > entryPrice
+                    ? value < entryPrice
                     : true
               )
               .test(
                 'Trigger Price',
-                `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
+                `Trigger Price must be lower than the Target ${activeIndex} Price: ${addPrecisionToNumber(
                   prevTriggerPrice,
                   pricePrecision
                 )}`,
                 (value) =>
                   prevTriggerPrice
                     ? isFullTrade && !isStoploss && !isEntry
-                      ? value > prevTriggerPrice
+                      ? value < prevTriggerPrice
                       : true
                     : true
               )
               .test(
                 'Trigger Price',
-                `Trigger Price must be lower than the Target ${
+                `Trigger Price must be higher than the Target ${
                   activeIndex + 2
                 } Price: ${addPrecisionToNumber(
                   nextTriggerPrice,
@@ -170,7 +170,7 @@ const OrderEditModal = ({
                 (value) =>
                   nextTriggerPrice
                     ? isFullTrade && !isStoploss && !isEntry
-                      ? value < nextTriggerPrice
+                      ? value > nextTriggerPrice
                       : true
                     : true
               )
@@ -180,7 +180,7 @@ const OrderEditModal = ({
                   lastPrice,
                   pricePrecision
                 )}`,
-                (value) => (isStoploss ? value < lastPrice : true)
+                (value) => (isStoploss ? value > lastPrice : true)
               )
               .max(
                 maxPrice,
@@ -206,20 +206,20 @@ const OrderEditModal = ({
               )
               .test(
                 'Trigger Price',
-                `Trigger Price must be higher than the Target ${activeIndex} Price: ${addPrecisionToNumber(
+                `Trigger Price must be lower than the Target ${activeIndex} Price: ${addPrecisionToNumber(
                   prevTriggerPrice,
                   pricePrecision
                 )}`,
                 (value) =>
                   prevTriggerPrice
                     ? isFullTrade && !isStoploss && !isEntry
-                      ? value > prevTriggerPrice
+                      ? value < prevTriggerPrice
                       : true
                     : true
               )
               .test(
                 'Trigger Price',
-                `Trigger Price must be lower than the Target ${
+                `Trigger Price must be higher than the Target ${
                   activeIndex + 2
                 } Price: ${addPrecisionToNumber(
                   nextTriggerPrice,
@@ -228,7 +228,7 @@ const OrderEditModal = ({
                 (value) =>
                   nextTriggerPrice
                     ? isFullTrade && !isStoploss && !isEntry
-                      ? value < nextTriggerPrice
+                      ? value > nextTriggerPrice
                       : true
                     : true
               )
@@ -238,7 +238,7 @@ const OrderEditModal = ({
                   lastPrice,
                   pricePrecision
                 )}`,
-                (value) => (isStoploss ? value < lastPrice : true)
+                (value) => (isStoploss ? value > lastPrice : true)
               )
               .max(
                 maxPrice,
@@ -310,6 +310,7 @@ const OrderEditModal = ({
     setMinPrice(minPrice)
     setMaxPrice(maxPrice)
     if (isStoploss) getLastPrice()
+    // setPricePrecision(precision)
 
     // Handle Price
     if (price !== 'Market') {
@@ -473,6 +474,7 @@ const OrderEditModal = ({
                     type="text"
                     name="triggerPrice"
                     onChange={handleChange}
+                    isDisabled={isLastPriceLoading}
                     onBlur={(e) => handleBlur(e, pricePrecision)}
                     value={values.triggerPrice}
                     placeholder="Trigger Price"
@@ -520,4 +522,4 @@ const OrderEditModal = ({
   )
 }
 
-export default OrderEditModal
+export default SellOrderEditModal

@@ -83,6 +83,7 @@ const SymbolContextProvider = ({ children }) => {
   const [exchangeUpdated, setExchangeUpdated] = useState(false)
   const [emojis, setEmojis] = useState(defaultEmojis)
   const [selectEmojiPopoverOpen, setSelectEmojiPopoverOpen] = useState(false)
+  const [lastMarketPrice, setLastMarketPrice] = useState()
   const orderHistoryTimeInterval = 10000
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
@@ -607,6 +608,8 @@ const SymbolContextProvider = ({ children }) => {
         selectEmojiPopoverOpen,
         setSelectEmojiPopoverOpen,
         setExchanges,
+        setLastMarketPrice,
+        lastMarketPrice,
       }}
     >
       {children}

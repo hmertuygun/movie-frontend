@@ -113,7 +113,7 @@ const Routes = () => {
 
   const isLocalEnv = window.location.hostname === 'localhost'
   return (
-    <div style={{ paddingBottom: isMobile ? '80px' : '' }}>
+    <div style={{ paddingBottom: isMobile ? '65px' : '' }}>
       <NotificationsSystem
         notifications={notifications}
         dismissNotification={(id) => dismissNotification(id)}

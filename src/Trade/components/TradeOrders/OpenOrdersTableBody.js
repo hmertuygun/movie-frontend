@@ -10,6 +10,7 @@ import { ThemeContext } from '../../../contexts/ThemeContext'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './TradeOrders.module.css'
 import OrderEditModal from './OrderEditModal'
+import SellOrderEditModal from './OrderEditModal/SellOrderEditModal'
 import { handleChangeTickSize } from '../../../helpers/useTickSize'
 
 const openOrdersColumns = [
@@ -80,6 +81,10 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const { symbolDetails, setSymbol } = useSymbolContext()
 
   const isFullTrade = entry.length > 2
+  const tradeType = entry && entry.find((value) => value.symbol === 'Entry')
+
+  const isSellfullTrade = entry.length > 2 && tradeType.side === 'Sell'
+
   const entryOrder = isFullTrade ? entry?.[1] : null
   const targetOrders = isFullTrade
     ? entry.filter(
@@ -323,16 +328,31 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         )
       })}
       {editModalOpen ? (
-        <OrderEditModal
-          onClose={() => setEditModalOpen(false)}
-          onSave={handleOnSave}
-          isLoading={editLoading}
-          selectedOrder={selectedOrder}
-          targetOrders={targetOrders}
-          stoplossOrder={stoplossOrder}
-          entryOrder={entryOrder}
-          isFullTrade={isFullTrade}
-        />
+        <>
+          {isSellfullTrade ? (
+            <SellOrderEditModal
+              onClose={() => setEditModalOpen(false)}
+              onSave={handleOnSave}
+              isLoading={editLoading}
+              selectedOrder={selectedOrder}
+              targetOrders={targetOrders}
+              stoplossOrder={stoplossOrder}
+              entryOrder={entryOrder}
+              isFullTrade={isFullTrade}
+            />
+          ) : (
+            <OrderEditModal
+              onClose={() => setEditModalOpen(false)}
+              onSave={handleOnSave}
+              isLoading={editLoading}
+              selectedOrder={selectedOrder}
+              targetOrders={targetOrders}
+              stoplossOrder={stoplossOrder}
+              entryOrder={entryOrder}
+              isFullTrade={isFullTrade}
+            />
+          )}
+        </>
       ) : null}
     </>
   )

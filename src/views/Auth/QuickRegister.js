@@ -6,10 +6,12 @@ import { Logo } from '../../components'
 import { firebase } from '../../firebase/firebase'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
+import useQuery from '../../hooks/useQuery'
 import './QuickRegister.css'
 
 const QuickRegister = () => {
   const { register } = useContext(UserContext)
+  const query = useQuery()
 
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -89,6 +91,19 @@ const QuickRegister = () => {
                 console.log('==>', error)
               }
             }
+            const referral = query.get('irclickid')
+            if (referral) {
+              await firebase.firestore().collection('referrals').doc(email).set(
+                {
+                  referral: 'impact',
+                  created: firebase.firestore.FieldValue.serverTimestamp(),
+                  code: referral,
+                  userId: response?.user?.uid,
+                },
+                { merge: true }
+              )
+            }
+
             setRedirect('/register/confirm')
           })
       } catch (error) {

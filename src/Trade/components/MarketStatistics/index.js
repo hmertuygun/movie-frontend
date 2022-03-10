@@ -30,7 +30,8 @@ import DrawingsMigrationModal from '../DrawingsMigrationModal'
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
-  const { selectedSymbolDetail, marketData } = useSymbolContext()
+  const { selectedSymbolDetail, marketData, setLastMarketPrice } =
+    useSymbolContext()
   const {
     chartDrawings,
     setChartDrawings,
@@ -238,7 +239,10 @@ function MarketStatistics({ market }) {
   }, [finalData])
 
   useInterval(async () => {
-    if (!isNaN(message && message.lastPrice)) setFinalData(message)
+    if (!isNaN(message && message.lastPrice)) {
+      setFinalData(message)
+      setLastMarketPrice(message?.lastPrice)
+    }
   }, 2000)
 
   const handleFileUpload = (e) => {
@@ -361,69 +365,80 @@ function MarketStatistics({ market }) {
   return (
     <div className={`marketDataContainer ${!market ? 'marketBorder' : ''}`}>
       {finalData && (
-        <div className="d-flex">
-          <div className="lastPriceBlock">
+        <>
+          <div className="lastPriceBlockMobile">
             {!isNaN(finalData.lastPrice) ? (
               <div className={`marketDataLastPrice ${lastPriceClass}`}>
                 {finalData.lastPrice} {arrowirection}
               </div>
             ) : null}
           </div>
-          <div className="marketData">
-            {!isNaN(finalData.priceChange) &&
-            finalData.priceChangePercent !== '0.00' ? (
-              <div className="marketDataBlock">
-                <div className="marketDataBlockTitle">24h Change</div>
-                <div className="marketDataBlockValue">
-                  {`${finalData.priceChange} ${finalData.priceChangePercent}%`}
+          <div className="d-flex lastPriceMarketDataBlock">
+            <div className="lastPriceBlock">
+              {!isNaN(finalData.lastPrice) ? (
+                <div className={`marketDataLastPrice ${lastPriceClass}`}>
+                  {finalData.lastPrice} {arrowirection}
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
+            <div className="marketData">
+              {!isNaN(finalData.priceChange) &&
+              finalData.priceChangePercent !== '0.00' ? (
+                <div className="marketDataBlock">
+                  <div className="marketDataBlockTitle">24h Change</div>
+                  <div className="marketDataBlockValue">
+                    {`${finalData.priceChange} ${finalData.priceChangePercent}%`}
+                  </div>
+                </div>
+              ) : null}
 
-            {!isNaN(finalData.highPrice) ? (
-              <div className="marketDataBlock">
-                <div className="marketDataBlockTitle">24h High</div>
-                <div className="marketDataBlockValue">
-                  {finalData.highPrice}
+              {!isNaN(finalData.highPrice) ? (
+                <div className="marketDataBlock">
+                  <div className="marketDataBlockTitle">24h High</div>
+                  <div className="marketDataBlockValue">
+                    {finalData.highPrice}
+                  </div>
                 </div>
-              </div>
-            ) : null}
-            {!isNaN(finalData.lowPrice) ? (
-              <div className="marketDataBlock">
-                <div className="marketDataBlockTitle">24h Low</div>
-                <div className="marketDataBlockValue">{finalData.lowPrice}</div>
-              </div>
-            ) : null}
-            {!isNaN(finalData.volume) ? (
-              <div className="marketDataBlock">
-                <div className="marketDataBlockTitle">
-                  24h Volume ({baseAsset})
+              ) : null}
+              {!isNaN(finalData.lowPrice) ? (
+                <div className="marketDataBlock">
+                  <div className="marketDataBlockTitle">24h Low</div>
+                  <div className="marketDataBlockValue">
+                    {finalData.lowPrice}
+                  </div>
                 </div>
-                <div className="marketDataBlockValue">{finalData.volume}</div>
-              </div>
-            ) : null}
-            {!isNaN(finalData.quoteVolume) ? (
-              <div className="marketDataBlock">
-                <div className="marketDataBlockTitle">
-                  24h Volume ({quoteAsset})
+              ) : null}
+              {!isNaN(finalData.volume) ? (
+                <div className="marketDataBlock">
+                  <div className="marketDataBlockTitle">
+                    24h Volume ({baseAsset})
+                  </div>
+                  <div className="marketDataBlockValue">{finalData.volume}</div>
                 </div>
-                <div className="marketDataBlockValue">
-                  {finalData.quoteVolume}
+              ) : null}
+              {!isNaN(finalData.quoteVolume) ? (
+                <div className="marketDataBlock">
+                  <div className="marketDataBlockTitle">
+                    24h Volume ({quoteAsset})
+                  </div>
+                  <div className="marketDataBlockValue">
+                    {finalData.quoteVolume}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  display: 'flex',
-                }}
-              >
-                <span className="spinner-border spinner-border-sm text-primary" />
-              </div>
-            )}
+              ) : (
+                <div
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    display: 'flex',
+                  }}
+                >
+                  <span className="spinner-border spinner-border-sm text-primary" />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
       {!isMobile && isOnMarket && (
         <button

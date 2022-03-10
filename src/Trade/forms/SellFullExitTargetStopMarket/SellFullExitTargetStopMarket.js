@@ -4,8 +4,8 @@ import { TradeContext } from '../../context/SimpleTradeContext'
 import { useSymbolContext } from '../../context/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
-import 'rc-slider/assets/index.css'
-import { makeStyles } from '@material-ui/core/styles'
+
+import * as yup from 'yup'
 
 import {
   addPrecisionToNumber,
@@ -17,11 +17,9 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from '../../../helpers/tradeForm'
 
-import scientificToDecimal from '../../../helpers/toDecimal'
+import { makeStyles } from '@material-ui/core/styles'
 
-import * as yup from 'yup'
-
-import styles from './ExitForm.module.css'
+import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
@@ -41,42 +39,46 @@ const useStyles = makeStyles({
 })
 
 const errorInitialValues = {
-  triggerPrice: '',
   price: '',
-  profit: '',
   quantity: '',
-  quantityPercentage: '',
   total: '',
 }
 
-const ExitStoplossStopLimit = () => {
+const SellFullExitTargetStopMarket = () => {
   const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
     useSymbolContext()
 
-  const { state, addStoplossLimit } = useContext(TradeContext)
-  const { entry } = state
+  const { addStopMarketTarget, state } = useContext(TradeContext)
+  const { entry, targets } = state
 
-  const pricePrecision =
-    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
-  const totalPrecision =
-    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
-      ? 7
-      : selectedSymbolDetail['quote_asset_precision']
-  const quantityPrecision = selectedSymbolDetail['lotSize']
-
+  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
+  const pricePrecision = tickSize > 8 ? '' : tickSize
+  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+  const quoteAssetPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
+  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
+  const quantityPrecision =
+    selectedSymbolDetail && selectedSymbolDetail['lotSize']
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
-  const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
+  const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
   const minNotional =
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
+  const sumQuantity = state.targets?.map((item) => item.quantity)
+  const totalQuantity = sumQuantity?.reduce(
+    (total, value) => parseFloat(total) + parseFloat(value),
+    0
+  )
+
   const entryPrice = detectEntryPrice(entry, selectedSymbolLastPrice)
+  const previousTargetPrice =
+    targets?.length > 0 ? targets[targets.length - 1].triggerPrice : entryPrice
 
   const [values, setValues] = useState({
-    triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
-    price: '',
+    price: addPrecisionToNumber(entryPrice, pricePrecision),
     profit: '',
     quantity: '',
     quantityPercentage: '',
@@ -95,6 +97,7 @@ const ExitStoplossStopLimit = () => {
     75: '',
     100: '',
   }
+
   const marks2 = {
     0: '',
     25: '',
@@ -105,8 +108,7 @@ const ExitStoplossStopLimit = () => {
 
   useEffect(() => {
     setValues({
-      triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
-      price: '',
+      price: addPrecisionToNumber(entryPrice, pricePrecision),
       profit: '',
       quantity: '',
       quantityPercentage: '',
@@ -117,101 +119,73 @@ const ExitStoplossStopLimit = () => {
 
   // @TODO
   // Move schema to a different folder
-  const formSchema = yup.object().shape({
-    triggerPrice: minPrice
-      ? yup
-          .number()
-          .required('Trigger price is required')
-          .typeError('Trigger price is required')
-          .min(
-            minPrice,
-            `Trigger price needs to meet min-price: ${addPrecisionToNumber(
-              minPrice,
-              pricePrecision
-            )}`
-          )
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
-              entryPrice,
-              pricePrecision
-            )}`,
-            (value) => value < entryPrice
-          )
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
-          )
-      : yup
-          .number()
-          .required('Trigger price is required')
-          .typeError('Trigger price is required')
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than Entry price: ${addPrecisionToNumber(
-              entryPrice,
-              pricePrecision
-            )}`,
-            (value) => value < entryPrice
-          )
-          .test(
-            'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
-          ),
-
-    price: minPrice
-      ? yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required')
-          .min(
-            minPrice,
-            `Price needs to meet min-price: ${addPrecisionToNumber(
-              minPrice,
-              pricePrecision
-            )}`
-          )
-          .max(values.triggerPrice, 'Price cannot be higher than Trigger Price')
-      : yup
-          .number()
-          .required('Price is required')
-          .typeError('Price is required'),
-    quantity: yup
-      .number()
-      .required('Amount is required')
-      .typeError('Amount is required')
-      .min(
-        minQty,
-        `Amount needs to meet min-amount: ${addPrecisionToNumber(
+  const formSchema = yup.object().shape(
+    {
+      price: yup
+        .number()
+        .required('Trigger Price is required')
+        .typeError('Trigger Price is required')
+        .test(
+          'Trigger Price',
+          `Trigger Price must be lower than the Entry Price: ${addPrecisionToNumber(
+            entryPrice,
+            pricePrecision
+          )}`,
+          (value) => value < entryPrice
+        )
+        .test(
+          'Trigger Price',
+          `Trigger Price must be lower than the Target ${
+            targets?.length
+          } Price: ${addPrecisionToNumber(
+            previousTargetPrice,
+            pricePrecision
+          )}`,
+          (value) => value < previousTargetPrice
+        )
+        .max(
+          maxPrice,
+          `Price needs to meet max-price: ${addPrecisionToNumber(
+            maxPrice,
+            pricePrecision
+          )}`
+        ),
+      quantity: yup
+        .number()
+        .required('Amount is required')
+        .typeError('Amount is required')
+        .min(
           minQty,
-          quantityPrecision
-        )}`
-      )
-      .max(
-        entry.quantity,
-        `Amount cannot be higher than entry amount: ${entry.quantity}`
-      ),
-    total: yup
-      .number()
-      .required('Total is required')
-      .typeError('Total is required')
-      .min(
-        minNotional,
-        `Total needs to meet min-trading: ${addPrecisionToNumber(
+          `Amount needs to meet min-amount: ${addPrecisionToNumber(
+            minQty,
+            quantityPrecision
+          )}`
+        )
+        .max(
+          entry.quantity,
+          `Amount cannot be higher than entry amount: ${entry.quantity}`
+        ),
+      total: yup
+        .number()
+        .required('Total is required')
+        .typeError('Total is required')
+        .min(
           minNotional,
-          totalPrecision
-        )}`
-      ),
-  })
+          `Total needs to meet min-trading: ${addPrecisionToNumber(
+            minNotional,
+            totalPrecision
+          )}`
+        ),
+    },
+    [previousTargetPrice]
+  )
 
   const handleSliderChange = (newValue) => {
-    newValue = 0 - newValue
     setValues((values) => ({
       ...values,
       profit: newValue,
     }))
+
     priceAndProfitSync('profit', newValue)
   }
 
@@ -220,14 +194,13 @@ const ExitStoplossStopLimit = () => {
     const inputLength = getInputLength(target.value)
     if (inputLength > maxLength) return
 
-    const value = !target.value
-      ? ''
-      : -Math.abs(removeTrailingZeroFromInput(target.value))
+    const value = !target.value ? '' : Math.abs(target.value)
 
-    const validatedValue = Math.abs(value) > 99 ? -99 : value
+    const validatedValue = value > 1000 ? 1000 : value
+
     setValues((values) => ({
       ...values,
-      profit: Number.isNaN(validatedValue) ? '' : validatedValue,
+      profit: validatedValue,
     }))
 
     priceAndProfitSync(target.name, validatedValue)
@@ -290,27 +263,22 @@ const ExitStoplossStopLimit = () => {
 
     const { name, value } = target
 
-    if (name === 'triggerPrice') {
-      const maxLength = getMaxInputLength(target.value, pricePrecision)
-      const inputLength = getInputLength(target.value)
-      if (inputLength > maxLength) return
-
-      setValues((values) => ({
-        ...values,
-        triggerPrice: value,
-      }))
-      priceAndProfitSync(name, value)
-    }
-
     if (name === 'price') {
       const maxLength = getMaxInputLength(target.value, pricePrecision)
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
+
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.quantity),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
-        price: value,
-        total: Number(value) * Number(values.quantity),
+        [name]: value,
+        total,
       }))
+
       priceAndProfitSync(name, value)
     }
 
@@ -319,10 +287,15 @@ const ExitStoplossStopLimit = () => {
       const inputLength = getInputLength(target.value)
       if (inputLength > maxLength) return
 
+      const total = addPrecisionToNumber(
+        Number(value) * Number(values.price),
+        totalPrecision
+      )
+
       setValues((values) => ({
         ...values,
         quantity: value,
-        total: Number(value) * Number(values.price),
+        total,
       }))
 
       priceAndProfitSync(name, value)
@@ -331,99 +304,86 @@ const ExitStoplossStopLimit = () => {
     validateInput(target)
   }
 
-  const detectUsePrice = (entry) => {
-    switch (entry.type) {
-      case 'market':
-        return selectedSymbolLastPrice
-      case 'stop-market':
-        return entry.trigger
-      default:
-        return entry.price
-    }
-  }
-
   const priceAndProfitSync = (inputName, inputValue) => {
-    const usePrice = detectUsePrice(entry)
+    if (inputName === 'price') {
+      const diff = inputValue - entryPrice
+      const percentage = Math.abs((diff / entryPrice) * 100)
+      const profitPercentage = percentage > 1000 ? 1000 : percentage.toFixed(0)
+      setValues((values) => ({
+        ...values,
+        profit: profitPercentage,
+      }))
+    }
 
-    switch (inputName) {
-      case 'price': {
-        const diff = usePrice - inputValue
-        const percentage = (diff / usePrice) * 100
-        const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(2)
-        setValues((values) => ({
-          ...values,
-          profit: 0 - profitPercentage,
-        }))
-        return true
-      }
+    if (inputName === 'profit') {
+      inputValue = -inputValue
+      const derivedPrice = addPrecisionToNumber(
+        entryPrice * (1 + inputValue / 100),
+        pricePrecision
+      )
 
-      case 'profit':
-        const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
-        const derivedPrice = addPrecisionToNumber(
-          scientificToDecimal(usePrice - newPrice),
-          pricePrecision
-        )
-        setValues((values) => ({
-          ...values,
-          price: derivedPrice,
-          total: derivedPrice * Number(values.quantity),
-        }))
+      const total = addPrecisionToNumber(
+        derivedPrice * Number(values.quantity),
+        totalPrecision
+      )
 
+      setValues((values) => ({
+        ...values,
+        price: derivedPrice,
+        total,
+      }))
+
+      validateInput({
+        name: 'price',
+        value: derivedPrice,
+      })
+
+      if (values.price && values.quantity) {
         validateInput({
-          name: 'price',
-          value: derivedPrice,
+          name: 'total',
+          value: total,
         })
-
-        if (values.price && values.quantity) {
-          validateInput({
-            name: 'total',
-            value: derivedPrice * Number(values.quantity),
-          })
-        }
-
-        return false
-
-      case 'quantity': {
-        const percentage = (inputValue / entry.quantity) * 100
-        const quantityPercentage =
-          percentage > 100 ? 100 : percentage.toFixed(0)
-        setValues((values) => ({
-          ...values,
-          quantityPercentage,
-        }))
-        return false
       }
+    }
 
-      case 'quantityPercentage':
-        const theQuantity = (entry.quantity * inputValue) / 100
+    if (inputName === 'quantity') {
+      const percentage = (inputValue / entry.quantity) * 100
+      const quantityPercentage = percentage > 100 ? 100 : percentage.toFixed(0)
+      setValues((values) => ({
+        ...values,
+        quantityPercentage,
+      }))
+    }
 
-        const derivedQuantity = addPrecisionToNumber(
-          theQuantity,
-          quantityPrecision
-        )
+    if (inputName === 'quantityPercentage') {
+      const theQuantity = (entry.quantity * inputValue) / 100
 
-        setValues((values) => ({
-          ...values,
-          quantity: derivedQuantity,
-          total: derivedQuantity * Number(values.price),
-        }))
+      const derivedQuantity = addPrecisionToNumber(
+        theQuantity,
+        quantityPrecision
+      )
 
+      const total = addPrecisionToNumber(
+        derivedQuantity * Number(values.price),
+        totalPrecision
+      )
+
+      setValues((values) => ({
+        ...values,
+        quantity: derivedQuantity,
+        total,
+      }))
+
+      validateInput({
+        name: 'quantity',
+        value: derivedQuantity,
+      })
+
+      if (values.price && values.quantity) {
         validateInput({
-          name: 'quantity',
-          value: derivedQuantity,
+          name: 'total',
+          value: total,
         })
-
-        if (values.price && values.quantity) {
-          validateInput({
-            name: 'total',
-            value: derivedQuantity * Number(values.price),
-          })
-        }
-
-        return false
-
-      default: {
-        console.error('WARNING')
       }
     }
   }
@@ -441,21 +401,62 @@ const ExitStoplossStopLimit = () => {
     })
   }
 
+  useEffect(() => {
+    if (values.quantity) {
+      if (Number(values.quantity) + totalQuantity > entry.quantity) {
+        setErrors((errors) => ({
+          ...errors,
+          total: 'Target orders cannot exceed 100% of entry',
+        }))
+      } else {
+        setErrors((errors) => ({
+          ...errors,
+          total: '',
+        }))
+      }
+    }
+  }, [
+    totalQuantity,
+    values.quantity,
+    values.quantityPercentage,
+    entry.quantity,
+  ])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     const isFormValid = await validateForm()
 
-    if (isFormValid) {
-      addStoplossLimit({
-        price: convertCommaNumberToDot(values.price),
-        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
-        profit: convertCommaNumberToDot(values.profit),
+    const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
+
+    if (isFormValid && !isLimit) {
+      addStopMarketTarget({
+        triggerPrice: convertCommaNumberToDot(values.price),
         quantity: convertCommaNumberToDot(values.quantity),
-        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
+        profit: convertCommaNumberToDot(values.profit),
         symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
+        side: 'buy',
       })
+
+      setValues((values) => ({
+        ...values,
+        quantity: '',
+        quantityPercentage: '',
+        profit: '',
+      }))
+
+      setErrors((errors) => ({
+        ...errors,
+        total: '',
+      }))
+    } else {
+      if (isLimit) {
+        setErrors((errors) => ({
+          ...errors,
+          total: 'Target orders cannot exceed 100% of entry',
+        }))
+      }
     }
   }
 
@@ -476,8 +477,8 @@ const ExitStoplossStopLimit = () => {
               label="Trigger Price"
               type="text"
               placeholder=""
-              value={values.triggerPrice}
-              name="triggerPrice"
+              value={values.price}
+              name="price"
               onChange={handleChange}
               onBlur={(e) => handleBlur(e, pricePrecision)}
               postLabel={
@@ -485,21 +486,6 @@ const ExitStoplossStopLimit = () => {
               }
             />
           </div>
-          {renderInputValidationError('triggerPrice')}
-        </div>
-        <div className={styles['Input']}>
-          <InlineInput
-            label="Price"
-            type="text"
-            placeholder="price"
-            name="price"
-            onChange={handleChange}
-            onBlur={(e) => handleBlur(e, pricePrecision)}
-            value={values.price}
-            postLabel={
-              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
-            }
-          />
           {renderInputValidationError('price')}
         </div>
         <div className={classes.root}>
@@ -509,14 +495,13 @@ const ExitStoplossStopLimit = () => {
             </div>
             <div className={styles['SliderSlider']}>
               <Slider
-                reverse
                 defaultValue={0}
                 step={1}
                 marks={marks2}
                 min={0}
                 max={99}
                 onChange={handleSliderChange}
-                value={0 - values.profit}
+                value={values.profit}
               />
             </div>
             <div className={styles['SliderInput']}>
@@ -533,7 +518,7 @@ const ExitStoplossStopLimit = () => {
         </div>
         <div className={styles['Input']}>
           <InlineInput
-            label="Amount"
+            label="Quantity"
             type="text"
             name="quantity"
             onChange={handleChange}
@@ -543,13 +528,12 @@ const ExitStoplossStopLimit = () => {
           />
           {renderInputValidationError('quantity')}
         </div>
-
         <div className={classes.root}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs>
               <Slider
                 className={classes.slider}
-                defaultValue={1}
+                defaultValue={0}
                 step={1}
                 marks={marks}
                 min={0}
@@ -563,8 +547,8 @@ const ExitStoplossStopLimit = () => {
                 className={classes.input}
                 value={values.quantityPercentage}
                 margin="dense"
-                onChange={handleQPInputChange}
                 name="quantityPercentage"
+                onChange={handleQPInputChange}
                 postLabel={'%'}
                 type="text"
               />
@@ -574,17 +558,15 @@ const ExitStoplossStopLimit = () => {
         </div>
 
         <Button
+          disabled={errors.total || values.profit === 0 || values.profit === ''}
+          variant="buy"
           type="submit"
-          disabled={
-            state?.stoploss?.length || !values.quantity || values.profit === 0
-          }
-          variant="sell"
         >
-          Add Stop-loss
+          Add Target {(state?.targets?.length || 0) + 1}
         </Button>
       </form>
     </div>
   )
 }
 
-export default ExitStoplossStopLimit
+export default SellFullExitTargetStopMarket

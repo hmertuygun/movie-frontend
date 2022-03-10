@@ -8,6 +8,7 @@ import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import Tooltip from '../components/Tooltip'
+import { exchangeCreationOptions } from '../constants/ExchangeOptions'
 
 function PortfolioContainer() {
   const [refreshBtn, setRefreshBtne] = useState(false)
@@ -27,6 +28,11 @@ function PortfolioContainer() {
     }
   }, [loading])
 
+  const getLogo = (exchange) => {
+    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+    if (obj?.logo) return obj.logo
+  }
+
   const onPortfolioRefresh = () => {
     refreshData()
     onRefreshBtnClicked('portfolio')
@@ -43,7 +49,7 @@ function PortfolioContainer() {
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
-              <div className="mb-4 row align-items-center">
+              <div className="row align-items-center">
                 <div className="col">
                   <h1 className="mb-0 h4">Portfolio</h1>
                 </div>{' '}
@@ -86,6 +92,23 @@ function PortfolioContainer() {
                       </button>
                     </div>
                   )}
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-auto">
+                  <h4>
+                    <span class="badge badge-secondary ">
+                      <img
+                        className="mb-1"
+                        src={getLogo(activeExchange.exchange)}
+                        style={{
+                          width: '24px',
+                          marginRight: '0.4rem',
+                        }}
+                      />
+                      {activeExchange.apiKeyName}
+                    </span>
+                  </h4>
                 </div>
               </div>
               {balance && balance.length ? (

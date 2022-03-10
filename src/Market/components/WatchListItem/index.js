@@ -34,10 +34,8 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
       className={'watch-container'}
       onClick={() => {
         if (window.screen.width <= 1000) {
-          window.scroll({
-            top: 1000,
-            behavior: 'smooth',
-          })
+          const divElement = document.getElementById('market-chart-container')
+          divElement.scrollIntoView({ behavior: 'smooth' })
         }
         setSymbol(symbol)
       }}

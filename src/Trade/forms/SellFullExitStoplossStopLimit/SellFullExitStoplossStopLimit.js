@@ -1,13 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react'
-import * as yup from 'yup'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
-import Slider from 'rc-slider'
 import { InlineInput, Button, Typography } from '../../../components'
 import { TradeContext } from '../../context/SimpleTradeContext'
-
 import { useSymbolContext } from '../../context/SymbolContext'
-import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
+import Slider from 'rc-slider'
+import Grid from '@material-ui/core/Grid'
+import 'rc-slider/assets/index.css'
+import { makeStyles } from '@material-ui/core/styles'
 
 import {
   addPrecisionToNumber,
@@ -20,6 +18,10 @@ import {
 } from '../../../helpers/tradeForm'
 
 import scientificToDecimal from '../../../helpers/toDecimal'
+
+import * as yup from 'yup'
+
+import styles from './ExitForm.module.css'
 
 const useStyles = makeStyles({
   root: {
@@ -40,25 +42,28 @@ const useStyles = makeStyles({
 
 const errorInitialValues = {
   triggerPrice: '',
+  price: '',
+  profit: '',
   quantity: '',
+  quantityPercentage: '',
   total: '',
 }
 
-const ExitStoplossStopMarket = () => {
+const SellFullExitStoplossStopLimit = () => {
   const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
     useSymbolContext()
 
-  const { state, addStoplossMarket } = useContext(TradeContext)
+  const { state, addStoplossLimit } = useContext(TradeContext)
   const { entry } = state
 
-  const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
-  const pricePrecision = tickSize > 8 ? '' : tickSize
-  const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-  const quoteAssetPrecision =
-    selectedSymbolDetail && selectedSymbolDetail['quote_asset_precision']
-  const totalPrecision = symbolPair === 'ETHUSDT' ? 7 : quoteAssetPrecision
-  const quantityPrecision =
-    selectedSymbolDetail && selectedSymbolDetail['lotSize']
+  const pricePrecision =
+    selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
+  const totalPrecision =
+    selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
+      ? 7
+      : selectedSymbolDetail['quote_asset_precision']
+  const quantityPrecision = selectedSymbolDetail['lotSize']
+
   const profitPercentagePrecision = 2
   const amountPercentagePrecision = 1
 
@@ -71,6 +76,7 @@ const ExitStoplossStopMarket = () => {
 
   const [values, setValues] = useState({
     triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
+    price: '',
     profit: '',
     quantity: '',
     quantityPercentage: '',
@@ -100,6 +106,7 @@ const ExitStoplossStopMarket = () => {
   useEffect(() => {
     setValues({
       triggerPrice: addPrecisionToNumber(entryPrice, pricePrecision),
+      price: '',
       profit: '',
       quantity: '',
       quantityPercentage: '',
@@ -133,8 +140,8 @@ const ExitStoplossStopMarket = () => {
           )
           .test(
             'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
+            `Trigger price has to be higher than current market price`,
+            (value) => value > selectedSymbolLastPrice
           )
       : yup
           .number()
@@ -150,9 +157,27 @@ const ExitStoplossStopMarket = () => {
           )
           .test(
             'Trigger price',
-            `Trigger price has to be lower than current market price`,
-            (value) => value < selectedSymbolLastPrice
+            `Trigger price has to be higher than current market price`,
+            (value) => value > selectedSymbolLastPrice
           ),
+
+    price: minPrice
+      ? yup
+          .number()
+          .required('Price is required')
+          .typeError('Price is required')
+          .min(
+            minPrice,
+            `Price needs to meet min-price: ${addPrecisionToNumber(
+              minPrice,
+              pricePrecision
+            )}`
+          )
+          .max(values.triggerPrice, 'Price cannot be higher than Trigger Price')
+      : yup
+          .number()
+          .required('Price is required')
+          .typeError('Price is required'),
     quantity: yup
       .number()
       .required('Amount is required')
@@ -187,7 +212,6 @@ const ExitStoplossStopMarket = () => {
       ...values,
       profit: newValue,
     }))
-
     priceAndProfitSync('profit', newValue)
   }
 
@@ -201,7 +225,6 @@ const ExitStoplossStopMarket = () => {
       : -Math.abs(removeTrailingZeroFromInput(target.value))
 
     const validatedValue = Math.abs(value) > 99 ? -99 : value
-
     setValues((values) => ({
       ...values,
       profit: Number.isNaN(validatedValue) ? '' : validatedValue,
@@ -275,6 +298,17 @@ const ExitStoplossStopMarket = () => {
       setValues((values) => ({
         ...values,
         triggerPrice: value,
+      }))
+      priceAndProfitSync(name, value)
+    }
+
+    if (name === 'price') {
+      const maxLength = getMaxInputLength(target.value, pricePrecision)
+      const inputLength = getInputLength(target.value)
+      if (inputLength > maxLength) return
+      setValues((values) => ({
+        ...values,
+        price: value,
         total: Number(value) * Number(values.quantity),
       }))
       priceAndProfitSync(name, value)
@@ -288,7 +322,7 @@ const ExitStoplossStopMarket = () => {
       setValues((values) => ({
         ...values,
         quantity: value,
-        total: Number(value) * Number(values.triggerPrice),
+        total: Number(value) * Number(values.price),
       }))
 
       priceAndProfitSync(name, value)
@@ -297,42 +331,53 @@ const ExitStoplossStopMarket = () => {
     validateInput(target)
   }
 
+  const detectUsePrice = (entry) => {
+    switch (entry.type) {
+      case 'market':
+        return selectedSymbolLastPrice
+      case 'stop-market':
+        return entry.trigger
+      default:
+        return entry.price
+    }
+  }
+
   const priceAndProfitSync = (inputName, inputValue) => {
+    const usePrice = detectUsePrice(entry)
+
     switch (inputName) {
-      case 'triggerPrice': {
-        const diff = entryPrice - inputValue
-        const percentage = (diff / entryPrice) * 100
+      case 'price': {
+        const diff = usePrice - inputValue
+        const percentage = (diff / usePrice) * 100
         const profitPercentage = percentage > 99 ? 99 : percentage.toFixed(2)
         setValues((values) => ({
           ...values,
-          profit: -profitPercentage,
+          profit: 0 - profitPercentage,
         }))
         return true
       }
 
       case 'profit':
-        const newPrice = scientificToDecimal(entryPrice * (-inputValue / 100))
-
-        const derivedtiggerPrice = addPrecisionToNumber(
-          scientificToDecimal(entryPrice - newPrice),
+        const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
+        const derivedPrice = addPrecisionToNumber(
+          scientificToDecimal(usePrice - newPrice),
           pricePrecision
         )
-
         setValues((values) => ({
           ...values,
-          triggerPrice: derivedtiggerPrice,
-          total: derivedtiggerPrice * Number(values.quantity),
+          price: derivedPrice,
+          total: derivedPrice * Number(values.quantity),
         }))
 
         validateInput({
-          name: 'triggerPrice',
-          value: derivedtiggerPrice,
+          name: 'price',
+          value: derivedPrice,
         })
 
-        if (values.triggerPrice && values.quantity) {
+        if (values.price && values.quantity) {
           validateInput({
             name: 'total',
-            value: derivedtiggerPrice * Number(values.quantity),
+            value: derivedPrice * Number(values.quantity),
           })
         }
 
@@ -351,6 +396,7 @@ const ExitStoplossStopMarket = () => {
 
       case 'quantityPercentage':
         const theQuantity = (entry.quantity * inputValue) / 100
+
         const derivedQuantity = addPrecisionToNumber(
           theQuantity,
           quantityPrecision
@@ -359,7 +405,7 @@ const ExitStoplossStopMarket = () => {
         setValues((values) => ({
           ...values,
           quantity: derivedQuantity,
-          total: derivedQuantity * Number(values.triggerPrice),
+          total: derivedQuantity * Number(values.price),
         }))
 
         validateInput({
@@ -367,10 +413,10 @@ const ExitStoplossStopMarket = () => {
           value: derivedQuantity,
         })
 
-        if (values.triggerPrice && values.quantity) {
+        if (values.price && values.quantity) {
           validateInput({
             name: 'total',
-            value: derivedQuantity * Number(values.triggerPrice),
+            value: derivedQuantity * Number(values.price),
           })
         }
 
@@ -401,13 +447,15 @@ const ExitStoplossStopMarket = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoplossMarket({
+      addStoplossLimit({
+        price: convertCommaNumberToDot(values.price),
         triggerPrice: convertCommaNumberToDot(values.triggerPrice),
         profit: convertCommaNumberToDot(values.profit),
         quantity: convertCommaNumberToDot(values.quantity),
         quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
         symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
         price_trigger: values.price_trigger.value,
+        side: 'buy',
       })
     }
   }
@@ -422,108 +470,122 @@ const ExitStoplossStopMarket = () => {
 
   return (
     <div style={{ marginTop: '2rem' }}>
-      <div style={{ marginTop: '2rem' }}>
-        <form onSubmit={handleSubmit}>
-          <div className={styles['Input']}>
-            <div className={styles['InputDropdownContainer']}>
-              <InlineInput
-                label="Trigger Price"
-                type="text"
-                placeholder=""
-                value={values.triggerPrice}
-                name="triggerPrice"
-                onChange={handleChange}
-                onBlur={(e) => handleBlur(e, pricePrecision)}
-                postLabel={
-                  selectedSymbolDetail && selectedSymbolDetail['quote_asset']
-                }
+      <form onSubmit={handleSubmit}>
+        <div className={styles['Input']}>
+          <div className={styles['InputDropdownContainer']}>
+            <InlineInput
+              label="Trigger Price"
+              type="text"
+              placeholder=""
+              value={values.triggerPrice}
+              name="triggerPrice"
+              onChange={handleChange}
+              onBlur={(e) => handleBlur(e, pricePrecision)}
+              postLabel={
+                selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+              }
+            />
+          </div>
+          {renderInputValidationError('triggerPrice')}
+        </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Price"
+            type="text"
+            placeholder="price"
+            name="price"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, pricePrecision)}
+            value={values.price}
+            postLabel={
+              selectedSymbolDetail && selectedSymbolDetail['quote_asset']
+            }
+          />
+          {renderInputValidationError('price')}
+        </div>
+        <div className={classes.root}>
+          <div className={styles['SliderRow']}>
+            <div className={styles['SliderText']}>
+              <Typography className="Slider-Text">Profit</Typography>
+            </div>
+            <div className={styles['SliderSlider']}>
+              <Slider
+                reverse
+                defaultValue={0}
+                step={1}
+                marks={marks2}
+                min={0}
+                max={99}
+                onChange={handleSliderChange}
+                value={-values.profit}
               />
             </div>
-            {renderInputValidationError('triggerPrice')}
-          </div>
-          <div className={classes.root}>
-            <div className={styles['SliderRow']}>
-              <div className={styles['SliderText']}>
-                <Typography className="Slider-Text">Profit</Typography>
-              </div>
-              <div className={styles['SliderSlider']}>
-                <Slider
-                  reverse
-                  defaultValue={0}
-                  step={1}
-                  marks={marks2}
-                  min={0}
-                  max={99}
-                  onChange={handleSliderChange}
-                  value={0 - values.profit}
-                />
-              </div>
-              <div className={styles['SliderInput']}>
-                <InlineInput
-                  value={values.profit}
-                  margin="dense"
-                  onChange={handleSliderInputChange}
-                  postLabel={'%'}
-                  name="profit"
-                  type="text"
-                />
-              </div>
+            <div className={styles['SliderInput']}>
+              <InlineInput
+                value={values.profit}
+                margin="dense"
+                onChange={handleSliderInputChange}
+                postLabel={'%'}
+                name="profit"
+                type="text"
+              />
             </div>
           </div>
-          <div className={styles['Input']}>
-            <InlineInput
-              label="Amount"
-              type="text"
-              name="quantity"
-              onChange={handleChange}
-              onBlur={(e) => handleBlur(e, quantityPrecision)}
-              value={values.quantity}
-              postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
-            />
-            {renderInputValidationError('quantity')}
-          </div>
-          <div className={classes.root}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs>
-                <Slider
-                  className={classes.slider}
-                  defaultValue={0}
-                  step={1}
-                  marks={marks}
-                  min={0}
-                  max={100}
-                  onChange={handleQPSliderChange}
-                  value={values.quantityPercentage}
-                />
-              </Grid>
-              <Grid item>
-                <InlineInput
-                  className={classes.input}
-                  value={values.quantityPercentage}
-                  margin="dense"
-                  onChange={handleQPInputChange}
-                  name="quantityPercentage"
-                  postLabel={'%'}
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-            {renderInputValidationError('total')}
-          </div>
+        </div>
+        <div className={styles['Input']}>
+          <InlineInput
+            label="Amount"
+            type="text"
+            name="quantity"
+            onChange={handleChange}
+            onBlur={(e) => handleBlur(e, quantityPrecision)}
+            value={values.quantity}
+            postLabel={isLoading ? '' : selectedSymbolDetail['base_asset']}
+          />
+          {renderInputValidationError('quantity')}
+        </div>
 
-          <Button
-            type="submit"
-            disabled={
-              state?.stoploss?.length || !values.quantity || values.profit === 0
-            }
-            variant="sell"
-          >
-            Add Stop-loss
-          </Button>
-        </form>
-      </div>
+        <div className={classes.root}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs>
+              <Slider
+                className={classes.slider}
+                defaultValue={1}
+                step={1}
+                marks={marks}
+                min={0}
+                max={100}
+                onChange={handleQPSliderChange}
+                value={values.quantityPercentage}
+              />
+            </Grid>
+            <Grid item>
+              <InlineInput
+                className={classes.input}
+                value={values.quantityPercentage}
+                margin="dense"
+                onChange={handleQPInputChange}
+                name="quantityPercentage"
+                postLabel={'%'}
+                type="text"
+              />
+            </Grid>
+          </Grid>
+          {renderInputValidationError('total')}
+        </div>
+
+        <Button
+          type="submit"
+          disabled={
+            state?.stoploss?.length || !values.quantity || values.profit === 0
+          }
+          variant="sell"
+        >
+          Add Stop-loss
+        </Button>
+      </form>
     </div>
   )
 }
 
-export default ExitStoplossStopMarket
+export default SellFullExitStoplossStopLimit
