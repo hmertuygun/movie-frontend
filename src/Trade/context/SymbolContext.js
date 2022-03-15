@@ -502,8 +502,10 @@ const SymbolContextProvider = ({ children }) => {
       )
     } catch (error) {
       console.error(error)
+      setIsExchangeLoading(false)
     } finally {
       setIsLoadingExchanges(false)
+      setIsExchangeLoading(false)
     }
   }
 

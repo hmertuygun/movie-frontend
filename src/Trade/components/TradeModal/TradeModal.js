@@ -32,8 +32,8 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
       </div>
       <header className={styles['TradeModal-header']}>
         <Typography as="h4">
-          {state.entry.symbol} Full{' '}
-          {state.entry.side === 'buy' ? 'Buy' : 'Sell'} Trade
+          {state.entry.symbol} {state.entry.side === 'buy' ? 'Buy' : 'Sell'}{' '}
+          Full Trade
         </Typography>
         <Typography className={styles['TradeModal-header__description']}>
           {state.entry.type} Buy

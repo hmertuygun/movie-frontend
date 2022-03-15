@@ -276,7 +276,7 @@ const Trade = () => {
                       setIsModalVisible(true)
                     }}
                   >
-                    Place Full Buy Trade
+                    Place Buy Full Trade
                   </button>
                 )}
 
@@ -351,7 +351,7 @@ const Trade = () => {
                       setIsModalVisible(true)
                     }}
                   >
-                    Place Full Sell Trade
+                    Place Sell Full Trade
                   </button>
                 )}
 
