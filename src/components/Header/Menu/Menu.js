@@ -1,11 +1,12 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import useComponentVisible from '../../../hooks/useComponentVisible'
+import { ThemeContext } from '../../../contexts/ThemeContext'
 
 function Menu() {
   const { ref, isComponentVisible, setIsComponentVisible } =
     useComponentVisible(false)
-
+  const { theme } = useContext(ThemeContext)
   return (
     <div
       ref={ref}
@@ -14,7 +15,9 @@ function Menu() {
     >
       <li className="nav-item dropdown dropdown-animate">
         <button
-          className="px-2 nav-link nav-link-icon btn btn-plain"
+          className={`px-2 nav-link nav-link-icon btn btn-plain ${
+            theme === 'DARK' ? 'text-white' : 'text-dark'
+          }`}
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
@@ -41,6 +44,7 @@ function Menu() {
         className={`dropdown-menu dropdown-menu-sm dropdown-menu-right dropdown-menu-arrow p-3 ${
           isComponentVisible ? 'show' : ''
         }`}
+        style={{ right: '86px' }}
       >
         <Link
           to="/settings"
