@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react'
 import {
-  faTwitter,
+  faTelegramPlane,
   faTelegram,
   faMediumM,
 } from '@fortawesome/free-brands-svg-icons'
@@ -18,7 +18,8 @@ import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from '../../helpers/tourSteps'
-import { Moon, Gift } from 'react-feather'
+import { Moon, Sun, Twitter, Gift, HelpCircle } from 'react-feather'
+import './Header.css'
 
 const Header = () => {
   const {
@@ -35,6 +36,8 @@ const Header = () => {
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
   const [stepsSecondTour] = useState(secondTourSteps)
+  const [showHelp, setShowHelp] = useState(false)
+
   const history = useHistory()
 
   const styles = {
@@ -123,6 +126,12 @@ const Header = () => {
     handleOnboardingShow()
   }
 
+  const handleZendesk = () => {
+    window.zE(function () {
+      window.zE.activate()
+    })
+  }
+
   return (
     <header className="" id="header-main">
       <nav
@@ -176,13 +185,35 @@ const Header = () => {
                   </a>
                 )}
               </li>
+              <li className="nav-item">
+                <div
+                  className={`switch-container ${
+                    theme === 'DARK'
+                      ? 'switch-container-light'
+                      : 'switch-container-dark'
+                  }`}
+                  onClick={toggleTheme}
+                >
+                  {theme === 'DARK' ? (
+                    <>
+                      <Sun size={13} strokeWidth="3" />
+                      <span className="switch-container-circle">&nbsp;</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="switch-container-circle">&nbsp;</span>
+                      <Moon size={13} strokeWidth="3" />
+                    </>
+                  )}
+                </div>
+              </li>
               {!isOnboardingSkipped && (
                 <>
                   <li className="nav-item">
                     <a
                       href="https://headwayapp.co/coinpanel-changelog"
                       type="button"
-                      className="px-2 nav-link nav-link-icon"
+                      className="px-1 nav-link nav-link-icon"
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -197,38 +228,53 @@ const Header = () => {
                     <a
                       href="https://coin-panel.medium.com/"
                       type="button"
-                      className="px-2 nav-link nav-link-icon"
+                      className="px-1 nav-link nav-link-icon"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faMediumM} className="mt-2" />
+                      <FontAwesomeIcon
+                        icon={faMediumM}
+                        className={`mt-2 ${
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }`}
+                      />
                     </a>
                   </li>{' '}
                   <li className="nav-item">
                     <a
                       href="https://twitter.com/coin_panel"
                       type="button"
-                      className="px-2 nav-link nav-link-icon"
+                      className="px-1 nav-link nav-link-icon"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTwitter} className="mt-2" />
+                      <Twitter
+                        size={15}
+                        className={
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }
+                      />
                     </a>
                   </li>{' '}
                   <li className="nav-item">
                     <a
                       href="https://t.me/coinpanelsupport"
                       type="button"
-                      className="px-2 nav-link nav-link-icon"
+                      className="px-1 nav-link nav-link-icon"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FontAwesomeIcon icon={faTelegram} className="mt-2" />
+                      <FontAwesomeIcon
+                        icon={faTelegramPlane}
+                        className={`mt-2 ${
+                          theme === 'DARK' ? 'text-white' : 'text-dark'
+                        }`}
+                      />
                     </a>
                   </li>
                 </>
               )}
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <span
                   type="button"
                   id="btnSwitchMode"
@@ -239,8 +285,17 @@ const Header = () => {
                 >
                   <Moon size={15} className="chevron-down" strokeWidth="3" />
                 </span>
-              </li>
+              </li> */}
               <Menu />
+              <li className="nav-item">
+                <button
+                  className="btn btn-primary custom-help-button"
+                  onClick={handleZendesk}
+                >
+                  <HelpCircle size={16} />
+                  &nbsp; Help
+                </button>
+              </li>
             </ul>
             {/* <Notifications /> */}
           </div>
