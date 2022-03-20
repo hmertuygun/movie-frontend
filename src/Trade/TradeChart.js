@@ -47,6 +47,11 @@ const TradeChart = () => {
     setChartDrawings,
     chartDrawings,
     settingChartDrawings,
+    activeDrawing,
+    setActiveDrawingId,
+    setActiveDrawing,
+    addedDrawing,
+    activeDrawingId,
   } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
@@ -259,6 +264,14 @@ const TradeChart = () => {
             marketSymbols={symbolDetailsKeyValue}
             timeZone={chartData?.timeZone}
             activeTrader={activeTrader}
+            addedDrawing={addedDrawing}
+            setActiveDrawing={(e) => {
+              setActiveDrawing(e)
+            }}
+            setActiveDrawingId={(e) => {
+              console.log(e)
+              setActiveDrawingId(e)
+            }}
             sniperBtnClicked={(e) => {
               onSniperBtnClick(e)
             }}

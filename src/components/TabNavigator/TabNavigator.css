@@ -17,6 +17,10 @@
   overflow: auto;
 }
 
+.has-margin {
+  margin-left: 1rem;
+}
+
 .TabNavigator-link {
   margin-right: 1.5rem;
   font-size: 0.875rem;

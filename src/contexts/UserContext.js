@@ -94,6 +94,9 @@ const UserContextProvider = ({ children }) => {
   const [chartMirroring, setChartMirroring] = useState(false)
   const [isChartReady, setIsChartReady] = useState(false)
   const [isApiKeysLoading, setIsApiKeysLoading] = useState(false)
+  const [activeDrawingId, setActiveDrawingId] = useState(false)
+  const [activeDrawing, setActiveDrawing] = useState(false)
+  const [addedDrawing, setAddedDrawing] = useState({})
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
   const [country, setCountry] = useState('')
   const [isCountryAvailable, setIsCountryAvailable] = useState(true)
@@ -739,6 +742,12 @@ const UserContextProvider = ({ children }) => {
         setShowMarketItems,
         getSubscriptionsData,
         orderHistoryProgressUC,
+        activeDrawing,
+        setActiveDrawingId,
+        addedDrawing,
+        setAddedDrawing,
+        setActiveDrawing,
+        activeDrawingId,
         setOrderHistoryProgressUC,
         orderEdited,
         setOrderEdited,

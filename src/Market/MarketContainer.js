@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useMemo } from 'react'
 import MarketStatistics from '../Trade/components/MarketStatistics'
 import TradeChart from '../Trade/TradeChart'
 import WatchListPanel from './components/Watchlist/WatchListPanel'
@@ -8,12 +8,15 @@ import { firebase } from '../firebase/firebase'
 import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import TemplatesList from './components/Templates/TemplatesList'
 import './MarketContainer.css'
+import { TabNavigator } from '../components'
 
 function MarketContainer() {
   const db = firebase.firestore()
   const [traders, setTraders] = useState([])
   const [activeValue, setActiveValue] = useState([])
+  const [activeTab, setActiveTab] = useState(0)
   const {
     setIsTradersModalOpen,
     setActiveTrader,
@@ -22,6 +25,13 @@ function MarketContainer() {
     templateDrawingsOpen,
   } = useSymbolContext()
   const { userData } = useContext(UserContext)
+
+  const tabElements = useMemo(() => {
+    return userData.email === activeValue
+      ? ['Watchlists', 'Templates ß']
+      : ['Watchlists']
+  }, [activeValue, userData])
+
   useEffect(() => {
     db.collection('template_drawings')
       .get()
@@ -51,8 +61,10 @@ function MarketContainer() {
 
   useEffect(() => {
     if (!templateDrawingsOpen) {
+      setActiveTab(0)
       setActiveValue(userData.email)
     } else {
+      setActiveTab(0)
       setActiveValue(activeTrader.id)
     }
   }, [templateDrawingsOpen, userData, activeTrader])
@@ -115,18 +127,19 @@ function MarketContainer() {
                     })}
                   </select>
                 </div>
-                {activeValue !== userData.email && (
-                  <div className="mt-3 mb-0">
-                    <span className="badge badge-primary badge-pill bg-light-info">
-                      Updated:
-                      {timestampToDate(Number(activeTrader.lastUpdate))}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
-            <div className="card mb-0 mx-1">
-              <WatchListPanel />
+            <div className="card mb-2 mx-1">
+              <TabNavigator
+                index={activeTab}
+                labelArray={tabElements}
+                hadDropDown={false}
+                hasMargin={true}
+                changeTab={(index) => setActiveTab(index)}
+              >
+                <WatchListPanel />
+                {!templateDrawingsOpen && <TemplatesList />}
+              </TabNavigator>
             </div>
           </div>
           <div className="col-lg-9 col-md-12 pl-0 market-stat-chart">
