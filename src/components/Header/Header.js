@@ -18,7 +18,7 @@ import { useSymbolContext } from '../../Trade/context/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from '../../helpers/tourSteps'
-import { Moon, Sun, Twitter, Gift, HelpCircle } from 'react-feather'
+import { Moon, Sun, Twitter, HelpCircle } from 'react-feather'
 import './Header.css'
 
 const Header = () => {
@@ -209,21 +209,6 @@ const Header = () => {
               </li>
               {!isOnboardingSkipped && (
                 <>
-                  <li className="nav-item">
-                    <a
-                      href="https://headwayapp.co/coinpanel-changelog"
-                      type="button"
-                      className="px-1 nav-link nav-link-icon"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Gift
-                        size={15}
-                        className="chevron-down"
-                        strokeWidth="3"
-                      />
-                    </a>
-                  </li>
                   <li className="nav-item">
                     <a
                       href="https://coin-panel.medium.com/"

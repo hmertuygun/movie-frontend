@@ -109,7 +109,9 @@ function MarketContainer() {
           <div className="col-lg-3">
             <div className="card p-3 mb-1 pb-2">
               <div className="form-group">
-                <label className="form-control-label">Trader</label>
+                <label className="form-control-label">
+                  Chart Mirroring - Select Analyst
+                </label>
                 <div>
                   <select
                     disabled={TEMPLATE_DRAWINGS_USERS.includes(userData.email)}
