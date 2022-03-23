@@ -35,7 +35,10 @@ export default class TradingViewChart extends Component {
     templateDrawingsOpen,
     tradersBtnClicked,
     activeTrader,
+    addedDrawing,
     selectEmojiPopoverOpen,
+    setActiveDrawing,
+    setActiveDrawingId,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -76,6 +79,7 @@ export default class TradingViewChart extends Component {
       theme,
       email,
       onMarketPage,
+      addedDrawing,
       openOrderLines: [],
       templateDrawings,
       templateDrawingsOpen,
@@ -142,6 +146,7 @@ export default class TradingViewChart extends Component {
     if (!this.tradingViewWidget) return
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
+        this.setClickedDrawing(obj)
         if (
           this.isArrayEqual(
             this.state.openOrderLines,
@@ -178,6 +183,44 @@ export default class TradingViewChart extends Component {
       })
     } catch (e) {
       console.log(`Error while subscribing to chart events!`)
+    }
+  }
+
+  setClickedDrawing = async (event) => {
+    if (event)
+      this.tradingViewWidget.save(async (obj) => {
+        const drawing = await obj.charts[0].panes[0].sources.find(
+          (el) => el.id === event
+        )
+        const foundItem = this.tradingViewWidget
+          .activeChart()
+          .getAllShapes()
+          .find((el) => el.id === event)
+        if (drawing && foundItem) {
+          const points = drawing.points.map((el) => {
+            return { time: el.time_t }
+          })
+          this.props.setActiveDrawing({
+            drawing,
+            name: foundItem.name,
+            points,
+            id: event,
+          })
+        }
+      })
+  }
+
+  addTemplate = async (template) => {
+    if (template && template.drawing) {
+      const { points, name, drawing } = template
+      try {
+        this.tradingViewWidget.activeChart().createMultipointShape(points, {
+          shape: name,
+          ...drawing.state,
+        })
+      } catch (error) {
+        //console.log(error)
+      }
     }
   }
 
@@ -746,6 +789,11 @@ export default class TradingViewChart extends Component {
         })
         this.drawOpenOrdersChartLines(this.state.openOrderLines)
       }
+    }
+
+    if (typeof this.props.addedDrawing === 'object') {
+      this.addTemplate(this.props.addedDrawing)
+      this.context.setAddedDrawing(null)
     }
 
     if (this.state.isSaved && this.state.loadingButton.style) {

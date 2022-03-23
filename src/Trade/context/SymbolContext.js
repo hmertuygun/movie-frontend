@@ -560,6 +560,7 @@ const SymbolContextProvider = ({ children }) => {
     <SymbolContext.Provider
       value={{
         isLoading: !selectedSymbolDetail || isExchangeLoading,
+        isExchangeLoading,
         exchanges,
         disableOrderHistoryRefreshBtn,
         disableOpenOrdersRefreshBtn,

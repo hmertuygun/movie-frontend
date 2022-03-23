@@ -162,9 +162,6 @@ const Routes = () => {
               Loading your chart...
             </p>
           )}
-          {/* {isLoggedIn && !state.has2FADetails && (
-            <Route path="/settings#security" component={Settings} />
-          )} */}
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&

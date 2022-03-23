@@ -79,6 +79,8 @@ const TabNavigator = ({
   labelArray = [],
   children,
   hadDropDown = true,
+  hasMargin = false,
+  changeTab,
 }) => {
   const { showMarketItems, tour2CurrentStep, state } = useContext(UserContext)
   const [contentIndex, setContentIndex] = useState(index)
@@ -91,6 +93,12 @@ const TabNavigator = ({
       document.getElementById('cp-tour-2-4').click()
     }
   }, [tour2CurrentStep])
+
+  useEffect(() => {
+    if (!children[contentIndex]) {
+      setContentIndex(0)
+    }
+  }, [children, contentIndex])
 
   const handleButtonClick = ({ target }) => {
     const index = labelArray.indexOf(target.id)
@@ -191,10 +199,12 @@ const TabNavigator = ({
                   contentIndex === labelIndex
                     ? 'TabNavigator-link--active'
                     : null,
+                  hasMargin ? 'has-margin' : null,
                 ].join(' ')}
                 key={`${label}-${labelIndex}-key`}
                 onClick={() => {
                   setContentIndex(labelIndex)
+                  if (changeTab) changeTab(labelIndex)
                 }}
               >
                 {!state.has2FADetails && label === 'Security' ? (
