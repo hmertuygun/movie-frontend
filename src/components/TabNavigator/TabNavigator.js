@@ -204,7 +204,7 @@ const TabNavigator = ({
                 key={`${label}-${labelIndex}-key`}
                 onClick={() => {
                   setContentIndex(labelIndex)
-                  changeTab(labelIndex)
+                  if (changeTab) changeTab(labelIndex)
                 }}
               >
                 {!state.has2FADetails && label === 'Security' ? (

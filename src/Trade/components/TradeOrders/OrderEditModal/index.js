@@ -176,7 +176,7 @@ const OrderEditModal = ({
               )
               .test(
                 'Trigger price',
-                `Trigger price has to be higher than current market price: ${addPrecisionToNumber(
+                `Trigger price has to be lower than current market price: ${addPrecisionToNumber(
                   lastPrice,
                   pricePrecision
                 )}`,
@@ -234,7 +234,7 @@ const OrderEditModal = ({
               )
               .test(
                 'Trigger price',
-                `Trigger price has to be higher than current market price: ${addPrecisionToNumber(
+                `Trigger price has to be lower than current market price: ${addPrecisionToNumber(
                   lastPrice,
                   pricePrecision
                 )}`,

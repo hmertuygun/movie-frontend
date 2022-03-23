@@ -213,12 +213,10 @@ export default class TradingViewChart extends Component {
   addTemplate = async (template) => {
     if (template && template.drawing) {
       const { points, name, drawing } = template
-      const { color, text } = drawing.state
       try {
         this.tradingViewWidget.activeChart().createMultipointShape(points, {
           shape: name,
-          text,
-          color,
+          ...drawing.state,
         })
       } catch (error) {
         //console.log(error)
