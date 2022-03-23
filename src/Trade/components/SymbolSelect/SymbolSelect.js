@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useSymbolContext } from '../../context/SymbolContext'
 import { UserContext } from '../../../contexts/UserContext'
 import styles from './SymbolSelect.module.css'
@@ -14,6 +14,7 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
     setExchange,
     isLoading,
     activeDD,
+    isExchangeLoading,
   } = useSymbolContext()
   const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
   const [options, setOptions] = useState([])
@@ -54,14 +55,14 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
             options={exchanges}
             isSearchable={false}
             styles={customStyle(
-              isLoading,
+              isExchangeLoading,
               isOnboardingSkipped,
               isTablet,
               isMobile
             )}
             onChange={(value) => setExchange(value)}
             value={activeExchange}
-            isDisabled={isLoading || isOnboardingSkipped}
+            isDisabled={isExchangeLoading || isOnboardingSkipped}
           />
         </div>
       )}
@@ -74,9 +75,9 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
           placeholder="Select trading pair"
           value={selectedSymbol}
           onChange={(value) => setSymbol(value)}
-          isDisabled={isLoading}
+          isDisabled={isExchangeLoading}
           styles={customStyle(
-            isLoading,
+            isExchangeLoading,
             isOnboardingSkipped,
             isTablet,
             isMobile
