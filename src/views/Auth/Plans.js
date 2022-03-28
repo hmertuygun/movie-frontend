@@ -183,7 +183,7 @@ const Plans = ({ canShowTrial }) => {
                   <CoinbaseCommerceButton
                     disabled={isLoading}
                     className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"
-                    checkoutId={'6f7b8bc3-7e0a-4822-8781-be335b30d2b6'}
+                    checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
                     onPaymentDetected={handlePaymentDetected}
                     onChargeFailure={handlePaymentDetected}
                     onChargeSuccess={cryptoSuccessPayment}

@@ -1,3 +1,3 @@
 export const config = {
-  subscription: false,
+  subscription: true,
 }
