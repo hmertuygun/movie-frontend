@@ -133,7 +133,7 @@ const TemplatesList = () => {
         >
           <span className="h6 ml-3 "></span> <HelpCircle size={18} />
           {infoShow && (
-            <div className="tab-info">
+            <div style={{ zIndex: '1000' }} className="tab-info">
               <p className="mb-2">
                 This feature is still on Beta. You can add your own drawing
                 templates and use them. Give us feedback from{' '}
@@ -158,7 +158,7 @@ const TemplatesList = () => {
                     addToChart(template)
                   }}
                 >
-                  {template.tempName}
+                  <span className="text-muted">{template.tempName}</span>
                   <span className="badge badge-danger badge-circle">
                     <X
                       size={15}
@@ -170,7 +170,7 @@ const TemplatesList = () => {
               ))
             ) : (
               <p className="p-2">
-                You don't have any drawing templates. Try out!
+                You don't have any drawing templates. Try it out!
               </p>
             )}
           </div>

@@ -2399,17 +2399,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stripe/react-stripe-js@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/@stripe/react-stripe-js/-/react-stripe-js-1.4.0.tgz"
-  integrity sha512-Pz5QmG8PgJ3pi8gOWxlngk+ns63p2L1Ds192fn55ykZNRKfGz3G6sfssUVThHn/NAt2Hp1eCEsy/hvlKnXJI6g==
+"@stripe/react-stripe-js@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@stripe/react-stripe-js/-/react-stripe-js-1.7.0.tgz#83c993a09a903703205d556617f9729784a896c3"
+  integrity sha512-L20v8Jq0TDZFL2+y+uXD751t6q9SalSFkSYZpmZ2VWrGZGK7HAGfRQ804dzYSSr5fGenW6iz6y7U0YKfC/TK3g==
   dependencies:
     prop-types "^15.7.2"
 
-"@stripe/stripe-js@^1.13.2":
-  version "1.14.0"
-  resolved "https://registry.npmjs.org/@stripe/stripe-js/-/stripe-js-1.14.0.tgz"
-  integrity sha512-Zw4EI+ph8RPxRpIX2uwKKDIbe7WM2OarasPjIPRulU1UCj8lRFqWWW/fTj79lZtnX3FNZkiTRM13UG1UZF7yjQ==
+"@stripe/stripe-js@^1.24.0":
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.24.0.tgz#d23977f364565981f8ab30b1b540e367f72abc5c"
+  integrity sha512-8CEILOpzoRhGwvgcf6y+BlPyEq1ZqxAv3gsX7LvokFYvbcyH72GRcHQMGXuZS3s7HqfYQuTSFrvZNL/qdkgA9Q==
 
 "@surma/rollup-plugin-off-main-thread@^1.1.1":
   version "1.4.2"
@@ -11723,6 +11723,11 @@ react-app-polyfill@^2.0.0:
     raf "^3.4.1"
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
+
+react-coinbase-commerce@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/react-coinbase-commerce/-/react-coinbase-commerce-1.6.0.tgz#1b3bde9178c028cded2070b31a57ae110bb7b62b"
+  integrity sha512-FFN4wD4e5jA6BQIb5tHm74p9Fzei5FecPG3NQuOhUtVRuL65J9aDeBirgv9/KmUdepqjzZgVktxfFvo9vTkcBQ==
 
 react-datepicker@^4.3.0:
   version "4.3.0"

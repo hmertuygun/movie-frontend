@@ -1,24 +1,29 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useNotifications } from 'reapop'
-import SubscriptionCard from './SubscriptionCard'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from '../../contexts/UserContext'
 import { UserCheck, AlertTriangle } from 'react-feather'
 import { Modal } from '../../components'
 import { firebase } from '../../firebase/firebase'
-import { getSubscriptionDetails } from '../../api/api'
+import {
+  finishSubscriptionByUser,
+  getDefaultPaymentMethod,
+  getStripeClientSecret,
+} from '../../api/api'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import { HelpCircle } from 'react-feather'
+import Plans from '../../views/Auth/Plans'
 import './index.css'
+import { getFirestoreDocumentData } from '../../api/firestoreCall'
+import dayjs from 'dayjs'
 
 const Subscription = () => {
   const {
     isCheckingSub,
     hasSub,
     needPayment,
-    products,
     subscriptionData,
     getSubscriptionsData,
     setSubscriptionData,
@@ -27,12 +32,16 @@ const Subscription = () => {
     userData,
     setCountry,
     country,
+    logout,
+    isSubOpen,
     setIsCountryAvailable,
     createSubscription,
     subscriptionError,
+    products,
   } = useContext(UserContext)
   const history = useHistory()
   const { notify } = useNotifications()
+  const db = firebase.firestore()
 
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -40,10 +49,38 @@ const Subscription = () => {
   const [showCountryModal, setShowCountryModal] = useState(false)
   const [countrySelectionLoading, setCountrySelectionLoading] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [cardInfo, setCardInfo] = useState(false)
+  const [clientSecret, setClientSecret] = useState(false)
+  const [subscriptionCreds, setSubscriptionCreds] = useState(false)
+
+  useEffect(() => {
+    getClientSecret()
+  }, [])
 
   const handleCountrySelection = async (value) => {
     setCountry(value)
     setShowCountryModal(true)
+  }
+
+  const getClientSecret = async () => {
+    setCardInfo(null)
+    const data1 = await getFirestoreDocumentData('stripe_users', userData.uid)
+    const data2 = await db
+      .collection('stripe_users')
+      .doc(userData.uid)
+      .collection('subscriptions')
+      .get()
+    const { stripeId } = data1.data()
+    const subscriptionId = data2.docs.find(
+      (doc) => doc.data().status === 'active'
+    )?.id
+    setSubscriptionCreds({ stripeId, subscriptionId })
+    if (stripeId && subscriptionId) {
+      const res = await getStripeClientSecret({ stripeId, subscriptionId })
+      setClientSecret({ clientSecret: res })
+    }
+    const defaultPaymentRes = await getDefaultPaymentMethod({ stripeId })
+    setCardInfo(defaultPaymentRes.card)
   }
 
   const handleClickConfirm = async () => {
@@ -54,11 +91,10 @@ const Subscription = () => {
         .collection('user_data')
         .doc(userData.email)
         .set({ country: country }, { merge: true })
-      setCountrySelectionLoading(false)
+
       setIsCountryAvailable(true)
     } catch (err) {
       console.log(err)
-      setCountrySelectionLoading(false)
     } finally {
       setCountrySelectionLoading(false)
     }
@@ -73,7 +109,7 @@ const Subscription = () => {
   const handleClickYes = async () => {
     setIsLoading(true)
     try {
-      await getSubscriptionDetails()
+      await finishSubscriptionByUser()
       await getSubscriptionsData()
       history.push('/trade')
       setIsLoading(false)
@@ -97,7 +133,22 @@ const Subscription = () => {
     }
   }
 
-  let subscriptionStatus = subscriptionData?.subscription?.status
+  let subscriptionStatus = useMemo(
+    () => subscriptionData?.subscription?.status,
+    [subscriptionData]
+  )
+
+  if (!isSubOpen) {
+    return (
+      <div class="alert alert-warning shadow-lg mt-4" role="alert">
+        <strong>
+          {' '}
+          Sorry for the inconvenience. Our subscription system is under
+          maintenance, please check later.
+        </strong>
+      </div>
+    )
+  }
 
   return (
     <div className="row pt-5">
@@ -136,7 +187,7 @@ const Subscription = () => {
       </div>
       <div className="col-lg-12">
         {subscriptionError && (
-          <div class="alert alert-danger" role="alert">
+          <div className="alert alert-danger" role="alert">
             <AlertTriangle size={24} strokeWidth={3} />
             <span className="ml-3 mt-2" style={{ fontSize: 18 }}>
               {subscriptionError}
@@ -144,15 +195,21 @@ const Subscription = () => {
           </div>
         )}
         {!isCheckingSub ? (
-          !createSubscription ? (
+          (!createSubscription && subscriptionStatus !== 'trialing') ||
+          (subscriptionStatus == 'canceled' &&
+            dayjs().isBefore(dayjs(subscriptionData.due * 1000))) ? (
             <SubscriptionActiveCard
+              creds={clientSecret}
               subscriptionData={subscriptionData}
               needPayment={needPayment}
+              card={cardInfo}
+              subCreds={subscriptionCreds}
+              logout={logout}
+              products={products}
+              getClientSecret={getClientSecret}
             />
           ) : (
-            products.map((product) => (
-              <SubscriptionCard product={product} key={product.id} />
-            ))
+            <Plans />
           )
         ) : null}
         <>
