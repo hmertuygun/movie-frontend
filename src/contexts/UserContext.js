@@ -20,7 +20,7 @@ import {
   getFirestoreCollectionData,
   getFirestoreDocumentData,
 } from '../api/firestoreCall'
-
+import { config } from '../constants/config'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -58,6 +58,7 @@ const UserContextProvider = ({ children }) => {
   const [loadApiKeysError, setLoadApiKeysError] = useState(false)
   const [userData, setUserData] = useState(false)
   const [userContextLoaded, setUserContextLoaded] = useState(false)
+  const [isSubOpen, setIsSubOpen] = useState(config.subscription)
   const [totalExchanges, setTotalExchanges] = useState([])
   const [activeExchange, setActiveExchange] = useState({
     apiKeyName: '',
@@ -98,6 +99,7 @@ const UserContextProvider = ({ children }) => {
   const [activeDrawing, setActiveDrawing] = useState(false)
   const [addedDrawing, setAddedDrawing] = useState({})
   const [twofaSecretKey, setTwofaSecretKey] = useState('')
+  const [firstLogin, setFirstLogin] = useState('')
   const [country, setCountry] = useState('')
   const [isCountryAvailable, setIsCountryAvailable] = useState(true)
   const [chartDrawings, setChartDrawings] = useState()
@@ -138,6 +140,9 @@ const UserContextProvider = ({ children }) => {
       .then((doc) => {
         if (doc && doc.data()) {
           setCountry(doc.data().country)
+          setState((state) => {
+            return { ...state, firstLogin: doc.data().firstLogin }
+          })
           setIsCountryAvailable(true)
         } else {
           setIsCountryAvailable(false)
@@ -178,7 +183,7 @@ const UserContextProvider = ({ children }) => {
     //test
     try {
       const currentUser = firebase.auth().currentUser
-      await getFirestoreDocumentData('stripe_users', currentUser.uid).then(
+      getFirestoreDocumentData('stripe_users', currentUser.uid).then(
         async (doc) => {
           if (doc.data()?.chartMirroringSignUp) {
             handleOnboardingSkip()
@@ -270,6 +275,7 @@ const UserContextProvider = ({ children }) => {
     if (subData) {
       const { subscription_status, provider, currency, plan, amount } = subData
       let errorMessage = subData && subData.error_message
+      let scheduledSubs = subData && subData.subscription_scheduled
       if (errorMessage) {
         setSubscriptionError(errorMessage)
       } else {
@@ -289,7 +295,7 @@ const UserContextProvider = ({ children }) => {
         setSubscriptionData({
           subscription: {
             type: 'crypto',
-            status: subscription_status,
+            status: !isExpired ? 'active' : 'unpaid',
           },
           due: seconds,
           priceData: {
@@ -298,7 +304,7 @@ const UserContextProvider = ({ children }) => {
             interval: plan,
           },
         })
-      } else if (provider === 'stripe') {
+      } else if (provider === 'stripe' || provider === 'coinpanel') {
         let trialDays = seconds * 1000 - Date.now()
         trialDays = trialDays / 1000 / 60 / 60 / 24
         let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
@@ -316,7 +322,9 @@ const UserContextProvider = ({ children }) => {
         setDaysLeft(trialDays)
         setHasSub(
           (subscription_status === 'trialing' ||
-            subscription_status === 'active') &&
+            subscription_status === 'active' ||
+            subscription_status === 'canceled' ||
+            subscription_status === 'cancelled') &&
             !isExpired
         )
         setCreateSubscription(
@@ -338,6 +346,7 @@ const UserContextProvider = ({ children }) => {
             unit_amount: amount,
             interval: plan,
           },
+          scheduledSubs,
         })
       }
     } else {
@@ -516,7 +525,6 @@ const UserContextProvider = ({ children }) => {
 
     if (signedin) {
       if (!firebase.auth().currentUser.emailVerified) {
-        setState('registered', firebase.auth().currentUser)
         const actionCodeSettings = {
           url:
             window.location.origin +
@@ -556,7 +564,9 @@ const UserContextProvider = ({ children }) => {
           JSON.stringify({ has2FADetails })
         )
       } catch (error) {}
-      setState({ user: signedin.user, has2FADetails })
+      setState((state) => {
+        return { ...state, user: signedin.user, has2FADetails }
+      })
       localStorage.setItem('user', JSON.stringify(signedin.user))
       localStorage.setItem('remember', rememberCheck)
     }
@@ -585,7 +595,9 @@ const UserContextProvider = ({ children }) => {
       T2FA_LOCAL_STORAGE,
       JSON.stringify({ has2FADetails, is2FAVerified: true })
     )
-    setState({ ...state, has2FADetails, is2FAVerified: true })
+    setState((state) => {
+      return { ...state, has2FADetails, is2FAVerified: true }
+    })
     return response.data
   }
 
@@ -611,7 +623,9 @@ const UserContextProvider = ({ children }) => {
 
   async function delete2FA(userToken) {
     await deleteGoogleAuth2FA(userToken)
-    setState({ ...state, has2FADetails: null, is2FAVerified: true })
+    setState((state) => {
+      return { ...state, has2FADetails: null, is2FAVerified: true }
+    })
     localStorage.removeItem(T2FA_LOCAL_STORAGE)
   }
 
@@ -644,8 +658,9 @@ const UserContextProvider = ({ children }) => {
         console.error({ message: errorMessage, code: errorCode })
         return { message: errorMessage, code: errorCode }
       })
-
-    setState({ registered: registered.user })
+    setState((state) => {
+      return { ...state, registered: registered.user }
+    })
     localStorage.setItem('registered', JSON.stringify(registered.user))
 
     return registered
@@ -711,6 +726,7 @@ const UserContextProvider = ({ children }) => {
         setLoaderVisibility,
         loaderText,
         setLoaderText,
+        isSubOpen,
         userData,
         isException,
         setUserData,
@@ -732,9 +748,11 @@ const UserContextProvider = ({ children }) => {
         // subInfo,
         // setSubInfo,
         setHasSub,
+        setFirstLogin,
         isPaidUser,
         setIsPaidUser,
         setOnTour,
+        setState,
         setIsTourStep5,
         setIsTourFinished,
         setOnSecondTour,
@@ -777,6 +795,7 @@ const UserContextProvider = ({ children }) => {
         setIsCountryAvailable,
         setCountry,
         setChartDrawings,
+        firstLogin,
         chartDrawings,
         settingChartDrawings,
         isSettingChartDrawings,

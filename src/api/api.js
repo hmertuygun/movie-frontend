@@ -596,14 +596,25 @@ export async function deleteUserAccount() {
   return response
 }
 
-export async function getSubscriptionDetails() {
-  const apiUrl = process.env.REACT_APP_API_SUBSCRIPTION
+export async function finishSubscriptionByUser() {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}finish_trial`
   const token = await firebase.auth().currentUser.getIdToken()
   const response = await axios(apiUrl, {
     headers: await getHeaders(token),
     method: 'POST',
   })
   return response
+}
+
+export async function createSubscripton(payload, inside = false) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${payload.customer_id}/subscription`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'POST',
+    data: inside ? payload.data : payload,
+  })
+  return response?.data
 }
 
 export async function updateUserExchange(data) {
@@ -617,4 +628,67 @@ export async function updateUserExchange(data) {
     return error?.response
   })
   return updated
+}
+
+export async function getStripeClientSecret(payload) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${payload.stripeId}/client_secret/${payload.subscriptionId}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response?.data
+}
+
+export async function updatePaymentMethod({ data, stripeId }) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${stripeId}/default_payment_method`
+  const token = await firebase.auth().currentUser.getIdToken()
+  const updated = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data,
+  }).catch((error) => {
+    return error?.response
+  })
+  return updated.data
+}
+
+export async function getDefaultPaymentMethod(data) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${data.stripeId}/default_payment_method`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'GET',
+  })
+
+  return response.data
+}
+
+export async function cancelSubscription(data) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${data.stripeId}/subscription/${data.subscriptionId}`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const response = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'DELETE',
+  })
+
+  return response
+}
+
+export async function changeActivePlan(data) {
+  const apiUrl = `${process.env.REACT_APP_API_SUBSCRIPTION}${data.stripeId}/subscription/${data.subscriptionId}/plan`
+  const token = await firebase.auth().currentUser.getIdToken()
+
+  const updated = await axios(apiUrl, {
+    headers: await getHeaders(token),
+    method: 'PATCH',
+    data,
+  }).catch((error) => {
+    return error?.response
+  })
+  return updated.data
 }

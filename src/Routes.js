@@ -42,6 +42,7 @@ const RegisterFinal = lazy(() => import('./views/Auth/QuickFinal'))
 const RecoverPassword = lazy(() => import('./views/Auth/RecoverPassword'))
 const NewPassword = lazy(() => import('./views/Auth/NewPassword'))
 const HandleEmailActions = lazy(() => import('./views/Auth/HandleEmailActions'))
+const Plans = lazy(() => import('./views/Auth/Plans'))
 
 const TradeView = lazy(() => import('./views/TradeView'))
 const Settings = lazy(() => import('./views/Settings'))
@@ -103,6 +104,9 @@ const Routes = () => {
     ) {
       history.push('/settings#security')
     }
+    if (isLoggedIn && state && state.firstLogin) {
+      history.push('/plans')
+    }
   }, [
     state,
     isLoggedIn,
@@ -153,6 +157,8 @@ const Routes = () => {
             !loadApiKeys &&
             !isSettingsPage &&
             !isOnboardingSkipped &&
+            !state.firstLogin &&
+            hasSub &&
             !isApiKeysLoading && <OnboardingModal />}
           {isTradePage && isLoggedIn && isApiKeysLoading && (
             <p
@@ -165,6 +171,7 @@ const Routes = () => {
           {isLoggedIn &&
             userContextLoaded &&
             !isSettingsPage &&
+            !state.firstLogin &&
             (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
@@ -183,6 +190,9 @@ const Routes = () => {
               )}
               {!isOnboardingSkipped && (
                 <CacheRoute path="/academy" component={Academy} />
+              )}
+              {state.firstLogin && (
+                <CacheRoute path="/plans" component={Plans} />
               )}
               <CacheRoute path="/market" component={Market} />
 

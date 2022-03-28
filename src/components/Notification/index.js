@@ -84,56 +84,57 @@ const WarningAlert = () => {
   }
 
   if (isLoggedIn) {
-    return (
-      <div className="px-4 m-3" role="alert">
-        <div
-          className={`${finalNotices.length ? 'alert-messages' : ''}`}
-          style={{ margin: '0' }}
-        >
-          {notices.map((item, index) => (
-            <div
-              style={{ padding: '10px' }}
-              className={`text-center my-1 alert alert-${
-                item.noticeType || 'primary'
-              }`}
-              key={`notice-${index}`}
-            >
-              <FontAwesomeIcon
-                color="white"
-                icon={`${
-                  item.noticeType === 'danger'
-                    ? 'times-circle'
-                    : item.noticeType === 'warning'
-                    ? 'exclamation-triangle'
-                    : item.noticeType === 'info'
-                    ? 'exclamation-circle'
-                    : 'exclamation-circle'
+    if (notices.length > 0)
+      return (
+        <div className="px-4 m-3" role="alert">
+          <div
+            className={`${finalNotices.length ? 'alert-messages' : ''}`}
+            style={{ margin: '0' }}
+          >
+            {notices.map((item, index) => (
+              <div
+                style={{ padding: '10px' }}
+                className={`text-center my-1 alert alert-${
+                  item.noticeType || 'primary'
                 }`}
-              />{' '}
-              {item.message}
-              {item.button?.text && (
-                <span
-                  className="ml-2 badge badge-primary"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => getAction(item.button.type)}
-                >
-                  {item.button.text}
-                </span>
-              )}
-              {item.isDismissable && (
-                <button
-                  type="button"
-                  className="close"
-                  onClick={() => removeNotice(item.id, index)}
-                >
-                  <span>&times;</span>
-                </button>
-              )}
-            </div>
-          ))}
+                key={`notice-${index}`}
+              >
+                <FontAwesomeIcon
+                  color="white"
+                  icon={`${
+                    item.noticeType === 'danger'
+                      ? 'times-circle'
+                      : item.noticeType === 'warning'
+                      ? 'exclamation-triangle'
+                      : item.noticeType === 'info'
+                      ? 'exclamation-circle'
+                      : 'exclamation-circle'
+                  }`}
+                />{' '}
+                {item.message}
+                {item.button?.text && (
+                  <span
+                    className="ml-2 badge badge-primary"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => getAction(item.button.type)}
+                  >
+                    {item.button.text}
+                  </span>
+                )}
+                {item.isDismissable && (
+                  <button
+                    type="button"
+                    className="close"
+                    onClick={() => removeNotice(item.id, index)}
+                  >
+                    <span>&times;</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    )
+      )
   }
   return null
 }
