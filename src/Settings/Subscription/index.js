@@ -195,9 +195,7 @@ const Subscription = () => {
           </div>
         )}
         {!isCheckingSub ? (
-          (!createSubscription && subscriptionStatus !== 'trialing') ||
-          (subscriptionStatus == 'canceled' &&
-            dayjs().isBefore(dayjs(subscriptionData.due * 1000))) ? (
+          hasSub && subscriptionStatus !== 'trialing' ? (
             <SubscriptionActiveCard
               creds={clientSecret}
               subscriptionData={subscriptionData}
