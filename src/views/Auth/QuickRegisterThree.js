@@ -76,7 +76,7 @@ const QuickRegister = () => {
         .firestore()
         .collection('user_data')
         .doc(email)
-        .set({ country: country }, { merge: true })
+        .set({ country: country, firstLogin: true }, { merge: true })
 
       try {
         const actionCodeSettings = {
