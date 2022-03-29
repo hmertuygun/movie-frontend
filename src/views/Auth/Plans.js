@@ -35,15 +35,16 @@ const Plans = ({ canShowTrial }) => {
         setCustomerId(stripeId)
         const payload = !!plan.id
           ? { customer_id: stripeId, price_id: plan.prices[0].id }
-          : { provider: 'trial' }
+          : { provider: 'trial', customer_id: stripeId }
 
         const res = await createSubscripton(payload)
-        if (res?.plan === 'Free') {
-          paymentCallback('Free')
-        } else {
-          setCreds(res)
-          setActivePlan(plan)
-        }
+        if (res)
+          if (res?.plan === 'Free') {
+            paymentCallback('Free')
+          } else {
+            setCreds(res)
+            setActivePlan(plan)
+          }
       })
       .finally(() => setIsLoading(''))
   }
