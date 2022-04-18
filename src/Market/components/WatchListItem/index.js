@@ -6,11 +6,10 @@ import { UserContext } from '../../../contexts/UserContext'
 import { useSymbolContext } from '../../../Trade/context/SymbolContext'
 import './style.css'
 import Tooltip from '../../../components/Tooltip'
-import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 
 const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const { setSymbol, templateDrawingsOpen, emojis } = useSymbolContext()
-  const { userData, isPaidUser } = useContext(UserContext)
+  const { isAnalyst, isPaidUser } = useContext(UserContext)
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
 
   const getLogo = () => {
@@ -54,8 +53,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
         </div>
       )}
       <div className="label-column">
-        {((!group && templateDrawingsOpen) ||
-          (!group && TEMPLATE_DRAWINGS_USERS.includes(userData.email))) &&
+        {((!group && templateDrawingsOpen) || (!group && isAnalyst)) &&
         isPaidUser ? (
           <>
             {symbol.flag ? <Tooltip id={symbol.value} place="right" /> : null}

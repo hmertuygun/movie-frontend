@@ -35,7 +35,7 @@ const QuickRegister = (props) => {
         try {
           const snapshot = await firebase
             .firestore()
-            .collection('template_drawings')
+            .collection('analysts')
             .get()
           const allTraders = snapshot.docs.map((tr) => {
             return { id: tr.id, ...tr.data() }

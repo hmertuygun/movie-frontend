@@ -23,7 +23,6 @@ import {
   setWatchlistData,
   getSnapShotDocument,
 } from '../../../api/firestoreCall'
-import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 import {
   execExchangeFunc,
   getExchangeProp,
@@ -42,7 +41,7 @@ const WatchListPanel = () => {
     selectEmojiPopoverOpen,
     setSelectEmojiPopoverOpen,
   } = useSymbolContext()
-  const { userData, isPaidUser } = useContext(UserContext)
+  const { userData, isPaidUser, isAnalyst } = useContext(UserContext)
   const { notify } = useNotifications()
 
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
@@ -632,55 +631,52 @@ const WatchListPanel = () => {
             <ChevronDown size={15} style={{ marginLeft: '5px' }} />
           </div>
         </Popover>
-        {TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
-          !templateDrawingsOpen && (
-            <Popover
-              key="watchlist-emoji-popover"
-              isOpen={selectEmojiPopoverOpen}
-              positions={['bottom', 'top', 'right', 'left']}
-              align="center"
-              padding={10}
-              reposition={false}
-              onClickOutside={() => setSelectEmojiPopoverOpen(false)}
-              content={({ position, nudgedLeft, nudgedTop }) => (
-                <div className={styles.emojiPopover}>
-                  <div className={styles.emojiContainer}>
-                    <div className={styles.emojiWrapper}>
-                      {emojis &&
-                        emojis.map((emoji) => (
-                          <div key={emoji.id}>
-                            {emoji.emoji && (
-                              <span
-                                className={styles.selectedEmojiWrapper}
-                                onClick={() => handleEmojiAssigning(emoji.id)}
-                              >
-                                {emoji.emoji}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                    <span className={styles.settingsWrapper}>
-                      <Edit onClick={() => setAddEmojiModalOpen(true)} />
-                    </span>
+        {isAnalyst && !templateDrawingsOpen && (
+          <Popover
+            key="watchlist-emoji-popover"
+            isOpen={selectEmojiPopoverOpen}
+            positions={['bottom', 'top', 'right', 'left']}
+            align="center"
+            padding={10}
+            reposition={false}
+            onClickOutside={() => setSelectEmojiPopoverOpen(false)}
+            content={({ position, nudgedLeft, nudgedTop }) => (
+              <div className={styles.emojiPopover}>
+                <div className={styles.emojiContainer}>
+                  <div className={styles.emojiWrapper}>
+                    {emojis &&
+                      emojis.map((emoji) => (
+                        <div key={emoji.id}>
+                          {emoji.emoji && (
+                            <span
+                              className={styles.selectedEmojiWrapper}
+                              onClick={() => handleEmojiAssigning(emoji.id)}
+                            >
+                              {emoji.emoji}
+                            </span>
+                          )}
+                        </div>
+                      ))}
                   </div>
+                  <span className={styles.settingsWrapper}>
+                    <Edit onClick={() => setAddEmojiModalOpen(true)} />
+                  </span>
                 </div>
-              )}
-            >
-              <div
-                className={`${styles.watchListPlus} ${
-                  styles.watchListControl
-                } ${
-                  selectEmojiPopoverOpen ? styles.watchListControlSelected : ''
-                }`}
-                onClick={() => {
-                  setSelectEmojiPopoverOpen(true)
-                }}
-              >
-                <Flag />
               </div>
-            </Popover>
-          )}
+            )}
+          >
+            <div
+              className={`${styles.watchListPlus} ${styles.watchListControl} ${
+                selectEmojiPopoverOpen ? styles.watchListControlSelected : ''
+              }`}
+              onClick={() => {
+                setSelectEmojiPopoverOpen(true)
+              }}
+            >
+              <Flag />
+            </div>
+          </Popover>
+        )}
         {!templateDrawingsOpen && (
           <NewWatchListItem
             symbolsList={symbolsList}
@@ -698,7 +694,7 @@ const WatchListPanel = () => {
             onClickOutside={() => setWatchListOptionPopoverOpen(false)}
             content={({ position, nudgedLeft, nudgedTop }) => (
               <div className={styles.watchListModal}>
-                {TEMPLATE_DRAWINGS_USERS.includes(userData.email) && (
+                {isAnalyst && (
                   <div
                     className={styles.watchListRow}
                     onClick={() => {
@@ -811,8 +807,7 @@ const WatchListPanel = () => {
         ) : (
           <>
             {(templateDrawingsOpen && isGroupByFlag) ||
-            (TEMPLATE_DRAWINGS_USERS.includes(userData.email) &&
-              isGroupByFlag) ? (
+            (isAnalyst && isGroupByFlag) ? (
               <>
                 {emojis &&
                   emojis.map((emoji) => {

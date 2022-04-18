@@ -7,6 +7,6 @@ export const plansDescription = {
   paid: [
     'All supported exchanges',
     'Access to the all features',
-    'Live chat support',
+    'Priority support',
   ],
 }

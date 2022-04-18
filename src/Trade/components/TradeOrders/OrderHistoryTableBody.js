@@ -211,7 +211,7 @@ const OrderHistoryTableBody = ({
                         order?.error ? 'order-history-error-tooltip' : ''
                       }
                     >
-                      {order?.status}
+                      {order?.status.replace('_', ' ')}
                     </div>
                     {order.error && (
                       <Tooltip id={`order-history-${order.order_id}`} />

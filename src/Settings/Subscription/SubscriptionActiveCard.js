@@ -139,7 +139,9 @@ const SubscriptionActiveCard = ({
       setIsLoading(true)
       const cancelResponse = await cancelSubscription(subCreds)
       if (cancelResponse) {
-        logout()
+        setTimeout(() => {
+          window.location.reload()
+        }, 3000)
       }
     } catch (error) {
       console.log(error)
@@ -159,9 +161,6 @@ const SubscriptionActiveCard = ({
           </p>
         ),
       })
-    } finally {
-      setIsLoading(false)
-      setShowCancelModal(false)
     }
   }
 
@@ -249,14 +248,18 @@ const SubscriptionActiveCard = ({
     } else if (needPayment) {
       return `Please add a payment method to keep your account active. If you don’t have a payment method added, your
       subscription will be cancelled automatically.`
+    } else if (subscriptionData.scheduledSubs) {
+      const value =
+        subscriptionData.scheduledSubs?.plan === 'Yearly' ? 'yearly' : 'monthly'
+      return `You are paying       ${new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: priceData?.currency,
+      }).format(
+        priceData?.unit_amount
+      )} ${priceData?.interval.toLowerCase()}. Your subscription plan will change on ${dayjs(
+        due * 1000
+      ).format('MMM DD, YYYY')} to ${value}.`
     } else if (isCancelled) {
-      if (subscriptionData.scheduledSubs) {
-        return `Your current subscription will be cancelled on ${dayjs(
-          due * 1000
-        ).format(
-          'MMM DD, YYYY'
-        )}. Your new subscription will be active when the current one finish.`
-      }
       return `Your subscription is active until ${dayjs(due * 1000).format(
         'MMM DD, YYYY'
       )}. You need to add payment method after the due to keep your account active.`
@@ -282,12 +285,7 @@ const SubscriptionActiveCard = ({
       }).format(priceData?.unit_amount)}
       ${priceData?.interval.toLowerCase()}. Your payment will renew on ${dayjs(
         due * 1000
-      ).format('MMM DD, YYYY')}. ${
-        subscriptionData.scheduledSubs
-          ? 'You have a scheduled subscription.'
-          : ''
-      }
-      `
+      ).format('MMM DD, YYYY')}.`
     }
   }, [needPayment, subscription, priceData, due])
 
@@ -301,41 +299,18 @@ const SubscriptionActiveCard = ({
     if (subscription.status === 'active') {
       return (
         <div className="mt-4">
-          <button
-            href="#"
-            onClick={() => setShowCancelModal(true)}
-            className="btn btn-sm btn-danger btn-icon ml-2"
-          >
-            <span className="btn-inner--text">Cancel Subscription</span>
-            <span className="btn-inner--icon">
-              <i data-feather="arrow-right" className="text-warning"></i>
-            </span>
-          </button>
-          <button
-            href="#"
-            onClick={() => setShowUpdateModal(true)}
-            className="btn btn-sm btn-warning btn-icon mt-4"
-          >
-            <span className="btn-inner--text">Change Credit Card</span>
-            <span className="btn-inner--icon">
-              <i data-feather="arrow-right" className="text-warning"></i>
-            </span>
-          </button>
-          <button
-            href="#"
-            onClick={() => setShowChangeModal(true)}
-            className="btn btn-sm btn-primary btn-icon mt-4"
-          >
-            <span className="btn-inner--text">Change Active Plan</span>
-            <span className="btn-inner--icon">
-              <i data-feather="arrow-right" className="text-warning"></i>
-            </span>
-          </button>
-        </div>
-      )
-    } else if (isCancelled && subscriptionData.scheduledSubs) {
-      return (
-        <div className="mt-4">
+          {!subscriptionData.scheduledSubs && (
+            <button
+              href="#"
+              onClick={() => setShowCancelModal(true)}
+              className="btn btn-sm btn-danger btn-icon ml-2"
+            >
+              <span className="btn-inner--text">Cancel Subscription</span>
+              <span className="btn-inner--icon">
+                <i data-feather="arrow-right" className="text-warning"></i>
+              </span>
+            </button>
+          )}
           <button
             href="#"
             onClick={() => setShowUpdateModal(true)}
@@ -346,6 +321,18 @@ const SubscriptionActiveCard = ({
               <i data-feather="arrow-right" className="text-warning"></i>
             </span>
           </button>
+          {!subscriptionData.scheduledSubs && (
+            <button
+              href="#"
+              onClick={() => setShowChangeModal(true)}
+              className="btn btn-sm btn-primary btn-icon mt-4"
+            >
+              <span className="btn-inner--text">Change Active Plan</span>
+              <span className="btn-inner--icon">
+                <i data-feather="arrow-right" className="text-warning"></i>
+              </span>
+            </button>
+          )}
         </div>
       )
     }

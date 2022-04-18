@@ -4,12 +4,13 @@ import { notify } from 'reapop'
 
 import dataFeed from '../../../api/dataFeed'
 import { firebase } from '../../../firebase/firebase'
-import { TEMPLATE_DRAWINGS_USERS } from '../../../constants/TemplateDrawingsList'
 import { UserContext } from '../../../contexts/UserContext'
 import {
+  createBackup,
   setChartDrawings,
   updateTemplateDrawings,
 } from '../../../api/firestoreCall'
+import lzutf8 from 'lzutf8'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -36,6 +37,7 @@ export default class TradingViewChart extends Component {
     tradersBtnClicked,
     activeTrader,
     addedDrawing,
+    createBackup,
     selectEmojiPopoverOpen,
     setActiveDrawing,
     setActiveDrawingId,
@@ -53,6 +55,7 @@ export default class TradingViewChart extends Component {
       autosize: true,
       auto_save_delay: 2,
       timezone: timeZone,
+      chartsStorageUrl: 'https://saveload.tradingview.com',
       favorites: {
         intervals: intervals,
       },
@@ -147,38 +150,16 @@ export default class TradingViewChart extends Component {
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
         this.setClickedDrawing(obj)
-        if (
-          this.isArrayEqual(
-            this.state.openOrderLines,
-            this.props.openOrderLines
-          )
-        ) {
-          if (event === 'drawing_event') {
-            this.setState({ isSaved: false })
-          }
+        const check =
+          this.state.loadingButton.parentNode.parentNode.style.display ===
+          'block'
 
-          if (event === 'onAutoSaveNeeded' && !this.props.onError) {
-            this.setState({ isSaved: false })
-            this.saveChartDrawingToServer(event)
-          }
-          if (
-            event === 'drawing_event' &&
-            this.props.templateDrawingsOpen &&
-            this.state.templateDrawingsOpen &&
-            !this.state.processingOrder
-          ) {
-            this.tradingViewWidget.showConfirmDialog({
-              title: 'Chart Mirroring',
-              body: 'You are viewing a mirrored chart right now. Click Yes below to switch to your chart to start drawing.',
-              callback: (result) => {
-                if (result) {
-                  this.props.drawingsBtnClicked(this.props.templateDrawingsOpen)
-                } else {
-                  this.tradingViewWidget.closePopupsAndDialogs()
-                }
-              },
-            })
-          }
+        if (
+          event === 'onAutoSaveNeeded' &&
+          !this.props.templateDrawingsOpen &&
+          check
+        ) {
+          this.saveChartDrawingToServer(false)
         }
       })
     } catch (e) {
@@ -224,21 +205,26 @@ export default class TradingViewChart extends Component {
     }
   }
 
-  saveChartDrawingToServer = async (event) => {
+  saveChartDrawingToServer = async (event = true) => {
+    this.setState({ isSaved: false })
     this.tradingViewWidget.save(async (obj) => {
       const str = JSON.stringify(obj.charts[0].panes)
+      let compressed = lzutf8.compress(str, {
+        outputEncoding: 'Base64',
+      })
       try {
         if (!this.props.templateDrawingsOpen) {
           const drawings = {
-            [this.state.email]: str,
+            [this.state.email]: compressed,
           }
+          if (event) await createBackup(this.state.email, compressed)
 
           await setChartDrawings(this.state.email, drawings)
         }
 
-        if (TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+        if (this.context.isAnalyst) {
           let value = {
-            drawings: str,
+            drawings: compressed,
             ...(this.props.templateDrawings &&
               this.props.templateDrawings.emojis && {
                 flags: this.props.templateDrawings.emojis,
@@ -487,7 +473,7 @@ export default class TradingViewChart extends Component {
     text.prepend(img)
     button.append(text)
 
-    if (!TEMPLATE_DRAWINGS_USERS.includes(this.state.email)) {
+    if (!this.context.isAnalyst) {
       const traderValue = 'View Pro Traders Charts'
       await this.tradingViewWidget.headerReady()
       let traderButton = this.tradingViewWidget.createButton()
@@ -554,10 +540,7 @@ export default class TradingViewChart extends Component {
   addLoadDrawingsButton = async () => {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
-    if (
-      !TEMPLATE_DRAWINGS_USERS.includes(this.state.email) &&
-      this.props.activeTrader
-    ) {
+    if (!this.context.isAnalyst && this.props.activeTrader) {
       let button = this.tradingViewWidget.createButton()
       button.innerText = `View ${this.props.activeTrader?.name}'s Chart`
       if (this.onMarketPage) {
@@ -587,6 +570,10 @@ export default class TradingViewChart extends Component {
     let loadingButton = this.tradingViewWidget.createButton({ align: 'right' })
     loadingButton.setAttribute('class', 'button-2ioYhFEY')
     this.state.loadingButton.style = {}
+    this.state.loadingButton.innerText = 'Click to Save'
+    loadingButton.addEventListener('click', () => {
+      this.saveChartDrawingToServer()
+    })
     loadingButton.setAttribute('style', 'align-items:center;')
     this.state.loadingButton = loadingButton
   }
@@ -625,7 +612,6 @@ export default class TradingViewChart extends Component {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
       this.chartEvent('onAutoSaveNeeded')
-      // this.chartShortCutSave()
       this.chartEvent('drawing_event')
       console.log('Drawings and Intervals loaded')
     }
@@ -797,10 +783,8 @@ export default class TradingViewChart extends Component {
     }
 
     if (this.state.isSaved && this.state.loadingButton.style) {
-      this.state.loadingButton.setAttribute(
-        'style',
-        'background-color: currentColor;height: 20px;width: 20px;margin-left: 8px;-webkit-mask: url(/img/icons/verification-on-cloud.svg) no-repeat center / contain;'
-      )
+      this.state.loadingButton.setAttribute('style', 'margin: 7px;')
+      this.state.loadingButton.innerText = 'Click to Save'
     }
 
     if (!this.state.isSaved && this.state.loadingButton) {
@@ -809,7 +793,6 @@ export default class TradingViewChart extends Component {
     }
 
     if (
-      this.onMarketPage &&
       !this.props.templateDrawingsOpen &&
       this.state.loadingButton.style &&
       this.state.loadingButton.parentNode.parentNode &&
@@ -907,7 +890,7 @@ export default class TradingViewChart extends Component {
             width: this.state.isChartReady ? '100%' : '0',
           }}
         ></div>
-        {!this.state.isChartReady ? (
+        {!this.state.isChartReady && !this.state.loadingButton?.style ? (
           <span className="spinner-border spinner-border-sm text-primary" />
         ) : null}
       </>

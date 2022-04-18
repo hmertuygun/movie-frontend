@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { UserContext } from '../../../contexts/UserContext'
-import { getFirestoreDocumentData } from '../../../api/firestoreCall'
+import {
+  getFirestoreDocumentData,
+  getSnapShotDocument,
+} from '../../../api/firestoreCall'
 import { firebase } from '../../../firebase/firebase'
 import AddTemplateModal from './AddTemplateModal'
 import { HelpCircle, X } from 'react-feather'
@@ -9,6 +12,7 @@ import { capitalize } from 'lodash'
 import { useNotifications } from 'reapop'
 
 const db = firebase.firestore()
+const FieldValue = firebase.firestore.FieldValue
 
 const TemplatesList = () => {
   const {
@@ -23,11 +27,10 @@ const TemplatesList = () => {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [infoShow, setInfoShow] = useState(false)
 
-  const addTemplate = ({ templateName }) => {
+  const addTemplate = async ({ templateName }, template = null) => {
     try {
-      const isSame = templates.some(
-        (element) => element.id === activeDrawing.id
-      )
+      const templateData = template ? template : activeDrawing
+      const isSame = templates.some((element) => element.id === templateData.id)
       if (isSame) {
         return notify({
           status: 'error',
@@ -35,38 +38,50 @@ const TemplatesList = () => {
           message: `You cannot add the same template.`,
         })
       }
-      db.collection('chart_drawings')
+
+      await db
+        .collection('chart_templates')
         .doc(userData.email)
-        .set(
+        .collection('templates')
+        .add(
           {
-            templates: JSON.stringify([
-              ...templates,
-              { ...activeDrawing, tempName: templateName },
-            ]),
+            data: JSON.stringify({ ...templateData, tempName: templateName }),
           },
           { merge: true }
         )
-      setActiveDrawing(null)
+        .then(function (docRef) {
+          setTemplates((prevState) => {
+            return [
+              ...prevState,
+              { fsDd: docRef.id, ...templateData, tempName: templateName },
+            ]
+          })
+        })
     } catch (error) {
       console.log(error)
     } finally {
       setAddModalOpen(false)
-      getInitialData()
+      setActiveDrawing(null)
     }
   }
-
+  ///chart_drawings/hmert.uygun@hotmail.com
   const removeTemplate = (e, templateId) => {
     e.stopPropagation()
-    let template = templates.filter((template) => template.id !== templateId)
     try {
-      db.collection('chart_drawings')
+      db.collection('chart_templates')
         .doc(userData.email)
-        .set(
-          {
-            templates: JSON.stringify(template),
-          },
-          { merge: true }
-        )
+        .collection('templates')
+        .doc(templateId)
+        .delete()
+        .then(() => {
+          setTemplates((prevState) => {
+            return prevState.filter((template) => template.fsId !== templateId)
+          })
+        })
+
+        .catch((error) => {
+          console.error('Error removing document: ', error)
+        })
     } catch (error) {
       console.log(error)
     } finally {
@@ -74,15 +89,57 @@ const TemplatesList = () => {
     }
   }
 
-  const getInitialData = () => {
-    getFirestoreDocumentData('chart_drawings', userData.email)
-      .then((apiKey) => {
-        const { templates } = apiKey.data()
-        if (templates) setTemplates(JSON.parse(templates))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+  const getInitialData = async () => {
+    const sfRef = await getSnapShotDocument('chart_templates', userData.email)
+      .collection('templates')
+      .get()
+    const check = await db
+      .collection('chart_templates')
+      .doc(userData.email)
+      .collection('templates')
+      .get()
+
+    if (check.empty) {
+      getDataFromAnotherCollection()
+      return
+    }
+    const { docs } = sfRef
+    const templates = docs.map((doc) => {
+      const { data } = doc.data()
+      if (!data) return null
+      return { ...JSON.parse(data), fsId: doc.id }
+    })
+    setTemplates(templates)
+  }
+
+  const getDataFromAnotherCollection = () => {
+    getFirestoreDocumentData('chart_drawings', userData.email).then(
+      (snapshot) => {
+        const { templates } = snapshot.data()
+        if (!templates) {
+          setTemplates([])
+        } else {
+          const data = JSON.parse(templates)
+
+          const promises = data.map(async (template) => {
+            await addTemplate({ templateName: template.tempName }, template)
+          })
+          Promise.all(promises)
+            .then(async () => {
+              const ref = await getSnapShotDocument(
+                'chart_drawings',
+                userData.email
+              )
+              await ref.update({
+                templates: FieldValue.delete(),
+              })
+            })
+            .catch((err) => {
+              console.log(err)
+            })
+        }
+      }
+    )
   }
 
   const addToChart = (template) => {
@@ -105,7 +162,7 @@ const TemplatesList = () => {
         <div className="col-auto align-item-end justify-content-right">
           <span
             className="badge badge-primary masonry-filter"
-            isDisabled={activeDrawing}
+            isdisabled={activeDrawing?.id}
             onClick={() => {
               if (activeDrawing) setAddModalOpen(true)
             }}
@@ -121,8 +178,8 @@ const TemplatesList = () => {
           <Tooltip id={`add-template`} style={{ maxWidth: '1rem' }} />
         </div>
         {activeDrawing && (
-          <span class="badge badge-dot">
-            <i class="bg-success"></i>
+          <span className="badge badge-dot">
+            <i className="bg-success"></i>
             {templateName}
           </span>
         )}
@@ -162,7 +219,7 @@ const TemplatesList = () => {
                   <span className="badge badge-danger badge-circle">
                     <X
                       size={15}
-                      onClick={(e) => removeTemplate(e, template.id)}
+                      onClick={(e) => removeTemplate(e, template.fsId)}
                       style={{ zIndex: 999 }}
                     />
                   </span>
@@ -180,7 +237,7 @@ const TemplatesList = () => {
         <AddTemplateModal
           onClose={() => setAddModalOpen(false)}
           onSave={(name) => addTemplate(name)}
-          name={activeDrawing.name}
+          name={activeDrawing?.name}
         />
       )}
     </div>

@@ -29,6 +29,7 @@
     "firebase": "^8.0.0",
     "html-react-parser": "^1.4.0",
     "lodash": "^4.17.21",
+    "lzutf8": "^0.6.1",
     "ping.js": "^0.3.0",
     "qrcode": "^1.4.4",
     "rc-slider": "^9.7.1",

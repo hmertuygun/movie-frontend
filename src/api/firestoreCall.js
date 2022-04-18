@@ -41,7 +41,7 @@ export const getSnapShotDocument = (collection, email) => {
 
 export const updateTemplateDrawings = async (email, value) => {
   await db
-    .collection('template_drawings')
+    .collection('chart_shared')
     .doc(email)
     .set(
       {
@@ -71,4 +71,19 @@ export const setChartDrawings = async (email, drawings) => {
     },
     { merge: true }
   )
+}
+
+export const createBackup = async (email, drawings) => {
+  const id = new Date().toString()
+  await db
+    .collection('chart_drawings')
+    .doc(email)
+    .collection('backups')
+    .doc(id)
+    .set(
+      {
+        drawings,
+      },
+      { merge: true }
+    )
 }

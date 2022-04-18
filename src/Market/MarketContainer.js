@@ -5,7 +5,6 @@ import WatchListPanel from './components/Watchlist/WatchListPanel'
 import { useSymbolContext } from '../Trade/context/SymbolContext'
 import { UserContext } from '../contexts/UserContext'
 import { firebase } from '../firebase/firebase'
-import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import TemplatesList from './components/Templates/TemplatesList'
@@ -14,18 +13,17 @@ import { TabNavigator } from '../components'
 
 function MarketContainer() {
   const db = firebase.firestore()
-  const [traders, setTraders] = useState([])
-  const [activeValue, setActiveValue] = useState([])
-  const [activeTab, setActiveTab] = useState(0)
   const {
-    setIsTradersModalOpen,
     setActiveTrader,
     activeTrader,
     setTemplateDrawingsOpen,
     templateDrawingsOpen,
+    setActiveAnalysts,
   } = useSymbolContext()
-  const { userData } = useContext(UserContext)
-
+  const { userData, allAnalysts, isAnalyst } = useContext(UserContext)
+  const [traders, setTraders] = useState(allAnalysts)
+  const [activeValue, setActiveValue] = useState([])
+  const [activeTab, setActiveTab] = useState(0)
   const tabElements = useMemo(() => {
     return userData.email === activeValue
       ? ['Watchlists', 'Templates ß']
@@ -33,20 +31,6 @@ function MarketContainer() {
   }, [activeValue, userData])
 
   useEffect(() => {
-    db.collection('template_drawings')
-      .get()
-      .then(
-        (snapshot) => {
-          const allTraders = snapshot.docs.map((tr) => {
-            return { id: tr.id, ...tr.data() }
-          })
-          setTraders(allTraders)
-        },
-        (error) => {
-          console.error(error)
-        }
-      )
-
     db.collection('chart_drawings')
       .doc(userData.email)
       .get(
@@ -69,11 +53,6 @@ function MarketContainer() {
     }
   }, [templateDrawingsOpen, userData, activeTrader])
 
-  const timestampToDate = (time) => {
-    dayjs.extend(relativeTime)
-    return ` ${dayjs().to(time)}`
-  }
-
   const setActiveTraderList = async (e) => {
     if (e.target.value === userData.email) {
       setTemplateDrawingsOpen((templateDrawingsOpen) => {
@@ -84,21 +63,19 @@ function MarketContainer() {
     } else {
       const trader = traders.find((el) => el.id === e.target.value)
       if (!trader) return
+      await setActiveAnalysts(trader.id)
       await db.collection('chart_drawings').doc(userData.email).set(
         {
           activeTrader: trader.id,
         },
         { merge: true }
       )
-      setActiveTrader(trader)
 
       setActiveValue(e.target.value)
-      if (!templateDrawingsOpen) {
-        setTemplateDrawingsOpen((templateDrawingsOpen) => {
-          localStorage.setItem('chartMirroring', !templateDrawingsOpen)
-          return !templateDrawingsOpen
-        })
-      }
+      setTemplateDrawingsOpen((templateDrawingsOpen) => {
+        localStorage.setItem('chartMirroring', !templateDrawingsOpen)
+        return true
+      })
     }
   }
 
@@ -114,7 +91,7 @@ function MarketContainer() {
                 </label>
                 <div>
                   <select
-                    disabled={TEMPLATE_DRAWINGS_USERS.includes(userData.email)}
+                    disabled={isAnalyst}
                     value={activeValue}
                     onChange={(e) => setActiveTraderList(e)}
                     className="custom-select custom-select-sm"

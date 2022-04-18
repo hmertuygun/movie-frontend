@@ -9,23 +9,22 @@ import { useNotifications } from 'reapop'
 
 import {
   getExchanges,
+  getOneExchange,
+  saveLastSelectedMarketSymbol,
   getBalance,
   getLastPrice,
-  saveLastSelectedMarketSymbol,
-  getOneExchange,
-} from '../../api/api'
-import { UserContext } from '../../contexts/UserContext'
-import { firebase } from '../../firebase/firebase'
-import { defaultEmojis } from '../../constants/emojiDefault'
-import {
   updateTemplateDrawings,
   getFirestoreDocumentData,
   updateLastSelectedValue,
-  getSnapShotDocument,
-} from '../../api/firestoreCall'
-import { execExchangeFunc } from '../../helpers/getExchangeProp'
-import { sortExchangesData } from '../../helpers/apiKeys'
-import LZUTF8 from 'lzutf8'
+} from 'services/api'
+import { UserContext } from 'contexts/UserContext'
+import { firebase } from 'services/firebase'
+import { defaultEmojis } from 'constants/emojiDefault'
+import { sortExchangesData } from 'utils/apiKeys'
+import { getSelectedExchange } from 'utils/exchangeSelection'
+import { TEMPLATE_DRAWINGS_USERS } from 'constants/TemplateDrawingsList'
+import { storage } from 'services/storages'
+import { fetchTicker } from 'services/exchanges'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -40,7 +39,6 @@ const SymbolContextProvider = ({ children }) => {
     userData,
     isOnboardingSkipped,
     isLoggedIn,
-    isAnalyst,
   } = useContext(UserContext)
   const { notify } = useNotifications()
 
@@ -93,10 +91,10 @@ const SymbolContextProvider = ({ children }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const orderHistoryLS = localStorage.getItem('orderHistoryRefreshBtn')
-      const openOrdersLS = localStorage.getItem('openOrdersRefreshBtn')
-      const portfolioLS = localStorage.getItem('portfolioRefreshBtn')
-      const analyticsLS = localStorage.getItem('analyticsRefreshBtn')
+      const orderHistoryLS = storage.get('orderHistoryRefreshBtn')
+      const openOrdersLS = storage.get('openOrdersRefreshBtn')
+      const portfolioLS = storage.get('portfolioRefreshBtn')
+      const analyticsLS = storage.get('analyticsRefreshBtn')
 
       if (
         orderHistoryLS &&
@@ -131,7 +129,7 @@ const SymbolContextProvider = ({ children }) => {
       !Object.keys(symbolDetails).length
     )
       return
-    localStorage.setItem('selectedExchange', exchange)
+    storage.set('selectedExchange', exchange)
     exchange = exchange.toUpperCase()
     setOpenOrdersUC(null)
     const key = `${exchange}:${selectedSymbol.label.replace('-', '/')}`
@@ -155,13 +153,11 @@ const SymbolContextProvider = ({ children }) => {
 
   const setInitMarketData = async (symbol) => {
     let activeMarketData = {}
-    if (activeExchange?.exchange) {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const exchange = await getSelectedExchange(activeExchange?.exchange)
+    if (exchange) {
       try {
-        activeMarketData = await execExchangeFunc(
-          activeExchange?.exchange,
-          'fetchTicker',
-          { symbol }
-        )
+        activeMarketData = await fetchTicker(exchange, symbol)
         setMarketData(activeMarketData)
       } catch (error) {
         console.log(error)
@@ -183,22 +179,23 @@ const SymbolContextProvider = ({ children }) => {
     const dateNow = Date.now()
     if (type === 'order-history') {
       setDisableOrderHistoryRefreshBtn(true)
-      localStorage.setItem('orderHistoryRefreshBtn', dateNow)
+      storage.set('orderHistoryRefreshBtn', dateNow)
     } else if (type === 'open-order') {
       setDisableOpenOrdesrRefreshBtn(true)
-      localStorage.setItem('openOrdersRefreshBtn', dateNow)
+      storage.set('openOrdersRefreshBtn', dateNow)
     } else if (type === 'portfolio') {
       setDisablePortfolioRefreshBtn(true)
-      localStorage.setItem('portfolioRefreshBtn', dateNow)
+      storage.set('portfolioRefreshBtn', dateNow)
     } else if (type === 'analytics') {
       setDisableAnalyticsRefreshBtn(true)
-      localStorage.setItem('analyticsRefreshBtn', dateNow)
+      storage.set('analyticsRefreshBtn', dateNow)
     }
   }
 
   const handleSaveEmojis = async () => {
     try {
       const value = {
+        drawings: templateDrawings && templateDrawings.drawings,
         flags: emojis,
       }
       await updateTemplateDrawings(userData.email, value)
@@ -217,19 +214,21 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    let userEmail = isAnalyst ? userData.email : activeTrader.id
+    let userEmail = TEMPLATE_DRAWINGS_USERS.includes(userData.email)
+      ? userData.email
+      : activeTrader.id
 
-    getFirestoreDocumentData('chart_shared', userEmail)
+    getFirestoreDocumentData('template_drawings', userEmail)
       .then((emoji) => {
         if (emoji.data()) {
           if (emoji.data()?.flags) {
-            localStorage.setItem('flags', JSON.stringify(emoji.data()?.flags))
+            storage.set('flags', JSON.stringify(emoji.data()?.flags))
             setEmojis(emoji.data()?.flags)
           }
         }
       })
       .catch((err) => console.log(err))
-  }, [db, watchListOpen, activeTrader, userData.email])
+  }, [watchListOpen, activeTrader, userData.email])
 
   const getChartDataOnInit = async () => {
     try {
@@ -261,8 +260,8 @@ const SymbolContextProvider = ({ children }) => {
             : symbolVal
             ? symbolVal
             : DEFAULT_SYMBOL_LOAD_SLASH
-          localStorage.setItem('selectedExchange', exchangeVal)
-          localStorage.setItem('selectedSymbol', symbolVal)
+          storage.set('selectedExchange', exchangeVal)
+          storage.set('selectedSymbol', symbolVal)
           const [baseAsset, qouteAsset] = symbolVal.split('/')
           loadBalance(qouteAsset, baseAsset)
           setSelectedSymbolDetail({
@@ -277,7 +276,7 @@ const SymbolContextProvider = ({ children }) => {
           })
           loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
-          localStorage.setItem('selectedExchange', exchange.toLowerCase())
+          storage.set('selectedExchange', exchange.toLowerCase())
         }
       )
     } catch (e) {
@@ -289,7 +288,7 @@ const SymbolContextProvider = ({ children }) => {
   const loadBalance = async (quote_asset, base_asset) => {
     try {
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
-      const getSymbolFromLS = localStorage.getItem('selectedSymbol')
+      const getSymbolFromLS = storage.get('selectedSymbol')
       if (
         !activeExchange?.exchange ||
         !quote_asset ||
@@ -329,10 +328,11 @@ const SymbolContextProvider = ({ children }) => {
     if (isLoggedIn) {
       try {
         setIsLoadingLastPrice(true)
-        // setSelectedSymbolLastPrice(0)
         const response = await getLastPrice(
           symbolpair,
-          exchangeParam || activeExchange?.exchange
+          exchangeParam ||
+            storage.get('selectedExchange') ||
+            activeExchange?.exchange
         )
         if (response?.data?.last_price !== 'NA')
           setSelectedSymbolLastPrice(response.data.last_price)
@@ -360,7 +360,7 @@ const SymbolContextProvider = ({ children }) => {
       )
         return
       const symbolT = symbol.label.replace('-', '/')
-      localStorage.setItem('selectedSymbol', symbolT)
+      storage.set('selectedSymbol', symbolT)
       setSymbolType(symbolT)
       setSelectedSymbolDetail(symbolDetails[symbol.value])
       setSelectedSymbol(symbol)
@@ -495,10 +495,7 @@ const SymbolContextProvider = ({ children }) => {
 
       setSymbols(allSymbols)
       setSymbolDetails(data.symbolsChange)
-      localStorage.setItem(
-        'symbolsKeyValue',
-        JSON.stringify(data.symbolsChange)
-      )
+      storage.set('symbolsKeyValue', JSON.stringify(data.symbolsChange))
     } catch (error) {
       console.error(error)
       setIsExchangeLoading(false)
@@ -555,51 +552,6 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const setActiveAnalysts = async (planned = null) => {
-    if (!planned) {
-      const snapshot = await getSnapShotDocument(
-        'chart_drawings',
-        userData.email
-      ).get()
-
-      const data = snapshot.data()
-      if (!data.activeTrader) return
-      const sharedData = await getSnapShotDocument(
-        'chart_shared',
-        data.activeTrader
-      ).get()
-      const analystData = await getSnapShotDocument(
-        'analysts',
-        data.activeTrader
-      ).get()
-      const processedData = {
-        ...sharedData.data(),
-        ...analystData.data(),
-        id: sharedData.id,
-        drawings: LZUTF8.decompress(sharedData.data().drawings, {
-          inputEncoding: 'Base64',
-        }),
-      }
-
-      setActiveTrader(processedData)
-    } else if (planned) {
-      const sharedData = await getSnapShotDocument(
-        'chart_shared',
-        planned
-      ).get()
-      const analystData = await getSnapShotDocument('analysts', planned).get()
-      const processedData = {
-        ...sharedData.data(),
-        ...analystData.data(),
-        id: sharedData.id,
-        drawings: LZUTF8.decompress(sharedData.data().drawings, {
-          inputEncoding: 'Base64',
-        }),
-      }
-      setActiveTrader(processedData)
-    }
-  }
-
   return (
     <SymbolContext.Provider
       value={{
@@ -618,7 +570,6 @@ const SymbolContextProvider = ({ children }) => {
         setExchange,
         symbols,
         setSymbol,
-        setActiveAnalysts,
         selectedSymbol,
         symbolDetails,
         selectedSymbolDetail,

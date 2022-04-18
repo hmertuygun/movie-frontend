@@ -19,6 +19,8 @@ import { sortExchangesData } from '../helpers/apiKeys'
 import {
   getFirestoreCollectionData,
   getFirestoreDocumentData,
+  getSnapShotCollection,
+  getSnapShotDocument,
 } from '../api/firestoreCall'
 import { config } from '../constants/config'
 export const UserContext = createContext()
@@ -106,6 +108,8 @@ const UserContextProvider = ({ children }) => {
   const [settingChartDrawings, isSettingChartDrawings] = useState(false)
   const [createSubscription, setCreateSubscription] = useState(false)
   const [subscriptionError, setSubscriptionError] = useState('')
+  const [allAnalysts, setAllAnalysts] = useState([])
+  const [isAnalyst, setIsAnalyst] = useState([])
 
   var urls = [
     'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/',
@@ -128,8 +132,28 @@ const UserContextProvider = ({ children }) => {
       if (!country) {
         handleCountry()
       }
+      fetchAnalysts()
     }
   }, [country, isCountryAvailable, userData])
+
+  const fetchAnalysts = async () => {
+    try {
+      const snapshot = await getSnapShotCollection('analysts').get()
+      const analysts = snapshot.docs.map((doc) => {
+        if (doc.data().enabled) return { ...doc.data(), id: doc.id }
+
+        return null
+      })
+      setAllAnalysts(analysts)
+      const checkAnalyst = analysts.find((analyst) => {
+        return analyst.id === userData.email
+      })
+      setIsAnalyst(!!checkAnalyst)
+      console.log('isAnalyst', !!checkAnalyst)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleCountry = async () => {
     await firebase
@@ -745,6 +769,8 @@ const UserContextProvider = ({ children }) => {
         needPayment,
         products,
         subscriptionData,
+        allAnalysts,
+        isAnalyst,
         // subInfo,
         // setSubInfo,
         setHasSub,

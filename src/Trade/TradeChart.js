@@ -7,11 +7,12 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from '../api/api'
 import { firebase } from '../firebase/firebase'
-import { TEMPLATE_DRAWINGS_USERS } from '../constants/TemplateDrawingsList'
 import {
   getSnapShotCollection,
   getSnapShotDocument,
 } from '../api/firestoreCall'
+import lzutf8 from 'lzutf8'
+import dayjs from 'dayjs'
 
 const TradeChart = () => {
   const {
@@ -35,6 +36,7 @@ const TradeChart = () => {
     setActiveTrader,
     selectedSymbol,
     selectEmojiPopoverOpen,
+    setActiveAnalysts,
   } = useSymbolContext()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
@@ -47,11 +49,11 @@ const TradeChart = () => {
     setChartDrawings,
     chartDrawings,
     settingChartDrawings,
-    activeDrawing,
+    allAnalysts,
     setActiveDrawingId,
     setActiveDrawing,
     addedDrawing,
-    activeDrawingId,
+    isAnalyst,
   } = useContext(UserContext)
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
@@ -70,42 +72,22 @@ const TradeChart = () => {
     }
     setOnMarket(history.location.pathname === '/market')
     console.log('TV Parent loaded', exchangeType, symbolType)
+
+    window.onbeforeunload = function (e) {
+      var dialogText =
+        'You may have unsaved changes. Are you sure you want to leave?'
+      e.returnValue = dialogText
+      return dialogText
+    }
+
+    return () => {
+      window.onbeforeunload = null
+    }
   }, [])
 
   useEffect(() => {
-    if (!TEMPLATE_DRAWINGS_USERS.includes(userData.email)) {
-      db.collection('template_drawings').onSnapshot(
-        (snapshot) => {
-          const allTradersData = snapshot.docs.map((trader) => {
-            return { ...trader.data(), id: trader.id }
-          })
-          if (activeTrader?.id) {
-            const initTemplate = allTradersData.find(
-              (trader) => activeTrader.id === trader.id
-            )
-            setActiveTrader(initTemplate)
-          } else {
-            db.collection('chart_drawings')
-              .doc(userData.email)
-              .get()
-              .then((snapshotUser) => {
-                if (snapshotUser.data()?.activeTrader) {
-                  const init = allTradersData.find(
-                    (trader) => snapshotUser.data().activeTrader === trader.id
-                  )
-                  setActiveTrader(init)
-                }
-              })
-          }
-          setAllTemplateDrawings(allTradersData)
-        },
-        (error) => {
-          console.error(error)
-          setOnError(true)
-        }
-      )
-    }
-  }, [db, userData])
+    if (!isAnalyst) setActiveAnalysts()
+  }, [isAnalyst])
 
   useEffect(() => {
     if (selectedSymbol.value) {
@@ -120,10 +102,17 @@ const TradeChart = () => {
   }, [selectedSymbol])
 
   useEffect(() => {
-    getSnapShotCollection('template_drawings').onSnapshot(
+    getSnapShotCollection('chart_shared').onSnapshot(
       (snapshot) => {
         if (snapshot?.docs[0]) {
-          setTemplateDrawings(snapshot.docs[0].data())
+          let { drawings } = snapshot.docs[0].data()
+          try {
+            drawings = lzutf8.decompress(drawings, { inputEncoding: 'Base64' })
+          } catch (error) {
+            console.log('old')
+          } finally {
+            setTemplateDrawings({ drawings })
+          }
         }
       },
       (error) => {
@@ -140,8 +129,22 @@ const TradeChart = () => {
     ).onSnapshot(
       (snapshot) => {
         if (snapshot.data()?.drawings?.[userData.email]) {
-          setDrawings(snapshot.data().drawings[userData.email])
-          setChartDrawings(snapshot.data().drawings[userData.email])
+          let aa = ''
+          try {
+            aa = snapshot.data()?.drawings?.[userData.email]
+            const check = JSON.parse(
+              snapshot.data()?.drawings?.[userData.email]
+            )
+            console.log('old')
+          } catch (error) {
+            aa = lzutf8.decompress(
+              snapshot.data()?.drawings?.[userData.email],
+              { inputEncoding: 'Base64' }
+            )
+          } finally {
+            setDrawings(aa)
+            setChartDrawings(aa)
+          }
         } else if (
           !snapshot.data()?.drawings &&
           snapshot.data()?.lastSelectedSymbol
@@ -194,6 +197,10 @@ const TradeChart = () => {
       }
       return !watchListOpen
     })
+  }
+
+  const createBackup = (drawing) => {
+    console.log('execute backup function')
   }
 
   const onTradersBtnClick = () => {
@@ -261,10 +268,11 @@ const TradeChart = () => {
             key={`${exchangeType}`}
             symbol={symbolType}
             exchange={exchange}
+            addedDrawing={addedDrawing}
             marketSymbols={symbolDetailsKeyValue}
             timeZone={chartData?.timeZone}
             activeTrader={activeTrader}
-            addedDrawing={addedDrawing}
+            createBackup={createBackup}
             setActiveDrawing={(e) => {
               setActiveDrawing(e)
             }}
