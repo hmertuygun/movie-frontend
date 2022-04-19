@@ -150,15 +150,8 @@ export default class TradingViewChart extends Component {
     try {
       this.tradingViewWidget.subscribe(event, (obj) => {
         this.setClickedDrawing(obj)
-        const check =
-          this.state.loadingButton.parentNode.parentNode.style.display ===
-          'block'
 
-        if (
-          event === 'onAutoSaveNeeded' &&
-          !this.props.templateDrawingsOpen &&
-          check
-        ) {
+        if (event === 'onAutoSaveNeeded' && !this.props.templateDrawingsOpen) {
           this.saveChartDrawingToServer(false)
         }
       })

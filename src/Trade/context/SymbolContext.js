@@ -556,6 +556,7 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const setActiveAnalysts = async (planned = null) => {
+    let trader = ''
     if (!planned) {
       const snapshot = await getSnapShotDocument(
         'chart_drawings',
@@ -564,40 +565,31 @@ const SymbolContextProvider = ({ children }) => {
 
       const data = snapshot.data()
       if (!data.activeTrader) return
-      const sharedData = await getSnapShotDocument(
-        'chart_shared',
-        data.activeTrader
-      ).get()
-      const analystData = await getSnapShotDocument(
-        'analysts',
-        data.activeTrader
-      ).get()
-      const processedData = {
-        ...sharedData.data(),
-        ...analystData.data(),
-        id: sharedData.id,
-        drawings: LZUTF8.decompress(sharedData.data().drawings, {
-          inputEncoding: 'Base64',
-        }),
-      }
-
-      setActiveTrader(processedData)
+      trader = data.activeTrader
     } else if (planned) {
-      const sharedData = await getSnapShotDocument(
-        'chart_shared',
-        planned
-      ).get()
-      const analystData = await getSnapShotDocument('analysts', planned).get()
-      const processedData = {
-        ...sharedData.data(),
-        ...analystData.data(),
-        id: sharedData.id,
-        drawings: LZUTF8.decompress(sharedData.data().drawings, {
-          inputEncoding: 'Base64',
-        }),
-      }
-      setActiveTrader(processedData)
+      trader = planned
     }
+    const sharedData = await getSnapShotDocument('chart_shared', trader).get()
+    const analystData = await getSnapShotDocument('analysts', trader).get()
+
+    let converted = ''
+    try {
+      converted = sharedData.data().drawings
+      const check = JSON.parse(sharedData.data()?.drawings)
+    } catch (error) {
+      converted = LZUTF8.decompress(sharedData.data().drawings, {
+        inputEncoding: 'Base64',
+      })
+    }
+
+    const processedData = {
+      ...sharedData.data(),
+      ...analystData.data(),
+      id: sharedData.id,
+      drawings: converted,
+    }
+
+    setActiveTrader(processedData)
   }
 
   return (

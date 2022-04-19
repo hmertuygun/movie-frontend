@@ -12,7 +12,6 @@ import {
   getSnapShotDocument,
 } from '../api/firestoreCall'
 import lzutf8 from 'lzutf8'
-import dayjs from 'dayjs'
 
 const TradeChart = () => {
   const {
@@ -129,21 +128,21 @@ const TradeChart = () => {
     ).onSnapshot(
       (snapshot) => {
         if (snapshot.data()?.drawings?.[userData.email]) {
-          let aa = ''
+          let converted = ''
           try {
-            aa = snapshot.data()?.drawings?.[userData.email]
+            converted = snapshot.data()?.drawings?.[userData.email]
             const check = JSON.parse(
               snapshot.data()?.drawings?.[userData.email]
             )
             console.log('old')
           } catch (error) {
-            aa = lzutf8.decompress(
+            converted = lzutf8.decompress(
               snapshot.data()?.drawings?.[userData.email],
               { inputEncoding: 'Base64' }
             )
           } finally {
-            setDrawings(aa)
-            setChartDrawings(aa)
+            setDrawings(converted)
+            setChartDrawings(converted)
           }
         } else if (
           !snapshot.data()?.drawings &&
