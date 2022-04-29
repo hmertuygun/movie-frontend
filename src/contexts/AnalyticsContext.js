@@ -33,11 +33,11 @@ const AnalyticsProvider = ({ children }) => {
       if (endDate) payload.endDate = endDate
       if (skipCache) payload.skipCache = skipCache
       try {
-        const analytics = await getAnalytics(payload)
+        const { data } = await getAnalytics(payload)
 
-        setPairOperations(analytics.pair_operations)
-        setPairPerformance(analytics.pair_performance)
-        setAssetPerformance(analytics.asset_performance)
+        setPairOperations(data.pair_operations)
+        setPairPerformance(data.pair_performance)
+        setAssetPerformance(data.asset_performance)
       } catch (error) {
         console.log(error)
         // notify({
