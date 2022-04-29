@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useContext } from 'react'
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import useComponentVisible from '../../../hooks/useComponentVisible'
-import { ThemeContext } from '../../../contexts/ThemeContext'
+import useComponentVisible from 'hooks/useComponentVisible'
+import { ThemeContext } from 'contexts/ThemeContext'
 
 function Menu() {
   const { ref, isComponentVisible, setIsComponentVisible } =

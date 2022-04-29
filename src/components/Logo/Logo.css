@@ -11,3 +11,13 @@
   margin-top: -5px;
   margin-right: 7px;
 }
+
+@media (max-width: 991.98px){
+   
+  .navbar-expand-lg .navbar-brand img {
+      height: 1.5rem;
+  }
+  .navbar-expand-lg .navbar-brand {
+    font-size: 1.5rem;
+  }
+}

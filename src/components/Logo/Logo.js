@@ -1,6 +1,8 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { ThemeContext } from '../../contexts/ThemeContext'
+import { ThemeContext } from 'contexts/ThemeContext'
+import ColoredLogo from 'assets/images/logo/colored.svg'
+import WhiteLogo from 'assets/images/logo/white.svg'
 import './Logo.css'
 
 const Logo = () => {
@@ -11,17 +13,8 @@ const Logo = () => {
 
   return (
     <Link to="/" className="logo" style={style}>
-      <img
-        alt="CoinPanel"
-        src="/img/icons/Coinpanel_Color.svg"
-        className="colorlogo"
-      />
-      <img
-        alt="CoinPanel"
-        src="/img/icons/Coinpanel_White.svg"
-        className="whitelogo"
-      />
-      CoinPanel
+      <img alt="CoinPanel" src={ColoredLogo} className="colorlogo" />
+      <img alt="CoinPanel" src={WhiteLogo} className="whitelogo" />
     </Link>
   )
 }

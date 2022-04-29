@@ -2,26 +2,26 @@ import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import ChunkLoadErrorBoundary from './components/ChunkLoadErrorBoundary'
-import ErrorBoundary from './components/ErrorBoundary'
+import { ChunkLoadErrorBoundary } from 'components'
+import ErrorBoundary from 'components/ErrorBoundary'
 import Routes from './Routes'
-import ThemeContextProvider from './contexts/ThemeContext'
-import UserContextProvider from './contexts/UserContext'
-import TabContextProvider from './contexts/TabContext'
-import SymbolContextProvider from './Trade/context/SymbolContext'
-import PortfolioCTXProvider from './Portfolio/context/PortfolioContext'
-import AnalyticsProvider from './Analytics/context/AnalyticsContext'
+import ThemeContextProvider from 'contexts/ThemeContext'
+import UserContextProvider from 'contexts/UserContext'
+import TabContextProvider from 'contexts/TabContext'
+import SymbolContextProvider from 'contexts/SymbolContext'
+import PortfolioCTXProvider from 'contexts/PortfolioContext'
+import AnalyticsProvider from 'contexts/AnalyticsContext'
 import { NotificationsProvider, setUpNotifications } from 'reapop'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
-import { initGA } from './Tracking'
-import WarningAlert from './components/WarningAlert'
-import Notification from './components/Notification'
+import { initTracking } from 'services/tracking'
+import WarningAlert from 'components/WarningAlert'
+import Notification from 'components/Notification'
 
-initGA(process.env.REACT_APP_TRACKING_ID)
+initTracking(process.env.REACT_APP_TRACKING_ID)
 
-const Header = lazy(() => import('./components/Header/Header'))
+const Header = lazy(() => import('components/Header/Header'))
 
 library.add(fab, fas)
 const queryClient = new QueryClient()

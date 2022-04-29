@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react'
-import { UserContext } from '../../contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 import Button from '../Button/Button'
 import './ButtonNavigator.css'
 

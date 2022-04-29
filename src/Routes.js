@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, Suspense, lazy, Fragment } from 'react'
+import React, { useContext, useEffect, Suspense, lazy, useMemo } from 'react'
 import {
   Switch,
   Route,
@@ -7,64 +7,40 @@ import {
   useLocation,
 } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
-import { UserContext } from './contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 import NotificationsSystem, { useNotifications } from 'reapop'
 
-// import Login from './views/Auth/QuickLogin'
-// import LoginVerify2FA from './views/Auth/QuickLoginVerify2FA'
-// import Register from './views/Auth/QuickRegister'
-// import RegisterConfirm from './views/Auth/QuickRegisterConfirm'
-// import RegisterFinal from './views/Auth/QuickFinal'
-// import RecoverPassword from './views/Auth/RecoverPassword'
-// import NewPassword from './views/Auth/NewPassword'
-// import HandleEmailActions from './views/Auth/HandleEmailActions'
-
-// import TradeView from './views/TradeView'
-// import Settings from './views/Settings'
-// import Positions from './views/PositionView'
-// import Portfolio from './views/PortfolioView'
-// import PriceAlerts from './views/PriceAlertView'
-import OnboardingModal from './Trade/OnboardingModal'
-import SubscriptionModal from './Trade/SubscriptionModal'
-import FullScreenLoader from './components/FullScreenLoader'
-import { PageView } from './Tracking'
+import OnboardingModal from 'pages/Trade/OnboardingModal'
+import SubscriptionModal from 'pages/Trade/SubscriptionModal'
+import { trackPageView } from 'services/tracking'
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 import { Detector } from 'react-detect-offline'
-import { customTheme } from './customTheme'
+import { customTheme } from 'styles'
+import { pollingProp } from 'constants/positions'
 
-const Login = lazy(() => import('./views/Auth/QuickLogin'))
-const LoginVerify2FA = lazy(() => import('./views/Auth/QuickLoginVerify2FA'))
-const Register = lazy(() => import('./views/Auth/QuickRegister'))
-const RegisterTwo = lazy(() => import('./views/Auth/QuickRegisterTwo'))
-const RegisterThree = lazy(() => import('./views/Auth/QuickRegisterThree'))
-const RegisterConfirm = lazy(() => import('./views/Auth/QuickRegisterConfirm'))
-const RegisterFinal = lazy(() => import('./views/Auth/QuickFinal'))
-const RecoverPassword = lazy(() => import('./views/Auth/RecoverPassword'))
-const NewPassword = lazy(() => import('./views/Auth/NewPassword'))
-const HandleEmailActions = lazy(() => import('./views/Auth/HandleEmailActions'))
-const Plans = lazy(() => import('./views/Auth/Plans'))
-
-const TradeView = lazy(() => import('./views/TradeView'))
-const Settings = lazy(() => import('./views/Settings'))
-const Portfolio = lazy(() => import('./views/PortfolioView'))
-const Analytics = lazy(() => import('./views/Analytics'))
-const PriceAlerts = lazy(() => import('./views/PriceAlertView'))
-const Academy = lazy(() => import('./views/Academy'))
-const Market = lazy(() => import('./views/Market'))
+const Login = lazy(() => import('pages/Auth/QuickLogin'))
+const LoginVerify2FA = lazy(() => import('pages/Auth/QuickLoginVerify2FA'))
+const Register = lazy(() => import('pages/Auth/QuickRegister'))
+const RegisterConfirm = lazy(() => import('pages/Auth/QuickRegisterConfirm'))
+const RegisterFinal = lazy(() => import('pages/Auth/QuickFinal'))
+const RecoverPassword = lazy(() => import('pages/Auth/RecoverPassword'))
+const NewPassword = lazy(() => import('pages/Auth/NewPassword'))
+const HandleEmailActions = lazy(() => import('pages/Auth/HandleEmailActions'))
+const Plans = lazy(() => import('./pages/Auth/Plans'))
+const TradeView = lazy(() => import('pages/Trade'))
+const Settings = lazy(() => import('pages/Settings'))
+const Portfolio = lazy(() => import('pages/Portfolio'))
+const Analytics = lazy(() => import('pages/Analytics'))
+const PriceAlerts = lazy(() => import('pages/PriceAlerts'))
+const Academy = lazy(() => import('pages/Academy'))
+const Market = lazy(() => import('pages/Market'))
 
 const Routes = () => {
   const history = useHistory()
   const { pathname } = useLocation()
-  const isSettingsPage = pathname === '/settings'
-  const isTradePage = pathname === '/trade'
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const { notifications, dismissNotification } = useNotifications()
-
-  useEffect(() => {
-    PageView()
-    history.listen(PageView)
-  }, [history])
-
+  const { notify } = useNotifications()
   const {
     isLoggedIn,
     logout,
@@ -76,7 +52,50 @@ const Routes = () => {
     isApiKeysLoading,
     state,
   } = useContext(UserContext)
-  const { notify } = useNotifications()
+  const [isSettingsPage, isTradePage, isLocalEnv] = useMemo(() => {
+    return [
+      pathname === '/settings',
+      pathname === '/trade',
+      !process.env.NODE_ENV || process.env.NODE_ENV === 'development',
+    ]
+  }, [pathname])
+
+  const [need2FA, needPlans, needLoading, needOnboarding, needSubModal] =
+    useMemo(() => {
+      return [
+        (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
+          (isLoggedIn &&
+            !isApiKeysLoading &&
+            loadApiKeys &&
+            !state.has2FADetails),
+        isLoggedIn && state && state.firstLogin,
+        isTradePage && isLoggedIn && isApiKeysLoading && !userContextLoaded,
+        isLoggedIn &&
+          userContextLoaded &&
+          !loadApiKeys &&
+          !isSettingsPage &&
+          !isOnboardingSkipped &&
+          !state.firstLogin &&
+          hasSub &&
+          !isApiKeysLoading,
+        isLoggedIn &&
+          userContextLoaded &&
+          !isSettingsPage &&
+          !state.firstLogin &&
+          (!hasSub || showSubModalIfLessThan7Days),
+      ]
+    }, [
+      hasSub,
+      isApiKeysLoading,
+      isLoggedIn,
+      loadApiKeys,
+      state,
+      userContextLoaded,
+      showSubModalIfLessThan7Days,
+      isOnboardingSkipped,
+      isTradePage,
+      isSettingsPage,
+    ])
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
@@ -98,24 +117,19 @@ const Routes = () => {
   }
 
   useEffect(() => {
-    if (
-      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
-      (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state.has2FADetails)
-    ) {
+    if (need2FA) {
       history.push('/settings#security')
     }
-    if (isLoggedIn && state && state.firstLogin) {
+    if (needPlans) {
       history.push('/plans')
     }
-  }, [
-    state,
-    isLoggedIn,
-    isApiKeysLoading,
-    history.location.pathname,
-    loadApiKeys,
-  ])
+  }, [need2FA, needPlans])
 
-  const isLocalEnv = window.location.hostname === 'localhost'
+  useEffect(() => {
+    trackPageView()
+    history.listen(trackPageView)
+  }, [history])
+
   return (
     <div style={{ paddingBottom: isMobile ? '65px' : '' }}>
       <NotificationsSystem
@@ -123,10 +137,10 @@ const Routes = () => {
         dismissNotification={(id) => dismissNotification(id)}
         theme={customTheme}
       />
-      {/* <FullScreenLoader /> */}
+
       <Detector
         polling={{
-          url: 'https://jsonplaceholder.typicode.com/posts/1',
+          url: pollingProp.url,
           enabled: isLoggedIn && !isLocalEnv,
         }}
         onChange={(e) => {
@@ -136,6 +150,7 @@ const Routes = () => {
           return null
         }}
       />
+
       <Suspense fallback={<div></div>}>
         <Switch>
           {isLoggedIn && userContextLoaded && (
@@ -152,15 +167,9 @@ const Routes = () => {
             />
           )}
 
-          {isLoggedIn &&
-            userContextLoaded &&
-            !loadApiKeys &&
-            !isSettingsPage &&
-            !isOnboardingSkipped &&
-            !state.firstLogin &&
-            hasSub &&
-            !isApiKeysLoading && <OnboardingModal />}
-          {isTradePage && isLoggedIn && isApiKeysLoading && (
+          {needOnboarding && <OnboardingModal />}
+
+          {needLoading && (
             <p
               className="d-flex justify-content-center align-items-center"
               style={{ height: 'calc(100vh - 150px)' }}
@@ -168,11 +177,9 @@ const Routes = () => {
               Loading your chart...
             </p>
           )}
-          {isLoggedIn &&
-            userContextLoaded &&
-            !isSettingsPage &&
-            !state.firstLogin &&
-            (!hasSub || showSubModalIfLessThan7Days) && <SubscriptionModal />}
+
+          {needSubModal && <SubscriptionModal />}
+
           {isLoggedIn && userContextLoaded && (
             <CacheSwitch>
               <Route path="/settings" component={Settings} />
@@ -207,8 +214,6 @@ const Routes = () => {
           <Route path="/new-password" component={NewPassword} />
           <Route path="/action" component={HandleEmailActions} />
           <Route exact path="/register" component={Register} />
-          <Route exact path="/chartmirroring" component={RegisterTwo} />
-          <Route exact path="/bybit" component={RegisterThree} />
           <Route exact path="/register/confirm" component={RegisterConfirm} />
           <Route exact path="/academy" component={Academy} />
           <Route

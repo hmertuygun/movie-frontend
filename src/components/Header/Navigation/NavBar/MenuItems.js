@@ -2,9 +2,9 @@
 import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import { MenuData, ChartMirroringMenuData } from './MenuData'
-import { ThemeContext } from '../../../../contexts/ThemeContext'
-import { UserContext } from '../../../../contexts/UserContext'
-import Tooltip from '../../../../components/Tooltip'
+import { ThemeContext } from 'contexts/ThemeContext'
+import { UserContext } from 'contexts/UserContext'
+import { Tooltip } from 'components'
 
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext)

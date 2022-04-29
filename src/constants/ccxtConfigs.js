@@ -1,9 +1,10 @@
 import ccxtPro from 'ccxt.pro'
+import { storage } from 'services/storages'
 
 export const whitelistedUrl =
   'https://cp-cors-proxy-eu-west-ywasypvnmq-ew.a.run.app/'
-const proxyServer = localStorage.getItem('proxyServer')
-  ? localStorage.getItem('proxyServer')
+const proxyServer = storage.get('proxyServer')
+  ? storage.get('proxyServer')
   : 'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/'
 
 export const ccxtClass = {

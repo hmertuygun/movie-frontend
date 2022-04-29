@@ -2,14 +2,14 @@ import React, { useContext, useState, useEffect } from 'react'
 import { AlertTriangle } from 'react-feather'
 import './style.css'
 import { useHistory } from 'react-router-dom'
-import { UserContext } from '../../contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { dismissNotice } from '../../api/api'
 import { notify } from 'reapop'
 import {
+  dismissNotice,
   getFirestoreCollectionData,
   getFirestoreDocumentData,
-} from '../../api/firestoreCall'
+} from 'services/api'
 import dayjs from 'dayjs'
 
 const WarningAlert = () => {

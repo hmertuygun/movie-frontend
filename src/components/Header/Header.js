@@ -11,15 +11,15 @@ import Menu from './Menu/Menu'
 import Logo from './Logo/Logo'
 import MenuItems from './Navigation/NavBar/MenuItems'
 import MobileTab from './MobileTab/MobileTab'
-
-import { UserContext } from '../../contexts/UserContext'
-import { ThemeContext } from '../../contexts/ThemeContext'
-import { useSymbolContext } from '../../Trade/context/SymbolContext'
+import { UserContext } from 'contexts/UserContext'
+import { ThemeContext } from 'contexts/ThemeContext'
+import { useSymbolContext } from 'contexts/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
-import { secondTourSteps } from '../../helpers/tourSteps'
+import { secondTourSteps } from 'utils/tourSteps'
 import { Moon, Sun, Twitter, HelpCircle } from 'react-feather'
 import './Header.css'
+import { storage } from 'services/storages'
 
 const Header = () => {
   const {
@@ -29,6 +29,7 @@ const Header = () => {
     setTour2CurrentStep,
     handleOnboardingShow,
     isOnboardingSkipped,
+    state,
   } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
   const { watchListOpen, setWatchListOpen } = useSymbolContext()
@@ -77,7 +78,7 @@ const Header = () => {
           newTheme = 'LIGHT'
           break
       }
-      localStorage.setItem('theme', newTheme)
+      storage.set('theme', newTheme)
 
       return newTheme
     })
@@ -142,29 +143,30 @@ const Header = () => {
       >
         <div className="container">
           <Logo />
-          <div
-            className="collapse navbar-collapse navbar-collapse-overlay order-lg-3"
-            id="navbar-main-collapse"
-          >
-            <div className="position-relative">
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbar-main-collapse"
-                aria-controls="navbar-main-collapse"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <i data-feather="align-justify"></i>
-              </button>
-            </div>
-            <MenuItems />
-            {/* setting dropdown Menu */}
-            <ul className="navbar-nav align-items-lg-center d-none d-lg-flex ml-lg-auto">
-              {/* menu report a problem button */}
-              <li className="nav-item">
-                {/* <a
+          {!state.firstLogin && (
+            <div
+              className="collapse navbar-collapse navbar-collapse-overlay order-lg-3"
+              id="navbar-main-collapse"
+            >
+              <div className="position-relative">
+                <button
+                  className="navbar-toggler"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#navbar-main-collapse"
+                  aria-controls="navbar-main-collapse"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+                >
+                  <i data-feather="align-justify"></i>
+                </button>
+              </div>
+              <MenuItems />
+              {/* setting dropdown Menu */}
+              <ul className="navbar-nav align-items-lg-center d-none d-lg-flex ml-lg-auto">
+                {/* menu report a problem button */}
+                <li className="nav-item">
+                  {/* <a
                   href="https://support.coinpanel.com/hc/en-us/requests/new"
                   className="mr-3 btn btn-xs btn-primary btn-icon"
                   target="_blank"
@@ -173,93 +175,96 @@ const Header = () => {
                   {' '}
                   <span className="btn-inner--text">Report a problem</span>
                 </a> */}
-                {isOnboardingSkipped && (
-                  <a
-                    className="mr-3 btn btn-xs btn-primary btn-icon"
-                    onClick={handleStartTrading}
-                  >
-                    {' '}
-                    <span className="btn-inner--text" style={{ color: '#fff' }}>
-                      Integrate your exchange to start trading
-                    </span>
-                  </a>
-                )}
-              </li>
-              <li className="nav-item">
-                <div
-                  className={`switch-container ${
-                    theme === 'DARK'
-                      ? 'switch-container-light'
-                      : 'switch-container-dark'
-                  }`}
-                  onClick={toggleTheme}
-                >
-                  {theme === 'DARK' ? (
-                    <>
-                      <Sun size={13} strokeWidth="3" />
-                      <span className="switch-container-circle">&nbsp;</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="switch-container-circle">&nbsp;</span>
-                      <Moon size={13} strokeWidth="3" />
-                    </>
+                  {isOnboardingSkipped && (
+                    <a
+                      className="mr-3 btn btn-xs btn-primary btn-icon"
+                      onClick={handleStartTrading}
+                    >
+                      {' '}
+                      <span
+                        className="btn-inner--text"
+                        style={{ color: '#fff' }}
+                      >
+                        Integrate your exchange to start trading
+                      </span>
+                    </a>
                   )}
-                </div>
-              </li>
-              {!isOnboardingSkipped && (
-                <>
-                  <li className="nav-item">
-                    <a
-                      href="https://coin-panel.medium.com/"
-                      type="button"
-                      className="px-1 nav-link nav-link-icon"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <FontAwesomeIcon
-                        icon={faMediumM}
-                        className={`mt-2 ${
-                          theme === 'DARK' ? 'text-white' : 'text-dark'
-                        }`}
-                      />
-                    </a>
-                  </li>{' '}
-                  <li className="nav-item">
-                    <a
-                      href="https://twitter.com/coin_panel"
-                      type="button"
-                      className="px-1 nav-link nav-link-icon"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Twitter
-                        size={15}
-                        className={
-                          theme === 'DARK' ? 'text-white' : 'text-dark'
-                        }
-                      />
-                    </a>
-                  </li>{' '}
-                  <li className="nav-item">
-                    <a
-                      href="https://t.me/coinpanelsupport"
-                      type="button"
-                      className="px-1 nav-link nav-link-icon"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <FontAwesomeIcon
-                        icon={faTelegramPlane}
-                        className={`mt-2 ${
-                          theme === 'DARK' ? 'text-white' : 'text-dark'
-                        }`}
-                      />
-                    </a>
-                  </li>
-                </>
-              )}
-              {/* <li className="nav-item">
+                </li>
+                <li className="nav-item">
+                  <div
+                    className={`switch-container ${
+                      theme === 'DARK'
+                        ? 'switch-container-light'
+                        : 'switch-container-dark'
+                    }`}
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'DARK' ? (
+                      <>
+                        <Sun size={13} strokeWidth="3" />
+                        <span className="switch-container-circle">&nbsp;</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="switch-container-circle">&nbsp;</span>
+                        <Moon size={13} strokeWidth="3" />
+                      </>
+                    )}
+                  </div>
+                </li>
+                {!isOnboardingSkipped && (
+                  <>
+                    <li className="nav-item">
+                      <a
+                        href="https://coin-panel.medium.com/"
+                        type="button"
+                        className="px-1 nav-link nav-link-icon"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon
+                          icon={faMediumM}
+                          className={`mt-2 ${
+                            theme === 'DARK' ? 'text-white' : 'text-dark'
+                          }`}
+                        />
+                      </a>
+                    </li>{' '}
+                    <li className="nav-item">
+                      <a
+                        href="https://twitter.com/coin_panel"
+                        type="button"
+                        className="px-1 nav-link nav-link-icon"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Twitter
+                          size={15}
+                          className={
+                            theme === 'DARK' ? 'text-white' : 'text-dark'
+                          }
+                        />
+                      </a>
+                    </li>{' '}
+                    <li className="nav-item">
+                      <a
+                        href="https://t.me/coin_panel"
+                        type="button"
+                        className="px-1 nav-link nav-link-icon"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon
+                          icon={faTelegramPlane}
+                          className={`mt-2 ${
+                            theme === 'DARK' ? 'text-white' : 'text-dark'
+                          }`}
+                        />
+                      </a>
+                    </li>
+                  </>
+                )}
+                {/* <li className="nav-item">
                 <span
                   type="button"
                   id="btnSwitchMode"
@@ -271,19 +276,20 @@ const Header = () => {
                   <Moon size={15} className="chevron-down" strokeWidth="3" />
                 </span>
               </li> */}
-              <Menu />
-              <li className="nav-item">
-                <button
-                  className="btn btn-primary custom-help-button"
-                  onClick={handleZendesk}
-                >
-                  <HelpCircle size={16} />
-                  &nbsp; Help
-                </button>
-              </li>
-            </ul>
-            {/* <Notifications /> */}
-          </div>
+                <Menu />
+                <li className="nav-item">
+                  <button
+                    className="btn btn-primary custom-help-button"
+                    onClick={handleZendesk}
+                  >
+                    <HelpCircle size={16} />
+                    &nbsp; Help
+                  </button>
+                </li>
+              </ul>
+              {/* <Notifications /> */}
+            </div>
+          )}
         </div>
       </nav>
       <MobileTab />

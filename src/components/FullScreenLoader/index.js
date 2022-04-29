@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react'
-import { UserContext } from '../../contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 import './index.css'
 
 const FullScreenLoader = () => {

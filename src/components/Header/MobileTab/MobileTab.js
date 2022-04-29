@@ -1,22 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import {
-  faPercentage,
-  faChartLine,
-  faChartPie,
-  faCog,
-  faMapMarkedAlt,
-  faPoll,
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import { TabContext } from '../../../contexts/TabContext'
-import { UserContext } from '../../../contexts/UserContext'
+import icons from 'constants/menuIcons'
+import { TabContext } from 'contexts/TabContext'
+import { UserContext } from 'contexts/UserContext'
+import { ThemeContext } from 'contexts/ThemeContext'
 
 import './MobileTab.css'
-import { useMemo } from 'react'
-import { ThemeContext } from '../../../contexts/ThemeContext'
 
 const MobileTab = () => {
   const { setIsTradePanelOpen } = useContext(TabContext)
@@ -30,9 +20,16 @@ const MobileTab = () => {
       {
         name: 'TRADE',
         svg: {
-          dark: 'img/svg/menu/trade_text_black_and_white.svg',
-          light: 'img/svg/menu/trade_text_blue.svg',
+          dark: {
+            active: icons.ATradeDark,
+            inactive: icons.ITradeDark,
+          },
+          light: {
+            active: icons.ATradeLight,
+            inactive: icons.ITradeLight,
+          },
         },
+        control: false,
         function: () => {
           if (isOnboardingSkipped) {
             handleOnboardingShow()
@@ -54,10 +51,16 @@ const MobileTab = () => {
       {
         name: 'HOME',
         svg: {
-          dark: 'img/svg/menu/home_text_white.svg',
-          light: 'img/svg/menu/home_text_black.svg',
-          active: 'img/svg/menu/home_text_blue.svg',
+          dark: {
+            active: icons.AHomeDark,
+            inactive: icons.IHomeDark,
+          },
+          light: {
+            active: icons.AHomeLight,
+            inactive: icons.IHomeLight,
+          },
         },
+        control: true,
         function: () => {
           setActivePage('HOME')
           if (setIsTradePanelOpen) setIsTradePanelOpen(false)
@@ -67,10 +70,16 @@ const MobileTab = () => {
       {
         name: 'ANALYTICS',
         svg: {
-          dark: 'img/svg/menu/analytics_text_white.svg',
-          light: 'img/svg/menu/analytics_text_black.svg',
-          active: 'img/svg/menu/analytics_text_blue.svg',
+          dark: {
+            active: icons.AAnalyticsDark,
+            inactive: icons.IAnalyticsDark,
+          },
+          light: {
+            active: icons.AAnalyticsLight,
+            inactive: icons.IAnalyticsLight,
+          },
         },
+        control: true,
         function: () => {
           setActivePage('ANALYTICS')
           return history.push('/analytics')
@@ -79,10 +88,16 @@ const MobileTab = () => {
       {
         name: 'PORTFOLIO',
         svg: {
-          dark: 'img/svg/menu/portfolio_text_white.svg',
-          light: 'img/svg/menu/portfolio_text_black.svg',
-          active: 'img/svg/menu/portfolio_text_blue.svg',
+          dark: {
+            active: icons.APortfolioDark,
+            inactive: icons.IPortfolioDark,
+          },
+          light: {
+            active: icons.APortfolioLight,
+            inactive: icons.IPortfolioLight,
+          },
         },
+        control: true,
         function: () => {
           setActivePage('PORTFOLIO')
           return history.push('/portfolio')
@@ -91,10 +106,16 @@ const MobileTab = () => {
       {
         name: 'MARKET',
         svg: {
-          dark: 'img/svg/menu/market_text_white.svg',
-          light: 'img/svg/menu/market_text_black.svg',
-          active: 'img/svg/menu/market_text_blue.svg',
+          dark: {
+            active: icons.AMarketDark,
+            inactive: icons.IMarketDark,
+          },
+          light: {
+            active: icons.AMarketLight,
+            inactive: icons.IMarketLight,
+          },
         },
+        control: false,
         function: () => {
           setActivePage('MARKET')
           window.scroll({
@@ -107,10 +128,16 @@ const MobileTab = () => {
       {
         name: 'SETTINGS',
         svg: {
-          dark: 'img/svg/menu/settings_text_white.svg',
-          light: 'img/svg/menu/settings_text_black.svg',
-          active: 'img/svg/menu/settings_text_blue.svg',
+          dark: {
+            active: icons.ASettingsDark,
+            inactive: icons.ISettingsDark,
+          },
+          light: {
+            active: icons.ASettingsLight,
+            inactive: icons.ISettingsLight,
+          },
         },
+        control: false,
         function: () => {
           setActivePage('SETTINGS')
           return history.push('/settings')
@@ -137,6 +164,7 @@ const MobileTab = () => {
         <div className="col-12">
           <div className="d-flex justify-content-around">
             {menuData.map((element) => {
+              if (element.control && isOnboardingSkipped) return null
               return (
                 <span
                   key={element.name}
@@ -150,8 +178,8 @@ const MobileTab = () => {
                       alt={element.name}
                       src={
                         activePage === element.name
-                          ? element.svg.active
-                          : element.svg[theme.toLowerCase()]
+                          ? element.svg[theme.toLowerCase()].active
+                          : element.svg[theme.toLowerCase()].inactive
                       }
                     ></img>
                   </div>

@@ -21,6 +21,7 @@
     "c3": "^0.7.20",
     "ccxt": "link:./ccxt",
     "ccxt.pro": "link:./ccxt.pro",
+    "copy-to-clipboard": "^3.3.1",
     "cra-append-sw": "^2.7.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.7",

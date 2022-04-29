@@ -38,3 +38,9 @@
   padding: 5px 10px;
   font-size: 14px;
 }
+
+@media (max-width: 991.98px){
+  .navbar {
+    padding: 1px 2px;
+  }
+}

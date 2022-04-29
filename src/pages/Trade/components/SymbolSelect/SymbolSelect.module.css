@@ -1,0 +1,46 @@
+.SymbolSelect-Container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 55% 45%;
+}
+
+.Select-Container {
+  position: relative;
+  width: 100%;
+}
+
+.Mobile-Symbol-Container {
+  display: none;
+}
+
+.skipped-container {
+  grid-template-columns: 100%;
+}
+
+.Select-Title {
+  display: none;
+  position: absolute;
+  top: 3px;
+  left: 8px;
+  z-index: 9;
+  color: rgb(132, 142, 156);
+  font-size: 11px;
+}
+
+@media (max-width: 991px) {
+  .Mobile-Symbol-Container {
+    grid-template-columns: 100%;
+    display: block;
+    width: 80%;
+  }
+
+  .Mobile-Select-Container-Type {
+    display: none;
+  }
+  .SymbolSelect-Container {
+    grid-template-columns: 50% 50%;
+  }
+  .Select-Title{
+    display: block;
+  }
+}

@@ -1,0 +1,14 @@
+
+@media (max-width: 767px) {
+    .analytics-section {
+        padding-top: 1rem !important;
+    }
+    .mobile-card .card-header,
+    .mobile-card .card-body{
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .mobile-card .row.card-body {
+        margin: 0;
+    }
+}

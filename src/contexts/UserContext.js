@@ -1,47 +1,45 @@
 import React, { createContext, useState, useEffect } from 'react'
 import { useNotifications } from 'reapop'
-import { firebase, messaging } from '../firebase/firebase'
-import { useHistory } from 'react-router-dom'
+import { firebase, messaging } from 'services/firebase'
+
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
   saveGoogleAuth2FA,
-  validateUser,
   verifyGoogleAuth2FA,
-  updateLastSelectedAPIKey,
-  getUserExchanges,
   storeNotificationToken,
-} from '../api/api'
-import Ping from '../helpers/ping'
-import dayjs from 'dayjs'
-import { execExchangeFunc } from '../helpers/getExchangeProp'
-import { sortExchangesData } from '../helpers/apiKeys'
-import {
+  validateUser,
+  updateLastSelectedAPIKey,
   getFirestoreCollectionData,
   getFirestoreDocumentData,
   getSnapShotCollection,
-  getSnapShotDocument,
-} from '../api/firestoreCall'
-import { config } from '../constants/config'
+} from 'services/api'
+import Ping from 'utils/ping'
+import dayjs from 'dayjs'
+import { sortExchangesData } from 'utils/apiKeys'
+import { storage, session } from 'services/storages'
+import { getSocketEndpoint } from 'services/exchanges'
+import { config } from 'constants/config'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
 const DEFAULT_EXCHANGE = [
   {
-    apiKeyName: 'binance1',
+    apiKeyName: 'default',
     exchange: 'binance',
     status: 'Active',
+    default: true,
     isLastSelected: true,
   },
 ]
 
 const UserContextProvider = ({ children }) => {
   const { notify } = useNotifications()
-  const localStorageUser = localStorage.getItem('user')
-  const localStorageRemember = localStorage.getItem('remember')
-  const sessionStorageRemember = sessionStorage.getItem('remember')
-  const localStorage2faUserDetails = localStorage.getItem(T2FA_LOCAL_STORAGE)
-  localStorage.removeItem('tradingview.IntervalWidget.quicks')
+  const localStorageUser = storage.get('user', true)
+  const localStorageRemember = storage.get('remember')
+  const sessionStorageRemember = session.get('remember')
+  const localStorage2faUserDetails = storage.get(T2FA_LOCAL_STORAGE, true)
+  storage.remove('tradingview.IntervalWidget.quicks')
   const p = new Ping({ favicon: '' })
   let initialState = {}
   if (
@@ -49,8 +47,8 @@ const UserContextProvider = ({ children }) => {
     (sessionStorageRemember === 'true' || localStorageRemember === 'true')
   ) {
     initialState = {
-      user: JSON.parse(localStorageUser),
-      ...JSON.parse(localStorage2faUserDetails),
+      user: localStorageUser,
+      ...localStorage2faUserDetails,
     }
   } else {
     initialState = { user: null, has2FADetails: null, is2FAVerified: false }
@@ -118,7 +116,7 @@ const UserContextProvider = ({ children }) => {
   ]
 
   useEffect(() => {
-    localStorage.setItem(
+    storage.set(
       'proxyServer',
       'https://cp-cors-proxy-asia-northeast-ywasypvnmq-an.a.run.app/'
     )
@@ -149,7 +147,6 @@ const UserContextProvider = ({ children }) => {
         return analyst.id === userData.email
       })
       setIsAnalyst(!!checkAnalyst)
-      console.log('isAnalyst', !!checkAnalyst)
     } catch (error) {
       console.log(error)
     }
@@ -223,7 +220,7 @@ const UserContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    const value = localStorage.getItem('onboarding')
+    const value = storage.get('onboarding')
     if (value === 'skipped') {
       setIsOnboardingSkipped(true)
     } else {
@@ -232,12 +229,12 @@ const UserContextProvider = ({ children }) => {
   }, [])
 
   const handleOnboardingSkip = () => {
-    localStorage.setItem('onboarding', 'skipped')
+    storage.set('onboarding', 'skipped')
     setIsOnboardingSkipped(true)
   }
 
   const handleOnboardingShow = () => {
-    localStorage.removeItem('onboarding')
+    storage.remove('onboarding')
     setIsOnboardingSkipped(false)
   }
 
@@ -262,13 +259,13 @@ const UserContextProvider = ({ children }) => {
         results.push(makePing(url))
       })
 
-      await execExchangeFunc('kucoin', 'socketUrl')
+      await getSocketEndpoint('kucoin')
 
       Promise.all(results).then(function (values) {
         values.sort((a, b) => {
           return a.time - b.time
         })
-        localStorage.setItem('proxyServer', values[0].url)
+        storage.set('proxyServer', values[0].url)
         resolve(values[0].url)
       })
     })
@@ -295,8 +292,7 @@ const UserContextProvider = ({ children }) => {
     )
 
     const subData = cryptoPayments.data()
-
-    if (subData) {
+    if (subData && subData.expiration_date && !state.firstLogin) {
       const { subscription_status, provider, currency, plan, amount } = subData
       let errorMessage = subData && subData.error_message
       let scheduledSubs = subData && subData.subscription_scheduled
@@ -305,6 +301,7 @@ const UserContextProvider = ({ children }) => {
       } else {
         setSubscriptionError('')
       }
+
       const { seconds } = subData.expiration_date
       const exp = dayjs(seconds * 1000)
       const isExpired = exp.isBefore(dayjs())
@@ -331,7 +328,7 @@ const UserContextProvider = ({ children }) => {
       } else if (provider === 'stripe' || provider === 'coinpanel') {
         let trialDays = seconds * 1000 - Date.now()
         trialDays = trialDays / 1000 / 60 / 60 / 24
-        let getSubModalShownLastTime = localStorage.getItem('lastSubModal')
+        let getSubModalShownLastTime = storage.get('lastSubModal')
         getSubModalShownLastTime = getSubModalShownLastTime
           ? Number(getSubModalShownLastTime)
           : true
@@ -340,7 +337,7 @@ const UserContextProvider = ({ children }) => {
           trialDays < 3 &&
           getSubModalShownLastTime + 86400 < Date.now() / 1000
         if (showSubModal) {
-          localStorage.setItem('lastSubModal', parseInt(Date.now() / 1000))
+          storage.set('lastSubModal', parseInt(Date.now() / 1000))
         }
         setShowSubModal(showSubModal)
         setDaysLeft(trialDays)
@@ -425,7 +422,7 @@ const UserContextProvider = ({ children }) => {
               setLoadApiKeysError(true)
             }
             setTotalExchanges(apiKeys)
-            let getSavedKey = sessionStorage.getItem('exchangeKey')
+            let getSavedKey = session.get('exchangeKey')
             const ssData = JSON.parse(getSavedKey)
             if (
               ssData &&
@@ -454,7 +451,7 @@ const UserContextProvider = ({ children }) => {
                   setLoadApiKeys(true) // Only check active api exchange eventually
                 }
                 setActiveExchange(data)
-                sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+                session.set('exchangeKey', JSON.stringify(data))
               } else {
                 // find the first one that is 'Active'
                 let active = apiKeys.find((item) => item.status === 'Active')
@@ -466,7 +463,7 @@ const UserContextProvider = ({ children }) => {
                     value: `${active.exchange} - ${active.apiKeyName}`,
                   }
                   setActiveExchange(data)
-                  sessionStorage.setItem('exchangeKey', JSON.stringify(data))
+                  session.set('exchangeKey', JSON.stringify(data))
                   if (!isOnboardingSkipped) {
                     setLoadApiKeys(true)
                   }
@@ -583,19 +580,16 @@ const UserContextProvider = ({ children }) => {
         getUserExchangesAfterFBInit()
         const response = await checkGoogleAuth2FA()
         has2FADetails = response.data
-        localStorage.setItem(
-          T2FA_LOCAL_STORAGE,
-          JSON.stringify({ has2FADetails })
-        )
+        storage.set(T2FA_LOCAL_STORAGE, JSON.stringify({ has2FADetails }))
       } catch (error) {}
       setState((state) => {
         return { ...state, user: signedin.user, has2FADetails }
       })
-      localStorage.setItem('user', JSON.stringify(signedin.user))
-      localStorage.setItem('remember', rememberCheck)
+      storage.set('user', JSON.stringify(signedin.user))
+      storage.set('remember', rememberCheck)
     }
 
-    localStorage.removeItem('registered')
+    storage.remove('registered')
 
     return signedin
   }
@@ -609,13 +603,17 @@ const UserContextProvider = ({ children }) => {
       date: t2faData.date,
       type: t2faData.type,
     })
+    if (!response?.data) {
+      throw new Error('Error adding 2FA')
+    }
+
     const has2FADetails = {
       title: t2faData.title,
       description: t2faData.description,
       date: t2faData.date,
       type: t2faData.type,
     }
-    localStorage.setItem(
+    storage.set(
       T2FA_LOCAL_STORAGE,
       JSON.stringify({ has2FADetails, is2FAVerified: true })
     )
@@ -632,7 +630,7 @@ const UserContextProvider = ({ children }) => {
   async function verify2FA(userToken) {
     const response = await verifyGoogleAuth2FA(userToken)
     if (response.data.passed) {
-      localStorage.setItem(
+      storage.set(
         T2FA_LOCAL_STORAGE,
         JSON.stringify({
           has2FADetails: state.has2FADetails,
@@ -650,7 +648,7 @@ const UserContextProvider = ({ children }) => {
     setState((state) => {
       return { ...state, has2FADetails: null, is2FAVerified: true }
     })
-    localStorage.removeItem(T2FA_LOCAL_STORAGE)
+    storage.remove(T2FA_LOCAL_STORAGE)
   }
 
   // LOGOUT
@@ -659,10 +657,10 @@ const UserContextProvider = ({ children }) => {
       .auth()
       .signOut()
       .then(() => {
-        const theme = localStorage.getItem('theme')
-        localStorage.clear()
-        if (theme) localStorage.setItem('theme', theme)
-        sessionStorage.clear()
+        const theme = storage.get('theme')
+        storage.clear()
+        if (theme) storage.set('theme', theme)
+        session.clear()
         window.location = window.origin + '/login'
       })
       .catch((e) => {
@@ -682,10 +680,11 @@ const UserContextProvider = ({ children }) => {
         console.error({ message: errorMessage, code: errorCode })
         return { message: errorMessage, code: errorCode }
       })
+
     setState((state) => {
       return { ...state, registered: registered.user }
     })
-    localStorage.setItem('registered', JSON.stringify(registered.user))
+    storage.set('registered', JSON.stringify(registered.user))
 
     return registered
   }
@@ -708,7 +707,7 @@ const UserContextProvider = ({ children }) => {
 
   async function isRegistered() {
     try {
-      return await JSON.parse(localStorage.getItem('registered'))
+      return await storage.get('registered', true)
     } catch (error) {
       console.error(error)
       return {
@@ -722,7 +721,7 @@ const UserContextProvider = ({ children }) => {
     state && state.user && (!state.has2FADetails || state.is2FAVerified)
   const isLoggedInWithFirebase = state && state.user
 
-  if (isLoggedIn) sessionStorage.setItem('remember', true)
+  if (isLoggedIn) session.set('remember', true)
   return (
     <UserContext.Provider
       value={{

@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { AlertTriangle } from 'react-feather'
 import './style.css'
 import { useHistory } from 'react-router-dom'
-import { UserContext } from '../../contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 
 const WarningAlert = () => {
   const history = useHistory()

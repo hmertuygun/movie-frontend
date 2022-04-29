@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
-import { UserContext } from '../../contexts/UserContext'
+import { UserContext } from 'contexts/UserContext'
 import './TabNavigator.css'
 
 const TabInfo = () => {

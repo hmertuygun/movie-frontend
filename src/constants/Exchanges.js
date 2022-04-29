@@ -1,0 +1,136 @@
+export const EXCHANGES = {
+  binance: {
+    value: 'binance',
+    label: 'Binance',
+    symbol: 'BINANCE',
+    placeholder: 'Binance',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketEndpoint: 'wss://stream.binance.com:9443/ws',
+    apiUrl: 'https://api2.binance.com',
+  },
+  binanceus: {
+    value: 'binanceus',
+    label: 'Binance.US',
+    symbol: 'BINANCEUS',
+    placeholder: 'BinanceUS',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketEndpoint: 'wss://stream.binance.us:9443/ws',
+    apiUrl: 'https://api.binance.us',
+  },
+  kucoin: {
+    value: 'kucoin',
+    label: 'KuCoin',
+    symbol: 'KUCOIN',
+    placeholder: 'KuCoin',
+    fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
+    socketEndpoint: '',
+    apiUrl: 'https://api.kucoin.com',
+  },
+  bybit: {
+    value: 'bybit',
+    label: 'ByBit',
+    symbol: 'BYBIT',
+    placeholder: 'ByBit',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketEndpoint: 'wss://stream.bybit.com/spot/quote/ws/v1',
+    apiUrl: 'https://api.bybit.com',
+  },
+  huobipro: {
+    value: 'huobipro',
+    label: 'HuobiPro',
+    symbol: 'HUOBIPRO',
+    placeholder: 'Huobi Pro',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketEndpoint: 'wss://api-aws.huobi.pro/ws',
+    apiUrl: 'https://api.huobi.pro',
+  },
+  okex: {
+    value: 'okex',
+    label: 'OKEx',
+    symbol: 'OKEx',
+    placeholder: 'OKEx',
+    fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
+    socketEndpoint: 'wss://ws.okex.com:8443/ws/v5/public',
+    apiUrl: 'https://www.okex.com/',
+  },
+}
+
+export const RESOLUTIONS = [
+  '1',
+  '3',
+  '5',
+  '15',
+  '30',
+  '60',
+  '120',
+  '240',
+  '360',
+  '480',
+  '720',
+  '1D',
+  '1W',
+]
+
+export const DEFAULT_MAPPED_RESOLUTION = {
+  1: '1m',
+  3: '3m',
+  5: '5m',
+  15: '15m',
+  30: '30m',
+  60: '1h',
+  120: '2h',
+  240: '4h',
+  360: '6h',
+  D: '1d',
+  '1D': '1d',
+  W: '1w',
+  '1W': '1w',
+}
+
+export const MAPPED_RESOLUTIONS = {
+  ...DEFAULT_MAPPED_RESOLUTION,
+  480: '8h',
+  720: '12h',
+}
+
+export const MAPPED_RESOLUTION_T1 = {
+  ...MAPPED_RESOLUTIONS,
+  '3D': '3d',
+  M: '1M',
+  '1M': '1M',
+}
+
+export const MAPPED_SOCKET_RESOLUTIONS = {
+  1: '1min',
+  3: '3min',
+  5: '5min',
+  15: '15min',
+  30: '30min',
+  60: '1hour',
+  120: '2hour',
+  240: '4hour',
+  360: '6hour',
+  480: '8hour',
+  720: '12hour',
+  D: '1day',
+  '1D': '1day',
+  W: '1week',
+  '1W': '1week',
+}
+
+export const MAPPED_SOCKET_RESOLUTION_T1 = {
+  1: 'candle1m',
+  3: 'candle3m',
+  5: 'candle5m',
+  15: 'candle15m',
+  30: 'candle30m',
+  60: 'candle1H',
+  120: 'candle2H',
+  240: 'candle4H',
+  360: 'candle6H',
+  D: 'candle1D',
+  '1D': 'candle1D',
+  W: 'candle1W',
+  '1W': 'candle1W',
+  M: 'candle1M',
+}

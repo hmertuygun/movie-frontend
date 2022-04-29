@@ -16,6 +16,7 @@ import {
   updateTemplateDrawings,
   getFirestoreDocumentData,
   updateLastSelectedValue,
+  getSnapShotDocument,
 } from 'services/api'
 import { UserContext } from 'contexts/UserContext'
 import { firebase } from 'services/firebase'
@@ -25,6 +26,8 @@ import { getSelectedExchange } from 'utils/exchangeSelection'
 import { TEMPLATE_DRAWINGS_USERS } from 'constants/TemplateDrawingsList'
 import { storage } from 'services/storages'
 import { fetchTicker } from 'services/exchanges'
+
+import LZUTF8 from 'lzutf8'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -39,6 +42,7 @@ const SymbolContextProvider = ({ children }) => {
     userData,
     isOnboardingSkipped,
     isLoggedIn,
+    isAnalyst,
   } = useContext(UserContext)
   const { notify } = useNotifications()
 
@@ -195,7 +199,6 @@ const SymbolContextProvider = ({ children }) => {
   const handleSaveEmojis = async () => {
     try {
       const value = {
-        drawings: templateDrawings && templateDrawings.drawings,
         flags: emojis,
       }
       await updateTemplateDrawings(userData.email, value)
@@ -214,11 +217,9 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    let userEmail = TEMPLATE_DRAWINGS_USERS.includes(userData.email)
-      ? userData.email
-      : activeTrader.id
+    let userEmail = isAnalyst ? userData.email : activeTrader.id
 
-    getFirestoreDocumentData('template_drawings', userEmail)
+    getFirestoreDocumentData('chart_shared', userEmail)
       .then((emoji) => {
         if (emoji.data()) {
           if (emoji.data()?.flags) {
@@ -228,8 +229,7 @@ const SymbolContextProvider = ({ children }) => {
         }
       })
       .catch((err) => console.log(err))
-  }, [watchListOpen, activeTrader, userData.email])
-
+  }, [db, watchListOpen, activeTrader, userData.email])
   const getChartDataOnInit = async () => {
     try {
       const exchange =
@@ -285,7 +285,7 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
-  const loadBalance = async (quote_asset, base_asset) => {
+  const loadBalance = async (quote_asset, base_asset, skipCache = false) => {
     try {
       // solves an issue where you get incorrect symbol balance by clicking on diff symbols rapidly
       const getSymbolFromLS = storage.get('selectedSymbol')
@@ -301,6 +301,7 @@ const SymbolContextProvider = ({ children }) => {
       if (!isOnboardingSkipped) {
         const quoteBalance = await getBalance({
           symbol: quote_asset,
+          skipCache,
           ...activeExchange,
         })
         if (quoteBalance?.data?.balance)
@@ -309,6 +310,7 @@ const SymbolContextProvider = ({ children }) => {
 
         const baseBalance = await getBalance({
           symbol: base_asset,
+          skipCache,
           ...activeExchange,
         })
         if (baseBalance?.data?.balance)
@@ -511,7 +513,8 @@ const SymbolContextProvider = ({ children }) => {
       if (selectedSymbolDetail?.quote_asset) {
         await loadBalance(
           selectedSymbolDetail.quote_asset,
-          selectedSymbolDetail.base_asset
+          selectedSymbolDetail.base_asset,
+          true
         )
       }
     } catch (error) {
@@ -552,6 +555,43 @@ const SymbolContextProvider = ({ children }) => {
     }
   }
 
+  const setActiveAnalysts = async (planned = null) => {
+    let trader = ''
+    if (!planned) {
+      const snapshot = await getSnapShotDocument(
+        'chart_drawings',
+        userData.email
+      ).get()
+
+      const data = snapshot.data()
+      if (!data.activeTrader) return
+      trader = data.activeTrader
+    } else if (planned) {
+      trader = planned
+    }
+    const sharedData = await getSnapShotDocument('chart_shared', trader).get()
+    const analystData = await getSnapShotDocument('analysts', trader).get()
+
+    let converted = ''
+    try {
+      converted = sharedData.data().drawings
+      const check = JSON.parse(sharedData.data()?.drawings)
+    } catch (error) {
+      converted = LZUTF8.decompress(sharedData.data().drawings, {
+        inputEncoding: 'Base64',
+      })
+    }
+
+    const processedData = {
+      ...sharedData.data(),
+      ...analystData.data(),
+      id: sharedData.id,
+      drawings: converted,
+    }
+
+    setActiveTrader(processedData)
+  }
+
   return (
     <SymbolContext.Provider
       value={{
@@ -570,6 +610,7 @@ const SymbolContextProvider = ({ children }) => {
         setExchange,
         symbols,
         setSymbol,
+        setActiveAnalysts,
         selectedSymbol,
         symbolDetails,
         selectedSymbolDetail,
