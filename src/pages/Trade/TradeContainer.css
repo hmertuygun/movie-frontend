@@ -81,11 +81,9 @@
   border-top: 4px solid var(--trade-borders);
 }
 
-
-
 .TradeView-Panel-Mobile {
   width: 100%;
-  height: 100vh;
+  height: 90vh;
   border: none;
   overflow-y: scroll;
   top: 0;
@@ -95,7 +93,7 @@
 }
 
 .TradeView-Panel-Mobile button[type='submit'] {
-  position: fixed;
+  position: absolute;
   bottom: 5px;
   width: calc(100% - 2rem);
   left: 1rem;
