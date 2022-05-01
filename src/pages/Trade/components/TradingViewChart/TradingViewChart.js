@@ -69,7 +69,6 @@ export default class TradingViewChart extends Component {
       ],
       symbol,
       theme,
-      preset: isMobile ? 'mobile' : '',
     }
     this.tradingViewWidget = null
     this.chartObject = null
