@@ -15,6 +15,7 @@ import { useNotifications } from 'reapop'
 import CoinbaseCommerceButton from 'react-coinbase-commerce'
 import 'react-coinbase-commerce/dist/coinbase-commerce-button.css'
 import { Modal } from 'components'
+import { config } from 'constants/config'
 
 const Plans = ({ canShowTrial }) => {
   const { products, userData, getSubscriptionsData, setState } =
@@ -218,7 +219,7 @@ const Plans = ({ canShowTrial }) => {
                     </button>
                   </div>
                 </div>
-                {product.prices[0].interval === 'year' && (
+                {product.prices[0].interval === 'year' && config.cryptoPayment && (
                   <CoinbaseCommerceButton
                     disabled={isLoading}
                     className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"

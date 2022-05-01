@@ -1,6 +1,7 @@
 import React from 'react'
 import CoinbaseCommerceButton from 'react-coinbase-commerce'
 import { Modal } from 'components'
+import { config } from 'constants/config'
 
 const SubscriptionChange = ({
   priceData,
@@ -31,16 +32,18 @@ const SubscriptionChange = ({
                   {priceData.interval === 'Yearly' ? 'Monthly ' : 'Yearly '}
                   Payment
                 </button>
-                <CoinbaseCommerceButton
-                  disabled={isLoading}
-                  className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"
-                  checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
-                  onPaymentDetected={handlePaymentDetected}
-                  onChargeFailure={handlePaymentDetected}
-                  onChargeSuccess={cryptoSuccessPayment}
-                >
-                  Pay Crypto for a Year
-                </CoinbaseCommerceButton>
+                {config.cryptoPayment && (
+                  <CoinbaseCommerceButton
+                    disabled={isLoading}
+                    className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"
+                    checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
+                    onPaymentDetected={handlePaymentDetected}
+                    onChargeFailure={handlePaymentDetected}
+                    onChargeSuccess={cryptoSuccessPayment}
+                  >
+                    Pay Crypto for a Year
+                  </CoinbaseCommerceButton>
+                )}
               </div>
             </div>
           </div>
