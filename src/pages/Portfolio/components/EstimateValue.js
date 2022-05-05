@@ -37,7 +37,7 @@ const EstimateValue = () => {
     let currencyValues =
       tempBalance && tempBalance.find((data) => data.symbol === currentCurrency)
     setCurrency(currencyValues)
-  }, [estimate, lastMessage, currency, currentCurrency])
+  }, [estimate, lastMessage, currentCurrency])
 
   const handleClickOutside = (e) => {
     if (closeDropDownRef.current) {
@@ -56,7 +56,7 @@ const EstimateValue = () => {
   useEffect(() => {
     if (!estimate?.length || !lastMessage) return
     fetchLatestPrice()
-  }, [estimate?.length, lastMessage, currentCurrency])
+  }, [estimate, lastMessage, currentCurrency])
 
   useEffect(() => {
     let value = storage.get('selectedCurrency')

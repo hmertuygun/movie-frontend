@@ -178,8 +178,10 @@ function MarketStatistics({ market }) {
         }, 10000)
       })
       return () => {
-        socket.close()
-        clearInterval(id)
+        if (socket) {
+          socket.close()
+          clearInterval(id)
+        }
       }
     }
   }, [marketData, selectedSymbolDetail])

@@ -162,6 +162,7 @@ export default class TradingViewChart extends Component {
   }
 
   setClickedDrawing = async (event) => {
+    if (!this.tradingViewWidget) return null
     if (event)
       this.tradingViewWidget.save(async (obj) => {
         const drawing = await obj.charts[0].panes[0].sources.find(

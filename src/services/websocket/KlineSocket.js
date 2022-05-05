@@ -85,7 +85,8 @@ export default class klineSocket {
       if (needPing) {
         const pingPayload = preparePing(this.exchange)
         setInterval(() => {
-          this._ws.send(JSON.stringify(pingPayload))
+          if (this._ws.readyState === 1)
+            this._ws.send(JSON.stringify(pingPayload))
         }, 5000)
       }
     } catch (e) {
