@@ -442,7 +442,7 @@ const SymbolContextProvider = ({ children }) => {
       }
       setExchangeUpdated(true)
       setLoaderVisibility(true)
-      let value = `${exchange.apiKeyName}-${exchange.exchange}`
+      let value = `${exchange.apiKeyName}__${exchange.exchange}`
       await updateLastSelectedValue(userData.email, value)
       setActiveExchange(exchange)
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))

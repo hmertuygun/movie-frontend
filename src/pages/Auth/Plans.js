@@ -74,10 +74,20 @@ const Plans = ({ canShowTrial }) => {
 
   useEffect(() => {
     if (location.pathname === '/plans') {
-      setPlans([
-        { prices: [{ price: 0 }], name: 'Free Trial for 5 days' },
-        ...products,
-      ])
+      setPlans(
+        [
+          { prices: [{ price: 0 }], name: 'Free Trial for 5 days' },
+          ...products,
+        ].sort(function (a, b) {
+          return a.prices[0].price - b.prices[0].price
+        })
+      )
+    } else {
+      setPlans(
+        products.sort(function (a, b) {
+          return a.prices[0].price - b.prices[0].price
+        })
+      )
     }
   }, [products, location])
 
@@ -220,16 +230,26 @@ const Plans = ({ canShowTrial }) => {
                   </div>
                 </div>
                 {product.prices[0].interval === 'year' && config.cryptoPayment && (
-                  <CoinbaseCommerceButton
-                    disabled={isLoading}
-                    className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"
-                    checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
-                    onPaymentDetected={handlePaymentDetected}
-                    onChargeFailure={handlePaymentDetected}
-                    onChargeSuccess={cryptoSuccessPayment}
-                  >
-                    Pay Crypto for a Year
-                  </CoinbaseCommerceButton>
+                  <>
+                    <div class="alert alert-modern alert-outline-danger">
+                      <span class="badge badge-danger badge-pill">
+                        Important
+                      </span>
+                      <span class="alert-content">
+                        <b>Use only ETH network.</b>
+                      </span>
+                    </div>
+                    <CoinbaseCommerceButton
+                      disabled={isLoading}
+                      className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-1"
+                      checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
+                      onPaymentDetected={handlePaymentDetected}
+                      onChargeFailure={handlePaymentDetected}
+                      onChargeSuccess={cryptoSuccessPayment}
+                    >
+                      Pay Crypto for a Year
+                    </CoinbaseCommerceButton>
+                  </>
                 )}
               </div>
             )

@@ -24,7 +24,7 @@ const activateUserExchange = async (exchangeName) => {
 
 const deleteUserExchange = async ({ name, exchange }) => {
   const params = {
-    api: name,
+    apiKeyName: name,
     exchange: exchange,
   }
   const apiUrl = `${BASE_URL_V2}deleteApiKey?${createQueryString(params)}`

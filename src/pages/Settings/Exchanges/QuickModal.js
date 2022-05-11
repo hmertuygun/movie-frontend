@@ -236,7 +236,7 @@ const QuickModal = ({
               {exchangeForm &&
                 formFields &&
                 Object.entries(formFields).map((key) => (
-                  <div className="form-group">
+                  <div key={key[0]} className="form-group">
                     <div className="input-group">
                       <div className="input-group-prepend">
                         <span className="input-group-text" id="basic-addon1">

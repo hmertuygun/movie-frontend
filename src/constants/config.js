@@ -1,4 +1,4 @@
 export const config = {
   subscription: true,
-  cryptoPayment: false,
+  cryptoPayment: true,
 }

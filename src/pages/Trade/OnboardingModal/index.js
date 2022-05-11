@@ -157,7 +157,7 @@ const OnboardingModal = () => {
       if (result.status !== 200) {
         setError(true)
       } else {
-        let value = `${apiName}-${exchange.value}`
+        let value = `${apiName}__${exchange.value}`
         await updateLastSelectedValue(userData.email, value)
         refreshExchanges()
         setStepNo(step + 1)
