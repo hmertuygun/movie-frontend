@@ -187,10 +187,7 @@ const TemplatesList = () => {
           )}
         </div>
       </div>
-      <div
-        style={{ height: 'calc(100vh - 320px)', overflow: 'auto' }}
-        className="row"
-      >
+      <div style={{ height: '55vh', overflow: 'auto' }} className="row">
         <div className="col-11">
           <div className="list-group">
             {templates.length ? (

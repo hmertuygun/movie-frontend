@@ -263,13 +263,13 @@
 }
 
 .watchLists {
-  height: calc(100vh - 370px);
-  overflow: auto;
+  height: 55vh;
+  overflow: scroll;
 }
 
 .watchLists2 {
-  height: calc(100vh - 370px);
-  overflow: auto;
+  height: 55vh;
+  overflow: scroll;
 }
 
 .groupEmojiWrapper {

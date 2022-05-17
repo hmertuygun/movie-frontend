@@ -98,7 +98,7 @@ const MarketContainer = () => {
                 </div>
               </div>
             </div>
-            <div className="card mb-2 mx-1">
+            <div className="card mb-2 mx-1 tool-sidebar">
               <TabNavigator
                 index={activeTab}
                 labelArray={tabElements}
@@ -111,7 +111,7 @@ const MarketContainer = () => {
               </TabNavigator>
             </div>
           </div>
-          <div className="col-lg-9 col-md-12 pl-0 market-stat-chart">
+          <div className="col-lg-9 col-md-12 market-stat-chart">
             <div className="row">
               <div className="col-lg-12">
                 <div className="card m-1">

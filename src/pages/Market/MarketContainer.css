@@ -18,3 +18,10 @@
     margin-bottom: 0 !important;
   }
 }
+
+@media (orientation: landscape) {
+  .market-chart-mobile {
+    height: 100vh !important;
+    margin-right: -15px !important;
+  }
+}

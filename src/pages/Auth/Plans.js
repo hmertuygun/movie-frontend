@@ -231,17 +231,17 @@ const Plans = ({ canShowTrial }) => {
                 </div>
                 {product.prices[0].interval === 'year' && config.cryptoPayment && (
                   <>
-                    <div class="alert alert-modern alert-outline-danger">
+                    <div class="alert alert-modern">
                       <span class="badge badge-danger badge-pill">
                         Important
                       </span>
-                      <span class="alert-content">
+                      <span class="alert-content text-danger">
                         <b>Use only ETH network.</b>
                       </span>
                     </div>
                     <CoinbaseCommerceButton
                       disabled={isLoading}
-                      className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-1"
+                      className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-0"
                       checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
                       onPaymentDetected={handlePaymentDetected}
                       onChargeFailure={handlePaymentDetected}
@@ -257,7 +257,7 @@ const Plans = ({ canShowTrial }) => {
         </div>
       ) : (
         <div className="row mt-5">
-          <div className="col-md-4 col-lg-4 col-xl-4 py-6 py-md-0">
+          <div className="col-md-4 col-lg-4 col-xl-4 py-md-0">
             <h3 className="text-primary">
               {activePlan.name}
               <br />
@@ -271,7 +271,7 @@ const Plans = ({ canShowTrial }) => {
               </ul>
             </div>
           </div>
-          <div className="col-md-8 col-lg-8 col-xl-7 py-6 py-md-0">
+          <div className="col-md-8 col-lg-8 col-xl-7 py-md-0">
             <Elements
               stripe={loadStripe(process.env.REACT_APP_STRIPE_KEY)}
               options={creds}
