@@ -3,7 +3,7 @@ import { Modal } from 'components'
 import { AlertTriangle } from 'react-feather'
 
 const CountrySelectionModal = ({
-  handleClickYes,
+  handleClickConfirm,
   handleClickCancel,
   isLoading,
 }) => {
@@ -27,7 +27,7 @@ const CountrySelectionModal = ({
           </div>
           <div className="modal-footer">
             <button
-              onClick={handleClickYes}
+              onClick={handleClickConfirm}
               type="button"
               className="btn btn-sm btn-link text-warning btn-zoom--hover font-weight-600"
             >

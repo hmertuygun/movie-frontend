@@ -4,6 +4,7 @@ import React, {
   useState,
   useContext,
   useCallback,
+  useMemo,
 } from 'react'
 import { useNotifications } from 'reapop'
 
@@ -28,6 +29,7 @@ import { storage } from 'services/storages'
 import { fetchTicker } from 'services/exchanges'
 
 import LZUTF8 from 'lzutf8'
+import { useLocation } from 'react-router-dom'
 
 export const SymbolContext = createContext()
 const db = firebase.firestore()
@@ -45,6 +47,7 @@ const SymbolContextProvider = ({ children }) => {
     isAnalyst,
   } = useContext(UserContext)
   const { notify } = useNotifications()
+  const location = useLocation()
 
   const DEFAULT_SYMBOL_LOAD_SLASH = 'BTC/USDT'
   const DEFAULT_SYMBOL_LOAD_DASH = 'BTC-USDT'
@@ -92,6 +95,9 @@ const SymbolContextProvider = ({ children }) => {
   const openOrdersTimeInterval = 5000
   const portfolioTimeInterval = 20000
   const analyticsTimeInterval = 20000
+  const isOnMarket = useMemo(() => {
+    return location.pathname === '/market'
+  }, [location])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -327,7 +333,7 @@ const SymbolContextProvider = ({ children }) => {
   }
 
   const loadLastPrice = async (symbolpair, exchangeParam) => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !isOnMarket) {
       try {
         setIsLoadingLastPrice(true)
         const response = await getLastPrice(
