@@ -11,26 +11,38 @@ const HeaderSteps = [
   ModalsConf.EnableGoogleAuth,
   ModalsConf.BackUpKey,
 ]
-const HeaderStep = ({ step: active }) => (
-  <div className="row justify-content-center px-3 mt-3">
-    {HeaderSteps.map(({ title, step }) => (
-      <div key={step} className="mx-2">
-        <span
-          className={`badge badge-md ${
-            active === step ? 'bg-primary text-white' : 'bg-secondary'
-          }`}
-        >
-          {title}
-        </span>
-      </div>
-    ))}
-  </div>
-)
+const HeaderStep = ({ step: active, isMobile }) => {
+  let currentStepTitle = HeaderSteps.find((step) => step.step === active)?.title
+  return (
+    <div className="row justify-content-center px-3 mt-3">
+      {isMobile ? (
+        <div className="text-center">
+          <h2>{currentStepTitle}</h2>
+        </div>
+      ) : (
+        <>
+          {HeaderSteps.map(({ title, step }) => (
+            <div key={step} className="mx-2">
+              <span
+                className={`badge badge-md ${
+                  active === step ? 'bg-primary text-white' : 'bg-secondary'
+                }`}
+              >
+                {title}
+              </span>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
 
 const withCard =
   (step = ModalsConf.DownloadApp.step, ReactNode, hasPrev) =>
   ({ next, onBack, ...props }) => {
     const [isLoading, setIsLoading] = useState(false)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
     const { hash } = useLocation()
     const history = useHistory()
     const { state } = useContext(UserContext)
@@ -55,15 +67,29 @@ const withCard =
         setIsLoading(false)
       }
     }
+
+    const detectWidthSize = () => {
+      setWindowWidth(window.innerWidth)
+    }
+
+    useEffect(() => {
+      window.addEventListener('resize', detectWidthSize)
+
+      return () => {
+        window.removeEventListener('resize', detectWidthSize)
+      }
+    }, [windowWidth])
+
+    let isMobile = windowWidth <= 767
     return (
       <div className="card container">
         {step < ADD_2FA_FLOW.length ? (
           <div className="card-header">
-            <HeaderStep step={step} />
+            <HeaderStep step={step} isMobile={isMobile} />
           </div>
         ) : null}
         <div className="card-body d-flex flex-column justify-content-center">
-          <ReactNode {...props} onNext={onNext} />
+          <ReactNode {...props} onNext={onNext} isMobile={isMobile} />
         </div>
         <div className="card-footer">
           <div className="row">
@@ -97,7 +123,7 @@ const withCard =
 
 export const DownloadApp = withCard(
   0,
-  ({ onNext }) => {
+  ({ onNext, isMobile }) => {
     const [googleAuth2FARequest, setGoogleAuth2FARequest] = useState()
 
     useEffect(() => {
@@ -115,13 +141,19 @@ export const DownloadApp = withCard(
         <p className="text-center">
           Download and install the Google Authenticator app
         </p>
-        <div className="row justify-content-center">
+        <div
+          className={`row justify-content-center ${
+            isMobile ? 'flex-column' : ''
+          }`}
+        >
           <a
             id="enableGA_a_appStore"
             href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8"
             target="_blank"
             rel="noreferrer noopener"
-            className="row justify-content-center align-items-center border mx-2 pt-2 pb-2 col-5"
+            className={`row justify-content-center align-items-center border mx-2 pt-2 pb-2 ${
+              isMobile ? 'col-12 mb-2' : 'col-5'
+            }`}
           >
             <img
               src="img/brand/apple.svg"
@@ -139,7 +171,9 @@ export const DownloadApp = withCard(
             href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
             target="_blank"
             rel="noreferrer noopener"
-            className="row justify-content-center border mx-2 pt-2 p-4 col-5"
+            className={`row justify-content-center border mx-2 pt-2 p-4 ${
+              isMobile ? 'col-12' : 'col-5'
+            }`}
           >
             <img
               src="img/brand/google-play-colors.svg"
