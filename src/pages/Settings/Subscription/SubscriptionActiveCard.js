@@ -309,34 +309,25 @@ const SubscriptionActiveCard = ({
             <button
               href="#"
               onClick={() => setShowCancelModal(true)}
-              className="btn btn-sm btn-danger btn-icon ml-2"
+              className="btn btn-sm btn-danger btn-icon ml-2 w-100"
             >
               <span className="btn-inner--text">Cancel Subscription</span>
-              <span className="btn-inner--icon">
-                <i data-feather="arrow-right" className="text-warning"></i>
-              </span>
             </button>
           )}
           <button
             href="#"
             onClick={() => setShowUpdateModal(true)}
-            className="btn btn-sm btn-warning btn-icon mt-4"
+            className="btn btn-sm btn-warning btn-icon mt-4 w-100"
           >
             <span className="btn-inner--text">Change Credit Card</span>
-            <span className="btn-inner--icon">
-              <i data-feather="arrow-right" className="text-warning"></i>
-            </span>
           </button>
           {!subscriptionData.scheduledSubs && (
             <button
               href="#"
               onClick={() => setShowChangeModal(true)}
-              className="btn btn-sm btn-primary btn-icon mt-4"
+              className="btn btn-sm btn-primary btn-icon mt-4 w-100"
             >
               <span className="btn-inner--text">Change Active Plan</span>
-              <span className="btn-inner--icon">
-                <i data-feather="arrow-right" className="text-warning"></i>
-              </span>
             </button>
           )}
         </div>

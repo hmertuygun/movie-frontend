@@ -4,7 +4,7 @@
 }
 
 .content-wrapper {
-  height: calc(100vh - 100px);
+  height: 96vh;
   border-radius: 35px;
   overflow: hidden;
 }

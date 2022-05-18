@@ -88,7 +88,7 @@ const Security = () => {
           </div>
           <div className="alert-content">
             <strong>Important!</strong> At CoinPanel we are all about security.
-            That's you must now activate 2FA login on CoinPanel in order to
+            That's why you must now activate 2FA login on CoinPanel in order to
             continue trading - stay safe.
           </div>
         </div>

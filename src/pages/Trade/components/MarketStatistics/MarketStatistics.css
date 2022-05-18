@@ -101,7 +101,6 @@
   .marketDataContainer {
     /* height: 52px; */
     /* border-top: none; */
-    border-right: 4px solid var(--trade-borders);
     border-top: none;
   }
 }
@@ -152,8 +151,8 @@
   .market-stat-chart .marketDataBlock {
     width: 100px;
   }
-  
-  .marketDataLastPrice{
+
+  .marketDataLastPrice {
     width: max-content;
     font-size: small;
   }

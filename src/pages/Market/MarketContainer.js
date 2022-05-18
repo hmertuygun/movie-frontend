@@ -73,7 +73,7 @@ const MarketContainer = () => {
     <>
       <section className="m-1">
         <div className="row">
-          <div className="col-lg-3">
+          <div className="col-lg-3 pr-lg-1">
             <div className="card p-3 mb-1 pb-2">
               <div className="form-group">
                 <label className="form-control-label">
@@ -98,7 +98,7 @@ const MarketContainer = () => {
                 </div>
               </div>
             </div>
-            <div className="card mb-2 mx-1 tool-sidebar">
+            <div className="card mb-2 tool-sidebar">
               <TabNavigator
                 index={activeTab}
                 labelArray={tabElements}
@@ -113,20 +113,20 @@ const MarketContainer = () => {
           </div>
           <div className="col-lg-9 col-md-12 market-stat-chart">
             <div className="row">
-              <div className="col-lg-12">
-                <div className="card m-1">
+              <div className="col-lg-12 pl-lg-1">
+                <div className="card mb-1">
                   <MarketStatistics market={true} />
                 </div>
               </div>
             </div>
             <div
-              style={{ height: 'calc(100vh - 146px)', marginRight: -7 }}
+              style={{ height: '79.2vh' }}
               className="row market-chart-mobile"
               id="market-chart-container"
             >
-              <div className="col-lg-12 m-1 market-chart-mobile-container">
+              <div className="col-lg-12 pl-lg-1 market-chart-mobile-container">
                 <div
-                  className="card mb-0 p-2"
+                  className="card mb-0 p-1"
                   style={{ width: '100%', height: '100%' }}
                 >
                   <TradeChart />

@@ -606,10 +606,10 @@ const WatchListPanel = () => {
           templateDrawingsOpen ? styles.watchLists2 : styles.watchLists
         }
       >
-        {loading ? (
+        {!Object.keys(getWatchSymbolsList()).length && !loading ? (
           <div className="pt-5 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="sr-only">Loading...</span>
+            <div className="text-primary" role="status">
+              <span className="">Your watchlist is empty!</span>
             </div>
           </div>
         ) : (
