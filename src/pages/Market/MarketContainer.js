@@ -120,7 +120,7 @@ const MarketContainer = () => {
               </div>
             </div>
             <div
-              style={{ height: '79.2vh' }}
+              style={{ height: 'calc(100vh - 165px)' }}
               className="row market-chart-mobile"
               id="market-chart-container"
             >

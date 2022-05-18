@@ -263,12 +263,12 @@
 }
 
 .watchLists {
-  height: 48.2vh;
+  height: calc(100vh - 386px);
   overflow: scroll;
 }
 
 .watchLists2 {
-  height: 48.2vh;
+  height: calc(100vh - 375px);
   overflow: scroll;
 }
 
