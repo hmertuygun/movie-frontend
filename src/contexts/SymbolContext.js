@@ -154,13 +154,6 @@ const SymbolContextProvider = ({ children }) => {
     }
   }, [activeExchange])
 
-  useEffect(() => {
-    if (!selectedSymbol || !Object.keys(symbolDetails).length) return
-
-    //loadBalance(qouteAsset, baseAsset)
-    loadLastPrice(selectedSymbol.label.replace('-', '/'))
-  }, [selectedSymbol])
-
   const setInitMarketData = async (symbol) => {
     let activeMarketData = {}
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -168,6 +161,7 @@ const SymbolContextProvider = ({ children }) => {
     if (exchange) {
       try {
         activeMarketData = await fetchTicker(exchange, symbol)
+        setSelectedSymbolLastPrice(activeMarketData.last)
         setMarketData(activeMarketData)
       } catch (error) {
         console.log(error)
@@ -270,6 +264,7 @@ const SymbolContextProvider = ({ children }) => {
           storage.set('selectedSymbol', symbolVal)
           const [baseAsset, qouteAsset] = symbolVal.split('/')
           loadBalance(qouteAsset, baseAsset)
+          setInitMarketData(symbolVal)
           setSelectedSymbolDetail({
             base_asset: baseAsset,
             quote_asset: qouteAsset,
@@ -280,7 +275,6 @@ const SymbolContextProvider = ({ children }) => {
             label: symbolVal.replace('/', '-'),
             value: `${exchangeVal.toUpperCase()}:${symbolVal}`,
           })
-          loadLastPrice(symbolVal, exchangeVal)
           setExchangeType(exchange.toLowerCase())
           storage.set('selectedExchange', exchange.toLowerCase())
         }
@@ -329,33 +323,6 @@ const SymbolContextProvider = ({ children }) => {
       setSelectedBaseSymbolBalance(0)
     } finally {
       setIsLoadingBalance(false)
-    }
-  }
-
-  const loadLastPrice = async (symbolpair, exchangeParam) => {
-    if (isLoggedIn && !isOnMarket) {
-      try {
-        setIsLoadingLastPrice(true)
-        const response = await getLastPrice(
-          symbolpair,
-          exchangeParam ||
-            storage.get('selectedExchange') ||
-            activeExchange?.exchange
-        )
-        if (response?.data?.last_price !== 'NA')
-          setSelectedSymbolLastPrice(response.data.last_price)
-        else setSelectedSymbolLastPrice(0)
-      } catch (err) {
-        notify({
-          id: 'last-price-warning',
-          status: 'error',
-          title: 'Error',
-          message: 'Error getting last price of market!',
-        })
-        setSelectedSymbolLastPrice(0)
-      } finally {
-        setIsLoadingLastPrice(false)
-      }
     }
   }
 
