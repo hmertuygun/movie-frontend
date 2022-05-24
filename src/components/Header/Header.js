@@ -17,9 +17,10 @@ import { useSymbolContext } from 'contexts/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from 'utils/tourSteps'
-import { Moon, Sun, Twitter, HelpCircle } from 'react-feather'
+import { Moon, Sun, Twitter } from 'react-feather'
 import './Header.css'
 import { storage } from 'services/storages'
+import Help from './Help'
 
 const Header = () => {
   const {
@@ -127,12 +128,6 @@ const Header = () => {
     handleOnboardingShow()
   }
 
-  const handleZendesk = () => {
-    window.zE(function () {
-      window.zE.activate()
-    })
-  }
-
   return (
     <header className="" id="header-main">
       <nav
@@ -143,6 +138,7 @@ const Header = () => {
       >
         <div className="container">
           <Logo />
+          <Help isForMobile={true} />
           {!state.firstLogin && (
             <div
               className="collapse navbar-collapse navbar-collapse-overlay order-lg-3"
@@ -278,13 +274,7 @@ const Header = () => {
               </li> */}
                 <Menu />
                 <li className="nav-item">
-                  <button
-                    className="btn btn-primary custom-help-button"
-                    onClick={handleZendesk}
-                  >
-                    <HelpCircle size={16} />
-                    &nbsp; Help
-                  </button>
+                  <Help />
                 </li>
               </ul>
               {/* <Notifications /> */}
