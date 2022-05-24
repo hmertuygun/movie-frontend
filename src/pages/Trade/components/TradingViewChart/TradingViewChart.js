@@ -87,7 +87,6 @@ export default class TradingViewChart extends Component {
       openOrderLines: [],
       templateDrawings,
       templateDrawingsOpen,
-      templateButton: {},
       loadingButton: {},
       screenShotButton: {},
       isSaved: true,
@@ -536,33 +535,6 @@ export default class TradingViewChart extends Component {
   addLoadDrawingsButton = async () => {
     if (!this.tradingViewWidget) return
     await this.tradingViewWidget.headerReady()
-    if (!this.context.isAnalyst && this.props.activeTrader) {
-      let button = this.tradingViewWidget.createButton()
-      button.innerText = `View ${this.props.activeTrader?.name}'s Chart`
-      if (this.onMarketPage) {
-        button.setAttribute(
-          'style',
-          'display:flex;align-items:center;margin:10px;'
-        )
-      }
-      this.state.templateButton = button
-      button.setAttribute('title', `Click to toggle drawings`)
-      button.addEventListener('click', () => {
-        this.props.drawingsBtnClicked()
-      })
-      let text = document.createElement('div')
-      text.innerText = ''
-      button.setAttribute('class', 'button-2ioYhFEY')
-      if (!this.onMarketPage) {
-        button.setAttribute(
-          'style',
-          'display:flex;align-items:center;margin:10px;'
-        )
-      } else {
-        button.parentNode.parentNode.setAttribute('style', 'display:none;')
-      }
-      button.append(text)
-    }
     let loadingButton = this.tradingViewWidget.createButton({ align: 'right' })
     loadingButton.setAttribute('class', 'button-2ioYhFEY')
     this.state.loadingButton.style = {}
@@ -650,7 +622,6 @@ export default class TradingViewChart extends Component {
               templateDrawings: this.props.activeTrader,
               templateDrawingsOpen: true,
             })
-            this.state.templateButton.innerText = 'View My Charts'
             this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
         } catch (e) {
@@ -794,22 +765,9 @@ export default class TradingViewChart extends Component {
       !this.props.templateDrawingsOpen &&
       this.state.loadingButton.style &&
       this.state.loadingButton.parentNode.parentNode &&
-      this.state.templateButton &&
       this.props.activeTrader?.name
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'block'
-      this.state.templateButton.innerText = `View ${this.props.activeTrader?.name}'s Chart`
-    }
-    if (
-      !this.props.activeTrader?.name &&
-      this.state.templateButton?.parentNode
-    ) {
-      this.state.templateButton.parentNode.parentNode.style.display = 'none'
-    } else if (
-      this.props.activeTrader?.name &&
-      this.state.templateButton?.parentNode
-    ) {
-      this.state.templateButton.parentNode.parentNode.style.display = 'flex'
     }
 
     if (
@@ -818,7 +776,6 @@ export default class TradingViewChart extends Component {
       this.state.loadingButton.parentNode.parentNode
     ) {
       this.state.loadingButton.parentNode.parentNode.style.display = 'none'
-      this.state.templateButton.innerText = 'View My Charts'
     }
 
     if (
