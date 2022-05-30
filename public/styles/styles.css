@@ -186,6 +186,17 @@ hr {
   margin-left: 12px;
 }
 
+.dropdown-menu-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.exchange-field-icon {
+  width: 13px;
+  height: 13px;
+  margin-right: -5px;
+}
+
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,

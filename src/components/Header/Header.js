@@ -20,6 +20,7 @@ import { secondTourSteps } from 'utils/tourSteps'
 import { Moon, Sun, Twitter } from 'react-feather'
 import './Header.css'
 import { storage } from 'services/storages'
+import UserMenu from './UserMenu/UserMenu'
 import Help from './Help'
 
 const Header = () => {
@@ -186,6 +187,9 @@ const Header = () => {
                     </a>
                   )}
                 </li>
+                <li className="nav-item mr-3">
+                  <Help />
+                </li>
                 <li className="nav-item">
                   <div
                     className={`switch-container ${
@@ -272,10 +276,9 @@ const Header = () => {
                   <Moon size={15} className="chevron-down" strokeWidth="3" />
                 </span>
               </li> */}
-                <Menu />
-                <li className="nav-item">
-                  <Help />
-                </li>
+                {/* <Menu /> */}
+
+                <UserMenu />
               </ul>
               {/* <Notifications /> */}
             </div>
