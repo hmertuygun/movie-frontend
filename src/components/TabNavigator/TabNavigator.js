@@ -100,6 +100,10 @@ const TabNavigator = ({
     }
   }, [children, contentIndex])
 
+  useEffect(() => {
+    setContentIndex(index)
+  }, [index])
+
   const handleButtonClick = ({ target }) => {
     const index = labelArray.indexOf(target.id)
     setContentIndex(index)

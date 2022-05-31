@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react'
+import React, { Fragment, useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { LogOut, Moon } from 'react-feather'
 
@@ -11,9 +11,16 @@ import { ThemeContext } from 'contexts/ThemeContext'
 import { storage } from 'services/storages'
 import './Settings.css'
 
+const SETTINGS_TAB = {
+  '#exchanges': 0,
+  '#security': 1,
+  '#notifications': 2,
+  '#subscription': 3,
+}
+
 const Settings = () => {
   const { hash } = useLocation()
-  const tabIndex = hash === '#subscription' ? 3 : hash === '#security' ? 1 : 0
+  const [tabIndex, setTabIndex] = useState(0)
   const { theme, setTheme } = useContext(ThemeContext)
 
   const toggleTheme = () => {
@@ -35,6 +42,10 @@ const Settings = () => {
       return newTheme
     })
   }
+
+  useEffect(() => {
+    setTabIndex(SETTINGS_TAB[hash])
+  }, [hash])
 
   return (
     <Fragment>
