@@ -59,6 +59,12 @@ const changeActivePlan = async (data) => {
   return response.data
 }
 
+const verifyCouponCode = async (data) => {
+  const apiUrl = `${BASE_URL}coupon/${data.coupon}`
+  const response = await httpClient(apiUrl, 'GET', {})
+  return response
+}
+
 export {
   getSubscriptionDetails,
   callCloudFunction,
@@ -69,4 +75,5 @@ export {
   getDefaultPaymentMethod,
   cancelSubscription,
   changeActivePlan,
+  verifyCouponCode,
 }

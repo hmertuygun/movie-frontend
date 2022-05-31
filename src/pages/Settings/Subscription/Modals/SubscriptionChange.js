@@ -19,14 +19,17 @@ const SubscriptionChange = ({
             <h5>Update Active Plan</h5>
             <div className="">
               <h6>
-                Active Plan: <b>{priceData.interval} Payment</b>
+                Active Plan:
+                <span class="badge badge-primary ml-2">
+                  <b>{priceData.interval} Payment</b>
+                </span>
               </h6>
               <div className="mt-4">
                 <button
                   onClick={updatePlan}
                   type="button"
                   disabled={isLoading}
-                  className="btn btn-soft-primary"
+                  className="btn btn-soft-primary hover-translate-y-n3 "
                 >
                   Change to{' '}
                   {priceData.interval === 'Yearly' ? 'Monthly ' : 'Yearly '}
@@ -35,7 +38,7 @@ const SubscriptionChange = ({
                 {config.cryptoPayment && (
                   <CoinbaseCommerceButton
                     disabled={isLoading}
-                    className="btn btn-sm btn-warning hover-translate-y-n3 hover-shadow-lg mt-4"
+                    className="btn btn-soft-success hover-translate-y-n3 hover-shadow-lg mt-4 w-100"
                     checkoutId={'ab6f040a-5d52-47f0-a103-44923ac78215'}
                     onPaymentDetected={handlePaymentDetected}
                     onChargeFailure={handlePaymentDetected}

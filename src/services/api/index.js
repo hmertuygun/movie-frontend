@@ -45,6 +45,7 @@ import {
   getDefaultPaymentMethod,
   cancelSubscription,
   changeActivePlan,
+  verifyCouponCode,
 } from './Subscriptions'
 import {
   loadNotificationChannels,
@@ -75,6 +76,7 @@ import {
   setChartDrawings,
   updateSingleValue,
   createBackup,
+  getDoubleCollection,
 } from './Firestore'
 import { getExchangeKlines } from './Klines'
 import { fetchExchangeTicker } from './Ticker'
@@ -146,4 +148,6 @@ export {
   fetchExchangeTicker,
   updateSingleValue,
   createBackup,
+  verifyCouponCode,
+  getDoubleCollection,
 }

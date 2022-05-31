@@ -13,6 +13,7 @@ import {
   getFirestoreCollectionData,
   getFirestoreDocumentData,
   getSnapShotCollection,
+  getDoubleCollection,
 } from 'services/api'
 import Ping from 'utils/ping'
 import dayjs from 'dayjs'
@@ -356,12 +357,18 @@ const UserContextProvider = ({ children }) => {
         if (subData?.payment_method_attached)
           setEndTrial(subData.payment_method_attached)
         setIsPaidUser(subscription_status === 'active')
+        const checkCoupon = await getDoubleCollection(
+          'subscriptions',
+          'coupons_used',
+          userData.email
+        )
         setSubscriptionData({
           subscription: {
             type: 'stripe',
             status: subscription_status,
           },
           due: seconds,
+          couponUsed: checkCoupon.docs.length > 0,
           priceData: {
             currency,
             unit_amount: amount,

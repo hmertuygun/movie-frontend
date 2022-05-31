@@ -149,7 +149,7 @@ const MobileTab = () => {
   useEffect(() => {
     setActivePage(
       history.location.pathname == '/trade'
-        ? 'Home'
+        ? 'HOME'
         : history.location.pathname.split('/')[1].toUpperCase()
     )
   }, [history])

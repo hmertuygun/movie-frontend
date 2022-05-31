@@ -284,6 +284,16 @@ const SubscriptionActiveCard = ({
         )}. Crypto payments are one time only. You need to add payment method after the due to keep your account active.
         `
       }
+      if (subscriptionData.couponUsed) {
+        return `You paid 
+        ${new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: priceData?.currency,
+        }).format(priceData?.unit_amount)}
+        for one period with coupon code. Your payment will renew on ${dayjs(
+          due * 1000
+        ).format('MMM DD, YYYY')}.`
+      }
       return `You are paying 
       ${new Intl.NumberFormat('en-US', {
         style: 'currency',

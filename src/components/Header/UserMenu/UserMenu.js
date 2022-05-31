@@ -1,11 +1,11 @@
 import { UserContext } from 'contexts/UserContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { getNumberOfDays } from 'utils/getNumberOfDays'
 import Select from 'react-select'
 import { SECTION_ONE, SECTION_TWO } from 'constants/DropDownMenu'
 import logout from 'assets/dropdown_menu/dark/logout.svg'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import useComponentVisible from 'hooks/useComponentVisible'
 import { ChevronDown } from 'react-feather'
 import { ThemeContext } from 'contexts/ThemeContext'
@@ -19,6 +19,11 @@ const UserMenu = () => {
     useContext(UserContext)
   const { exchanges, setExchange, isExchangeLoading } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
+  const location = useLocation()
+  const isOnSettings = useMemo(
+    () => location.pathname.includes('settings'),
+    [location]
+  )
 
   return (
     <div>
@@ -52,17 +57,19 @@ const UserMenu = () => {
           {subscriptionData ? getNumberOfDays(subscriptionData?.due) : ''} days
           left in subscription
         </p>
-        <Select
-          components={{
-            Control,
-          }}
-          options={exchanges}
-          isSearchable={false}
-          styles={customStyles}
-          onChange={(value) => setExchange(value)}
-          value={activeExchange}
-          isDisabled={isExchangeLoading || isOnboardingSkipped}
-        />
+        {!isOnboardingSkipped && (
+          <Select
+            components={{
+              Control,
+            }}
+            options={exchanges}
+            isSearchable={false}
+            styles={customStyles}
+            onChange={(value) => setExchange(value)}
+            value={activeExchange}
+            isDisabled={isExchangeLoading || isOnboardingSkipped}
+          />
+        )}
         <hr className="mb-3 mt-3" />
         <ul className="navbar-nav d-flex flex-column">
           {SECTION_ONE.map((menu) => (
@@ -85,6 +92,7 @@ const UserMenu = () => {
           ))}
         </ul>
         <hr className="mb-2 mt-2" />
+
         <ul className="navbar-nav d-flex flex-column">
           {SECTION_TWO.map((menu) => (
             <li
@@ -94,6 +102,7 @@ const UserMenu = () => {
               <a
                 href={menu.link}
                 type="button"
+                target="_blank"
                 className="d-flex align-items-center text-muted"
                 rel="noreferrer"
               >

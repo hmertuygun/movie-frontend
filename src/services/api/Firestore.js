@@ -37,6 +37,9 @@ const updateSingleValue = async (identifier, collection, value) => {
 const getChartTemplates = async (email) =>
   await getDoubleCollectionData('chart_templates', 'templates', email)
 
+const getDoubleCollection = async (collectionOne, collectionTwo, email) =>
+  await getDoubleCollectionData(collectionOne, collectionTwo, email)
+
 const addTemplateToFirestore = async (email, data) =>
   await addToDoubleCollection('chart_templates', 'templates', email, data)
 
@@ -106,4 +109,5 @@ export {
   initUserData,
   updateSingleValue,
   createBackup,
+  getDoubleCollection,
 }
