@@ -52,13 +52,13 @@ export const SECTION_TWO = [
     lightIcon: BlogLight,
     link: 'https://blog.coinpanel.com/',
   },
-  {
-    id: 5,
-    label: 'Academy',
-    icon: Academy,
-    lightIcon: AcademyLight,
-    link: 'https://academy.coinpanel.com',
-  },
+  // {
+  //   id: 5,
+  //   label: 'Academy',
+  //   icon: Academy,
+  //   lightIcon: AcademyLight,
+  //   link: 'https://academy.coinpanel.com',
+  // },
   {
     id: 6,
     label: 'Guides',
