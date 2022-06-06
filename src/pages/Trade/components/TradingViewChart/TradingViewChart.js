@@ -42,6 +42,7 @@ export default class TradingViewChart extends Component {
     setActiveDrawing,
     setActiveDrawingId,
     isMobile,
+    getScreenShot,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -492,7 +493,7 @@ export default class TradingViewChart extends Component {
 
   headerButtonOnClick = (event) => {
     if (event === 'screenshot') {
-      this.tradingViewWidget.takeScreenshot()
+      this.props.getScreenShot(this.chartId)
     } else if (event === 'fullscreen') {
       this.tradingViewWidget.startFullscreen()
     }
@@ -794,6 +795,15 @@ export default class TradingViewChart extends Component {
       this.state.screenShotButton.parentNode.parentNode
     ) {
       this.state.screenShotButton.parentNode.parentNode.style.display = 'block'
+    }
+
+    if (
+      this.props.isMobile &&
+      !this.props.templateDrawingsOpen &&
+      this.state.screenShotButton.style &&
+      this.state.screenShotButton.parentNode.parentNode
+    ) {
+      this.state.screenShotButton.parentNode.parentNode.style.display = 'none'
     }
 
     if (this.props.onError && !this.state.setError) {

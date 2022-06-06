@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { useSymbolContext } from 'contexts/SymbolContext'
@@ -11,6 +11,8 @@ import { firebase } from 'services/firebase'
 import { getSnapShotCollection, getSnapShotDocument } from 'services/api'
 import { storage } from 'services/storages'
 import lzutf8 from 'lzutf8'
+import exportAsImage from 'utils/downloadImage'
+import dayjs from 'dayjs'
 
 const TradeChart = () => {
   const {
@@ -25,13 +27,8 @@ const TradeChart = () => {
     templateDrawingsOpen,
     setTemplateDrawingsOpen,
     setSymbol,
-    kucoinDD,
-    binanceDD,
-    binanceUSDD,
-    isTradersModalOpen,
     setIsTradersModalOpen,
     activeTrader,
-    setActiveTrader,
     selectedSymbol,
     selectEmojiPopoverOpen,
     setActiveAnalysts,
@@ -44,11 +41,9 @@ const TradeChart = () => {
     userData,
     openOrdersUC,
     isOnboardingSkipped,
-    activeExchange,
     setChartDrawings,
     chartDrawings,
     settingChartDrawings,
-    allAnalysts,
     setActiveDrawingId,
     setActiveDrawing,
     addedDrawing,
@@ -57,8 +52,6 @@ const TradeChart = () => {
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
-  const [allTemplateDrawings, setAllTemplateDrawings] = useState([])
-  const [defaultTrader, setDefaultTrader] = useState([])
   const [exchange, setExchange] = useState(exchangeType)
   const [onError, setOnError] = useState(false)
   const [onMarket, setOnMarket] = useState(false)
@@ -75,6 +68,18 @@ const TradeChart = () => {
   useEffect(() => {
     if (!isAnalyst) setActiveAnalysts()
   }, [isAnalyst])
+
+  const getScreenShot = async (id) => {
+    const parentNode = document.getElementById(id)
+    const iframe = parentNode.getElementsByTagName('iframe')
+    const screen = iframe[0]?.contentDocument?.body
+    exportAsImage(
+      screen.getElementsByTagName('div')[2],
+      `CoinPanel_${selectedSymbol.value.replace('/', '-')}_${dayjs().format(
+        'YYYY-MM-DD_HH-mm-ss'
+      )}`
+    )
+  }
 
   useEffect(() => {
     if (selectedSymbol.value) {
@@ -271,6 +276,9 @@ const TradeChart = () => {
             }}
             tradersBtnClicked={(e) => {
               onTradersBtnClick(e)
+            }}
+            getScreenShot={(e) => {
+              getScreenShot(e)
             }}
             selectEmojiPopoverOpen={selectEmojiPopoverOpen}
           />

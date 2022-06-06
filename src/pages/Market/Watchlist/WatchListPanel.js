@@ -180,7 +180,7 @@ const WatchListPanel = () => {
       let previousData = {}
       const activeMarketData = marketData[symbol.value.replace('/', '')]
 
-      const tickSize = symbolDetails?.[symbol.value]?.tickSize
+      const tickSize = 4
       if (!activeMarketData?.last) {
         previousData = symbolsList.find((curr) => symbol.value === curr.value)
       }
