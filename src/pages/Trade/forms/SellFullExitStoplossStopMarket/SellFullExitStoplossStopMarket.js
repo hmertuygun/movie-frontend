@@ -180,6 +180,7 @@ const SellFullExitStoplossStopMarket = () => {
   })
 
   const handleSliderChange = (newValue) => {
+    newValue = 0 - newValue
     setValues((values) => ({
       ...values,
       profit: newValue,
@@ -446,18 +447,19 @@ const SellFullExitStoplossStopMarket = () => {
               </div>
               <div className={styles['SliderSlider']}>
                 <Slider
+                  reverse
                   defaultValue={0}
                   step={1}
                   marks={marks2}
                   min={0}
-                  max={100}
+                  max={99}
                   onChange={handleSliderChange}
-                  value={values.profit}
+                  value={-values.profit}
                 />
               </div>
               <div className={styles['SliderInput']}>
                 <InlineInput
-                  value={0 - values.profit}
+                  value={values.profit}
                   margin="dense"
                   onChange={handleSliderInputChange}
                   postLabel={'%'}
