@@ -17,6 +17,7 @@ import { defaultSymbol } from 'constants/defaultSymbol'
 import DefaultRegisterTemplate from './components/templates/default'
 import ChartRegisterTemplate from './components/templates/chartMirroring'
 import BybitRegisterTemplate from './components/templates/bybitTemplate'
+import { fbPixelTracking } from 'services/tracking'
 
 const QuickRegister = () => {
   const { register, isSubOpen } = useContext(UserContext)
@@ -66,6 +67,10 @@ const QuickRegister = () => {
         return <DefaultRegisterTemplate />
     }
   }, [registerType])
+
+  useEffect(() => {
+    fbPixelTracking('Register page view')
+  }, [])
 
   useEffect(() => {
     setError('')
@@ -161,6 +166,7 @@ const QuickRegister = () => {
       if (email && validPassword) {
         setIsLoading(true)
         actualRegister()
+        fbPixelTracking('Create my account button clicked')
       }
     }
   }

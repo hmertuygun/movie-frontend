@@ -20,4 +20,9 @@ const trackEvent = (category, action, label) => {
     })
 }
 
-export { initTracking, trackPageView, trackEvent }
+//Facebook pixel tracking
+const fbPixelTracking = (label) => {
+  if (isProduction) window.fbq('track', label)
+}
+
+export { initTracking, trackPageView, trackEvent, fbPixelTracking }

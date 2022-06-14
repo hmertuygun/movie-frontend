@@ -56,6 +56,43 @@
         zE.hide()
       })
     </script>
+    <!-- Facebook Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments)
+        }
+        if (!f._fbq) f._fbq = n
+        n.push = n
+        n.loaded = !0
+        n.version = '2.0'
+        n.queue = []
+        t = b.createElement(e)
+        t.async = !0
+        t.src = v
+        s = b.getElementsByTagName(e)[0]
+        s.parentNode.insertBefore(t, s)
+      })(
+        window,
+        document,
+        'script',
+        'https://connect.facebook.net/en_US/fbevents.js'
+      )
+      fbq('init', '303805851837508')
+      // fbq('track', 'PageView')
+    </script>
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        src="https://www.facebook.com/tr?id=303805851837508&ev=PageView
+  &noscript=1"
+      />
+    </noscript>
+    <!-- End Facebook Pixel Code -->
     <script src="https://d16mfdj9kvafcs.cloudfront.net/fpr.js" async></script>
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver%2CIntersectionObserverEntry%2CResizeObserver%2Cdocument.visibilityState%2CPageVisibility"></script>

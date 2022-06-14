@@ -5,6 +5,7 @@ import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
 import { Logo } from 'components'
 import { UserContext } from 'contexts/UserContext'
+import { fbPixelTracking } from 'services/tracking'
 
 const QuickLogin = () => {
   const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } =
@@ -17,6 +18,10 @@ const QuickLogin = () => {
   const [type, setType] = useState('password')
   const [isLoading, setLoading] = useState(false)
   const [isDisabled, setIsDisabled] = useState(false)
+
+  useEffect(() => {
+    fbPixelTracking('Login page view')
+  }, [])
 
   // clear errors
   useEffect(() => {
@@ -52,6 +57,7 @@ const QuickLogin = () => {
     }
     setLoading(false)
     analytics.logEvent('login')
+    fbPixelTracking('Sign in Button clicked')
     trackEvent('user', 'login', 'user')
   }
 
@@ -87,7 +93,6 @@ const QuickLogin = () => {
               <form
                 onSubmit={(event) => {
                   event.preventDefault()
-
                   if (email && password) {
                     doLogin()
                   } else {
