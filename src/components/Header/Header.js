@@ -3,6 +3,7 @@ import {
   faTelegramPlane,
   faTelegram,
   faMediumM,
+  faYoutube,
 } from '@fortawesome/free-brands-svg-icons'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -256,6 +257,22 @@ const Header = () => {
                       >
                         <FontAwesomeIcon
                           icon={faTelegramPlane}
+                          className={`mt-2 ${
+                            theme === 'DARK' ? 'text-white' : 'text-dark'
+                          }`}
+                        />
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a
+                        href="https://www.youtube.com/c/CoinPanel/featured"
+                        type="button"
+                        className="px-1 nav-link nav-link-icon"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon
+                          icon={faYoutube}
                           className={`mt-2 ${
                             theme === 'DARK' ? 'text-white' : 'text-dark'
                           }`}
