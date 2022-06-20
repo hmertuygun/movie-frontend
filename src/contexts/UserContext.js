@@ -13,6 +13,7 @@ import {
   getFirestoreCollectionData,
   getFirestoreDocumentData,
   getSnapShotCollection,
+  sendLoginInfo,
   getDoubleCollection,
 } from 'services/api'
 import Ping from 'utils/ping'
@@ -594,6 +595,7 @@ const UserContextProvider = ({ children }) => {
       })
       storage.set('user', JSON.stringify(signedin.user))
       storage.set('remember', rememberCheck)
+      await sendLoginInfo()
     }
 
     storage.remove('registered')

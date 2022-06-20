@@ -80,6 +80,7 @@ import {
 } from './Firestore'
 import { getExchangeKlines } from './Klines'
 import { fetchExchangeTicker } from './Ticker'
+import { sendLoginInfo } from './UserActions'
 
 export {
   checkGoogleAuth2FA,
@@ -148,6 +149,7 @@ export {
   fetchExchangeTicker,
   updateSingleValue,
   createBackup,
+  sendLoginInfo,
   verifyCouponCode,
   getDoubleCollection,
 }
