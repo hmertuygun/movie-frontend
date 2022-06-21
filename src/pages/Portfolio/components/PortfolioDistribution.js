@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
-import { storage } from 'services/storages'
-import PieCharts from './Chart/PieCharts'
+import { PortfolioContext } from 'contexts/PortfolioContext'
+import React, { useContext } from 'react'
+import SunburstChart from './Chart/SunburstChart'
 import './PortfolioDistribution.css'
 
 const PortfolioDistribution = () => {
-  const [isHideBalance, setIsHideBalance] = useState(
-    storage.get('hide_balance_under_ten', true) || false
-  )
+  const { chart } = useContext(PortfolioContext)
 
   return (
     <>
@@ -16,30 +14,14 @@ const PortfolioDistribution = () => {
             <div>
               <span className="h6">Portfolio Distribution</span>
             </div>
-            <div className="custom-control custom-checkbox d-flex align-items-center">
-              <input
-                type="checkbox"
-                className="custom-control-input"
-                id="check-terms"
-                checked={isHideBalance}
-                onChange={() => {
-                  storage.set('hide_balance_under_ten', !isHideBalance)
-                  setIsHideBalance(!isHideBalance)
-                }}
-              />
-              <label
-                className="custom-control-label customControlLabel"
-                htmlFor="check-terms"
-              >
-                Hide balances &lt; $10
-              </label>
-            </div>
           </div>
         </div>
-        <div className="card-body px-5">
-          <div className="row align-items-center">
-            <PieCharts isHideBalance={isHideBalance} />
-          </div>
+        <div className="card-body">
+          {chart && chart.children && (
+            <div className="row align-items-center d-flex align-items-center justify-content-center">
+              <SunburstChart data={chart} />
+            </div>
+          )}
         </div>
       </div>
     </>

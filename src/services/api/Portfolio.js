@@ -4,15 +4,12 @@ import createQueryString from 'utils/createQueryString'
 
 const BASE_URL = process.env.REACT_APP_PORTFOLIO_API
 
-const getPortfolio = async (apiKeyName, exchange, skipCache) => {
-  const params = {
-    api_key: apiKeyName,
-    exchange: exchange,
-  }
+const getPortfolio = async (payload, skipCache) => {
+  let params = {}
   if (skipCache) params['skip_cache'] = true
 
   const apiUrl = `${BASE_URL}balance?${createQueryString(params)}`
-  return await httpClient(apiUrl, 'GET')
+  return await httpClient(apiUrl, 'POST', payload)
 }
 
 const getBalance = async ({ symbol, apiKeyName, exchange, skipCache }) => {
