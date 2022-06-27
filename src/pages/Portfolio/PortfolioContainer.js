@@ -8,10 +8,9 @@ import { UserContext } from 'contexts/UserContext'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Tooltip } from 'components'
+import getLogo from 'utils/getExchangeLogo'
 import refreshPeriods from 'constants/refreshPeriods'
 import './Portfolio.css'
-import ExchangeSelector from './components/ExchangeSelector'
-import { useMediaQuery } from 'react-responsive'
 
 function PortfolioContainer() {
   const [refreshLoading, setRefreshLoading] = useState(false)
@@ -19,7 +18,6 @@ function PortfolioContainer() {
   const { loading, refreshData, balance, elapsed } =
     useContext(PortfolioContext)
   const { activeExchange } = useContext(UserContext)
-  const isMobile = useMediaQuery({ query: `(max-width: 400px)` })
   const lockText = useMemo(
     () =>
       `You can only use this button every ${
@@ -98,27 +96,34 @@ function PortfolioContainer() {
                   )}
                 </div>
               </div>
-              <div className="row align-items-center my-2 justify-content-between">
-                <div className={`col-lg-5 ${!isMobile ? 'w-75' : ''}`}>
-                  {activeExchange.label && (
-                    <div className="">
-                      <ExchangeSelector />
-                    </div>
-                  )}
+              <div className="row align-items-center">
+                <div className="col">
+                  <h4>
+                    <span className="badge badge-secondary">
+                      <img
+                        className="mb-1"
+                        src={getLogo(activeExchange.exchange)}
+                        style={{
+                          width: '24px',
+                          marginRight: '0.4rem',
+                        }}
+                        alt={activeExchange.exchange}
+                      />
+                      {activeExchange.apiKeyName}
+                    </span>
+                  </h4>
                 </div>
-                {elapsed && !isMobile && (
-                  <div className="col-auto">
-                    <span className="float-right">{elapsed}</span>
-                  </div>
-                )}
+                <div className="col-auto">
+                  {elapsed && <span className="float-right">{elapsed}</span>}
+                </div>
               </div>
               {balance && balance.length ? (
                 <>
                   <div className="row">
-                    <div className="col-lg-5">
+                    <div className="col-lg-4">
                       <EstimateValue />
                     </div>
-                    <div className="col-lg-7">
+                    <div className="col-lg-8">
                       <PortfolioDistribution />
                     </div>
                   </div>

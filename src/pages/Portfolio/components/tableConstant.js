@@ -1,35 +1,48 @@
 import { handleChangeTickSize } from 'utils/useTickSize'
 
 export const tableConstants = (handleEdit) => {
-  return {
-    Header: 'BALANCES',
-    isVisible: false,
-    columns: [
-      {
-        Header: 'SYMBOL',
-        accessor: 'SYMBOL',
+  return [
+    {
+      title: 'SYMBOL',
+      render: (rowData) => {
+        return rowData.SYMBOL
       },
-      {
-        Header: 'BALANCE',
-        accessor: 'BALANCE',
+    },
+    {
+      title: 'AVAILABLE BALANCE',
+      render: (rowData) => {
+        return handleChangeTickSize(rowData.BALANCE, rowData.SYMBOL)
       },
-      {
-        Header: 'BTC VALUE',
-        accessor: 'BTC',
+    },
+    {
+      title: 'RESERVED',
+      render: (rowData) => {
+        return handleChangeTickSize(rowData.RESERVED, rowData.SYMBOL)
       },
-      {
-        Header: 'RESERVED',
-        accessor: 'RESERVED',
+    },
+    {
+      title: 'TOTAL',
+      render: (rowData) => {
+        return handleChangeTickSize(rowData.TOTAL, rowData.SYMBOL)
       },
-
-      {
-        Header: 'TOTAL',
-        accessor: 'TOTAL',
+    },
+    {
+      title: 'BTC VALUE',
+      render: (rowData) => {
+        return handleChangeTickSize(rowData.BTC, 'BTC-USDT')
       },
-      {
-        Header: 'USD',
-        accessor: 'USD',
+    },
+    {
+      title: 'USD VALUE',
+      render: (rowData) => {
+        return rowData.USD
       },
-    ],
-  }
+    },
+    /*  {
+      title: 'Action',
+      render: rowData => {
+        return <button className='btn btn-warning' onClick={handleEdit(rowData)}>Edit</button>
+      },
+    }, */
+  ]
 }

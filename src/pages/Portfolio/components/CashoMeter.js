@@ -79,7 +79,7 @@ const CashoMeter = () => {
             style={style}
             hideText={true}
           />
-          <p className="text-muted text-sm font-weight-bold text-center value-mobile mt-2">
+          <p className="text-muted text-sm font-weight-bold text-center value-mobile">
             {value}%
           </p>
         </>

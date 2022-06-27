@@ -8,7 +8,6 @@ import React, {
 } from 'react'
 import { firebase } from 'services/firebase'
 import { UserContext } from 'contexts/UserContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { ccxtClass } from 'constants/ccxtConfigs'
 import { useNotifications } from 'reapop'
 import { useLocation } from 'react-router-dom'
@@ -31,30 +30,45 @@ const PortfolioCTXProvider = ({ children }) => {
   const [elapsed, setElapsed] = useState(null)
   const [user, setUser] = useState()
   const [marketData, setMarketData] = useState([])
-  const [selectedExchanges, setSelectedExchanges] = useState([])
 
   const refreshData = useCallback(
     async (skipCache = false) => {
       try {
         setLoading(true)
-        const payload = { exchanges: [] }
-        selectedExchanges.forEach((element) => {
-          payload.exchanges.push([element.exchange, element.apiKeyName])
-        })
-        const portfolioData = await getPortfolio(payload, skipCache)
+        const exchanges = await getPortfolio(
+          activeExchange.apiKeyName,
+          activeExchange.exchange,
+          skipCache
+        )
+        const ccxt = ccxtClass[activeExchange.exchange]
+        let message = {}
+        try {
+          let newData = await ccxt.fetchTickers()
+          exchanges.data.EstValue.forEach((element) => {
+            if (element.symbol !== 'BTC')
+              message[`BTC/${element.symbol}`] =
+                newData[`BTC/${element.symbol}`]
+          })
+          exchanges.data.BottomTable.forEach((element) => {
+            if (element.SYMBOL !== 'BTC' && element.SYMBOL !== 'USDT') {
+              message[`${element.SYMBOL}/BTC`] =
+                newData[`${element.SYMBOL}/BTC`]
+              message[`${element.SYMBOL}/USDT`] =
+                newData[`${element.SYMBOL}/USDT`]
+            }
+          })
+        } catch (error) {}
+        const elapsedTime =
+          exchanges.data.elapsed === '0 second'
+            ? 'Now'
+            : `${exchanges.data.elapsed} ago`
 
-        if (portfolioData?.data?.elapsed) {
-          const elapsedTime =
-            portfolioData.data.elapsed === '0 second'
-              ? 'Now'
-              : `${portfolioData.data.elapsed} ago`
-          setElapsed(elapsedTime)
-        }
-
-        setTicker(portfolioData.data)
-        setBalance(portfolioData.data.BottomTable)
-        setChart(portfolioData.data.Distribution)
-        setEstimate(portfolioData.data.EstValue)
+        setLastMessage(message)
+        setTicker(exchanges.data)
+        setBalance(exchanges.data.BottomTable)
+        setChart(exchanges.data.Distribution)
+        setEstimate(exchanges.data.EstValue)
+        setElapsed(elapsedTime)
         setLoading(false)
       } catch (error) {
         console.log(error)
@@ -79,15 +93,14 @@ const PortfolioCTXProvider = ({ children }) => {
       activeExchange.exchange,
       isPortfolioPage,
       notify,
-      selectedExchanges,
     ]
   )
 
   const fetchData = useCallback(async () => {
-    if (user && activeExchange.exchange && selectedExchanges.length) {
+    if (user && activeExchange.exchange) {
       refreshData()
     }
-  }, [activeExchange.exchange, refreshData, user, selectedExchanges])
+  }, [activeExchange.exchange, refreshData, user])
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user != null) {
@@ -99,11 +112,9 @@ const PortfolioCTXProvider = ({ children }) => {
 
   useEffect(() => {
     if (!isOnboardingSkipped) {
-      if (!selectedExchanges.length && activeExchange?.label)
-        setSelectedExchanges([activeExchange])
       fetchData()
     }
-  }, [user, activeExchange, fetchData, isOnboardingSkipped, selectedExchanges])
+  }, [user, activeExchange, fetchData, isOnboardingSkipped])
 
   return (
     <PortfolioContext.Provider
@@ -114,11 +125,9 @@ const PortfolioCTXProvider = ({ children }) => {
         estimate,
         tickers,
         refreshData,
-        selectedExchanges,
         error,
         marketData,
         setMarketData,
-        setSelectedExchanges,
         elapsed,
         lastMessage,
       }}
