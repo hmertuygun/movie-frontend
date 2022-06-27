@@ -23,12 +23,8 @@ const EstimateValue = () => {
 
   const fetchLatestPrice = useCallback(() => {
     let tempBalance = []
-    const BTC = estimate[0].value
     estimate.forEach((item) => {
-      const fData = lastMessage[`BTC/${item.symbol.toUpperCase()}`]
-      const data = fData
-        ? { symbol: item.symbol, value: (fData.last * BTC).toFixed(2) }
-        : { symbol: item?.symbol, value: item?.value }
+      const data = { symbol: item?.symbol, value: item?.value }
       tempBalance.push(data)
     })
     setEstData(() => [...tempBalance])
@@ -54,7 +50,7 @@ const EstimateValue = () => {
   }
 
   useEffect(() => {
-    if (!estimate?.length || !lastMessage) return
+    if (!estimate?.length) return
     fetchLatestPrice()
   }, [estimate, lastMessage, currentCurrency])
 
@@ -89,7 +85,7 @@ const EstimateValue = () => {
                 </div>
                 <div className="pl-2">
                   <span className="text-muted text-sm font-weight-bold">
-                    {BTC.value} {BTC.symbol}
+                    {BTC.value.toFixed(7)} {BTC.symbol}
                   </span>
                 </div>
               </div>
