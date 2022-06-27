@@ -89,7 +89,11 @@ const MarketContainer = () => {
                     <option value={userData.email}>Me</option>
                     {traders.map((element) => {
                       return (
-                        <option key={element.id} value={element.id}>
+                        <option
+                          key={element.id}
+                          value={element.id}
+                          disabled={!element.live}
+                        >
                           {element.name}
                         </option>
                       )
