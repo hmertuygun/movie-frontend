@@ -30,7 +30,7 @@ const WarningAlert = () => {
 
   return (
     <>
-      {currentExchange?.error ? (
+      {isLoggedIn && currentExchange?.error ? (
         <div className="alert alert-danger custom-alert px-4" role="alert">
           <AlertTriangle size={30} strokeWidth={3} />
           There is an error with your API key. It can be either expired or
