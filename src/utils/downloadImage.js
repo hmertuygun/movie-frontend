@@ -1,33 +1,22 @@
-import html2canvas from 'html2canvas'
-
 const exportAsImage = async (element, imageFileName) => {
-  const html = document.getElementsByTagName('html')[0]
-  const body = document.getElementsByTagName('body')[0]
-  let htmlWidth = html.clientWidth
-  let bodyWidth = body.clientWidth
-
-  const newWidth = element.scrollWidth - element.clientWidth
-
-  if (newWidth > element.clientWidth) {
-    htmlWidth += newWidth
-    bodyWidth += newWidth
-  }
-
-  html.style.width = htmlWidth + 'px'
-  body.style.width = bodyWidth + 'px'
-
-  const canvas = await html2canvas(element)
+  const canvas = element
+  const theme = localStorage.getItem('theme') === 'DARK'
+  const logo = !theme ? 'colorlogo' : 'whitelogo'
   const dd = canvas.getContext('2d')
-  dd.drawImage(document.getElementsByClassName('colorlogo')[0], 70, 50, 168, 28)
-  dd.font = '20px Arial'
-  const addedText = imageFileName.split('_')[1]
-  dd.strokeText(addedText, 250, 77, 300)
+  dd.fillStyle = !theme ? '#ffffff' : '#1f222c'
+  dd.fillRect(0, canvas.height - 60, 250, 100)
+  dd.drawImage(
+    document.getElementsByClassName(logo)[0],
+    30,
+    canvas.height - 60,
+    198,
+    38
+  )
+
   dd.save()
 
   const image = dd.canvas.toDataURL('image/png', 1.0)
   downloadImage(image, imageFileName)
-  html.style.width = null
-  body.style.width = null
 }
 
 const downloadImage = (blob, fileName) => {

@@ -11,6 +11,8 @@ import {
   createBackup,
 } from 'services/api'
 import lzutf8 from 'lzutf8'
+import exportAsImage from 'utils/downloadImage'
+import dayjs from 'dayjs'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -42,7 +44,6 @@ export default class TradingViewChart extends Component {
     setActiveDrawing,
     setActiveDrawingId,
     isMobile,
-    getScreenShot,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -57,7 +58,6 @@ export default class TradingViewChart extends Component {
       autosize: true,
       auto_save_delay: 2,
       timezone: timeZone,
-      chartsStorageUrl: 'https://saveload.tradingview.com',
       favorites: {
         intervals: intervals,
       },
@@ -67,6 +67,8 @@ export default class TradingViewChart extends Component {
         'header_undo_redo',
         'header_screenshot',
         'header_fullscreen_button',
+        'compare_symbol',
+        'header_compare',
       ],
       symbol,
       theme,
@@ -491,9 +493,15 @@ export default class TradingViewChart extends Component {
     }
   }
 
-  headerButtonOnClick = (event) => {
+  headerButtonOnClick = async (event) => {
     if (event === 'screenshot') {
-      this.props.getScreenShot(this.chartId)
+      const canvas = await this.tradingViewWidget.takeClientScreenshot()
+      exportAsImage(
+        canvas,
+        `CoinPanel_${this.props.symbol}_${dayjs().format(
+          'YYYY-MM-DD_HH-mm-ss'
+        )}`
+      )
     } else if (event === 'fullscreen') {
       this.tradingViewWidget.startFullscreen()
     }

@@ -69,18 +69,6 @@ const TradeChart = () => {
     if (!isAnalyst) setActiveAnalysts()
   }, [isAnalyst])
 
-  const getScreenShot = async (id) => {
-    const parentNode = document.getElementById(id)
-    const iframe = parentNode.getElementsByTagName('iframe')
-    const screen = iframe[0]?.contentDocument?.body
-    exportAsImage(
-      screen.getElementsByTagName('div')[2],
-      `CoinPanel_${selectedSymbol.value.replace('/', '-')}_${dayjs().format(
-        'YYYY-MM-DD_HH-mm-ss'
-      )}`
-    )
-  }
-
   useEffect(() => {
     if (selectedSymbol.value) {
       storage.set(
@@ -276,9 +264,6 @@ const TradeChart = () => {
             }}
             tradersBtnClicked={(e) => {
               onTradersBtnClick(e)
-            }}
-            getScreenShot={(e) => {
-              getScreenShot(e)
             }}
             selectEmojiPopoverOpen={selectEmojiPopoverOpen}
           />
