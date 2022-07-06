@@ -115,14 +115,14 @@ const LimitForm = () => {
       .positive()
       .min(
         minQty,
-        `Amount needs to meet min-price: ${addPrecisionToNumber(
+        `Amount needs to meet min-quantity: ${addPrecisionToNumber(
           minQty,
           quantityPrecision
         )}`
       )
       .max(
         maxQty,
-        `Amount needs to meet max-price: ${addPrecisionToNumber(
+        `Amount needs to meet max-quantity: ${addPrecisionToNumber(
           maxQty,
           quantityPrecision
         )}`

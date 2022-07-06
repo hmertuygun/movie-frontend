@@ -113,7 +113,7 @@ const SellFullLimitForm = () => {
       .positive()
       .min(
         minQty,
-        `Amount needs to meet min-price: ${addPrecisionToNumber(
+        `Amount needs to meet min-quantity: ${addPrecisionToNumber(
           minQty,
           quantityPrecision
         )}`
