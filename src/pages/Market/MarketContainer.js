@@ -13,6 +13,8 @@ import {
   updateSingleValue,
 } from 'services/api'
 import './MarketContainer.css'
+import { trackEvent } from 'services/tracking'
+import { analytics } from 'services/firebase'
 
 const MarketContainer = () => {
   const {
@@ -54,6 +56,8 @@ const MarketContainer = () => {
     } else {
       const trader = traders.find((el) => el.id === e.target.value)
       if (!trader) return
+      trackEvent('user', `${e.target.value} CM`, `${e.target.value} CM`)
+      analytics.logEvent(`${e.target.value} CM`)
       await setActiveAnalysts(trader.id)
       await updateSingleValue(userData.email, 'chart_drawings', {
         activeTrader: trader.id,
