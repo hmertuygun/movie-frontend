@@ -56,8 +56,8 @@ const MarketContainer = () => {
     } else {
       const trader = traders.find((el) => el.id === e.target.value)
       if (!trader) return
-      trackEvent('user', `${e.target.value} CM`, `${e.target.value} CM`)
-      analytics.logEvent(`${e.target.value} CM`)
+      trackEvent('user', `${e.target.value}_cm`, `${e.target.value}_cm`)
+      analytics.logEvent(`${e.target.value}_cm`)
       await setActiveAnalysts(trader.id)
       await updateSingleValue(userData.email, 'chart_drawings', {
         activeTrader: trader.id,
