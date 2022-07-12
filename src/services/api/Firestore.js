@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import {
   getCollection,
   getCollectionDoc,
@@ -70,6 +71,7 @@ const setWatchlistData = async (email, initState) => {
 const setChartDrawings = async (email, drawings) => {
   await updateCollection('chart_drawings', email, {
     drawings,
+    lastUpdated: dayjs().toISOString(),
   })
 }
 

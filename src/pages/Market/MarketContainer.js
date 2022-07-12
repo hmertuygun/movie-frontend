@@ -13,6 +13,7 @@ import {
   updateSingleValue,
 } from 'services/api'
 import './MarketContainer.css'
+import AnalystSelector from './components/AnalystSelector'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 
@@ -46,24 +47,24 @@ const MarketContainer = () => {
     setActiveValue(templateDrawingsOpen ? activeTrader.id : userData.email)
   }, [templateDrawingsOpen, userData, activeTrader])
 
-  const setActiveTraderList = async (e) => {
-    if (e.target.value === userData.email) {
+  const setActiveTraderList = async (id) => {
+    if (id === userData.email) {
       setTemplateDrawingsOpen(() => {
         storage.set('chartMirroring', false)
         return false
       })
-      setActiveValue(e.target.value)
+      setActiveValue(id)
     } else {
-      const trader = traders.find((el) => el.id === e.target.value)
+      const trader = traders.find((el) => el.id === id)
       if (!trader) return
-      trackEvent('user', `${e.target.value}_cm`, `${e.target.value}_cm`)
-      analytics.logEvent(`${e.target.value}_cm`)
+      trackEvent('user', `${id}_cm`, `${id}_cm`)
+      analytics.logEvent(`${id}_cm`)
       await setActiveAnalysts(trader.id)
       await updateSingleValue(userData.email, 'chart_drawings', {
         activeTrader: trader.id,
       })
 
-      setActiveValue(e.target.value)
+      setActiveValue(id)
       if (!templateDrawingsOpen) {
         setTemplateDrawingsOpen((templateDrawingsOpen) => {
           storage.set('chartMirroring', !templateDrawingsOpen)
@@ -84,25 +85,12 @@ const MarketContainer = () => {
                   Chart Mirroring - Select Analyst
                 </label>
                 <div>
-                  <select
-                    disabled={isAnalyst}
-                    value={activeValue}
-                    onChange={(e) => setActiveTraderList(e)}
-                    className="custom-select custom-select-sm"
-                  >
-                    <option value={userData.email}>Me</option>
-                    {traders.map((element) => {
-                      return (
-                        <option
-                          key={element.id}
-                          value={element.id}
-                          disabled={!element.live}
-                        >
-                          {element.name}
-                        </option>
-                      )
-                    })}
-                  </select>
+                  <AnalystSelector
+                    traders={traders}
+                    handleChange={setActiveTraderList}
+                    activeValue={activeValue}
+                    userData={userData}
+                  />
                 </div>
               </div>
             </div>
