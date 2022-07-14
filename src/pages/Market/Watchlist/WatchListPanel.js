@@ -117,10 +117,18 @@ const WatchListPanel = () => {
             )
 
             if (activeList) {
-              setWatchSymbolsList(activeList?.['binance'] ?? [])
+              const items = Object.values(activeList).filter(
+                (element) => typeof element === 'object'
+              )
+              const mergedItems = [].concat
+                .apply([], items)
+                .filter(
+                  (v, i, a) => a.findIndex((v2) => v2.value === v.value) === i
+                )
+              setWatchSymbolsList(mergedItems ?? [])
               setActiveWatchList(activeList)
-              if (activeList?.['binance'] && activeList?.['binance'][0]) {
-                setSymbol(activeList?.['binance'][0])
+              if (mergedItems && mergedItems[0]) {
+                setSymbol(mergedItems[0])
               }
             }
           }
