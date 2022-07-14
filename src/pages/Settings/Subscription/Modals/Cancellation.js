@@ -1,8 +1,15 @@
 import React from 'react'
 import { UserCheck } from 'react-feather'
 import { Modal } from 'components'
+import ReasoningModal from 'pages/Settings/Security/ReasoningModal'
 
-const SubscriptionCancel = ({ handleSuccess, isLoading, handleCancel }) => {
+const SubscriptionCancel = ({
+  handleSuccess,
+  isLoading,
+  handleCancel,
+  handleChange,
+  showInfo,
+}) => {
   return (
     <Modal>
       <div className="modal-dialog modal-dialog-centered">
@@ -15,12 +22,15 @@ const SubscriptionCancel = ({ handleSuccess, isLoading, handleCancel }) => {
               <h4 className="h5 mt-5 mb-3">
                 Do you want to cancel your current subscription?
               </h4>
-              <p>
-                Your subscription will be cancelled immediately. You will be
-                able to use CoinPanel until expiration date. Don't worry, you
-                can subscribe again later.
-              </p>
+              {showInfo && (
+                <p>
+                  Your subscription will be cancelled immediately. You will be
+                  able to use CoinPanel until expiration date. Don't worry, you
+                  can subscribe again later.
+                </p>
+              )}
             </div>
+            <ReasoningModal onChange={(data) => handleChange(data)} />
           </div>
           <div className="modal-footer">
             <button

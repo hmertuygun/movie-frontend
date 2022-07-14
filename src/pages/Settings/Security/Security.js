@@ -6,10 +6,11 @@ import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
 import { UserContext } from 'contexts/UserContext'
 import { Modal, Button } from 'components'
 import { UserX, AlertTriangle } from 'react-feather'
-import { deleteUserAccount } from 'services/api'
+import { deleteUserAccount, sendActionReason } from 'services/api'
 import { useHistory, useLocation } from 'react-router-dom'
 import { ModalsConf } from 'constants/ModalsConf'
 import { T2FA_TYPES } from 'constants/Security'
+import ReasoningModal from './ReasoningModal'
 
 const Security = () => {
   const { get2FADetails, state } = useContext(UserContext)
@@ -24,9 +25,11 @@ const Security = () => {
   const [add2FAFlowPage, setAdd2FAFlowPage] = useState(0)
   const [accountDeleteLoading, setAccountDeleteLoading] = useState(false)
   const [showAccountDeleteModal, setShowAccountDeleteModal] = useState(false)
-  const nextDataRef = useRef()
+  const [deletionReasons, setDeletionReasons] = useState([])
 
   const history = useHistory()
+  const nextDataRef = useRef()
+
   const { hash } = useLocation()
 
   const handleEntryRemove = () => {
@@ -61,6 +64,15 @@ const Security = () => {
   const handleDeleteAccount = async () => {
     setAccountDeleteLoading(true)
     try {
+      const deleteR = {
+        reasons: deletionReasons,
+        feedback: '',
+        type: 'delete',
+      }
+      if (deletionReasons.length) {
+        await sendActionReason(deleteR)
+      }
+
       await deleteUserAccount()
       setAccountDeleteLoading(false)
       history.push('/logout')
@@ -195,11 +207,11 @@ const Security = () => {
                     <div className="modal-dialog modal-dialog-centered">
                       <div className="modal-content">
                         <div className="modal-body">
-                          <div className="pt-5 text-center">
+                          <div className="text-center">
                             <div className="icon text-danger custom-icon-container">
                               <UserX size={16} strokeWidth={3} />
                             </div>
-                            <h4 className="h5 mt-5 mb-3">
+                            <h4 className="h5 mt-1 mb-1">
                               Extremely important
                             </h4>
                             <p>
@@ -207,6 +219,14 @@ const Security = () => {
                               data from our database. This action can not be
                               undone. Are you sure you want to do this?
                             </p>
+                          </div>
+                          <div>
+                            <h4 className="h5 mb-3">
+                              Please tell us why you are deleting your account?
+                            </h4>
+                            <ReasoningModal
+                              onChange={(data) => setDeletionReasons(data)}
+                            />
                           </div>
                         </div>
                         <div className="modal-footer">

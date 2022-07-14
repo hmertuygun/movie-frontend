@@ -1,27 +1,23 @@
 import React, { useMemo, useState } from 'react'
-import { UserCheck, UserX } from 'react-feather'
+import { UserCheck } from 'react-feather'
 import dayjs from 'dayjs'
 import { useNotifications } from 'reapop'
 import { subscriptionNames } from 'constants/subscriptionNames'
 import './SubscriptionActiveCard.css'
-import { Modal } from 'components'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
-import Checkout from 'pages/Auth/Checkout'
-import { firebase } from 'services/firebase'
 import {
   cancelSubscription,
   changeActivePlan,
   createSubscripton,
+  sendActionReason,
   updatePaymentMethod,
 } from 'services/api'
-import CoinbaseCommerceButton from 'react-coinbase-commerce'
 import {
   CryptoStatusModal,
   SubscriptionChange,
   SubscriptionCancel,
   SubscriptionUpdate,
 } from './Modals'
+import { DELETION_REASONS } from 'constants/deletionReasons'
 
 const SubscriptionActiveCard = ({
   subscriptionData,
@@ -40,8 +36,9 @@ const SubscriptionActiveCard = ({
   const [showCryptoModal, setShowCryptoModal] = useState(false)
   const [cryptoStatus, setCryptoStatus] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [deletionReasons, setDeletionReasons] = useState([])
+
   const { notify } = useNotifications()
-  const db = firebase.firestore()
 
   const [subscription, priceData, due] = useMemo(() => {
     if (subscriptionData)
@@ -143,11 +140,19 @@ const SubscriptionActiveCard = ({
   const cancelActiveSubscription = async () => {
     try {
       setIsLoading(true)
+      const cancelReason = {
+        reasons: deletionReasons,
+        feedback: '',
+        type: 'cancel',
+      }
+      if (deletionReasons.length) {
+        await sendActionReason(cancelReason)
+      }
       const cancelResponse = await cancelSubscription(subCreds)
       if (cancelResponse) {
         setTimeout(() => {
           window.location.reload()
-        }, 5000)
+        }, 8000)
       }
     } catch (error) {
       console.log(error)
@@ -369,6 +374,8 @@ const SubscriptionActiveCard = ({
           isLoading={isLoading}
           handleSuccess={cancelActiveSubscription}
           handleCancel={() => setShowCancelModal(false)}
+          handleChange={(data) => setDeletionReasons(data)}
+          showInfo={DELETION_REASONS.length !== deletionReasons.length}
         />
       )}
       {showUpdateModal && (

@@ -12,4 +12,9 @@ const deleteUserAccount = async () => {
   return await httpClient(apiUrl, 'DELETE')
 }
 
-export { validateUser, deleteUserAccount }
+const sendActionReason = async (data) => {
+  const apiUrl = `${process.env.REACT_APP_API_V2}deletion_reasons`
+  return await httpClient(apiUrl, 'POST', data)
+}
+
+export { validateUser, deleteUserAccount, sendActionReason }

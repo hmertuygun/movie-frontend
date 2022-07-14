@@ -54,7 +54,7 @@ import {
   storeNotificationToken,
 } from './Notifications'
 import { connectTelegramLoadKey, disconnectTelegram } from './Telegram'
-import { validateUser, deleteUserAccount } from './Security'
+import { validateUser, deleteUserAccount, sendActionReason } from './Security'
 import { getBalance, getLastPrice, getPortfolio } from './Portfolio'
 import {
   updateLastSelectedAPIKey,
@@ -152,4 +152,5 @@ export {
   sendLoginInfo,
   verifyCouponCode,
   getDoubleCollection,
+  sendActionReason,
 }
