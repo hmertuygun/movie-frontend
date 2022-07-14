@@ -11,6 +11,7 @@ import {
   createBackup,
 } from 'services/api'
 import lzutf8 from 'lzutf8'
+import { consoleLogger } from 'utils/logger'
 import exportAsImage from 'utils/downloadImage'
 import dayjs from 'dayjs'
 
@@ -114,12 +115,12 @@ export default class TradingViewChart extends Component {
         const { setIsChartReady } = this.context
         setIsChartReady(true)
         this.setState({ isChartReady: true })
-        console.log('Chart loaded')
+        consoleLogger('Chart loaded')
         const theme = storage.get('theme')
         this.tradingViewWidget.changeTheme(theme)
       })
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -136,7 +137,7 @@ export default class TradingViewChart extends Component {
           storage.set(itemName, interval)
         })
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -159,7 +160,7 @@ export default class TradingViewChart extends Component {
         }
       })
     } catch (e) {
-      console.log(`Error while subscribing to chart events!`)
+      consoleLogger(`Error while subscribing to chart events!`)
     }
   }
 
@@ -197,7 +198,7 @@ export default class TradingViewChart extends Component {
           ...drawing.state,
         })
       } catch (error) {
-        //console.log(error)
+        //consoleLogger(error)
       }
     }
   }
@@ -236,7 +237,7 @@ export default class TradingViewChart extends Component {
           await updateTemplateDrawings(this.state.email, value)
         }
       } catch (e) {
-        console.log(e)
+        consoleLogger(e)
         notify({
           status: 'error',
           title: 'Error',
@@ -416,7 +417,7 @@ export default class TradingViewChart extends Component {
       }
       this.state.processingOrder = false
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -569,7 +570,7 @@ export default class TradingViewChart extends Component {
             }
           })
         } catch (error) {
-          console.log('Init Drawings')
+          consoleLogger('Init Drawings')
         }
       } else if (this.props.templateDrawingsOpen) {
         let pData = JSON.parse(this.props.activeTrader.drawings)
@@ -584,7 +585,7 @@ export default class TradingViewChart extends Component {
         })
       }
     } catch (e) {
-      console.error(e)
+      consoleLogger(e)
     } finally {
       this.setLastSelectedInterval()
       this.onIntervalSelect()
@@ -592,19 +593,19 @@ export default class TradingViewChart extends Component {
         this.chartEvent('onAutoSaveNeeded')
         this.chartEvent('drawing_event')
       }, 5000)
-      console.log('Drawings and Intervals loaded')
+      consoleLogger('Drawings and Intervals loaded')
     }
   }
 
   chartShortCutSave = () => {
     this.tradingViewWidget.onShortcut('ctrl+s', () => {
-      console.log('shortcut saved')
+      consoleLogger('shortcut saved')
     })
   }
 
   changeIframeCSS = () => {
     const getIFrame = document.querySelector("iframe[id*='tradingview']")
-    console.log(getIFrame)
+    consoleLogger(getIFrame)
     var cssLink = document.createElement('link')
     cssLink.href = 'chart.css'
     cssLink.rel = 'stylesheet'
@@ -634,7 +635,7 @@ export default class TradingViewChart extends Component {
             this.drawOpenOrdersChartLines(this.state.openOrderLines)
           })
         } catch (e) {
-          console.error(e)
+          consoleLogger(e)
         }
       }
     }
@@ -677,7 +678,7 @@ export default class TradingViewChart extends Component {
   }
 
   componentDidMount() {
-    console.log('Chart starting to load')
+    consoleLogger('Chart starting to load')
     this.tradingViewWidget = window.tvWidget = new window.TradingView.widget(
       this.widgetOptions
     )
@@ -744,7 +745,7 @@ export default class TradingViewChart extends Component {
           })
         }
       } catch (e) {
-        console.error(e)
+        consoleLogger(e)
       } finally {
         this.setState({
           templateDrawingsOpen: false,
@@ -840,17 +841,17 @@ export default class TradingViewChart extends Component {
   }
 
   componentWillUnmount() {
-    console.info(`Chart component unmounted`)
+    consoleLogger(`Chart component unmounted`)
     if (this.state.intervalId) {
       clearInterval(this.state.intervalId)
     }
   }
 
   componentDidCatch() {
-    console.info(`Error while rendering chart`)
-    console.log(this.tradingViewWidget)
-    console.log(this.chartObject)
-    console.log(this.state.isChartReady)
+    consoleLogger(`Error while rendering chart`)
+    consoleLogger(this.tradingViewWidget)
+    consoleLogger(this.chartObject)
+    consoleLogger(this.state.isChartReady)
   }
 
   render() {

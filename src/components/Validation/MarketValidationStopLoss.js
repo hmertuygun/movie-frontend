@@ -1,3 +1,5 @@
+import { consoleLogger } from 'utils/logger'
+
 export default function validateFields(values) {
   let errors = {}
 
@@ -5,7 +7,7 @@ export default function validateFields(values) {
     values[el] = parseFloat(values[el])
   })
 
-  console.log('validation ', values)
+  consoleLogger('validation ', values)
 
   if (!values.triggerPrice) {
     errors.triggerPrice = 'Trigger Price is required'

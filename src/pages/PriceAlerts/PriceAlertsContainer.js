@@ -17,6 +17,7 @@ import {
 } from 'services/api'
 import precisionRound from 'utils/precisionRound'
 import capitalizeFirstLetter from 'utils/capitalizeFirstLetter'
+import { consoleLogger } from 'utils/logger'
 
 const parseSymbol = (symbol) => {
   if (!symbol) return ''
@@ -123,7 +124,7 @@ const AddOrEditPriceAlert = ({
             : roundOff(resp?.data?.last_price),
       }))
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     } finally {
       setState((prevVal) => ({ ...prevVal, fetchingSymbolPrice: false }))
     }
@@ -156,7 +157,7 @@ const AddOrEditPriceAlert = ({
       })
       // setSymbolDD(Object.values(symbols).filter(item => item.value.includes("BINANCE")))
     } else {
-      console.error('Invalid Option')
+      consoleLogger('Invalid Option')
     }
   }, [condition, exchange, status, symbol, target_price, type])
 
@@ -238,7 +239,7 @@ const AddOrEditPriceAlert = ({
         })
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
       notify({
         id: 'price-alert-failed',
         status: 'error',
@@ -286,7 +287,7 @@ const AddOrEditPriceAlert = ({
         })
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
       notify({
         id: 'price-alert-update-failed',
         status: 'error',
@@ -697,7 +698,7 @@ const PriceAlertsContainer = () => {
       setPriceAlertData(active)
       setCompletedAlerts(completed)
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     } finally {
       setFetching(false)
     }
@@ -794,7 +795,7 @@ const PriceAlertsContainer = () => {
         })
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
       notify({
         id: 'price-alert-reactivate-failed',
         status: 'error',

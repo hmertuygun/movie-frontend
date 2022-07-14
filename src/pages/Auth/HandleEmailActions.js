@@ -2,6 +2,7 @@ import React from 'react'
 import { useLocation } from 'react-router-dom'
 import QuickFinal from './QuickFinal'
 import NewPassword from './NewPassword'
+import { consoleLogger } from 'utils/logger'
 
 // https://reactrouter.com/web/example/query-parameters
 function useQuery() {
@@ -22,7 +23,7 @@ const HandleEmailActions = () => {
 
     case 'recoverEmail':
       // Display email recovery handler and UI.
-      console.error('We do not have that yet.')
+      consoleLogger('We do not have that yet.')
       // handleRecoverEmail(auth, actionCode, lang)
       break
     case 'verifyEmail':

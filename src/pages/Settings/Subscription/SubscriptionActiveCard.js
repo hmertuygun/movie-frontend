@@ -17,6 +17,7 @@ import {
   SubscriptionCancel,
   SubscriptionUpdate,
 } from './Modals'
+import { consoleLogger } from 'utils/logger'
 import { DELETION_REASONS } from 'constants/deletionReasons'
 
 const SubscriptionActiveCard = ({
@@ -117,7 +118,7 @@ const SubscriptionActiveCard = ({
         window.location.reload()
       }, 5000)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -155,7 +156,7 @@ const SubscriptionActiveCard = ({
         }, 8000)
       }
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -195,7 +196,7 @@ const SubscriptionActiveCard = ({
         }, 5000)
       }
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',

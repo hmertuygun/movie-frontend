@@ -3,6 +3,7 @@ import { ccxtClass } from 'constants/ccxtConfigs'
 import { getExchangeKlines } from 'services/api'
 import { CONFIGS } from './Configs'
 import { getExchangeFunction } from 'utils/exchangeSelection'
+import { consoleLogger } from 'utils/logger'
 
 const getKlines = async (exchange, data) => {
   let { symbol } = data
@@ -27,7 +28,7 @@ const fetchOHLCV = async (exchange, data) => {
         data.startTime
       )
   } catch (error) {
-    console.log('bad symbol', error)
+    consoleLogger('bad symbol', error)
   }
 }
 

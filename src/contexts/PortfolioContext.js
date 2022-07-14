@@ -13,6 +13,7 @@ import { ccxtClass } from 'constants/ccxtConfigs'
 import { useNotifications } from 'reapop'
 import { useLocation } from 'react-router-dom'
 import { getPortfolio } from 'services/api'
+import { consoleLogger } from 'utils/logger'
 
 export const PortfolioContext = createContext()
 
@@ -57,7 +58,7 @@ const PortfolioCTXProvider = ({ children }) => {
         setEstimate(portfolioData.data.EstValue)
         setLoading(false)
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
         if (isPortfolioPage) {
           notify({
             id: 'portfolio-fetch-error',

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { consoleLogger } from 'utils/logger'
 
 export default class ChunkLoadErrorBoundary extends Component {
   constructor(props) {
@@ -12,7 +13,7 @@ export default class ChunkLoadErrorBoundary extends Component {
   }
   componentDidCatch(error, errorInfo) {
     // You can also log the error to an error reporting service
-    console.error('Error Boundary Caught:', error, errorInfo)
+    consoleLogger('Error Boundary Caught:', error, errorInfo)
   }
   render() {
     const { error, hasError } = this.state

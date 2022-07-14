@@ -1,4 +1,5 @@
 import { getSocketEndpoint, tickerSocketSubscribe } from 'services/exchanges'
+import { consoleLogger } from 'utils/logger'
 
 const watchPanelSocket = async ({ exchange, symbolList }) => {
   const url = await getSocketEndpoint(exchange)
@@ -12,11 +13,11 @@ const watchPanelSocket = async ({ exchange, symbolList }) => {
   }
 
   ws.close = (e) => {
-    console.warn(`${exchange}  WS Closed`, e)
+    consoleLogger(`${exchange}  WS Closed`, e)
   }
 
   ws.onerror = (err) => {
-    console.warn(`${exchange}  Error`, err)
+    consoleLogger(`${exchange}  Error`, err)
   }
 
   const id = setInterval(() => {

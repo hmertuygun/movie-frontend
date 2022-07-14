@@ -9,6 +9,7 @@ import { useNotifications } from 'reapop'
 import { firebase } from 'services/firebase'
 import { UserContext } from 'contexts/UserContext'
 import { getAnalytics } from 'services/api'
+import { consoleLogger } from 'utils/logger'
 
 export const AnalyticsContext = createContext()
 
@@ -39,7 +40,7 @@ const AnalyticsProvider = ({ children }) => {
         setPairPerformance(data.pair_performance)
         setAssetPerformance(data.asset_performance)
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
         // notify({
         //   id: 'analytics-fetch',
         //   status: 'error',
@@ -50,7 +51,7 @@ const AnalyticsProvider = ({ children }) => {
 
       setLoading(false)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       setLoading(false)
       setErrorLoading(true)
     }

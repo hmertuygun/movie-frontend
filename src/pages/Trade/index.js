@@ -11,6 +11,7 @@ import {
 } from 'utils/tourSteps'
 import { firebase } from 'services/firebase'
 import { useIdleTimer } from 'react-idle-timer'
+import { consoleLogger } from 'utils/logger'
 
 const Trade = () => {
   const {
@@ -105,7 +106,7 @@ const Trade = () => {
 
   useEffect(() => {
     if (stepIndex === 4) {
-      console.log('Tour Step 5')
+      consoleLogger('Tour Step 5')
       setIsTourStep5(!isTourStep5)
       setShowMarketItems(!showMarketItems)
     }

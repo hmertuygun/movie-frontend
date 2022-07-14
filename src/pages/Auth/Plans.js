@@ -24,6 +24,7 @@ import 'react-coinbase-commerce/dist/coinbase-commerce-button.css'
 import { Modal } from 'components'
 import { config } from 'constants/config'
 import { cloneDeep } from 'lodash'
+import { consoleLogger } from 'utils/logger'
 
 const Plans = ({ canShowTrial }) => {
   const { products, userData } = useContext(UserContext)
@@ -158,7 +159,7 @@ const Plans = ({ canShowTrial }) => {
       })
       setCouponApplied(true)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -187,7 +188,7 @@ const Plans = ({ canShowTrial }) => {
       }
       window.location.reload()
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',

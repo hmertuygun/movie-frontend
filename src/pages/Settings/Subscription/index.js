@@ -18,6 +18,7 @@ import { HelpCircle } from 'react-feather'
 import Plans from 'pages/Auth/Plans'
 import './index.css'
 import { EndTrialModal, CountrySelectionModal } from './Modals'
+import { consoleLogger } from 'utils/logger'
 
 const Subscription = () => {
   const {
@@ -106,7 +107,7 @@ const Subscription = () => {
 
       setIsCountryAvailable(true)
     } catch (err) {
-      console.log(err)
+      consoleLogger(err)
     } finally {
       setCountrySelectionLoading(false)
     }

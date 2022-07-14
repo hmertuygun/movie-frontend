@@ -19,6 +19,7 @@ import {
 } from 'utils/tradeForm'
 import scientificToDecimal from 'utils/toDecimal'
 import styles from './ExitForm.module.css'
+import { consoleLogger } from 'utils/logger'
 
 const useStyles = makeStyles({
   root: {
@@ -420,7 +421,7 @@ const SellFullExitStoplossStopLimit = () => {
         return false
 
       default: {
-        console.error('WARNING')
+        consoleLogger('WARNING')
       }
     }
   }

@@ -18,6 +18,7 @@ import DefaultRegisterTemplate from './components/templates/default'
 import ChartRegisterTemplate from './components/templates/chartMirroring'
 import BybitRegisterTemplate from './components/templates/bybitTemplate'
 import { fbPixelTracking } from 'services/tracking'
+import { consoleLogger } from 'utils/logger'
 
 const QuickRegister = () => {
   const { register, isSubOpen } = useContext(UserContext)
@@ -134,19 +135,19 @@ const QuickRegister = () => {
                   await updateSingleValue(email, 'referrals', referals)
                 }
               } catch (error) {
-                console.log('==>', error)
+                consoleLogger('==>', error)
               }
             }
 
             setRedirect('/register/confirm')
           })
       } catch (error) {
-        console.error(error)
+        consoleLogger(error)
         setIsLoading(false)
         setError(error)
       }
     } catch (error) {
-      console.error(error.message)
+      consoleLogger(error.message)
       setIsLoading(false)
       setError(error)
     }

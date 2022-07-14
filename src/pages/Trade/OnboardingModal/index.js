@@ -23,6 +23,7 @@ import { supportLinks } from 'constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from 'constants/Trade'
 import { sortExchangesData } from 'utils/apiKeys'
 import { session } from 'services/storages'
+import { consoleLogger } from 'utils/logger'
 
 const OnboardingModal = () => {
   const { refreshExchanges } = useSymbolContext()
@@ -170,7 +171,7 @@ const OnboardingModal = () => {
         trackEvent('user', 'api_keys_added', 'user')
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     } finally {
       setIsApiProc(false)
     }
@@ -236,7 +237,7 @@ const OnboardingModal = () => {
           }
         })
       } catch (e) {
-        console.log(e)
+        consoleLogger(e)
       } finally {
         setLoadApiKeys(true)
       }

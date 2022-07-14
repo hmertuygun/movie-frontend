@@ -3,6 +3,7 @@ import { EXCHANGE_OPTIONS } from 'constants/ExchangesList'
 import { editKline, editSymbol, getKlines } from 'services/exchanges'
 import { klineSocket } from 'services/websocket'
 import { getSelectedExchange } from 'utils/exchangeSelection'
+import { consoleLogger } from 'utils/logger'
 
 export default class dataFeed {
   constructor({ exchange, symbolList, marketSymbols, debug }) {
@@ -58,7 +59,7 @@ export default class dataFeed {
         })
       }, 100)
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -75,7 +76,7 @@ export default class dataFeed {
     let kLinesLimit = 500
     const finishKlines = () => {
       if (this.debug) {
-        console.log('📊:', totalKlines.length)
+        consoleLogger('📊:', totalKlines.length)
       }
       storage.set('lastSocketData', new Date().getTime())
       if (
@@ -120,7 +121,7 @@ export default class dataFeed {
           finishKlines()
         }
       } catch (e) {
-        console.error(e)
+        consoleLogger(e)
         onErrorCallback(`Error in 'getKlines' function`)
       }
     }

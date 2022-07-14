@@ -11,6 +11,7 @@ import {
   getFirestoreDocumentData,
 } from 'services/api'
 import dayjs from 'dayjs'
+import { consoleLogger } from 'utils/logger'
 
 const WarningAlert = () => {
   const history = useHistory()
@@ -79,7 +80,7 @@ const WarningAlert = () => {
         title: 'Error',
         message: "Couldn't dismiss notice. Please try again later!",
       })
-      console.error(e)
+      consoleLogger(e)
     }
   }
 

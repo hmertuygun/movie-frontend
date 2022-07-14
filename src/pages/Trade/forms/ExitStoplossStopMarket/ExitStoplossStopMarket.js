@@ -18,6 +18,7 @@ import {
   detectEntryPrice,
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
+import { consoleLogger } from 'utils/logger'
 
 import scientificToDecimal from 'utils/toDecimal'
 
@@ -377,7 +378,7 @@ const ExitStoplossStopMarket = () => {
         return false
 
       default: {
-        console.error('WARNING')
+        consoleLogger('WARNING')
       }
     }
   }

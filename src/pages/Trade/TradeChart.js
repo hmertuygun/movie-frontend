@@ -13,6 +13,7 @@ import { storage } from 'services/storages'
 import lzutf8 from 'lzutf8'
 import exportAsImage from 'utils/downloadImage'
 import dayjs from 'dayjs'
+import { consoleLogger } from 'utils/logger'
 
 const TradeChart = () => {
   const {
@@ -62,7 +63,7 @@ const TradeChart = () => {
       setTemplateDrawingsOpen(status)
     }
     setOnMarket(history.location.pathname === '/market')
-    console.log('TV Parent loaded', exchangeType, symbolType)
+    consoleLogger('TV Parent loaded', exchangeType, symbolType)
   }, [])
 
   useEffect(() => {
@@ -89,14 +90,14 @@ const TradeChart = () => {
           try {
             drawings = lzutf8.decompress(drawings, { inputEncoding: 'Base64' })
           } catch (error) {
-            console.log('old')
+            consoleLogger('old')
           } finally {
             setTemplateDrawings({ drawings })
           }
         }
       },
       (error) => {
-        console.log(error)
+        consoleLogger(error)
         setOnError(true)
       }
     )
@@ -115,7 +116,7 @@ const TradeChart = () => {
             const check = JSON.parse(
               snapshot.data()?.drawings?.[userData.email]
             )
-            console.log('old')
+            consoleLogger('old')
           } catch (error) {
             converted = lzutf8.decompress(
               snapshot.data()?.drawings?.[userData.email],
@@ -135,7 +136,7 @@ const TradeChart = () => {
         }
       },
       (error) => {
-        console.log(error)
+        consoleLogger(error)
         setOnError(true)
       }
     )
@@ -175,7 +176,7 @@ const TradeChart = () => {
   }
 
   const createBackup = (drawing) => {
-    console.log('execute backup function')
+    consoleLogger('execute backup function')
   }
 
   const onTradersBtnClick = () => {
@@ -253,7 +254,7 @@ const TradeChart = () => {
               setActiveDrawing(e)
             }}
             setActiveDrawingId={(e) => {
-              console.log(e)
+              consoleLogger(e)
               setActiveDrawingId(e)
             }}
             sniperBtnClicked={(e) => {

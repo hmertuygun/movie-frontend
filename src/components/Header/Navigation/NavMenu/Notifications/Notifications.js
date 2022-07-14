@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { consoleLogger } from 'utils/logger'
 
 const Notifications = () => {
   const [settingToggle, setSettingToggle] = useState(false)
@@ -17,7 +18,7 @@ const Notifications = () => {
             /* href="#modal-notifications" */
             to="#"
             onClick={() => {
-              console.log('Bells')
+              consoleLogger('Bells')
             }}
             role="button"
             data-toggle="modal"
@@ -44,7 +45,7 @@ const Notifications = () => {
             className="nav-link nav-link-icon px-2"
             to="#"
             onClick={() => {
-              console.log('Moon')
+              consoleLogger('Moon')
             }}
             role="button"
             id="btnSwitchMode"

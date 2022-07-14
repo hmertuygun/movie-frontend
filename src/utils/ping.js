@@ -1,3 +1,5 @@
+import { consoleLogger } from 'utils/logger'
+
 var Ping = function (opt) {
   this.opt = opt || {}
   this.favicon = this.opt.favicon || '/favicon.ico'
@@ -67,7 +69,7 @@ Ping.prototype.ping = function (source, callback) {
       // Notice [this] instead of [self], since .call() was used with context
       if (!this.wasSuccess) {
         if (self.logError) {
-          console.error('error loading resource')
+          consoleLogger('error loading resource')
         }
         if (promise) {
           resolve(pong)
@@ -94,3 +96,5 @@ if (typeof exports !== 'undefined') {
 } else {
   window.Ping = Ping
 }
+
+export default Ping

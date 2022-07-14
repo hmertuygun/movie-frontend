@@ -23,6 +23,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { sortExchangesData } from 'utils/apiKeys'
 import { Tooltip } from 'components'
 import { session } from 'services/storages'
+import { consoleLogger } from 'utils/logger'
 
 const Exchanges = () => {
   const { refreshExchanges, exchanges, setExchanges } = useSymbolContext()
@@ -58,12 +59,12 @@ const Exchanges = () => {
           }
         },
         (error) => {
-          console.log(error)
+          consoleLogger(error)
           setIsLoading(false)
         }
       )
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
       setIsLoading(false)
     }
   }
@@ -95,7 +96,7 @@ const Exchanges = () => {
       trackEvent('user', 'api_keys_added', 'user')
       refreshExchanges()
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -191,7 +192,7 @@ const Exchanges = () => {
       })
       refreshExchanges()
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -207,7 +208,7 @@ const Exchanges = () => {
     try {
       await addExchange(formData)
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
     }
   }
 
@@ -215,7 +216,7 @@ const Exchanges = () => {
     try {
       await updateExchange(formData)
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
     }
   }
 
@@ -223,7 +224,7 @@ const Exchanges = () => {
     try {
       await deleteExchange({ name, exchange })
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
     }
   }
 
@@ -237,7 +238,7 @@ const Exchanges = () => {
     try {
       await setActiveMutation.mutate(name)
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
     }
   }
 

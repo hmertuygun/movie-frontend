@@ -21,6 +21,7 @@ import { UserContext } from 'contexts/UserContext'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { fetchTicker } from 'services/exchanges'
+import { consoleLogger } from 'utils/logger'
 
 const SellFullMarketForm = () => {
   const {
@@ -321,7 +322,7 @@ const SellFullMarketForm = () => {
           const response = await fetchTicker(exchange, symbol)
           price = response.last
         } catch (err) {
-          console.log(err)
+          consoleLogger(err)
         }
 
         setSelectedSymbolLastPrice(price)
@@ -339,7 +340,7 @@ const SellFullMarketForm = () => {
         addMarketEntry(payload)
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 

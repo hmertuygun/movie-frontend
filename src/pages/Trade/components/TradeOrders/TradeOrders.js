@@ -18,6 +18,7 @@ import precisionRound from 'utils/precisionRound'
 import Tooltip from 'components/Tooltip'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import './TradeOrders.css'
+import { consoleLogger } from 'utils/logger'
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -85,7 +86,7 @@ const TradeOrders = () => {
         setOpenOrderError(false)
       })
       .catch((e) => {
-        console.log(e)
+        consoleLogger(e)
         // notify({
         //   id: 'open-orders-error',
         //   status: 'error',
@@ -150,7 +151,7 @@ const TradeOrders = () => {
         setOrderHistoryLastElement(null)
       }
     } catch (e) {
-      console.log(`Error Fetching History Orders`)
+      consoleLogger(`Error Fetching History Orders`)
       setOrderHistoryData([])
       notify({
         id: 'order-history-error',
@@ -175,7 +176,7 @@ const TradeOrders = () => {
   }
 
   const orderHistoryLoadedFBCallback = (doc) => {
-    //console.log(console.log('Order History Loaded => ', doc.data()))
+    //consoleLogger('Order History Loaded => ', doc.data())
     if (!doc?.data()) return
     let isActiveExchangeSelected = false
     let loaded = 0,
@@ -299,7 +300,7 @@ const TradeOrders = () => {
     FBOrderHistoryLoad = getSnapShotDocument('load', userData.email).onSnapshot(
       orderHistoryLoadedFBCallback,
       (err) => {
-        console.error(err)
+        consoleLogger(err)
       }
     )
 

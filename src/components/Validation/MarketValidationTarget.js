@@ -1,3 +1,5 @@
+import { consoleLogger } from 'utils/logger'
+
 export default function validateFields(values) {
   let errors = {}
 
@@ -5,7 +7,7 @@ export default function validateFields(values) {
     values[el] = parseFloat(values[el])
   })
 
-  console.log('validations ', values)
+  consoleLogger('validations ', values)
 
   /*   if (!values.quantity || values.quantity === 0) {
     errors.quantity = 'Quantity is required'

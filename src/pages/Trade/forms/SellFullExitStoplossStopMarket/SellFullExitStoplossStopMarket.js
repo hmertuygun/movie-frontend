@@ -18,6 +18,7 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
 import scientificToDecimal from 'utils/toDecimal'
+import { consoleLogger } from 'utils/logger'
 
 const useStyles = makeStyles({
   root: {
@@ -375,7 +376,7 @@ const SellFullExitStoplossStopMarket = () => {
         return false
 
       default: {
-        console.error('WARNING')
+        consoleLogger('WARNING')
       }
     }
   }

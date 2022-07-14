@@ -23,6 +23,7 @@ import { InlineInput, Button } from 'components'
 import * as yup from 'yup'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { consoleLogger } from 'utils/logger'
 
 const BuyTrailingStopForm = () => {
   const {
@@ -415,7 +416,7 @@ const BuyTrailingStopForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
         notify({
           status: 'error',
           title: 'Error',

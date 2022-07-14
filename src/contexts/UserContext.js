@@ -22,6 +22,7 @@ import { sortExchangesData } from 'utils/apiKeys'
 import { storage, session } from 'services/storages'
 import { getSocketEndpoint } from 'services/exchanges'
 import { config } from 'constants/config'
+import { consoleLogger } from 'utils/logger'
 export const UserContext = createContext()
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
@@ -150,7 +151,7 @@ const UserContextProvider = ({ children }) => {
       })
       setIsAnalyst(!!checkAnalyst)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     }
   }
 
@@ -217,7 +218,7 @@ const UserContextProvider = ({ children }) => {
         }
       )
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     }
   }
 
@@ -280,7 +281,7 @@ const UserContextProvider = ({ children }) => {
           resolve({ url: url, time: data })
         })
       } catch (error) {
-        console.warn('cannot fetch proxy')
+        consoleLogger('cannot fetch proxy')
       }
     })
   }
@@ -481,7 +482,7 @@ const UserContextProvider = ({ children }) => {
           }
         })
       } catch (e) {
-        console.log(e)
+        consoleLogger(e)
         setIsApiKeysLoading(false)
         setLoadApiKeysError(true)
         setUserContextLoaded(true)
@@ -494,10 +495,10 @@ const UserContextProvider = ({ children }) => {
       const np = await Notification.requestPermission() // "granted", "denied", "default"
       if (np === 'denied') return
       const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
-      // console.log(`FCM token: ${token}`)
+      // consoleLogger(`FCM token: ${token}`)
       await storeNotificationToken(token)
       messaging.onMessage((payload) => {
-        // console.log(`Received msg in UC onMessage`)
+        // consoleLogger(`Received msg in UC onMessage`)
         const { data } = payload
         let apiKey = data?.message_3
         if (!apiKey) return
@@ -516,10 +517,10 @@ const UserContextProvider = ({ children }) => {
         })
       })
       navigator.serviceWorker.addEventListener('message', () => {
-        // console.log(`Received msg in UC serviceWorker.addEventListener`)
+        // consoleLogger(`Received msg in UC serviceWorker.addEventListener`)
       })
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -673,7 +674,7 @@ const UserContextProvider = ({ children }) => {
         window.location = window.origin + '/login'
       })
       .catch((e) => {
-        console.log(e)
+        consoleLogger(e)
       })
   }
 
@@ -686,7 +687,7 @@ const UserContextProvider = ({ children }) => {
         // Handle Errors here.
         var errorCode = error.code
         var errorMessage = error.message
-        console.error({ message: errorMessage, code: errorCode })
+        consoleLogger({ message: errorMessage, code: errorCode })
         return { message: errorMessage, code: errorCode }
       })
 
@@ -710,7 +711,7 @@ const UserContextProvider = ({ children }) => {
 
       firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
     } else {
-      console.log('no registered')
+      consoleLogger('no registered')
     }
   }
 
@@ -718,7 +719,7 @@ const UserContextProvider = ({ children }) => {
     try {
       return await storage.get('registered', true)
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
       return {
         message: 'Not registered',
       }

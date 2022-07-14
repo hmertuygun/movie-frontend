@@ -18,6 +18,7 @@ import {
 } from 'utils/tradeForm'
 
 import scientificToDecimal from 'utils/toDecimal'
+import { consoleLogger } from 'utils/logger'
 
 import * as yup from 'yup'
 
@@ -423,7 +424,7 @@ const ExitStoplossStopLimit = () => {
         return false
 
       default: {
-        console.error('WARNING')
+        consoleLogger('WARNING')
       }
     }
   }

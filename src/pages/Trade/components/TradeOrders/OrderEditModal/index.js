@@ -14,6 +14,7 @@ import {
 import styles from '../../../forms/LimitForm/LimitForm.module.css'
 import { findIndex } from 'lodash'
 import { fetchTicker } from 'services/exchanges'
+import { consoleLogger } from 'utils/logger'
 
 const OrderEditModal = ({
   onClose,
@@ -98,7 +99,7 @@ const OrderEditModal = ({
       setIsLastPriceLoading(false)
       setLastPrice(response.last)
     } catch (err) {
-      console.log(err)
+      consoleLogger(err)
     }
   }
 

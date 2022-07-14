@@ -23,6 +23,7 @@ import {
   resolveGzip,
 } from 'services/exchanges'
 import { watchPanelSocket } from 'services/websocket'
+import { consoleLogger } from 'utils/logger'
 
 import sortTemplate from 'utils/sortTemplate'
 
@@ -67,7 +68,7 @@ const WatchListPanel = () => {
     try {
       setWatchlistData(userData.email, WATCHLIST_INIT_STATE)
     } catch (err) {
-      console.log(err)
+      consoleLogger(err)
     }
   }, [userData.email])
 
@@ -143,7 +144,7 @@ const WatchListPanel = () => {
       try {
         updateWhenNoTemplates()
       } catch (error) {
-        console.log(INFO['EMPTY_WATCH_LIST'])
+        consoleLogger(INFO['EMPTY_WATCH_LIST'])
       } finally {
         setLoading(false)
       }
@@ -151,7 +152,7 @@ const WatchListPanel = () => {
       try {
         updateWhenTemplateOpen()
       } catch (error) {
-        console.log(INFO['EMPTY_SNIPERS_LIST'])
+        consoleLogger(INFO['EMPTY_SNIPERS_LIST'])
       } finally {
         setLoading(false)
       }
@@ -227,7 +228,7 @@ const WatchListPanel = () => {
           }
         })
       } catch (e) {
-        console.log(e)
+        consoleLogger(e)
         break
       }
     }
@@ -373,7 +374,7 @@ const WatchListPanel = () => {
       }
       await setWatchlistData(userData.email, data)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
       notify({
         status: 'error',
         title: 'Error',
@@ -402,7 +403,7 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
     } catch (error) {
-      console.log('Cannot save watch lists')
+      consoleLogger('Cannot save watch lists')
     }
   }
 
@@ -448,7 +449,7 @@ const WatchListPanel = () => {
       })
       setAddWatchListModalOpen(false)
     } catch (error) {
-      console.log('Cannot save watch lists')
+      consoleLogger('Cannot save watch lists')
     } finally {
       setAddWatchListLoading(false)
     }
@@ -485,7 +486,7 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     }
   }
 
@@ -541,7 +542,7 @@ const WatchListPanel = () => {
         message: INFO['DELETED_LIST'],
       })
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 

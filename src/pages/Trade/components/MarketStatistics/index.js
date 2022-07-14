@@ -30,6 +30,7 @@ import {
   resolveGzip,
   tickerSocketSubscribe,
 } from 'services/exchanges'
+import { consoleLogger } from 'utils/logger'
 
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
@@ -64,7 +65,7 @@ function MarketStatistics({ market }) {
         let activeMarketData = await fetchTicker(activeExchange, symbol)
         setNewMessage(activeMarketData)
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
       }
     }
   }
@@ -126,7 +127,7 @@ function MarketStatistics({ market }) {
 
       setNewMessage(activeMarketData)
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }, [selectedSymbolDetail, setNewMessage, symbolPair])
 
@@ -170,7 +171,7 @@ function MarketStatistics({ market }) {
         }
 
         socket.onerror = function (error) {
-          console.log(error)
+          consoleLogger(error)
         }
 
         id = setInterval(() => {

@@ -54,6 +54,7 @@ import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketF
 
 import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
+import { consoleLogger } from 'utils/logger'
 
 const TradePanel = () => (
   <SimpleTradeContext>
@@ -127,7 +128,7 @@ const Trade = () => {
       setIsTradePanelOpen(false)
       clear()
     } catch (error) {
-      console.error({ error, message: 'Order was not sent' })
+      consoleLogger({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
       notify({
         status: 'error',

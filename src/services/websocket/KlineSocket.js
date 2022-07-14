@@ -9,6 +9,7 @@ import {
   socketSubscribe,
 } from 'services/exchanges'
 import { storage } from 'services/storages'
+import { consoleLogger } from 'utils/logger'
 export default class klineSocket {
   constructor() {
     let currentExchange = localStorage.getItem('selectedExchange')
@@ -37,20 +38,20 @@ export default class klineSocket {
       this._ws = null
       this._ws = new WebSocket(this.socketUrl)
       this._ws.onopen = (e) => {
-        console.info(`${this.exchangeName} WS Open`)
+        consoleLogger(`${this.exchangeName} WS Open`)
         localStorage.setItem('WS', 1)
       }
 
       this._ws.onclose = (e) => {
         this.isDisconnected = true
         localStorage.setItem('WS', 0)
-        console.warn(`${this.exchangeName}  WS Closed`, e)
+        consoleLogger(`${this.exchangeName}  WS Closed`, e)
       }
 
       this._ws.onerror = (err) => {
         this.isDisconnected = true
         localStorage.setItem('WS', 0)
-        console.warn(`${this.exchangeName}  Error`, err)
+        consoleLogger(`${this.exchangeName}  Error`, err)
       }
 
       this._ws.onmessage = async (msg) => {
@@ -77,7 +78,7 @@ export default class klineSocket {
             }
           }
         } catch (e) {
-          console.log(e)
+          consoleLogger(e)
         }
       }
 
@@ -90,7 +91,7 @@ export default class klineSocket {
         }, 5000)
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -115,7 +116,7 @@ export default class klineSocket {
         }
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 
@@ -130,7 +131,7 @@ export default class klineSocket {
         this._ws.send(JSON.stringify(obj))
       }
     } catch (e) {
-      console.log(e)
+      consoleLogger(e)
     }
   }
 }

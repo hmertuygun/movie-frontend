@@ -14,6 +14,7 @@ import {
   getSnapShotDocument,
 } from 'services/api'
 import { firebase } from 'services/firebase'
+import { consoleLogger } from 'utils/logger'
 
 const db = firebase.firestore()
 const FieldValue = firebase.firestore.FieldValue
@@ -53,7 +54,7 @@ const TemplatesList = () => {
         })
       })
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     } finally {
       setAddModalOpen(false)
       setActiveDrawing(null)
@@ -71,10 +72,10 @@ const TemplatesList = () => {
         })
 
         .catch((error) => {
-          console.error('Error removing document: ', error)
+          consoleLogger('Error removing document: ', error)
         })
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     } finally {
       getInitialData()
     }
@@ -122,7 +123,7 @@ const TemplatesList = () => {
               })
             })
             .catch((err) => {
-              console.log(err)
+              consoleLogger(err)
             })
         }
       }

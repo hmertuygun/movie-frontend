@@ -27,6 +27,7 @@ import { getSelectedExchange } from 'utils/exchangeSelection'
 import { TEMPLATE_DRAWINGS_USERS } from 'constants/TemplateDrawingsList'
 import { storage } from 'services/storages'
 import { fetchTicker } from 'services/exchanges'
+import { consoleLogger } from 'utils/logger'
 
 import LZUTF8 from 'lzutf8'
 import { useLocation } from 'react-router-dom'
@@ -164,7 +165,7 @@ const SymbolContextProvider = ({ children }) => {
         setSelectedSymbolLastPrice(activeMarketData.last)
         setMarketData(activeMarketData)
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
       }
     }
   }
@@ -228,7 +229,7 @@ const SymbolContextProvider = ({ children }) => {
           }
         }
       })
-      .catch((err) => console.log(err))
+      .catch((err) => consoleLogger(err))
   }, [db, watchListOpen, activeTrader, userData.email])
   const getChartDataOnInit = async () => {
     try {
@@ -280,7 +281,7 @@ const SymbolContextProvider = ({ children }) => {
         }
       )
     } catch (e) {
-      console.error(e)
+      consoleLogger(e)
     } finally {
     }
   }
@@ -318,7 +319,7 @@ const SymbolContextProvider = ({ children }) => {
         else setSelectedBaseSymbolBalance(0)
       }
     } catch (err) {
-      console.error(err)
+      consoleLogger(err)
       setSelectedSymbolBalance(0)
       setSelectedBaseSymbolBalance(0)
     } finally {
@@ -345,7 +346,7 @@ const SymbolContextProvider = ({ children }) => {
         try {
           await saveLastSelectedMarketSymbol(symbol.value)
         } catch (e) {
-          console.log(e)
+          consoleLogger(e)
         }
       }
     },
@@ -472,7 +473,7 @@ const SymbolContextProvider = ({ children }) => {
       setSymbolDetails(data.symbolsChange)
       storage.set('symbolsKeyValue', JSON.stringify(data.symbolsChange))
     } catch (error) {
-      console.error(error)
+      consoleLogger(error)
       setIsExchangeLoading(false)
     } finally {
       setIsLoadingExchanges(false)
@@ -491,7 +492,7 @@ const SymbolContextProvider = ({ children }) => {
         )
       }
     } catch (error) {
-      console.log(error)
+      consoleLogger(error)
     }
   }
 
@@ -523,7 +524,7 @@ const SymbolContextProvider = ({ children }) => {
           }
         })
       } catch (error) {
-        console.log(error)
+        consoleLogger(error)
       }
     }
   }

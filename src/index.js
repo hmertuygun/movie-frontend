@@ -3,15 +3,16 @@ import ReactDOM from 'react-dom'
 import { firebase } from 'services/firebase'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
+import { consoleLogger } from 'utils/logger'
 
 if ('serviceWorker' in navigator && firebase.messaging.isSupported()) {
   navigator.serviceWorker
     .register(`./firebase-messaging-sw.js`)
     .then(function (registration) {
-      console.log('Registration successful, scope is:', registration.scope)
+      consoleLogger('Registration successful, scope is:', registration.scope)
     })
     .catch(function (err) {
-      console.log('Service worker registration failed, error:', err)
+      consoleLogger('Service worker registration failed, error:', err)
     })
 }
 
