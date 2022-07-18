@@ -1,7 +1,4 @@
-import React, { useState, useContext } from 'react'
-import { UserContext } from 'contexts/UserContext'
-import { AnalyticsContext } from 'contexts/AnalyticsContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
+import React, { useCallback, useEffect, useState } from 'react'
 import AnalyticsTable from './components/AnalyticsTable'
 import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
@@ -9,19 +6,21 @@ import AnalyticsFilter from './components/AnalyticsFilter'
 import dayjs from 'dayjs'
 import { exchangeCreationOptions } from 'constants/ExchangeOptions'
 import './Analytics.css'
+import { portfolioTimeInterval } from 'constants/TimeIntervals'
+import { useDispatch, useSelector } from 'react-redux'
+import { refreshAnalyticsData, updateRefreshButton } from 'store/actions'
 
 function AnalyticsContainer() {
   const [startDate, setStartDate] = useState()
   const [endDate, setEndDate] = useState()
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const { refreshData, loading } = useContext(AnalyticsContext)
-  const { activeExchange } = useContext(UserContext)
-  const {
-    onRefreshBtnClicked,
-    disablePortfolioRefreshBtn,
-    portfolioTimeInterval,
-  } = useSymbolContext()
+  const dispatch = useDispatch()
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { analyticsLoading } = useSelector((state) => state.analytics)
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { disablePortfolioRefreshBtn } = useSelector((state) => state.refresh)
+  const { userData } = useSelector((state) => state.users)
 
   const onPortfolioRefresh = () => {
     let value = {
@@ -29,14 +28,26 @@ function AnalyticsContainer() {
       endDate: endDate && dayjs(endDate).format('YYYY-MM-DD'),
       skipCache: true,
     }
-    refreshData(value)
-    onRefreshBtnClicked('analytics')
+    dispatch(refreshAnalyticsData(activeExchange, value))
+    dispatch(updateRefreshButton('analytics'))
   }
 
   const getLogo = (exchange) => {
     const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
     if (obj?.logo) return obj.logo
   }
+
+  const fetchData = useCallback(async () => {
+    if (userData && activeExchange.exchange) {
+      dispatch(refreshAnalyticsData(activeExchange, {}))
+    }
+  }, [userData, activeExchange?.exchange])
+
+  useEffect(() => {
+    if (!isOnboardingSkipped) {
+      fetchData()
+    }
+  }, [userData, activeExchange, isOnboardingSkipped])
 
   return (
     <>
@@ -74,7 +85,7 @@ function AnalyticsContainer() {
                 setStartDate={setStartDate}
                 endDate={endDate}
                 setEndDate={setEndDate}
-                loading={loading}
+                loading={analyticsLoading}
                 disablePortfolioRefreshBtn={disablePortfolioRefreshBtn}
                 portfolioTimeInterval={portfolioTimeInterval}
                 onPortfolioRefresh={onPortfolioRefresh}

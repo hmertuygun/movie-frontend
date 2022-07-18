@@ -2,7 +2,7 @@ import React from 'react'
 import { useNotifications } from 'reapop'
 import { useQuery } from 'react-query'
 import { connectTelegramLoadKey, disconnectTelegram } from 'services/api'
-import useCopyToClipboard from 'hooks/useCopyToClipboard'
+import { useCopyToClipboard } from 'hooks'
 
 const TelegramSettingModal = ({ onClose, connected }) => {
   const connectTelegramLoadKeyQuery = useQuery(

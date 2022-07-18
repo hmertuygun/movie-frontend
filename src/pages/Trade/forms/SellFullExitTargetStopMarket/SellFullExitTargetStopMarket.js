@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
 import * as yup from 'yup'
 import { makeStyles } from '@material-ui/core/styles'
 
 import { InlineInput, Button, Typography } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import {
   addPrecisionToNumber,
@@ -18,6 +18,8 @@ import {
 } from 'utils/tradeForm'
 
 import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addStopMarketTarget } from 'store/actions'
 
 const useStyles = makeStyles({
   root: {
@@ -43,12 +45,13 @@ const errorInitialValues = {
 }
 
 const SellFullExitTargetStopMarket = () => {
-  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
-    useSymbolContext()
-
-  const { addStopMarketTarget, state } = useContext(TradeContext)
-  const { entry, targets } = state
-
+  const { isLoading } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolLastPrice } = useSelector(
+    (state) => state.symbols
+  )
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { entry, targets } = tradeState
+  const dispatch = useDispatch()
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
@@ -65,7 +68,7 @@ const SellFullExitTargetStopMarket = () => {
   const minNotional =
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
-  const sumQuantity = state.targets?.map((item) => item.quantity)
+  const sumQuantity = tradeState.targets?.map((item) => item.quantity)
   const totalQuantity = sumQuantity?.reduce(
     (total, value) => parseFloat(total) + parseFloat(value),
     0
@@ -428,14 +431,16 @@ const SellFullExitTargetStopMarket = () => {
     const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
 
     if (isFormValid && !isLimit) {
-      addStopMarketTarget({
-        triggerPrice: convertCommaNumberToDot(values.price),
-        quantity: convertCommaNumberToDot(values.quantity),
-        profit: convertCommaNumberToDot(values.profit),
-        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
-        price_trigger: values.price_trigger.value,
-        side: 'buy',
-      })
+      dispatch(
+        addStopMarketTarget({
+          triggerPrice: convertCommaNumberToDot(values.price),
+          quantity: convertCommaNumberToDot(values.quantity),
+          profit: convertCommaNumberToDot(values.profit),
+          symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
+          price_trigger: values.price_trigger.value,
+          side: 'buy',
+        })
+      )
 
       setValues((values) => ({
         ...values,
@@ -560,7 +565,7 @@ const SellFullExitTargetStopMarket = () => {
           variant="buy"
           type="submit"
         >
-          Add Target {(state?.targets?.length || 0) + 1}
+          Add Target {(tradeState?.targets?.length || 0) + 1}
         </Button>
       </form>
     </div>

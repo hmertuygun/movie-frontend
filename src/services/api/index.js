@@ -46,6 +46,7 @@ import {
   cancelSubscription,
   changeActivePlan,
   verifyCouponCode,
+  FCMSubscription,
 } from './Subscriptions'
 import {
   loadNotificationChannels,
@@ -76,6 +77,7 @@ import {
   setChartDrawings,
   updateSingleValue,
   createBackup,
+  saveEmojis,
   getDoubleCollection,
 } from './Firestore'
 import { getExchangeKlines } from './Klines'
@@ -149,8 +151,10 @@ export {
   fetchExchangeTicker,
   updateSingleValue,
   createBackup,
+  saveEmojis,
   sendLoginInfo,
   verifyCouponCode,
+  FCMSubscription,
   getDoubleCollection,
   sendActionReason,
 }

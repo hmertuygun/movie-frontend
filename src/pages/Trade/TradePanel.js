@@ -12,10 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useNotifications } from 'reapop'
 
 import { placeOrder } from 'services/api'
-import SimpleTradeContext, { TradeContext } from 'contexts/SimpleTradeContext'
 import { TabContext } from 'contexts/TabContext'
-import { SymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { TabNavigator, ButtonNavigator, Typography, Modal } from 'components'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
 
@@ -54,52 +51,53 @@ import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketF
 
 import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
+import { useDispatch, useSelector } from 'react-redux'
+import { resetTradeState, updateIsOrderPlaced } from 'store/actions'
+import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
 
-const TradePanel = () => (
-  <SimpleTradeContext>
-    <Trade />
-  </SimpleTradeContext>
-)
+const TradePanel = () => <Trade />
 
 const Trade = () => {
-  const { removeEntry } = useContext(TradeContext)
   const { notify } = useNotifications()
-
+  const { refreshBalance } = useSymbolContext()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { state, clear } = useContext(TradeContext)
-  const { selectedSymbol, setIsOrderPlaced, refreshBalance } =
-    useContext(SymbolContext)
-  const { activeExchange } = useContext(UserContext)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { tradeState } = useSelector((state) => state.simpleTrade)
   const { setIsTradePanelOpen } = useContext(TabContext)
 
+  const { selectedSymbol } = useSelector((state) => state.symbols)
+
+  const dispatch = useDispatch()
+
   const hasEntry = useMemo(
-    () => (state.entry?.quantity > 0 ? true : false),
-    [state.entry?.quantity]
+    () => (tradeState.entry?.quantity > 0 ? true : false),
+    [tradeState.entry?.quantity]
   )
 
   const ableToPostFulltrade = useMemo(() => {
     const targets =
-      state &&
-      state.targets &&
-      state.targets.length > 0 &&
-      state.targets[0].quantity > 0
+      tradeState &&
+      tradeState.targets &&
+      tradeState.targets.length > 0 &&
+      tradeState.targets[0].quantity > 0
     const stoploss =
-      state &&
-      state.stoploss &&
-      state.stoploss.length > 0 &&
-      state.stoploss[0].quantity > 0
+      tradeState &&
+      tradeState.stoploss &&
+      tradeState.stoploss.length > 0 &&
+      tradeState.stoploss[0].quantity > 0
 
     return targets && stoploss && hasEntry
-  }, [state, hasEntry])
+  }, [tradeState, hasEntry])
 
   const doPlaceOrder = useCallback(async () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
-      setIsOrderPlaced(false)
-      const { data } = await placeOrder({ ...state, ...activeExchange })
+      // setIsOrderPlaced(false)
+      dispatch(updateIsOrderPlaced(false))
+      const { data } = await placeOrder({ ...tradeState, ...activeExchange })
       if (data?.status === 'error') {
         notify({
           status: 'error',
@@ -113,7 +111,7 @@ const Trade = () => {
           title: 'Success',
           message: 'Order Created!',
         })
-        const { entry } = state
+        const { entry } = tradeState
         analytics.logEvent(`placed_full_trade_${entry.type}_order`)
         trackEvent(
           'user',
@@ -126,7 +124,7 @@ const Trade = () => {
       }
       setIsModalVisible(false)
       setIsTradePanelOpen(false)
-      clear()
+      dispatch(resetTradeState())
     } catch (error) {
       consoleLogger({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
@@ -135,26 +133,29 @@ const Trade = () => {
         title: 'Error',
         message: "Order couldn't be created. Please try again later!",
       })
-      clear()
+      dispatch(resetTradeState())
     } finally {
-      setIsOrderPlaced(true)
+      // setIsOrderPlaced(true)
+      dispatch(updateIsOrderPlaced(true))
       setBtnVisibility(false)
     }
   }, [
     activeExchange,
-    clear,
     isBtnDisabled,
     refreshBalance,
-    setIsOrderPlaced,
+    // setIsOrderPlaced,
     setIsTradePanelOpen,
-    state,
+    tradeState,
   ])
 
   useEffect(() => {
-    clear()
-  }, [clear, selectedSymbol])
+    dispatch(resetTradeState())
+  }, [resetTradeState, selectedSymbol])
 
-  let isStepTwo = useMemo(() => Object.keys(state).includes('entry'), [state])
+  let isStepTwo = useMemo(
+    () => Object.keys(tradeState).includes('entry'),
+    [tradeState]
+  )
 
   return (
     <Fragment>
@@ -239,7 +240,7 @@ const Trade = () => {
                       <button
                         type="button"
                         className="px-0 py-0 btn btn-link"
-                        onClick={() => removeEntry(0)}
+                        onClick={() => dispatch(resetTradeState(0))}
                       >
                         <FontAwesomeIcon icon={faChevronLeft} /> Back
                       </button>
@@ -314,7 +315,7 @@ const Trade = () => {
                       <button
                         type="button"
                         className="px-0 py-0 btn btn-link"
-                        onClick={() => removeEntry(0)}
+                        onClick={() => dispatch(resetTradeState(0))}
                       >
                         <FontAwesomeIcon icon={faChevronLeft} /> Back
                       </button>

@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import * as yup from 'yup'
 
-import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { InlineInput } from 'components'
 import {
   getMaxInputLength,
@@ -14,6 +12,7 @@ import {
 import styles from '../../../forms/LimitForm/LimitForm.module.css'
 import { findIndex } from 'lodash'
 import { fetchTicker } from 'services/exchanges'
+import { useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 
 const SellOrderEditModal = ({
@@ -26,8 +25,8 @@ const SellOrderEditModal = ({
   stoplossOrder,
   targetOrders,
 }) => {
-  const { activeExchange } = useContext(UserContext)
-  const { symbolDetails } = useSymbolContext()
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { symbolDetails } = useSelector((state) => state.symbols)
 
   const [values, setValues] = useState({
     triggerPrice: '',

@@ -1,27 +1,28 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Key, AtSign } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
-import { UserContext } from 'contexts/UserContext'
 import { Logo } from 'components'
 import { firebase } from 'services/firebase'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
-import useQuery from 'hooks/useQuery'
+import { useQuery } from 'hooks'
 import './QuickRegister.css'
 import {
   initDrawingDocuments,
   initUserData,
   updateSingleValue,
 } from 'services/api/Firestore'
-import { defaultSymbol } from 'constants/defaultSymbol'
+import { DEFAULT_SYMBOL } from 'constants/Default'
 import DefaultRegisterTemplate from './components/templates/default'
 import ChartRegisterTemplate from './components/templates/chartMirroring'
 import BybitRegisterTemplate from './components/templates/bybitTemplate'
+import { useDispatch, useSelector } from 'react-redux'
+import { register } from 'store/actions'
 import { fbPixelTracking } from 'services/tracking'
 import { consoleLogger } from 'utils/logger'
 
 const QuickRegister = () => {
-  const { register, isSubOpen } = useContext(UserContext)
+  const { isSubOpen, userState } = useSelector((state) => state.users)
   const query = useQuery()
 
   const [email, setEmail] = useState('')
@@ -36,6 +37,8 @@ const QuickRegister = () => {
   const [country, setCountry] = useState('')
   const [registerType, setRegisterType] = useState(query.get('t'))
 
+  const dispatch = useDispatch()
+
   const getReferral = (uid) => {
     const referral = query.get('irclickid')
     let data = null
@@ -46,7 +49,7 @@ const QuickRegister = () => {
         code: referral,
         userId: uid,
       }
-    } else if (registerType === 'bybit' || registerType === 'chartmirroring') {
+    } else if (registerType) {
       data = {
         referral: registerType,
         created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -96,7 +99,7 @@ const QuickRegister = () => {
 
   const actualRegister = async () => {
     try {
-      const response = await register(email, password)
+      const response = await dispatch(register(email, password, userState))
 
       if (response.message) {
         throw new Error(response.message)
@@ -122,7 +125,7 @@ const QuickRegister = () => {
                     refId: refId,
                   })
                 await initDrawingDocuments(email, {
-                  lastSelectedSymbol: defaultSymbol,
+                  lastSelectedSymbol: DEFAULT_SYMBOL,
                 })
 
                 await initUserData(email, {

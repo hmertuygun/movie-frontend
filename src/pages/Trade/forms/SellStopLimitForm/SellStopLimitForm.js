@@ -1,8 +1,8 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Fragment, useState, useEffect } from 'react'
 import { InlineInput, Button } from 'components'
 import roundNumbers from 'utils/roundNumbers'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import Slider from 'rc-slider'
 import { useNotifications } from 'reapop'
 
@@ -26,6 +26,7 @@ import { createBasicTrade } from 'services/api'
 import styles from '../LimitForm/LimitForm.module.css'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
+import { useSelector } from 'react-redux'
 
 const errorInitialValues = {
   triggerPrice: '',
@@ -36,17 +37,15 @@ const errorInitialValues = {
 }
 
 const SellStopLimitForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
-    refreshBalance,
     selectedSymbolLastPrice,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
   const { notify } = useNotifications()
-
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
@@ -478,7 +477,7 @@ const SellStopLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

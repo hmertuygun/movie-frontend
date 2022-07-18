@@ -1,4 +1,7 @@
+import { notify } from 'reapop'
+import { messaging } from 'services/firebase'
 import httpClient from 'services/http'
+import { storeNotificationToken } from './Notifications'
 
 const BASE_URL = process.env.REACT_APP_API_SUBSCRIPTION
 const PROJECT_ID = process.env.REACT_APP_FIREBASE_PROJECT_ID
@@ -65,6 +68,38 @@ const verifyCouponCode = async (data) => {
   return response
 }
 
+const FCMSubscription = async () => {
+  try {
+    const np = await Notification.requestPermission() // "granted", "denied", "default"
+    if (np === 'denied') return
+    const token = await messaging.getToken() // device specific token to be stored in back-end, check user settings first
+    await storeNotificationToken(token)
+    messaging.onMessage((payload) => {
+      const { data } = payload
+      let apiKey = data?.message_3
+      if (!apiKey) return
+      apiKey = apiKey.split(':')[1]
+      const description = (
+        <>
+          <p className="mb-0">{data.message_1}</p>
+          <p className="mb-0">{data.message_2}</p>
+          <p className="mb-0">API Key: {apiKey}</p>
+        </>
+      )
+      notify({
+        status: 'success',
+        title: data.title,
+        message: description,
+      })
+    })
+    navigator.serviceWorker.addEventListener('message', () => {
+      // console.log(`Received msg in UC serviceWorker.addEventListener`)
+    })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 export {
   getSubscriptionDetails,
   callCloudFunction,
@@ -76,4 +111,5 @@ export {
   cancelSubscription,
   changeActivePlan,
   verifyCouponCode,
+  FCMSubscription,
 }

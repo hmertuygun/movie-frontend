@@ -1,25 +1,19 @@
-import React, {
-  useState,
-  useContext,
-  useEffect,
-  useMemo,
-  useCallback,
-} from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import Table from 'components/Table/Table'
 import { assetPerformanceTable } from './tableConstants'
-import { AnalyticsContext } from 'contexts/AnalyticsContext'
 import Pagination from 'components/Table/Pagination/Pagination'
 import { ITEMS_PER_PAGE } from 'constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
 import './AssetPerformance.css'
 import { tableDataSorting } from 'utils/tableSorting'
+import { useSelector } from 'react-redux'
 
 const AssetPerformance = ({ search }) => {
-  const { assetPerformance } = useContext(AnalyticsContext)
   const [tableData, setTableData] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemNumber, setItemNumber] = useState(0)
+  const { assetPerformance } = useSelector((state) => state.analytics)
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
   const [sortAscending, setSortAscending] = useState(false)

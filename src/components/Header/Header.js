@@ -14,36 +14,34 @@ import MenuItems from './Navigation/NavBar/MenuItems'
 import MobileTab from './MobileTab/MobileTab'
 import { UserContext } from 'contexts/UserContext'
 import { ThemeContext } from 'contexts/ThemeContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { useHistory } from 'react-router-dom'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { secondTourSteps } from 'utils/tourSteps'
 import { Moon, Sun, Twitter } from 'react-feather'
 import './Header.css'
 import { storage } from 'services/storages'
+import {
+  handleOnboardingShow,
+  updateTour2CurrentStep,
+  updateWatchListOpen,
+} from 'store/actions'
+import { useDispatch, useSelector } from 'react-redux'
 import UserMenu from './UserMenu/UserMenu'
 import Help from './Help'
 
 const Header = () => {
-  const {
-    isLoggedIn,
-    onSecondTour,
-    tour2CurrentStep,
-    setTour2CurrentStep,
-    handleOnboardingShow,
-    isOnboardingSkipped,
-    state,
-  } = useContext(UserContext)
+  const { isLoggedIn } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
-  const { watchListOpen, setWatchListOpen } = useSymbolContext()
-
+  const { isOnboardingSkipped, onSecondTour, tour2CurrentStep } = useSelector(
+    (state) => state.appFlow
+  )
+  const { firstLogin } = useSelector((state) => state.users)
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
   const [stepsSecondTour] = useState(secondTourSteps)
-  const [showHelp, setShowHelp] = useState(false)
 
   const history = useHistory()
-
+  const dispatch = useDispatch()
   const styles = {
     options: {
       overlayColor: 'rgba(0, 0, 0, 0.6)',
@@ -59,7 +57,9 @@ const Header = () => {
 
     if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
       // Update state to advance the tour
-      setTour2CurrentStep(index + (action === ACTIONS.PREV ? -1 : 1))
+      dispatch(
+        updateTour2CurrentStep(index + (action === ACTIONS.PREV ? -1 : 1))
+      )
       setStepIndex2(index + (action === ACTIONS.PREV ? -1 : 1))
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
@@ -116,9 +116,9 @@ const Header = () => {
       }, 1000)
     }
     if (history.location.pathname === '/market') {
-      setWatchListOpen(true)
+      dispatch(updateWatchListOpen(true))
     } else {
-      setWatchListOpen(false)
+      dispatch(updateWatchListOpen(false))
     }
   }, [history, stepIndex2, tour2CurrentStep])
 
@@ -127,7 +127,7 @@ const Header = () => {
   }
 
   const handleStartTrading = () => {
-    handleOnboardingShow()
+    dispatch(handleOnboardingShow())
   }
 
   return (
@@ -141,7 +141,7 @@ const Header = () => {
         <div className="container">
           <Logo />
           <Help isForMobile={true} />
-          {!state.firstLogin && (
+          {!firstLogin && (
             <div
               className="collapse navbar-collapse navbar-collapse-overlay order-lg-3"
               id="navbar-main-collapse"

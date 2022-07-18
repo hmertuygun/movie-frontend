@@ -1,4 +1,5 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import { useNotifications } from 'reapop'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
@@ -13,25 +14,24 @@ import {
   convertCommaNumberToDot,
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { InlineInput, Button } from 'components'
 import roundNumbers from 'utils/roundNumbers'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './SellFullLimitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addEntry } from 'store/actions'
 
 const SellFullLimitForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
-    refreshBalance,
-    lastMarketPrice,
-  } = useSymbolContext()
+    selectedSymbolLastPrice,
+  } = useSelector((state) => state.symbols)
   const { notify } = useNotifications()
-  const { addEntry } = useContext(TradeContext)
-
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     price: '',
     quantity: '',
@@ -49,7 +49,6 @@ const SellFullLimitForm = () => {
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
-  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
@@ -169,7 +168,7 @@ const SellFullLimitForm = () => {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (values.price !== '' && values.price < lastMarketPrice) {
+      if (values.price !== '' && values.price < selectedSymbolLastPrice) {
         notify({
           status: 'warning',
           title: 'Warning',
@@ -359,7 +358,7 @@ const SellFullLimitForm = () => {
         total: values.total,
         side: 'sell',
       }
-      addEntry(payload)
+      dispatch(addEntry(payload))
     }
   }
 
@@ -392,7 +391,7 @@ const SellFullLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

@@ -9,8 +9,6 @@ import ThemeContextProvider from 'contexts/ThemeContext'
 import UserContextProvider from 'contexts/UserContext'
 import TabContextProvider from 'contexts/TabContext'
 import SymbolContextProvider from 'contexts/SymbolContext'
-import PortfolioCTXProvider from 'contexts/PortfolioContext'
-import AnalyticsProvider from 'contexts/AnalyticsContext'
 import { NotificationsProvider, setUpNotifications } from 'reapop'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
@@ -44,18 +42,14 @@ export default function App() {
               <UserContextProvider>
                 <SymbolContextProvider>
                   <TabContextProvider>
-                    <PortfolioCTXProvider>
-                      <AnalyticsProvider>
-                        <ErrorBoundary componentName="Header">
-                          <Suspense fallback={<div></div>}>
-                            <Header />
-                          </Suspense>
-                        </ErrorBoundary>
-                        <WarningAlert />
-                        <Notification />
-                        <Routes />
-                      </AnalyticsProvider>
-                    </PortfolioCTXProvider>
+                    <ErrorBoundary componentName="Header">
+                      <Suspense fallback={<div></div>}>
+                        <Header />
+                      </Suspense>
+                    </ErrorBoundary>
+                    <WarningAlert />
+                    <Notification />
+                    <Routes />
                   </TabContextProvider>
                 </SymbolContextProvider>
               </UserContextProvider>

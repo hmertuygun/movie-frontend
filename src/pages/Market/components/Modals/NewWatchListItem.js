@@ -5,13 +5,13 @@ import { Popover } from 'react-tiny-popover'
 
 import { Modal, Loader } from 'components'
 import { QuoteAssets } from 'constants/QuoteAssets'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { exchangeCreationOptions } from 'constants/ExchangeOptions'
 import styles from '../../css/WatchListPanel.module.css'
+import { useSelector } from 'react-redux'
 
 const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
-  const { symbols } = useSymbolContext()
+  const { symbols } = useSelector((state) => state.symbols)
   const [selectedSymbols, setSelectedSymbols] = useState([])
   const [searchText, setSearchText] = useState('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)

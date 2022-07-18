@@ -1,14 +1,7 @@
-import React, {
-  useEffect,
-  useState,
-  useContext,
-  createRef,
-  useMemo,
-} from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Elements } from '@stripe/react-stripe-js'
 import CheckoutForm from './Checkout'
-import { UserContext } from 'contexts/UserContext'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   createSubscripton,
@@ -24,10 +17,13 @@ import 'react-coinbase-commerce/dist/coinbase-commerce-button.css'
 import { Modal } from 'components'
 import { config } from 'constants/config'
 import { cloneDeep } from 'lodash'
+import { useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 
 const Plans = ({ canShowTrial }) => {
-  const { products, userData } = useContext(UserContext)
+  const { userData } = useSelector((state) => state.users)
+  const { products } = useSelector((state) => state.market)
+
   const db = firebase.firestore()
   const location = useLocation()
   const [plans, setPlans] = useState([])

@@ -1,10 +1,9 @@
-import React, { useContext, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Button } from 'components'
 import { addPrecisionToNumber } from 'utils/tradeForm'
-import { TradeContext } from 'contexts/SimpleTradeContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import styles from './Table.module.css'
-import { UserContext } from 'contexts/UserContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { resetStoploss, resetTarget, resetTradeState } from 'store/actions'
 const Table = ({
   labels = [],
   entry = {},
@@ -12,10 +11,9 @@ const Table = ({
   stoploss = [],
   sell,
 }) => {
-  const { selectedSymbolDetail } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
-  const { removeEntry, removeStoploss, removeTarget } = useContext(TradeContext)
-
+  const { selectedSymbolDetail } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
   const totalPrecision = useMemo(() => {
     return selectedSymbolDetail['symbolpair'] === 'ETHUSDT'
       ? 7
@@ -29,15 +27,15 @@ const Table = ({
 
   const onClick = ({ type, index }) => {
     if (type === 'entry') {
-      removeEntry(index)
+      dispatch(resetTradeState(index))
     }
 
     if (type === 'target') {
-      removeTarget(index)
+      dispatch(resetTarget(index))
     }
 
     if (type === 'stoploss') {
-      removeStoploss(index)
+      dispatch(resetStoploss(index))
     }
 
     return false

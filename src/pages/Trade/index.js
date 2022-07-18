@@ -1,42 +1,36 @@
-import React, { useContext, useEffect, useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 
-import { UserContext } from 'contexts/UserContext'
 import TradeContainer from './TradeContainer'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
-import {
-  firstTourSteps,
-  secondTourSteps,
-  mirroringTourSteps,
-} from 'utils/tourSteps'
+import { firstTourSteps, mirroringTourSteps } from 'utils/tourSteps'
 import { firebase } from 'services/firebase'
 import { useIdleTimer } from 'react-idle-timer'
-import { consoleLogger } from 'utils/logger'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  logout,
+  updateIsTourFinished,
+  updateIsTourStep5,
+  updateOnSecondTour,
+  updateShowMarketItems,
+} from 'store/actions'
 
 const Trade = () => {
-  const {
-    onTour,
-    isTourStep5,
-    setIsTourStep5,
-    setOnSecondTour,
-    showMarketItems,
-    setShowMarketItems,
-    setIsTourFinished,
-    isChartReady,
-    logout,
-  } = useContext(UserContext)
+  const dispatch = useDispatch()
   const [stepIndex, setStepIndex] = useState(0)
   const [mirroringStepIndex, setMirroringStepIndex] = useState(0)
   const [run, setRun] = useState(true)
   const [run2, setRun2] = useState(true)
   const [stepsFirstTour] = useState(firstTourSteps)
-  const [stepsSecondTour] = useState(secondTourSteps)
   const [stepsMirroringTour] = useState(mirroringTourSteps)
   const [chartMirroringTourNeeded, setChartMirroringTourNeeded] =
     useState(false)
-
+  const { onTour, isTourStep5 } = useSelector((state) => state.appFlow)
+  const { isChartReady } = useSelector((state) => state.charts)
+  const { showMarketItems } = useSelector((state) => state.market)
   const handleOnIdle = (event) => {
-    logout()
+    dispatch(logout())
   }
 
   useIdleTimer({
@@ -49,24 +43,6 @@ const Trade = () => {
   })
 
   const userId = firebase.auth().currentUser?.uid
-  useEffect(() => {
-    ;(async () => {
-      await firebase
-        .firestore()
-        .collection('stripe_users')
-        .doc(userId)
-        .get()
-        .then((doc) => {
-          const userData = doc.data()
-          if (
-            userData?.chartMirroringSignUp &&
-            !userData?.chartMirroringTourFinished
-          ) {
-            setChartMirroringTourNeeded(true)
-          }
-        })
-    })()
-  }, [userId])
 
   const isNotMobile = useMediaQuery({ query: `(min-width: 992px)` })
 
@@ -78,11 +54,11 @@ const Trade = () => {
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setRun(false)
-      setShowMarketItems(false)
-      setIsTourFinished(true)
+      dispatch(updateShowMarketItems(false))
+      dispatch(updateIsTourFinished(true))
       //setOnTour(false)
       setTimeout(() => {
-        setOnSecondTour(true)
+        dispatch(updateOnSecondTour(true))
         //300000
       }, 300000)
     }
@@ -106,9 +82,8 @@ const Trade = () => {
 
   useEffect(() => {
     if (stepIndex === 4) {
-      consoleLogger('Tour Step 5')
-      setIsTourStep5(!isTourStep5)
-      setShowMarketItems(!showMarketItems)
+      dispatch(updateIsTourStep5(!isTourStep5))
+      dispatch(updateShowMarketItems(!showMarketItems))
     }
   }, [stepIndex])
 

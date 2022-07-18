@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import { createBasicTrade } from 'services/api'
@@ -8,7 +8,6 @@ import {
   removeTrailingZeroFromInput,
   getMaxInputLength,
   getInputLength,
-  convertCommaNumberToDot,
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
 
@@ -16,26 +15,26 @@ import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 
 import { InlineInput, Button } from 'components'
 
 import * as yup from 'yup'
 
 import styles from '../LimitForm/LimitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { notify } from 'reapop'
 import { consoleLogger } from 'utils/logger'
 
 const BuyTrailingStopForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
-    refreshBalance,
     selectedSymbolLastPrice,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
-
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
   const minNotional =
@@ -468,7 +467,7 @@ const BuyTrailingStopForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

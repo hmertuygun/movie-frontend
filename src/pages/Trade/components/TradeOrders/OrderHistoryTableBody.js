@@ -1,5 +1,5 @@
 /* eslint-disable css-modules/no-unused-class */
-import React, { useContext } from 'react'
+import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Moment from 'react-moment'
 
@@ -7,9 +7,10 @@ import { Tooltip } from 'components'
 import useIntersectionObserver from './useIntersectionObserver'
 import TradeOrdersStyle from './TradeOrders.module.css'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import styles from './TradeOrders.module.css'
 import { handleChangeTickSize } from 'utils/useTickSize'
+import { useSelector } from 'react-redux'
+import { ORDER_HISTORY_COLUMNS } from 'constants/orderHistoryColumns'
 
 const OrderHistoryTableBody = ({
   data,
@@ -19,58 +20,10 @@ const OrderHistoryTableBody = ({
   callOrderHistoryAPI,
   symbolClick,
 }) => {
-  const columns = [
-    {
-      title: 'Pair',
-      key: 'pair',
-      dataIndex: 'symbol',
-    },
-    {
-      title: 'Type',
-      key: 'type',
-      dataIndex: 'type',
-    },
-    {
-      title: 'Side',
-      key: 'side',
-      dataIndex: 'side',
-    },
-    {
-      title: 'Average',
-      key: 'average',
-    },
-    {
-      title: 'Price',
-      key: 'price',
-    },
-    {
-      title: 'Amount',
-      key: 'amount',
-    },
-    {
-      title: 'Filled',
-      key: 'filled',
-    },
-    {
-      title: 'Total',
-      key: 'total',
-    },
-    {
-      title: 'Trigger Condition',
-      key: 'trigger-conditions',
-    },
-    {
-      title: 'Status',
-      key: 'status',
-    },
-    {
-      title: 'Date',
-      key: 'date',
-    },
-  ]
-  const { activeExchange } = useContext(UserContext)
-  const { symbolDetails, setSymbol } = useSymbolContext()
-
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { setSymbol } = useSymbolContext()
+  const { symbolDetails } = useSelector((state) => state.symbols)
+  const { symbolType } = useSelector((state) => state.symbols)
   const loadMoreButtonRef = React.useRef()
 
   useIntersectionObserver({
@@ -79,8 +32,6 @@ const OrderHistoryTableBody = ({
     enabled: lastFetchedData && !isFetching && !isHideOtherPairs,
     threshold: 0.1,
   })
-
-  const { symbolType } = useSymbolContext()
 
   const onSymbolClick = (rowIndex, val) => {
     const calcVal = `${activeExchange?.exchange.toUpperCase()}:${val.replace(
@@ -139,7 +90,7 @@ const OrderHistoryTableBody = ({
         <thead>
           <tr>
             <th scope="col"></th>
-            {columns.map((item) => (
+            {ORDER_HISTORY_COLUMNS.map((item) => (
               <th scope="col" key={item.key}>
                 {item.title}
               </th>

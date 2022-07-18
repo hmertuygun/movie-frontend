@@ -1,14 +1,12 @@
-import React, { useContext } from 'react'
-import { TradeContext } from 'contexts/SimpleTradeContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
+import React from 'react'
 import { Typography } from 'components'
 import styles from './TradeOverview.module.css'
-import { UserContext } from 'contexts/UserContext'
+import { useSelector } from 'react-redux'
 const TradeOverview = () => {
-  const { state } = useContext(TradeContext)
-  const { selectedSymbol, selectedExchange } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
-  if (!state) {
+  const { selectedSymbol } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  if (!tradeState) {
     return null
   }
 
@@ -22,8 +20,8 @@ const TradeOverview = () => {
         <Typography>Exchange: {activeExchange.label}</Typography>
       </div>
 
-      <Typography>Amount: {state.entry.quantity}</Typography>
-      <Typography>Total: {state.entry.price}</Typography>
+      <Typography>Amount: {tradeState.entry.quantity}</Typography>
+      <Typography>Total: {tradeState.entry.price}</Typography>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import {
@@ -11,8 +11,6 @@ import {
 
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 
 import { InlineInput, Button } from 'components'
@@ -21,18 +19,14 @@ import * as yup from 'yup'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addEntryStopLimit } from 'store/actions'
 
 const EntryStopLimitForm = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolBalance,
-    isLoadingBalance,
-    refreshBalance,
-  } = useSymbolContext()
-
-  const { addEntryStopLimit } = useContext(TradeContext)
-
+  const { isLoading, refreshBalance } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolBalance, isLoadingBalance } =
+    useSelector((state) => state.symbols)
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     triggerPrice: '',
     price: '',
@@ -406,7 +400,7 @@ const EntryStopLimitForm = () => {
         price_trigger: values.price_trigger.value,
         total: values.total,
       }
-      addEntryStopLimit(payload)
+      dispatch(addEntryStopLimit(payload))
     }
   }
 
@@ -439,7 +433,7 @@ const EntryStopLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

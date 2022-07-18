@@ -1,11 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useContext, useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useNotifications } from 'reapop'
 import { Tooltip } from 'components'
 import DropDownSelect from 'react-dropdown-select'
 import Select from 'react-select'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import {
   createPriceAlert,
   getPriceAlerts,
@@ -17,6 +16,7 @@ import {
 } from 'services/api'
 import precisionRound from 'utils/precisionRound'
 import capitalizeFirstLetter from 'utils/capitalizeFirstLetter'
+import { useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 
 const parseSymbol = (symbol) => {
@@ -102,10 +102,9 @@ const AddOrEditPriceAlert = ({
   cardOp,
   onCancel,
 }) => {
-  const { symbols, symbolDetails, binanceDD, ftxDD, binanceUSDD, kucoinDD } =
-    useSymbolContext()
+  const { binanceDD, ftxDD, binanceUSDD, kucoinDD } = useSymbolContext()
   const { notify } = useNotifications()
-
+  const { symbols, symbolDetails } = useSelector((state) => state.symbols)
   const [state, setState] = useState(INITIAL_STATE)
   const roundOff = (price) => {
     if (parseFloat(price) >= 1) return precisionRound(price)
@@ -601,8 +600,8 @@ const PriceAlertsContainer = () => {
   const [delId, setDelId] = useState(null)
   const [snapShotCount, setSnapShotCount] = useState(0)
   const [fBData, setFBData] = useState(null)
-  const { userData } = useContext(UserContext)
-  const { symbolDetails } = useSymbolContext()
+  const { symbolDetails } = useSelector((state) => state.symbols)
+  const { userData } = useSelector((state) => state.users)
   const { notify } = useNotifications()
 
   useEffect(() => {

@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react'
 import * as yup from 'yup'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Slider from 'rc-slider'
 
 import { InlineInput, Button, Typography } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
 import {
@@ -18,6 +18,8 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
 import scientificToDecimal from 'utils/toDecimal'
+import { useDispatch, useSelector } from 'react-redux'
+import { addStoplossMarket } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const useStyles = makeStyles({
@@ -44,12 +46,13 @@ const errorInitialValues = {
 }
 
 const SellFullExitStoplossStopMarket = () => {
-  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
-    useSymbolContext()
-
-  const { state, addStoplossMarket } = useContext(TradeContext)
-  const { entry } = state
-
+  const { isLoading } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolLastPrice } = useSelector(
+    (state) => state.symbols
+  )
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { entry } = tradeState
+  const dispatch = useDispatch()
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
@@ -181,7 +184,6 @@ const SellFullExitStoplossStopMarket = () => {
   })
 
   const handleSliderChange = (newValue) => {
-    newValue = 0 - newValue
     setValues((values) => ({
       ...values,
       profit: newValue,
@@ -197,7 +199,7 @@ const SellFullExitStoplossStopMarket = () => {
 
     const value = !target.value
       ? ''
-      : -Math.abs(removeTrailingZeroFromInput(target.value))
+      : Math.abs(removeTrailingZeroFromInput(target.value))
 
     const validatedValue = Math.abs(value) > 99 ? -99 : value
 
@@ -400,15 +402,19 @@ const SellFullExitStoplossStopMarket = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoplossMarket({
-        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
-        profit: convertCommaNumberToDot(values.profit),
-        quantity: convertCommaNumberToDot(values.quantity),
-        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
-        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
-        price_trigger: values.price_trigger.value,
-        side: 'buy',
-      })
+      dispatch(
+        addStoplossMarket({
+          triggerPrice: convertCommaNumberToDot(values.triggerPrice),
+          profit: convertCommaNumberToDot(values.profit),
+          quantity: convertCommaNumberToDot(values.quantity),
+          quantityPercentage: convertCommaNumberToDot(
+            values.quantityPercentage
+          ),
+          symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
+          price_trigger: values.price_trigger.value,
+          side: 'buy',
+        })
+      )
     }
   }
 
@@ -455,7 +461,7 @@ const SellFullExitStoplossStopMarket = () => {
                   min={0}
                   max={99}
                   onChange={handleSliderChange}
-                  value={-values.profit}
+                  value={values.profit}
                 />
               </div>
               <div className={styles['SliderInput']}>
@@ -466,6 +472,7 @@ const SellFullExitStoplossStopMarket = () => {
                   postLabel={'%'}
                   name="profit"
                   type="text"
+                  label="-"
                 />
               </div>
             </div>
@@ -514,7 +521,9 @@ const SellFullExitStoplossStopMarket = () => {
           <Button
             type="submit"
             disabled={
-              state?.stoploss?.length || !values.quantity || values.profit === 0
+              tradeState?.stoploss?.length ||
+              !values.quantity ||
+              values.profit === 0
             }
             variant="sell"
           >

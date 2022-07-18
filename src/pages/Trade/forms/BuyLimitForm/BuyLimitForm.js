@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import { useNotifications } from 'reapop'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
@@ -18,23 +18,22 @@ import {
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { InlineInput, Button } from 'components'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
 
 const BuyLimitForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
-    selectedSymbolBalance,
     isLoadingBalance,
-    refreshBalance,
+    selectedSymbolBalance,
     selectedSymbolLastPrice,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
   const { notify } = useNotifications()
-
+  const dispatch = useDispatch()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
   const minNotional =
@@ -92,7 +91,21 @@ const BuyLimitForm = () => {
         ),
       }))
     }
-  }, [selectedSymbolLastPrice, selectedSymbolDetail])
+  }, [selectedSymbolDetail])
+
+  useEffect(() => {
+    if (typeof selectedSymbolDetail?.tickSize == 'number') {
+      setValues((prevVal) => ({
+        price: addPrecisionToNumber(
+          selectedSymbolLastPrice,
+          selectedSymbolDetail['tickSize'] > 8
+            ? ''
+            : selectedSymbolDetail['tickSize']
+        ),
+      }))
+    }
+  }, [selectedSymbolLastPrice])
+
   // @TODO
   // Move schema to a different folder
   const formSchema = yup.object().shape({
@@ -484,7 +497,7 @@ const BuyLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

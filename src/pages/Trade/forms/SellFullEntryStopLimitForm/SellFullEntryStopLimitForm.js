@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import * as yup from 'yup'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
@@ -12,24 +12,19 @@ import {
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
 import roundNumbers from 'utils/roundNumbers'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { InlineInput, Button } from 'components'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addEntry } from 'store/actions'
 
 const SellFullEntryStopLimitForm = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedBaseSymbolBalance,
-    isLoadingBalance,
-    refreshBalance,
-  } = useSymbolContext()
-
-  const { addEntryStopLimit } = useContext(TradeContext)
-
+  const { isLoading, refreshBalance } = useSymbolContext()
+  const { selectedSymbolDetail, selectedBaseSymbolBalance, isLoadingBalance } =
+    useSelector((state) => state.symbols)
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     triggerPrice: '',
     price: '',
@@ -50,7 +45,7 @@ const SellFullEntryStopLimitForm = () => {
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
   const maxPrice = selectedSymbolDetail && Number(selectedSymbolDetail.maxPrice)
   const minPrice = selectedSymbolDetail && Number(selectedSymbolDetail.minPrice)
-  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
+  // const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
 
   const amountPercentagePrecision = 1
@@ -396,7 +391,7 @@ const SellFullEntryStopLimitForm = () => {
         price_trigger: values.price_trigger.value,
         total: values.total,
       }
-      addEntryStopLimit(payload)
+      dispatch(addEntry(payload))
     }
   }
 
@@ -429,7 +424,7 @@ const SellFullEntryStopLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

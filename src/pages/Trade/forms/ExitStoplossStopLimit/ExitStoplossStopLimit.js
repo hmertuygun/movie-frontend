@@ -1,6 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { InlineInput, Button, Typography } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
@@ -23,6 +22,8 @@ import { consoleLogger } from 'utils/logger'
 import * as yup from 'yup'
 
 import styles from './ExitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addStoplossLimit } from 'store/actions'
 
 const useStyles = makeStyles({
   root: {
@@ -51,12 +52,13 @@ const errorInitialValues = {
 }
 
 const ExitStoplossStopLimit = () => {
-  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
-    useSymbolContext()
-
-  const { state, addStoplossLimit } = useContext(TradeContext)
-  const { entry } = state
-
+  const { isLoading } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolLastPrice } = useSelector(
+    (state) => state.symbols
+  )
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { entry } = tradeState
+  const dispatch = useDispatch()
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
   const totalPrecision =
@@ -448,15 +450,19 @@ const ExitStoplossStopLimit = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoplossLimit({
-        price: convertCommaNumberToDot(values.price),
-        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
-        profit: convertCommaNumberToDot(values.profit),
-        quantity: convertCommaNumberToDot(values.quantity),
-        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
-        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
-        price_trigger: values.price_trigger.value,
-      })
+      dispatch(
+        addStoplossLimit({
+          price: convertCommaNumberToDot(values.price),
+          triggerPrice: convertCommaNumberToDot(values.triggerPrice),
+          profit: convertCommaNumberToDot(values.profit),
+          quantity: convertCommaNumberToDot(values.quantity),
+          quantityPercentage: convertCommaNumberToDot(
+            values.quantityPercentage
+          ),
+          symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
+          price_trigger: values.price_trigger.value,
+        })
+      )
     }
   }
 
@@ -577,7 +583,9 @@ const ExitStoplossStopLimit = () => {
         <Button
           type="submit"
           disabled={
-            state?.stoploss?.length || !values.quantity || values.profit === 0
+            tradeState?.stoploss?.length ||
+            !values.quantity ||
+            values.profit === 0
           }
           variant="sell"
         >

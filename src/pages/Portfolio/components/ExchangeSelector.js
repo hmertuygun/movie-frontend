@@ -1,9 +1,9 @@
 import { exchangeCreationOptions } from 'constants/ExchangeOptions'
-import { PortfolioContext } from 'contexts/PortfolioContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { ThemeContext } from 'contexts/ThemeContext'
 import { useContext } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
+import { updateSelectedExchanges } from 'store/actions'
 import getLogo from 'utils/getExchangeLogo'
 
 const customStyles = {}
@@ -52,16 +52,17 @@ const Option = (props) => {
 }
 
 const ExchangeSelector = ({ onChange }) => {
-  const { exchanges } = useSymbolContext()
+  const { exchanges } = useSelector((state) => state.exchanges)
   const { theme } = useContext(ThemeContext)
-  const { setSelectedExchanges, selectedExchanges, loading } =
-    useContext(PortfolioContext)
-
+  const dispatch = useDispatch()
+  const { portfolioLoading, selectedExchanges } = useSelector(
+    (state) => state.portfolio
+  )
   return (
     <Select
       closeMenuOnSelect={false}
       components={{ MultiValueLabel, Option }}
-      isLoading={loading}
+      isLoading={portfolioLoading}
       styles={{
         ...customStyles,
         multiValueLabel: (base) => ({
@@ -69,32 +70,32 @@ const ExchangeSelector = ({ onChange }) => {
         }),
         control: (base) => ({
           ...base,
-          background: theme == 'DARK' ? '#2c4056' : base.backgroundColor,
+          background: theme === 'DARK' ? '#2c4056' : base.backgroundColor,
           border:
-            theme == 'DARK'
+            theme === 'DARK'
               ? '1px solid #223244'
               : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
         }),
         multiValue: (base) => ({
           ...base,
-          background: theme == 'DARK' ? '#141d27' : base.backgroundColor,
+          background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
           border:
-            theme == 'DARK'
+            theme === 'DARK'
               ? '1px solid #223244'
               : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
         }),
         menu: (base) => ({
           ...base,
-          background: theme == 'DARK' ? '#141d27' : base.backgroundColor,
+          background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
           border:
-            theme == 'DARK'
+            theme === 'DARK'
               ? '1px solid #223244'
               : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
         }),
       }}
       defaultValue={selectedExchanges[0]}
       hideSelectedOptions={false}
-      onChange={(values) => setSelectedExchanges(values)}
+      onChange={(values) => dispatch(updateSelectedExchanges(values))}
       isMulti
       options={exchanges}
     />

@@ -1,24 +1,31 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
-import useTimeout from 'hooks/useTimeout'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTimeout } from 'hooks'
 import BalanceTable from './components/BalanceTable'
 import EstimateValue from './components/EstimateValue'
 import PortfolioDistribution from './components/PortfolioDistribution'
-import { PortfolioContext } from 'contexts/PortfolioContext'
-import { UserContext } from 'contexts/UserContext'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Tooltip } from 'components'
 import refreshPeriods from 'constants/refreshPeriods'
 import './Portfolio.css'
-import ExchangeSelector from './components/ExchangeSelector'
+import { useDispatch, useSelector } from 'react-redux'
 import { useMediaQuery } from 'react-responsive'
+import ExchangeSelector from './components/ExchangeSelector'
+import { refreshPortfolioData, updateSelectedExchanges } from 'store/actions'
+import { useLocation } from 'react-router-dom'
 
 function PortfolioContainer() {
   const [refreshLoading, setRefreshLoading] = useState(false)
   const [loadingLocked, setLoadingLocked] = useState(false)
-  const { loading, refreshData, balance, elapsed } =
-    useContext(PortfolioContext)
-  const { activeExchange } = useContext(UserContext)
+  const { pathname } = useLocation()
+  const isPortfolioPage = useMemo(() => pathname.includes('/portfolio'), [])
+  const dispatch = useDispatch()
+  const { balance, elapsed, portfolioLoading, selectedExchanges } = useSelector(
+    (state) => state.portfolio
+  )
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { userData } = useSelector((state) => state.users)
   const isMobile = useMediaQuery({ query: `(max-width: 400px)` })
   const lockText = useMemo(
     () =>
@@ -27,17 +34,41 @@ function PortfolioContainer() {
       } seconds`,
     []
   )
+  const fetchData = useCallback(async () => {
+    if (userData && activeExchange.exchange && selectedExchanges.length) {
+      dispatch(refreshPortfolioData(selectedExchanges, isPortfolioPage))
+    }
+  }, [
+    activeExchange.apiKeyName,
+    activeExchange.exchange,
+    isPortfolioPage,
+    selectedExchanges,
+  ])
 
   useEffect(() => {
-    if (loading) {
+    if (!isOnboardingSkipped) {
+      if (!selectedExchanges.length && activeExchange?.label)
+        dispatch(updateSelectedExchanges([activeExchange]))
+      fetchData()
+    }
+  }, [
+    userData,
+    activeExchange,
+    fetchData,
+    isOnboardingSkipped,
+    selectedExchanges,
+  ])
+
+  useEffect(() => {
+    if (portfolioLoading) {
       setRefreshLoading(true)
     } else {
       setRefreshLoading(false)
     }
-  }, [loading])
+  }, [portfolioLoading])
 
   const onPortfolioRefresh = () => {
-    refreshData(true)
+    dispatch(refreshPortfolioData(selectedExchanges, isPortfolioPage, true))
     setLoadingLocked(true)
   }
 

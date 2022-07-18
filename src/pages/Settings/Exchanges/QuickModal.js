@@ -10,6 +10,7 @@ import {
   customStyles,
   defaultExchange,
 } from 'constants/QuickModal'
+import { useSelector } from 'react-redux'
 
 const QuickModal = ({
   onClose,
@@ -19,12 +20,14 @@ const QuickModal = ({
   isUpdate,
   selectedExchange,
 }) => {
-  const { isPaidUser, isException } = useContext(UserContext)
   const [exchange, setExchange] = useState(defaultExchange)
   const [apiName, setApiName] = useState('')
   const [validation, setValidation] = useState({})
   const [exchangeForm, setExchangeForm] = useState()
   const [formFields, setFormFields] = useState()
+
+  const { isPaidUser } = useSelector((state) => state.subscriptions)
+  const { isException } = useSelector((state) => state.exchanges)
 
   const [errors, setErrors] = useState({
     ...errorInitialValues,

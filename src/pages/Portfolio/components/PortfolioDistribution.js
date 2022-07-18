@@ -1,11 +1,10 @@
-import { PortfolioContext } from 'contexts/PortfolioContext'
-import React, { useContext } from 'react'
+import React from 'react'
+import { useSelector } from 'react-redux'
 import SunburstChart from './Chart/SunburstChart'
 import './PortfolioDistribution.css'
 
 const PortfolioDistribution = () => {
-  const { chart } = useContext(PortfolioContext)
-
+  const { sunburstChart } = useSelector((state) => state.charts)
   return (
     <>
       <div className="card card-fluid">
@@ -17,9 +16,9 @@ const PortfolioDistribution = () => {
           </div>
         </div>
         <div className="card-body">
-          {chart && chart.children && (
+          {sunburstChart && sunburstChart.children && (
             <div className="row align-items-center d-flex align-items-center justify-content-center">
-              <SunburstChart data={chart} />
+              <SunburstChart data={sunburstChart} />
             </div>
           )}
         </div>

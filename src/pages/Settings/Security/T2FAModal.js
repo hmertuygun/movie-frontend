@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { createGoogleAuth2FA } from 'services/api'
-import { UserContext } from 'contexts/UserContext'
 import { ModalsConf } from 'constants/ModalsConf'
 import { useLocation, useHistory } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateTwofaSecretKey, delete2FA, add2FA } from 'store/actions'
 
 const HeaderSteps = [
   ModalsConf.DownloadApp,
@@ -45,7 +46,7 @@ const withCard =
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
     const { hash } = useLocation()
     const history = useHistory()
-    const { state } = useContext(UserContext)
+    const { userState } = useSelector((state) => state.users)
     const onNext = useRef()
     const onClickNext = async () => {
       try {
@@ -54,7 +55,7 @@ const withCard =
           const data = await onNext.current()
           next(data)
         } else {
-          if (hash === '#security' || state.has2FADetails) {
+          if (hash === '#security' || userState.has2FADetails) {
             history.push('/trade')
             next()
           } else {
@@ -196,13 +197,13 @@ export const ScanQRCode = withCard(
   ModalsConf.ScanQRCode.step,
   ({ onNext, data }) => {
     const [t2FASecretCode, setT2FASecretCode] = useState('')
-    const { setTwofaSecretKey } = useContext(UserContext)
+    const dispatch = useDispatch()
     useEffect(() => {
       const generateSecret = async () => {
         const otpauth = `otpauth://totp/${data.label}?secret=${data.secret}`
         QRCode.toDataURL(otpauth, function (err, data_url) {
           setT2FASecretCode(data_url)
-          setTwofaSecretKey(data.secret)
+          dispatch(updateTwofaSecretKey(data.secret))
         })
       }
       generateSecret()
@@ -274,17 +275,23 @@ const CodeForm = ({ title, onVerify, onNext, onChangeCode }) => {
 export const EnableGoogleAuth = withCard(
   ModalsConf.EnableGoogleAuth.step,
   ({ onNext, new2FADetails, data }) => {
-    const { add2FA } = useContext(UserContext)
+    const { userState } = useSelector((state) => state.users)
+    const dispatch = useDispatch()
     const [verifyCode, setVerifyCode] = useState('')
     const verifyAppAuthCode = async () => {
-      const response = await add2FA({
-        auth_answer: verifyCode,
-        key: data.key,
-        title: new2FADetails.title,
-        description: new2FADetails.description,
-        date: new2FADetails.date,
-        type: new2FADetails.type,
-      })
+      const response = await dispatch(
+        add2FA(
+          {
+            auth_answer: verifyCode,
+            key: data.key,
+            title: new2FADetails.title,
+            description: new2FADetails.description,
+            date: new2FADetails.date,
+            type: new2FADetails.type,
+          },
+          userState
+        )
+      )
       return response
     }
     return (
@@ -302,7 +309,7 @@ export const EnableGoogleAuth = withCard(
 export const BackUpKey = withCard(
   ModalsConf.BackUpKey.step,
   ({ data }) => {
-    const { twofaSecretKey } = useContext(UserContext)
+    const { twofaSecretKey } = useSelector((state) => state.appFlow)
     return (
       <>
         <h4 className="text-center">
@@ -321,10 +328,11 @@ export const BackUpKey = withCard(
 export const DeleteGoogleAuth = withCard(
   ModalsConf.DeleteGoogleAuth.step,
   ({ onNext }) => {
-    const { delete2FA } = useContext(UserContext)
+    const dispatch = useDispatch()
+    const { userState } = useSelector((state) => state.users)
     const [verifyCode, setVerifyCode] = useState('')
     const deleteAppAuthCode = async () => {
-      await delete2FA(verifyCode)
+      await dispatch(delete2FA(verifyCode, userState))
     }
     return (
       <CodeForm

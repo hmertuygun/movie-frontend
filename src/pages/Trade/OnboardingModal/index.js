@@ -6,7 +6,7 @@ import * as yup from 'yup'
 import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
 import { UserContext } from 'contexts/UserContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   addUserExchange,
   updateLastSelectedValue,
@@ -23,29 +23,27 @@ import { supportLinks } from 'constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from 'constants/Trade'
 import { sortExchangesData } from 'utils/apiKeys'
 import { session } from 'services/storages'
+import {
+  refreshExchanges,
+  updateActiveExchange,
+  updateLoadApiKeys,
+  updateOnTour,
+  updateTotalExchanges,
+  updateSubscriptionsDetails,
+  handleOnboardingSkip,
+} from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const OnboardingModal = () => {
-  const { refreshExchanges } = useSymbolContext()
-  const {
-    loadApiKeys,
-    setLoadApiKeys,
-    isLoggedIn,
-    setTotalExchanges,
-    setActiveExchange,
-    getSubscriptionsData,
-    onTour,
-    setOnTour,
-    handleOnboardingSkip,
-    isOnboardingSkipped,
-    isPaidUser,
-    userData,
-    isException,
-    state,
-  } = useContext(UserContext)
+  const { isLoggedIn } = useContext(UserContext)
+
+  const { loadApiKeys } = useSelector((state) => state.apiKeys)
+  const { userData, userState } = useSelector((state) => state.users)
+  const { isOnboardingSkipped, onTour } = useSelector((state) => state.appFlow)
+  const { isPaidUser } = useSelector((state) => state.subscriptions)
   const history = useHistory()
   const { notify } = useNotifications()
-
+  const dispatch = useDispatch()
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
   const [hasError, setError] = useState(false)
@@ -160,7 +158,7 @@ const OnboardingModal = () => {
       } else {
         let value = `${apiName}__${exchange.value}`
         await updateLastSelectedValue(userData.email, value)
-        refreshExchanges()
+        dispatch(refreshExchanges(userData))
         setStepNo(step + 1)
         notify({
           status: 'success',
@@ -199,13 +197,13 @@ const OnboardingModal = () => {
   }
 
   const onTertiaryBtnClick = async () => {
-    handleOnboardingSkip()
+    dispatch(handleOnboardingSkip())
     history.push('/chartview')
   }
 
   const onPrimaryBtnClick = async () => {
     if (step === 1) {
-      if (state && state.has2FADetails) {
+      if (userState && userState.has2FADetails) {
         setStepNo(step + 1)
       } else {
         history.push('/settings#security')
@@ -223,23 +221,25 @@ const OnboardingModal = () => {
           if (apiKey.data()) {
             let apiKeys = sortExchangesData(apiKey.data())
             if (apiKeys) {
-              setTotalExchanges(apiKeys)
-              setActiveExchange({
-                label: `${exchange.value} - ${apiName}`,
-                value: `${exchange.value} - ${apiName}`,
-                apiKeyName: apiName,
-                exchange: exchange.value,
-              })
-              refreshExchanges()
-              setOnTour(!onTour)
-              getSubscriptionsData()
+              dispatch(updateTotalExchanges(apiKeys))
+              dispatch(
+                updateActiveExchange({
+                  label: `${exchange.value} - ${apiName}`,
+                  value: `${exchange.value} - ${apiName}`,
+                  apiKeyName: apiName,
+                  exchange: exchange.value,
+                })
+              )
+              dispatch(refreshExchanges(userData))
+              dispatch(updateOnTour(!onTour))
+              dispatch(updateSubscriptionsDetails(userState, userData))
             }
           }
         })
       } catch (e) {
         consoleLogger(e)
       } finally {
-        setLoadApiKeys(true)
+        updateLoadApiKeys(true)
       }
     }
   }

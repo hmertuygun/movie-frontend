@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { ThemeContext } from 'contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
@@ -11,45 +10,48 @@ import { firebase } from 'services/firebase'
 import { getSnapShotCollection, getSnapShotDocument } from 'services/api'
 import { storage } from 'services/storages'
 import lzutf8 from 'lzutf8'
+import { useSelector, useDispatch } from 'react-redux'
+import {
+  setActiveAnalysts,
+  updateActiveDrawing,
+  updateActiveDrawingId,
+  updateAddedDrawing,
+  updateChartDrawings,
+  updateIsChartReady,
+  updateIsTradersModalOpen,
+  updateTemplateDrawingsOpen,
+  updateWatchListOpen,
+} from 'store/actions'
 import exportAsImage from 'utils/downloadImage'
 import dayjs from 'dayjs'
 import { consoleLogger } from 'utils/logger'
 
 const TradeChart = () => {
-  const {
-    symbolDetails,
-    symbolType,
-    exchangeType,
-    setWatchListOpen,
-    chartData,
-    templateDrawings,
-    setTemplateDrawings,
-    watchListOpen,
-    templateDrawingsOpen,
-    setTemplateDrawingsOpen,
-    setSymbol,
-    setIsTradersModalOpen,
-    activeTrader,
-    selectedSymbol,
-    selectEmojiPopoverOpen,
-    setActiveAnalysts,
-  } = useSymbolContext()
+  const { setSymbol } = useSymbolContext()
+
+  const { symbolDetails, selectedSymbol, symbolType } = useSelector(
+    (state) => state.symbols
+  )
+  const { templateDrawings, templateDrawingsOpen } = useSelector(
+    (state) => state.templates
+  )
+  const { watchListOpen } = useSelector((state) => state.market)
+  const { chartData } = useSelector((state) => state.charts)
+  const { activeTrader } = useSelector((state) => state.trades)
+  const { selectEmojiPopoverOpen } = useSelector((state) => state.emojis)
+  const { exchangeType } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
   const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const history = useHistory()
-  const {
-    userData,
-    openOrdersUC,
-    isOnboardingSkipped,
-    setChartDrawings,
-    chartDrawings,
-    settingChartDrawings,
-    setActiveDrawingId,
-    setActiveDrawing,
-    addedDrawing,
-    isAnalyst,
-  } = useContext(UserContext)
+
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { userData, isAnalyst } = useSelector((state) => state.users)
+  const { openOrdersUC } = useSelector((state) => state.orders)
+  const { chartMirroring, addedDrawing, chartDrawings, settingChartDrawings } =
+    useSelector((state) => state.charts)
+
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
   const [drawings, setDrawings] = useState()
@@ -58,16 +60,16 @@ const TradeChart = () => {
   const [onMarket, setOnMarket] = useState(false)
 
   useEffect(() => {
-    if (typeof storage.get('chartMirroring') === 'string') {
-      const status = storage.get('chartMirroring') === 'true' ? true : false
-      setTemplateDrawingsOpen(status)
+    if (typeof chartMirroring === 'string') {
+      const status = chartMirroring === 'true' ? true : false
+      dispatch(updateTemplateDrawingsOpen(status))
     }
     setOnMarket(history.location.pathname === '/market')
     consoleLogger('TV Parent loaded', exchangeType, symbolType)
   }, [])
 
   useEffect(() => {
-    if (!isAnalyst) setActiveAnalysts()
+    if (!isAnalyst) dispatch(setActiveAnalysts(userData))
   }, [isAnalyst])
 
   useEffect(() => {
@@ -81,27 +83,6 @@ const TradeChart = () => {
       setExchange(exchangeType)
     }
   }, [selectedSymbol])
-
-  useEffect(() => {
-    getSnapShotCollection('chart_shared').onSnapshot(
-      (snapshot) => {
-        if (snapshot?.docs[0]) {
-          let { drawings } = snapshot.docs[0].data()
-          try {
-            drawings = lzutf8.decompress(drawings, { inputEncoding: 'Base64' })
-          } catch (error) {
-            consoleLogger('old')
-          } finally {
-            setTemplateDrawings({ drawings })
-          }
-        }
-      },
-      (error) => {
-        consoleLogger(error)
-        setOnError(true)
-      }
-    )
-  }, [db])
 
   useEffect(() => {
     const unsubscribe = getSnapShotDocument(
@@ -124,7 +105,7 @@ const TradeChart = () => {
             )
           } finally {
             setDrawings(converted)
-            setChartDrawings(converted)
+            dispatch(updateChartDrawings(converted))
           }
         } else if (
           !snapshot.data()?.drawings &&
@@ -163,16 +144,20 @@ const TradeChart = () => {
   }, [chartData?.timeZone, lsTimeZoneValue, isOnboardingSkipped])
 
   const onSniperBtnClick = () => {
-    setWatchListOpen((watchListOpen) => {
-      if (watchListOpen) {
-        const mainSelectedSymbol = JSON.parse(storage.get('mainSelectedSymbol'))
+    dispatch(
+      updateWatchListOpen((watchListOpen) => {
+        if (watchListOpen) {
+          const mainSelectedSymbol = JSON.parse(
+            storage.get('mainSelectedSymbol')
+          )
 
-        setSymbol(mainSelectedSymbol)
-      } else {
-        storage.set('mainSelectedSymbol', JSON.stringify(selectedSymbol))
-      }
-      return !watchListOpen
-    })
+          setSymbol(mainSelectedSymbol)
+        } else {
+          storage.set('mainSelectedSymbol', JSON.stringify(selectedSymbol))
+        }
+        return !watchListOpen
+      })
+    )
   }
 
   const createBackup = (drawing) => {
@@ -180,7 +165,9 @@ const TradeChart = () => {
   }
 
   const onTradersBtnClick = () => {
-    setIsTradersModalOpen((isTradersModalOpen) => !isTradersModalOpen)
+    dispatch(
+      updateIsTradersModalOpen((isTradersModalOpen) => !isTradersModalOpen)
+    )
   }
 
   useEffect(() => {
@@ -195,10 +182,12 @@ const TradeChart = () => {
   }, [watchListOpen])
 
   const onDrawingsBtnClick = (e) => {
-    setTemplateDrawingsOpen((templateDrawingsOpen) => {
-      storage.set('chartMirroring', !templateDrawingsOpen)
-      return !templateDrawingsOpen
-    })
+    dispatch(
+      updateTemplateDrawingsOpen((templateDrawingsOpen) => {
+        dispatch(updateTemplateDrawingsOpen(!templateDrawingsOpen))
+        return !templateDrawingsOpen
+      })
+    )
   }
 
   const filterOrders = (order, symbol) => {
@@ -250,12 +239,15 @@ const TradeChart = () => {
             activeTrader={activeTrader}
             createBackup={createBackup}
             isMobile={isMobile}
+            isAnalyst={isAnalyst}
+            setAddedDrawing={(e) => {
+              if (addedDrawing !== null) dispatch(updateAddedDrawing(e))
+            }}
             setActiveDrawing={(e) => {
-              setActiveDrawing(e)
+              dispatch(updateActiveDrawing(e))
             }}
             setActiveDrawingId={(e) => {
-              consoleLogger(e)
-              setActiveDrawingId(e)
+              dispatch(updateActiveDrawingId(e))
             }}
             sniperBtnClicked={(e) => {
               onSniperBtnClick(e)
@@ -265,6 +257,9 @@ const TradeChart = () => {
             }}
             tradersBtnClicked={(e) => {
               onTradersBtnClick(e)
+            }}
+            setIsChartReady={(e) => {
+              dispatch(updateIsChartReady(e))
             }}
             selectEmojiPopoverOpen={selectEmojiPopoverOpen}
           />

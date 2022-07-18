@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { ExternalLink } from 'react-feather'
 import { useNotifications } from 'reapop'
 import { ThemeContext } from 'contexts/ThemeContext'
-import { UserContext } from 'contexts/UserContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { useMutation, useQueryClient } from 'react-query'
 import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
@@ -23,19 +22,21 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { sortExchangesData } from 'utils/apiKeys'
 import { Tooltip } from 'components'
 import { session } from 'services/storages'
+import {
+  updateExchanges,
+  refreshExchanges,
+  updateLoadApiKeys,
+  updateActiveExchange,
+  updateTotalExchanges,
+} from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const Exchanges = () => {
-  const { refreshExchanges, exchanges, setExchanges } = useSymbolContext()
-  const {
-    loadApiKeys,
-    setLoadApiKeys,
-    setTotalExchanges,
-    activeExchange,
-    setActiveExchange,
-    userData,
-    state,
-  } = useContext(UserContext)
+  const { userData, userState } = useSelector((state) => state.users)
+  const { exchanges, activeExchange } = useSelector((state) => state.exchanges)
+  const { loadApiKeys } = useSelector((state) => state.apiKeys)
+  const dispatch = useDispatch()
+
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
   const { notify } = useNotifications()
@@ -54,7 +55,7 @@ const Exchanges = () => {
           if (apiKey.data()) {
             let apiKeys = sortExchangesData(apiKey.data())
             if (apiKeys.length !== 0) {
-              setTotalExchanges(exchanges)
+              dispatch(updateTotalExchanges(exchanges))
             }
           }
         },
@@ -94,7 +95,7 @@ const Exchanges = () => {
       })
       analytics.logEvent('api_keys_added')
       trackEvent('user', 'api_keys_added', 'user')
-      refreshExchanges()
+      dispatch(refreshExchanges(userData))
     } catch (error) {
       consoleLogger(error)
       notify({
@@ -127,7 +128,7 @@ const Exchanges = () => {
       })
       analytics.logEvent('api_keys_added')
       trackEvent('user', 'api_keys_added', 'user')
-      refreshExchanges()
+      dispatch(refreshExchanges(userData))
     } catch (error) {
       notify({
         status: 'error',
@@ -156,9 +157,9 @@ const Exchanges = () => {
       }
       if (exchanges && exchanges.length) {
         if (exchanges.length - 1 === 0) {
-          setLoadApiKeys(false)
+          updateLoadApiKeys(false)
           session.clear()
-          setExchanges([])
+          dispatch(updateExchanges([]))
         } else {
           // What if we just deleted an active exchange key, set first one as active by default
           if (
@@ -171,14 +172,16 @@ const Exchanges = () => {
               (item) => item.apiKeyName !== selectedExchange.apiKeyName
             )
             if (newActiveKey) {
-              await refreshExchanges()
-              let value = `${newActiveKey.apiKeyName}__${newActiveKey.exchange}`
+              dispatch(refreshExchanges(userData))
+              let value = `${newActiveKey.apiKeyName}-${newActiveKey.exchange}`
               await updateLastSelectedValue(userData.email, value)
-              setActiveExchange({
-                ...newActiveKey,
-                label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
-                value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
-              })
+              dispatch(
+                updateActiveExchange({
+                  ...newActiveKey,
+                  label: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
+                  value: `${newActiveKey.exchange} - ${newActiveKey.apiKeyName}`,
+                })
+              )
             }
           }
         }
@@ -190,7 +193,7 @@ const Exchanges = () => {
         title: 'Success',
         message: 'API key deleted!',
       })
-      refreshExchanges()
+      dispatch(refreshExchanges(userData))
     } catch (error) {
       consoleLogger(error)
       notify({
@@ -291,18 +294,18 @@ const Exchanges = () => {
               data-for="integrate-button"
               data-tip="You need to add 2FA"
             >
-              {!state.has2FADetails ? (
+              {!userState.has2FADetails ? (
                 <Tooltip id="integrate-button" place="top" />
               ) : null}
               <button
                 type="button"
                 className={`btn btn-xs ${
-                  !state.has2FADetails ? 'btn-secondary' : 'btn-primary'
+                  !userState.has2FADetails ? 'btn-secondary' : 'btn-primary'
                 } btn-icon rounded-pill`}
                 onClick={() => {
                   setIsModalVisible(true)
                 }}
-                disabled={!state.has2FADetails}
+                disabled={!userState.has2FADetails}
               >
                 <span className="btn-inner--icon">
                   <FontAwesomeIcon icon={faPlus} />
@@ -337,7 +340,7 @@ const Exchanges = () => {
               <div className="card-body">
                 {!isLoading &&
                   exchanges &&
-                  exchanges
+                  [...exchanges]
                     .sort((a, b) => {
                       if (a.apiKeyName < b.apiKeyName) {
                         return -1

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
@@ -12,10 +12,7 @@ import {
 
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 
 import { InlineInput, Button } from 'components'
 
@@ -24,23 +21,21 @@ import * as yup from 'yup'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { fetchTicker } from 'services/exchanges'
+import { useDispatch, useSelector } from 'react-redux'
+import { addMarketEntry } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const MarketForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedSymbolBalance,
     isLoadingBalance,
-    isLoadingLastPrice,
     selectedSymbolLastPrice,
-    setSelectedSymbolLastPrice,
-    refreshBalance,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
-
-  const { addMarketEntry } = useContext(TradeContext)
-
+    isLoadingLastPrice,
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     quantity: '',
     total: '',
@@ -316,7 +311,7 @@ const MarketForm = () => {
       if (isFormValid) {
         setBtnProc(true)
         setErrors({ price: '', quantity: '', total: '' })
-        addMarketEntry({ price: '', quantity: '', total: '' })
+        dispatch(addMarketEntry({ price: '', quantity: '', total: '' }))
         const symbol =
           selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
@@ -329,7 +324,6 @@ const MarketForm = () => {
           consoleLogger(err)
         }
 
-        setSelectedSymbolLastPrice(price)
         setBtnProc(false)
 
         const payload = {
@@ -340,7 +334,7 @@ const MarketForm = () => {
           type: 'market',
           total: values.total,
         }
-        addMarketEntry(payload)
+        dispatch(addMarketEntry(payload))
       }
     } catch (e) {
       consoleLogger(e)
@@ -376,7 +370,7 @@ const MarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

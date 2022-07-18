@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react'
 import GaugeChart from 'react-gauge-chart'
 import { stableCoins } from 'constants/StableCoinsList'
-import { PortfolioContext } from 'contexts/PortfolioContext'
 import { ThemeContext } from 'contexts/ThemeContext'
 import './CashoMeter.css'
+import { useSelector } from 'react-redux'
 
 const CashoMeter = () => {
-  const { balance } = useContext(PortfolioContext)
+  const { balance } = useSelector((state) => state.portfolio)
   const { theme } = useContext(ThemeContext)
 
   let coins = useMemo(

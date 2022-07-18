@@ -1,13 +1,7 @@
-import React, {
-  useState,
-  Fragment,
-  useContext,
-  useEffect,
-  useMemo,
-} from 'react'
-import { UserContext } from 'contexts/UserContext'
+import React, { useState, Fragment, useEffect, useMemo } from 'react'
 import Button from '../Button/Button'
 import './ButtonNavigator.css'
+import { useSelector } from 'react-redux'
 
 const ButtonNavigator = ({
   index = 0,
@@ -17,7 +11,7 @@ const ButtonNavigator = ({
   isDisabled = false,
 }) => {
   const [viewIndex, setViewIndex] = useState(index)
-  const { isTourStep5, isTourFinished } = useContext(UserContext)
+  const { isTourStep5, isTourFinished } = useSelector((state) => state.appFlow)
   const disabledStyle = useMemo(() => {
     return isDisabled
       ? {

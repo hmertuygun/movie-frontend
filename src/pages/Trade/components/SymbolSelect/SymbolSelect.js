@@ -1,23 +1,21 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import Select from 'react-select'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import styles from './SymbolSelect.module.css'
 import { useMediaQuery } from 'react-responsive'
 
 import { customStyle } from 'styles'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateExchangeKey } from 'store/actions'
 
 const SymbolSelect = ({ showOnlyMarketSelection }) => {
-  const {
-    exchanges,
-    selectedSymbol,
-    setSymbol,
-    setExchange,
-    isLoading,
-    activeDD,
-    isExchangeLoading,
-  } = useSymbolContext()
-  const { activeExchange, isOnboardingSkipped } = useContext(UserContext)
+  const { setSymbol } = useSymbolContext()
+  const { selectedSymbol } = useSelector((state) => state.symbols)
+  const { exchanges, isExchangeLoading, activeDD, activeExchange } =
+    useSelector((state) => state.exchanges)
+  const { userData } = useSelector((state) => state.users)
+  const dispatch = useDispatch()
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
   const [options, setOptions] = useState([])
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const isTablet = useMediaQuery({ query: `(max-width: 1230px)` })
@@ -62,7 +60,11 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
               isTablet,
               isMobile
             )}
-            onChange={(value) => setExchange(value)}
+            onChange={(value) =>
+              dispatch(
+                updateExchangeKey(value, setSymbol, activeExchange, userData)
+              )
+            }
             value={activeExchange}
             isDisabled={isExchangeLoading || isOnboardingSkipped}
           />

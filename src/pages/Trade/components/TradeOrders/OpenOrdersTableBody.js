@@ -4,68 +4,15 @@ import { useSymbolContext } from 'contexts/SymbolContext'
 import { Tooltip, Icon } from 'components'
 import { cancelTradeOrder, editOrder } from 'services/api'
 import Moment from 'react-moment'
-import { UserContext } from 'contexts/UserContext'
 import { ThemeContext } from 'contexts/ThemeContext'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from './TradeOrders.module.css'
 import OrderEditModal from './OrderEditModal'
 import SellOrderEditModal from './OrderEditModal/SellOrderEditModal'
 import { handleChangeTickSize } from 'utils/useTickSize'
-
-const openOrdersColumns = [
-  {
-    title: 'Pair',
-    key: 'symbol',
-    type: 'alphabet',
-    order: 0,
-  },
-  {
-    title: 'Type',
-    key: 'type',
-  },
-  {
-    title: 'Side',
-    key: 'side',
-  },
-  {
-    title: 'Price',
-    key: 'price',
-  },
-  {
-    title: 'Amount',
-    key: 'amount',
-  },
-  {
-    title: 'Filled',
-    key: 'filled',
-  },
-  {
-    title: 'Total',
-    key: 'total',
-  },
-  {
-    title: 'Trigger Condition',
-    key: 'trigger-conditions',
-  },
-  {
-    title: 'Status',
-    key: 'status',
-  },
-  {
-    title: 'Date',
-    key: 'timestamp',
-    type: 'number',
-    order: 1,
-  },
-  {
-    title: 'Edit',
-    key: 'edit',
-  },
-  {
-    title: 'Cancel',
-    key: 'cancel',
-  },
-]
+import { useDispatch, useSelector } from 'react-redux'
+import { updateOrderEdited } from 'store/actions'
+import { OPEN_ORDER_COLUMNS } from 'constants/OpenOdersColumns'
 
 const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const { notify } = useNotifications()
@@ -74,10 +21,12 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
-  const { activeExchange, setOrderEdited } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [cancelOrderRow, setCancelOrderRow] = useState(null)
-  const { symbolDetails, setSymbol } = useSymbolContext()
+  const { setSymbol } = useSymbolContext()
+  const { symbolDetails } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
 
   const isFullTrade = entry.length > 2
   const tradeType = entry && entry.find((value) => value.symbol === 'Entry')
@@ -161,7 +110,7 @@ const Expandable = ({ entry, deletedRow, setDeletedRows }) => {
         title: 'Success',
         message: 'Order Edited!',
       })
-      setOrderEdited(true)
+      dispatch(updateOrderEdited(true))
       setEditModalOpen(false)
     } catch (error) {
       const { data } = error.response
@@ -365,9 +314,9 @@ const OpenOrdersTableBody = ({
   isFetching,
 }) => {
   const [deletedRows, setDeletedRows] = useState([])
-  const [columns, setColumns] = useState(openOrdersColumns)
+  const [columns, setColumns] = useState(OPEN_ORDER_COLUMNS)
 
-  const { symbolType } = useSymbolContext()
+  const { symbolType } = useSelector((state) => state.symbols)
 
   const onTableHeadClick = (key, type, index) => {
     if (!type) return
@@ -423,17 +372,21 @@ const OpenOrdersTableBody = ({
           <tbody>
             {data.map((item) => {
               const { trade_id, symbol } = item
+              const itemData = JSON.parse(JSON.stringify(item))
               // Order Symbol for all orders.
-              const orderArray = item.orders.map((order) => ({
+              const orderArray = itemData.orders.map((order) => ({
                 trade_id,
                 orderSymbol: symbol,
                 ...order,
               }))
               // Order ID for Basic Trade
-              if (item.type !== 'Full Trade') {
-                item.order_id = item.orders[0].order_id
+              if (itemData.type !== 'Full Trade') {
+                itemData.order_id = itemData.orders[0].order_id
               }
-              const orders = [{ orderSymbol: symbol, ...item }, ...orderArray]
+              const orders = [
+                { orderSymbol: symbol, ...itemData },
+                ...orderArray,
+              ]
               return (
                 <Expandable
                   entry={orders}

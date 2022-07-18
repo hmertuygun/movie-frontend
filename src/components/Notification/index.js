@@ -11,14 +11,16 @@ import {
   getFirestoreDocumentData,
 } from 'services/api'
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 
 const WarningAlert = () => {
   const history = useHistory()
-  const { isLoggedIn, state, subscriptionData, userData } =
-    useContext(UserContext)
+  const { isLoggedIn } = useContext(UserContext)
   const [notices, setNotices] = useState([])
   const [finalNotices, setFinalNotices] = useState([])
+  const { userData } = useSelector((state) => state.users)
+  const { subscriptionData } = useSelector((state) => state.subscriptions)
 
   useEffect(() => {
     if (subscriptionData)

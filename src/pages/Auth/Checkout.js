@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { UserContext } from 'contexts/UserContext'
+import { useSelector } from 'react-redux'
 
 const Checkout = ({ creds, paymentCallback, isUpdate }) => {
-  const { userData } = useContext(UserContext)
+  const { userData } = useSelector((state) => state.users)
   const [clientSecret] = useState(creds.clientSecret)
   const [messages, _setMessages] = useState('')
   const [isLoading, setIsLoading] = useState(false)

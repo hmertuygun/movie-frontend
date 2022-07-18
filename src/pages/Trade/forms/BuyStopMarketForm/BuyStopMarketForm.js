@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import { useNotifications } from 'reapop'
@@ -16,7 +16,6 @@ import {
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { InlineInput, Button } from 'components'
 import * as yup from 'yup'
 
@@ -24,18 +23,15 @@ import * as yup from 'yup'
 import styles from '../LimitForm/LimitForm.module.css'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
+import { useDispatch, useSelector } from 'react-redux'
 
 const BuyStopMarketForm = () => {
-  const {
-    isLoading,
-    selectedSymbolDetail,
-    selectedSymbolBalance,
-    isLoadingBalance,
-    refreshBalance,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
+  const { isLoading, refreshBalance } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolBalance, isLoadingBalance } =
+    useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
   const { notify } = useNotifications()
-
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     triggerPrice: '',
     quantity: '',
@@ -464,7 +460,7 @@ const BuyStopMarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

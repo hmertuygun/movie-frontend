@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
@@ -14,30 +14,27 @@ import {
   getInputLength,
   allowOnlyNumberDecimalAndComma,
 } from 'utils/tradeForm'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { fetchTicker } from 'services/exchanges'
+import { useDispatch, useSelector } from 'react-redux'
+import { addEntry } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const SellFullMarketForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
-    isLoadingLastPrice,
     selectedSymbolLastPrice,
-    setSelectedSymbolLastPrice,
-    refreshBalance,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
+    isLoadingLastPrice,
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
 
-  const { addMarketEntry } = useContext(TradeContext)
-
+  const dispatch = useDispatch()
   const [values, setValues] = useState({
     quantity: '',
     total: '',
@@ -53,7 +50,6 @@ const SellFullMarketForm = () => {
 
   const minNotional =
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
-  const maxQty = selectedSymbolDetail && Number(selectedSymbolDetail.maxQty)
   const minQty = selectedSymbolDetail && Number(selectedSymbolDetail.minQty)
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
@@ -312,7 +308,9 @@ const SellFullMarketForm = () => {
       if (isFormValid) {
         setBtnProc(true)
         setErrors({ price: '', quantity: '', total: '' })
-        addMarketEntry({ price: '', quantity: '', total: '' })
+        dispatch(
+          addEntry({ price: '', quantity: '', total: '', type: 'market' })
+        )
         const symbol =
           selectedSymbolDetail && selectedSymbolDetail['symbolpair']
 
@@ -325,7 +323,6 @@ const SellFullMarketForm = () => {
           consoleLogger(err)
         }
 
-        setSelectedSymbolLastPrice(price)
         setBtnProc(false)
 
         const payload = {
@@ -337,7 +334,7 @@ const SellFullMarketForm = () => {
           total: values.total,
           side: 'sell',
         }
-        addMarketEntry(payload)
+        dispatch(addEntry(payload))
       }
     } catch (e) {
       consoleLogger(e)
@@ -373,7 +370,7 @@ const SellFullMarketForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

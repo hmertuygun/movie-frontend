@@ -1,15 +1,19 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import { X } from 'react-feather'
 
 import { exchangeCreationOptions } from 'constants/ExchangeOptions'
-import { UserContext } from 'contexts/UserContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import '../css/WatchListItem.css'
 import { Tooltip } from 'components'
+import { useSelector } from 'react-redux'
 
 const WatchListItem = ({ symbol, removeWatchList, group }) => {
-  const { setSymbol, templateDrawingsOpen, emojis } = useSymbolContext()
-  const { isAnalyst, isPaidUser } = useContext(UserContext)
+  const { setSymbol } = useSymbolContext()
+  const { templateDrawingsOpen } = useSelector((state) => state.templates)
+  const { emojis } = useSelector((state) => state.emojis)
+  const { isPaidUser } = useSelector((state) => state.subscriptions)
+  const { isAnalyst } = useSelector((state) => state.users)
+
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
 
   const getLogo = () => {

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
 import { UserContext } from 'contexts/UserContext'
 import './TabNavigator.css'
+import { useSelector } from 'react-redux'
 
 const TabInfo = () => {
   const [infoShow, setInfoShow] = useState(false)
@@ -82,7 +83,9 @@ const TabNavigator = ({
   hasMargin = false,
   changeTab,
 }) => {
-  const { showMarketItems, tour2CurrentStep, state } = useContext(UserContext)
+  const { tour2CurrentStep } = useSelector((state) => state.appFlow)
+  const { showMarketItems } = useSelector((state) => state.market)
+  const { userState } = useSelector((state) => state.users)
   const [contentIndex, setContentIndex] = useState(index)
   const [selectedDropDownOption, setSelectedDropdownOption] = useState(
     labelArray[2]
@@ -211,7 +214,7 @@ const TabNavigator = ({
                   if (changeTab) changeTab(labelIndex)
                 }}
               >
-                {!state.has2FADetails && label === 'Security' ? (
+                {!userState.has2FADetails && label === 'Security' ? (
                   <span className="text-danger">{label}</span>
                 ) : (
                   <span>{label}</span>

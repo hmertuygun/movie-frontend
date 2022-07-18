@@ -2,18 +2,21 @@ import React, { useState, useContext } from 'react'
 import { Redirect } from 'react-router-dom'
 import { Logo, Icon } from 'components'
 import { UserContext } from 'contexts/UserContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout, verify2FA } from 'store/actions'
 
 const QuickLoginVerify2FA = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const { verify2FA, logout, isLoggedInWithFirebase } = useContext(UserContext)
+  const { isLoggedInWithFirebase } = useContext(UserContext)
   const [t2faToken, set2faToken] = useState('')
   const [error, setError] = useState('')
-
+  const { userState } = useSelector((state) => state.users)
+  const dispatch = useDispatch()
   const doVerify2FA = async (t2faToken) => {
     try {
       setIsLoading(true)
-      const isVerifed = await verify2FA(t2faToken)
-      if (!isVerifed) {
+      const isVerified = await dispatch(verify2FA(t2faToken, userState))
+      if (!isVerified) {
         setError("Provided 2FA Token doesn't match.")
       }
     } catch (error) {
@@ -53,7 +56,7 @@ const QuickLoginVerify2FA = () => {
                   }
                 }}
                 onReset={() => {
-                  logout()
+                  dispatch(logout())
                 }}
               >
                 <div className="form-group">

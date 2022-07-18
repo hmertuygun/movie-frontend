@@ -4,10 +4,9 @@ import { useHistory } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 
 import { TabContext } from 'contexts/TabContext'
-import { UserContext } from 'contexts/UserContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import './TradeContainer.css'
 import ErrorBoundary from 'components/ErrorBoundary'
+import { useSelector } from 'react-redux'
 const TradePanel = lazy(() => import('./TradePanel'))
 const TradeChart = lazy(() => import('./TradeChart'))
 const TradeOrders = lazy(() => import('./components/TradeOrders/TradeOrders'))
@@ -18,8 +17,8 @@ const SymbolSelect = lazy(() =>
 
 const TradeContainer = () => {
   const { isTradePanelOpen } = useContext(TabContext)
-  const { watchListOpen } = useSymbolContext()
-  const { loadApiKeys, isOnboardingSkipped } = useContext(UserContext)
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { loadApiKeys } = useSelector((state) => state.apiKeys)
   const history = useHistory()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
 

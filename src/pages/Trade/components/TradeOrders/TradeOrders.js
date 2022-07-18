@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import { useNotifications } from 'reapop'
 
@@ -7,8 +7,6 @@ import {
   getOrdersHistory,
   getSnapShotDocument,
 } from 'services/api'
-import { UserContext } from 'contexts/UserContext'
-import { PortfolioContext } from 'contexts/PortfolioContext'
 import OrderHistoryTableBody from './OrderHistoryTableBody'
 import OpenOrdersTableBody from './OpenOrdersTableBody'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
@@ -16,36 +14,39 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from './TradeOrders.module.css'
 import precisionRound from 'utils/precisionRound'
 import Tooltip from 'components/Tooltip'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import './TradeOrders.css'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  openOrdersTimeInterval,
+  orderHistoryTimeInterval,
+} from 'constants/TimeIntervals'
+import {
+  updateDelOpenOrders,
+  updateLoaderVisible,
+  updateOpenOrdersUC,
+  updateOrderEdited,
+  updateRefreshButton,
+} from 'store/actions'
+import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
-  const {
-    isLoadingBalance,
-    refreshBalance,
-    onRefreshBtnClicked,
-    disableOrderHistoryRefreshBtn,
-    disableOpenOrdersRefreshBtn,
-    orderHistoryTimeInterval,
-    openOrdersTimeInterval,
-    exchangeType,
-  } = useSymbolContext()
-  const {
-    activeExchange,
-    setLoaderVisibility,
-    userData,
-    totalExchanges,
-    setOrderHistoryProgressUC,
-    setOpenOrdersUC,
-    setDelOpenOrders,
-    orderEdited,
-    setOrderEdited,
-    isOnboardingSkipped,
-  } = useContext(UserContext)
-  const { loading: isPortfolioLoading } = useContext(PortfolioContext)
+  const { refreshBalance } = useSymbolContext()
+  const { isLoadingBalance } = useSelector((state) => state.symbols)
+  const { userData } = useSelector((state) => state.users)
+  const { orderEdited } = useSelector((state) => state.orders)
+  const { totalExchanges, activeExchange } = useSelector(
+    (state) => state.exchanges
+  )
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { portfolioLoading: isPortfolioLoading } = useSelector(
+    (state) => state.portfolio
+  )
+  const { disableOrderHistoryRefreshBtn, disableOpenOrdersRefreshBtn } =
+    useSelector((state) => state.refresh)
   const { notify } = useNotifications()
+  const dispatch = useDispatch()
 
   const [isOpenOrders, setIsOpenOrders] = useState(true)
   const [orderHistoryProgress, setOrderHistoryProgress] = useState('100.00')
@@ -167,16 +168,15 @@ const TradeOrders = () => {
 
   const onOrdersRefreshBtnClick = (type) => {
     if (type === 'open-order') {
-      onRefreshBtnClicked('open-order')
+      dispatch(updateRefreshButton('open-order'))
       getOpenOrdersData(true)
     } else if (type === 'order-history') {
-      onRefreshBtnClicked('order-history')
+      dispatch(updateRefreshButton('order-history'))
       getOrderHistoryData(true, false, true)
     }
   }
 
   const orderHistoryLoadedFBCallback = (doc) => {
-    //consoleLogger('Order History Loaded => ', doc.data())
     if (!doc?.data()) return
     let isActiveExchangeSelected = false
     let loaded = 0,
@@ -211,11 +211,11 @@ const TradeOrders = () => {
     if (isActiveExchangeSelected) {
       let progress = precisionRound((loaded / total) * 100)
       setOrderHistoryProgress(progress)
-      setOrderHistoryProgressUC(progress)
+      // setOrderHistoryProgressUC(progress)
       setShowProgressBar(progress !== '100.00')
       if (progress !== '100') {
-        onRefreshBtnClicked('order-history')
-        onRefreshBtnClicked('portfolio')
+        dispatch(updateRefreshButton('order-history'))
+        dispatch(updateRefreshButton('portfolio'))
       }
       sessionStorage.setItem('showProgressBar', progress !== '100.00')
     }
@@ -223,7 +223,7 @@ const TradeOrders = () => {
 
   const deleteOpenOrdersRow = (row) => {
     setDeletedRows(row)
-    setDelOpenOrders(row)
+    dispatch(updateDelOpenOrders(row))
     // setCancelOrder(true)
     // setTimeout(() => {
     //   setCancelOrder(false)
@@ -269,7 +269,7 @@ const TradeOrders = () => {
   useEffect(() => {
     if (orderEdited) {
       getOpenOrdersData()
-      setOrderEdited(false)
+      dispatch(updateOrderEdited(false))
     }
     if (orderUpdateFB > 0) getOpenOrdersData()
   }, [orderUpdateFB, orderEdited])
@@ -278,7 +278,7 @@ const TradeOrders = () => {
     // if (orderUpdateFB > 0) setOrderUpdateFB(0)
     // if (orderHistoryFB > 0) setOrderHistoryFB(0)
     setOrderHistoryProgress('100.00')
-    setOrderHistoryProgressUC('100.00')
+    // setOrderHistoryProgressUC('100.00')
     setShowProgressBar(false)
     // setOpenOrderData([])
     // setOrderHistoryData([])
@@ -297,12 +297,12 @@ const TradeOrders = () => {
       setOrderHistoryFB((prevState) => prevState + 1)
     })
 
-    FBOrderHistoryLoad = getSnapShotDocument('load', userData.email).onSnapshot(
-      orderHistoryLoadedFBCallback,
-      (err) => {
-        consoleLogger(err)
-      }
-    )
+    FBOrderHistoryLoad = getSnapShotDocument(
+      'order_history_load',
+      userData.email
+    ).onSnapshot(orderHistoryLoadedFBCallback, (err) => {
+      console.error(err)
+    })
 
     return () => {
       FBOrderUpdate()
@@ -318,7 +318,7 @@ const TradeOrders = () => {
       !isOrderHistoryFetching &&
       !isPortfolioLoading
     ) {
-      setLoaderVisibility(false)
+      dispatch(updateLoaderVisible(false))
     }
   }, [
     isLoadingBalance,
@@ -328,7 +328,7 @@ const TradeOrders = () => {
   ])
 
   useEffect(() => {
-    setOpenOrdersUC(openOrderData)
+    dispatch(updateOpenOrdersUC(openOrderData))
     refreshBalance()
   }, [openOrderData])
 

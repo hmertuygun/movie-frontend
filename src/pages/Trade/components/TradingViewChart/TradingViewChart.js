@@ -45,6 +45,9 @@ export default class TradingViewChart extends Component {
     setActiveDrawing,
     setActiveDrawingId,
     isMobile,
+    setAddedDrawing,
+    setIsChartReady,
+    isAnalyst,
   }) {
     super()
     this.dF = new dataFeed({ debug: false, exchange, marketSymbols })
@@ -112,8 +115,7 @@ export default class TradingViewChart extends Component {
         this.addLoadDrawingsButton()
 
         this.addHeaderButtons()
-        const { setIsChartReady } = this.context
-        setIsChartReady(true)
+        this.props.setIsChartReady(true)
         this.setState({ isChartReady: true })
         consoleLogger('Chart loaded')
         const theme = storage.get('theme')
@@ -221,7 +223,7 @@ export default class TradingViewChart extends Component {
           await setChartDrawings(this.state.email, drawings)
         }
 
-        if (this.context.isAnalyst) {
+        if (this.props.isAnalyst) {
           let value = {
             drawings: compressed,
             ...(this.props.templateDrawings &&
@@ -472,7 +474,7 @@ export default class TradingViewChart extends Component {
     text.prepend(img)
     button.append(text)
 
-    if (!this.context.isAnalyst) {
+    if (!this.props.isAnalyst) {
       const traderValue = 'View Pro Traders Charts'
       await this.tradingViewWidget.headerReady()
       let traderButton = this.tradingViewWidget.createButton()
@@ -758,7 +760,7 @@ export default class TradingViewChart extends Component {
 
     if (typeof this.props.addedDrawing === 'object') {
       this.addTemplate(this.props.addedDrawing)
-      this.context.setAddedDrawing(null)
+      this.props.setAddedDrawing(null)
     }
 
     if (this.state.isSaved && this.state.loadingButton.style) {

@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { PlusCircle, Edit2, Trash2 } from 'react-feather'
 import Picker from 'emoji-picker-react'
 import { Modal } from 'components'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import { storage } from 'services/storages'
 import styles from '../../css/AddEmoji.module.css'
+import { updateEmojis } from 'store/actions'
 
 const AddEmoji = ({
   onClose,
@@ -14,7 +15,8 @@ const AddEmoji = ({
   isEmojiDeleted,
 }) => {
   const [showEmojis, setShowEmojis] = useState(null)
-  const { emojis, setEmojis } = useSymbolContext()
+  const { emojis } = useSelector((state) => state.emojis)
+  const dispatch = useDispatch()
 
   const handleEmojiClick = (e, data, id) => {
     setShowEmojis(null)
@@ -29,7 +31,7 @@ const AddEmoji = ({
         }
         return emoji
       })
-    setEmojis(updatedEmojis)
+    dispatch(updateEmojis(updatedEmojis))
   }
 
   const handleTextChange = (e, id) => {
@@ -44,7 +46,7 @@ const AddEmoji = ({
         }
         return emoji
       })
-    setEmojis(updatedEmojis)
+    dispatch(updateEmojis(updatedEmojis))
   }
 
   const handleDeleteEmoji = async (value) => {
@@ -57,14 +59,14 @@ const AddEmoji = ({
       }
       return emoji
     })
-    setEmojis(updatedEmojis)
+    dispatch(updateEmojis(updatedEmojis))
     setIsEmojiDeleted([...isEmojiDeleted, value])
   }
 
   const handleCancel = () => {
     let emoji = storage.get('flags', true)
     onClose()
-    setEmojis(emoji)
+    dispatch(updateEmojis(emoji))
   }
 
   return (

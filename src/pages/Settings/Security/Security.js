@@ -1,23 +1,22 @@
-import React, { useContext, useRef, useState, useMemo } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useNotifications } from 'reapop'
 import T2FARow from './T2FARow'
 import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
-import { UserContext } from 'contexts/UserContext'
 import { Modal, Button } from 'components'
 import { UserX, AlertTriangle } from 'react-feather'
 import { deleteUserAccount, sendActionReason } from 'services/api'
 import { useHistory, useLocation } from 'react-router-dom'
 import { ModalsConf } from 'constants/ModalsConf'
 import { T2FA_TYPES } from 'constants/Security'
+import { useSelector } from 'react-redux'
 import ReasoningModal from './ReasoningModal'
 
 const Security = () => {
-  const { get2FADetails, state } = useContext(UserContext)
   const { notify } = useNotifications()
-
+  const { userState } = useSelector((state) => state.users)
   const [t2FAList, set2FAList] = useState(() => {
-    const t2FAEntry = get2FADetails()
+    const t2FAEntry = userState?.has2FADetails
     return t2FAEntry ? [t2FAEntry] : []
   })
   const [desc, setDesc] = useState('')
@@ -88,7 +87,7 @@ const Security = () => {
 
   return (
     <div className="slice slice-sm bg-section-secondary">
-      {hash === '#security' || !state.has2FADetails ? (
+      {hash === '#security' || !userState.has2FADetails ? (
         <div
           className="alert alert-group alert-outline-warning alert-dismissible fade show alert-icon mb-0"
           role="alert"

@@ -1,14 +1,13 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Typography, Button } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
-import { useSymbolContext } from 'contexts/SymbolContext'
 import styles from './TradeModal.module.css'
 import { addPrecisionToNumber } from 'utils/tradeForm'
 import { orderType } from 'constants/Trade'
+import { useSelector } from 'react-redux'
 
 const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
-  const { state } = useContext(TradeContext)
-  const { selectedSymbolDetail } = useSymbolContext()
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { selectedSymbolDetail } = useSelector((state) => state.symbols)
   return (
     <article className={styles['TradeModal-Container']}>
       <div className={styles['TradeModal-close']}>
@@ -32,38 +31,38 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
       </div>
       <header className={styles['TradeModal-header']}>
         <Typography as="h4">
-          {state.entry.symbol} {state.entry.side === 'buy' ? 'Buy' : 'Sell'}{' '}
-          Full Trade
+          {tradeState.entry.symbol}{' '}
+          {tradeState.entry.side === 'buy' ? 'Buy' : 'Sell'} Full Trade
         </Typography>
         <Typography className={styles['TradeModal-header__description']}>
-          {state.entry.type} Buy
+          {tradeState.entry.type} Buy
         </Typography>
       </header>
 
       <main>
         <div className={styles['TradeModal-Main__entry']}>
           <Typography>Price</Typography>
-          {state.entry.type === 'market' ? (
+          {tradeState.entry.type === 'market' ? (
             <Typography>Market Price</Typography>
           ) : (
             <Typography>
-              {state.entry.price || state.entry.trigger}{' '}
+              {tradeState.entry.price || tradeState.entry.trigger}{' '}
               {selectedSymbolDetail['quote_asset']}
             </Typography>
           )}
         </div>
         <div className={styles['TradeModal-Main__entry']}>
           <Typography>Order Qty</Typography>
-          {state.entry.quantity && (
+          {tradeState.entry.quantity && (
             <Typography>
-              {state.entry.quantity} {selectedSymbolDetail['base_asset']}
+              {tradeState.entry.quantity} {selectedSymbolDetail['base_asset']}
             </Typography>
           )}
         </div>
         <div className={styles['TradeModal-Main-Table']}>
           <table>
             <tbody>
-              {state.targets.map((target, index) => (
+              {tradeState.targets.map((target, index) => (
                 <tr key={index}>
                   <td>
                     Target {index + 1} ({orderType[target.type]})
@@ -71,7 +70,7 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   <td>
                     (
                     {addPrecisionToNumber(
-                      (target.quantity / state.entry.quantity) * 100,
+                      (target.quantity / tradeState.entry.quantity) * 100,
                       2
                     )}
                     %) {target.quantity} {selectedSymbolDetail['base_asset']}
@@ -88,13 +87,13 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
                   )}
                 </tr>
               ))}
-              {state.stoploss.map((stoploss, index) => (
+              {tradeState.stoploss.map((stoploss, index) => (
                 <tr key={index}>
                   <td>Stop Loss ({orderType[stoploss.type]})</td>
                   <td>
                     (
                     {addPrecisionToNumber(
-                      (stoploss.quantity / state.entry.quantity) * 100,
+                      (stoploss.quantity / tradeState.entry.quantity) * 100,
                       2
                     )}
                     %) {stoploss.quantity} {selectedSymbolDetail['base_asset']}

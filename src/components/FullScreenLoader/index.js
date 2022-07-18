@@ -1,9 +1,9 @@
-import React, { useContext, useEffect } from 'react'
-import { UserContext } from 'contexts/UserContext'
+import React, { useEffect } from 'react'
 import './index.css'
+import { useSelector } from 'react-redux'
 
 const FullScreenLoader = () => {
-  const { loaderText, loaderVisible } = useContext(UserContext)
+  const { loaderText, loaderVisible } = useSelector((state) => state.appFlow)
   useEffect(() => {
     if (loaderVisible) {
       document.body.style.overflowY = 'hidden'

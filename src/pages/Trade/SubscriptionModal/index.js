@@ -2,16 +2,16 @@ import React, { useContext, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { UserContext } from 'contexts/UserContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateShowSubModal } from 'store/actions'
 const SubscriptionModal = () => {
   const history = useHistory()
-  const {
-    hasSub,
-    isLoggedIn,
-    showSubModalIfLessThan7Days,
-    trialDaysLeft,
-    setShowSubModal,
-    needPayment,
-  } = useContext(UserContext)
+  const dispatch = useDispatch()
+  const { isLoggedIn } = useContext(UserContext)
+  const { hasSub, trialDaysLeft } = useSelector((state) => state.subscriptions)
+  const { needPayment, showSubModalIfLessThan7Days } = useSelector(
+    (state) => state.appFlow
+  )
 
   const modalVisibility = useMemo(() => {
     if (isLoggedIn) {
@@ -31,7 +31,7 @@ const SubscriptionModal = () => {
   }, [modalVisibility])
 
   const onBuySubClick = () => {
-    setShowSubModal(false)
+    dispatch(updateShowSubModal(false))
     history.push('/settings#subscription')
   }
 

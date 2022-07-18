@@ -17,7 +17,8 @@ import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 import { Detector } from 'react-detect-offline'
 import { customTheme } from 'styles'
 import { pollingProp } from 'constants/positions'
-
+import { useSelector, useDispatch } from 'react-redux'
+import { logout } from 'store/actions'
 const Login = lazy(() => import('pages/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('pages/Auth/QuickLoginVerify2FA'))
 const Register = lazy(() => import('pages/Auth/QuickRegister'))
@@ -37,21 +38,12 @@ const Market = lazy(() => import('pages/Market'))
 
 const Routes = () => {
   const history = useHistory()
+  const dispatch = useDispatch()
   const { pathname } = useLocation()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const { notifications, dismissNotification } = useNotifications()
   const { notify } = useNotifications()
-  const {
-    isLoggedIn,
-    logout,
-    userContextLoaded,
-    loadApiKeys,
-    hasSub,
-    showSubModalIfLessThan7Days,
-    isOnboardingSkipped,
-    isApiKeysLoading,
-    state,
-  } = useContext(UserContext)
+  const { isLoggedIn } = useContext(UserContext)
   const [isSettingsPage, isTradePage, isLocalEnv] = useMemo(() => {
     return [
       pathname === '/settings',
@@ -60,28 +52,42 @@ const Routes = () => {
     ]
   }, [pathname])
 
+  const { loadApiKeys, isApiKeysLoading } = useSelector(
+    (state) => state.apiKeys
+  )
+  const { userContextLoaded, userState, firstLogin } = useSelector(
+    (state) => state.users
+  )
+  const { isOnboardingSkipped, showSubModalIfLessThan7Days } = useSelector(
+    (state) => state.appFlow
+  )
+  const { hasSub, subscriptionData } = useSelector(
+    (state) => state.subscriptions
+  )
+
   const [need2FA, needPlans, needLoading, needOnboarding, needSubModal] =
     useMemo(() => {
       return [
-        (isLoggedIn && !isApiKeysLoading && loadApiKeys && !state) ||
+        (isLoggedIn && !isApiKeysLoading && loadApiKeys && !userState) ||
           (isLoggedIn &&
             !isApiKeysLoading &&
             loadApiKeys &&
-            !state.has2FADetails),
-        isLoggedIn && state && state.firstLogin,
+            !userState.has2FADetails),
+        isLoggedIn && userState && firstLogin,
         isTradePage && isLoggedIn && isApiKeysLoading && !userContextLoaded,
         isLoggedIn &&
           userContextLoaded &&
           !loadApiKeys &&
           !isSettingsPage &&
           !isOnboardingSkipped &&
-          !state.firstLogin &&
+          !firstLogin &&
           hasSub &&
           !isApiKeysLoading,
         isLoggedIn &&
           userContextLoaded &&
+          subscriptionData &&
           !isSettingsPage &&
-          !state.firstLogin &&
+          !firstLogin &&
           (!hasSub || showSubModalIfLessThan7Days),
       ]
     }, [
@@ -89,12 +95,13 @@ const Routes = () => {
       isApiKeysLoading,
       isLoggedIn,
       loadApiKeys,
-      state,
+      userState,
       userContextLoaded,
       showSubModalIfLessThan7Days,
       isOnboardingSkipped,
       isTradePage,
       isSettingsPage,
+      firstLogin,
     ])
 
   const showNotifOnNetworkChange = (online) => {
@@ -157,7 +164,7 @@ const Routes = () => {
             <Route
               path="/logout"
               render={() => {
-                logout()
+                dispatch(logout())
                 return (
                   <div className="d-flex justify-content-center">
                     <h3 className="mt-5">Logging you out..</h3>
@@ -198,9 +205,7 @@ const Routes = () => {
               {!isOnboardingSkipped && (
                 <CacheRoute path="/academy" component={Academy} />
               )}
-              {state.firstLogin && (
-                <CacheRoute path="/plans" component={Plans} />
-              )}
+              {firstLogin && <CacheRoute path="/plans" component={Plans} />}
               <CacheRoute path="/market" component={Market} />
 
               <Redirect to="/market" />

@@ -5,7 +5,6 @@ import { HelpCircle, X } from 'react-feather'
 import { Tooltip } from 'components'
 import { AddTemplate } from '../components/Modals'
 
-import { UserContext } from 'contexts/UserContext'
 import {
   addTemplateToFirestore,
   deleteTemplateFromFirestore,
@@ -14,24 +13,22 @@ import {
   getSnapShotDocument,
 } from 'services/api'
 import { firebase } from 'services/firebase'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateActiveDrawing, updateAddedDrawing } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
-const db = firebase.firestore()
 const FieldValue = firebase.firestore.FieldValue
 
 const TemplatesList = () => {
-  const {
-    activeDrawingId,
-    setActiveDrawing,
-    activeDrawing,
-    userData,
-    setAddedDrawing,
-  } = useContext(UserContext)
+  const { userData } = useSelector((state) => state.users)
+  const { activeDrawingId, activeDrawing } = useSelector(
+    (state) => state.charts
+  )
+  const dispatch = useDispatch()
   const { notify } = useNotifications()
   const [templates, setTemplates] = useState([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [infoShow, setInfoShow] = useState(false)
-
   const addTemplate = async ({ templateName }, template = null) => {
     try {
       const templateData = template ? template : activeDrawing
@@ -57,7 +54,7 @@ const TemplatesList = () => {
       consoleLogger(error)
     } finally {
       setAddModalOpen(false)
-      setActiveDrawing(null)
+      dispatch(updateActiveDrawing(null))
     }
   }
   ///chart_drawings/hmert.uygun@hotmail.com
@@ -131,7 +128,7 @@ const TemplatesList = () => {
   }
 
   const addToChart = (template) => {
-    setAddedDrawing(template)
+    dispatch(updateAddedDrawing(template))
   }
 
   const templateName = useMemo(() => {

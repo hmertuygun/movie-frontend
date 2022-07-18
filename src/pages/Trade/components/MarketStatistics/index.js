@@ -1,11 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useContext,
-} from 'react'
-import { useSymbolContext } from 'contexts/SymbolContext'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowAltCircleUp,
@@ -14,7 +8,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { ccxtClass } from 'constants/ccxtConfigs'
 import './MarketStatistics.css'
-import { UserContext } from 'contexts/UserContext'
 import { decryptData } from 'utils/secureData'
 import { useNotifications } from 'reapop'
 import { setChartDrawings as setDrawings } from 'services/api'
@@ -30,15 +23,22 @@ import {
   resolveGzip,
   tickerSocketSubscribe,
 } from 'services/exchanges'
+import {
+  updateChartDrawings,
+  updateSelectedSymbolLastPrice,
+  updateSettingChartDrawings,
+} from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
-  const { selectedSymbolDetail, marketData, setLastMarketPrice } =
-    useSymbolContext()
-  const { chartDrawings, setChartDrawings, userData, isSettingChartDrawings } =
-    useContext(UserContext)
+
+  const { selectedSymbolDetail } = useSelector((state) => state.symbols)
+  const { marketData } = useSelector((state) => state.market)
+  const dispatch = useDispatch()
+  const { userData } = useSelector((state) => state.users)
+  const { chartDrawings } = useSelector((state) => state.charts)
   const [showDrawingsModal, setShowDrawingsModal] = useState(false)
   const [fileName, setFileName] = useState('')
   const [uploadedDrawings, setUploadedDrawings] = useState()
@@ -214,7 +214,7 @@ function MarketStatistics({ market }) {
       : ''
   }, [finalData])
 
-  const arrowirection = useMemo(() => {
+  const arrowDirection = useMemo(() => {
     if (!finalData) return ''
     return finalData.open > finalData.lastPrice ? (
       <FontAwesomeIcon icon={faArrowCircleDown} />
@@ -225,12 +225,12 @@ function MarketStatistics({ market }) {
     )
   }, [finalData])
 
-  useInterval(async () => {
+  useEffect(() => {
     if (!isNaN(message && message.lastPrice)) {
       setFinalData(message)
-      setLastMarketPrice(message?.lastPrice)
+      dispatch(updateSelectedSymbolLastPrice(message?.lastPrice))
     }
-  }, 2000)
+  }, [message])
 
   const handleFileUpload = (e) => {
     const fileReader = new FileReader()
@@ -245,7 +245,7 @@ function MarketStatistics({ market }) {
             decryptData(value.data, 'key').then((data) => {
               setFileName(file.name)
               setUploadedDrawings(data)
-              isSettingChartDrawings(true)
+              dispatch(updateSettingChartDrawings(true))
             })
           } else {
             notify({
@@ -255,7 +255,7 @@ function MarketStatistics({ market }) {
             })
             setFileName('')
             setUploadedDrawings()
-            isSettingChartDrawings(false)
+            dispatch(updateSettingChartDrawings(false))
           }
         }
       }
@@ -267,7 +267,7 @@ function MarketStatistics({ market }) {
       })
       setFileName('')
       setUploadedDrawings()
-      isSettingChartDrawings(false)
+      dispatch(updateSettingChartDrawings(false))
     }
   }
 
@@ -297,7 +297,7 @@ function MarketStatistics({ market }) {
             decryptData(value.data, 'key').then((data) => {
               setFileName(file.name)
               setUploadedDrawings(data)
-              isSettingChartDrawings(true)
+              dispatch(updateSettingChartDrawings(true))
             })
           } else {
             notify({
@@ -307,7 +307,7 @@ function MarketStatistics({ market }) {
             })
             setFileName('')
             setUploadedDrawings()
-            isSettingChartDrawings(false)
+            dispatch(updateSettingChartDrawings(false))
           }
         }
       }
@@ -319,13 +319,13 @@ function MarketStatistics({ market }) {
       })
       setFileName('Failed to upload chart drawings. Please try again.')
       setUploadedDrawings()
-      isSettingChartDrawings(false)
+      dispatch(updateSettingChartDrawings(false))
     }
   }
 
   const handleProceedDrawings = async () => {
     try {
-      setChartDrawings(uploadedDrawings)
+      dispatch(updateChartDrawings(uploadedDrawings))
       const drawings = {
         [userData.email]: uploadedDrawings,
       }
@@ -333,7 +333,7 @@ function MarketStatistics({ market }) {
       await setDrawings(userData.email, drawings)
       setFileName('')
       setUploadedDrawings()
-      isSettingChartDrawings(false)
+      dispatch(updateSettingChartDrawings(false))
     } catch (err) {
       notify({
         status: 'error',
@@ -356,7 +356,7 @@ function MarketStatistics({ market }) {
           <div className="lastPriceBlockMobile">
             {!isNaN(finalData.lastPrice) ? (
               <div className={`marketDataLastPrice ${lastPriceClass}`}>
-                {finalData.lastPrice} {arrowirection}
+                {finalData.lastPrice} {arrowDirection}
               </div>
             ) : null}
           </div>
@@ -364,7 +364,7 @@ function MarketStatistics({ market }) {
             <div className="lastPriceBlock">
               {!isNaN(finalData.lastPrice) ? (
                 <div className={`marketDataLastPrice ${lastPriceClass}`}>
-                  {finalData.lastPrice} {arrowirection}
+                  {finalData.lastPrice} {arrowDirection}
                 </div>
               ) : null}
             </div>

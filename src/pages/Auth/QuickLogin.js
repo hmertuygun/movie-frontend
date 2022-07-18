@@ -5,12 +5,15 @@ import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
 import { Logo } from 'components'
 import { UserContext } from 'contexts/UserContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { login, updateRememberCheck } from 'store/actions'
 import { fbPixelTracking } from 'services/tracking'
 
 const QuickLogin = () => {
-  const { login, isLoggedInWithFirebase, rememberCheck, setRememberCheck } =
-    useContext(UserContext)
-
+  const { isLoggedInWithFirebase } = useContext(UserContext)
+  const appFlowData = useSelector((state) => state.appFlow)
+  const { rememberCheck } = appFlowData
+  const userStoreData = useSelector((state) => state.users)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,6 +21,7 @@ const QuickLogin = () => {
   const [type, setType] = useState('password')
   const [isLoading, setLoading] = useState(false)
   const [isDisabled, setIsDisabled] = useState(false)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     fbPixelTracking('Login page view')
@@ -35,7 +39,9 @@ const QuickLogin = () => {
     }
 
     setLoading(true)
-    const loggedin = await login(email, password)
+    const loggedin = await dispatch(
+      login(email, password, userStoreData, appFlowData)
+    )
 
     if (loggedin.code === 'EVNEED') {
       setRedirect('/register/confirm')
@@ -164,7 +170,9 @@ const QuickLogin = () => {
                     className="custom-control-input"
                     id="check-terms"
                     checked={rememberCheck}
-                    onChange={(e) => setRememberCheck(e.target.checked)}
+                    onChange={(e) =>
+                      dispatch(updateRememberCheck(e.target.checked))
+                    }
                   />
                   <label
                     className={`custom-control-label`}

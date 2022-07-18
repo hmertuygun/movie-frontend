@@ -1,5 +1,6 @@
 import { Popover } from 'react-tiny-popover'
 import { Flag, Edit } from 'react-feather'
+import { useDispatch } from 'react-redux'
 
 const EmojiList = ({
   styles,
@@ -9,6 +10,7 @@ const EmojiList = ({
   handleEmojiAssigning,
   setAddEmojiModalOpen,
 }) => {
+  const dispatch = useDispatch()
   return (
     <Popover
       key="watchlist-emoji-popover"
@@ -17,7 +19,7 @@ const EmojiList = ({
       align="center"
       padding={10}
       reposition={false}
-      onClickOutside={() => setEmojiListOpen(false)}
+      onClickOutside={() => dispatch(setEmojiListOpen(false))}
       content={({ position, nudgedLeft, nudgedTop }) => (
         <div className={styles.emojiPopover}>
           <div className={styles.emojiContainer}>
@@ -48,7 +50,7 @@ const EmojiList = ({
           isOpen ? styles.watchListControlSelected : ''
         }`}
         onClick={() => {
-          setEmojiListOpen(true)
+          dispatch(setEmojiListOpen(true))
         }}
       >
         <Flag />

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import { InlineInput, Button, Typography } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import Slider from 'rc-slider'
 import Grid from '@material-ui/core/Grid'
@@ -21,6 +20,8 @@ import { makeStyles } from '@material-ui/core/styles'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../ExitStoplossStopLimit/ExitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addTarget } from 'store/actions'
 
 const useStyles = makeStyles({
   root: {
@@ -46,11 +47,13 @@ const errorInitialValues = {
 }
 
 const ExitTarget = () => {
-  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
-    useSymbolContext()
-
-  const { addTarget, state } = useContext(TradeContext)
-  const { entry } = state
+  const { isLoading } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolLastPrice } = useSelector(
+    (state) => state.symbols
+  )
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { entry } = tradeState
+  const dispatch = useDispatch()
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
@@ -68,7 +71,7 @@ const ExitTarget = () => {
   const minNotional =
     selectedSymbolDetail && Number(selectedSymbolDetail.minNotional)
 
-  const sumQuantity = state.targets?.map((item) => item.quantity)
+  const sumQuantity = tradeState.targets?.map((item) => item.quantity)
   const totalQuantity = sumQuantity?.reduce(
     (total, value) => parseFloat(total) + parseFloat(value),
     0
@@ -405,12 +408,14 @@ const ExitTarget = () => {
     const isLimit = Number(values.quantity) + totalQuantity > entry.quantity
 
     if (isFormValid && !isLimit) {
-      addTarget({
-        price: convertCommaNumberToDot(values.price),
-        quantity: convertCommaNumberToDot(values.quantity),
-        profit: convertCommaNumberToDot(values.profit),
-        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
-      })
+      dispatch(
+        addTarget({
+          price: convertCommaNumberToDot(values.price),
+          quantity: convertCommaNumberToDot(values.quantity),
+          profit: convertCommaNumberToDot(values.profit),
+          symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
+        })
+      )
 
       setValues((values) => ({
         ...values,
@@ -532,7 +537,7 @@ const ExitTarget = () => {
           variant="buy"
           type="submit"
         >
-          Add Target {(state?.targets?.length || 0) + 1}
+          Add Target {(tradeState?.targets?.length || 0) + 1}
         </Button>
       </form>
     </div>

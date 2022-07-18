@@ -1,26 +1,22 @@
-import React, {
-  useState,
-  useContext,
-  useEffect,
-  useMemo,
-  useCallback,
-} from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import Table from 'components/Table/Table'
 import { tableConstants } from './tableConstants'
-import { AnalyticsContext } from 'contexts/AnalyticsContext'
 import Pagination from 'components/Table/Pagination/Pagination'
 import { ITEMS_PER_PAGE } from 'constants/balanceTable'
 import 'react-datepicker/dist/react-datepicker.css'
 import { HelpCircle } from 'react-feather'
 import dayjs from 'dayjs'
 import { tableDataSorting } from 'utils/tableSorting'
+import { useDispatch, useSelector } from 'react-redux'
+import { refreshAnalyticsData } from 'store/actions'
 
 const AnalyticsTable = ({ startDate, endDate, search }) => {
-  const { pairOperations, refreshData } = useContext(AnalyticsContext)
   const [tableData, setTableData] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemNumber, setItemNumber] = useState(0)
-
+  const { pairOperations } = useSelector((state) => state.analytics)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const dispatch = useDispatch()
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
   const [sortAscending, setSortAscending] = useState(false)
   const [, updateState] = useState()
@@ -66,10 +62,12 @@ const AnalyticsTable = ({ startDate, endDate, search }) => {
   useEffect(() => {
     const endString = endDate && dayjs(endDate).format('YYYY-MM-DD')
     const startString = startDate && dayjs(startDate).format('YYYY-MM-DD')
-    refreshData({
-      startDate: startString,
-      endDate: endString,
-    })
+    dispatch(
+      refreshAnalyticsData(activeExchange, {
+        startDate: startString,
+        endDate: endString,
+      })
+    )
   }, [startDate, endDate])
 
   useEffect(() => {

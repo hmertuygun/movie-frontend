@@ -1,4 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import 'rc-slider/assets/index.css'
@@ -6,7 +7,6 @@ import * as yup from 'yup'
 import Slider from 'rc-slider'
 
 import { InlineInput, Button, Typography } from 'components'
-import { TradeContext } from 'contexts/SimpleTradeContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import {
   addPrecisionToNumber,
@@ -19,6 +19,8 @@ import {
 } from 'utils/tradeForm'
 import scientificToDecimal from 'utils/toDecimal'
 import styles from './ExitForm.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { addStoplossLimit } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const useStyles = makeStyles({
@@ -48,12 +50,13 @@ const errorInitialValues = {
 }
 
 const SellFullExitStoplossStopLimit = () => {
-  const { isLoading, selectedSymbolDetail, selectedSymbolLastPrice } =
-    useSymbolContext()
-
-  const { state, addStoplossLimit } = useContext(TradeContext)
-  const { entry } = state
-
+  const { isLoading } = useSymbolContext()
+  const { selectedSymbolDetail, selectedSymbolLastPrice } = useSelector(
+    (state) => state.symbols
+  )
+  const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { entry } = tradeState
+  const dispatch = useDispatch()
   const pricePrecision =
     selectedSymbolDetail['tickSize'] > 8 ? '' : selectedSymbolDetail['tickSize']
   const totalPrecision =
@@ -356,7 +359,7 @@ const SellFullExitStoplossStopLimit = () => {
       }
 
       case 'profit':
-        const newPrice = scientificToDecimal(usePrice * (-inputValue / 100))
+        const newPrice = scientificToDecimal(usePrice * (inputValue / 100))
         const derivedPrice = addPrecisionToNumber(
           scientificToDecimal(usePrice - newPrice),
           pricePrecision
@@ -445,16 +448,20 @@ const SellFullExitStoplossStopLimit = () => {
     const isFormValid = await validateForm()
 
     if (isFormValid) {
-      addStoplossLimit({
-        price: convertCommaNumberToDot(values.price),
-        triggerPrice: convertCommaNumberToDot(values.triggerPrice),
-        profit: convertCommaNumberToDot(values.profit),
-        quantity: convertCommaNumberToDot(values.quantity),
-        quantityPercentage: convertCommaNumberToDot(values.quantityPercentage),
-        symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
-        price_trigger: values.price_trigger.value,
-        side: 'buy',
-      })
+      dispatch(
+        addStoplossLimit({
+          price: convertCommaNumberToDot(values.price),
+          triggerPrice: convertCommaNumberToDot(values.triggerPrice),
+          profit: convertCommaNumberToDot(values.profit),
+          quantity: convertCommaNumberToDot(values.quantity),
+          quantityPercentage: convertCommaNumberToDot(
+            values.quantityPercentage
+          ),
+          symbol: selectedSymbolDetail && selectedSymbolDetail['symbolpair'],
+          price_trigger: values.price_trigger.value,
+          side: 'buy',
+        })
+      )
     }
   }
 
@@ -575,7 +582,9 @@ const SellFullExitStoplossStopLimit = () => {
         <Button
           type="submit"
           disabled={
-            state?.stoploss?.length || !values.quantity || values.profit === 0
+            tradeState?.stoploss?.length ||
+            !values.quantity ||
+            values.profit === 0
           }
           variant="sell"
         >

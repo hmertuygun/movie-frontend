@@ -18,31 +18,29 @@ import { HelpCircle } from 'react-feather'
 import Plans from 'pages/Auth/Plans'
 import './index.css'
 import { EndTrialModal, CountrySelectionModal } from './Modals'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  updateCountry,
+  updateIsCountryAvailable,
+  updateIsPaidUser,
+  updateSubscriptionData,
+  updateSubscriptionsDetails,
+} from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 
 const Subscription = () => {
-  const {
-    isCheckingSub,
-    hasSub,
-    needPayment,
-    subscriptionData,
-    getSubscriptionsData,
-    setSubscriptionData,
-    setIsPaidUser,
-    endTrial,
-    userData,
-    setCountry,
-    country,
-    logout,
-    isSubOpen,
-    setIsCountryAvailable,
-    subscriptionError,
-    products,
-  } = useContext(UserContext)
+  const { logout } = useContext(UserContext)
+  const { userData, isSubOpen, userState } = useSelector((state) => state.users)
+  const { products } = useSelector((state) => state.market)
+  const { country, endTrial, needPayment } = useSelector(
+    (state) => state.appFlow
+  )
+  const { isCheckingSub, hasSub, subscriptionData, subscriptionError } =
+    useSelector((state) => state.subscriptions)
   const history = useHistory()
   const { notify } = useNotifications()
   const db = firebase.firestore()
-
+  const dispatch = useDispatch()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const options = useMemo(() => countryList().getData(), [])
@@ -58,7 +56,7 @@ const Subscription = () => {
   }, [])
 
   const handleCountrySelection = async (value) => {
-    setCountry(value)
+    dispatch(updateCountry(value))
     setShowCountryModal(true)
   }
 
@@ -104,8 +102,7 @@ const Subscription = () => {
     setCountrySelectionLoading(true)
     try {
       await updateSingleValue(userData.email, 'user_data', { country })
-
-      setIsCountryAvailable(true)
+      dispatch(updateIsCountryAvailable(true))
     } catch (err) {
       consoleLogger(err)
     } finally {
@@ -116,24 +113,24 @@ const Subscription = () => {
 
   const handleClickNo = () => {
     setShowCountryModal(false)
-    setCountry('')
+    dispatch(updateCountry(''))
   }
 
   const handleClickYes = async () => {
     setIsLoading(true)
     try {
       await finishSubscriptionByUser()
-      await getSubscriptionsData()
+      await dispatch(updateSubscriptionsDetails(userState, userData))
       history.push('/trade')
       setIsLoading(false)
       setShowEndTrialModal(false)
-      setIsPaidUser(true)
+      dispatch(updateIsPaidUser(true))
       if (subscriptionData) {
         let values = {
           ...subscriptionData,
           subscription: { ...subscriptionData.subscription, status: 'active' },
         }
-        setSubscriptionData(values)
+        dispatch(updateSubscriptionData(values))
       }
     } catch (err) {
       setIsLoading(false)

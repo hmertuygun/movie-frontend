@@ -1,19 +1,13 @@
-import React, {
-  useContext,
-  useCallback,
-  useEffect,
-  useState,
-  useRef,
-} from 'react'
-import { PortfolioContext } from 'contexts/PortfolioContext'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CashoMeter from './CashoMeter'
 import './EstimateValue.css'
 import { currencySymbols, options } from 'constants/EstimateValues'
 import { storage } from 'services/storages'
+import { useSelector } from 'react-redux'
 
 const EstimateValue = () => {
-  const { estimate, lastMessage } = useContext(PortfolioContext)
+  const { estimate, lastMessage } = useSelector((state) => state.portfolio)
   const [estData, setEstData] = useState([])
   const [currentCurrency, setCurrentCurrency] = useState('USDT')
   const [showOptions, setShowOptions] = useState(false)

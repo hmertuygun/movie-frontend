@@ -1,13 +1,13 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Table from 'components/TableNew/TableNew'
-import { PortfolioContext } from 'contexts/PortfolioContext'
 import { Icon } from 'components'
 import getLogo from 'utils/getExchangeLogo'
 import { tableConstants } from './tableConstant'
 import Search from 'components/Table/Search/Search'
+import { useSelector } from 'react-redux'
 
 const BalanceTable = () => {
-  const { balance } = useContext(PortfolioContext)
+  const { balance } = useSelector((state) => state.portfolio)
   const [search, setSearch] = useState('')
 
   const data = useMemo(() => {

@@ -1,4 +1,5 @@
-import React, { Fragment, useState, useContext, useEffect } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 import { useNotifications } from 'reapop'
 import * as yup from 'yup'
@@ -10,7 +11,7 @@ import OrderWarningModal from '../../components/OrderWarningModal'
 import { InlineInput, Button } from 'components'
 import roundNumbers from 'utils/roundNumbers'
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
+
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
@@ -22,6 +23,7 @@ import {
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
+import { useSelector } from 'react-redux'
 
 const errorInitialValues = {
   price: '',
@@ -30,17 +32,15 @@ const errorInitialValues = {
 }
 
 const SellLimitForm = () => {
+  const { isLoading, refreshBalance } = useSymbolContext()
   const {
-    isLoading,
     selectedSymbolDetail,
     selectedBaseSymbolBalance,
     isLoadingBalance,
-    refreshBalance,
     selectedSymbolLastPrice,
-  } = useSymbolContext()
-  const { activeExchange } = useContext(UserContext)
+  } = useSelector((state) => state.symbols)
+  const { activeExchange } = useSelector((state) => state.exchanges)
   const { notify } = useNotifications()
-
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
 
@@ -79,12 +79,17 @@ const SellLimitForm = () => {
 
   useEffect(() => {
     setValues({
-      price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
       quantity: '',
       quantityPercentage: '',
       total: '',
     })
   }, [selectedSymbolDetail])
+
+  useEffect(() => {
+    setValues({
+      price: addPrecisionToNumber(selectedSymbolLastPrice, pricePrecision),
+    })
+  }, [selectedSymbolDetail, selectedSymbolLastPrice])
 
   // @TODO
   // Move schema to a different folder
@@ -455,7 +460,7 @@ const SellLimitForm = () => {
         ) : (
           <FontAwesomeIcon
             icon={faSync}
-            onClick={refreshBalance}
+            onClick={() => refreshBalance()}
             style={{ cursor: 'pointer', marginRight: '10px' }}
             color="#5A6677"
             size="sm"

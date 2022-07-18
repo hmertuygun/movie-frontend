@@ -1,19 +1,20 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
-import { NavLink, useHistory } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useHistory } from 'react-router-dom'
 import icons from 'constants/menuIcons'
 import { TabContext } from 'contexts/TabContext'
-import { UserContext } from 'contexts/UserContext'
 import { ThemeContext } from 'contexts/ThemeContext'
 
 import './MobileTab.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { handleOnboardingShow } from 'store/actions'
 
 const MobileTab = () => {
   const { setIsTradePanelOpen } = useContext(TabContext)
-  const { handleOnboardingShow, isOnboardingSkipped } = useContext(UserContext)
   const { theme } = useContext(ThemeContext)
   const [activePage, setActivePage] = useState('Portfolio')
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
   const history = useHistory()
+  const dispatch = useDispatch()
 
   const menuData = useMemo(() => {
     return [
@@ -32,7 +33,7 @@ const MobileTab = () => {
         control: false,
         function: () => {
           if (isOnboardingSkipped) {
-            handleOnboardingShow()
+            dispatch(handleOnboardingShow())
           } else {
             setIsTradePanelOpen((value) => {
               if (!value) {

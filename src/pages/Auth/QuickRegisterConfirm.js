@@ -1,20 +1,21 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { Logo } from 'components'
-import { UserContext } from 'contexts/UserContext'
 import { Link } from 'react-router-dom'
+import { sendEmailAgain } from 'store/actions'
+import { useDispatch, useSelector } from 'react-redux'
 
 const QuickConfirm = () => {
-  const { sendEmailAgain } = useContext(UserContext)
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState('')
-
+  const { userState } = useSelector((state) => state.users)
+  const dispatch = useDispatch()
   function timeout(delay) {
     return new Promise((res) => setTimeout(res, delay))
   }
   const sendAgain = async () => {
     setIsLoading(true)
     try {
-      await sendEmailAgain()
+      await dispatch(sendEmailAgain(userState))
     } catch (e) {
       setStatus('Please wait before trying again.')
     }

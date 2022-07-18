@@ -11,6 +11,8 @@ import {
   getDoubleCollectionData,
 } from 'services/firestore'
 
+import { notify } from 'reapop'
+
 const getFirestoreDocumentData = async (collection, email) =>
   await getCollectionDocData(collection, email)
 
@@ -94,6 +96,26 @@ const createBackup = async (email, drawings) => {
   })
 }
 
+const saveEmojis = async (emojis, userData) => {
+  try {
+    const value = {
+      flags: emojis,
+    }
+    await updateTemplateDrawings(userData.email, value)
+    notify({
+      status: 'success',
+      title: 'Success',
+      message: 'Emojis saved successfully!',
+    })
+  } catch (error) {
+    notify({
+      status: 'error',
+      title: 'Error',
+      message: 'Emojis not saved. Please try again later!',
+    })
+  }
+}
+
 export {
   getFirestoreDocumentData,
   getFirestoreCollectionData,
@@ -111,5 +133,6 @@ export {
   initUserData,
   updateSingleValue,
   createBackup,
+  saveEmojis,
   getDoubleCollection,
 }

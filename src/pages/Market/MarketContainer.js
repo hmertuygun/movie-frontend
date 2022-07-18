@@ -1,38 +1,35 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import MarketStatistics from '../Trade/components/MarketStatistics'
 import TradeChart from '../Trade/TradeChart'
 import WatchListPanel from './Watchlist/WatchListPanel'
 import { TabNavigator } from 'components'
 import TemplatesList from './Templates/TemplatesList'
-import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
-import { storage } from 'services/storages'
-import {
-  getFirestoreDocumentData,
-  setChartDrawings,
-  updateSingleValue,
-} from 'services/api'
+import { getFirestoreDocumentData, updateSingleValue } from 'services/api'
 import './MarketContainer.css'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  setActiveAnalysts,
+  updateChartMirroring,
+  updateTemplateDrawingsOpen,
+} from 'store/actions'
 import AnalystSelector from './components/AnalystSelector'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 
 const MarketContainer = () => {
-  const {
-    activeTrader,
-    setTemplateDrawingsOpen,
-    templateDrawingsOpen,
-    setActiveAnalysts,
-  } = useSymbolContext()
-  const { userData, allAnalysts, isAnalyst } = useContext(UserContext)
+  const { userData, allAnalysts, isAnalyst } = useSelector(
+    (state) => state.users
+  )
+  const { templateDrawingsOpen } = useSelector((state) => state.templates)
+  const { activeTrader } = useSelector((state) => state.trades)
+
+  const dispatch = useDispatch()
   const [traders] = useState(allAnalysts)
   const [activeValue, setActiveValue] = useState('')
   const [activeTab, setActiveTab] = useState(0)
   const tabElements = useMemo(() => {
-    return userData.email === activeValue
-      ? ['Watchlists', 'Templates ß']
-      : ['Watchlists']
-  }, [activeValue, userData])
+    return templateDrawingsOpen ? ['Watchlists'] : ['Watchlists', 'Templates ß']
+  }, [templateDrawingsOpen])
 
   useEffect(() => {
     getFirestoreDocumentData('chart_drawings', userData.email).then(
@@ -49,27 +46,24 @@ const MarketContainer = () => {
 
   const setActiveTraderList = async (id) => {
     if (id === userData.email) {
-      setTemplateDrawingsOpen(() => {
-        storage.set('chartMirroring', false)
-        return false
-      })
+      dispatch(updateChartMirroring(false))
+      dispatch(updateTemplateDrawingsOpen(false))
       setActiveValue(id)
     } else {
       const trader = traders.find((el) => el.id === id)
       if (!trader) return
+
       trackEvent('user', `${id}_cm`, `${id}_cm`)
       analytics.logEvent(`${id}_cm`)
-      await setActiveAnalysts(trader.id)
+      await dispatch(setActiveAnalysts(userData, trader.id))
       await updateSingleValue(userData.email, 'chart_drawings', {
         activeTrader: trader.id,
       })
 
-      setActiveValue(id)
+      setActiveValue(trader.id)
       if (!templateDrawingsOpen) {
-        setTemplateDrawingsOpen((templateDrawingsOpen) => {
-          storage.set('chartMirroring', !templateDrawingsOpen)
-          return !templateDrawingsOpen
-        })
+        dispatch(updateChartMirroring(!templateDrawingsOpen))
+        dispatch(updateTemplateDrawingsOpen(!templateDrawingsOpen))
       }
     }
   }

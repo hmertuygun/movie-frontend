@@ -3,16 +3,16 @@ import { AlertTriangle } from 'react-feather'
 import './style.css'
 import { useHistory } from 'react-router-dom'
 import { UserContext } from 'contexts/UserContext'
+import { useSelector } from 'react-redux'
 
 const WarningAlert = () => {
   const history = useHistory()
-  const {
-    isLoggedIn,
-    isCountryAvailable,
-    state,
-    totalExchanges,
-    activeExchange,
-  } = useContext(UserContext)
+  const { userState } = useSelector((state) => state.users)
+  const { isCountryAvailable } = useSelector((state) => state.appFlow)
+  const { totalExchanges, activeExchange } = useSelector(
+    (state) => state.exchanges
+  )
+  const { isLoggedIn } = useContext(UserContext)
 
   const handleNavigate = () => {
     history.push('/settings#subscription')
@@ -38,7 +38,7 @@ const WarningAlert = () => {
           support if you need <span onClick={handleZendesk}>help</span>.
         </div>
       ) : null}
-      {isLoggedIn && state.has2FADetails && !isCountryAvailable ? (
+      {isLoggedIn && userState.has2FADetails && !isCountryAvailable ? (
         <div className="alert alert-danger custom-alert px-4" role="alert">
           <AlertTriangle size={30} strokeWidth={3} />
           <strong>Attention CoinPaneler!</strong> For regulatory purposes we

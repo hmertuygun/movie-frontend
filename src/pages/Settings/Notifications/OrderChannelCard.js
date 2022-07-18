@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { UserContext } from 'contexts/UserContext'
+import React, { useEffect, useState } from 'react'
 
 import TelegramSettingModal from './TelegramSettingModal'
+import { useSelector } from 'react-redux'
 
 const OrderChannelCard = ({
   channel,
@@ -12,7 +12,7 @@ const OrderChannelCard = ({
   showTelegramSetting,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { tour2CurrentStep } = useContext(UserContext)
+  const { tour2CurrentStep } = useSelector((state) => state.appFlow)
 
   useEffect(() => {
     if (tour2CurrentStep === 4 && isModalVisible) {

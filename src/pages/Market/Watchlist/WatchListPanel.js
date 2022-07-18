@@ -1,22 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-loop-func */
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNotifications } from 'reapop'
 import { orderBy } from 'lodash'
+import { useSelector } from 'react-redux'
 
 import WatchListItem from './WatchListItem'
 import { AddEmoji, AddWatchList, NewWatchListItem } from '../components/Modals'
 import { GroupByFlag, CreateNewList, EmojiList } from '../components/Popovers'
 
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { UserContext } from 'contexts/UserContext'
 import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from 'constants/Trade'
 import { ccxtClass } from 'constants/ccxtConfigs'
 import { exchangeSystems } from 'constants/ExchangeOptions'
 import { INFO } from 'constants/Info'
 
 import { firebase } from 'services/firebase'
-import { setWatchlistData, getSnapShotDocument } from 'services/api'
+import { setWatchlistData, getSnapShotDocument, saveEmojis } from 'services/api'
 import {
   getIncomingSocket,
   getLastAndPercent,
@@ -28,20 +28,20 @@ import { consoleLogger } from 'utils/logger'
 import sortTemplate from 'utils/sortTemplate'
 
 import styles from '../css/WatchListPanel.module.css'
+import { updateSelectEmojiPopoverOpen } from 'store/actions'
 
 const WatchListPanel = () => {
-  const {
-    symbolDetails,
-    templateDrawingsOpen,
-    setSymbol,
-    activeTrader,
-    emojis,
-    handleSaveEmojis,
-    selectEmojiPopoverOpen,
-    setSelectEmojiPopoverOpen,
-  } = useSymbolContext()
-  const { userData, isPaidUser, isAnalyst } = useContext(UserContext)
-  const { activeExchange } = useContext(UserContext)
+  const { setSymbol } = useSymbolContext()
+
+  const { symbolDetails } = useSelector((state) => state.symbols)
+  const { emojis, selectEmojiPopoverOpen } = useSelector(
+    (state) => state.emojis
+  )
+  const { templateDrawingsOpen } = useSelector((state) => state.templates)
+  const { activeTrader } = useSelector((state) => state.trades)
+  const { isPaidUser } = useSelector((state) => state.subscriptions)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { userData, isAnalyst } = useSelector((state) => state.users)
   const { notify } = useNotifications()
 
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
@@ -302,10 +302,11 @@ const WatchListPanel = () => {
 
   const setItems = useCallback(async () => {
     let obj = getWatchSymbolsList()
-
+    if (!obj) return
     for (const [key, value] of Object.entries(obj)) {
       const ccxtExchange = ccxtClass[key]
       if (
+        ccxtExchange &&
         ccxtExchange.has['watchTicker'] &&
         exchangeSystems.ccxt.includes(key)
       ) {
@@ -456,7 +457,7 @@ const WatchListPanel = () => {
   }
 
   const handleSaveEmoji = () => {
-    handleSaveEmojis()
+    saveEmojis(emojis, userData)
     setAddEmojiModalOpen(false)
     if (isEmojiDeleted.length) {
       handleEmojiDeleteAssigning()
@@ -570,7 +571,7 @@ const WatchListPanel = () => {
           <EmojiList
             styles={styles}
             isOpen={selectEmojiPopoverOpen}
-            setEmojiListOpen={setSelectEmojiPopoverOpen}
+            setEmojiListOpen={updateSelectEmojiPopoverOpen}
             emojis={emojis}
             handleEmojiAssigning={handleEmojiAssigning}
             setAddEmojiModalOpen={setAddEmojiModalOpen}

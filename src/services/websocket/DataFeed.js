@@ -23,12 +23,16 @@ export default class dataFeed {
 
   onReady(callback) {
     setTimeout(() => {
-      callback({
-        supports_marks: false,
-        supports_timescale_marks: false,
-        supports_time: true,
-        supported_resolutions: this.exchangeOptions['resolutions'],
-      })
+      try {
+        callback({
+          supports_marks: false,
+          supports_timescale_marks: false,
+          supports_time: true,
+          supported_resolutions: this.exchangeOptions['resolutions'],
+        })
+      } catch (error) {
+        console.log(error)
+      }
     }, 1000)
   }
 

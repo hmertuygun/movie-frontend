@@ -1,4 +1,3 @@
-import { UserContext } from 'contexts/UserContext'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { useContext, useMemo } from 'react'
 import { getNumberOfDays } from 'utils/getNumberOfDays'
@@ -11,15 +10,21 @@ import { ChevronDown } from 'react-feather'
 import { ThemeContext } from 'contexts/ThemeContext'
 import Control from 'components/Header/UserMenuControl/UserMenuControl'
 import { customStyles } from './customStyle'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateExchanges } from 'store/actions'
 
 const UserMenu = () => {
   const { ref, isComponentVisible, setIsComponentVisible } =
     useComponentVisible(false)
-  const { userData, subscriptionData, activeExchange, isOnboardingSkipped } =
-    useContext(UserContext)
-  const { exchanges, setExchange, isExchangeLoading } = useSymbolContext()
   const { theme } = useContext(ThemeContext)
+  const { userData } = useSelector((state) => state.users)
+  const { activeExchange, exchanges, isExchangeLoading } = useSelector(
+    (state) => state.exchanges
+  )
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
+  const { subscriptionData } = useSelector((state) => state.subscriptions)
   const location = useLocation()
+  const dispatch = useDispatch()
   const isOnSettings = useMemo(
     () => location.pathname.includes('settings'),
     [location]
@@ -33,7 +38,7 @@ const UserMenu = () => {
       >
         <span
           style={{ border: '1px solid', cursor: 'pointer' }}
-          class={`badge ml-1 badge-pill d-flex align-items-center ${
+          className={`badge ml-1 badge-pill d-flex align-items-center ${
             theme === 'DARK' ? 'badge-dark' : 'badge-white'
           }`}
         >
@@ -65,7 +70,7 @@ const UserMenu = () => {
             options={exchanges}
             isSearchable={false}
             styles={customStyles}
-            onChange={(value) => setExchange(value)}
+            onChange={(value) => dispatch(updateExchanges(value))}
             value={activeExchange}
             isDisabled={isExchangeLoading || isOnboardingSkipped}
           />
@@ -76,6 +81,7 @@ const UserMenu = () => {
             <li
               className="nav-item mb-2"
               onClick={() => setIsComponentVisible(!isComponentVisible)}
+              key={`menu-section-one-${menu.label}`}
             >
               <Link
                 to={menu.link}
@@ -98,6 +104,7 @@ const UserMenu = () => {
             <li
               className="nav-item mb-2"
               onClick={() => setIsComponentVisible(!isComponentVisible)}
+              key={`menu-section-two-${menu.label}`}
             >
               <a
                 href={menu.link}

@@ -3,12 +3,12 @@ import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import { MenuData, ChartMirroringMenuData } from './MenuData'
 import { ThemeContext } from 'contexts/ThemeContext'
-import { UserContext } from 'contexts/UserContext'
 import { Tooltip } from 'components'
+import { useSelector } from 'react-redux'
 
 const MenuItems = () => {
   const { theme } = useContext(ThemeContext)
-  const { isOnboardingSkipped } = useContext(UserContext)
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
 
   let menu = isOnboardingSkipped ? ChartMirroringMenuData : MenuData
 
@@ -66,16 +66,6 @@ const MenuItems = () => {
                   to={item.url}
                 >
                   {item.title}
-                  {item.title === 'Market' && !isOnboardingSkipped && (
-                    <span
-                      className={`mt-3 badge badge-sm badge-success badge-pill badge-floating ${
-                        theme === 'DARK' ? 'border-dark' : 'border-white'
-                      }`}
-                      style={{ fontSize: '0.4rem', padding: '3px 5px' }}
-                    >
-                      NEW
-                    </span>
-                  )}
                 </NavLink>
               </>
             )}

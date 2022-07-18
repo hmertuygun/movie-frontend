@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import useComponentVisible from 'hooks/useComponentVisible'
+import { useComponentVisible } from 'hooks'
 import { ThemeContext } from 'contexts/ThemeContext'
 
 function Menu() {
