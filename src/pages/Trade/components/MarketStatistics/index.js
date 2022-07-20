@@ -228,7 +228,6 @@ function MarketStatistics({ market }) {
   useEffect(() => {
     if (!isNaN(message && message.lastPrice)) {
       setFinalData(message)
-      dispatch(updateSelectedSymbolLastPrice(message?.lastPrice))
     }
   }, [message])
 
