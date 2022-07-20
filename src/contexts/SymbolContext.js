@@ -203,7 +203,8 @@ const SymbolContextProvider = ({ children }) => {
             selectedSymbolDetail.quote_asset,
             selectedSymbolDetail.base_asset,
             activeExchange,
-            isOnboardingSkipped
+            isOnboardingSkipped,
+            true
           )
         )
       }
