@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 
 import { createBasicTrade } from 'services/api'
 
@@ -24,6 +24,7 @@ import * as yup from 'yup'
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const SellTrailingStopForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -34,7 +35,6 @@ const SellTrailingStopForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
 
@@ -392,21 +392,13 @@ const SellTrailingStopForm = () => {
             price_trigger: values.price_trigger.value,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
-        if (data?.status === 'error') {
-          notify({
-            status: 'error',
-            title: 'Error',
-            message:
-              data?.error ||
-              `Order couldn't be created. Please try again later!`,
-          })
+        const res = await createBasicTrade(payload)
+        if (res?.status === 'error' || res.status !== 200) {
+          dispatch(
+            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+          )
         } else {
-          notify({
-            status: 'success',
-            title: 'Success',
-            message: 'Order Created!',
-          })
+          dispatch(notify(MESSAGES['order-created'], 'success'))
           refreshBalance()
         }
         setValues({
@@ -417,22 +409,7 @@ const SellTrailingStopForm = () => {
         })
       } catch (error) {
         consoleLogger(error)
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: (
-            <p>
-              Order couldn’t be created. Unknown error. Please report at:{' '}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href="https://support.coinpanel.com"
-              >
-                <b>support.coinpanel.com</b>
-              </a>
-            </p>
-          ),
-        })
+        dispatch(notify(MESSAGES['order-create-error'], 'error'))
       } finally {
         setBtnVisibility(false)
       }

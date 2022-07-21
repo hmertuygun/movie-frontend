@@ -11,7 +11,9 @@ import {
   getDoubleCollectionData,
 } from 'services/firestore'
 
+import store from 'store'
 import { notify } from 'reapop'
+import MESSAGES from 'constants/Messages'
 
 const getFirestoreDocumentData = async (collection, email) =>
   await getCollectionDocData(collection, email)
@@ -102,17 +104,9 @@ const saveEmojis = async (emojis, userData) => {
       flags: emojis,
     }
     await updateTemplateDrawings(userData.email, value)
-    notify({
-      status: 'success',
-      title: 'Success',
-      message: 'Emojis saved successfully!',
-    })
+    store.dispatch(notify(MESSAGES['emoji-saved'], 'success'))
   } catch (error) {
-    notify({
-      status: 'error',
-      title: 'Error',
-      message: 'Emojis not saved. Please try again later!',
-    })
+    store.dispatch(notify(MESSAGES['emoji-save-failed'], 'error'))
   }
 }
 

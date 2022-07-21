@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { AlertTriangle } from 'react-feather'
 import './style.css'
 import { useHistory } from 'react-router-dom'
 import { UserContext } from 'contexts/UserContext'
@@ -11,8 +10,9 @@ import {
   getFirestoreDocumentData,
 } from 'services/api'
 import dayjs from 'dayjs'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const WarningAlert = () => {
   const history = useHistory()
@@ -21,6 +21,7 @@ const WarningAlert = () => {
   const [finalNotices, setFinalNotices] = useState([])
   const { userData } = useSelector((state) => state.users)
   const { subscriptionData } = useSelector((state) => state.subscriptions)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (subscriptionData)
@@ -77,11 +78,7 @@ const WarningAlert = () => {
       })
       await dismissNotice(item)
     } catch (e) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Couldn't dismiss notice. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['dismiss-notice-error'], 'error'))
       consoleLogger(e)
     }
   }

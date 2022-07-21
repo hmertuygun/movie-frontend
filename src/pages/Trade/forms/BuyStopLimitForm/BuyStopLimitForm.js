@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as yup from 'yup'
@@ -20,13 +20,13 @@ import { analytics } from 'services/firebase'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
+import MESSAGES from 'constants/Messages'
 
 const BuyStopLimitForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
   const { selectedSymbolDetail, selectedSymbolBalance, isLoadingBalance } =
     useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
   const [values, setValues] = useState({
     triggerPrice: '',
@@ -413,21 +413,13 @@ const BuyStopLimitForm = () => {
             total: values.total,
           },
         }
-        const { data } = await createBasicTrade(payload)
-        if (data?.status === 'error') {
-          notify({
-            status: 'error',
-            title: 'Error',
-            message:
-              data?.error ||
-              `Order couldn't be created. Please try again later!`,
-          })
+        const res = await createBasicTrade(payload)
+        if (res?.status === 'error' || res.status !== 200) {
+          dispatch(
+            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+          )
         } else {
-          notify({
-            status: 'success',
-            title: 'Success',
-            message: 'Order Created!',
-          })
+          dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_buy_stop_limit_order')
           trackEvent(
             'user',
@@ -442,22 +434,7 @@ const BuyStopLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: (
-            <p>
-              Order couldn’t be created. Unknown error. Please report at:{' '}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href="https://support.coinpanel.com"
-              >
-                <b>support.coinpanel.com</b>
-              </a>
-            </p>
-          ),
-        })
+        dispatch(notify(MESSAGES['order-create-error'], 'error'))
       } finally {
         setBtnVisibility(false)
       }

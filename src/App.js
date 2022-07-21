@@ -34,30 +34,28 @@ export default function App() {
     },
   })
   return (
-    <NotificationsProvider>
-      <ChunkLoadErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <ThemeContextProvider>
-              <UserContextProvider>
-                <SymbolContextProvider>
-                  <TabContextProvider>
-                    <ErrorBoundary componentName="Header">
-                      <Suspense fallback={<div></div>}>
-                        <Header />
-                      </Suspense>
-                    </ErrorBoundary>
-                    <WarningAlert />
-                    <Notification />
-                    <Routes />
-                  </TabContextProvider>
-                </SymbolContextProvider>
-              </UserContextProvider>
-            </ThemeContextProvider>
-          </Router>
-          {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
-        </QueryClientProvider>
-      </ChunkLoadErrorBoundary>
-    </NotificationsProvider>
+    <ChunkLoadErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <ThemeContextProvider>
+            <UserContextProvider>
+              <SymbolContextProvider>
+                <TabContextProvider>
+                  <ErrorBoundary componentName="Header">
+                    <Suspense fallback={<div></div>}>
+                      <Header />
+                    </Suspense>
+                  </ErrorBoundary>
+                  <WarningAlert />
+                  <Notification />
+                  <Routes />
+                </TabContextProvider>
+              </SymbolContextProvider>
+            </UserContextProvider>
+          </ThemeContextProvider>
+        </Router>
+        {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools />}
+      </QueryClientProvider>
+    </ChunkLoadErrorBoundary>
   )
 }

@@ -16,9 +16,11 @@ import {
   analytics,
   portfolio,
   simpleTrade,
+  notifications,
 } from './reducers'
 
 const reducers = combineReducers({
+  notifications: notifications,
   symbols: symbols,
   exchanges: exchanges,
   refresh: refresh,

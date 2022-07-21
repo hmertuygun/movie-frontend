@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react'
 import { X } from 'react-feather'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import T2FARow from './T2FARow'
 import { ADD_2FA_FLOW, DeleteGoogleAuth } from './T2FAModal'
 import { Modal, Button } from 'components'
@@ -9,11 +9,11 @@ import { deleteUserAccount, sendActionReason } from 'services/api'
 import { useHistory, useLocation } from 'react-router-dom'
 import { ModalsConf } from 'constants/ModalsConf'
 import { T2FA_TYPES } from 'constants/Security'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import ReasoningModal from './ReasoningModal'
+import MESSAGES from 'constants/Messages'
 
 const Security = () => {
-  const { notify } = useNotifications()
   const { userState } = useSelector((state) => state.users)
   const [t2FAList, set2FAList] = useState(() => {
     const t2FAEntry = userState?.has2FADetails
@@ -28,7 +28,7 @@ const Security = () => {
 
   const history = useHistory()
   const nextDataRef = useRef()
-
+  const dispatch = useDispatch()
   const { hash } = useLocation()
 
   const handleEntryRemove = () => {
@@ -77,11 +77,7 @@ const Security = () => {
       history.push('/logout')
     } catch (err) {
       setAccountDeleteLoading(false)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'It seems something wrong. Please try again later!',
-      })
+      dispatch(notify(MESSAGES['try-again-later'], 'error'))
     }
   }
 

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as yup from 'yup'
@@ -21,6 +21,7 @@ import roundNumbers from 'utils/roundNumbers'
 import styles from './SellFullLimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { addEntry } from 'store/actions'
+import MESSAGES from 'constants/Messages'
 
 const SellFullLimitForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -30,7 +31,6 @@ const SellFullLimitForm = () => {
     isLoadingBalance,
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
   const [values, setValues] = useState({
     price: '',
@@ -169,11 +169,7 @@ const SellFullLimitForm = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (values.price !== '' && values.price < selectedSymbolLastPrice) {
-        notify({
-          status: 'warning',
-          title: 'Warning',
-          message: 'You order will be executed immediately',
-        })
+        dispatch(notify(MESSAGES['order-will-execute'], 'warning'))
       }
     }, 1000)
     return () => clearTimeout(timeoutId)

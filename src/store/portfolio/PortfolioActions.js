@@ -1,3 +1,4 @@
+import MESSAGES from 'constants/Messages'
 import { notify } from 'reapop'
 import { getPortfolio } from 'services/api'
 import { updateSunburstChart } from 'store/actions'
@@ -63,12 +64,7 @@ const refreshPortfolioData =
     } catch (error) {
       console.log(error)
       if (isPortfolioPage) {
-        notify({
-          id: 'portfolio-fetch-error',
-          status: 'error',
-          title: 'Error',
-          message: "Portfolio couldn't be created. Please try again later!",
-        })
+        dispatch(notify(MESSAGES['portfolio-create-failed'], 'error'))
       }
       dispatch(updateBalance(null))
       dispatch(updateSunburstChart(null))

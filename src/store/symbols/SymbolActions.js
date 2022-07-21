@@ -1,3 +1,4 @@
+import MESSAGES from 'constants/Messages'
 import { notify } from 'reapop'
 import { getBalance, getLastPrice } from 'services/api'
 import { storage } from 'services/storages'
@@ -67,12 +68,7 @@ const loadLastPrice =
         response?.data?.last_price !== 'NA' ? response.data.last_price : 0
       dispatch(updateSelectedSymbolLastPrice(lastPrice))
     } catch (err) {
-      notify({
-        id: 'last-price-warning',
-        status: 'error',
-        title: 'Error',
-        message: 'Error getting last price of market!',
-      })
+      dispatch(notify(MESSAGES['last-price-fetch-failed'], 'error'))
       dispatch(updateSelectedSymbolLastPrice(0))
     } finally {
       dispatch(updateIsLoadingLastPrice(false))

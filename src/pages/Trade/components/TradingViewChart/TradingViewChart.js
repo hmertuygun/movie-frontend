@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import { notify } from 'reapop'
-
+import store from 'store'
 import { dataFeed } from 'services/websocket'
 import { UserContext } from 'contexts/UserContext'
 import { storage } from 'services/storages'
@@ -14,6 +14,7 @@ import lzutf8 from 'lzutf8'
 import { consoleLogger } from 'utils/logger'
 import exportAsImage from 'utils/downloadImage'
 import dayjs from 'dayjs'
+import MESSAGES from 'constants/Messages'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -240,11 +241,7 @@ export default class TradingViewChart extends Component {
         }
       } catch (e) {
         consoleLogger(e)
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: e.message,
-        })
+        store.dispatch(notify(e.message, 'error'))
       } finally {
         this.setState({ isSaved: true })
       }
@@ -827,12 +824,7 @@ export default class TradingViewChart extends Component {
       this.chartReady()
 
       setTimeout(() => {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            'Unable to load your chart drawings. Please take a screenshot of your chrome console and send to support.',
-        })
+        store.dispatch(notify(MESSAGES['drawing-load-failed'], 'error'))
       }, 2000)
     }
 

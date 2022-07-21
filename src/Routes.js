@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom'
 import { useMediaQuery } from 'react-responsive'
 import { UserContext } from 'contexts/UserContext'
-import NotificationsSystem, { useNotifications } from 'reapop'
+import NotificationsSystem, { dismissNotification, notify } from 'reapop'
 
 import OnboardingModal from 'pages/Trade/OnboardingModal'
 import SubscriptionModal from 'pages/Trade/SubscriptionModal'
@@ -19,6 +19,8 @@ import { customTheme } from 'styles'
 import { pollingProp } from 'constants/positions'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from 'store/actions'
+import MESSAGES from 'constants/Messages'
+
 const Login = lazy(() => import('pages/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('pages/Auth/QuickLoginVerify2FA'))
 const Register = lazy(() => import('pages/Auth/QuickRegister'))
@@ -41,8 +43,7 @@ const Routes = () => {
   const dispatch = useDispatch()
   const { pathname } = useLocation()
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
-  const { notifications, dismissNotification } = useNotifications()
-  const { notify } = useNotifications()
+
   const { isLoggedIn } = useContext(UserContext)
   const [isSettingsPage, isTradePage, isLocalEnv] = useMemo(() => {
     return [
@@ -64,6 +65,7 @@ const Routes = () => {
   const { hasSub, subscriptionData } = useSelector(
     (state) => state.subscriptions
   )
+  const notifications = useSelector((state) => state.notifications)
 
   const [need2FA, needPlans, needLoading, needOnboarding, needSubModal] =
     useMemo(() => {
@@ -106,19 +108,9 @@ const Routes = () => {
 
   const showNotifOnNetworkChange = (online) => {
     if (online) {
-      notify({
-        id: 'back-online',
-        status: 'success',
-        title: 'Success',
-        message: 'You are back online!',
-      })
+      dispatch(notify(MESSAGES['online'], 'success'))
     } else {
-      notify({
-        id: 'not-online',
-        status: 'warning',
-        title: 'Warning',
-        message: "You don't seem to be online anymore!",
-      })
+      dispatch(notify(MESSAGES['offline'], 'warning'))
     }
     return null
   }
@@ -141,7 +133,7 @@ const Routes = () => {
     <div style={{ paddingBottom: isMobile ? '65px' : '' }}>
       <NotificationsSystem
         notifications={notifications}
-        dismissNotification={(id) => dismissNotification(id)}
+        dismissNotification={(id) => dispatch(dismissNotification(id))}
         theme={customTheme}
       />
 

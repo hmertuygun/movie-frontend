@@ -28,6 +28,7 @@ import {
 } from 'store/actions'
 import { sortExchangesData } from 'utils/apiKeys'
 import exchangeSlice from './ExchangeSlice'
+import MESSAGES from 'constants/Messages'
 
 const {
   setExchanges,
@@ -75,11 +76,7 @@ const updateExchangeKey =
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
       await setSymbol({ label: DEFAULT_SYMBOL_LOAD_DASH, value: val })
     } catch (e) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'Error activating this exchange key!',
-      })
+      dispatch(notify(MESSAGES['activating-key-failed'], 'error'))
     } finally {
     }
   }

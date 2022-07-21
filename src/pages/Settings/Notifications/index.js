@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import OrderNotificationCard from './OrderNotificationCard'
 import OrderChannelCard from './OrderChannelCard'
 import { useQuery } from 'react-query'
@@ -8,8 +8,11 @@ import {
   setTelegramNotification,
   setEmailNotification,
 } from 'services/api'
+import MESSAGES from 'constants/Messages'
+import { useDispatch } from 'react-redux'
 
 const Notifications = () => {
+  const dispatch = useDispatch()
   const notificationChannelsQuery = useQuery(
     'notification_channels',
     loadNotificationChannels,
@@ -17,17 +20,10 @@ const Notifications = () => {
       retry: false,
       refetchOnWindowFocus: false,
       onError: () => {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            'Cannot fetch notification settings. Please try again later!',
-        })
+        dispatch(notify(MESSAGES['notification-settings-failed'], 'error'))
       },
     }
   )
-  const { notify } = useNotifications()
-
   let notificationChannels = null
   if (notificationChannelsQuery.data) {
     notificationChannels = notificationChannelsQuery.data
@@ -37,28 +33,16 @@ const Notifications = () => {
 
   const toggleTelegramNotification = async (enable) => {
     try {
-      const { data } = await setTelegramNotification(enable)
-      if (data?.status === 'error') {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            data?.error ||
-            "Telegram notification setting couldn't be saved. Please try again later",
-        })
+      const res = await setTelegramNotification(enable)
+      if (res?.status === 'error') {
+        dispatch(notify(MESSAGES['telegram-settings-failed'], 'error'))
+      } else if (res?.status !== 200) {
+        dispatch(notify(res.data.detail, 'info'))
       } else {
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'Telegram notification setting saved!',
-        })
+        dispatch(notify(MESSAGES['telegram-settings-success'], 'success'))
       }
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'Please click Telegram settings to setup the bot first!',
-      })
+      dispatch(notify(MESSAGES['telegram-bot-error'], 'error'))
     } finally {
       notificationChannelsQuery.refetch()
     }
@@ -68,27 +52,14 @@ const Notifications = () => {
     try {
       const { data } = await setEmailNotification(enable)
       if (data?.status === 'error') {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            data?.error ||
-            `Email notification setting couldn't be saved. Please try again later!`,
-        })
+        dispatch(
+          notify(data?.error || MESSAGES['email-settings-failed'], 'error')
+        )
       } else {
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'Email notification setting saved!',
-        })
+        dispatch(notify(MESSAGES['email-settings-saved'], 'success'))
       }
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message:
-          "Email notification setting couldn't be saved. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['email-settings-failed'], 'error'))
     } finally {
       notificationChannelsQuery.refetch()
     }

@@ -11,14 +11,15 @@ import {
 } from 'services/api'
 import { firebase } from 'services/firebase'
 import { plansDescription } from 'constants/Plans'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import CoinbaseCommerceButton from 'react-coinbase-commerce'
 import 'react-coinbase-commerce/dist/coinbase-commerce-button.css'
 import { Modal } from 'components'
 import { config } from 'constants/config'
 import { cloneDeep } from 'lodash'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const Plans = ({ canShowTrial }) => {
   const { userData } = useSelector((state) => state.users)
@@ -37,7 +38,7 @@ const Plans = ({ canShowTrial }) => {
   const [couponLoading, setCouponLoading] = useState(false)
   const [couponApplied, setCouponApplied] = useState(false)
   const [trialCouponApplied, setTrialCouponApplied] = useState(false)
-  const { notify } = useNotifications()
+  const dispatch = useDispatch()
 
   const getPrice = useMemo(() => {
     if (activePlan)
@@ -74,22 +75,7 @@ const Plans = ({ canShowTrial }) => {
         })
         .finally(() => setIsLoading(''))
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not get the payment. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['payment-error'], 'error'))
     }
   }
 
@@ -121,11 +107,7 @@ const Plans = ({ canShowTrial }) => {
       setCouponLoading(true)
       const res = await verifyCouponCode({ coupon })
       if (res.status !== 200) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: res.response.data.message,
-        })
+        dispatch(notify(res.response.data.message, 'error'))
         return
       }
 
@@ -156,11 +138,7 @@ const Plans = ({ canShowTrial }) => {
       setCouponApplied(true)
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'This coupon code is not valid.',
-      })
+      dispatch(notify(MESSAGES['invalid-coupon'], 'error'))
     } finally {
       setCouponLoading(false)
     }
@@ -185,22 +163,7 @@ const Plans = ({ canShowTrial }) => {
       window.location.reload()
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            Something went wrong! Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['something-wrong'], 'error'))
     }
   }
 
@@ -227,22 +190,7 @@ const Plans = ({ canShowTrial }) => {
         }
       )
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not get the payment. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['payment-error'], 'error'))
     }
   }
 

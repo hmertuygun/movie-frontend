@@ -8,7 +8,7 @@ import reducers from './combinedReducers'
 const persistConfig = {
   key: 'root',
   storage, //It defines which are the reducers do not want to save in the persistence storage.
-  blacklist: ['subscriptions', 'appFlow', 'users'],
+  blacklist: ['subscriptions', 'appFlow', 'users', 'notifications'],
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers)

@@ -1,7 +1,6 @@
 import { storage } from 'services/storages'
 import appFlowSlice from './AppFlowSlice'
 import { firebase } from 'services/firebase'
-import { updateUserState } from 'store/actions'
 import { getSocketEndpoint } from 'services/exchanges'
 import Ping from 'utils/ping'
 

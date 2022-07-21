@@ -7,7 +7,7 @@ import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from 'services/api'
 import { firebase } from 'services/firebase'
-import { getSnapShotCollection, getSnapShotDocument } from 'services/api'
+import { getSnapShotDocument } from 'services/api'
 import { storage } from 'services/storages'
 import lzutf8 from 'lzutf8'
 import { useSelector, useDispatch } from 'react-redux'
@@ -22,8 +22,6 @@ import {
   updateTemplateDrawingsOpen,
   updateWatchListOpen,
 } from 'store/actions'
-import exportAsImage from 'utils/downloadImage'
-import dayjs from 'dayjs'
 import { consoleLogger } from 'utils/logger'
 
 const TradeChart = () => {

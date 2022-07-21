@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useCallback, useState, useEffect } from 'react'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { Tooltip } from 'components'
 import DropDownSelect from 'react-dropdown-select'
 import Select from 'react-select'
@@ -16,8 +16,9 @@ import {
 } from 'services/api'
 import precisionRound from 'utils/precisionRound'
 import capitalizeFirstLetter from 'utils/capitalizeFirstLetter'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const parseSymbol = (symbol) => {
   if (!symbol) return ''
@@ -103,13 +104,13 @@ const AddOrEditPriceAlert = ({
   onCancel,
 }) => {
   const { binanceDD, ftxDD, binanceUSDD, kucoinDD } = useSymbolContext()
-  const { notify } = useNotifications()
   const { symbols, symbolDetails } = useSelector((state) => state.symbols)
   const [state, setState] = useState(INITIAL_STATE)
   const roundOff = (price) => {
     if (parseFloat(price) >= 1) return precisionRound(price)
     else return parseFloat(price)
   }
+  const dispatch = useDispatch()
 
   const evalSymbolPrice = useCallback(async (symbol, exchange) => {
     setState((prevVal) => ({ ...prevVal, fetchingSymbolPrice: true }))
@@ -218,33 +219,18 @@ const AddOrEditPriceAlert = ({
       }
       const resp = await createPriceAlert(reqPayload)
       if (resp?.status === 'OK') {
-        notify({
-          id: 'price-alert-success',
-          status: 'success',
-          title: 'Success',
-          message: 'Price alert created!',
-        })
+        dispatch(notify(MESSAGES['price-alert-created'], 'success'))
         cardOp('add', {
           ...currState,
           alert_id: resp.alert_id,
           status: 'active',
         })
       } else {
-        notify({
-          id: 'price-alert-error',
-          status: 'error',
-          title: 'Error',
-          message: resp?.error,
-        })
+        dispatch(notify(resp?.error, 'error'))
       }
     } catch (e) {
       consoleLogger(e)
-      notify({
-        id: 'price-alert-failed',
-        status: 'error',
-        title: 'Error',
-        message: 'Price alert creation failed!',
-      })
+      dispatch(notify(MESSAGES['price-alert-failed'], 'error'))
     } finally {
     }
   }
@@ -264,12 +250,7 @@ const AddOrEditPriceAlert = ({
       }
       const resp = await updatePriceAlert(alert_id, reqPayload)
       if (resp?.status === 'OK') {
-        notify({
-          id: 'price-alert-update-success',
-          status: 'success',
-          title: 'Success',
-          message: 'Price alert updated!',
-        })
+        dispatch(notify(MESSAGES['price-alert-updated'], 'success'))
 
         cardOp('edit', {
           ...currState,
@@ -278,21 +259,11 @@ const AddOrEditPriceAlert = ({
           status: 'active',
         })
       } else {
-        notify({
-          id: 'price-alert-update-error',
-          status: 'error',
-          title: 'Error',
-          message: resp?.error,
-        })
+        dispatch(notify(resp?.error, 'error'))
       }
     } catch (e) {
       consoleLogger(e)
-      notify({
-        id: 'price-alert-update-failed',
-        status: 'error',
-        title: 'Error',
-        message: 'Price alert modification failed!',
-      })
+      dispatch(notify(MESSAGES['price-alert-update-failed'], 'error'))
     } finally {
     }
   }
@@ -602,7 +573,7 @@ const PriceAlertsContainer = () => {
   const [fBData, setFBData] = useState(null)
   const { symbolDetails } = useSelector((state) => state.symbols)
   const { userData } = useSelector((state) => state.users)
-  const { notify } = useNotifications()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     getAllPriceAlerts()
@@ -715,27 +686,12 @@ const PriceAlertsContainer = () => {
           tempAlerts.splice(fIndex, 1)
           return tempAlerts
         })
-        notify({
-          id: 'price-alert-delete-success',
-          status: 'success',
-          title: 'Success',
-          message: 'Price alert deleted',
-        })
+        dispatch(notify(MESSAGES['price-alert-deleted'], 'success'))
       } else {
-        notify({
-          id: 'price-alert-delete-error',
-          status: 'error',
-          title: 'Error',
-          message: resp?.error,
-        })
+        dispatch(notify(resp?.error, 'error'))
       }
     } catch (e) {
-      notify({
-        id: 'price-alert-delete-failed',
-        status: 'error',
-        title: 'Error',
-        message: "Alert couldn't be deleted!",
-      })
+      dispatch(notify(MESSAGES['price-alert-delete-failed'], 'error'))
     } finally {
       setDelId(null)
     }
@@ -779,28 +735,13 @@ const PriceAlertsContainer = () => {
           { ...data, alert_id: resp.alert_id },
           ...prevState,
         ])
-        notify({
-          id: 'price-alert-reactivate-success',
-          status: 'success',
-          title: 'Success',
-          message: 'Price alert reactivated',
-        })
+        dispatch(notify(MESSAGES['price-alert-reactivated'], 'success'))
       } else {
-        notify({
-          id: 'price-alert-reactivate-error',
-          status: 'error',
-          title: 'Error',
-          message: resp?.error,
-        })
+        dispatch(notify(resp?.error, 'error'))
       }
     } catch (e) {
       consoleLogger(e)
-      notify({
-        id: 'price-alert-reactivate-failed',
-        status: 'error',
-        title: 'Error',
-        message: "Alert didn't re-activate!",
-      })
+      dispatch(notify(MESSAGES['price-alert-reactivate-failed'], 'error'))
     } finally {
       setDelId(null)
     }

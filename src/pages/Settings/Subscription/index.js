@@ -1,6 +1,6 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from 'contexts/UserContext'
 import { UserCheck, AlertTriangle } from 'react-feather'
@@ -27,6 +27,7 @@ import {
   updateSubscriptionsDetails,
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const Subscription = () => {
   const { logout } = useContext(UserContext)
@@ -38,7 +39,6 @@ const Subscription = () => {
   const { isCheckingSub, hasSub, subscriptionData, subscriptionError } =
     useSelector((state) => state.subscriptions)
   const history = useHistory()
-  const { notify } = useNotifications()
   const db = firebase.firestore()
   const dispatch = useDispatch()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
@@ -79,22 +79,7 @@ const Subscription = () => {
         setCardInfo(defaultPaymentRes.card)
       }
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            Something went wrong! Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['something-wrong'], 'error'))
     }
   }
 
@@ -135,11 +120,7 @@ const Subscription = () => {
     } catch (err) {
       setIsLoading(false)
       setShowEndTrialModal(false)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'Cannot end trial. Please contact support!',
-      })
+      dispatch(notify(MESSAGES['end-trial-failed'], 'error'))
     }
   }
 

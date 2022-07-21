@@ -9,7 +9,7 @@ import {
 import { ccxtClass } from 'constants/ccxtConfigs'
 import './MarketStatistics.css'
 import { decryptData } from 'utils/secureData'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { setChartDrawings as setDrawings } from 'services/api'
 import { useMediaQuery } from 'react-responsive'
 import { useLocation } from 'react-router-dom'
@@ -28,7 +28,8 @@ import {
   updateSelectedSymbolLastPrice,
   updateSettingChartDrawings,
 } from 'store/actions'
-import { consoleLogger } from 'utils/logger'
+import { consoleError, consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 function MarketStatistics({ market }) {
   const [message, setMessage] = useState(null)
@@ -42,7 +43,6 @@ function MarketStatistics({ market }) {
   const [showDrawingsModal, setShowDrawingsModal] = useState(false)
   const [fileName, setFileName] = useState('')
   const [uploadedDrawings, setUploadedDrawings] = useState()
-  const { notify } = useNotifications()
   const isMobile = useMediaQuery({ query: `(max-width: 1207.98px)` })
   const location = useLocation()
   const isOnMarket = useMemo(() => {
@@ -247,11 +247,7 @@ function MarketStatistics({ market }) {
               dispatch(updateSettingChartDrawings(true))
             })
           } else {
-            notify({
-              status: 'error',
-              title: 'Error',
-              message: 'Please upload a valid drawings file',
-            })
+            dispatch(notify(MESSAGES['invalid-drawing-file'], 'error'))
             setFileName('')
             setUploadedDrawings()
             dispatch(updateSettingChartDrawings(false))
@@ -259,11 +255,7 @@ function MarketStatistics({ market }) {
         }
       }
     } else {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'Please upload a valid drawings file with .json format',
-      })
+      dispatch(notify(MESSAGES['not-json-drawing'], 'error'))
       setFileName('')
       setUploadedDrawings()
       dispatch(updateSettingChartDrawings(false))
@@ -299,11 +291,7 @@ function MarketStatistics({ market }) {
               dispatch(updateSettingChartDrawings(true))
             })
           } else {
-            notify({
-              status: 'error',
-              title: 'Error',
-              message: 'Please drag and drop a valid drawings file',
-            })
+            dispatch(notify(MESSAGES['dnd-valid-drawing'], 'error'))
             setFileName('')
             setUploadedDrawings()
             dispatch(updateSettingChartDrawings(false))
@@ -311,12 +299,8 @@ function MarketStatistics({ market }) {
         }
       }
     } else {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: 'Please drag and drop a valid drawings file with .json format',
-      })
-      setFileName('Failed to upload chart drawings. Please try again.')
+      dispatch(notify(MESSAGES['dnd-not-json-drawing'], 'error'))
+      setFileName(MESSAGES['drawing-upload-failed'])
       setUploadedDrawings()
       dispatch(updateSettingChartDrawings(false))
     }
@@ -334,11 +318,7 @@ function MarketStatistics({ market }) {
       setUploadedDrawings()
       dispatch(updateSettingChartDrawings(false))
     } catch (err) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: '',
-      })
+      consoleError(err)
     }
   }
 

@@ -1,17 +1,18 @@
 import React from 'react'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { useQuery } from 'react-query'
 import { connectTelegramLoadKey, disconnectTelegram } from 'services/api'
 import { useCopyToClipboard } from 'hooks'
+import MESSAGES from 'constants/Messages'
+import { useDispatch } from 'react-redux'
 
 const TelegramSettingModal = ({ onClose, connected }) => {
   const connectTelegramLoadKeyQuery = useQuery(
     'connectTelegramLoadKey',
     connectTelegramLoadKey
   )
-  const { notify } = useNotifications()
   const [isCopied, handleCopy] = useCopyToClipboard()
-
+  const dispatch = useDispatch()
   let telegramKey = null
   if (connectTelegramLoadKeyQuery.data) {
     telegramKey = connectTelegramLoadKeyQuery.data.telegramKey
@@ -23,24 +24,12 @@ const TelegramSettingModal = ({ onClose, connected }) => {
     try {
       const { data } = await disconnectTelegram()
       if (data?.status === 'error') {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: "Couldn't be disconnect Telegram. Please try again later!",
-        })
+        dispatch(notify(MESSAGES['telegram-disconnect-failed'], 'error'))
       } else {
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'Successfully disconnected!',
-        })
+        dispatch(notify(MESSAGES['telegram-disconnected'], 'success'))
       }
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Couldn't be disconnect Telegram. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['telegram-disconnect-failed'], 'error'))
     }
   }
 

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { Link } from 'react-router-dom'
 import Select, { components } from 'react-select'
 import * as yup from 'yup'
@@ -33,6 +33,7 @@ import {
   handleOnboardingSkip,
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const OnboardingModal = () => {
   const { isLoggedIn } = useContext(UserContext)
@@ -42,7 +43,6 @@ const OnboardingModal = () => {
   const { isOnboardingSkipped, onTour } = useSelector((state) => state.appFlow)
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const history = useHistory()
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
   const [step, setStepNo] = useState(1)
   const [apiProc, setIsApiProc] = useState(false)
@@ -160,11 +160,7 @@ const OnboardingModal = () => {
         await updateLastSelectedValue(userData.email, value)
         dispatch(refreshExchanges(userData))
         setStepNo(step + 1)
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'API key added!',
-        })
+        dispatch(notify(MESSAGES['api-key-added'], 'success'))
         analytics.logEvent('api_keys_added')
         trackEvent('user', 'api_keys_added', 'user')
       }

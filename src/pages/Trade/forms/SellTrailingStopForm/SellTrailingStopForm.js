@@ -24,6 +24,7 @@ import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { notify } from 'reapop'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const BuyTrailingStopForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -391,21 +392,13 @@ const BuyTrailingStopForm = () => {
             price_trigger: values.price_trigger.value,
           },
         }
-        const { data, status } = await createBasicTrade(payload)
-        if (data?.status === 'error') {
-          notify({
-            status: 'error',
-            title: 'Error',
-            message:
-              data?.error ||
-              `Order couldn't be created. Please try again later!`,
-          })
+        const res = await createBasicTrade(payload)
+        if (res?.status === 'error' || res.status !== 200) {
+          dispatch(
+            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+          )
         } else {
-          notify({
-            status: 'success',
-            title: 'Success',
-            message: 'Order Created!',
-          })
+          dispatch(notify(MESSAGES['order-created'], 'success'))
           refreshBalance()
         }
         setValues({
@@ -416,22 +409,7 @@ const BuyTrailingStopForm = () => {
         })
       } catch (error) {
         consoleLogger(error)
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: (
-            <p>
-              Order couldn’t be created. Unknown error. Please report at:{' '}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href="https://support.coinpanel.com"
-              >
-                <b>support.coinpanel.com</b>
-              </a>
-            </p>
-          ),
-        })
+        dispatch(notify(MESSAGES['order-create-error'], 'error'))
       } finally {
         setBtnVisibility(false)
       }

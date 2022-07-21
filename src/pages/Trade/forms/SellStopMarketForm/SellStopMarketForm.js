@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import * as yup from 'yup'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,7 +22,8 @@ import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import MESSAGES from 'constants/Messages'
 
 const errorInitialValues = {
   price: '',
@@ -39,8 +40,8 @@ const SellStopMarketForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { notify } = useNotifications()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
+  const dispatch = useDispatch()
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
@@ -364,21 +365,13 @@ const SellStopMarketForm = () => {
             total: values.total,
           },
         }
-        const { data } = await createBasicTrade(payload)
-        if (data?.status === 'error') {
-          notify({
-            status: 'error',
-            title: 'Error',
-            message:
-              data?.error ||
-              `Order couldn't be created. Please try again later!`,
-          })
+        const res = await createBasicTrade(payload)
+        if (res?.status === 'error' || res.status !== 200) {
+          dispatch(
+            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+          )
         } else {
-          notify({
-            status: 'success',
-            title: 'Success',
-            message: 'Order Created!',
-          })
+          dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_sell_stop_market_order')
           trackEvent(
             'user',
@@ -393,22 +386,7 @@ const SellStopMarketForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: (
-            <p>
-              Order couldn’t be created. Unknown error. Please report at:{' '}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href="https://support.coinpanel.com"
-              >
-                <b>support.coinpanel.com</b>
-              </a>
-            </p>
-          ),
-        })
+        dispatch(notify(MESSAGES['order-create-error'], 'error'))
       } finally {
         setBtnVisibility(false)
       }

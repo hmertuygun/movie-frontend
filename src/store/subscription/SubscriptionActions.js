@@ -1,5 +1,4 @@
 import subscriptionSlice from './SubscriptionSlice'
-import { firebase } from 'services/firebase'
 import { getDoubleCollection, getFirestoreDocumentData } from 'services/api'
 import dayjs from 'dayjs'
 import {

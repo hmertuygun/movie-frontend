@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { useNotifications } from 'reapop'
+import React, { useEffect, useMemo, useState } from 'react'
+import { notify } from 'reapop'
 import { capitalize } from 'lodash'
 import { HelpCircle, X } from 'react-feather'
 import { Tooltip } from 'components'
@@ -16,6 +16,7 @@ import { firebase } from 'services/firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateActiveDrawing, updateAddedDrawing } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const FieldValue = firebase.firestore.FieldValue
 
@@ -25,7 +26,6 @@ const TemplatesList = () => {
     (state) => state.charts
   )
   const dispatch = useDispatch()
-  const { notify } = useNotifications()
   const [templates, setTemplates] = useState([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [infoShow, setInfoShow] = useState(false)
@@ -34,11 +34,7 @@ const TemplatesList = () => {
       const templateData = template ? template : activeDrawing
       const isSame = templates.some((element) => element.id === templateData.id)
       if (isSame) {
-        return notify({
-          status: 'error',
-          title: 'Error',
-          message: `You cannot add the same template.`,
-        })
+        return dispatch(notify(MESSAGES['duplicate-template'], 'error'))
       }
       addTemplateToFirestore(userData.email, {
         data: JSON.stringify({ ...templateData, tempName: templateName }),

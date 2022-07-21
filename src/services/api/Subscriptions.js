@@ -2,6 +2,7 @@ import { notify } from 'reapop'
 import { messaging } from 'services/firebase'
 import httpClient from 'services/http'
 import { storeNotificationToken } from './Notifications'
+import store from 'store'
 
 const BASE_URL = process.env.REACT_APP_API_SUBSCRIPTION
 const PROJECT_ID = process.env.REACT_APP_FIREBASE_PROJECT_ID
@@ -86,11 +87,7 @@ const FCMSubscription = async () => {
           <p className="mb-0">API Key: {apiKey}</p>
         </>
       )
-      notify({
-        status: 'success',
-        title: data.title,
-        message: description,
-      })
+      store.dispatch(notify(description, 'success'))
     })
     navigator.serviceWorker.addEventListener('message', () => {
       // console.log(`Received msg in UC serviceWorker.addEventListener`)

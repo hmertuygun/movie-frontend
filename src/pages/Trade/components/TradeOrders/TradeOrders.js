@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 
 import {
   getOpenOrders,
@@ -29,6 +29,7 @@ import {
 } from 'store/actions'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const TradeOrders = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
@@ -45,7 +46,6 @@ const TradeOrders = () => {
   )
   const { disableOrderHistoryRefreshBtn, disableOpenOrdersRefreshBtn } =
     useSelector((state) => state.refresh)
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
 
   const [isOpenOrders, setIsOpenOrders] = useState(true)
@@ -88,13 +88,6 @@ const TradeOrders = () => {
       })
       .catch((e) => {
         consoleLogger(e)
-        // notify({
-        //   id: 'open-orders-error',
-        //   status: 'error',
-        //   title: 'Error',
-        //   message:
-        //     'Error fetching open orders! Your API key may expired, please check your API keys.',
-        // })
         setOpenOrderData([])
         setOpenOrderError(true)
       })
@@ -103,17 +96,6 @@ const TradeOrders = () => {
         setLoadBtnOO(false)
       })
   }
-
-  // const setDummyOOData = async () => {
-  //   let dummyData = [...dummyOpenOrderData]
-  //   setOpenOrderData([...dummyOpenOrderData])
-  //   await new Promise((resolve) => {
-  //     setTimeout(resolve, 5500)
-  //   })
-  //   // dummyData[0].orders[0].status = "Filled"
-  //   // dummyData[0].orders[1].status = "Filled"
-  //   setOpenOrderData([...dummyData])
-  // }
 
   const getOrderHistoryData = async (refreshTable, hideTableLoader, refBtn) => {
     try {
@@ -152,14 +134,9 @@ const TradeOrders = () => {
         setOrderHistoryLastElement(null)
       }
     } catch (e) {
-      consoleLogger(`Error Fetching History Orders`)
+      consoleLogger(MESSAGES['order-history-fetch-failed'])
       setOrderHistoryData([])
-      notify({
-        id: 'order-history-error',
-        status: 'error',
-        title: 'Error',
-        message: 'Error fetching order history!',
-      })
+      dispatch(notify(MESSAGES['order-history-fetch-failed'], 'error'))
     } finally {
       setIsOrderHistoryFetching(false)
       setLoadBtnOH(false)

@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as yup from 'yup'
@@ -22,6 +22,7 @@ import { InlineInput, Button } from 'components'
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
+import MESSAGES from 'constants/Messages'
 
 const BuyLimitForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -32,7 +33,6 @@ const BuyLimitForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { notify } = useNotifications()
   const dispatch = useDispatch()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
@@ -396,20 +396,13 @@ const BuyLimitForm = () => {
           total: values.total,
         },
       }
-      const { data } = await createBasicTrade(payload)
-      if (data?.status === 'error') {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            data?.error || `Order couldn't be created. Please try again later!`,
-        })
+      const res = await createBasicTrade(payload)
+      if (res?.status === 'error' || res.status !== 200) {
+        dispatch(
+          notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+        )
       } else {
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'Order Created!',
-        })
+        dispatch(notify(MESSAGES['order-created'], 'success'))
         analytics.logEvent('placed_buy_limit_order')
         trackEvent('user', 'placed_buy_limit_order', 'placed_buy_limit_order')
         refreshBalance()
@@ -421,22 +414,7 @@ const BuyLimitForm = () => {
         quantityPercentage: '',
       })
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            Order couldn’t be created. Unknown error. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['order-create-error'], 'error'))
     } finally {
       setBtnVisibility(false)
       setShowWarning(false)

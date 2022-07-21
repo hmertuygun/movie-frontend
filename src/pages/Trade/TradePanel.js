@@ -9,7 +9,7 @@ import React, {
 import { X } from 'react-feather'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 
 import { placeOrder } from 'services/api'
 import { TabContext } from 'contexts/TabContext'
@@ -55,11 +55,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { resetTradeState, updateIsOrderPlaced } from 'store/actions'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const TradePanel = () => <Trade />
 
 const Trade = () => {
-  const { notify } = useNotifications()
   const { refreshBalance } = useSymbolContext()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -95,22 +95,14 @@ const Trade = () => {
     try {
       if (isBtnDisabled) return
       setBtnVisibility(true)
-      // setIsOrderPlaced(false)
       dispatch(updateIsOrderPlaced(false))
-      const { data } = await placeOrder({ ...tradeState, ...activeExchange })
-      if (data?.status === 'error') {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message:
-            data?.error || "Order couldn't be created. Please try again later!",
-        })
+      const res = await placeOrder({ ...tradeState, ...activeExchange })
+      if (res?.status === 'error' || res.status !== 200) {
+        dispatch(
+          notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+        )
       } else {
-        notify({
-          status: 'success',
-          title: 'Success',
-          message: 'Order Created!',
-        })
+        dispatch(notify(MESSAGES['order-created'], 'success'))
         const { entry } = tradeState
         analytics.logEvent(`placed_full_trade_${entry.type}_order`)
         trackEvent(
@@ -128,14 +120,9 @@ const Trade = () => {
     } catch (error) {
       consoleLogger({ error, message: 'Order was not sent' })
       setIsModalVisible(false)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Order couldn't be created. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['order-create-failed'], 'error'))
       dispatch(resetTradeState())
     } finally {
-      // setIsOrderPlaced(true)
       dispatch(updateIsOrderPlaced(true))
       setBtnVisibility(false)
     }
@@ -143,7 +130,6 @@ const Trade = () => {
     activeExchange,
     isBtnDisabled,
     refreshBalance,
-    // setIsOrderPlaced,
     setIsTradePanelOpen,
     tradeState,
   ])

@@ -4,7 +4,7 @@ import { InlineInput, Button } from 'components'
 import roundNumbers from 'utils/roundNumbers'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import Slider from 'rc-slider'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 
 import {
   addPrecisionToNumber,
@@ -26,7 +26,8 @@ import { createBasicTrade } from 'services/api'
 import styles from '../LimitForm/LimitForm.module.css'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import MESSAGES from 'constants/Messages'
 
 const errorInitialValues = {
   triggerPrice: '',
@@ -45,8 +46,8 @@ const TakeProfitLimitForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { notify } = useNotifications()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
+  const dispatch = useDispatch()
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
@@ -397,21 +398,13 @@ const TakeProfitLimitForm = () => {
             total: values.total,
           },
         }
-        const { data } = await createBasicTrade(payload)
-        if (data?.status === 'error') {
-          notify({
-            status: 'error',
-            title: 'Error',
-            message:
-              data?.error ||
-              `Order couldn't be created. Please try again later!`,
-          })
+        const res = await createBasicTrade(payload)
+        if (res?.status === 'error' || res.status !== 200) {
+          dispatch(
+            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
+          )
         } else {
-          notify({
-            status: 'success',
-            title: 'Success',
-            message: 'Order Created!',
-          })
+          dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_sell_take_profit_limit_order')
           trackEvent(
             'user',
@@ -426,22 +419,7 @@ const TakeProfitLimitForm = () => {
           quantityPercentage: '',
         })
       } catch (error) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: (
-            <p>
-              Order couldn’t be created. Unknown error. Please report at:{' '}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href="https://support.coinpanel.com"
-              >
-                <b>support.coinpanel.com</b>
-              </a>
-            </p>
-          ),
-        })
+        dispatch(notify(MESSAGES['order-create-error'], 'error'))
       } finally {
         setBtnVisibility(false)
       }

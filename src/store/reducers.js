@@ -14,6 +14,7 @@ import chartSlice from './charts/ChartSlice'
 import analyticsSlice from './analytics/AnalyticsSlice'
 import portfolioSlice from './portfolio/PortfolioSlice'
 import simpleTradeSlice from './simpleTrade/SimpleTradeSlice'
+import { reducer as notificationsReducer } from 'reapop'
 
 const symbols = symbolSlice.reducer,
   exchanges = exchangeSlice.reducer,
@@ -30,7 +31,8 @@ const symbols = symbolSlice.reducer,
   charts = chartSlice.reducer,
   analytics = analyticsSlice.reducer,
   portfolio = portfolioSlice.reducer,
-  simpleTrade = simpleTradeSlice.reducer
+  simpleTrade = simpleTradeSlice.reducer,
+  notifications = notificationsReducer()
 
 export {
   symbols,
@@ -49,4 +51,5 @@ export {
   analytics,
   portfolio,
   simpleTrade,
+  notifications,
 }

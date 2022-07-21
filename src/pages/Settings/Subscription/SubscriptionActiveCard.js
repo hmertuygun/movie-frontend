@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { UserCheck } from 'react-feather'
 import dayjs from 'dayjs'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { subscriptionNames } from 'constants/subscriptionNames'
 import './SubscriptionActiveCard.css'
 import {
@@ -19,6 +19,8 @@ import {
 } from './Modals'
 import { consoleLogger } from 'utils/logger'
 import { DELETION_REASONS } from 'constants/deletionReasons'
+import MESSAGES from 'constants/Messages'
+import { useDispatch } from 'react-redux'
 
 const SubscriptionActiveCard = ({
   subscriptionData,
@@ -38,9 +40,7 @@ const SubscriptionActiveCard = ({
   const [cryptoStatus, setCryptoStatus] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [deletionReasons, setDeletionReasons] = useState([])
-
-  const { notify } = useNotifications()
-
+  const dispatch = useDispatch()
   const [subscription, priceData, due] = useMemo(() => {
     if (subscriptionData)
       return [
@@ -82,22 +82,7 @@ const SubscriptionActiveCard = ({
         stripeId: subCreds.stripeId,
       })
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not change your default payment method. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['payment-change-failed'], 'error'))
     } finally {
       getClientSecret()
       setShowUpdateModal(false)
@@ -119,22 +104,7 @@ const SubscriptionActiveCard = ({
       }, 5000)
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not change your plan. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['plan-change-failed'], 'error'))
     }
   }
 
@@ -157,22 +127,7 @@ const SubscriptionActiveCard = ({
       }
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not cancel your subscription. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['cancel-subscription-failed'], 'error'))
     }
   }
 
@@ -197,22 +152,7 @@ const SubscriptionActiveCard = ({
       }
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: (
-          <p>
-            We could not change your subscription. Please report at:{' '}
-            <a
-              rel="noopener noreferrer"
-              target="_blank"
-              href="https://support.coinpanel.com"
-            >
-              <b>support.coinpanel.com</b>
-            </a>
-          </p>
-        ),
-      })
+      dispatch(notify(MESSAGES['change-subscription-failed'], 'error'))
     } finally {
       setShowCancelModal(false)
     }

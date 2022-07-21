@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ExternalLink } from 'react-feather'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { ThemeContext } from 'contexts/ThemeContext'
 import { useMutation, useQueryClient } from 'react-query'
 import { analytics } from 'services/firebase'
@@ -30,6 +30,7 @@ import {
   updateTotalExchanges,
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
+import MESSAGES from 'constants/Messages'
 
 const Exchanges = () => {
   const { userData, userState } = useSelector((state) => state.users)
@@ -39,7 +40,6 @@ const Exchanges = () => {
 
   const { theme } = useContext(ThemeContext)
   const queryClient = useQueryClient()
-  const { notify } = useNotifications()
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false)
   const [selectedExchange, setSelectedExchange] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -79,30 +79,18 @@ const Exchanges = () => {
       setIsLoading(true)
       const res = await addUserExchange(formData)
       if (res.status !== 200) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: res.data.detail,
-        })
+        dispatch(notify(res.data.detail, 'error'))
         return
       }
       setIsModalVisible(false)
       setIsLoading(false)
-      notify({
-        status: 'success',
-        title: 'Success',
-        message: 'API key added!',
-      })
+      dispatch(notify(MESSAGES['api-key-added'], 'success'))
       analytics.logEvent('api_keys_added')
       trackEvent('user', 'api_keys_added', 'user')
       dispatch(refreshExchanges(userData))
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Couldn't add API key. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['api-key-failed'], 'error'))
     } finally {
       setIsModalVisible(false)
       setIsLoading(false)
@@ -114,27 +102,15 @@ const Exchanges = () => {
       setIsLoading(true)
       const res = await updateUserExchange(formData)
       if (res.status !== 200) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: res.data.detail,
-        })
+        dispatch(notify(res.data.detail, 'error'))
         return
       }
-      notify({
-        status: 'success',
-        title: 'Success',
-        message: 'API key updated!',
-      })
+      dispatch(notify(MESSAGES['api-key-updated'], 'success'))
       analytics.logEvent('api_keys_added')
       trackEvent('user', 'api_keys_added', 'user')
       dispatch(refreshExchanges(userData))
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Couldn't update API key. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['api-key-updated-failed'], 'error'))
     } finally {
       setIsUpdateModalVisible(false)
       setIsLoading(false)
@@ -146,11 +122,7 @@ const Exchanges = () => {
       setIsLoading(true)
       const res = await deleteUserExchange(data)
       if (res.status !== 200) {
-        notify({
-          status: 'error',
-          title: 'Error',
-          message: res.data.detail,
-        })
+        dispatch(notify(res.data.detail, 'error'))
         setIsLoading(false)
         setIsDeletionModalVisible(false)
         return
@@ -188,19 +160,11 @@ const Exchanges = () => {
       }
       queryClient.invalidateQueries('exchanges')
       setSelectedExchange(null)
-      notify({
-        status: 'success',
-        title: 'Success',
-        message: 'API key deleted!',
-      })
+      dispatch(notify(MESSAGES['api-key-deleted'], 'success'))
       dispatch(refreshExchanges(userData))
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: "Couldn't delete API key. Please try again later!",
-      })
+      dispatch(notify(MESSAGES['api-key-delete-failed'], 'error'))
     } finally {
       setIsDeletionModalVisible(false)
       setIsLoading(false)

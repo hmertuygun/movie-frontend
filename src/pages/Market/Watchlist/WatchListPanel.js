@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-loop-func */
 import React, { useState, useEffect, useCallback } from 'react'
-import { useNotifications } from 'reapop'
+import { notify } from 'reapop'
 import { orderBy } from 'lodash'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import WatchListItem from './WatchListItem'
 import { AddEmoji, AddWatchList, NewWatchListItem } from '../components/Modals'
@@ -29,11 +29,10 @@ import sortTemplate from 'utils/sortTemplate'
 
 import styles from '../css/WatchListPanel.module.css'
 import { updateSelectEmojiPopoverOpen } from 'store/actions'
+import MESSAGES from 'constants/Messages'
 
 const WatchListPanel = () => {
   const { setSymbol } = useSymbolContext()
-
-  const { symbolDetails } = useSelector((state) => state.symbols)
   const { emojis, selectEmojiPopoverOpen } = useSelector(
     (state) => state.emojis
   )
@@ -42,7 +41,6 @@ const WatchListPanel = () => {
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const { activeExchange } = useSelector((state) => state.exchanges)
   const { userData, isAnalyst } = useSelector((state) => state.users)
-  const { notify } = useNotifications()
 
   const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
   const [watchListOptionPopoverOpen, setWatchListOptionPopoverOpen] =
@@ -63,6 +61,7 @@ const WatchListPanel = () => {
   const [isGroupByFlag, setIsGroupByFlag] = useState(false)
   const [isEmojiDeleted, setIsEmojiDeleted] = useState([])
   const FieldValue = firebase.firestore.FieldValue
+  const dispatch = useDispatch()
 
   const initWatchList = useCallback(() => {
     try {
@@ -335,11 +334,7 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
     } catch (error) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: INFO['FAILED_WATCH_LIST'],
-      })
+      dispatch(notify(MESSAGES['watchlist-failed'], 'error'))
     }
   }
 
@@ -376,11 +371,7 @@ const WatchListPanel = () => {
       await setWatchlistData(userData.email, data)
     } catch (error) {
       consoleLogger(error)
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: INFO['FAILED_EMOJI'],
-      })
+      dispatch(notify(MESSAGES['emoji-failed'], 'error'))
     }
   }
 
@@ -443,11 +434,7 @@ const WatchListPanel = () => {
       }
       setWatchlistData(userData.email, data)
 
-      notify({
-        status: 'success',
-        title: 'Success',
-        message: INFO['WATCH_LIST_CREATED'],
-      })
+      dispatch(notify(MESSAGES['watchlist-created'], 'success'))
       setAddWatchListModalOpen(false)
     } catch (error) {
       consoleLogger('Cannot save watch lists')
@@ -521,11 +508,7 @@ const WatchListPanel = () => {
   const handleDelete = async () => {
     setWatchListOptionPopoverOpen(false)
     if (activeWatchList.watchListName === DEFAULT_WATCHLIST) {
-      notify({
-        status: 'error',
-        title: 'Error',
-        message: INFO['DELETE_DEFAULT_LIST'],
-      })
+      dispatch(notify(MESSAGES['delete-default-error'], 'error'))
       return
     }
     try {
@@ -537,11 +520,7 @@ const WatchListPanel = () => {
       await ref.update({
         activeList: DEFAULT_WATCHLIST,
       })
-      notify({
-        status: 'success',
-        title: 'Success',
-        message: INFO['DELETED_LIST'],
-      })
+      dispatch(notify(MESSAGES['delete-list-success'], 'success'))
     } catch (e) {
       consoleLogger(e)
     }
