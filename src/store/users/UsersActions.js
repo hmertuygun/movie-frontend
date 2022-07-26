@@ -3,6 +3,7 @@ import {
   deleteGoogleAuth2FA,
   getSnapShotCollection,
   saveGoogleAuth2FA,
+  sendLoginInfo,
   validateUser,
   verifyGoogleAuth2FA,
 } from 'services/api'
@@ -162,6 +163,7 @@ const login =
       )
       storage.set('user', JSON.stringify(signedin.user))
       storage.set('remember', rememberCheck)
+      await sendLoginInfo()
     }
     storage.remove('registered')
     return signedin
