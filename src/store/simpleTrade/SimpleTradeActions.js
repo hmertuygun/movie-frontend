@@ -58,6 +58,7 @@ const addEntryStopLimit =
         type,
         side,
         total,
+        price,
       })
     )
   }
