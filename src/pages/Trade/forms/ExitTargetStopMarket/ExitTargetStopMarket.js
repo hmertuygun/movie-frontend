@@ -302,7 +302,7 @@ const ExitTargetStopMarket = () => {
     if (inputName === 'price') {
       const diff = inputValue - entryPrice
       const percentage = (diff / entryPrice) * 100
-      const profitPercentage = percentage > 1000 ? 1000 : percentage.toFixed(0)
+      const profitPercentage = percentage > 1000 ? 1000 : percentage.toFixed(2)
       setValues((values) => ({
         ...values,
         profit: profitPercentage,
@@ -341,7 +341,7 @@ const ExitTargetStopMarket = () => {
 
     if (inputName === 'quantity') {
       const percentage = (inputValue / entry.quantity) * 100
-      const quantityPercentage = percentage > 100 ? 100 : percentage.toFixed(0)
+      const quantityPercentage = percentage > 100 ? 100 : percentage.toFixed(2)
       setValues((values) => ({
         ...values,
         quantityPercentage,

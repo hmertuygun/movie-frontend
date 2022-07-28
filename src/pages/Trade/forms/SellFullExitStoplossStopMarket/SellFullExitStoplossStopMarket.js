@@ -342,7 +342,7 @@ const SellFullExitStoplossStopMarket = () => {
       case 'quantity': {
         const percentage = (inputValue / entry.quantity) * 100
         const quantityPercentage =
-          percentage > 100 ? 100 : percentage.toFixed(0)
+          percentage > 100 ? 100 : percentage.toFixed(2)
         setValues((values) => ({
           ...values,
           quantityPercentage,
