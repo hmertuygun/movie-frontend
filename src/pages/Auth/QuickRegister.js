@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { Key, AtSign } from 'react-feather'
 import { Link, Redirect } from 'react-router-dom'
 import { Logo } from 'components'
@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { register } from 'store/actions'
 import { fbPixelTracking } from 'services/tracking'
 import { consoleLogger } from 'utils/logger'
+import { ThemeContext } from 'contexts/ThemeContext'
 
 const QuickRegister = () => {
   const { isSubOpen, userState } = useSelector((state) => state.users)
@@ -36,6 +37,7 @@ const QuickRegister = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [country, setCountry] = useState('')
   const [registerType, setRegisterType] = useState(query.get('t'))
+  const { theme } = useContext(ThemeContext)
 
   const dispatch = useDispatch()
 
@@ -176,10 +178,7 @@ const QuickRegister = () => {
   }
 
   return (
-    <section
-      style={{ backgroundColor: '#E1E1E1' }}
-      className="row h-100vh align-items-center"
-    >
+    <section className={`row h-100vh align-items-center grey-bg`}>
       <div className="col-lg-6 px-4 desktop-section">
         <div
           className="zindex-100 content-wrapper p-5 position-relative"
@@ -191,8 +190,12 @@ const QuickRegister = () => {
         </div>
       </div>
 
-      <div className="col-lg-6 col-sm-12 px-4">
-        <div className="d-flex flex-column bg-white justify-content-center content-wrapper">
+      <div className={`col-lg-6 col-sm-12 px-4 `}>
+        <div
+          className={`d-flex flex-column justify-content-center content-wrapper ${
+            theme === 'DARK' ? 'dark-bg' : 'bg-white'
+          }`}
+        >
           <div className="form-container mx-auto">
             <div className="mb-4">
               <Logo />
@@ -275,7 +278,7 @@ const QuickRegister = () => {
                       options={options}
                       value={country}
                       onChange={handleCountrySelection}
-                      className="input-group-merge country-border"
+                      className="input-group-merge country-border bg-dark"
                     />
                   </div>
 
