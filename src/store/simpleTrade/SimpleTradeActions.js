@@ -10,10 +10,11 @@ const {
 } = simpleTradeSlice.actions
 
 const addEntry =
-  ({ price, quantity, symbol, type = 'limit', side = 'buy', total }) =>
+  ({ trigger, price, quantity, symbol, type = 'limit', side = 'buy', total }) =>
   async (dispatch) => {
     dispatch(
       setEntry({
+        trigger,
         price,
         quantity,
         symbol,
