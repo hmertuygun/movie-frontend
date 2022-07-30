@@ -41,6 +41,7 @@ function App() {
             </RequireAuth>
           }
         />
+
         <Route path="register" element={<Register />} />
         <Route path="login" element={<LogIn />} />
         <Route path="*" element={<NotFound />} />

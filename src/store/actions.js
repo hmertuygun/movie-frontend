@@ -1,3 +1,5 @@
 import { registerUser, loginUser } from "./users/userActions";
 
-export { registerUser, loginUser };
+import { updateKeyword, updateResults } from "./search/searchActions";
+
+export { registerUser, loginUser, updateKeyword, updateResults };
