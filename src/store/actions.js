@@ -1,5 +1,22 @@
-import { registerUser, loginUser } from "./users/userActions";
+import {
+  registerUser,
+  loginUser,
+  addFavorites,
+  removeFavorite,
+} from "./users/userActions";
 
-import { updateKeyword, updateResults } from "./search/searchActions";
+import {
+  updateKeyword,
+  updateResults,
+  updateMovieDetails,
+} from "./search/searchActions";
 
-export { registerUser, loginUser, updateKeyword, updateResults };
+export {
+  registerUser,
+  loginUser,
+  updateKeyword,
+  updateResults,
+  updateMovieDetails,
+  addFavorites,
+  removeFavorite,
+};

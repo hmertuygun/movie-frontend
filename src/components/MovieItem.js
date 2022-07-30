@@ -8,10 +8,18 @@ import {
   Stack,
   Center,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const MovieItem = ({ data }) => {
+const MovieItem = ({ data, viewDetails }) => {
+  const { favorites, token } = useSelector((state) => state.users);
+
+  const isInFavorites = useMemo(() => {
+    if (!token) return false;
+    return favorites.find((element) => element.imdbID === data.imdbID);
+  }, [favorites, viewDetails]);
+
   return (
     <Flex p={3} w="full" alignItems="center" justifyContent="center">
       <Box
@@ -35,8 +43,24 @@ const MovieItem = ({ data }) => {
         <Box p="6">
           <Box d="flex" alignItems="baseline">
             {data.Year && (
-              <Badge rounded="full" px="2" fontSize="0.8em" colorScheme="red">
+              <Badge
+                rounded="full"
+                px="2"
+                mr={2}
+                fontSize="0.8em"
+                colorScheme="red"
+              >
                 {data.Year}
+              </Badge>
+            )}
+            {isInFavorites && (
+              <Badge
+                rounded="full"
+                px="2"
+                fontSize="0.8em"
+                colorScheme="yellow"
+              >
+                Favorite
               </Badge>
             )}
           </Box>
@@ -52,9 +76,7 @@ const MovieItem = ({ data }) => {
                 {data.Title}
               </Heading>
             </Box>
-            <Link to={`/movie/${data.imdbID}`}>
-              <Button>View Movie</Button>
-            </Link>
+            <Button onClick={() => viewDetails(data.imdbID)}>View Movie</Button>
           </Stack>
         </Box>
       </Box>

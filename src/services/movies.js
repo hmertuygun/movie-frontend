@@ -16,3 +16,19 @@ export const searchKeyword = (keyword, page) => {
       console.log(error);
     });
 };
+
+export const getMovieDetails = (id) => {
+  return axios
+    .get(
+      `https://api.themoviedb.org/3/find/${id}?api_key=4e8de507cc2fa247b9441d1d1df15078&language=en-US&external_source=imdb_id`,
+    )
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        return response.data.movie_results[0];
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};

@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 let initialState = {
   results: [],
   keyword: "",
+  movieDetails: {},
 };
 
 const searchSlice = createSlice({
@@ -14,6 +15,9 @@ const searchSlice = createSlice({
     },
     setKeyword: (state, action) => {
       state.keyword = action.payload;
+    },
+    setMovieDetails: (state, action) => {
+      state.movieDetails = action.payload;
     },
   },
 });
