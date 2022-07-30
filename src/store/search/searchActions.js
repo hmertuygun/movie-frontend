@@ -10,7 +10,8 @@ const updateKeyword = (value) => async (dispatch) => {
 };
 
 const updateResults = (value) => async (dispatch) => {
-  dispatch(setResults(value));
+  const results = value.filter((item) => item.Poster !== "N/A");
+  dispatch(setResults(results));
 };
 
 const updateMovieDetails = (value) => async (dispatch) => {

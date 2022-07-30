@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  Box,
   Button,
   FormControl,
   FormLabel,
@@ -9,18 +10,24 @@ import {
 } from "@chakra-ui/react";
 import { validateForm, validateInput } from "../../utils/validateForms";
 import prepareSchema from "../../utils/prepareSchema";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { registerUser } from "../../store/actions";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
+  const { users } = useSelector((state) => state.users);
   const [formData, setFormData] = useState({ password: "", email: "" });
   const [formErrors, setFormErrors] = useState();
+  const [hasError, setHasError] = useState();
+  const [isSuccess, setIsSuccess] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const formSchema = useMemo(() => prepareSchema("REGISTER"), []);
 
   const handleChange = async (e) => {
+    setHasError(false);
     setFormData((values) => {
       return { ...values, [e.target.name]: e.target.value };
     });
@@ -35,8 +42,13 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValid = await validateForm(formErrors);
-    if (isValid) {
+    const isExisting = users.find((user) => user.email === formData.email);
+    if (isValid && !isExisting) {
       dispatch(registerUser(formData));
+      setIsSuccess(true);
+      return setTimeout(() => navigate("/login", { replace: true }), 5000);
+    } else if (isExisting) {
+      return setHasError(true);
     }
   };
 
@@ -85,6 +97,15 @@ const RegisterForm = () => {
             Sign in
           </Button>
         </Stack>
+        {hasError && (
+          <Box color={"red.300"}>This user has already been signed up</Box>
+        )}
+        {isSuccess && (
+          <Box color={"green.300"}>
+            You successfuly registered to app. You will be redirected to Log In
+            in 5 seconds.
+          </Box>
+        )}
       </Stack>
     </div>
   );

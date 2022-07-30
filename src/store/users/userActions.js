@@ -23,10 +23,15 @@ const updateUserDetails = (value) => async (dispatch) => {
   dispatch(setDetails(value));
 };
 
+const LogOut = () => async (dispatch) => {
+  dispatch(setToken(null));
+};
+
 export {
   registerUser,
   loginUser,
   addFavorites,
   removeFavorite,
   updateUserDetails,
+  LogOut,
 };

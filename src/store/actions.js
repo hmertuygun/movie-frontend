@@ -3,6 +3,7 @@ import {
   loginUser,
   addFavorites,
   removeFavorite,
+  LogOut,
 } from "./users/userActions";
 
 import {
@@ -19,4 +20,5 @@ export {
   updateMovieDetails,
   addFavorites,
   removeFavorite,
+  LogOut,
 };
