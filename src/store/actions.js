@@ -1,3 +1,3 @@
-import { addUser } from "./users/userActions";
+import { registerUser, loginUser } from "./users/userActions";
 
-export { addUser };
+export { registerUser, loginUser };

@@ -1,4 +1,4 @@
-import usersSlice from "./UsersSlice";
+import usersSlice from "./usersSlice";
 
 const { addUser, setToken } = usersSlice.actions;
 
