@@ -38,6 +38,24 @@ const usersSlice = createSlice({
         { ...currentUser, details: action.payload.allItems },
       ];
     },
+    addGenre: (state, action) => {
+      let currentUser = state.users.find(
+        (user) => user.email === action.payload.token,
+      );
+      let allUsers = state.users.filter(
+        (element) => element.email !== action.payload.token,
+      );
+      state.users = [
+        ...allUsers,
+        {
+          ...currentUser,
+          details: {
+            ...currentUser.details,
+            genre: [...currentUser.details.genre, action.payload.genre],
+          },
+        },
+      ];
+    },
   },
 });
 

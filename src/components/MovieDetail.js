@@ -46,6 +46,7 @@ const MovieDetail = ({ onClose, isOpen, id }) => {
           email: token,
           Title: movieDetails.title,
           imdbID: id,
+          genre: movieDetails.genre_ids[0],
           Poster: `https://image.tmdb.org/t/p/original${movieDetails.poster_path}`,
         }),
       );

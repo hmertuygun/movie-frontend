@@ -23,7 +23,6 @@ export const getMovieDetails = (id) => {
       `https://api.themoviedb.org/3/find/${id}?api_key=4e8de507cc2fa247b9441d1d1df15078&language=en-US&external_source=imdb_id`,
     )
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         return response.data.movie_results[0];
       }
@@ -52,11 +51,6 @@ export const getPopularActors = () => {
 };
 
 export const getRecomendations = (genre, actor) => {
-  console.log(
-    `https://api.themoviedb.org/3/discover/movie?api_key=4e8de507cc2fa247b9441d1d1df15078&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_people=${actor.join(
-      "|",
-    )}&with_genres=${genre.join("|")}&with_watch_monetization_types=flatrate`,
-  );
   return axios
     .get(
       `https://api.themoviedb.org/3/discover/movie?api_key=4e8de507cc2fa247b9441d1d1df15078&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_people=${actor.join(
@@ -64,7 +58,6 @@ export const getRecomendations = (genre, actor) => {
       )}&with_genres=${genre.join("|")}&with_watch_monetization_types=flatrate`,
     )
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         return response.data.results;
       }

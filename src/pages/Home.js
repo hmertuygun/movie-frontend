@@ -45,7 +45,6 @@ const Home = () => {
   useEffect(() => {
     if (!hasDetails) return;
     setRecomendations();
-    console.log(getRandom(userDetails.genre, userDetails.actor));
   }, [hasDetails]);
 
   return (

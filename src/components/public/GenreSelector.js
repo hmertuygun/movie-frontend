@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { GENRES } from "../../constants/genres";
 
 const GenreSelector = ({ getSelecteds, active }) => {
-  console.log(active);
   const [selected, setSelected] = useState(active ? active : []);
 
   useEffect(() => {
