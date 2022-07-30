@@ -1,9 +1,13 @@
 import usersSlice from "./UsersSlice";
 
-const { addUser } = usersSlice.actions;
+const { addUser, setToken } = usersSlice.actions;
 
 const registerUser = (value) => async (dispatch) => {
   dispatch(addUser(value));
 };
 
-export { registerUser };
+const loginUser = (value) => async (dispatch) => {
+  dispatch(setToken(value));
+};
+
+export { registerUser, loginUser };
