@@ -26,6 +26,18 @@ const usersSlice = createSlice({
     setToken: (state, action) => {
       state.token = action.payload;
     },
+    setDetails: (state, action) => {
+      let currentUser = state.users.find(
+        (user) => user.email === action.payload.token,
+      );
+      let allUsers = state.users.filter(
+        (element) => element.email !== action.payload.token,
+      );
+      state.users = [
+        ...allUsers,
+        { ...currentUser, details: action.payload.allItems },
+      ];
+    },
   },
 });
 

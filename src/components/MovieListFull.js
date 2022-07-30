@@ -11,7 +11,7 @@ import { updateMovieDetails } from "../store/actions";
 import MovieDetail from "./MovieDetail";
 import MovieItem from "./MovieItem";
 
-const MovieListFull = ({ results }) => {
+const MovieListFull = ({ results, isHome }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
 
@@ -32,6 +32,7 @@ const MovieListFull = ({ results }) => {
               <WrapItem key={movie.imdbID} margin={3}>
                 <MovieItem
                   data={movie}
+                  isNative={isHome}
                   viewDetails={(id) => {
                     onOpen();
                     setViewDetails(id);

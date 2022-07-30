@@ -1,6 +1,7 @@
 import usersSlice from "./usersSlice";
 
-const { addUser, setToken, setFavorites, deleteFavorite } = usersSlice.actions;
+const { addUser, setToken, setFavorites, deleteFavorite, setDetails } =
+  usersSlice.actions;
 
 const registerUser = (value) => async (dispatch) => {
   dispatch(addUser(value));
@@ -15,8 +16,17 @@ const addFavorites = (value) => async (dispatch) => {
 };
 
 const removeFavorite = (value) => async (dispatch) => {
-  console.log(value);
   dispatch(deleteFavorite(value));
 };
 
-export { registerUser, loginUser, addFavorites, removeFavorite };
+const updateUserDetails = (value) => async (dispatch) => {
+  dispatch(setDetails(value));
+};
+
+export {
+  registerUser,
+  loginUser,
+  addFavorites,
+  removeFavorite,
+  updateUserDetails,
+};

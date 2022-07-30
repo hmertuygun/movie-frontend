@@ -1,4 +1,4 @@
-import { Box, Center, Stack } from "@chakra-ui/react";
+import { Box, Center, Heading, Stack } from "@chakra-ui/react";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import MovieListFull from "../components/MovieListFull";
@@ -14,6 +14,7 @@ const Profile = () => {
     <div>
       <Box marginX={10}>
         <Stack>
+          <Heading>Favorites</Heading>
           <Center>
             <Stack>
               <MovieListFull results={favoriteMovies} />

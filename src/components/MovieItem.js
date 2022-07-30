@@ -9,16 +9,30 @@ import {
   Center,
 } from "@chakra-ui/react";
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
+import { updateKeyword } from "../store/actions";
 
-const MovieItem = ({ data, viewDetails }) => {
+const MovieItem = ({ data, viewDetails, isNative }) => {
   const { favorites, token } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+  let navigate = useNavigate();
 
   const isInFavorites = useMemo(() => {
     if (!token) return false;
     return favorites.find((element) => element.imdbID === data.imdbID);
   }, [favorites, viewDetails]);
+
+  const posterUrl = useMemo(() => {
+    if (isNative && data.Poster)
+      return `https://image.tmdb.org/t/p/original${data.Poster}`;
+    return data.Poster;
+  }, [data, isNative]);
+
+  const navigateUser = (title) => {
+    dispatch(updateKeyword(title));
+    return navigate("/discover", { replace: true });
+  };
 
   return (
     <Flex p={3} w="full" alignItems="center" justifyContent="center">
@@ -32,7 +46,7 @@ const MovieItem = ({ data, viewDetails }) => {
       >
         <Center>
           <Image
-            src={data.Poster}
+            src={posterUrl}
             alt={`Poster of ${data.Poster}`}
             height={"20rem"}
             width={"15rem"}
@@ -63,6 +77,16 @@ const MovieItem = ({ data, viewDetails }) => {
                 Favorite
               </Badge>
             )}
+            {isNative && (
+              <Badge
+                rounded="full"
+                px="2"
+                fontSize="0.8em"
+                colorScheme="orange"
+              >
+                Recommended
+              </Badge>
+            )}
           </Box>
           <Stack mt="1" justifyContent="space-between" alignContent="center">
             <Box
@@ -70,13 +94,19 @@ const MovieItem = ({ data, viewDetails }) => {
               fontWeight="semibold"
               as="h4"
               lineHeight="tight"
-              isTruncated
             >
               <Heading as="h2" size="md" noOfLines={1}>
                 {data.Title}
               </Heading>
             </Box>
-            <Button onClick={() => viewDetails(data.imdbID)}>View Movie</Button>
+            <Button
+              onClick={() => {
+                if (!isNative) return viewDetails(data.imdbID);
+                return navigateUser(data.Title);
+              }}
+            >
+              View Movie
+            </Button>
           </Stack>
         </Box>
       </Box>
