@@ -2,8 +2,9 @@ import { Button, Checkbox, CheckboxGroup, Stack, Wrap } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { GENRES } from "../../constants/genres";
 
-const GenreSelector = ({ getSelecteds }) => {
-  const [selected, setSelected] = useState([]);
+const GenreSelector = ({ getSelecteds, active }) => {
+  console.log(active);
+  const [selected, setSelected] = useState(active ? active : []);
 
   useEffect(() => {
     getSelecteds(selected);

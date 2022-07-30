@@ -2,8 +2,8 @@ import { Button, Checkbox, CheckboxGroup, Stack, Wrap } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { getPopularActors } from "../../services/movies";
 
-const ActorSelector = ({ getSelecteds }) => {
-  const [selected, setSelected] = useState([]);
+const ActorSelector = ({ getSelecteds, active }) => {
+  const [selected, setSelected] = useState(active ? active : []);
   const [actors, setActors] = useState([]);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const ActorSelector = ({ getSelecteds }) => {
         {actors.map((actor) => (
           <Button
             key={actor.name}
-            backgroundColor={isSelected(actor.id) ? "green.700" : "blue.200"}
+            backgroundColor={isSelected(actor.id) ? "blue.700" : "blue.200"}
             color={isSelected(actor.id) ? "white" : "black"}
             onClick={() => handleClick(actor.id)}
           >

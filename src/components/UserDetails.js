@@ -15,10 +15,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserDetails } from "../store/users/userActions";
 import ActorSelector from "./public/ActorSelector";
 import GenreSelector from "./public/GenreSelector";
-const UserDetails = ({ onClose, isOpen }) => {
+const UserDetails = ({ onClose, isOpen, pref }) => {
   const { token } = useSelector((state) => state.users);
 
-  const [allItems, setAllItems] = useState({ genre: [], actor: [] });
+  const [allItems, setAllItems] = useState(
+    pref ? pref : { genre: [], actor: [] },
+  );
 
   const dispatch = useDispatch();
 
@@ -50,10 +52,12 @@ const UserDetails = ({ onClose, isOpen }) => {
               <Heading size={"md"}>Genre</Heading>
               <GenreSelector
                 getSelecteds={(data) => setSelected("genre", data)}
+                active={allItems.genre}
               />
               <Heading size={"md"}>Actors</Heading>
               <ActorSelector
                 getSelecteds={(data) => setSelected("actor", data)}
+                active={allItems.actor}
               />
             </Stack>
           </ModalBody>
