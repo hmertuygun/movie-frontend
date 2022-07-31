@@ -100,7 +100,7 @@ const MovieItem = ({ data, viewDetails, isNative }) => {
                 return navigateUser(data.Title);
               }}
             >
-              View Movie
+              {isNative ? "Search Movie" : "View Movie Details"}
             </Button>
           </Stack>
         </Box>
