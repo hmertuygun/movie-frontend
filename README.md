@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# About Movie App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is for searching, discovering movies. It recommends movies according to your preferences and recommendations change according to your actions such as adding movies to Favorites. You can register and log in to system to be a movie master 🤩
 
 ## Available Scripts
 
