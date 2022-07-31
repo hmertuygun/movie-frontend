@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { updateKeyword } from "../store/actions";
 
 const MovieItem = ({ data, viewDetails, isNative }) => {

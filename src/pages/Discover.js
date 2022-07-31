@@ -1,5 +1,5 @@
 import { Box, Center, Heading, Stack } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import MovieListFull from "../components/MovieListFull";
 import MovieSearcher from "../components/MovieSearcher";

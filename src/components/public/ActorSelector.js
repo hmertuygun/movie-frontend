@@ -1,4 +1,4 @@
-import { Button, Checkbox, CheckboxGroup, Stack, Wrap } from "@chakra-ui/react";
+import { Button, Wrap } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { getPopularActors } from "../../services/movies";
 

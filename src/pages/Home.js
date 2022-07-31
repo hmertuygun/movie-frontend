@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import MovieListFull from "../components/MovieListFull";
 import UserDetails from "../components/UserDetails";
 import { getRecomendations } from "../services/movies";
-import { getRandom } from "../utils/getCombination";
 
 const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

@@ -1,8 +1,4 @@
-import {
-  getMovieDetails,
-  getPopular,
-  searchKeyword,
-} from "../../services/movies";
+import { getMovieDetails, searchKeyword } from "../../services/movies";
 import searchSlice from "./searchSlice";
 
 const { setKeyword, setResults, setMovieDetails, setError } =

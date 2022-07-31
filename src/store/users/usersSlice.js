@@ -14,7 +14,6 @@ const usersSlice = createSlice({
       state.users = [...state.users, action.payload];
     },
     setFavorites: (state, action) => {
-      console.log(action);
       state.favorites = [...state.favorites, action.payload];
     },
     deleteFavorite: (state, action) => {
