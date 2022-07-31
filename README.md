@@ -4,6 +4,8 @@ This project is for searching, discovering movies. It recommends movies accordin
 
 Developed with React.JS & Redux & Chakra UI
 
+Live Demo [https://movie-app-mertuygun.netlify.app/](https://movie-app-mertuygun.netlify.app/)
+
 ## Available Scripts
 
 In the project directory, you can run:
