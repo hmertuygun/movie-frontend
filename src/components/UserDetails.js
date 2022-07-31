@@ -39,7 +39,12 @@ const UserDetails = ({ onClose, isOpen, pref }) => {
 
   return (
     <div>
-      <Modal onClose={onClose} size={"xl"} isOpen={isOpen}>
+      <Modal
+        closeOnOverlayClick={!!pref}
+        onClose={onClose}
+        size={"xl"}
+        isOpen={isOpen}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
