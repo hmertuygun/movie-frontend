@@ -4,6 +4,7 @@ let initialState = {
   results: [],
   keyword: "",
   movieDetails: {},
+  error: "",
 };
 
 const searchSlice = createSlice({
@@ -18,6 +19,9 @@ const searchSlice = createSlice({
     },
     setMovieDetails: (state, action) => {
       state.movieDetails = action.payload;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
     },
   },
 });

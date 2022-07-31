@@ -7,13 +7,14 @@ import {
   Input,
   Checkbox,
   Stack,
-  Link,
   Button,
   Heading,
   Text,
   useColorModeValue,
+  Center,
 } from "@chakra-ui/react";
 import LogInForm from "../components/auth/LogInForm";
+import { Link } from "react-router-dom";
 
 const LogIn = () => {
   return (
@@ -38,6 +39,11 @@ const LogIn = () => {
             p={8}
           >
             <LogInForm />
+            <Center>
+              <Text color={"blue.400"} mt={3}>
+                <Link to="/register">Register</Link>
+              </Text>
+            </Center>
           </Box>
         </Stack>
       </Flex>

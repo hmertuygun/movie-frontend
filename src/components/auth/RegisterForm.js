@@ -94,7 +94,7 @@ const RegisterForm = () => {
             }}
             onClick={handleSubmit}
           >
-            Sign in
+            Register
           </Button>
         </Stack>
         {hasError && (

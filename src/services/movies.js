@@ -24,7 +24,8 @@ export const getMovieDetails = (id) => {
     )
     .then((response) => {
       if (response.status === 200) {
-        return response.data.movie_results[0];
+        if (response.data.movie_results) return response.data.movie_results[0];
+        else return null;
       }
     })
     .catch((error) => {

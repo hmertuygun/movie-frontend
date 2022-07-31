@@ -89,13 +89,8 @@ const MovieItem = ({ data, viewDetails, isNative }) => {
             )}
           </Box>
           <Stack mt="1" justifyContent="space-between" alignContent="center">
-            <Box
-              fontSize="2xl"
-              fontWeight="semibold"
-              as="h4"
-              lineHeight="tight"
-            >
-              <Heading as="h2" size="md" noOfLines={1}>
+            <Box fontSize="2xl" fontWeight="semibold" lineHeight="tight">
+              <Heading size="md" noOfLines={1}>
                 {data.Title}
               </Heading>
             </Box>

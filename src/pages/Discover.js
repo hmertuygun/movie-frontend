@@ -1,11 +1,11 @@
-import { Box, Center, Stack } from "@chakra-ui/react";
-import React from "react";
+import { Box, Center, Heading, Stack } from "@chakra-ui/react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import MovieListFull from "../components/MovieListFull";
 import MovieSearcher from "../components/MovieSearcher";
 
 const Discover = () => {
-  const { results } = useSelector((state) => state.search);
+  const { results, keyword } = useSelector((state) => state.search);
 
   return (
     <div>
@@ -14,7 +14,15 @@ const Discover = () => {
           <Center>
             <Stack>
               <MovieSearcher />
-              <MovieListFull results={results} />
+              <Center>
+                {results.length > 0 ? (
+                  <MovieListFull results={results} />
+                ) : keyword.length === 0 ? (
+                  <Heading mt={5}>Type a keyword to search movie</Heading>
+                ) : (
+                  <Heading mt={5}>No results</Heading>
+                )}
+              </Center>
             </Stack>
           </Center>
         </Stack>

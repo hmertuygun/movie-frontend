@@ -6,8 +6,10 @@ import {
   Heading,
   Text,
   useColorModeValue,
+  Center,
 } from "@chakra-ui/react";
 import RegisterForm from "../components/auth/RegisterForm";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   return (
@@ -32,6 +34,11 @@ const Register = () => {
             p={8}
           >
             <RegisterForm />
+            <Center>
+              <Text color={"blue.400"} mt={3}>
+                <Link to="/login">Sign In</Link>
+              </Text>
+            </Center>
           </Box>
         </Stack>
       </Flex>

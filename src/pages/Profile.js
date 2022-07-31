@@ -44,7 +44,13 @@ const Profile = () => {
           </Flex>
           <Center>
             <Stack>
-              <MovieListFull results={favoriteMovies} />
+              {favoriteMovies.length > 0 ? (
+                <MovieListFull results={favoriteMovies} />
+              ) : (
+                <Heading mt={5}>
+                  You do not have any favorites. Go add them!
+                </Heading>
+              )}
             </Stack>
           </Center>
         </Stack>

@@ -15,6 +15,7 @@ import {
   Tag,
   TagLabel,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
@@ -27,7 +28,7 @@ const MovieDetail = ({ onClose, isOpen, id }) => {
   const { favorites, token } = useSelector((state) => state.users);
 
   const dispatch = useDispatch();
-
+  const toast = useToast();
   const getGenre = (data) => {
     const genre = GENRES.find((element) => element.id === data);
     if (genre) return genre.name;

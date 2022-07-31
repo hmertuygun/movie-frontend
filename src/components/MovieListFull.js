@@ -1,7 +1,7 @@
 import {
-  Button,
   Center,
   useDisclosure,
+  useToast,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -13,6 +13,8 @@ import MovieItem from "./MovieItem";
 
 const MovieListFull = ({ results, isHome }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { error } = useSelector((state) => state.search);
+  const toast = useToast();
   const dispatch = useDispatch();
 
   const [viewDetails, setViewDetails] = useState(null);
@@ -22,6 +24,16 @@ const MovieListFull = ({ results, isHome }) => {
       dispatch(updateMovieDetails(viewDetails));
     }
   }, [viewDetails]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: error,
+        variant: "solid",
+        isClosable: true,
+      });
+    }
+  }, [error]);
 
   return (
     <div>
@@ -44,7 +56,7 @@ const MovieListFull = ({ results, isHome }) => {
             <Center>NO RESULT</Center>
           )}
         </Wrap>
-        {viewDetails && (
+        {!error && viewDetails && (
           <MovieDetail
             onClose={() => {
               setViewDetails(null);

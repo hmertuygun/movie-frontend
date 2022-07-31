@@ -1,4 +1,4 @@
-import { Button, Center } from "@chakra-ui/react";
+import { Button, Center, Flex } from "@chakra-ui/react";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -9,28 +9,30 @@ const NavBar = () => {
   return (
     <div>
       <Center marginTop={2}>
-        <Link to="/">
-          <Button margin={5} background={"orange.300"}>
-            For You
+        <Flex alignItems="center">
+          <Link to="/">
+            <Button margin={5} background={"orange.300"}>
+              For You
+            </Button>
+          </Link>
+          <Link to="/discover">
+            <Button margin={5} background={"purple.300"}>
+              Discover
+            </Button>
+          </Link>
+          <Link to="/profile">
+            <Button margin={5} background={"blue.300"}>
+              Profile
+            </Button>
+          </Link>
+          <Button
+            onClick={() => dispatch(LogOut())}
+            margin={5}
+            background={"red.300"}
+          >
+            Log Out
           </Button>
-        </Link>
-        <Link to="/discover">
-          <Button margin={5} background={"purple.300"}>
-            Discover
-          </Button>
-        </Link>
-        <Link to="/profile">
-          <Button margin={5} background={"blue.300"}>
-            Profile
-          </Button>
-        </Link>
-        <Button
-          onClick={() => dispatch(LogOut())}
-          margin={5}
-          background={"red.300"}
-        >
-          Log Out
-        </Button>
+        </Flex>
       </Center>
     </div>
   );

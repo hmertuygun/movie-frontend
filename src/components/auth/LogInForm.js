@@ -6,7 +6,6 @@ import {
   FormLabel,
   Input,
   Stack,
-  Text,
 } from "@chakra-ui/react";
 import { validateForm, validateInput } from "../../utils/validateForms";
 import prepareSchema from "../../utils/prepareSchema";
