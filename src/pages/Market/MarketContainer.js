@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import MarketStatistics from '../Trade/components/MarketStatistics'
 import TradeChart from '../Trade/TradeChart'
 import WatchListPanel from './Watchlist/WatchListPanel'
-import { TabNavigator } from 'components'
+import { Button, TabNavigator } from 'components'
 import TemplatesList from './Templates/TemplatesList'
 import { getFirestoreDocumentData, updateSingleValue } from 'services/api'
 import './MarketContainer.css'
@@ -24,9 +24,9 @@ const MarketContainer = () => {
   const { activeTrader } = useSelector((state) => state.trades)
 
   const dispatch = useDispatch()
-  const [traders] = useState(allAnalysts)
   const [activeValue, setActiveValue] = useState('')
   const [activeTab, setActiveTab] = useState(0)
+  const [showInfo, setShowInfo] = useState(false)
   const tabElements = useMemo(() => {
     return templateDrawingsOpen ? ['Watchlists'] : ['Watchlists', 'Templates ß']
   }, [templateDrawingsOpen])
@@ -50,7 +50,7 @@ const MarketContainer = () => {
       dispatch(updateTemplateDrawingsOpen(false))
       setActiveValue(id)
     } else {
-      const trader = traders.find((el) => el.id === id)
+      const trader = allAnalysts.find((el) => el.id === id)
       if (!trader) return
 
       trackEvent('user', `${id}_cm`, `${id}_cm`)
@@ -68,27 +68,53 @@ const MarketContainer = () => {
     }
   }
 
+  const handleShowInfo = () => {
+    setShowInfo(!showInfo)
+    localStorage.setItem('showAnalystInfo', !showInfo)
+  }
+
+  useEffect(() => {
+    let show = localStorage.getItem('showAnalystInfo')
+    if (show) {
+      setShowInfo(show)
+    }
+  }, [])
+
+  const currentAnalyst = allAnalysts.find((trader) => trader.id === activeValue)
+
   return (
     <>
       <section className="m-1">
         <div className="row">
           <div className="col-lg-3 pr-lg-1">
             <div className="card p-3 mb-1 pb-2">
-              <div className="form-group">
-                <label className="form-control-label">
-                  Chart Mirroring - Select Analyst
-                </label>
+              <div>
+                <div className="d-flex align-items-center justify-content-between">
+                  <label className="form-control-label">
+                    Chart Mirroring - Select Analyst
+                  </label>
+                  {currentAnalyst && (
+                    <p className="show-analyst-info" onClick={handleShowInfo}>
+                      {showInfo ? 'Hide' : 'Show'} Analyst Info
+                    </p>
+                  )}
+                </div>
                 <div>
                   <AnalystSelector
-                    traders={traders}
+                    traders={allAnalysts}
                     handleChange={setActiveTraderList}
                     activeValue={activeValue}
                     userData={userData}
+                    showInfo={showInfo}
                   />
                 </div>
               </div>
             </div>
-            <div className="card mb-2 tool-sidebar">
+            <div
+              className={`card mb-2 tool-sidebar ${
+                !showInfo ? 'enlarge-list' : ''
+              }`}
+            >
               <TabNavigator
                 index={activeTab}
                 labelArray={tabElements}
@@ -110,7 +136,7 @@ const MarketContainer = () => {
               </div>
             </div>
             <div
-              style={{ height: 'calc(100vh - 165px)' }}
+              style={{ height: 'calc(100vh - 150px)' }}
               className="row market-chart-mobile"
               id="market-chart-container"
             >

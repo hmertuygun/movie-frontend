@@ -59,6 +59,7 @@ const deleteTemplateFromFirestore = async (email, templateId) =>
 const updateTemplateDrawings = async (email, value) => {
   await updateCollection('chart_shared', email, {
     ...value,
+    lastUpdated: dayjs().toISOString(),
   })
 }
 

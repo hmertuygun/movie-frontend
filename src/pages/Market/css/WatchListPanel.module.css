@@ -268,7 +268,7 @@
 }
 
 .watchLists2 {
-  height: calc(100vh - 386px);
+  height: calc(100vh - 518px);
   overflow: scroll;
 }
 
@@ -287,6 +287,12 @@
   /* position: absolute; */
   left: 232px;
   top: 130px;
+}
+@media (max-width: 1260px) {
+  .watchLists2 {
+    height: calc(100vh - 540px);
+    overflow: scroll;
+  }
 }
 
 @media (max-width: 767px) {

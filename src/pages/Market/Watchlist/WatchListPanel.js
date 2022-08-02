@@ -599,9 +599,10 @@ const WatchListPanel = () => {
         </div>
       </div>
       <div
-        className={
+        className={`${
           templateDrawingsOpen ? styles.watchLists2 : styles.watchLists
-        }
+        } enlarged-watch-lists
+        `}
       >
         {!Object.keys(getWatchSymbolsList()).length && !loading ? (
           <div className="pt-5 text-center">

@@ -1,3 +1,26 @@
+.show-analyst-info {
+  font-size: 12px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  color: var(--primary);
+}
+
+.enlarge-list .enlarged-watch-lists {
+  height: calc(100vh - 368px);
+}
+
+@media (max-width: 1400px) {
+  .enlarge-list .enlarged-watch-lists {
+    height: calc(100vh - 390px);
+  }
+}
+
+@media (max-width: 1260px) {
+  .enlarge-list .enlarged-watch-lists {
+    height: calc(100vh - 418px);
+  }
+}
+
 @media (max-width: 767px) {
   .market-stat-chart {
     padding-left: 15px !important;

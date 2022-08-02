@@ -49,11 +49,22 @@ const updateFirstLogin = (value) => async (dispatch) => {
 const fetchAnalysts = (userData) => async (dispatch) => {
   try {
     const snapshot = await getSnapShotCollection('analysts').get()
+    const chart_snapshot = await getSnapShotCollection('chart_shared').get()
     const analysts = snapshot.docs.map((doc) => {
-      if (doc.data().enabled) return { ...doc.data(), id: doc.id }
+      if (doc.data().enabled) {
+        const docItem = chart_snapshot.docs.find((item) => item.id === doc.id)
+        if (docItem) {
+          return {
+            ...doc.data(),
+            id: doc.id,
+            lastUpdated: docItem.data().lastUpdated,
+          }
+        }
+      }
 
       return null
     })
+
     dispatch(updateAllAnalysts(analysts))
     const checkAnalyst = analysts.find((analyst) => {
       return analyst.id === userData.email
