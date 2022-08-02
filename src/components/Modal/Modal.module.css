@@ -11,7 +11,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-
 }
 
 .Modal {
@@ -20,15 +19,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-
-
   z-index: var(--z-modal);
-
-
   display: flex; 
   justify-content: center;
   align-items: center;
-  
+  overflow: auto;
 }
 
-.Modal-content {}
+.ModalContainer {
+  margin: auto;
+}

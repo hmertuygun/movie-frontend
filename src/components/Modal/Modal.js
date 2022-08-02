@@ -15,7 +15,7 @@ const Modal = ({ onClose, children }) => {
           }
         }}
       >
-        <div>{children}</div>
+        <div className={styles.ModalContainer}>{children}</div>
       </div>
       <div className={styles['Modal-Backdrop']}></div>
     </Fragment>
