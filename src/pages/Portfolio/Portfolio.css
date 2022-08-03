@@ -1,18 +1,25 @@
+.hide-close + div {
+  display: none;
+}
+
+.portfolio-exchange-select .react-select__clear-indicator {
+  display: none;
+}
 
 @media (max-width: 767px) {
-    .portfolio-section {
-        padding-top: 1rem !important;
-    }
-    .card-body.estimated-value {
-        padding-bottom: 0.8rem;
-    }
-    .card-body th{
-        padding: 0.75rem;
-        padding-left: 0.5rem;
-        font-weight: 600;
-        color: var(--dark-color);
-    }
-    .card-body td{
-        padding: 0.5rem;
-    }
+  .portfolio-section {
+    padding-top: 1rem !important;
+  }
+  .card-body.estimated-value {
+    padding-bottom: 0.8rem;
+  }
+  .card-body th {
+    padding: 0.75rem;
+    padding-left: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+  }
+  .card-body td {
+    padding: 0.5rem;
+  }
 }

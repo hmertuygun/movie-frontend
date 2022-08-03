@@ -10,8 +10,14 @@ const customStyles = {}
 
 const MultiValueLabel = (props) => {
   let selectedExchange = EXCHANGES[props.data.exchange]
+  let isArray =
+    Array.isArray(props.selectProps.value) && props.selectProps.value.length > 1
   return (
-    <div className="d-flex align-items-center w-100 p-1">
+    <div
+      className={`d-flex align-items-center w-100 p-1 ${
+        !isArray ? 'hide-close' : ''
+      }`}
+    >
       <img
         src={selectedExchange?.logo}
         alt={selectedExchange?.label}
@@ -56,11 +62,14 @@ const ExchangeSelector = ({ onChange }) => {
   const { portfolioLoading, selectedExchanges } = useSelector(
     (state) => state.portfolio
   )
+
   return (
     <Select
       closeMenuOnSelect={false}
       components={{ MultiValueLabel, Option }}
       isLoading={portfolioLoading}
+      className="portfolio-exchange-select"
+      classNamePrefix="react-select"
       styles={{
         ...customStyles,
         multiValueLabel: (base) => ({
@@ -91,7 +100,7 @@ const ExchangeSelector = ({ onChange }) => {
               : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
         }),
       }}
-      defaultValue={selectedExchanges[0]}
+      value={selectedExchanges}
       hideSelectedOptions={false}
       onChange={(values) => dispatch(updateSelectedExchanges(values))}
       isMulti
