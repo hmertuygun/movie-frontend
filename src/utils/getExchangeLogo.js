@@ -1,7 +1,7 @@
-import { exchangeCreationOptions } from 'constants/ExchangeOptions'
+import { EXCHANGES } from 'constants/Exchanges'
 
 const getLogo = (exchange) => {
-  const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+  const obj = EXCHANGES[exchange]
   if (obj?.logo) return obj.logo
 }
 

@@ -13,6 +13,7 @@ import TabNavigator from './TabNavigator/TabNavigator'
 import ButtonNavigator from './TabNavigator/ButtonNavigator'
 import Tooltip from './Tooltip'
 import Loader from './Loader'
+import Permitted from './Permitted'
 
 export {
   Button,
@@ -30,4 +31,5 @@ export {
   TabNavigator,
   ButtonNavigator,
   Tooltip,
+  Permitted,
 }

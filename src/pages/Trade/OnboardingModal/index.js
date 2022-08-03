@@ -13,11 +13,7 @@ import {
   getFirestoreDocumentData,
 } from 'services/api'
 import { useHistory } from 'react-router-dom'
-import {
-  options,
-  validationRules,
-  exchangeCreationOptions,
-} from 'constants/ExchangeOptions'
+import { validationRules } from 'constants/ExchangeOptions'
 import './index.css'
 import { supportLinks } from 'constants/SupportLinks'
 import { ONBOARDING_MODAL_TEXTS } from 'constants/Trade'
@@ -34,10 +30,10 @@ import {
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import { getAllowedExchanges } from 'utils/exchangeSelection'
 
 const OnboardingModal = () => {
   const { isLoggedIn } = useContext(UserContext)
-
   const { loadApiKeys } = useSelector((state) => state.apiKeys)
   const { userData, userState } = useSelector((state) => state.users)
   const { isOnboardingSkipped, onTour } = useSelector((state) => state.appFlow)
@@ -70,9 +66,7 @@ const OnboardingModal = () => {
   })
 
   const exchangeOptions = useMemo(() => {
-    return options.map((element) => {
-      return element
-    })
+    return getAllowedExchanges()
   }, [isPaidUser])
 
   const setExchangeFormFields = () => {
@@ -82,7 +76,7 @@ const OnboardingModal = () => {
       apiName: validationRules.apiName,
     }
 
-    const { fields } = options.find(
+    const { fields } = exchangeOptions.find(
       (exchangeItem) => exchange.value === exchangeItem.value
     )
 
@@ -497,7 +491,7 @@ const OnboardingModal = () => {
                     className="exchange-dropdown"
                     onChange={handleExchangeCreation}
                     styles={customStyles}
-                    options={exchangeCreationOptions}
+                    options={exchangeOptions}
                     isSearchable={false}
                   />
                 )}

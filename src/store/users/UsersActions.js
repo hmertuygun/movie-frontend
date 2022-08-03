@@ -2,6 +2,7 @@ import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
   getSnapShotCollection,
+  getUserDetails,
   saveGoogleAuth2FA,
   sendLoginInfo,
   validateUser,
@@ -20,6 +21,7 @@ const {
   setAllAnalysts,
   setIsAnalyst,
   setFirstLogin,
+  setIsCanaryUser,
 } = usersSlice.actions
 
 const updateUserData = (value) => async (dispatch) => {
@@ -44,6 +46,11 @@ const updateIsAnalyst = (value) => async (dispatch) => {
 
 const updateFirstLogin = (value) => async (dispatch) => {
   dispatch(setFirstLogin(value))
+}
+
+const updateCanaryUser = () => async (dispatch) => {
+  const { data } = await getUserDetails()
+  dispatch(setIsCanaryUser(data['is_canary_user']))
 }
 
 const fetchAnalysts = (userData) => async (dispatch) => {
@@ -256,4 +263,5 @@ export {
   logout,
   register,
   handleFirstLogin,
+  updateCanaryUser,
 }

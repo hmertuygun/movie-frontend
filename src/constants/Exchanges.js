@@ -1,4 +1,7 @@
-export const EXCHANGES = {
+const img_path = 'img/svg/exchange/'
+const logo_path = 'img/icons/brands/'
+
+const EXCHANGES = {
   binance: {
     value: 'binance',
     label: 'Binance',
@@ -7,6 +10,9 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret' },
     socketEndpoint: 'wss://stream.binance.com:9443/ws',
     apiUrl: 'https://api2.binance.com',
+    url: 'https://accounts.binance.com/en/register?ref=UR7ZCKEJ',
+    image: `${img_path}binance.svg`,
+    logo: `${logo_path}binance.svg`,
   },
   binanceus: {
     value: 'binanceus',
@@ -16,6 +22,9 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret' },
     socketEndpoint: 'wss://stream.binance.us:9443/ws',
     apiUrl: 'https://api.binance.us',
+    url: 'https://accounts.binance.us/en/register',
+    image: `${img_path}binanceus.svg`,
+    logo: `${logo_path}binanceus.svg`,
   },
   kucoin: {
     value: 'kucoin',
@@ -25,6 +34,9 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
     socketEndpoint: '',
     apiUrl: 'https://api.kucoin.com',
+    url: 'https://www.kucoin.com/ucenter/signup?rcode=r3JHGQU',
+    image: `${img_path}kucoin.svg`,
+    logo: `${logo_path}kucoin.svg`,
   },
   bybit: {
     value: 'bybit',
@@ -34,6 +46,9 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret' },
     socketEndpoint: 'wss://stream.bybit.com/spot/quote/ws/v1',
     apiUrl: 'https://api.bybit.com',
+    url: 'https://partner.bybit.com/b/coinpanel',
+    image: `${img_path}bybit.svg`,
+    logo: `${logo_path}ByBit_Icon.png`,
   },
   huobipro: {
     value: 'huobipro',
@@ -43,6 +58,9 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret' },
     socketEndpoint: 'wss://api-aws.huobi.pro/ws',
     apiUrl: 'https://api.huobi.pro',
+    url: ' https://www.huobi.com/en-us/register/?inviter_id=11339800',
+    image: `${img_path}huobipro.svg`,
+    logo: `${logo_path}huobi.png`,
   },
   okex: {
     value: 'okex',
@@ -52,10 +70,13 @@ export const EXCHANGES = {
     fields: { Key: 'apiKey', Secret: 'secret', Passphrase: 'password' },
     socketEndpoint: 'wss://ws.okex.com:8443/ws/v5/public',
     apiUrl: 'https://www.okex.com/',
+    url: 'https://www.okx.com/join/11966961',
+    image: `${img_path}okex.svg`,
+    logo: `${logo_path}okex.png`,
   },
 }
 
-export const RESOLUTIONS = [
+const RESOLUTIONS = [
   '1',
   '3',
   '5',
@@ -71,7 +92,7 @@ export const RESOLUTIONS = [
   '1W',
 ]
 
-export const DEFAULT_MAPPED_RESOLUTION = {
+const DEFAULT_MAPPED_RESOLUTION = {
   1: '1m',
   3: '3m',
   5: '5m',
@@ -87,20 +108,20 @@ export const DEFAULT_MAPPED_RESOLUTION = {
   '1W': '1w',
 }
 
-export const MAPPED_RESOLUTIONS = {
+const MAPPED_RESOLUTIONS = {
   ...DEFAULT_MAPPED_RESOLUTION,
   480: '8h',
   720: '12h',
 }
 
-export const MAPPED_RESOLUTION_T1 = {
+const MAPPED_RESOLUTION_T1 = {
   ...MAPPED_RESOLUTIONS,
   '3D': '3d',
   M: '1M',
   '1M': '1M',
 }
 
-export const MAPPED_SOCKET_RESOLUTIONS = {
+const MAPPED_SOCKET_RESOLUTIONS = {
   1: '1min',
   3: '3min',
   5: '5min',
@@ -118,7 +139,7 @@ export const MAPPED_SOCKET_RESOLUTIONS = {
   '1W': '1week',
 }
 
-export const MAPPED_SOCKET_RESOLUTION_T1 = {
+const MAPPED_SOCKET_RESOLUTION_T1 = {
   1: 'candle1m',
   3: 'candle3m',
   5: 'candle5m',
@@ -133,4 +154,14 @@ export const MAPPED_SOCKET_RESOLUTION_T1 = {
   W: 'candle1W',
   '1W': 'candle1W',
   M: 'candle1M',
+}
+
+export {
+  EXCHANGES,
+  RESOLUTIONS,
+  DEFAULT_MAPPED_RESOLUTION,
+  MAPPED_RESOLUTIONS,
+  MAPPED_RESOLUTION_T1,
+  MAPPED_SOCKET_RESOLUTIONS,
+  MAPPED_SOCKET_RESOLUTION_T1,
 }

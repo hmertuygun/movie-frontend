@@ -89,6 +89,7 @@ import {
   logout,
   register,
   handleFirstLogin,
+  updateCanaryUser,
 } from './users/UsersActions'
 
 import {
@@ -231,6 +232,7 @@ export {
   updateIsAnalyst,
   fetchAnalysts,
   handleFirstLogin,
+  updateCanaryUser,
   add2FA,
   verify2FA,
   delete2FA,

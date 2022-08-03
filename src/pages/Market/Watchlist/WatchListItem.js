@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { X } from 'react-feather'
 
-import { exchangeCreationOptions } from 'constants/ExchangeOptions'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import '../css/WatchListItem.css'
-import { Tooltip } from 'components'
+import { Permitted, Tooltip } from 'components'
 import { useSelector } from 'react-redux'
+import { EXCHANGES } from 'constants/Exchanges'
 
 const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const { setSymbol } = useSymbolContext()
@@ -18,7 +18,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
 
   const getLogo = () => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
-    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+    const obj = EXCHANGES[exchange]
     return obj && obj.logo
   }
 
@@ -59,7 +59,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
       <div className="label-column">
         {((!group && templateDrawingsOpen) || (!group && isAnalyst)) &&
         isPaidUser ? (
-          <>
+          <Permitted feature="watchlist-flags">
             {symbol.flag ? <Tooltip id={symbol.value} place="right" /> : null}
             <span
               style={symbol.flag ? { marginRight: 7 } : { marginRight: 20 }}
@@ -71,7 +71,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
             >
               {symbol.flag ? <span>{getEmoji(symbol.flag)}</span> : null}
             </span>
-          </>
+          </Permitted>
         ) : null}
 
         <span className="exchange-svg">

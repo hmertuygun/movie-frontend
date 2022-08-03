@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { LogOut, Moon } from 'react-feather'
 
-import { TabNavigator } from 'components'
+import { Permitted, TabNavigator } from 'components'
 import Exchanges from '../Settings/Exchanges/Exchanges'
 import Security from '../Settings/Security/Security'
 import Notifications from '../Settings/Notifications'

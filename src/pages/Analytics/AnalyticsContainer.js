@@ -4,11 +4,11 @@ import AssetPerformance from './components/AssetPerformance'
 import PairPerformance from './components/PairPerformance'
 import AnalyticsFilter from './components/AnalyticsFilter'
 import dayjs from 'dayjs'
-import { exchangeCreationOptions } from 'constants/ExchangeOptions'
 import './Analytics.css'
 import { portfolioTimeInterval } from 'constants/TimeIntervals'
 import { useDispatch, useSelector } from 'react-redux'
 import { refreshAnalyticsData, updateRefreshButton } from 'store/actions'
+import { EXCHANGES } from 'constants/Exchanges'
 
 function AnalyticsContainer() {
   const [startDate, setStartDate] = useState()
@@ -33,7 +33,7 @@ function AnalyticsContainer() {
   }
 
   const getLogo = (exchange) => {
-    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+    const obj = EXCHANGES[exchange]
     if (obj?.logo) return obj.logo
   }
 

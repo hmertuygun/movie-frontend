@@ -32,6 +32,7 @@ const usersSlice = createSlice({
     allAnalysts: [],
     isAnalyst: false,
     firstLogin: true,
+    isCanaryUser: false,
   },
   reducers: {
     setUserData: (state, action) => {
@@ -51,6 +52,9 @@ const usersSlice = createSlice({
     },
     setFirstLogin: (state, action) => {
       state.firstLogin = action.payload
+    },
+    setIsCanaryUser: (state, action) => {
+      state.isCanaryUser = action.payload
     },
   },
 })

@@ -15,11 +15,10 @@ import {
 import AnalystSelector from './components/AnalystSelector'
 import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
+import { allowedFeatures } from 'utils/feature'
 
 const MarketContainer = () => {
-  const { userData, allAnalysts, isAnalyst } = useSelector(
-    (state) => state.users
-  )
+  const { userData, allAnalysts } = useSelector((state) => state.users)
   const { templateDrawingsOpen } = useSelector((state) => state.templates)
   const { activeTrader } = useSelector((state) => state.trades)
 
@@ -28,7 +27,9 @@ const MarketContainer = () => {
   const [activeTab, setActiveTab] = useState(0)
   const [showInfo, setShowInfo] = useState(false)
   const tabElements = useMemo(() => {
-    return templateDrawingsOpen ? ['Watchlists'] : ['Watchlists', 'Templates ß']
+    return allowedFeatures(
+      templateDrawingsOpen ? ['Watchlists'] : ['Watchlists', 'Templates ß']
+    )
   }, [templateDrawingsOpen])
 
   useEffect(() => {

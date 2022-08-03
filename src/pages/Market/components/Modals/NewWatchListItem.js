@@ -5,9 +5,10 @@ import { Popover } from 'react-tiny-popover'
 
 import { Modal, Loader } from 'components'
 import { QuoteAssets } from 'constants/QuoteAssets'
-import { exchangeCreationOptions } from 'constants/ExchangeOptions'
 import styles from '../../css/WatchListPanel.module.css'
 import { useSelector } from 'react-redux'
+import { DEFAULT_ACTIVE_EXCHANGE } from 'constants/Default'
+import { EXCHANGES } from 'constants/Exchanges'
 
 const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
@@ -16,7 +17,7 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const [searchText, setSearchText] = useState('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [selectedTab, setSelectedTab] = useState(
-    exchangeCreationOptions[0].value // making Binance as default selected exchange
+    DEFAULT_ACTIVE_EXCHANGE[0].exchange // making Binance as default selected exchange
   )
   const [loading, setLoading] = useState(true)
   const [filteredItem, setFilteredItem] = useState([])
@@ -74,7 +75,7 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
 
   const getLogo = (symbol) => {
     const exchange = extractExchange(symbol).toLowerCase()
-    const obj = exchangeCreationOptions.find((sy) => sy.value === exchange)
+    const obj = EXCHANGES[exchange]
     if (obj?.logo) return obj.logo
   }
 
@@ -115,7 +116,7 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
                 >
                   All
                 </span>
-                {exchangeCreationOptions.map((exchange) => {
+                {Object.entries(EXCHANGES).map((exchange) => {
                   return (
                     <span
                       className={

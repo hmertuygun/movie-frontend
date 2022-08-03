@@ -11,6 +11,7 @@ import {
   handleCountry,
   findFastServer,
   handleFirstLogin,
+  updateCanaryUser,
 } from 'store/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { URLS } from 'constants/config'
@@ -47,12 +48,8 @@ const UserContextProvider = ({ children }) => {
   useEffect(() => {
     if (userData) {
       dispatch(updateSubscriptionsDetails(userState, userData))
-    }
-  }, [userData])
-
-  useEffect(() => {
-    if (userData) {
       dispatch(handleFirstLogin(userData.email, userState))
+      dispatch(updateCanaryUser())
     }
   }, [userData])
 

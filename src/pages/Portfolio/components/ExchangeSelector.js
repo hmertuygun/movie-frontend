@@ -1,4 +1,4 @@
-import { exchangeCreationOptions } from 'constants/ExchangeOptions'
+import { EXCHANGES } from 'constants/Exchanges'
 import { ThemeContext } from 'contexts/ThemeContext'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,9 +9,7 @@ import getLogo from 'utils/getExchangeLogo'
 const customStyles = {}
 
 const MultiValueLabel = (props) => {
-  let selectedExchange = exchangeCreationOptions.find(
-    (exchange) => exchange.value === props.data.exchange
-  )
+  let selectedExchange = EXCHANGES[props.data.exchange]
   return (
     <div className="d-flex align-items-center w-100 p-1">
       <img

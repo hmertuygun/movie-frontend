@@ -82,7 +82,7 @@ import {
 } from './Firestore'
 import { getExchangeKlines } from './Klines'
 import { fetchExchangeTicker } from './Ticker'
-import { sendLoginInfo } from './UserActions'
+import { sendLoginInfo, getUserDetails } from './UserActions'
 
 export {
   checkGoogleAuth2FA,
@@ -157,4 +157,5 @@ export {
   FCMSubscription,
   getDoubleCollection,
   sendActionReason,
+  getUserDetails,
 }

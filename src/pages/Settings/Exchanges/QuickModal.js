@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
-import { UserContext } from 'contexts/UserContext'
-import { options, validationRules } from 'constants/ExchangeOptions'
+import { validationRules } from 'constants/ExchangeOptions'
 import { supportLinks } from 'constants/SupportLinks'
 import {
   errorInitialValues,
@@ -11,6 +10,8 @@ import {
   defaultExchange,
 } from 'constants/QuickModal'
 import { useSelector } from 'react-redux'
+import { getAllowedExchanges } from 'utils/exchangeSelection'
+import { EXCHANGES } from 'constants/Exchanges'
 
 const QuickModal = ({
   onClose,
@@ -35,9 +36,7 @@ const QuickModal = ({
   })
 
   const exchangeOptions = useMemo(() => {
-    return options.map((element) => {
-      return element
-    })
+    return getAllowedExchanges()
   }, [isPaidUser, isException])
 
   useEffect(() => {
@@ -54,7 +53,7 @@ const QuickModal = ({
       apiName: validationRules.apiName,
     }
 
-    const { fields } = options.find(
+    const { fields } = exchangeOptions.find(
       (exchangeItem) => exchange.value === exchangeItem.value
     )
 
