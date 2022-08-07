@@ -11,11 +11,13 @@ import { ThemeContext } from 'contexts/ThemeContext'
 import Control from 'components/Header/UserMenuControl/UserMenuControl'
 import { customStyles } from './customStyle'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateExchanges } from 'store/actions'
+import { updateExchangeKey } from 'store/actions'
 
 const UserMenu = () => {
   const { ref, isComponentVisible, setIsComponentVisible } =
     useComponentVisible(false)
+  const { setSymbol } = useSymbolContext()
+
   const { theme } = useContext(ThemeContext)
   const { userData } = useSelector((state) => state.users)
   const { activeExchange, exchanges, isExchangeLoading } = useSelector(
@@ -70,7 +72,11 @@ const UserMenu = () => {
             options={exchanges}
             isSearchable={false}
             styles={customStyles}
-            onChange={(value) => dispatch(updateExchanges(value))}
+            onChange={(value) =>
+              dispatch(
+                updateExchangeKey(value, setSymbol, activeExchange, userData)
+              )
+            }
             value={activeExchange}
             isDisabled={isExchangeLoading || isOnboardingSkipped}
           />
