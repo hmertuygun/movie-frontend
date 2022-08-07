@@ -1,5 +1,13 @@
 import { storage } from 'services/storages'
-import { Binance, BinanceUS, Bybit, HuobiPro, Kucoin, Okex } from './Functions'
+import {
+  Binance,
+  BinanceUS,
+  Bybit,
+  HuobiPro,
+  Kucoin,
+  Okex,
+  Kraken,
+} from './Functions'
 
 const PROXY_SERVER = storage.get('proxyServer')
 const CONFIGS = {
@@ -88,6 +96,23 @@ const CONFIGS = {
       getTickerData: Okex.getTickerData,
       getLastAndPercent: Okex.getLastAndPercent,
       fetchOHLCV: Okex.fetchOHLCV,
+    },
+  },
+  kraken: {
+    kline: 'ccxt',
+    ticker: 'ccxt',
+    ping: {
+      event: 'ping',
+      reqid: 42,
+    },
+    char: '/',
+    functions: {
+      socketSubscribe: Kraken.socketSubscribe,
+      editSocketData: Kraken.editSocketData,
+      klineSocketUnsubscribe: Kraken.klineSocketUnsubscribe,
+      getIncomingSocket: Kraken.getIncomingSocket,
+      fetchOHLCV: Kraken.fetchOHLCV,
+      getLastAndPercent: Kraken.getLastAndPercent,
     },
   },
 }

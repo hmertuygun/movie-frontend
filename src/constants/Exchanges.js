@@ -74,6 +74,17 @@ const EXCHANGES = {
     image: `${img_path}okex.svg`,
     logo: `${logo_path}okex.png`,
   },
+  kraken: {
+    value: 'kraken',
+    label: 'Kraken',
+    symbol: 'Kraken',
+    placeholder: 'Kraken',
+    fields: { Key: 'apiKey', Secret: 'secret' },
+    socketEndpoint: 'wss://ws.kraken.com',
+    apiUrl: 'https://api.kraken.com/',
+    image: `${img_path}kraken.svg`,
+    logo: `${logo_path}kraken.png`,
+  },
 }
 
 const RESOLUTIONS = [
@@ -154,6 +165,20 @@ const MAPPED_SOCKET_RESOLUTION_T1 = {
   W: 'candle1W',
   '1W': 'candle1W',
   M: 'candle1M',
+}
+
+export const RESOLUTIONS_K = [1, 5, 15, 30, 60, 240, '1D', '1W', '1M']
+
+export const RESOLUTIONS_T2 = {
+  1: 1,
+  5: 5,
+  15: 15,
+  30: 30,
+  60: 60,
+  240: 240,
+  '1D': 1440,
+  '1W': 10080,
+  '1M': 21600,
 }
 
 export {

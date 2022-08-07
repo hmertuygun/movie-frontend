@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { Filter, Plus, Search, X } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 
@@ -9,10 +9,12 @@ import styles from '../../css/WatchListPanel.module.css'
 import { useSelector } from 'react-redux'
 import { DEFAULT_ACTIVE_EXCHANGE } from 'constants/Default'
 import { EXCHANGES } from 'constants/Exchanges'
+import { getAllowedExchanges } from 'utils/exchangeSelection'
 
 const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const { symbols } = useSelector((state) => state.symbols)
+  const { isCanaryUser } = useSelector((state) => state.users)
   const [selectedSymbols, setSelectedSymbols] = useState([])
   const [searchText, setSearchText] = useState('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -22,7 +24,7 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const [loading, setLoading] = useState(true)
   const [filteredItem, setFilteredItem] = useState([])
   const extractExchange = (symbol) => {
-    return symbol.split(':')[0]
+    if (symbol) return symbol.split(':')[0]
   }
 
   const updateFilter = (filter) => {
@@ -36,10 +38,21 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
     }
   }
 
+  const filteredExchanges = useMemo(() => {
+    return Object.entries(EXCHANGES).filter(([exchangeName, exchange]) => {
+      return getAllowedExchanges().some((item) => item.value === exchangeName)
+    })
+  }, [isCanaryUser])
+
   const updatedSymbols = useMemo(() => {
     if (!symbols.length) return []
     setLoading(false)
     const selected = symbols
+      .filter((symbol) => {
+        return getAllowedExchanges().some(
+          (item) => item.value === extractExchange(symbol.value).toLowerCase()
+        )
+      })
       .filter(
         (symbol) => !symbolsList.some((item) => item.value === symbol.value)
       )
@@ -79,8 +92,13 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
     if (obj?.logo) return obj.logo
   }
 
-  const isSelectedTab = (exchange) =>
-    selectedTab === extractExchange(exchange).toLowerCase()
+  const isSelectedTab = useCallback(
+    (exchange) => {
+      if (exchange)
+        return selectedTab === extractExchange(exchange).toLowerCase()
+    },
+    [selectedTab]
+  )
 
   const onModalClose = () => {
     setSearchText('')
@@ -116,11 +134,11 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
                 >
                   All
                 </span>
-                {Object.entries(EXCHANGES).map((exchange) => {
+                {filteredExchanges.map(([exchangeName, exchange]) => {
                   return (
                     <span
                       className={
-                        isSelectedTab(exchange.value)
+                        isSelectedTab(exchangeName)
                           ? 'badge badge-primary'
                           : 'badge badge-secondary'
                       }

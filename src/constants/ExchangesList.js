@@ -6,6 +6,8 @@ import {
   MAPPED_RESOLUTION_T1,
   MAPPED_SOCKET_RESOLUTIONS,
   MAPPED_SOCKET_RESOLUTION_T1,
+  RESOLUTIONS_T2,
+  RESOLUTIONS_K,
 } from './Exchanges'
 
 export const EXCHANGE_OPTIONS = {
@@ -52,5 +54,12 @@ export const EXCHANGE_OPTIONS = {
     mappedResolutions: MAPPED_RESOLUTIONS,
     mappedResolutionsSocket: MAPPED_SOCKET_RESOLUTION_T1,
     klineLimit: 100,
+  },
+  kraken: {
+    ...EXCHANGES['kraken'],
+    resolutions: RESOLUTIONS_K,
+    needPingAlive: true,
+    mappedResolutions: MAPPED_RESOLUTIONS,
+    mappedResolutionsSocket: RESOLUTIONS_T2,
   },
 }

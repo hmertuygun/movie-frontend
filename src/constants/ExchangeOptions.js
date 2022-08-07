@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 
 const exchangeSystems = {
-  ccxt: ['binance', 'binanceus', 'kucoin', 'okex'],
+  ccxt: ['binance', 'binanceus', 'kucoin', 'okex', 'kraken'],
   own: ['bybit', 'huobipro'],
 }
 

@@ -29,4 +29,8 @@ export const ccxtClass = {
     proxy: proxyServer,
     rateLimit: true,
   }),
+  kraken: new ccxtPro.kraken({
+    proxy: proxyServer,
+    rateLimit: true,
+  }),
 }
