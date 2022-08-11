@@ -8,14 +8,15 @@ export const customStyle = (
     control: (styles) => ({
       ...styles,
       boxShadow: 'none',
-      border: '4px solid var(--trade-borders)',
       backgroundColor: 'var(--trade-background)',
       opacity: isLoading ? 0.4 : 1,
       borderLeft: (!isMobile ? 0 : 'null') || (isOnboardingSkipped ? '' : 0),
-      borderRadius: 0,
       height: isOnboardingSkipped && isTablet ? '52px' : '56px',
       minHeight: isOnboardingSkipped && isTablet ? '52px' : '56px',
       color: 'var(--grey)',
+      border: 'none',
+      padding: '0.5rem',
+      borderRadius: '0.75rem',
 
       '&:hover': {
         cursor: 'pointer',

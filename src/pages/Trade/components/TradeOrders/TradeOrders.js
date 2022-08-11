@@ -466,50 +466,60 @@ const TradeOrders = () => {
           </div>
         </div>
       </div>
-      {isOpenOrders ? (
-        <OpenOrdersTableBody
-          data={openOrderData}
-          sortColumn={sortTable}
-          deleteRow={(rData) => deleteOpenOrdersRow(rData)}
-          isHideOtherPairs={isHideOtherPairs}
-          isFetching={isOpenOrderFetching}
-        />
-      ) : (
-        // ) : !isOpenOrders && showProgressBar ? ProgressBar : (
-        <OrderHistoryTableBody
-          isFetching={isOrderHistoryFetching}
-          lastFetchedData={orderHistoryLastFetchedData}
-          data={orderHistoryData}
-          callOrderHistoryAPI={() => getOrderHistoryData()}
-          isHideOtherPairs={isHideOtherPairs}
-        />
-      )}
-      {isOpenOrders && (
-        <div className="open-orders-msg d-flex flex-wrap justify-content-center">
-          {/* {isOpenOrderFetching && (
+      <div
+        className="ordersTable"
+        style={{
+          overflow: 'scroll',
+          height: '31vh',
+        }}
+      >
+        {isOpenOrders ? (
+          <OpenOrdersTableBody
+            data={openOrderData}
+            sortColumn={sortTable}
+            deleteRow={(rData) => deleteOpenOrdersRow(rData)}
+            isHideOtherPairs={isHideOtherPairs}
+            isFetching={isOpenOrderFetching}
+          />
+        ) : (
+          // ) : !isOpenOrders && showProgressBar ? ProgressBar : (
+          <OrderHistoryTableBody
+            isFetching={isOrderHistoryFetching}
+            lastFetchedData={orderHistoryLastFetchedData}
+            data={orderHistoryData}
+            callOrderHistoryAPI={() => getOrderHistoryData()}
+            isHideOtherPairs={isHideOtherPairs}
+          />
+        )}
+        {isOpenOrders && (
+          <div className="open-orders-msg d-flex flex-wrap justify-content-center">
+            {/* {isOpenOrderFetching && (
             <div className="text-center pt-3">
               <span className="spinner-border text-primary spinner-border-sm" />
             </div>
           )} */}
-          {!openOrderData.length && !isOpenOrderFetching && !openOrderError && (
-            <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>
-              You have no open orders.
-            </div>
-          )}
-          {!isOpenOrderFetching && openOrderError && (
-            <div
-              className={`alert alert-danger text-center mt-4`}
-              style={{ width: '400px' }}
-              role="alert"
-            >
-              <strong>
-                <FontAwesomeIcon icon="times-circle" /> Failed to get open
-                orders.
-              </strong>
-            </div>
-          )}
-        </div>
-      )}
+            {!openOrderData.length &&
+              !isOpenOrderFetching &&
+              !openOrderError && (
+                <div style={{ fontSize: '12px', color: 'rgb(174, 180, 188)' }}>
+                  You have no open orders.
+                </div>
+              )}
+            {!isOpenOrderFetching && openOrderError && (
+              <div
+                className={`alert alert-danger text-center mt-4`}
+                style={{ width: '400px' }}
+                role="alert"
+              >
+                <strong>
+                  <FontAwesomeIcon icon="times-circle" /> Failed to get open
+                  orders.
+                </strong>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

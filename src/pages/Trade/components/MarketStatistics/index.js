@@ -329,7 +329,7 @@ function MarketStatistics({ market }) {
   }
 
   return (
-    <div className={`marketDataContainer ${!market ? 'marketBorder' : ''}`}>
+    <div className={`marketDataContainer marketBorder`}>
       {finalData && (
         <>
           <div className="lastPriceBlockMobile">

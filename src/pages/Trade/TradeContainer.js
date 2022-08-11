@@ -36,7 +36,7 @@ const TradeContainer = () => {
     <>
       {!isMobile ? (
         <>
-          <section className={`TradeView-Panel`}>
+          <section className={`TradeView-Panel card m-1`}>
             <div className={`${isOnboardingSkipped ? 'chart-view' : ''}`}>
               <ErrorBoundary componentName="TradePanel">
                 <Suspense fallback={<div></div>}>
@@ -46,34 +46,43 @@ const TradeContainer = () => {
             </div>
           </section>
 
-          <section
-            className="TradeChart-Container"
-            style={{ display: 'unset' }}
-          >
-            <section
-              className={`TradeView-Symbol ${
-                isOnboardingSkipped ? 'skipped-trade-view' : ''
-              }`}
+          <section className="TradeChart-Container">
+            <div
+              style={{
+                display: 'grid',
+                width: '100%',
+                gridTemplateColumns: '40% 60%',
+              }}
             >
-              <ErrorBoundary componentName="SymbolSelect">
-                <Suspense fallback={<div></div>}>
-                  <SymbolSelect />
-                </Suspense>
-              </ErrorBoundary>
-
-              <ErrorBoundary componentName="MarketStatistics">
-                <Suspense fallback={<div></div>}>
-                  <MarketStatistics />
-                </Suspense>
-              </ErrorBoundary>
-            </section>
+              <section
+                className={`card m-1 TradeView-Symbol ${
+                  isOnboardingSkipped ? 'skipped-trade-view' : ''
+                }`}
+              >
+                <ErrorBoundary componentName="MarketStatistics">
+                  <Suspense fallback={<div></div>}>
+                    <SymbolSelect />
+                  </Suspense>
+                </ErrorBoundary>
+              </section>
+              <section
+                className={`card m-1 TradeView-Symbol ${
+                  isOnboardingSkipped ? 'skipped-trade-view' : ''
+                }`}
+              >
+                <ErrorBoundary componentName="MarketStatistics">
+                  <Suspense fallback={<div></div>}>
+                    <MarketStatistics />
+                  </Suspense>
+                </ErrorBoundary>
+              </section>
+            </div>
             <section
-              className="TradeView-Chart"
+              className="TradeView-Chart card m-1"
               style={{
                 resize: 'vertical',
                 overflow: 'auto',
                 height: chartHeight,
-                paddingBottom: '10px',
               }}
             >
               <ErrorBoundary componentName="TradeChart">
@@ -113,7 +122,7 @@ const TradeContainer = () => {
               </ErrorBoundary>
             </section>
             <section
-              className={`TradeOrders ${
+              className={`TradeOrders m-1 ${
                 isOnboardingSkipped ? 'chart-order-view-position' : ''
               }`}
               style={{
@@ -121,7 +130,9 @@ const TradeContainer = () => {
               }}
             >
               <div
-                className={`${isOnboardingSkipped ? 'chart-order-view' : ''}`}
+                className={`card OrderBody ${
+                  isOnboardingSkipped ? 'chart-order-view' : ''
+                }`}
               >
                 <ErrorBoundary componentName="TradeOrders">
                   <Suspense fallback={<div></div>}>
@@ -147,20 +158,21 @@ const TradeContainer = () => {
         </div>
       ) : (
         <div className="TradeChart-Container TradeChart-Container-Mobile">
-          <section className="TradeView-Symbol">
+          <section className="TradeView-Symbol card m-1">
             <ErrorBoundary componentName="SymbolSelect">
               <Suspense fallback={<div></div>}>
                 <SymbolSelect />
               </Suspense>
             </ErrorBoundary>
-
+          </section>
+          <section className="card m-1 p-1">
             <ErrorBoundary componentName="MarketStatistics">
               <Suspense fallback={<div></div>}>
-                <MarketStatistics />
+                <MarketStatistics market={true} />
               </Suspense>
             </ErrorBoundary>
           </section>
-          <section className="TradeView-Chart TradeView-Chart-Mobile">
+          <section className="TradeView-Chart TradeView-Chart-Mobile card m-1">
             <ErrorBoundary componentName="TradeChart">
               <Suspense fallback={<div></div>}>
                 <TradeChart />
@@ -168,7 +180,7 @@ const TradeContainer = () => {
             </ErrorBoundary>
           </section>
           <section
-            className={`TradeOrders ${
+            className={`TradeOrders card m-1 ${
               isOnboardingSkipped ? 'chart-order-view-position' : ''
             }`}
           >

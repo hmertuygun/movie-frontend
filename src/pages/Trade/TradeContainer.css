@@ -14,8 +14,6 @@
   background-color: var(--trade-background);
   color: var(--dark-color);
   flex-grow: 0;
-  border-top: 4px solid var(--trade-borders);
-  border-right: 4px solid var(--trade-borders);
 }
 
 .WatchListContainer {
@@ -27,8 +25,6 @@
   width: 300px;
   min-width: 288px;
   background: var(--trade-background);
-  border-top: 4px solid var(--trade-borders);
-  border-right: 4px solid var(--trade-borders);
   color: var(--dark-color);
   height: 100%;
   flex-grow: 0;
@@ -36,7 +32,6 @@
 
 .Logo-In-WatchList {
   background: var(--trade-background);
-  border-right: 4px solid var(--trade-borders);
   min-height: 75px;
   display: flex;
   align-items: center;
@@ -53,7 +48,6 @@
 
 .TradeView-Symbol {
   display: grid;
-  grid-template-columns: 500px auto;
   background: var(--trade-background);
   /* border-top: 4px solid var(--trade-borders);
   border-bottom: 4px solid var(--trade-borders); */
@@ -61,13 +55,7 @@
 
 @media (max-width: 1400px) {
   .TradeView-Symbol {
-    grid-template-columns: 400px auto;
-  }
-}
-
-@media (max-width: 1230px) {
-  .TradeView-Symbol {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100% auto;
   }
 }
 
@@ -78,7 +66,12 @@
 
 .TradeOrders {
   background: var(--trade-background);
-  border-top: 4px solid var(--trade-borders);
+  height: 40vh;
+  overflow: hidden;
+}
+
+.OrderBody {
+  height: 40vh;
 }
 
 .TradeView-Panel-Mobile {

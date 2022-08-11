@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 
 import { useSymbolContext } from 'contexts/SymbolContext'
@@ -13,6 +13,8 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
   const { emojis } = useSelector((state) => state.emojis)
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const { isAnalyst } = useSelector((state) => state.users)
+  const [previousLast, setPreviousLast] = useState(symbol.last)
+  const lastPrice = useRef(null)
 
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
 
@@ -31,6 +33,13 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
     const text = emojis && emojis.find((emoji) => emoji.id === value)
     return text && text.text
   }
+
+  useEffect(() => {
+    if (symbol.last === previousLast) return
+    if (previousLast > symbol.last) lastPrice.current.className = 'down-blink'
+    else lastPrice.current.className = 'up-blink'
+    setPreviousLast(symbol.last)
+  }, [symbol.last])
 
   return (
     <div
@@ -83,7 +92,7 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
         </span>
         {symbol.label.replace('/', '-')}
       </div>
-      <div>{symbol.last}</div>
+      <div ref={lastPrice}>{symbol.last}</div>
       <div className={Math.sign(symbol.percentage) > 0 ? 'plus' : 'minus'}>
         {symbol.percentage ? `${Number(symbol.percentage).toFixed(2)}%` : ''}
       </div>

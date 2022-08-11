@@ -317,13 +317,7 @@ const OpenOrdersTableBody = ({
     })
 
   return (
-    <div
-      style={{
-        minHeight: '90px',
-        overflowY: data.length ? 'auto' : 'hidden',
-        overflowX: 'auto',
-      }}
-    >
+    <>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
@@ -389,7 +383,7 @@ const OpenOrdersTableBody = ({
           </p>
         </div>
       ) : null}
-    </div>
+    </>
   )
 }
 

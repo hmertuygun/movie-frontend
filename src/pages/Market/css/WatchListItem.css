@@ -40,3 +40,24 @@
 .react-tiny-popover-container {
   z-index: 104;
 }
+
+.up-blink {
+  animation: blinkup 1s;
+  animation-iteration-count: 1;
+}
+
+.down-blink {
+  animation: blinkdown 1s;
+  animation-iteration-count: 1;
+}
+
+@keyframes blinkup {
+  50% {
+    color: var(--buy);
+  }
+}
+@keyframes blinkdown {
+  50% {
+    color: var(--sell);
+  }
+}

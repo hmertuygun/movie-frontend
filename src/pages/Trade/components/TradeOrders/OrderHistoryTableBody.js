@@ -77,15 +77,7 @@ const OrderHistoryTableBody = ({
   })
 
   return (
-    <div
-      className="ordersTable"
-      style={{
-        overflowY: data.length ? 'auto' : 'hidden',
-        overflowX: 'auto',
-        marginRight: '-12px',
-        paddingBottom: '12px',
-      }}
-    >
+    <>
       <table className={['table', styles.table].join(' ')}>
         <thead>
           <tr>
@@ -197,7 +189,7 @@ const OrderHistoryTableBody = ({
           you trade the markets on CoinPanel.
         </strong>
       </div>
-    </div>
+    </>
   )
 }
 
