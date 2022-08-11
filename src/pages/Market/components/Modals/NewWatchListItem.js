@@ -155,6 +155,7 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
                   placeholder="Search"
                   onChange={(e) => setSearchText(e.target.value)}
                   value={searchText}
+                  className="form-control"
                 />
                 <div className={styles.icons}>
                   {searchText && <X onClick={() => setSearchText('')} />}
