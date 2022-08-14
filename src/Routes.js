@@ -20,6 +20,7 @@ import { pollingProp } from 'constants/positions'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from 'store/actions'
 import MESSAGES from 'constants/Messages'
+import Auth2FAModal from 'pages/Auth/Auth2FAModal'
 
 const Login = lazy(() => import('pages/Auth/QuickLogin'))
 const LoginVerify2FA = lazy(() => import('pages/Auth/QuickLoginVerify2FA'))
@@ -53,7 +54,7 @@ const Routes = () => {
     ]
   }, [pathname])
 
-  const { loadApiKeys, isApiKeysLoading } = useSelector(
+  const { loadApiKeys, isApiKeysLoading, need2FA } = useSelector(
     (state) => state.apiKeys
   )
   const { userContextLoaded, userState, firstLogin } = useSelector(
@@ -67,7 +68,7 @@ const Routes = () => {
   )
   const notifications = useSelector((state) => state.notifications)
 
-  const [need2FA, needPlans, needLoading, needOnboarding, needSubModal] =
+  const [need2FAPage, needPlans, needLoading, needOnboarding, needSubModal] =
     useMemo(() => {
       return [
         (isLoggedIn && !isApiKeysLoading && loadApiKeys && !userState) ||
@@ -116,13 +117,13 @@ const Routes = () => {
   }
 
   useEffect(() => {
-    if (need2FA) {
+    if (need2FAPage) {
       history.push('/settings#security')
     }
     if (needPlans) {
       history.push('/plans')
     }
-  }, [need2FA, needPlans])
+  }, [need2FAPage, needPlans])
 
   useEffect(() => {
     trackPageView()
@@ -167,6 +168,7 @@ const Routes = () => {
           )}
 
           {needOnboarding && <OnboardingModal />}
+          {need2FA && <Auth2FAModal />}
 
           {needLoading && (
             <p

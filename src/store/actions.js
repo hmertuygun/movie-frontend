@@ -73,6 +73,9 @@ import {
   updateLoadApiKeys,
   updateLoadApiKeysError,
   updateIsApiKeysLoading,
+  updateNeed2FA,
+  updateTokenExpiry,
+  updateSecretKey,
 } from './apiKeys/ApiKeysActions'
 
 import {
@@ -233,6 +236,9 @@ export {
   fetchAnalysts,
   handleFirstLogin,
   updateCanaryUser,
+  updateNeed2FA,
+  updateTokenExpiry,
+  updateSecretKey,
   add2FA,
   verify2FA,
   delete2FA,

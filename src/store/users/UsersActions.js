@@ -11,7 +11,14 @@ import {
 import { session, storage } from 'services/storages'
 import usersSlice from './UsersSlice'
 import { firebase } from 'services/firebase'
-import { getUserExchangesAfterFBInit, handleCountry } from 'store/actions'
+import {
+  getUserExchangesAfterFBInit,
+  handleCountry,
+  updateTokenExpiry,
+  updateSecretKey,
+  updateNeed2FA,
+} from 'store/actions'
+import dayjs from 'dayjs'
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
 const {
@@ -96,8 +103,8 @@ const handleFirstLogin = (email, userState) => async (dispatch) => {
 }
 
 const verify2FA = (userToken, userState) => async (dispatch) => {
-  const response = await verifyGoogleAuth2FA(userToken)
-  if (response.data.passed) {
+  const { data } = await verifyGoogleAuth2FA(userToken)
+  if (data.passed && data.token) {
     storage.set(
       T2FA_LOCAL_STORAGE,
       JSON.stringify({
@@ -105,9 +112,17 @@ const verify2FA = (userToken, userState) => async (dispatch) => {
         is2FAVerified: true,
       })
     )
-    dispatch(updateUserState({ ...userState, is2FAVerified: true }))
+    dispatch(
+      updateUserState({
+        ...userState,
+        is2FAVerified: true,
+      })
+    )
+    dispatch(updateNeed2FA(false))
+    dispatch(updateSecretKey(data.token))
+    dispatch(updateTokenExpiry(dayjs().add(3, 'hour').format()))
   }
-  return response.data.passed
+  return data.passed && data.token
 }
 
 const delete2FA = (userToken, userState) => async (dispatch) => {

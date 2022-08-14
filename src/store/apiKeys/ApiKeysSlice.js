@@ -6,6 +6,9 @@ const apiKeysSlice = createSlice({
     loadApiKeys: false,
     setLoadApiKeysError: false,
     isApiKeysLoading: false,
+    need2FA: false,
+    tokenExpiry: null,
+    secretKey: '',
   },
   reducers: {
     setLoadApiKeys: (state, action) => {
@@ -16,6 +19,15 @@ const apiKeysSlice = createSlice({
     },
     setIsApiKeysLoading: (state, action) => {
       state.isApiKeysLoading = action.payload
+    },
+    setNeed2FA: (state, action) => {
+      state.need2FA = action.payload
+    },
+    setTokenExpiry: (state, action) => {
+      state.tokenExpiry = action.payload
+    },
+    setSecretKey: (state, action) => {
+      state.secretKey = action.payload
     },
   },
 })
