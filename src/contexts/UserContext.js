@@ -33,7 +33,6 @@ const UserContextProvider = ({ children }) => {
 
   useInterval(() => {
     if (!userData || !isLoggedInWithFirebase || need2FA || !tokenExpiry) return
-    console.log(!dayjs().isBefore(dayjs(tokenExpiry)))
     if (!dayjs().isBefore(dayjs(tokenExpiry))) {
       dispatch(updateNeed2FA(true))
     }

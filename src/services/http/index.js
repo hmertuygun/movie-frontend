@@ -10,14 +10,16 @@ const getHeadersForAPI = async () => {
   return await getHeaders()
 }
 
-const httpClient = async (url, type, data) => {
+const httpClient = async (url, type, data, needSign) => {
   const config = {
     headers: await getHeadersForAPI(),
     method: type,
   }
   if (data) config.data = data
 
-  return await axios(url, config).then(handleResponse).catch(handleError)
+  return await axios(url, config)
+    .then((response) => handleResponse(response, needSign))
+    .catch(handleError)
 }
 
 export default httpClient

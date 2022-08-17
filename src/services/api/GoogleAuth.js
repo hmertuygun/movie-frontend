@@ -38,7 +38,7 @@ const verifyGoogleAuth2FA = async (auth_answer) => {
   const data = {
     auth_answer,
   }
-  return httpClient(apiUrl, 'POST', data)
+  return httpClient(apiUrl, 'POST', data, true)
 }
 
 const deleteGoogleAuth2FA = async (auth_answer) => {

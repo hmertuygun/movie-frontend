@@ -31,6 +31,8 @@
     "firebase": "^8.0.0",
     "html-react-parser": "^1.4.0",
     "html2canvas": "^1.4.1",
+    "jsrsasign": "^10.5.26",
+    "jsrsasign-util": "^1.0.5",
     "lodash": "^4.17.21",
     "lzutf8": "^0.6.1",
     "ping.js": "^0.3.0",

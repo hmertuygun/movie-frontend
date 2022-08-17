@@ -1,4 +1,9 @@
-export function handleResponse(response) {
+import signToken from './signToken'
+
+export function handleResponse(response, needSign) {
+  if (needSign) {
+    return signToken(response.headers['x-header'], response)
+  }
   return response
 }
 

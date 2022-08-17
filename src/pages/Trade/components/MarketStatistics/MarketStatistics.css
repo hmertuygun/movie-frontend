@@ -4,7 +4,8 @@
   align-items: center;
   padding: 14px;
   width: auto;
-  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 
 .marketData {
