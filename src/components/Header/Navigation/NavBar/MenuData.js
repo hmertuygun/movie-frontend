@@ -18,6 +18,11 @@ export const MenuData = [
     url: '/market',
   },
   {
+    title: 'Academy',
+    url: 'https://academy.coinpanel.com/',
+    externalLink: true,
+  },
+  {
     title: 'Guides',
     url: 'https://support.coinpanel.com/hc/en-us/categories/360002959559-Beginner-s-Guide',
     externalLink: true,
