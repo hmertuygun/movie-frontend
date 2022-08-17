@@ -11,6 +11,18 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
 
   let textPrimary = theme === 'DARK' ? 'text-white' : 'text-primary'
 
+  //For flutter app
+  const handleSocialIcon = (value) => {
+    window.addEventListener('flutterInAppWebViewPlatformReady', (event) => {
+      window.flutter_inappwebview
+        .callHandler('social', value)
+        .then(function (result) {
+          // get result from Flutter side. It will be the number 64.
+          console.log(result)
+        })
+    })
+  }
+
   return (
     <div className="more-details">
       <div className="d-flex analyst-data">
@@ -47,6 +59,9 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
             href={selectedAnalyst.metaData.social.website}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              handleSocialIcon(selectedAnalyst.metaData.social.website)
+            }
           >
             <Globe size={18} className={`mr-2 icon-cursor ${textPrimary}`} />
           </a>
@@ -56,6 +71,9 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
             href={selectedAnalyst.metaData.social.youtube}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              handleSocialIcon(selectedAnalyst.metaData.social.youtube)
+            }
           >
             <Youtube size={18} className={`mr-2 icon-cursor ${textPrimary}`} />
           </a>
@@ -65,6 +83,9 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
             href={selectedAnalyst.metaData.social.instagram}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              handleSocialIcon(selectedAnalyst.metaData.social.instagram)
+            }
           >
             <Instagram
               size={18}
@@ -77,6 +98,9 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
             href={selectedAnalyst.metaData.social.twitter}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              handleSocialIcon(selectedAnalyst.metaData.social.twitter)
+            }
           >
             <Twitter size={18} className={`mr-2 icon-cursor ${textPrimary}`} />
           </a>
