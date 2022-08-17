@@ -120,7 +120,7 @@ const verify2FA = (userToken, userState) => async (dispatch) => {
     )
     dispatch(updateNeed2FA(false))
     dispatch(updateSecretKey(data.token))
-    dispatch(updateTokenExpiry(dayjs().add(3, 'hour').format()))
+    dispatch(updateTokenExpiry(dayjs().add(1, 'hour').format()))
   }
   return data.passed && data.token
 }
