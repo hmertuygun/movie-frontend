@@ -7,11 +7,20 @@ const UserMenuControl = ({ children, ...props }) => {
   return (
     <components.Control {...props}>
       <div className="d-flex align-items-center w-100 ml-2">
-        <img
-          src={selectedExchange?.logo}
-          alt={selectedExchange?.label}
-          className="exchange-field-icon"
-        />
+        <div
+          className="user-menu-dropdown"
+          style={
+            selectedExchange?.label === 'Kraken'
+              ? { width: 18, height: 18 }
+              : { width: 13, height: 13 }
+          }
+        >
+          <img
+            src={selectedExchange?.logo}
+            alt={selectedExchange?.label}
+            className="w-100"
+          />
+        </div>
         {children}
       </div>
     </components.Control>

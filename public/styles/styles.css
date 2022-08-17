@@ -197,6 +197,13 @@ hr {
   margin-right: -5px;
 }
 
+.user-menu-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -5px;
+}
+
 /* Safari specific issue | Safari 9+ | Issue CP-344 */
 _::-webkit-full-page-media,
 _:future,
