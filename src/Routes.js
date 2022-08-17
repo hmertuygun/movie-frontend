@@ -36,7 +36,6 @@ const Settings = lazy(() => import('pages/Settings'))
 const Portfolio = lazy(() => import('pages/Portfolio'))
 const Analytics = lazy(() => import('pages/Analytics'))
 const PriceAlerts = lazy(() => import('pages/PriceAlerts'))
-const Academy = lazy(() => import('pages/Academy'))
 const Market = lazy(() => import('pages/Market'))
 
 const Routes = () => {
@@ -196,9 +195,7 @@ const Routes = () => {
               {!isOnboardingSkipped && (
                 <CacheRoute path="/analytics" component={Analytics} />
               )}
-              {!isOnboardingSkipped && (
-                <CacheRoute path="/academy" component={Academy} />
-              )}
+
               {firstLogin && <CacheRoute path="/plans" component={Plans} />}
               <CacheRoute path="/market" component={Market} />
 
@@ -214,7 +211,6 @@ const Routes = () => {
           <Route path="/action" component={HandleEmailActions} />
           <Route exact path="/register" component={Register} />
           <Route exact path="/register/confirm" component={RegisterConfirm} />
-          <Route exact path="/academy" component={Academy} />
           <Route
             exact
             path="/register/confirm/recieved"
