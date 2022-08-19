@@ -21,6 +21,13 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
           console.log(result)
         })
     })
+    window.addEventListener('flutterInAppWebViewPlatformReady', (event) => {
+      window.flutter_inappwebview.callHandler('testFuncArgs', 1)
+      window.flutter_inappwebview.callHandler('testFunc')
+      window.Print.postMessage('Hello World being called from Javascript code')
+      window.postMessage('Hello World being called from Javascript')
+      window.CHANNEL_NAME.postMessage('Hello from JS')
+    })
   }
 
   return (
