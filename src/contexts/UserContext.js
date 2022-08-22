@@ -12,31 +12,21 @@ import {
   findFastServer,
   handleFirstLogin,
   updateCanaryUser,
-  updateNeed2FA,
 } from 'store/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { URLS } from 'constants/config'
-import { useInterval } from 'hooks'
-import dayjs from 'dayjs'
+
 export const UserContext = createContext()
 
 const UserContextProvider = ({ children }) => {
   storage.remove('tradingview.IntervalWidget.quicks')
 
   const { userData, userState } = useSelector((state) => state.users)
-  const { need2FA, tokenExpiry } = useSelector((state) => state.apiKeys)
   const { totalExchanges } = useSelector((state) => state.exchanges)
   const { isOnboardingSkipped, country, isCountryAvailable } = useSelector(
     (state) => state.appFlow
   )
   const dispatch = useDispatch()
-
-  useInterval(() => {
-    if (!userData || !isLoggedInWithFirebase || need2FA || !tokenExpiry) return
-    if (!dayjs().isBefore(dayjs(tokenExpiry))) {
-      dispatch(updateNeed2FA(true))
-    }
-  }, 1000)
 
   useEffect(() => {
     const onboarding = storage.get('onboarding')
