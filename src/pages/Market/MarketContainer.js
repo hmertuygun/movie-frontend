@@ -42,7 +42,7 @@ const MarketContainer = () => {
 
   useEffect(() => {
     setActiveTab(0)
-    setActiveValue(templateDrawingsOpen ? activeTrader.id : userData.email)
+    setActiveValue(templateDrawingsOpen ? activeTrader?.id : userData.email)
   }, [templateDrawingsOpen, userData, activeTrader])
 
   const setActiveTraderList = async (id) => {
@@ -81,7 +81,9 @@ const MarketContainer = () => {
     }
   }, [])
 
-  const currentAnalyst = allAnalysts.find((trader) => trader.id === activeValue)
+  const currentAnalyst = allAnalysts.find(
+    (trader) => trader?.id === activeValue
+  )
 
   return (
     <>

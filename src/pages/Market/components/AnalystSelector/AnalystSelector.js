@@ -32,10 +32,10 @@ const AnalystSelector = ({
   }
 
   const isUserTheAnalyst = traders.some(
-    (trader) => trader.id === userData.email
+    (trader) => trader?.id === userData.email
   )
 
-  const currentAnalyst = traders.find((trader) => trader.id === activeValue)
+  const currentAnalyst = traders.find((trader) => trader?.id === activeValue)
 
   const handleShowDetails = (e, value) => {
     e.stopPropagation()
@@ -97,41 +97,43 @@ const AnalystSelector = ({
                   <div
                     className={`analyst-option`}
                     style={
-                      trader.live
+                      trader?.live
                         ? { opacity: 1, cursor: 'pointer' }
                         : { opacity: 0.5 }
                     }
                     onClick={
-                      trader.live
-                        ? () => handleSelectedAnalyst(trader.id)
+                      trader?.live
+                        ? () => handleSelectedAnalyst(trader?.id)
                         : () => null
                     }
-                    key={trader.title}
+                    key={trader?.name}
                   >
                     <input
                       type="checkbox"
                       className="custom-checkbox mr-2"
-                      checked={activeValue === trader.id}
+                      checked={activeValue === trader?.id}
                       readOnly
                     />
-                    {trader?.metaData?.logo && (
-                      <img
-                        alt="Analyst"
-                        src={trader.metaData.logo}
-                        className="avatar rounded-circle avatar-xs mr-2"
-                      />
-                    )}
-                    <div className="mr-auto position-relative">
-                      <p className={`m-0 text-xs  ${textClass}`}>
-                        {trader.name}
-                      </p>
-                      <p className="sub-text m-0 position-absolute top-3">
-                        {trader.lastUpdated
-                          ? `Updated ${dayjs(trader.lastUpdated).fromNow()}`
-                          : ''}
-                      </p>
+                    <div className="d-flex mr-auto">
+                      {trader?.metaData?.logo && (
+                        <img
+                          alt="Analyst"
+                          src={trader.metaData.logo}
+                          className="avatar rounded-circle avatar-xs mr-2"
+                        />
+                      )}
+                      <div className="position-relative title-content">
+                        <p className={`m-0 text-xs  ${textClass}`}>
+                          {trader?.name}
+                        </p>
+                        <p className="sub-text m-0 position-absolute top-3">
+                          {trader?.lastUpdated
+                            ? `Updated ${dayjs(trader.lastUpdated).fromNow()}`
+                            : ''}
+                        </p>
+                      </div>
                     </div>
-                    {trader.live ? (
+                    {trader?.live ? (
                       <div
                         className={`analyst-info-wrapper`}
                         onMouseEnter={(e) => handleShowDetails(e, trader.id)}

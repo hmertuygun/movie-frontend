@@ -69,6 +69,7 @@
 .sub-text {
   font-size: 9px;
   display: block;
+  width: 120px;
   color: var(--label-default-color);
 }
 
@@ -100,6 +101,10 @@
   box-shadow: 0 0 1.25rem rgb(31 45 61 / 5%);
   z-index: 5;
   border: 0.5px solid var(--blue);
+}
+
+.title-content {
+  margin-top: -4px;
 }
 
 @media screen and (max-width: 1400px) {
