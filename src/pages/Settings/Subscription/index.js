@@ -28,6 +28,7 @@ import {
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import { getNumberOfTimeLeft } from 'utils/getNumberOfTimeLeft'
 
 const Subscription = () => {
   const { logout } = useContext(UserContext)
@@ -185,6 +186,18 @@ const Subscription = () => {
             </span>
           </div>
         )}
+        {subscriptionStatus === 'trialing' ? (
+          <div className="card card-pricing shadow px-3 py-3">
+            <h3>Trial</h3>
+            <p className="mb-0 text-medium">
+              You are in trial now, you have{' '}
+              {subscriptionData
+                ? getNumberOfTimeLeft(subscriptionData?.due)
+                : ''}{' '}
+              left to use CoinPanel for free.
+            </p>
+          </div>
+        ) : null}
         {!isCheckingSub ? (
           hasSub && subscriptionStatus !== 'trialing' ? (
             <SubscriptionActiveCard

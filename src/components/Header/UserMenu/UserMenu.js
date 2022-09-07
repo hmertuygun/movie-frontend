@@ -1,6 +1,6 @@
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { useContext, useMemo } from 'react'
-import { getNumberOfDays } from 'utils/getNumberOfDays'
+import { getNumberOfTimeLeft } from 'utils/getNumberOfTimeLeft'
 import Select from 'react-select'
 import { SECTION_ONE, SECTION_TWO } from 'constants/DropDownMenu'
 import logout from 'assets/dropdown_menu/dark/logout.svg'
@@ -61,7 +61,7 @@ const UserMenu = () => {
       >
         <p className="h6 mb-1">{userData?.email}</p>
         <p className="text-primary mb-1">
-          {subscriptionData ? getNumberOfDays(subscriptionData?.due) : ''} days
+          {subscriptionData ? getNumberOfTimeLeft(subscriptionData?.due) : ''}{' '}
           left in subscription
         </p>
         {!isOnboardingSkipped && (
