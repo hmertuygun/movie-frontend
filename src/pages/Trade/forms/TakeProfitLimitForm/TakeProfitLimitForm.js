@@ -20,7 +20,7 @@ import * as yup from 'yup'
 import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { createBasicTrade } from 'services/api'
+import { createBasicTrade, sendOrderInfo } from 'services/api'
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from '../LimitForm/LimitForm.module.css'
@@ -404,6 +404,11 @@ const TakeProfitLimitForm = () => {
             notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
           )
         } else {
+          let data = {
+            orders: payload,
+            status_code: res.status,
+          }
+          sendOrderInfo(data)
           dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_sell_take_profit_limit_order')
           trackEvent(

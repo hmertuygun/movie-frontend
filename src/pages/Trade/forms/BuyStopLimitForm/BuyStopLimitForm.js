@@ -5,7 +5,7 @@ import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as yup from 'yup'
 
-import { createBasicTrade } from 'services/api'
+import { createBasicTrade, sendOrderInfo } from 'services/api'
 import {
   addPrecisionToNumber,
   removeTrailingZeroFromInput,
@@ -419,6 +419,11 @@ const BuyStopLimitForm = () => {
             notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
           )
         } else {
+          let data = {
+            orders: payload,
+            status_code: res.status,
+          }
+          sendOrderInfo(data)
           dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_buy_stop_limit_order')
           trackEvent(

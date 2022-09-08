@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import Slider from 'rc-slider'
 
-import { createBasicTrade } from 'services/api'
+import { createBasicTrade, sendOrderInfo } from 'services/api'
 
 import {
   addPrecisionToNumber,
@@ -398,6 +398,11 @@ const BuyTrailingStopForm = () => {
             notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
           )
         } else {
+          let data = {
+            orders: payload,
+            status_code: res.status,
+          }
+          sendOrderInfo(data)
           dispatch(notify(MESSAGES['order-created'], 'success'))
           refreshBalance()
         }

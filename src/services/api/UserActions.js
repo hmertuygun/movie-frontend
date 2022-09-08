@@ -16,4 +16,12 @@ const getUserDetails = async () => {
   return await httpClient(apiUrl, 'GET')
 }
 
-export { sendLoginInfo, getUserDetails }
+const sendOrderInfo = async (data) => {
+  const apiUrl = `${BASE_URL}`
+  const payload = { action: 'order', ...data }
+
+  const response = await httpClient(apiUrl, 'POST', payload)
+  return response.data
+}
+
+export { sendLoginInfo, getUserDetails, sendOrderInfo }

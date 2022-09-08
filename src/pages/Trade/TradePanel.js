@@ -12,7 +12,8 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { notify } from 'reapop'
 
-import { placeOrder } from 'services/api'
+import { placeOrder, sendOrderInfo } from 'services/api'
+import { generateFullTradePayloadStructure } from 'utils/generateFullTradePayloadStructure'
 import { TabContext } from 'contexts/TabContext'
 import { TabNavigator, ButtonNavigator, Typography, Modal } from 'components'
 import SymbolSelect from './components/SymbolSelect/SymbolSelect'
@@ -108,6 +109,15 @@ const Trade = () => {
           notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
         )
       } else {
+        let orderData = generateFullTradePayloadStructure({
+          ...tradeState,
+          ...activeExchange,
+        })
+        let data = {
+          orders: orderData,
+          status_code: res.status,
+        }
+        sendOrderInfo(data)
         dispatch(notify(MESSAGES['order-created'], 'success'))
         const { entry } = tradeState
         analytics.logEvent(`placed_full_trade_${entry.type}_order`)

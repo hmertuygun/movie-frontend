@@ -1,6 +1,7 @@
 import httpClient from 'services/http'
 import capitalize from 'utils/capitalizeFirstLetter'
 import createQueryString from 'utils/createQueryString'
+import { generateFullTradePayloadStructure } from 'utils/generateFullTradePayloadStructure'
 
 const BASE_URL_V1 = process.env.REACT_APP_API
 const BASE_URL_V2 = process.env.REACT_APP_API_V2
@@ -12,38 +13,13 @@ const placeOrder = async ({
   apiKeyName,
   exchange,
 }) => {
-  const newTargets = targets.map((target, index) => {
-    const { side, type, symbol, quantity, price, triggerPrice } = target
-    return {
-      targetNumber: index + 1,
-      percentage: (target.quantity / entry.quantity) * 100,
-      quantity,
-      side,
-      type,
-      symbol,
-      trigger: triggerPrice,
-      price,
-    }
+  let data = generateFullTradePayloadStructure({
+    entry,
+    targets,
+    stoploss,
+    apiKeyName,
+    exchange,
   })
-  const newStoploss = stoploss.map((stoploss) => {
-    const { side, type, symbol, quantity, triggerPrice, price } = stoploss
-    return {
-      side,
-      type,
-      symbol,
-      quantity,
-      trigger: triggerPrice,
-      price,
-      percentage: (stoploss.quantity / entry.quantity) * 100,
-    }
-  })
-  const data = {
-    entryOrder: entry,
-    targets: newTargets,
-    stopLoss: { ...newStoploss[0] },
-    exchange: exchange,
-    apiKeyName: apiKeyName,
-  }
   const apiUrl = `${BASE_URL_V2}createFullTrade`
   return await httpClient(apiUrl, 'POST', data)
 }

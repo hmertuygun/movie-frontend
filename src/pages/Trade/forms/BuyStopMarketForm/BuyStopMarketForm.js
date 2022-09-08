@@ -3,7 +3,7 @@ import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import { notify } from 'reapop'
 
-import { createBasicTrade } from 'services/api'
+import { createBasicTrade, sendOrderInfo } from 'services/api'
 
 import {
   addPrecisionToNumber,
@@ -386,6 +386,11 @@ const BuyStopMarketForm = () => {
             notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
           )
         } else {
+          let data = {
+            orders: payload,
+            status_code: res.status,
+          }
+          sendOrderInfo(data)
           dispatch(notify(MESSAGES['order-created'], 'success'))
           analytics.logEvent('placed_buy_stop_market_order')
           trackEvent(

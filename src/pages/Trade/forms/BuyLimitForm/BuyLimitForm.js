@@ -5,7 +5,7 @@ import { faWallet, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as yup from 'yup'
 
-import { createBasicTrade } from 'services/api'
+import { createBasicTrade, sendOrderInfo } from 'services/api'
 import OrderWarningModal from '../../components/OrderWarningModal'
 import {
   addPrecisionToNumber,
@@ -23,6 +23,7 @@ import { InlineInput, Button } from 'components'
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import MESSAGES from 'constants/Messages'
+import { responsiveFontSizes } from '@material-ui/core'
 
 const BuyLimitForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -402,6 +403,11 @@ const BuyLimitForm = () => {
           notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
         )
       } else {
+        let data = {
+          orders: payload,
+          status_code: res.status,
+        }
+        sendOrderInfo(data)
         dispatch(notify(MESSAGES['order-created'], 'success'))
         analytics.logEvent('placed_buy_limit_order')
         trackEvent('user', 'placed_buy_limit_order', 'placed_buy_limit_order')
