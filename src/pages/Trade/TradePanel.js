@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react'
+import dayjs from 'dayjs'
 import { X } from 'react-feather'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -56,6 +57,8 @@ import { resetTradeState, updateIsOrderPlaced } from 'store/actions'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import Auth2FAModal from 'pages/Auth/Auth2FAModal'
+import { useInterval } from 'hooks'
 
 const TradePanel = () => <Trade />
 
@@ -63,9 +66,12 @@ const Trade = () => {
   const { refreshBalance } = useSymbolContext()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [show2FAModal, setShow2FAModal] = useState(false)
   const { activeExchange } = useSelector((state) => state.exchanges)
   const { tradeState } = useSelector((state) => state.simpleTrade)
+  const { tokenExpiry } = useSelector((state) => state.apiKeys)
   const { setIsTradePanelOpen } = useContext(TabContext)
+  const [remainingMinutes, setRemainingMinutes] = useState()
 
   const { selectedSymbol } = useSelector((state) => state.symbols)
 
@@ -135,16 +141,36 @@ const Trade = () => {
   ])
 
   useEffect(() => {
+    updateRemainingMinutes()
+  }, [show2FAModal])
+
+  useEffect(() => {
     dispatch(resetTradeState())
   }, [resetTradeState, selectedSymbol])
+
+  useInterval(() => {
+    updateRemainingMinutes()
+  }, 20000)
+
+  const updateRemainingMinutes = () => {
+    let minutes = Math.ceil(
+      dayjs(new Date(tokenExpiry)).diff(dayjs(), 'minute')
+    )
+    if (minutes >= 0) {
+      setShow2FAModal(false)
+    }
+    setRemainingMinutes(minutes)
+  }
 
   let isStepTwo = useMemo(
     () => Object.keys(tradeState).includes('entry'),
     [tradeState]
   )
 
+  let isValid = useMemo(() => remainingMinutes >= 0, [remainingMinutes])
   return (
     <Fragment>
+      {show2FAModal && <Auth2FAModal />}
       <>
         <SymbolSelect showOnlyMarketSelection={true} />
         <div
@@ -158,7 +184,20 @@ const Trade = () => {
           hadDropDown={false}
           className="mobile-tab-2"
         >
-          <div style={{ marginTop: '2rem' }}>
+          <div style={{ marginTop: '1rem' }}>
+            {isValid ? (
+              <p className="mb-1 text-sm text-success">You have a valid 2FA</p>
+            ) : (
+              <div className="d-flex align-items-center justify-content-between mb-1">
+                <p className="mb-1 text-sm text-danger">Your 2FA got expired</p>
+                <button
+                  className="btn btn-primary btn-xs"
+                  onClick={() => setShow2FAModal(true)}
+                >
+                  Add 2FA
+                </button>
+              </div>
+            )}
             <ButtonNavigator labelArray={['BUY', 'SELL']}>
               <TabNavigator
                 key="buy-tab-nav"
@@ -189,7 +228,20 @@ const Trade = () => {
               </TabNavigator>
             </ButtonNavigator>
           </div>
-          <div style={{ marginTop: '2.4rem' }}>
+          <div style={{ marginTop: '1rem' }}>
+            {isValid ? (
+              <p className="mb-1 text-sm text-success">You have a valid 2FA</p>
+            ) : (
+              <div className="d-flex align-items-center justify-content-between mb-1">
+                <p className="mb-1 text-sm text-danger">Your 2FA got expired</p>
+                <button
+                  className="btn btn-primary btn-xs"
+                  onClick={() => setShow2FAModal(true)}
+                >
+                  Add 2FA
+                </button>
+              </div>
+            )}
             <ButtonNavigator
               labelArray={['BUY', 'SELL']}
               style={{ pointerEvents: 'none' }}
