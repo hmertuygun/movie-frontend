@@ -191,6 +191,7 @@ const QuickLogin = () => {
                     type="submit"
                     className="btn btn-block btn-primary"
                     disabled={isLoading || isDisabled}
+                    id="cp-signin"
                   >
                     {isLoading ? (
                       <span

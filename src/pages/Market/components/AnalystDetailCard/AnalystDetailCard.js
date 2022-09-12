@@ -13,21 +13,7 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
 
   //For flutter app
   const handleSocialIcon = (value) => {
-    window.addEventListener('flutterInAppWebViewPlatformReady', (event) => {
-      window.flutter_inappwebview
-        .callHandler('social', value)
-        .then(function (result) {
-          // get result from Flutter side. It will be the number 64.
-          console.log(result)
-        })
-    })
-    window.addEventListener('flutterInAppWebViewPlatformReady', (event) => {
-      window.flutter_inappwebview.callHandler('testFuncArgs', 1)
-      window.flutter_inappwebview.callHandler('testFunc')
-      window.Print.postMessage('Hello World being called from Javascript code')
-      window.postMessage('Hello World being called from Javascript')
-      window.CHANNEL_NAME.postMessage('Hello from JS')
-    })
+    window?.SOCIAL_CALL?.postMessage(value)
   }
 
   return (
