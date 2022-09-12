@@ -7,11 +7,7 @@ import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
 import { UserContext } from 'contexts/UserContext'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  addUserExchange,
-  updateLastSelectedValue,
-  getFirestoreDocumentData,
-} from 'services/api'
+import { addUserExchange } from 'services/api'
 import { useHistory } from 'react-router-dom'
 import { validationRules } from 'constants/ExchangeOptions'
 import './index.css'
@@ -27,6 +23,8 @@ import {
   updateTotalExchanges,
   updateSubscriptionsDetails,
   handleOnboardingSkip,
+  getApiKeys,
+  saveApiKeys,
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
@@ -35,7 +33,9 @@ import { getAllowedExchanges } from 'utils/exchangeSelection'
 const OnboardingModal = () => {
   const { isLoggedIn } = useContext(UserContext)
   const { loadApiKeys } = useSelector((state) => state.apiKeys)
-  const { userData, userState } = useSelector((state) => state.users)
+  const { userData, userState, firstLogin } = useSelector(
+    (state) => state.users
+  )
   const { isOnboardingSkipped, onTour } = useSelector((state) => state.appFlow)
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const history = useHistory()
@@ -151,7 +151,9 @@ const OnboardingModal = () => {
         setError(true)
       } else {
         let value = `${apiName}__${exchange.value}`
-        await updateLastSelectedValue(userData.email, value)
+        await saveApiKeys({
+          activeLastSelected: value,
+        })
         dispatch(refreshExchanges(userData))
         setStepNo(step + 1)
         dispatch(notify(MESSAGES['api-key-added'], 'success'))
@@ -207,25 +209,25 @@ const OnboardingModal = () => {
     } else if (step === 3) {
       session.clear()
       try {
-        getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
-          if (apiKey.data()) {
-            let apiKeys = sortExchangesData(apiKey.data())
-            if (apiKeys) {
-              dispatch(updateTotalExchanges(apiKeys))
-              dispatch(
-                updateActiveExchange({
-                  label: `${exchange.value} - ${apiName}`,
-                  value: `${exchange.value} - ${apiName}`,
-                  apiKeyName: apiName,
-                  exchange: exchange.value,
-                })
-              )
-              dispatch(refreshExchanges(userData))
-              dispatch(updateOnTour(!onTour))
-              dispatch(updateSubscriptionsDetails(userState, userData))
-            }
+        let apiKey = await dispatch(getApiKeys())
+        apiKey = apiKey.payload.data
+        if (apiKey) {
+          const apiKeys = sortExchangesData(apiKey)
+          if (apiKeys) {
+            dispatch(updateTotalExchanges(apiKeys))
+            dispatch(
+              updateActiveExchange({
+                label: `${exchange.value} - ${apiName}`,
+                value: `${exchange.value} - ${apiName}`,
+                apiKeyName: apiName,
+                exchange: exchange.value,
+              })
+            )
+            dispatch(refreshExchanges(userData))
+            dispatch(updateOnTour(!onTour))
+            dispatch(updateSubscriptionsDetails(firstLogin))
           }
-        })
+        }
       } catch (e) {
         consoleLogger(e)
       } finally {

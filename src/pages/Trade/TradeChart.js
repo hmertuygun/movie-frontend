@@ -6,17 +6,15 @@ import { ThemeContext } from 'contexts/ThemeContext'
 import TradingViewChart from './components/TradingViewChart/TradingViewChart'
 import { useLocalStorage } from '@rehooks/local-storage'
 import { saveChartIntervals, saveTimeZone } from 'services/api'
-import { firebase } from 'services/firebase'
-import { getSnapShotDocument } from 'services/api'
 import { storage } from 'services/storages'
-import lzutf8 from 'lzutf8'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  backupChartDrawing,
+  getChartDrawing,
   setActiveAnalysts,
   updateActiveDrawing,
   updateActiveDrawingId,
   updateAddedDrawing,
-  updateChartDrawings,
   updateIsChartReady,
   updateIsTradersModalOpen,
   updateTemplateDrawingsOpen,
@@ -34,12 +32,11 @@ const TradeChart = () => {
     (state) => state.templates
   )
   const { watchListOpen } = useSelector((state) => state.market)
-  const { chartData } = useSelector((state) => state.charts)
+  const { chartData, chartMetaData } = useSelector((state) => state.charts)
   const { activeTrader } = useSelector((state) => state.trades)
-  const { selectEmojiPopoverOpen } = useSelector((state) => state.emojis)
+  const { selectEmojiPopoverOpen } = useSelector((state) => state.analysts)
   const { exchangeType } = useSelector((state) => state.exchanges)
   const dispatch = useDispatch()
-  const db = firebase.firestore()
   const { theme } = useContext(ThemeContext)
   const isMobile = useMediaQuery({ query: `(max-width: 991.98px)` })
   const history = useHistory()
@@ -49,12 +46,12 @@ const TradeChart = () => {
   const { openOrdersUC } = useSelector((state) => state.orders)
   const { chartMirroring, addedDrawing, chartDrawings, settingChartDrawings } =
     useSelector((state) => state.charts)
+  const { allAnalysts } = useSelector((state) => state.analysts)
 
   const [lsIntervalValue] = useLocalStorage('tradingview.IntervalWidget.quicks')
   const [lsTimeZoneValue] = useLocalStorage('tradingview.chartproperties')
-  const [drawings, setDrawings] = useState()
   const [exchange, setExchange] = useState(exchangeType)
-  const [onError, setOnError] = useState(false)
+  const [onError] = useState(false)
   const [onMarket, setOnMarket] = useState(false)
 
   useEffect(() => {
@@ -67,7 +64,7 @@ const TradeChart = () => {
   }, [])
 
   useEffect(() => {
-    if (!isAnalyst) dispatch(setActiveAnalysts(userData))
+    if (!isAnalyst) dispatch(setActiveAnalysts(chartMetaData, allAnalysts))
   }, [isAnalyst])
 
   useEffect(() => {
@@ -83,44 +80,10 @@ const TradeChart = () => {
   }, [selectedSymbol])
 
   useEffect(() => {
-    const unsubscribe = getSnapShotDocument(
-      'chart_drawings',
-      userData.email
-    ).onSnapshot(
-      (snapshot) => {
-        if (snapshot.data()?.drawings?.[userData.email]) {
-          let converted = ''
-          try {
-            converted = snapshot.data()?.drawings?.[userData.email]
-            const check = JSON.parse(
-              snapshot.data()?.drawings?.[userData.email]
-            )
-            consoleLogger('old')
-          } catch (error) {
-            converted = lzutf8.decompress(
-              snapshot.data()?.drawings?.[userData.email],
-              { inputEncoding: 'Base64' }
-            )
-          } finally {
-            setDrawings(converted)
-            dispatch(updateChartDrawings(converted))
-          }
-        } else if (
-          !snapshot.data()?.drawings &&
-          snapshot.data()?.lastSelectedSymbol
-        ) {
-          setDrawings([])
-        } else {
-          setOnError(true)
-        }
-      },
-      (error) => {
-        consoleLogger(error)
-        setOnError(true)
-      }
-    )
-    return () => unsubscribe()
-  }, [db, userData])
+    return () => {
+      dispatch(getChartDrawing())
+    }
+  }, [userData])
 
   useEffect(() => {
     if (lsIntervalValue && lsIntervalValue.length)
@@ -159,6 +122,7 @@ const TradeChart = () => {
   }
 
   const createBackup = (drawing) => {
+    dispatch(backupChartDrawing(drawing))
     consoleLogger('execute backup function')
   }
 

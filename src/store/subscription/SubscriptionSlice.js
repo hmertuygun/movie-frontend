@@ -36,4 +36,14 @@ const subscriptionSlice = createSlice({
   },
 })
 
-export default subscriptionSlice
+export const {
+  setIsCheckingSub,
+  setHasSub,
+  setSubscriptionData,
+  setTrialDaysLeft,
+  setIsPaidUser,
+  setCreateSubscription,
+  setSubscriptionError,
+} = subscriptionSlice.actions
+
+export default subscriptionSlice.reducer

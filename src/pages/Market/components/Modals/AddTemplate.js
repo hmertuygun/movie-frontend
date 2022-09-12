@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import capitalize from 'utils/capitalizeFirstLetter'
 import { Modal } from 'components'
+import PropTypes from 'prop-types'
 
 const AddTemplate = ({ onClose, onSave, name }) => {
   const [templateName, setTemplateName] = useState('')
@@ -74,6 +75,12 @@ const AddTemplate = ({ onClose, onSave, name }) => {
       </form>
     </Modal>
   )
+}
+
+AddTemplate.propTypes = {
+  onClose: PropTypes.func,
+  onSave: PropTypes.func,
+  name: PropTypes.string,
 }
 
 export default AddTemplate

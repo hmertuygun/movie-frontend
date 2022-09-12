@@ -16,7 +16,6 @@ const refreshSlice = createSlice({
       state.disableOpenOrdersRefreshBtn = action.payload
     },
     setDisablePortfolioRefreshBtn: (state, action) => {
-      console.log('setDisablePortfolioRefreshBtn', action)
       state.disablePortfolioRefreshBtn = action.payload
     },
     setDisableAnalyticsRefreshBtn: (state, action) => {

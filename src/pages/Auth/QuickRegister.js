@@ -7,17 +7,18 @@ import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import { useQuery } from 'hooks'
 import './QuickRegister.css'
-import {
-  initDrawingDocuments,
-  initUserData,
-  updateSingleValue,
-} from 'services/api/Firestore'
 import { DEFAULT_SYMBOL } from 'constants/Default'
 import DefaultRegisterTemplate from './components/templates/default'
 import ChartRegisterTemplate from './components/templates/chartMirroring'
 import BybitRegisterTemplate from './components/templates/bybitTemplate'
 import { useDispatch, useSelector } from 'react-redux'
-import { register } from 'store/actions'
+import {
+  register,
+  saveChartDrawings,
+  saveInitialUserData,
+  saveReferrals,
+  saveStripeUsers,
+} from 'store/actions'
 import { fbPixelTracking } from 'services/tracking'
 import { consoleLogger } from 'utils/logger'
 import { ThemeContext } from 'contexts/ThemeContext'
@@ -36,7 +37,7 @@ const QuickRegister = () => {
   const [validForm, setValidForm] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [country, setCountry] = useState('')
-  const [registerType, setRegisterType] = useState(query.get('t'))
+  const [registerType] = useState(query.get('t'))
   const { theme } = useContext(ThemeContext)
 
   const dispatch = useDispatch()
@@ -123,21 +124,27 @@ const QuickRegister = () => {
             if (response?.user) {
               try {
                 if (refId)
-                  await updateSingleValue(response?.user?.uid, 'stripe_users', {
-                    refId: refId,
+                  await dispatch(
+                    saveStripeUsers({
+                      refId: refId,
+                    })
+                  )
+                await dispatch(
+                  saveChartDrawings({
+                    lastSelectedSymbol: DEFAULT_SYMBOL,
                   })
-                await initDrawingDocuments(email, {
-                  lastSelectedSymbol: DEFAULT_SYMBOL,
-                })
+                )
 
-                await initUserData(email, {
-                  country: country,
-                  firstLogin: true,
-                })
+                await dispatch(
+                  saveInitialUserData({
+                    country: country,
+                    firstLogin: true,
+                  })
+                )
                 const referals = getReferral(response.user.uid)
 
                 if (referals) {
-                  await updateSingleValue(email, 'referrals', referals)
+                  await dispatch(saveReferrals(referals))
                 }
               } catch (error) {
                 consoleLogger('==>', error)

@@ -6,15 +6,22 @@ import { Popover } from 'react-tiny-popover'
 import { Modal, Loader } from 'components'
 import { QuoteAssets } from 'constants/QuoteAssets'
 import styles from '../../css/WatchListPanel.module.css'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { DEFAULT_ACTIVE_EXCHANGE } from 'constants/Default'
 import { EXCHANGES } from 'constants/Exchanges'
 import { getAllowedExchanges } from 'utils/exchangeSelection'
+import { saveWatchList } from 'store/actions'
+import { notify } from 'reapop'
+import MESSAGES from 'constants/Messages'
 
-const NewWatchListItem = ({ symbolsList, handleChange }) => {
+const NewWatchListItem = () => {
   const [selectPopoverOpen, setSelectPopoverOpen] = useState(false)
   const { symbols } = useSelector((state) => state.symbols)
   const { isCanaryUser } = useSelector((state) => state.users)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { activeWatchList, symbolsList } = useSelector(
+    (state) => state.watchlist
+  )
   const [selectedSymbols, setSelectedSymbols] = useState([])
   const [searchText, setSearchText] = useState('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -23,6 +30,8 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
   )
   const [loading, setLoading] = useState(true)
   const [filteredItem, setFilteredItem] = useState([])
+  const dispatch = useDispatch()
+
   const extractExchange = (symbol) => {
     if (symbol) return symbol.split(':')[0]
   }
@@ -103,6 +112,28 @@ const NewWatchListItem = ({ symbolsList, handleChange }) => {
   const onModalClose = () => {
     setSearchText('')
     setSelectPopoverOpen(false)
+  }
+
+  const handleChange = (symbol) => {
+    const symbols = [...symbolsList, { ...symbol, flag: 0 }].map((item) => ({
+      label: item.label,
+      value: item.value,
+      flag: item.flag || 0,
+    }))
+    try {
+      const { watchListName } = activeWatchList
+      const data = {
+        lists: {
+          [watchListName]: {
+            watchListName: watchListName,
+            [activeExchange.exchange]: symbols,
+          },
+        },
+      }
+      dispatch(saveWatchList(data))
+    } catch (error) {
+      dispatch(notify(MESSAGES['watchlist-failed'], 'error'))
+    }
   }
 
   return (

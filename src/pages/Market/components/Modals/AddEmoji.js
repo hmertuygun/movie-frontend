@@ -5,18 +5,60 @@ import Picker from 'emoji-picker-react'
 import { Modal } from 'components'
 import { storage } from 'services/storages'
 import styles from '../../css/AddEmoji.module.css'
-import { updateEmojis } from 'store/actions'
+import { saveAnalystFlags, saveWatchList, updateEmojis } from 'store/actions'
+import PropTypes from 'prop-types'
+import { consoleLogger } from 'utils/logger'
 
 const AddEmoji = ({
   onClose,
   isLoading,
-  onSave,
   setIsEmojiDeleted,
   isEmojiDeleted,
 }) => {
   const [showEmojis, setShowEmojis] = useState(null)
-  const { emojis } = useSelector((state) => state.emojis)
+  const { emojis } = useSelector((state) => state.analysts)
+  const { userData } = useSelector((state) => state.users)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { activeWatchList, symbolsList } = useSelector(
+    (state) => state.watchlist
+  )
   const dispatch = useDispatch()
+
+  const handleSaveEmoji = () => {
+    dispatch(saveAnalystFlags(userData.email, emojis))
+    onClose()
+    if (isEmojiDeleted.length) {
+      handleEmojiDeleteAssigning()
+      setIsEmojiDeleted([])
+    }
+  }
+
+  const handleEmojiDeleteAssigning = async () => {
+    const symbol = symbolsList.map((symbol) => {
+      if (isEmojiDeleted.includes(symbol.flag)) {
+        return { ...symbol, flag: 0 }
+      }
+      return symbol
+    })
+    const symbols = symbol.map((item) => ({
+      label: item.label,
+      value: item.value,
+      flag: item.flag,
+    }))
+    try {
+      let data = {
+        lists: {
+          [activeWatchList.watchListName]: {
+            watchListName: activeWatchList.watchListName,
+            [activeExchange.exchange]: symbols,
+          },
+        },
+      }
+      dispatch(saveWatchList(data))
+    } catch (error) {
+      consoleLogger(error)
+    }
+  }
 
   const handleEmojiClick = (e, data, id) => {
     setShowEmojis(null)
@@ -145,7 +187,7 @@ const AddEmoji = ({
           <div className="modal-footer">
             <button
               disabled={isLoading}
-              onClick={onSave}
+              onClick={handleSaveEmoji}
               className="btn btn-primary"
             >
               {!isLoading ? (
@@ -171,6 +213,13 @@ const AddEmoji = ({
       </div>
     </Modal>
   )
+}
+
+AddEmoji.propTypes = {
+  onClose: PropTypes.func,
+  isLoading: PropTypes.bool,
+  setIsEmojiDeleted: PropTypes.func,
+  isEmojiDeleted: PropTypes.bool,
 }
 
 export default AddEmoji

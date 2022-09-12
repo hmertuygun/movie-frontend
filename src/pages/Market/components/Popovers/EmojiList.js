@@ -1,16 +1,61 @@
 import { Popover } from 'react-tiny-popover'
 import { Flag, Edit } from 'react-feather'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
+import { storage } from 'services/storages'
+import {
+  saveWatchList,
+  updateSelectEmojiPopoverOpen as setIsOpen,
+} from 'store/actions'
+import { consoleLogger } from 'utils/logger'
+import { notify } from 'reapop'
+import MESSAGES from 'constants/Messages'
 
-const EmojiList = ({
-  styles,
-  isOpen,
-  setEmojiListOpen,
-  emojis,
-  handleEmojiAssigning,
-  setAddEmojiModalOpen,
-}) => {
+const EmojiList = ({ styles, setAddEmojiModalOpen }) => {
+  const { emojis, selectEmojiPopoverOpen: isOpen } = useSelector(
+    (state) => state.analysts
+  )
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { activeWatchList, symbolsList } = useSelector(
+    (state) => state.watchlist
+  )
   const dispatch = useDispatch()
+
+  const handleEmojiAssigning = async (value) => {
+    try {
+      const selectedSymbol = storage.get('selectedSymbol').toUpperCase()
+      const selectedExchange = storage.get('selectedExchange').toUpperCase()
+      const list = symbolsList
+        .map((item) => ({
+          label: item.label,
+          value: item.value,
+          flag: item.flag ? item.flag : 0,
+        }))
+        .map((item) => {
+          if (item.value === `${selectedExchange}:${selectedSymbol}`) {
+            return {
+              ...item,
+              flag: value,
+            }
+          }
+          return item
+        })
+      const { watchListName } = activeWatchList
+      let data = {
+        lists: {
+          [watchListName]: {
+            watchListName: watchListName,
+            [activeExchange.exchange]: list,
+          },
+        },
+      }
+      await dispatch(saveWatchList(data))
+    } catch (error) {
+      consoleLogger(error)
+      dispatch(notify(MESSAGES['emoji-failed'], 'error'))
+    }
+  }
+
   return (
     <Popover
       key="watchlist-emoji-popover"
@@ -19,7 +64,7 @@ const EmojiList = ({
       align="center"
       padding={10}
       reposition={false}
-      onClickOutside={() => dispatch(setEmojiListOpen(false))}
+      onClickOutside={() => dispatch(setIsOpen(false))}
       content={({ position, nudgedLeft, nudgedTop }) => (
         <div className={styles.emojiPopover}>
           <div className={styles.emojiContainer}>
@@ -50,13 +95,18 @@ const EmojiList = ({
           isOpen ? styles.watchListControlSelected : ''
         }`}
         onClick={() => {
-          dispatch(setEmojiListOpen(true))
+          dispatch(setIsOpen(true))
         }}
       >
         <Flag />
       </div>
     </Popover>
   )
+}
+
+EmojiList.propTypes = {
+  styles: PropTypes.object,
+  setAddEmojiModalOpen: PropTypes.func,
 }
 
 export default EmojiList

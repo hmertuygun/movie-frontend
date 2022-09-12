@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { getPlatformMessages, getUserNotices } from './AppFlowActions'
 
 const appFlowSlice = createSlice({
   name: 'appFlow',
@@ -13,11 +14,11 @@ const appFlowSlice = createSlice({
     onSecondTour: false,
     tour2CurrentStep: 0,
     twofaSecretKey: '',
-    country: '',
-    isCountryAvailable: true,
     endTrial: false,
     needPayment: false,
     showSubModalIfLessThan7Days: false,
+    platformMessages: [],
+    userNotices: [],
   },
   reducers: {
     setIsOnboardingSkipped: (state, action) => {
@@ -47,12 +48,6 @@ const appFlowSlice = createSlice({
     setTwofaSecretKey: (state, action) => {
       state.twofaSecretKey = action.payload
     },
-    setCountry: (state, action) => {
-      state.country = action.payload
-    },
-    setIsCountryAvailable: (state, action) => {
-      state.isCountryAvailable = action.payload
-    },
     setEndTrial: (state, action) => {
       state.endTrial = action.payload
     },
@@ -63,6 +58,34 @@ const appFlowSlice = createSlice({
       state.showSubModalIfLessThan7Days = action.payload
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(getPlatformMessages.fulfilled, (state, action) => {
+      let platformMessages = action.payload.data.data.map((item) => {
+        const key = Object.keys(item)[0]
+        return { id: key, ...item[key] }
+      })
+      state.platformMessages = platformMessages
+    })
+    builder.addCase(getUserNotices.fulfilled, (state, action) => {
+      const userNotices = action?.payload?.data.data || []
+      state.userNotices = userNotices
+    })
+  },
 })
 
-export default appFlowSlice
+export const {
+  setIsOnboardingSkipped,
+  setRememberCheck,
+  setLoaderVisible,
+  setOnTour,
+  setIsTourStep5,
+  setIsTourFinished,
+  setOnSecondTour,
+  setTour2CurrentStep,
+  setTwofaSecretKey,
+  setEndTrial,
+  setNeedPayment,
+  setShowSubModal,
+} = appFlowSlice.actions
+
+export default appFlowSlice.reducer

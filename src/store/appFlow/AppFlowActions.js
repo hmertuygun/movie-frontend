@@ -1,11 +1,8 @@
 import { storage } from 'services/storages'
-import appFlowSlice from './AppFlowSlice'
 import { firebase } from 'services/firebase'
 import { getSocketEndpoint } from 'services/exchanges'
 import Ping from 'utils/ping'
-
-const p = new Ping({ favicon: '' })
-const {
+import {
   setIsOnboardingSkipped,
   setRememberCheck,
   setLoaderVisible,
@@ -15,15 +12,17 @@ const {
   setOnSecondTour,
   setTour2CurrentStep,
   setTwofaSecretKey,
-  setCountry,
-  setIsCountryAvailable,
   setEndTrial,
   setNeedPayment,
   setShowSubModal,
-} = appFlowSlice.actions
+} from './AppFlowSlice'
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import { fetchPlatformMessages, fetchUserNotices } from 'services/api'
 
-const updateIsOnboardingSkipped = (emojis) => async (dispatch) => {
-  dispatch(setIsOnboardingSkipped(emojis))
+const p = new Ping({ favicon: '' })
+
+const updateIsOnboardingSkipped = (value) => async (dispatch) => {
+  dispatch(setIsOnboardingSkipped(value))
 }
 
 const updateRememberCheck = (value) => async (dispatch) => {
@@ -49,12 +48,6 @@ const updateTour2CurrentStep = (value) => async (dispatch) => {
 }
 const updateTwofaSecretKey = (value) => async (dispatch) => {
   dispatch(setTwofaSecretKey(value))
-}
-const updateCountry = (value) => async (dispatch) => {
-  dispatch(setCountry(value))
-}
-const updateIsCountryAvailable = (value) => async (dispatch) => {
-  dispatch(setIsCountryAvailable(value))
 }
 const updateEndTrial = (value) => async (dispatch) => {
   dispatch(setEndTrial(value))
@@ -88,23 +81,6 @@ const sendEmailAgain = (userState) => async (dispatch) => {
   }
 }
 
-const handleCountry = (email, userState) => async (dispatch) => {
-  await firebase
-    .firestore()
-    .collection('user_data')
-    .doc(email)
-    .get()
-    .then((doc) => {
-      if (doc && doc.data()) {
-        dispatch(updateCountry(doc.data().country))
-
-        dispatch(updateIsCountryAvailable(true))
-      } else {
-        dispatch(updateIsCountryAvailable(false))
-      }
-    })
-}
-
 const makePing = async (url) => {
   return new Promise(function (resolve, reject) {
     try {
@@ -134,6 +110,17 @@ const findFastServer = (urls) => async (dispatch) => {
   })
 }
 
+const getPlatformMessages = createAsyncThunk(
+  'messages/getPlatformMessages',
+  async () => {
+    return await fetchPlatformMessages()
+  }
+)
+
+const getUserNotices = createAsyncThunk('user/noticeList', async () => {
+  return await fetchUserNotices()
+})
+
 export {
   updateIsOnboardingSkipped,
   updateRememberCheck,
@@ -144,14 +131,13 @@ export {
   updateOnSecondTour,
   updateTour2CurrentStep,
   updateTwofaSecretKey,
-  updateCountry,
-  updateIsCountryAvailable,
   updateEndTrial,
   updateNeedPayment,
   updateShowSubModal,
   handleOnboardingSkip,
   handleOnboardingShow,
   sendEmailAgain,
-  handleCountry,
   findFastServer,
+  getPlatformMessages,
+  getUserNotices,
 }

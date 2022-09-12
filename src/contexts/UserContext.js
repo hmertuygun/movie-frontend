@@ -8,10 +8,9 @@ import {
   getUserExchangesAfterFBInit,
   getProducts,
   fetchAnalysts,
-  handleCountry,
   findFastServer,
-  handleFirstLogin,
   updateCanaryUser,
+  getUserData,
 } from 'store/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { URLS } from 'constants/config'
@@ -21,18 +20,15 @@ export const UserContext = createContext()
 const UserContextProvider = ({ children }) => {
   storage.remove('tradingview.IntervalWidget.quicks')
 
-  const { userData, userState } = useSelector((state) => state.users)
+  const { userData, userState, country, isCountryAvailable, firstLogin } =
+    useSelector((state) => state.users)
   const { totalExchanges } = useSelector((state) => state.exchanges)
-  const { isOnboardingSkipped, country, isCountryAvailable } = useSelector(
-    (state) => state.appFlow
-  )
+  const { isOnboardingSkipped } = useSelector((state) => state.appFlow)
   const dispatch = useDispatch()
 
   useEffect(() => {
     const onboarding = storage.get('onboarding')
     storage.set('proxyServer', URLS[0])
-    dispatch(getUserExchangesAfterFBInit(userData, isOnboardingSkipped))
-    dispatch(getProducts())
     dispatch(findFastServer(URLS))
     dispatch(updateIsOnboardingSkipped(onboarding === 'skipped'))
   }, [])
@@ -40,29 +36,11 @@ const UserContextProvider = ({ children }) => {
   useEffect(() => {
     if (userData.email) {
       if (!country) {
-        dispatch(handleCountry(userData.email, userState))
+        dispatch(getUserData())
       }
       dispatch(fetchAnalysts(userData))
     }
   }, [country, isCountryAvailable, userData])
-
-  useEffect(() => {
-    if (userData) {
-      dispatch(updateSubscriptionsDetails(userState, userData))
-      dispatch(handleFirstLogin(userData.email, userState))
-      dispatch(updateCanaryUser())
-    }
-  }, [userData])
-
-  useEffect(() => {
-    if (isOnboardingSkipped) {
-      dispatch(initExchanges(userData, isOnboardingSkipped))
-    }
-  }, [isOnboardingSkipped])
-
-  useEffect(() => {
-    dispatch(initExchanges(userData, isOnboardingSkipped))
-  }, [userData.email])
 
   useEffect(() => {
     if (!totalExchanges || !totalExchanges.length) return
@@ -79,6 +57,27 @@ const UserContextProvider = ({ children }) => {
     userState.user &&
     (!userState.has2FADetails || userState.is2FAVerified)
   const isLoggedInWithFirebase = userState && userState.user
+
+  useEffect(() => {
+    if (userData && isLoggedIn) {
+      dispatch(updateSubscriptionsDetails(firstLogin))
+      dispatch(getUserData())
+      dispatch(updateCanaryUser())
+    }
+  }, [userData, firstLogin, isLoggedIn])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (userData.email) dispatch(initExchanges(userData, isOnboardingSkipped))
+    }
+  }, [userData.email, isOnboardingSkipped, isLoggedIn])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(getUserExchangesAfterFBInit(userData, isOnboardingSkipped))
+      dispatch(getProducts())
+    }
+  }, [isLoggedIn])
 
   if (isLoggedIn) session.set('remember', true)
   return (

@@ -1,13 +1,38 @@
-import templateSlice from './TemplateSlice'
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import httpClient from 'services/http'
+import { API_URLS } from 'constants/config'
+import { setTemplateDrawings, setTemplateDrawingsOpen } from './TemplateSlice'
 
-const { setTemplateDrawings, setTemplateDrawingsOpen } = templateSlice.actions
-
-const updateTemplateDrawings = (value) => async (dispatch) => {
-  dispatch(setTemplateDrawings(value))
+const updateTemplateDrawings = (data) => (dispatch) => {
+  dispatch(setTemplateDrawings(data))
+}
+const updateTemplateDrawingsOpen = (data) => (dispatch) => {
+  dispatch(setTemplateDrawingsOpen(data))
 }
 
-const updateTemplateDrawingsOpen = (value) => async (dispatch) => {
-  dispatch(setTemplateDrawingsOpen(value))
-}
+const templateUrl = `${API_URLS['chart']}/templates`
+const saveChartTemplate = createAsyncThunk(
+  'chart/saveTemplate',
+  async (template) => {
+    return await httpClient(templateUrl, 'POST', { data: template })
+  }
+)
 
-export { updateTemplateDrawings, updateTemplateDrawingsOpen }
+const getChartTemplate = createAsyncThunk('chart/getTemplate', async () => {
+  return await httpClient(templateUrl, 'GET')
+})
+
+const deleteChartTemplate = createAsyncThunk(
+  'chart/deleteTemplate',
+  async (tempId) => {
+    return await httpClient(templateUrl, 'DELETE', { id: tempId })
+  }
+)
+
+export {
+  updateTemplateDrawings,
+  updateTemplateDrawingsOpen,
+  saveChartTemplate,
+  getChartTemplate,
+  deleteChartTemplate,
+}

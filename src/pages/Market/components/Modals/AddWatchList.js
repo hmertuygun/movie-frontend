@@ -1,24 +1,45 @@
 import React, { useState } from 'react'
 import { Modal } from 'components'
+import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
+import { saveWatchList } from 'store/actions'
+import { notify } from 'reapop'
+import MESSAGES from 'constants/Messages'
 
-const AddWatchList = ({ onClose, onSave, isLoading }) => {
+const AddWatchList = ({ onClose }) => {
   const [watchListName, setWatchListName] = useState('')
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const dispatch = useDispatch()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
+  const saveNewWatchlist = (ele) => {
+    ele.preventDefault()
     if (!watchListName) {
       setError('Name is required.')
+      return
     }
-
-    onSave({ watchListName })
+    setSaving(true)
+    try {
+      let data = {
+        lists: {
+          [watchListName]: { watchListName },
+        },
+      }
+      dispatch(saveWatchList(data)).then(() => {
+        dispatch(notify(MESSAGES['watchlist-created'], 'success'))
+        onClose()
+      })
+    } catch (error) {
+      dispatch(notify(MESSAGES['watchlist-failed'], 'error'))
+    } finally {
+      setSaving(false)
+    }
   }
   return (
     <Modal>
       <form
         className="modal-dialog modal-dialog-centered modal-sm"
-        onSubmit={handleSubmit}
+        onSubmit={saveNewWatchlist}
       >
         <div className="modal-content">
           <div className="modal-header">
@@ -43,7 +64,7 @@ const AddWatchList = ({ onClose, onSave, isLoading }) => {
                 </div>
                 <input
                   type="text"
-                  disabled={isLoading}
+                  disabled={saving}
                   className="form-control"
                   name="watchListName"
                   value={watchListName}
@@ -63,12 +84,8 @@ const AddWatchList = ({ onClose, onSave, isLoading }) => {
             </div>
           </div>
           <div className="modal-footer">
-            <button
-              disabled={isLoading}
-              type="submit"
-              className="btn btn-primary"
-            >
-              {!isLoading ? (
+            <button disabled={saving} type="submit" className="btn btn-primary">
+              {!saving ? (
                 'Create'
               ) : (
                 <span
@@ -91,6 +108,10 @@ const AddWatchList = ({ onClose, onSave, isLoading }) => {
       </form>
     </Modal>
   )
+}
+
+AddWatchList.propTypes = {
+  onClose: PropTypes.func,
 }
 
 export default AddWatchList

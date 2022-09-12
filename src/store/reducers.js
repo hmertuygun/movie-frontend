@@ -1,37 +1,39 @@
-import emojiSlice from './emojis/EmojiSlice'
 import exchangeSlice from './exchanges/ExchangeSlice'
-import marketSlice from './market/MarketSlice'
+import marketReducer from './market/MarketSlice'
 import orderSlice from './orders/OrderSlice'
 import refreshSlice from './refresh/RefreshSlice'
 import symbolSlice from './symbols/SymbolSlice'
-import templateSlice from './templates/TemplateSlice'
+import templateReducer from './templates/TemplateSlice'
 import tradeSlice from './trades/TradeSlice'
-import apiKeysSlice from './apiKeys/ApiKeysSlice'
-import usersSlice from './users/UsersSlice'
-import appFlowSlice from './appFlow/AppFlowSlice'
-import subscriptionSlice from './subscription/SubscriptionSlice'
-import chartSlice from './charts/ChartSlice'
+import apiKeysReducer from './apiKeys/ApiKeysSlice'
+import usersReducer from './users/UsersSlice'
+import appFlowReducer from './appFlow/AppFlowSlice'
+import subscriptionReducer from './subscription/SubscriptionSlice'
+import chartReducer from './charts/ChartSlice'
 import analyticsSlice from './analytics/AnalyticsSlice'
 import portfolioSlice from './portfolio/PortfolioSlice'
 import simpleTradeSlice from './simpleTrade/SimpleTradeSlice'
+import analystsReducer from './analysts/AnalystsSlice'
+import watchlistReducer from './watchlist/WatchlistSlice'
 import { reducer as notificationsReducer } from 'reapop'
 
 const symbols = symbolSlice.reducer,
   exchanges = exchangeSlice.reducer,
   refresh = refreshSlice.reducer,
   orders = orderSlice.reducer,
-  emojis = emojiSlice.reducer,
-  templates = templateSlice.reducer,
+  templates = templateReducer,
   trades = tradeSlice.reducer,
-  market = marketSlice.reducer,
-  apiKeys = apiKeysSlice.reducer,
-  users = usersSlice.reducer,
-  appFlow = appFlowSlice.reducer,
-  subscriptions = subscriptionSlice.reducer,
-  charts = chartSlice.reducer,
+  market = marketReducer,
+  apiKeys = apiKeysReducer,
+  users = usersReducer,
+  appFlow = appFlowReducer,
+  subscriptions = subscriptionReducer,
+  charts = chartReducer,
   analytics = analyticsSlice.reducer,
   portfolio = portfolioSlice.reducer,
   simpleTrade = simpleTradeSlice.reducer,
+  analysts = analystsReducer,
+  watchlist = watchlistReducer,
   notifications = notificationsReducer()
 
 export {
@@ -39,7 +41,6 @@ export {
   exchanges,
   refresh,
   orders,
-  emojis,
   templates,
   trades,
   market,
@@ -51,5 +52,7 @@ export {
   analytics,
   portfolio,
   simpleTrade,
+  analysts,
+  watchlist,
   notifications,
 }

@@ -1,22 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-loop-func */
 import React, { useState, useEffect, useCallback } from 'react'
-import { notify } from 'reapop'
-import { orderBy } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 
-import WatchListItem from './WatchListItem'
 import { AddEmoji, AddWatchList, NewWatchListItem } from '../components/Modals'
 import { GroupByFlag, CreateNewList, EmojiList } from '../components/Popovers'
 
 import { useSymbolContext } from 'contexts/SymbolContext'
-import { WATCHLIST_INIT_STATE, DEFAULT_WATCHLIST } from 'constants/Trade'
 import { ccxtClass } from 'constants/ccxtConfigs'
 import { exchangeSystems } from 'constants/ExchangeOptions'
-import { INFO } from 'constants/Info'
-
-import { firebase } from 'services/firebase'
-import { setWatchlistData, getSnapShotDocument, saveEmojis } from 'services/api'
 import {
   getIncomingSocket,
   getLastAndPercent,
@@ -25,144 +17,57 @@ import {
 import { watchPanelSocket } from 'services/websocket'
 import { consoleLogger } from 'utils/logger'
 
-import sortTemplate from 'utils/sortTemplate'
-
 import styles from '../css/WatchListPanel.module.css'
-import { updateSelectEmojiPopoverOpen } from 'store/actions'
-import MESSAGES from 'constants/Messages'
+import {
+  getWatchList,
+  updateSymbolsLists,
+  updateWatchSymbolsLists,
+} from 'store/actions'
+import WatchListTable from './WatchListTable'
 
 const WatchListPanel = () => {
   const { setSymbol } = useSymbolContext()
-  const { emojis, selectEmojiPopoverOpen } = useSelector(
-    (state) => state.emojis
-  )
   const { templateDrawingsOpen } = useSelector((state) => state.templates)
   const { activeTrader } = useSelector((state) => state.trades)
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { userData, isAnalyst } = useSelector((state) => state.users)
+  const { isAnalyst } = useSelector((state) => state.users)
+  const { activeWatchList, symbolsList, watchSymbolsList } = useSelector(
+    (state) => state.watchlist
+  )
 
-  const [watchListPopoverOpen, setWatchListPopoverOpen] = useState(false)
-  const [watchListOptionPopoverOpen, setWatchListOptionPopoverOpen] =
-    useState(false)
   const [addWatchListModalOpen, setAddWatchListModalOpen] = useState(false)
   const [addEmojiModalOpen, setAddEmojiModalOpen] = useState(false)
-  const [addWatchListLoading, setAddWatchListLoading] = useState(false)
-  const [watchLists, setWatchLists] = useState([])
-  const [activeWatchList, setActiveWatchList] = useState()
   const [marketData, setMarketData] = useState([])
-  const [watchSymbolsList, setWatchSymbolsList] = useState([])
   const [loading, setLoading] = useState(false)
-  const [symbolsList, setSymbolsList] = useState([])
-  const [templateWatchlist, setTemplateWatchlist] = useState()
-  const [orderSetting, setOrderSetting] = useState({
-    label: 'asc',
-  })
+
   const [isGroupByFlag, setIsGroupByFlag] = useState(false)
   const [isEmojiDeleted, setIsEmojiDeleted] = useState([])
-  const FieldValue = firebase.firestore.FieldValue
   const dispatch = useDispatch()
 
-  const initWatchList = useCallback(() => {
-    try {
-      setWatchlistData(userData.email, WATCHLIST_INIT_STATE)
-    } catch (err) {
-      consoleLogger(err)
-    }
-  }, [userData.email])
-
-  const updateWhenNoTemplates = () => {
-    getSnapShotDocument('watch_list', userData.email).onSnapshot((snapshot) => {
-      if (snapshot.data()) {
-        if (!snapshot.data()?.lists) {
-          initWatchList()
-          return
-        }
-        const lists = Object.keys(snapshot.data()?.lists)
-        setWatchLists(snapshot.data()?.lists)
-        const listsData = Object.values(snapshot.data()?.lists)
-
-        if (lists.length === 0) initWatchList()
-        else {
-          const activeList = listsData.find(
-            (list) => list.watchListName === snapshot.data()?.activeList
-          )
-
-          if (activeList) {
-            setWatchSymbolsList(activeList?.[activeExchange.exchange] ?? [])
-            setActiveWatchList(activeList)
-          }
-        }
-      } else {
-        initWatchList()
-        setWatchSymbolsList([])
-      }
-    })
-  }
-
-  const updateWhenTemplateOpen = () => {
-    getSnapShotDocument('watch_list', activeTrader.id).onSnapshot(
-      (snapshot) => {
-        if (snapshot.data()) {
-          const lists = Object.keys(snapshot.data()?.lists)
-          setWatchLists(snapshot.data()?.lists)
-          const listsData = Object.values(snapshot.data()?.lists)
-
-          setTemplateWatchlist(listsData)
-          if (lists.length === 0) {
-            // TODO IF SHELDONS WATCH LIST IS EMPTY
-          } else {
-            const activeList = listsData.find(
-              (list) => list.watchListName === snapshot.data()?.activeList
-            )
-
-            if (activeList) {
-              const items = Object.values(activeList).filter(
-                (element) => typeof element === 'object'
-              )
-              const mergedItems = [].concat
-                .apply([], items)
-                .filter(
-                  (v, i, a) => a.findIndex((v2) => v2.value === v.value) === i
-                )
-              setWatchSymbolsList(mergedItems ?? [])
-              setActiveWatchList(activeList)
-              if (mergedItems && mergedItems[0]) {
-                setSymbol(mergedItems[0])
-              }
-            }
-          }
-        }
-      }
-    )
-  }
+  useEffect(() => {
+    const email = templateDrawingsOpen ? activeTrader.id : null
+    dispatch(getWatchList(email))
+  }, [activeExchange.exchange, templateDrawingsOpen, activeTrader.id])
 
   useEffect(() => {
-    setLoading(true)
-    if (!templateDrawingsOpen) {
-      try {
-        updateWhenNoTemplates()
-      } catch (error) {
-        consoleLogger(INFO['EMPTY_WATCH_LIST'])
-      } finally {
-        setLoading(false)
+    let data = []
+    if (templateDrawingsOpen) {
+      const items = Object.values(activeWatchList).filter(
+        (element) => typeof element === 'object'
+      )
+      const mergedItems = [].concat
+        .apply([], items)
+        .filter((v, i, a) => a.findIndex((v2) => v2.value === v.value) === i)
+      if (mergedItems && mergedItems[0]) {
+        setSymbol(mergedItems[0])
       }
+      data = mergedItems
     } else {
-      try {
-        updateWhenTemplateOpen()
-      } catch (error) {
-        consoleLogger(INFO['EMPTY_SNIPERS_LIST'])
-      } finally {
-        setLoading(false)
-      }
+      data = activeWatchList?.[activeExchange.exchange] ?? []
     }
-  }, [
-    activeExchange.exchange,
-    initWatchList,
-    userData.email,
-    templateDrawingsOpen,
-    activeTrader.id,
-  ])
+    dispatch(updateWatchSymbolsLists(data))
+  }, [activeWatchList])
 
   const useInterval = (callback, delay) => {
     const savedCallback = React.useRef()
@@ -209,7 +114,7 @@ const WatchListPanel = () => {
     }
 
     setLoading(false)
-    setSymbolsList(symbolArray)
+    dispatch(updateSymbolsLists(symbolArray))
   }, 1000)
 
   async function loop(exchange, symbol) {
@@ -235,7 +140,7 @@ const WatchListPanel = () => {
 
   const getWatchSymbolsList = () => {
     let obj = {}
-    watchSymbolsList.forEach((sy) => {
+    watchSymbolsList?.forEach((sy) => {
       let exc = sy.value.split(':')[0].toLowerCase()
       if (obj[exc]) {
         obj[exc].push(sy.label.replace('-', '/'))
@@ -318,216 +223,6 @@ const WatchListPanel = () => {
     setItems()
   }, [watchSymbolsList, setItems])
 
-  const handleChange = async (symbol) => {
-    const symbols = [...symbolsList, { ...symbol, flag: 0 }].map((item) => ({
-      label: item.label,
-      value: item.value,
-      flag: item.flag || 0,
-    }))
-    try {
-      let data = {
-        lists: {
-          [activeWatchList.watchListName]: {
-            [activeExchange.exchange]: symbols,
-          },
-        },
-      }
-      setWatchlistData(userData.email, data)
-    } catch (error) {
-      dispatch(notify(MESSAGES['watchlist-failed'], 'error'))
-    }
-  }
-
-  const handleEmojiAssigning = async (value) => {
-    try {
-      const selectedSymbol = localStorage
-        .getItem('selectedSymbol')
-        .toUpperCase()
-      const selectedExchange = localStorage
-        .getItem('selectedExchange')
-        .toUpperCase()
-      const list = symbolsList
-        .map((item) => ({
-          label: item.label,
-          value: item.value,
-          flag: item.flag ? item.flag : 0,
-        }))
-        .map((item) => {
-          if (item.value === `${selectedExchange}:${selectedSymbol}`) {
-            return {
-              ...item,
-              flag: value,
-            }
-          }
-          return item
-        })
-      let data = {
-        lists: {
-          [activeWatchList.watchListName]: {
-            [activeExchange.exchange]: list,
-          },
-        },
-      }
-      await setWatchlistData(userData.email, data)
-    } catch (error) {
-      consoleLogger(error)
-      dispatch(notify(MESSAGES['emoji-failed'], 'error'))
-    }
-  }
-
-  const removeWatchList = async (symbol) => {
-    const symbols = symbolsList
-      .filter((item) => {
-        return !(item.value === symbol.value)
-      })
-      .map((item) => ({
-        label: item.label,
-        value: item.value,
-        flag: item.flag || 0,
-      }))
-    try {
-      let data = {
-        lists: {
-          [activeWatchList.watchListName]: {
-            [activeExchange.exchange]: symbols,
-          },
-        },
-      }
-      setWatchlistData(userData.email, data)
-    } catch (error) {
-      consoleLogger('Cannot save watch lists')
-    }
-  }
-
-  const handleOrderChange = (orderItem) => {
-    setOrderSetting((setting) => {
-      switch (orderItem) {
-        case 'label':
-          return {
-            label: setting.label === 'asc' ? 'desc' : 'asc',
-          }
-
-        case 'percentage':
-          return {
-            percentage: setting.percentage === 'asc' ? 'desc' : 'asc',
-          }
-
-        default:
-          break
-      }
-    })
-  }
-
-  const orderedSymbolsList = orderBy(
-    symbolsList,
-    [Object.keys(orderSetting)],
-    [Object.values(orderSetting)]
-  )
-
-  const handleAddWatchList = ({ watchListName }) => {
-    setAddWatchListLoading(true)
-    try {
-      let data = {
-        lists: {
-          [watchListName]: { watchListName },
-        },
-      }
-      setWatchlistData(userData.email, data)
-
-      dispatch(notify(MESSAGES['watchlist-created'], 'success'))
-      setAddWatchListModalOpen(false)
-    } catch (error) {
-      consoleLogger('Cannot save watch lists')
-    } finally {
-      setAddWatchListLoading(false)
-    }
-  }
-
-  const handleSaveEmoji = () => {
-    saveEmojis(emojis, userData)
-    setAddEmojiModalOpen(false)
-    if (isEmojiDeleted.length) {
-      handleEmojiDeleteAssigning()
-      setIsEmojiDeleted([])
-    }
-  }
-
-  const handleEmojiDeleteAssigning = async () => {
-    const symbol = symbolsList.map((symbol) => {
-      if (isEmojiDeleted.includes(symbol.flag)) {
-        return { ...symbol, flag: 0 }
-      }
-      return symbol
-    })
-    const symbols = symbol.map((item) => ({
-      label: item.label,
-      value: item.value,
-      flag: item.flag,
-    }))
-    try {
-      let data = {
-        lists: {
-          [activeWatchList.watchListName]: {
-            [activeExchange.exchange]: symbols,
-          },
-        },
-      }
-      setWatchlistData(userData.email, data)
-    } catch (error) {
-      consoleLogger(error)
-    }
-  }
-
-  const handleWatchListItemClick = (watchListName) => {
-    if (!templateDrawingsOpen) {
-      let data = {
-        activeList: watchListName,
-      }
-      setWatchlistData(userData.email, data)
-    } else {
-      const activeList = templateWatchlist.find(
-        (list) => list.watchListName === watchListName
-      )
-      if (activeList) {
-        const items = Object.values(activeList).filter(
-          (element) => typeof element === 'object'
-        )
-        const mergedItems = [].concat
-          .apply([], items)
-          .filter((v, i, a) => a.findIndex((v2) => v2.value === v.value) === i)
-        setWatchSymbolsList(mergedItems ?? [])
-        setActiveWatchList(activeList)
-        if (mergedItems && mergedItems[0]) {
-          setSymbol(mergedItems[0])
-        }
-      }
-    }
-    setWatchListPopoverOpen(false)
-  }
-
-  const handleDelete = async () => {
-    setWatchListOptionPopoverOpen(false)
-    if (activeWatchList.watchListName === DEFAULT_WATCHLIST) {
-      dispatch(notify(MESSAGES['delete-default-error'], 'error'))
-      return
-    }
-    try {
-      const ref = getSnapShotDocument('watch_list', userData.email)
-      const filedName = `lists.${activeWatchList.watchListName}`
-      await ref.update({
-        [filedName]: FieldValue.delete(),
-      })
-      await ref.update({
-        activeList: DEFAULT_WATCHLIST,
-      })
-      dispatch(notify(MESSAGES['delete-list-success'], 'success'))
-    } catch (e) {
-      consoleLogger(e)
-    }
-  }
-
-  let unassignedList = orderedSymbolsList.filter((lists) => lists.flag === 0)
-
   return (
     <div>
       <div
@@ -537,38 +232,19 @@ const WatchListPanel = () => {
       >
         <CreateNewList
           styles={styles}
-          isOpen={watchListPopoverOpen}
-          setWatchListOpen={setWatchListPopoverOpen}
           openWatchListModal={setAddWatchListModalOpen}
-          isTemplateDrawingsOpen={templateDrawingsOpen}
-          watchLists={watchLists}
-          handleWatchListItemClick={handleWatchListItemClick}
-          activeWatchList={activeWatchList}
         ></CreateNewList>
 
         {isAnalyst && !templateDrawingsOpen && (
           <EmojiList
             styles={styles}
-            isOpen={selectEmojiPopoverOpen}
-            setEmojiListOpen={updateSelectEmojiPopoverOpen}
-            emojis={emojis}
-            handleEmojiAssigning={handleEmojiAssigning}
             setAddEmojiModalOpen={setAddEmojiModalOpen}
           ></EmojiList>
         )}
-        {!templateDrawingsOpen && (
-          <NewWatchListItem
-            symbolsList={symbolsList}
-            handleChange={handleChange}
-          ></NewWatchListItem>
-        )}
+        {!templateDrawingsOpen && <NewWatchListItem />}
         {!templateDrawingsOpen ? (
           <GroupByFlag
             styles={styles}
-            isOpen={watchListOptionPopoverOpen}
-            setPopoverOpen={setWatchListOptionPopoverOpen}
-            isAnalyst={isAnalyst}
-            handleDelete={handleDelete}
             setGroupByFlag={setIsGroupByFlag}
             isPaidUser={false}
           ></GroupByFlag>
@@ -576,113 +252,25 @@ const WatchListPanel = () => {
           isPaidUser && (
             <GroupByFlag
               styles={styles}
-              isOpen={watchListOptionPopoverOpen}
-              setPopoverOpen={setWatchListOptionPopoverOpen}
-              isAnalyst={isAnalyst}
-              handleDelete={handleDelete}
               setGroupByFlag={setIsGroupByFlag}
               isPaidUser={isPaidUser}
             ></GroupByFlag>
           )
         )}
       </div>
-      <div className={styles.contentHeader}>
-        <div
-          onClick={() => handleOrderChange('label')}
-          className={styles.labelColumn}
-        >
-          Symbol {sortTemplate(orderSetting.label)}
-        </div>
-        <div>Last</div>
-        <div onClick={() => handleOrderChange('percentage')}>
-          Chg% {sortTemplate(orderSetting.label)}
-        </div>
-      </div>
-      <div
-        className={`${
-          templateDrawingsOpen ? styles.watchLists2 : styles.watchLists
-        } enlarged-watch-lists
-        `}
-      >
-        {!Object.keys(getWatchSymbolsList()).length && !loading ? (
-          <div className="pt-5 text-center">
-            <div className="text-primary" role="status">
-              <span className="">Your watchlist is empty!</span>
-            </div>
-          </div>
-        ) : (
-          <>
-            {(templateDrawingsOpen && isGroupByFlag) ||
-            (isAnalyst && isGroupByFlag) ? (
-              <>
-                {emojis &&
-                  emojis.map((emoji) => {
-                    let list = orderedSymbolsList.filter(
-                      (lists) => lists.flag === emoji.id
-                    )
-                    if (emoji.emoji) {
-                      return (
-                        <>
-                          <div className={styles.groupEmojiWrapper}>
-                            <span className={styles.groupEmoji}>
-                              {emoji.emoji}
-                            </span>
-                            {list.length ? (
-                              list.map((symbol) => (
-                                <WatchListItem
-                                  key={symbol.value}
-                                  symbol={symbol}
-                                  group={true}
-                                  removeWatchList={removeWatchList}
-                                />
-                              ))
-                            ) : (
-                              <p className="text-center">
-                                No market assigned to this flag
-                              </p>
-                            )}
-                          </div>
-                        </>
-                      )
-                    }
-                  })}
-                {unassignedList && unassignedList.length > 0 && (
-                  <div className={styles.groupEmojiWrapper}>
-                    <span className={styles.groupEmoji}>Unassigned</span>
-                    {unassignedList.map((symbol) => (
-                      <WatchListItem
-                        key={symbol.value}
-                        symbol={symbol}
-                        group={true}
-                        removeWatchList={removeWatchList}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              orderedSymbolsList.map((symbol) => (
-                <WatchListItem
-                  key={symbol.value}
-                  symbol={symbol}
-                  removeWatchList={removeWatchList}
-                />
-              ))
-            )}
-          </>
-        )}
-      </div>
+      <WatchListTable
+        styles={styles}
+        isGroupByFlag={isGroupByFlag}
+        getWatchSymbolsList={getWatchSymbolsList}
+        loading={loading}
+      ></WatchListTable>
+
       {addWatchListModalOpen ? (
-        <AddWatchList
-          onClose={() => setAddWatchListModalOpen(false)}
-          onSave={handleAddWatchList}
-          isLoading={addWatchListLoading}
-        />
+        <AddWatchList onClose={() => setAddWatchListModalOpen(false)} />
       ) : null}
       {addEmojiModalOpen && (
         <AddEmoji
           onClose={() => setAddEmojiModalOpen(false)}
-          onSave={handleSaveEmoji}
           setIsEmojiDeleted={setIsEmojiDeleted}
           isEmojiDeleted={isEmojiDeleted}
         />

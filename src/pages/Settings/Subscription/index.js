@@ -4,13 +4,10 @@ import { notify } from 'reapop'
 import SubscriptionActiveCard from './SubscriptionActiveCard'
 import { UserContext } from 'contexts/UserContext'
 import { UserCheck, AlertTriangle } from 'react-feather'
-import { firebase } from 'services/firebase'
 import {
   finishSubscriptionByUser,
   getDefaultPaymentMethod,
   getStripeClientSecret,
-  getFirestoreDocumentData,
-  updateSingleValue,
 } from 'services/api'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
@@ -20,6 +17,8 @@ import './index.css'
 import { EndTrialModal, CountrySelectionModal } from './Modals'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  getSubscription,
+  saveUserData,
   updateCountry,
   updateIsCountryAvailable,
   updateIsPaidUser,
@@ -32,15 +31,12 @@ import { getNumberOfTimeLeft } from 'utils/getNumberOfTimeLeft'
 
 const Subscription = () => {
   const { logout } = useContext(UserContext)
-  const { userData, isSubOpen, userState } = useSelector((state) => state.users)
+  const { isSubOpen, country, firstLogin } = useSelector((state) => state.users)
   const { products } = useSelector((state) => state.market)
-  const { country, endTrial, needPayment } = useSelector(
-    (state) => state.appFlow
-  )
+  const { endTrial, needPayment } = useSelector((state) => state.appFlow)
   const { isCheckingSub, hasSub, subscriptionData, subscriptionError } =
     useSelector((state) => state.subscriptions)
   const history = useHistory()
-  const db = firebase.firestore()
   const dispatch = useDispatch()
   const [showEndTrialModal, setShowEndTrialModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -64,11 +60,9 @@ const Subscription = () => {
   const getClientSecret = async () => {
     try {
       setCardInfo(null)
-      const data1 = await getFirestoreDocumentData(
-        'subscriptions',
-        userData.email
-      )
-      const { customer_id, subscription_id } = data1.data()
+      let subData = await dispatch(getSubscription())
+      subData = subData?.payload.data.data
+      const { customer_id, subscription_id } = subData
       const [subscriptionId, stripeId] = [subscription_id, customer_id]
       setSubscriptionCreds({ stripeId, subscriptionId })
       if (stripeId && subscriptionId) {
@@ -87,7 +81,7 @@ const Subscription = () => {
   const handleClickConfirm = async () => {
     setCountrySelectionLoading(true)
     try {
-      await updateSingleValue(userData.email, 'user_data', { country })
+      await dispatch(saveUserData({ country }))
       dispatch(updateIsCountryAvailable(true))
     } catch (err) {
       consoleLogger(err)
@@ -106,7 +100,7 @@ const Subscription = () => {
     setIsLoading(true)
     try {
       await finishSubscriptionByUser()
-      await dispatch(updateSubscriptionsDetails(userState, userData))
+      await dispatch(updateSubscriptionsDetails(firstLogin))
       history.push('/trade')
       setIsLoading(false)
       setShowEndTrialModal(false)

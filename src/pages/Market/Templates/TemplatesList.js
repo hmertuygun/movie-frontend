@@ -5,28 +5,23 @@ import { HelpCircle, X } from 'react-feather'
 import { Tooltip } from 'components'
 import { AddTemplate } from '../components/Modals'
 
-import {
-  addTemplateToFirestore,
-  deleteTemplateFromFirestore,
-  getChartTemplates,
-  getFirestoreDocumentData,
-  getSnapShotDocument,
-} from 'services/api'
-import { firebase } from 'services/firebase'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateActiveDrawing, updateAddedDrawing } from 'store/actions'
+import {
+  deleteChartTemplate,
+  getChartTemplate,
+  saveChartTemplate,
+  updateActiveDrawing,
+  updateAddedDrawing,
+} from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
 
-const FieldValue = firebase.firestore.FieldValue
-
 const TemplatesList = () => {
-  const { userData } = useSelector((state) => state.users)
   const { activeDrawingId, activeDrawing } = useSelector(
     (state) => state.charts
   )
+  const { templates } = useSelector((state) => state.templates)
   const dispatch = useDispatch()
-  const [templates, setTemplates] = useState([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [infoShow, setInfoShow] = useState(false)
   const addTemplate = async ({ templateName }, template = null) => {
@@ -36,91 +31,33 @@ const TemplatesList = () => {
       if (isSame) {
         return dispatch(notify(MESSAGES['duplicate-template'], 'error'))
       }
-      addTemplateToFirestore(userData.email, {
-        data: JSON.stringify({ ...templateData, tempName: templateName }),
-      }).then(function (docRef) {
-        setTemplates((prevState) => {
-          return [
-            ...prevState,
-            { fsDd: docRef.id, ...templateData, tempName: templateName },
-          ]
-        })
-      })
+      await dispatch(
+        saveChartTemplate(
+          JSON.stringify({ ...templateData, tempName: templateName })
+        )
+      )
     } catch (error) {
       consoleLogger(error)
     } finally {
+      initChartTemplate()
       setAddModalOpen(false)
       dispatch(updateActiveDrawing(null))
     }
   }
   ///chart_drawings/hmert.uygun@hotmail.com
-  const removeTemplate = (e, templateId) => {
+  const removeTemplate = async (e, templateId) => {
     e.stopPropagation()
     try {
-      deleteTemplateFromFirestore(userData.email, templateId)
-        .then(() => {
-          setTemplates((prevState) => {
-            return prevState.filter((template) => template.fsId !== templateId)
-          })
-        })
-
-        .catch((error) => {
-          consoleLogger('Error removing document: ', error)
-        })
+      await dispatch(deleteChartTemplate(templateId))
     } catch (error) {
       consoleLogger(error)
     } finally {
-      getInitialData()
+      initChartTemplate()
     }
   }
 
-  const getInitialData = async () => {
-    const sfRef = await getSnapShotDocument('chart_templates', userData.email)
-      .collection('templates')
-      .get()
-    const check = await getChartTemplates(userData.email)
-
-    if (check.empty) {
-      getDataFromAnotherCollection()
-      return
-    }
-    const { docs } = sfRef
-    const templates = docs.map((doc) => {
-      const { data } = doc.data()
-      if (!data) return null
-      return { ...JSON.parse(data), fsId: doc.id }
-    })
-    setTemplates(templates)
-  }
-
-  const getDataFromAnotherCollection = () => {
-    getFirestoreDocumentData('chart_drawings', userData.email).then(
-      (snapshot) => {
-        const { templates } = snapshot.data()
-        if (!templates) {
-          setTemplates([])
-        } else {
-          const data = JSON.parse(templates)
-
-          const promises = data.map(async (template) => {
-            await addTemplate({ templateName: template.tempName }, template)
-          })
-          Promise.all(promises)
-            .then(async () => {
-              const ref = await getSnapShotDocument(
-                'chart_drawings',
-                userData.email
-              )
-              await ref.update({
-                templates: FieldValue.delete(),
-              })
-            })
-            .catch((err) => {
-              consoleLogger(err)
-            })
-        }
-      }
-    )
+  const initChartTemplate = async () => {
+    dispatch(getChartTemplate())
   }
 
   const addToChart = (template) => {
@@ -134,7 +71,7 @@ const TemplatesList = () => {
   }, [activeDrawing])
 
   useEffect(() => {
-    getInitialData()
+    initChartTemplate()
   }, [])
 
   return (
@@ -197,7 +134,7 @@ const TemplatesList = () => {
                   <span className="badge badge-danger badge-circle">
                     <X
                       size={15}
-                      onClick={(e) => removeTemplate(e, template.fsId)}
+                      onClick={(e) => removeTemplate(e, template.refId)}
                       style={{ zIndex: 999 }}
                     />
                   </span>

@@ -8,10 +8,8 @@ import { firebase } from 'services/firebase'
 import {
   FCMSubscription,
   getExchanges,
-  getFirestoreDocumentData,
   getOneExchange,
   updateLastSelectedAPIKey,
-  updateLastSelectedValue,
 } from 'services/api'
 import { session, storage } from 'services/storages'
 import {
@@ -25,6 +23,8 @@ import {
   updateSymbols,
   updateUserContextLoaded,
   updateUserData,
+  getApiKeys,
+  saveApiKeys,
 } from 'store/actions'
 import { sortExchangesData } from 'utils/apiKeys'
 import exchangeSlice from './ExchangeSlice'
@@ -70,7 +70,9 @@ const updateExchangeKey =
       dispatch(updateExchangeUpdated(true))
       dispatch(updateLoaderVisible(true))
       let value = `${exchange.apiKeyName}-${exchange.exchange}`
-      await updateLastSelectedValue(userData.email, value)
+      await saveApiKeys({
+        activeLastSelected: value,
+      })
       dispatch(setActiveExchange(exchange))
       sessionStorage.setItem('exchangeKey', JSON.stringify(exchange))
       const val = `${exchange.exchange.toUpperCase()}:${DEFAULT_SYMBOL_LOAD_SLASH}`
@@ -144,75 +146,75 @@ const initExchanges = (userData, isOnboardingSkipped) => async (dispatch) => {
   if (userData.email) {
     dispatch(updateIsApiKeysLoading(true))
     try {
-      getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
-        if (apiKey.data()) {
-          dispatch(updateIsApiKeysLoading(false))
-          dispatch(updateUserContextLoaded(true))
-          let apiKeys = sortExchangesData(apiKey.data())
-          if (!apiKeys?.length && isOnboardingSkipped) {
-            apiKeys = DEFAULT_ACTIVE_EXCHANGE
-          } else {
-            dispatch(handleOnboardingShow())
-          }
+      let apiKey = await dispatch(getApiKeys())
+      apiKey = apiKey.payload.data
+      if (apiKey) {
+        dispatch(updateIsApiKeysLoading(false))
+        dispatch(updateUserContextLoaded(true))
+        let apiKeys = sortExchangesData(apiKey)
+        if (!apiKeys?.length && isOnboardingSkipped) {
+          apiKeys = DEFAULT_ACTIVE_EXCHANGE
+        } else {
+          dispatch(handleOnboardingShow())
+        }
 
-          if (apiKeys) {
-            if (!apiKeys?.length) {
-              dispatch(updateUserContextLoaded(true))
-              return
-            }
-          } else {
-            dispatch(updateLoadApiKeysError(true))
+        if (apiKeys) {
+          if (!apiKeys?.length) {
+            dispatch(updateUserContextLoaded(true))
+            return
           }
-          dispatch(updateTotalExchanges(apiKeys))
-          let getSavedKey = session.get('exchangeKey')
-          const ssData = JSON.parse(getSavedKey)
-          if (
-            ssData &&
-            apiKeys.findIndex(
-              (item) =>
-                item.apiKeyName === ssData.apiKeyName &&
-                item.exchange === ssData.exchange
-            ) > -1
-          ) {
-            dispatch(updateActiveExchange({ ...ssData }))
-            if (!isOnboardingSkipped) {
-              dispatch(updateLoadApiKeys(true))
+        } else {
+          dispatch(updateLoadApiKeysError(true))
+        }
+        dispatch(updateTotalExchanges(apiKeys))
+        let getSavedKey = session.get('exchangeKey')
+        const ssData = JSON.parse(getSavedKey)
+        if (
+          ssData &&
+          apiKeys.findIndex(
+            (item) =>
+              item.apiKeyName === ssData.apiKeyName &&
+              item.exchange === ssData.exchange
+          ) > -1
+        ) {
+          dispatch(updateActiveExchange({ ...ssData }))
+          if (!isOnboardingSkipped) {
+            dispatch(updateLoadApiKeys(true))
+          }
+        } else {
+          let activeKey = apiKeys.find(
+            (item) => item.isLastSelected === true && item.status === 'Active'
+          )
+          if (activeKey) {
+            const data = {
+              ...activeKey,
+              label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
+              value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
             }
+            if (!isOnboardingSkipped) {
+              dispatch(updateLoadApiKeys(true)) // Only check active api exchange eventually
+            }
+            dispatch(updateActiveExchange(data))
+            session.set('exchangeKey', JSON.stringify(data))
           } else {
-            let activeKey = apiKeys.find(
-              (item) => item.isLastSelected === true && item.status === 'Active'
-            )
-            if (activeKey) {
+            // find the first one that is 'Active'
+            let active = apiKeys.find((item) => item.status === 'Active')
+            if (active) {
+              updateLastSelectedAPIKey({ ...active })
               const data = {
-                ...activeKey,
-                label: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-                value: `${activeKey.exchange} - ${activeKey.apiKeyName}`,
-              }
-              if (!isOnboardingSkipped) {
-                dispatch(updateLoadApiKeys(true)) // Only check active api exchange eventually
+                ...active,
+                label: `${active.exchange} - ${active.apiKeyName}`,
+                value: `${active.exchange} - ${active.apiKeyName}`,
               }
               dispatch(updateActiveExchange(data))
               session.set('exchangeKey', JSON.stringify(data))
-            } else {
-              // find the first one that is 'Active'
-              let active = apiKeys.find((item) => item.status === 'Active')
-              if (active) {
-                updateLastSelectedAPIKey({ ...active })
-                const data = {
-                  ...active,
-                  label: `${active.exchange} - ${active.apiKeyName}`,
-                  value: `${active.exchange} - ${active.apiKeyName}`,
-                }
-                dispatch(updateActiveExchange(data))
-                session.set('exchangeKey', JSON.stringify(data))
-                if (!isOnboardingSkipped) {
-                  dispatch(updateLoadApiKeys(true))
-                }
+              if (!isOnboardingSkipped) {
+                dispatch(updateLoadApiKeys(true))
               }
             }
           }
         }
-      })
+      }
     } catch (e) {
       console.log(e)
       dispatch(updateIsApiKeysLoading(false))
@@ -223,7 +225,7 @@ const initExchanges = (userData, isOnboardingSkipped) => async (dispatch) => {
 }
 
 const getUserExchangesAfterFBInit =
-  (userData, isOnboardingSkipped) => async (dispatch) => {
+  (isOnboardingSkipped) => async (dispatch) => {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         // User is signed in.

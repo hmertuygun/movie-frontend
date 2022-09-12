@@ -1,5 +1,6 @@
 import LZUTF8 from 'lzutf8'
-import { getSnapShotDocument } from 'services/api'
+import { getAnalystDrawing } from 'store/actions'
+import isJSONString from 'utils/jsonString'
 import tradeSlice from './TradeSlice'
 
 const { setIsTradersModalOpen, setActiveTrader } = tradeSlice.actions
@@ -13,38 +14,33 @@ const updateActiveTrader = (value) => async (dispatch) => {
 }
 
 const setActiveAnalysts =
-  (userData, planned = null) =>
+  (chartMetaData, allAnalysts, planned = null) =>
   async (dispatch) => {
     let trader = ''
     if (!planned) {
-      const snapshot = await getSnapShotDocument(
-        'chart_drawings',
-        userData.email
-      ).get()
-
-      const data = snapshot.data()
-      if (!data.activeTrader) return
-      trader = data.activeTrader
+      if (!chartMetaData?.activeTrader) return
+      trader = chartMetaData.activeTrader
     } else if (planned) {
       trader = planned
     }
-    const sharedData = await getSnapShotDocument('chart_shared', trader).get()
-    const analystData = await getSnapShotDocument('analysts', trader).get()
-
+    let sharedData = await dispatch(getAnalystDrawing(trader))
+    sharedData = sharedData.payload.data
+    const analystData = allAnalysts.find((analyst) => analyst.id === trader)
+    const { drawings } = sharedData[trader]
     let converted = ''
     try {
-      converted = JSON.parse(sharedData.data().drawings)
+      converted = JSON.parse(drawings)
     } catch (error) {
-      converted = LZUTF8.decompress(sharedData.data().drawings, {
+      converted = LZUTF8.decompress(drawings, {
         inputEncoding: 'Base64',
       })
-      converted = JSON.parse(converted)
+      if (isJSONString(converted)) converted = JSON.parse(converted)
     }
 
     const processedData = {
-      ...sharedData.data(),
-      ...analystData.data(),
-      id: sharedData.id,
+      ...sharedData,
+      ...analystData,
+      id: trader,
       drawings: JSON.stringify(converted),
     }
 

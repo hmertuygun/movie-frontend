@@ -4,62 +4,53 @@ import { useHistory } from 'react-router-dom'
 import { UserContext } from 'contexts/UserContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { notify } from 'reapop'
-import {
-  dismissNotice,
-  getFirestoreCollectionData,
-  getFirestoreDocumentData,
-} from 'services/api'
+import { dismissNotice } from 'services/api'
 import dayjs from 'dayjs'
 import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import { getPlatformMessages, getUserNotices } from 'store/actions'
 
 const WarningAlert = () => {
   const history = useHistory()
   const { isLoggedIn } = useContext(UserContext)
   const [notices, setNotices] = useState([])
-  const [finalNotices, setFinalNotices] = useState([])
-  const { userData } = useSelector((state) => state.users)
+  const [finalNotices] = useState([])
   const { subscriptionData } = useSelector((state) => state.subscriptions)
+  const { platformMessages, userNotices } = useSelector(
+    (state) => state.appFlow
+  )
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (subscriptionData)
-      getFirestoreCollectionData('platform_messages').then((snapshot) => {
-        let allNotices = snapshot.docs.map((item) => {
-          return { id: item.id, ...item.data() }
-        })
+    if (platformMessages) {
+      let allNotices = platformMessages
+      if (userNotices) {
+        allNotices = allNotices.filter((item) => !userNotices.includes(item.id))
+      }
+      const filteredNotices = allNotices.filter((message) => {
+        const isAfterPublish = dayjs().isAfter(dayjs(message.publishDate))
+        if (!isAfterPublish) return true
 
-        getFirestoreDocumentData('user_notices', userData.email).then(
-          (userSnapShot) => {
-            if (userSnapShot.data()) {
-              const dismissed = Object.keys(userSnapShot.data())
-              allNotices = allNotices.filter(
-                (item) => !dismissed.includes(item.id)
-              )
-            }
+        if (!message.isActive) return true
 
-            const filteredNotices = allNotices.filter((message) => {
-              const isAfterPublish = dayjs().isAfter(
-                dayjs(message.publishDate.seconds * 1000)
-              )
-              if (!isAfterPublish) return true
+        if (message.status === 'all') return true
 
-              if (!message.isActive) return true
-
-              if (message.status === 'all') return true
-
-              if (message?.status === subscriptionData.subscription.status) {
-                return true
-              }
-              return false
-            })
-
-            setNotices(filteredNotices)
-          }
-        )
+        if (message?.status === subscriptionData.subscription.status) {
+          return true
+        }
+        return false
       })
-  }, [userData.email, subscriptionData])
+      setNotices(filteredNotices)
+    }
+  }, [platformMessages, userNotices])
+
+  useEffect(async () => {
+    if (subscriptionData) {
+      await dispatch(getUserNotices())
+      dispatch(getPlatformMessages())
+    }
+  }, [subscriptionData])
 
   const getAction = (param) => {
     if (param === 'payment') {

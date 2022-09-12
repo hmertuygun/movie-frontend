@@ -1,6 +1,5 @@
-import { getFirestoreDocumentData } from 'services/api'
 import { storage } from 'services/storages'
-import { updateExchanges } from 'store/actions'
+import { updateExchanges, getApiKeys } from 'store/actions'
 import { sortExchangesData } from 'utils/apiKeys'
 import refreshSlice from './RefreshSlice'
 import {
@@ -68,20 +67,20 @@ const updateRefreshButton = (value) => async (dispatch) => {
 const refreshExchanges = (userData) => async (dispatch) => {
   if (userData.email) {
     try {
-      getFirestoreDocumentData('apiKeyIDs', userData.email).then((apiKey) => {
-        if (apiKey.data()) {
-          let apiKeys = sortExchangesData(apiKey.data())
-          if (!apiKeys.length) return
-          const keys = apiKeys.map((item) => {
-            return {
-              ...item,
-              label: `${item.exchange} - ${item.apiKeyName}`,
-              value: `${item.exchange} - ${item.apiKeyName}`,
-            }
-          })
-          dispatch(updateExchanges(keys))
-        }
-      })
+      let apiKey = await dispatch(getApiKeys())
+      apiKey = apiKey.payload.data
+      if (apiKey) {
+        let apiKeys = sortExchangesData(apiKey)
+        if (!apiKeys.length) return
+        const keys = apiKeys.map((item) => {
+          return {
+            ...item,
+            label: `${item.exchange} - ${item.apiKeyName}`,
+            value: `${item.exchange} - ${item.apiKeyName}`,
+          }
+        })
+        dispatch(updateExchanges(keys))
+      }
     } catch (error) {
       console.log(error)
     }

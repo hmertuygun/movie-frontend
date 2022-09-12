@@ -3,9 +3,11 @@ import { messaging } from 'services/firebase'
 import httpClient from 'services/http'
 import { storeNotificationToken } from './Notifications'
 import store from 'store'
+import { API_URLS, SUBSCRIPTION_URL, PROJECT_ID } from 'constants/config'
 
-const BASE_URL = process.env.REACT_APP_API_SUBSCRIPTION
-const PROJECT_ID = process.env.REACT_APP_FIREBASE_PROJECT_ID
+const BASE_URL = SUBSCRIPTION_URL
+const subscriptionUrl = API_URLS['subscription']
+const stripePlanUrl = API_URLS['stripe-plans']
 
 const getSubscriptionDetails = async () => {
   const apiUrl = BASE_URL
@@ -97,6 +99,21 @@ const FCMSubscription = async () => {
   }
 }
 
+const fetchSubscriptions = async () => {
+  const apiUrl = subscriptionUrl
+  return await httpClient(apiUrl, 'GET')
+}
+
+const fetchCouponUsed = async () => {
+  const apiUrl = `${subscriptionUrl}/coupons_used`
+  return await httpClient(apiUrl, 'GET')
+}
+
+const fetchStripePlans = async () => {
+  const apiUrl = stripePlanUrl
+  return await httpClient(apiUrl, 'GET')
+}
+
 export {
   getSubscriptionDetails,
   callCloudFunction,
@@ -109,4 +126,7 @@ export {
   changeActivePlan,
   verifyCouponCode,
   FCMSubscription,
+  fetchSubscriptions,
+  fetchCouponUsed,
+  fetchStripePlans,
 }

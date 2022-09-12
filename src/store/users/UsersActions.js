@@ -1,35 +1,38 @@
 import {
   checkGoogleAuth2FA,
   deleteGoogleAuth2FA,
-  getSnapShotCollection,
+  fetchReferrals,
+  fetchUsersData,
   getUserDetails,
   saveGoogleAuth2FA,
   sendLoginInfo,
+  updateInitialUsersData,
+  updateReferrals,
+  updateStripeUsers,
+  updateUsersData,
   validateUser,
   verifyGoogleAuth2FA,
 } from 'services/api'
 import { session, storage } from 'services/storages'
-import usersSlice from './UsersSlice'
 import { firebase } from 'services/firebase'
 import {
   getUserExchangesAfterFBInit,
-  handleCountry,
   updateTokenExpiry,
   updateSecretKey,
   updateNeed2FA,
 } from 'store/actions'
 import dayjs from 'dayjs'
-const T2FA_LOCAL_STORAGE = '2faUserDetails'
-
-const {
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import {
   setUserData,
   setUserState,
   setUserContextLoaded,
-  setAllAnalysts,
-  setIsAnalyst,
-  setFirstLogin,
   setIsCanaryUser,
-} = usersSlice.actions
+  setCountry,
+  setIsCountryAvailable,
+} from './UsersSlice'
+
+const T2FA_LOCAL_STORAGE = '2faUserDetails'
 
 const updateUserData = (value) => async (dispatch) => {
   dispatch(setUserData(value))
@@ -43,64 +46,43 @@ const updateUserContextLoaded = (value) => async (dispatch) => {
   dispatch(setUserContextLoaded(value))
 }
 
-const updateAllAnalysts = (value) => async (dispatch) => {
-  dispatch(setAllAnalysts(value))
-}
-
-const updateIsAnalyst = (value) => async (dispatch) => {
-  dispatch(setIsAnalyst(value))
-}
-
-const updateFirstLogin = (value) => async (dispatch) => {
-  dispatch(setFirstLogin(value))
-}
-
 const updateCanaryUser = () => async (dispatch) => {
   const { data } = await getUserDetails()
   dispatch(setIsCanaryUser(data['is_canary_user']))
 }
 
-const fetchAnalysts = (userData) => async (dispatch) => {
-  try {
-    const snapshot = await getSnapShotCollection('analysts').get()
-    const chart_snapshot = await getSnapShotCollection('chart_shared').get()
-    const analysts = snapshot.docs.map((doc) => {
-      if (doc.data().enabled) {
-        const docItem = chart_snapshot.docs.find((item) => item.id === doc.id)
-        if (docItem) {
-          return {
-            ...doc.data(),
-            id: doc.id,
-            lastUpdated: docItem.data().lastUpdated,
-          }
-        }
-      }
+const getUserData = createAsyncThunk('user/getUserData', async (data) => {
+  return await fetchUsersData()
+})
 
-      return null
-    })
+const saveUserData = createAsyncThunk('user/saveUserData', async (data) => {
+  return await updateUsersData({ data: data })
+})
 
-    dispatch(updateAllAnalysts(analysts))
-    const checkAnalyst = analysts.find((analyst) => {
-      return analyst.id === userData.email
-    })
-    dispatch(updateIsAnalyst(!!checkAnalyst))
-  } catch (error) {
-    console.log(error)
+const saveInitialUserData = createAsyncThunk(
+  'user/saveInitialUserData',
+  async (data) => {
+    return await updateInitialUsersData({ data: data })
   }
-}
+)
 
-const handleFirstLogin = (email, userState) => async (dispatch) => {
-  await firebase
-    .firestore()
-    .collection('user_data')
-    .doc(email)
-    .get()
-    .then((doc) => {
-      if (doc && doc.data()) {
-        dispatch(updateFirstLogin(doc.data().firstLogin))
-      }
-    })
-}
+const getReferrals = createAsyncThunk('referrals/getReferrals', async () => {
+  return await fetchReferrals()
+})
+
+const saveReferrals = createAsyncThunk(
+  'referrals/saveReferrals',
+  async (data) => {
+    return await updateReferrals({ data: data })
+  }
+)
+
+const saveStripeUsers = createAsyncThunk(
+  'user/saveStripeUsers',
+  async (data) => {
+    return await updateStripeUsers({ data: data })
+  }
+)
 
 const verify2FA = (userToken, userState) => async (dispatch) => {
   const { data } = await verifyGoogleAuth2FA(userToken)
@@ -184,7 +166,7 @@ const login =
     if (signedin) {
       await validateUser()
       let has2FADetails = null
-      dispatch(handleCountry())
+      dispatch(getUserData())
       try {
         dispatch(getUserExchangesAfterFBInit(userData, isOnboardingSkipped))
         const response = await checkGoogleAuth2FA()
@@ -264,12 +246,16 @@ const register = (email, password, userState) => async (dispatch) => {
   return registered
 }
 
+const updateCountry = (value) => async (dispatch) => {
+  dispatch(setCountry(value))
+}
+const updateIsCountryAvailable = (value) => async (dispatch) => {
+  dispatch(setIsCountryAvailable(value))
+}
+
 export {
   updateUserData,
   updateUserContextLoaded,
-  updateAllAnalysts,
-  updateIsAnalyst,
-  fetchAnalysts,
   updateUserState,
   add2FA,
   verify2FA,
@@ -277,6 +263,13 @@ export {
   login,
   logout,
   register,
-  handleFirstLogin,
   updateCanaryUser,
+  getUserData,
+  saveUserData,
+  saveInitialUserData,
+  updateCountry,
+  updateIsCountryAvailable,
+  getReferrals,
+  saveReferrals,
+  saveStripeUsers,
 }

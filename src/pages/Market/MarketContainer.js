@@ -1,16 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useMemo } from 'react'
 import MarketStatistics from '../Trade/components/MarketStatistics'
 import TradeChart from '../Trade/TradeChart'
 import WatchListPanel from './Watchlist/WatchListPanel'
-import { Button, TabNavigator } from 'components'
+import { TabNavigator } from 'components'
 import TemplatesList from './Templates/TemplatesList'
-import { getFirestoreDocumentData, updateSingleValue } from 'services/api'
 import './MarketContainer.css'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   setActiveAnalysts,
+  saveChartDrawings,
   updateChartMirroring,
   updateTemplateDrawingsOpen,
+  getChartMetaData,
 } from 'store/actions'
 import AnalystSelector from './components/AnalystSelector'
 import { trackEvent } from 'services/tracking'
@@ -18,9 +20,11 @@ import { analytics } from 'services/firebase'
 import { allowedFeatures } from 'utils/feature'
 
 const MarketContainer = () => {
-  const { userData, allAnalysts } = useSelector((state) => state.users)
+  const { userData } = useSelector((state) => state.users)
   const { templateDrawingsOpen } = useSelector((state) => state.templates)
   const { activeTrader } = useSelector((state) => state.trades)
+  const { chartMetaData } = useSelector((state) => state.charts)
+  const { allAnalysts } = useSelector((state) => state.analysts)
 
   const dispatch = useDispatch()
   const [activeValue, setActiveValue] = useState('')
@@ -33,17 +37,17 @@ const MarketContainer = () => {
   }, [templateDrawingsOpen])
 
   useEffect(() => {
-    getFirestoreDocumentData('chart_drawings', userData.email).then(
-      (snapshot) => {
-        setActiveValue(snapshot.data().activeTrader)
-      }
-    )
+    dispatch(getChartMetaData())
   }, [userData.email])
 
   useEffect(() => {
+    setActiveValue(chartMetaData?.activeTrader)
+  }, [chartMetaData])
+
+  useEffect(() => {
     setActiveTab(0)
-    setActiveValue(templateDrawingsOpen ? activeTrader?.id : userData.email)
-  }, [templateDrawingsOpen, userData, activeTrader])
+    setActiveValue(templateDrawingsOpen ? activeTrader.id : userData.email)
+  }, [templateDrawingsOpen, userData, activeTrader, chartMetaData])
 
   const setActiveTraderList = async (id) => {
     if (id === userData.email) {
@@ -56,10 +60,12 @@ const MarketContainer = () => {
 
       trackEvent('user', `${id}_cm`, `${id}_cm`)
       analytics.logEvent(`${id}_cm`)
-      await dispatch(setActiveAnalysts(userData, trader.id))
-      await updateSingleValue(userData.email, 'chart_drawings', {
-        activeTrader: trader.id,
-      })
+      await dispatch(setActiveAnalysts(chartMetaData, allAnalysts, trader.id))
+      await dispatch(
+        saveChartDrawings({
+          activeTrader: trader.id,
+        })
+      )
 
       setActiveValue(trader.id)
       if (!templateDrawingsOpen) {

@@ -12,8 +12,6 @@ import {
   activateUserExchange,
   deleteUserExchange,
   updateUserExchange,
-  getFirestoreDocumentData,
-  updateLastSelectedValue,
 } from 'services/api'
 import QuickModal from './QuickModal'
 import DeletionModal from './DeletionModal'
@@ -28,9 +26,12 @@ import {
   updateLoadApiKeys,
   updateActiveExchange,
   updateTotalExchanges,
+  getApiKeys,
+  saveApiKeys,
 } from 'store/actions'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import { UserContext } from 'contexts/UserContext'
 
 const Exchanges = () => {
   const { userData, userState } = useSelector((state) => state.users)
@@ -45,25 +46,20 @@ const Exchanges = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const { isLoggedIn } = useContext(UserContext)
 
-  const getExchanges = () => {
+  const getExchanges = async () => {
     setIsLoading(true)
     try {
-      getFirestoreDocumentData('apiKeyIDs', userData.email).then(
-        (apiKey) => {
-          setIsLoading(false)
-          if (apiKey.data()) {
-            let apiKeys = sortExchangesData(apiKey.data())
-            if (apiKeys.length !== 0) {
-              dispatch(updateTotalExchanges(exchanges))
-            }
-          }
-        },
-        (error) => {
-          consoleLogger(error)
-          setIsLoading(false)
+      let apiKey = await dispatch(getApiKeys())
+      apiKey = apiKey.payload.data
+      setIsLoading(false)
+      if (apiKey) {
+        const apiKeys = sortExchangesData(apiKey)
+        if (apiKeys.length !== 0) {
+          dispatch(updateTotalExchanges(exchanges))
         }
-      )
+      }
     } catch (e) {
       consoleLogger(e)
       setIsLoading(false)
@@ -71,8 +67,8 @@ const Exchanges = () => {
   }
 
   useEffect(() => {
-    getExchanges()
-  }, [loadApiKeys])
+    if (isLoggedIn) getExchanges()
+  }, [loadApiKeys, isLoggedIn])
 
   const addExchange = async (formData) => {
     try {
@@ -146,7 +142,9 @@ const Exchanges = () => {
             if (newActiveKey) {
               dispatch(refreshExchanges(userData))
               let value = `${newActiveKey.apiKeyName}-${newActiveKey.exchange}`
-              await updateLastSelectedValue(userData.email, value)
+              await saveApiKeys({
+                activeLastSelected: value,
+              })
               dispatch(
                 updateActiveExchange({
                   ...newActiveKey,

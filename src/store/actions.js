@@ -14,11 +14,6 @@ import {
 } from './symbols/SymbolActions'
 
 import {
-  updateEmojis,
-  updateSelectEmojiPopoverOpen,
-} from './emojis/EmojiActions'
-
-import {
   updateExchanges,
   updateIsExchangeLoading,
   updateExchangeType,
@@ -52,6 +47,9 @@ import {
 import {
   updateTemplateDrawings,
   updateTemplateDrawingsOpen,
+  getChartTemplate,
+  saveChartTemplate,
+  deleteChartTemplate,
 } from './templates/TemplateActions'
 
 import {
@@ -76,23 +74,29 @@ import {
   updateNeed2FA,
   updateTokenExpiry,
   updateSecretKey,
+  getApiKeys,
+  saveApiKeys,
 } from './apiKeys/ApiKeysActions'
 
 import {
   updateUserData,
   updateUserState,
   updateUserContextLoaded,
-  updateAllAnalysts,
-  updateIsAnalyst,
-  fetchAnalysts,
   add2FA,
   verify2FA,
   delete2FA,
   login,
   logout,
   register,
-  handleFirstLogin,
   updateCanaryUser,
+  getUserData,
+  saveUserData,
+  saveInitialUserData,
+  updateCountry,
+  updateIsCountryAvailable,
+  getReferrals,
+  saveReferrals,
+  saveStripeUsers,
 } from './users/UsersActions'
 
 import {
@@ -105,16 +109,15 @@ import {
   updateOnSecondTour,
   updateTour2CurrentStep,
   updateTwofaSecretKey,
-  updateCountry,
-  updateIsCountryAvailable,
   updateEndTrial,
   updateNeedPayment,
   updateShowSubModal,
   handleOnboardingSkip,
   handleOnboardingShow,
   sendEmailAgain,
-  handleCountry,
   findFastServer,
+  getPlatformMessages,
+  getUserNotices,
 } from './appFlow/AppFlowActions'
 
 import {
@@ -126,6 +129,8 @@ import {
   updateCreateSubscription,
   updateSubscriptionError,
   updateSubscriptionsDetails,
+  getSubscription,
+  getStripeplans,
 } from './subscription/SubscriptionActions'
 
 import {
@@ -137,9 +142,12 @@ import {
   updateAddedDrawing,
   updateChartDrawings,
   updateSettingChartDrawings,
-  getChartMirroring,
   updateChartDataOnInit,
   updateSunburstChart,
+  getChartMetaData,
+  getChartDrawing,
+  saveChartDrawings,
+  backupChartDrawing,
 } from './charts/ChartActions'
 
 import {
@@ -177,6 +185,26 @@ import {
   resetTarget,
 } from './simpleTrade/SimpleTradeActions'
 
+import {
+  fetchAnalysts,
+  getAnalysts,
+  getAnalystDrawing,
+  saveAnalystDrawing,
+  getAnalystFlags,
+  saveAnalystFlags,
+  updateEmojis,
+  updateSelectEmojiPopoverOpen,
+} from './analysts/AnalystsActions'
+
+import {
+  getWatchList,
+  saveWatchList,
+  deleteWatchList,
+  updateSymbolsLists,
+  updateWatchSymbolsLists,
+  updateActiveWatchLists,
+} from './watchlist/WatchlistActions'
+
 export {
   updateSymbols,
   updateSymbolDetails,
@@ -190,8 +218,6 @@ export {
   updateSymbolType,
   loadLastPrice,
   loadBalance,
-  updateEmojis,
-  updateSelectEmojiPopoverOpen,
   updateExchanges,
   updateIsExchangeLoading,
   updateExchangeType,
@@ -216,6 +242,9 @@ export {
   refreshExchanges,
   updateTemplateDrawings,
   updateTemplateDrawingsOpen,
+  getChartTemplate,
+  saveChartTemplate,
+  deleteChartTemplate,
   updateIsTradersModalOpen,
   updateActiveTrader,
   setActiveAnalysts,
@@ -231,14 +260,20 @@ export {
   updateUserData,
   updateUserState,
   updateUserContextLoaded,
-  updateAllAnalysts,
-  updateIsAnalyst,
-  fetchAnalysts,
-  handleFirstLogin,
   updateCanaryUser,
+  getUserData,
+  saveUserData,
+  saveInitialUserData,
+  updateCountry,
+  updateIsCountryAvailable,
+  getReferrals,
+  saveReferrals,
+  saveStripeUsers,
   updateNeed2FA,
   updateTokenExpiry,
   updateSecretKey,
+  getApiKeys,
+  saveApiKeys,
   add2FA,
   verify2FA,
   delete2FA,
@@ -254,16 +289,15 @@ export {
   updateOnSecondTour,
   updateTour2CurrentStep,
   updateTwofaSecretKey,
-  updateCountry,
-  updateIsCountryAvailable,
   updateEndTrial,
   updateNeedPayment,
   updateShowSubModal,
   handleOnboardingSkip,
   handleOnboardingShow,
   sendEmailAgain,
-  handleCountry,
   findFastServer,
+  getPlatformMessages,
+  getUserNotices,
   updateIsCheckingSub,
   updateHasSub,
   updateSubscriptionData,
@@ -272,6 +306,8 @@ export {
   updateCreateSubscription,
   updateSubscriptionError,
   updateSubscriptionsDetails,
+  getSubscription,
+  getStripeplans,
   updateChartData,
   updateChartMirroring,
   updateIsChartReady,
@@ -280,9 +316,12 @@ export {
   updateAddedDrawing,
   updateChartDrawings,
   updateSettingChartDrawings,
-  getChartMirroring,
   updateChartDataOnInit,
   updateSunburstChart,
+  getChartMetaData,
+  getChartDrawing,
+  saveChartDrawings,
+  backupChartDrawing,
   updatePairOperations,
   updatePairPerformance,
   updateAssetPerformance,
@@ -309,4 +348,18 @@ export {
   resetTradeState,
   resetStoploss,
   resetTarget,
+  fetchAnalysts,
+  getAnalysts,
+  getAnalystDrawing,
+  saveAnalystDrawing,
+  getAnalystFlags,
+  saveAnalystFlags,
+  updateEmojis,
+  updateSelectEmojiPopoverOpen,
+  getWatchList,
+  saveWatchList,
+  deleteWatchList,
+  updateSymbolsLists,
+  updateWatchSymbolsLists,
+  updateActiveWatchLists,
 }

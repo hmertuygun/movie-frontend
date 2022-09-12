@@ -93,17 +93,18 @@ const Routes = () => {
           (!hasSub || showSubModalIfLessThan7Days),
       ]
     }, [
-      hasSub,
-      isApiKeysLoading,
       isLoggedIn,
+      isApiKeysLoading,
       loadApiKeys,
       userState,
-      userContextLoaded,
-      showSubModalIfLessThan7Days,
-      isOnboardingSkipped,
-      isTradePage,
-      isSettingsPage,
       firstLogin,
+      isTradePage,
+      userContextLoaded,
+      isSettingsPage,
+      isOnboardingSkipped,
+      hasSub,
+      subscriptionData,
+      showSubModalIfLessThan7Days,
     ])
 
   const showNotifOnNetworkChange = (online) => {
@@ -167,7 +168,7 @@ const Routes = () => {
           )}
 
           {needOnboarding && <OnboardingModal />}
-          {need2FA && <Auth2FAModal />}
+          {isLoggedIn && userContextLoaded && need2FA && <Auth2FAModal />}
 
           {needLoading && (
             <p

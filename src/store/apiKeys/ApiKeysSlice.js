@@ -32,4 +32,13 @@ const apiKeysSlice = createSlice({
   },
 })
 
-export default apiKeysSlice
+export const {
+  setLoadApiKeys,
+  setLoadApiKeysError,
+  setIsApiKeysLoading,
+  setNeed2FA,
+  setTokenExpiry,
+  setSecretKey,
+} = apiKeysSlice.actions
+
+export default apiKeysSlice.reducer

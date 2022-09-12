@@ -5,16 +5,16 @@ import store from 'store'
 import { dataFeed } from 'services/websocket'
 import { UserContext } from 'contexts/UserContext'
 import { storage } from 'services/storages'
-import {
-  setChartDrawings,
-  updateTemplateDrawings,
-  createBackup,
-} from 'services/api'
 import lzutf8 from 'lzutf8'
 import { consoleLogger } from 'utils/logger'
 import exportAsImage from 'utils/downloadImage'
 import dayjs from 'dayjs'
 import MESSAGES from 'constants/Messages'
+import {
+  backupChartDrawing,
+  saveAnalystDrawing,
+  saveChartDrawings,
+} from 'store/actions'
 
 const getLocalLanguage = () => {
   return navigator.language.split('-')[0] || 'en'
@@ -217,11 +217,13 @@ export default class TradingViewChart extends Component {
       try {
         if (!this.props.templateDrawingsOpen) {
           const drawings = {
-            [this.state.email]: compressed,
+            drawings: {
+              [this.state.email]: compressed,
+            },
           }
-          if (event) await createBackup(this.state.email, compressed)
+          if (event) await store.dispatch(backupChartDrawing(drawings))
 
-          await setChartDrawings(this.state.email, drawings)
+          await store.dispatch(saveChartDrawings(drawings))
         }
 
         if (this.props.isAnalyst) {
@@ -236,8 +238,7 @@ export default class TradingViewChart extends Component {
                 lastUpdate: new Date().getTime(),
               }),
           }
-
-          await updateTemplateDrawings(this.state.email, value)
+          await store.dispatch(saveAnalystDrawing(this.state.email, value))
         }
       } catch (e) {
         consoleLogger(e)

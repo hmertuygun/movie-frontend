@@ -2,25 +2,21 @@
 import React, { createContext, useEffect, useContext, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import {
-  saveLastSelectedMarketSymbol,
-  getFirestoreDocumentData,
-} from 'services/api'
+import { saveLastSelectedMarketSymbol } from 'services/api'
 import { firebase } from 'services/firebase'
 import { storage } from 'services/storages'
 import {
   updateSelectedSymbol,
   updateSelectedSymbolDetail,
   updateSymbolType,
-  updateEmojis,
   loadLastPrice,
   loadBalance,
   initMarketData,
   updateOpenOrdersUC,
   updateChartDataOnInit,
   updateIsLoadingBalance,
+  getAnalystFlags,
 } from 'store/actions'
-import { fetchTicker } from 'services/exchanges'
 import { consoleLogger } from 'utils/logger'
 
 import {
@@ -103,16 +99,7 @@ const SymbolContextProvider = ({ children }) => {
   useEffect(() => {
     let userEmail = isAnalyst ? userData.email : activeTrader.id
     if (userEmail) {
-      getFirestoreDocumentData('chart_shared', userEmail)
-        .then((emoji) => {
-          if (emoji.data()) {
-            if (emoji.data()?.flags) {
-              storage.set('flags', JSON.stringify(emoji.data()?.flags))
-              dispatch(updateEmojis(emoji.data()?.flags))
-            }
-          }
-        })
-        .catch((err) => console.log(err))
+      dispatch(getAnalystFlags(userEmail))
     }
   }, [db, watchListOpen, activeTrader, userData.email, isAnalyst])
 

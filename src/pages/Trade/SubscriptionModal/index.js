@@ -21,7 +21,7 @@ const SubscriptionModal = () => {
     } else {
       return 'none'
     }
-  }, [hasSub, showSubModalIfLessThan7Days, needPayment])
+  }, [isLoggedIn, hasSub, showSubModalIfLessThan7Days, needPayment])
 
   const modalStyle = useMemo(() => {
     return {

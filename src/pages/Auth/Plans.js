@@ -6,10 +6,8 @@ import { loadStripe } from '@stripe/stripe-js'
 import {
   createSubscripton,
   updatePaymentMethod,
-  getFirestoreDocumentData,
   verifyCouponCode,
 } from 'services/api'
-import { firebase } from 'services/firebase'
 import { plansDescription } from 'constants/Plans'
 import { notify } from 'reapop'
 import CoinbaseCommerceButton from 'react-coinbase-commerce'
@@ -20,12 +18,11 @@ import { cloneDeep } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
+import { getSubscription, saveUserData } from 'store/actions'
 
 const Plans = ({ canShowTrial }) => {
-  const { userData } = useSelector((state) => state.users)
   const { products } = useSelector((state) => state.market)
 
-  const db = firebase.firestore()
   const location = useLocation()
   const [plans, setPlans] = useState([])
   const [creds, setCreds] = useState(null)
@@ -42,9 +39,9 @@ const Plans = ({ canShowTrial }) => {
 
   const getPrice = useMemo(() => {
     if (activePlan)
-      if (creds?.coupon && activePlan.name == 'Monthly Subscription')
+      if (creds?.coupon && activePlan.name === 'Monthly Subscription')
         return creds.monthly_price
-      else if (creds?.coupon && activePlan.name == 'Yearly Subscription')
+      else if (creds?.coupon && activePlan.name === 'Yearly Subscription')
         return creds.yearly_price
       else return activePlan.prices[0].price
   })
@@ -52,28 +49,26 @@ const Plans = ({ canShowTrial }) => {
   const fetchPaymentIntent = async (plan) => {
     try {
       setIsLoading(plan.id)
-      getFirestoreDocumentData('subscriptions', userData.email)
-        .then(async (data) => {
-          const { customer_id } = data.data()
-          setCustomerId(customer_id)
-          const payload = !!plan.id
-            ? { customer_id: customer_id, price_id: plan.prices[0].id }
-            : { provider: 'trial', customer_id: customer_id }
+      let subData = await dispatch(getSubscription())
+      subData = subData?.payload.data.data
+      const { customer_id } = subData
+      setCustomerId(customer_id)
+      const payload = !!plan.id
+        ? { customer_id: customer_id, price_id: plan.prices[0].id }
+        : { provider: 'trial', customer_id: customer_id }
 
-          if (couponApplied || trialCouponApplied) payload['coupon_id'] = coupon
+      if (couponApplied || trialCouponApplied) payload['coupon_id'] = coupon
 
-          const res = await createSubscripton(payload)
-          if (res)
-            if (res?.plan === 'Free') {
-              paymentCallback('Free')
-            } else {
-              setCreds((prev) => {
-                return { ...prev, ...res }
-              })
-              setActivePlan(plan)
-            }
-        })
-        .finally(() => setIsLoading(''))
+      const res = await createSubscripton(payload)
+      if (res)
+        if (res?.plan === 'Free') {
+          paymentCallback('Free')
+        } else {
+          setCreds((prev) => {
+            return { ...prev, ...res }
+          })
+          setActivePlan(plan)
+        }
     } catch (error) {
       dispatch(notify(MESSAGES['payment-error'], 'error'))
     }
@@ -150,10 +145,7 @@ const Plans = ({ canShowTrial }) => {
 
   const paymentCallback = async (intent) => {
     try {
-      await db
-        .collection('user_data')
-        .doc(userData.email)
-        .set({ firstLogin: false }, { merge: true })
+      await dispatch(saveUserData({ firstLogin: false }))
       if (typeof intent !== 'string') {
         await updatePaymentMethod({
           data: { payment_method_id: intent.payment_method },
@@ -170,25 +162,20 @@ const Plans = ({ canShowTrial }) => {
   const cryptoSuccessPayment = async (type) => {
     setIsLoading(true)
     try {
-      await db
-        .collection('user_data')
-        .doc(userData.email)
-        .set({ firstLogin: false }, { merge: true })
-      getFirestoreDocumentData('subscriptions', userData.email).then(
-        async (data) => {
-          const { customer_id } = data.data()
-          await createSubscripton(
-            {
-              data: { charge_code: type.code, provider: 'coinbase' },
-              customer_id: customer_id,
-            },
-            true
-          )
-          setTimeout(() => {
-            window.location.reload()
-          }, 5000)
-        }
+      await dispatch(saveUserData({ firstLogin: false }))
+      let subData = await dispatch(getSubscription())
+      subData = subData?.payload.data.data
+      const { customer_id } = subData
+      await createSubscripton(
+        {
+          data: { charge_code: type.code, provider: 'coinbase' },
+          customer_id: customer_id,
+        },
+        true
       )
+      setTimeout(() => {
+        window.location.reload()
+      }, 5000)
     } catch (error) {
       dispatch(notify(MESSAGES['payment-error'], 'error'))
     }

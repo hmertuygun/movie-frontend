@@ -4,19 +4,53 @@ import { X } from 'react-feather'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import '../css/WatchListItem.css'
 import { Permitted, Tooltip } from 'components'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { EXCHANGES } from 'constants/Exchanges'
+import PropTypes from 'prop-types'
+import { saveWatchList } from 'store/actions'
+import { consoleLogger } from 'utils/logger'
 
-const WatchListItem = ({ symbol, removeWatchList, group }) => {
+const WatchListItem = ({ symbol, group }) => {
   const { setSymbol } = useSymbolContext()
   const { templateDrawingsOpen } = useSelector((state) => state.templates)
-  const { emojis } = useSelector((state) => state.emojis)
+  const { emojis } = useSelector((state) => state.analysts)
   const { isPaidUser } = useSelector((state) => state.subscriptions)
   const { isAnalyst } = useSelector((state) => state.users)
   const [previousLast, setPreviousLast] = useState(symbol.last)
+  const { activeExchange } = useSelector((state) => state.exchanges)
+  const { activeWatchList, symbolsList } = useSelector(
+    (state) => state.watchlist
+  )
   const lastPrice = useRef(null)
+  const dispatch = useDispatch()
 
   const [showRemoveBtn, setShowRemoveBtn] = useState(false)
+
+  const removeWatchList = async (symbol) => {
+    const symbols = symbolsList
+      .filter((item) => {
+        return !(item.value === symbol.value)
+      })
+      .map((item) => ({
+        label: item.label,
+        value: item.value,
+        flag: item.flag || 0,
+      }))
+    try {
+      const watchListName = activeWatchList.watchListName
+      let data = {
+        lists: {
+          [watchListName]: {
+            watchListName: watchListName,
+            [activeExchange.exchange]: symbols,
+          },
+        },
+      }
+      await dispatch(saveWatchList(data))
+    } catch (error) {
+      consoleLogger('Cannot save watch lists', error)
+    }
+  }
 
   const getLogo = () => {
     const exchange = symbol.value.split(':')[0].toLowerCase()
@@ -98,6 +132,12 @@ const WatchListItem = ({ symbol, removeWatchList, group }) => {
       </div>
     </div>
   )
+}
+
+WatchListItem.propTypes = {
+  symbol: PropTypes.object,
+  removeWatchList: PropTypes.func,
+  group: PropTypes.bool,
 }
 
 export default WatchListItem

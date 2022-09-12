@@ -7,8 +7,7 @@ import { useSelector } from 'react-redux'
 
 const WarningAlert = () => {
   const history = useHistory()
-  const { userState } = useSelector((state) => state.users)
-  const { isCountryAvailable } = useSelector((state) => state.appFlow)
+  const { userState, isCountryAvailable } = useSelector((state) => state.users)
   const { totalExchanges, activeExchange } = useSelector(
     (state) => state.exchanges
   )

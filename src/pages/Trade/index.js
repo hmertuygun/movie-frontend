@@ -5,11 +5,11 @@ import { useMediaQuery } from 'react-responsive'
 import TradeContainer from './TradeContainer'
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride'
 import { firstTourSteps, mirroringTourSteps } from 'utils/tourSteps'
-import { firebase } from 'services/firebase'
 import { useIdleTimer } from 'react-idle-timer'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   logout,
+  saveStripeUsers,
   updateIsTourFinished,
   updateIsTourStep5,
   updateOnSecondTour,
@@ -24,8 +24,7 @@ const Trade = () => {
   const [run2, setRun2] = useState(true)
   const [stepsFirstTour] = useState(firstTourSteps)
   const [stepsMirroringTour] = useState(mirroringTourSteps)
-  const [chartMirroringTourNeeded, setChartMirroringTourNeeded] =
-    useState(false)
+  const [chartMirroringTourNeeded] = useState(false)
   const { onTour, isTourStep5 } = useSelector((state) => state.appFlow)
   const { isChartReady } = useSelector((state) => state.charts)
   const { showMarketItems } = useSelector((state) => state.market)
@@ -41,8 +40,6 @@ const Trade = () => {
       emitOnAllTabs: true,
     },
   })
-
-  const userId = firebase.auth().currentUser?.uid
 
   const isNotMobile = useMediaQuery({ query: `(min-width: 992px)` })
 
@@ -72,11 +69,7 @@ const Trade = () => {
     } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setRun2(false)
-      firebase
-        .firestore()
-        .collection('stripe_users')
-        .doc(userId)
-        .set({ chartMirroringTourFinished: true }, { merge: true })
+      dispatch(saveStripeUsers({ chartMirroringTourFinished: true }))
     }
   }
 

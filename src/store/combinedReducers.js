@@ -4,7 +4,6 @@ import {
   exchanges,
   refresh,
   orders,
-  emojis,
   templates,
   trades,
   market,
@@ -16,6 +15,8 @@ import {
   analytics,
   portfolio,
   simpleTrade,
+  analysts,
+  watchlist,
   notifications,
 } from './reducers'
 
@@ -25,7 +26,6 @@ const reducers = combineReducers({
   exchanges: exchanges,
   refresh: refresh,
   orders: orders,
-  emojis: emojis,
   templates: templates,
   trades: trades,
   market: market,
@@ -36,6 +36,8 @@ const reducers = combineReducers({
   charts: charts,
   analytics: analytics,
   portfolio: portfolio,
+  analysts: analysts,
+  watchlist: watchlist,
   simpleTrade: simpleTrade,
 })
 

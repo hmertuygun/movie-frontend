@@ -1,15 +1,17 @@
-import marketSlice from './MarketSlice'
 import { getSelectedExchange } from 'utils/exchangeSelection'
 import { fetchTicker } from 'services/exchanges'
-import { getFirestoreCollectionData } from 'services/api'
+import { getStripeplans } from 'store/actions'
+import { deleteWatchLists, fetchWatchList, updateWatchList } from 'services/api'
 
-const {
+import {
   setMarketData,
   setShowMarketItems,
   setWatchListOpen,
   setProducts,
   clearProducts,
-} = marketSlice.actions
+} from './MarketSlice'
+
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
 const updateMarketData = (value) => async (dispatch) => {
   dispatch(setMarketData(value))
@@ -27,6 +29,27 @@ const updateProducts = (value) => async (dispatch) => {
   dispatch(setProducts(value))
 }
 
+const getWatchList = createAsyncThunk(
+  'watchlist/getWatchList',
+  async (email) => {
+    return await fetchWatchList(email)
+  }
+)
+
+const saveWatchList = createAsyncThunk(
+  'watchlist/saveWatchList',
+  async (data) => {
+    return await updateWatchList({ data })
+  }
+)
+
+const deleteWatchList = createAsyncThunk(
+  'watchlist/deleteWatchList',
+  async (data) => {
+    return await deleteWatchLists(data)
+  }
+)
+
 const initMarketData = (symbol, activeExchange) => async (dispatch) => {
   let activeMarketData = {}
   await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -42,33 +65,33 @@ const initMarketData = (symbol, activeExchange) => async (dispatch) => {
 }
 
 const getProducts = () => async (dispatch) => {
-  await getFirestoreCollectionData('stripe_plans', true).then(
-    async (querySnapshot) => {
-      dispatch(clearProducts())
-      querySnapshot.forEach(async (doc) => {
-        const priceSnap = await doc.ref
-          .collection('prices')
-          .where('active', '==', true)
-          .orderBy('unit_amount')
-          .get()
-        const productData = doc.data()
-        productData['id'] = doc.id
-        productData['prices'] = []
-        priceSnap.docs.forEach(async (doc) => {
-          const priceId = doc.id
-          const priceData = doc.data()
-
-          productData.prices.push({
-            price: (priceData.unit_amount / 100).toFixed(2),
-            currency: priceData.currency,
-            interval: priceData.interval,
-            id: priceId,
+  await dispatch(getStripeplans()).then((res) => {
+    dispatch(clearProducts())
+    const products = []
+    res.payload.data.forEach((data) => {
+      const product = Object.values(data)[0]
+      const id = Object.keys(data)[0]
+      if (product.active) {
+        product['id'] = id
+        const prices = []
+        if (product?.prices) {
+          product.prices.forEach((values) => {
+            const price = Object.values(values)[0]
+            const priceId = Object.keys(values)[0]
+            prices.push({
+              price: parseFloat((price.unit_amount / 100).toFixed(2)),
+              currency: price.currency,
+              interval: price.interval,
+              id: priceId,
+            })
           })
-        })
-        dispatch(updateProducts(productData))
-      })
-    }
-  )
+          product.prices = prices
+        }
+        products.push(product)
+      }
+    })
+    dispatch(updateProducts(products))
+  })
 }
 
 export {
@@ -78,4 +101,7 @@ export {
   updateProducts,
   initMarketData,
   getProducts,
+  getWatchList,
+  saveWatchList,
+  deleteWatchList,
 }

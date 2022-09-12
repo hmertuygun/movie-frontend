@@ -19,8 +19,7 @@ const marketSlice = createSlice({
       state.watchListOpen = action.payload
     },
     setProducts: (state, action) => {
-      const exisitngProducts = JSON.parse(JSON.stringify(state.products))
-      state.products = [...exisitngProducts, action.payload]
+      state.products = action.payload
     },
     clearProducts: (state) => {
       state.products = []
@@ -28,4 +27,12 @@ const marketSlice = createSlice({
   },
 })
 
-export default marketSlice
+export const {
+  setMarketData,
+  setShowMarketItems,
+  setWatchListOpen,
+  setProducts,
+  clearProducts,
+} = marketSlice.actions
+
+export default marketSlice.reducer

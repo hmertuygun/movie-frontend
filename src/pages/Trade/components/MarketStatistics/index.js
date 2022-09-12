@@ -10,7 +10,6 @@ import { ccxtClass } from 'constants/ccxtConfigs'
 import './MarketStatistics.css'
 import { decryptData } from 'utils/secureData'
 import { notify } from 'reapop'
-import { setChartDrawings as setDrawings } from 'services/api'
 import { useMediaQuery } from 'react-responsive'
 import { useLocation } from 'react-router-dom'
 import DrawingsMigrationModal from '../DrawingsMigrationModal'
@@ -24,8 +23,8 @@ import {
   tickerSocketSubscribe,
 } from 'services/exchanges'
 import {
+  saveChartDrawings,
   updateChartDrawings,
-  updateSelectedSymbolLastPrice,
   updateSettingChartDrawings,
 } from 'store/actions'
 import { consoleError, consoleLogger } from 'utils/logger'
@@ -313,7 +312,7 @@ function MarketStatistics({ market }) {
         [userData.email]: uploadedDrawings,
       }
       setShowDrawingsModal(false)
-      await setDrawings(userData.email, drawings)
+      await dispatch(saveChartDrawings({ drawings: drawings }))
       setFileName('')
       setUploadedDrawings()
       dispatch(updateSettingChartDrawings(false))

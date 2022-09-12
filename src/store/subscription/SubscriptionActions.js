@@ -1,15 +1,19 @@
-import subscriptionSlice from './SubscriptionSlice'
-import { getDoubleCollection, getFirestoreDocumentData } from 'services/api'
+import {
+  fetchCouponUsed,
+  fetchStripePlans,
+  fetchSubscriptions,
+} from 'services/api'
 import dayjs from 'dayjs'
 import {
   updateEndTrial,
   updateIsException,
   updateNeedPayment,
   updateShowSubModal,
+  getReferrals,
 } from 'store/actions'
 import { storage } from 'services/storages'
 
-const {
+import {
   setIsCheckingSub,
   setHasSub,
   setSubscriptionData,
@@ -17,10 +21,11 @@ const {
   setIsPaidUser,
   setCreateSubscription,
   setSubscriptionError,
-} = subscriptionSlice.actions
+} from './SubscriptionSlice'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
-const updateIsCheckingSub = (emojis) => async (dispatch) => {
-  dispatch(setIsCheckingSub(emojis))
+const updateIsCheckingSub = (value) => async (dispatch) => {
+  dispatch(setIsCheckingSub(value))
 }
 const updateHasSub = (value) => async (dispatch) => {
   dispatch(setHasSub(value))
@@ -40,23 +45,37 @@ const updateCreateSubscription = (value) => async (dispatch) => {
 const updateSubscriptionError = (value) => async (dispatch) => {
   dispatch(setSubscriptionError(value))
 }
-const updateSubscriptionsDetails = (state, userData) => async (dispatch) => {
-  dispatch(updateIsCheckingSub(true))
-  const subscriptionsDetails = await getFirestoreDocumentData(
-    'subscriptions',
-    userData?.email
-  )
+const getSubscription = createAsyncThunk(
+  'subscription/getSubscription',
+  async () => {
+    return await fetchSubscriptions()
+  }
+)
 
-  const subData = subscriptionsDetails.data()
-  if (subData && subData.expiration_date && !state.firstLogin) {
+const getCouponsUsed = createAsyncThunk(
+  'subscription/getCouponsUsed',
+  async () => {
+    return await fetchCouponUsed()
+  }
+)
+
+const getStripeplans = createAsyncThunk('stripe/getStripePlans', async () => {
+  return await fetchStripePlans()
+})
+
+const updateSubscriptionsDetails = (firstLogin) => async (dispatch) => {
+  dispatch(updateIsCheckingSub(true))
+  const subscriptionsDetails = await dispatch(getSubscription())
+  const subData = subscriptionsDetails?.payload.data.data
+  if (subData && subData.expiration_date && !firstLogin) {
     const { subscription_status, provider, currency, plan, amount } = subData
     let errorMessage = subData && subData.error_message
     let scheduledSubs = subData && subData.subscription_scheduled
 
     dispatch(updateSubscriptionError(errorMessage ? errorMessage : ''))
 
-    const { seconds } = subData.expiration_date
-    const exp = dayjs(seconds * 1000)
+    const { expiration_date } = subData
+    const exp = dayjs(expiration_date * 1000)
     const isExpired = exp.isBefore(dayjs())
     if (provider === 'coinbase') {
       dispatch(updateNeedPayment(subscription_status === 'trailing'))
@@ -74,7 +93,7 @@ const updateSubscriptionsDetails = (state, userData) => async (dispatch) => {
             type: 'crypto',
             status: !isExpired ? 'active' : 'unpaid',
           },
-          due: seconds,
+          due: expiration_date,
           priceData: {
             currency,
             unit_amount: amount,
@@ -83,7 +102,7 @@ const updateSubscriptionsDetails = (state, userData) => async (dispatch) => {
         })
       )
     } else if (provider === 'stripe' || provider === 'coinpanel') {
-      let trialDays = seconds * 1000 - Date.now()
+      let trialDays = expiration_date - Date.now()
       trialDays = trialDays / 1000 / 60 / 60 / 24
       let getSubModalShownLastTime = storage.get('lastSubModal')
       getSubModalShownLastTime = getSubModalShownLastTime
@@ -117,19 +136,17 @@ const updateSubscriptionsDetails = (state, userData) => async (dispatch) => {
       if (subData?.payment_method_attached)
         dispatch(updateEndTrial(subData.payment_method_attached))
       dispatch(updateIsPaidUser(subscription_status === 'active'))
-      const checkCoupon = await getDoubleCollection(
-        'subscriptions',
-        'coupons_used',
-        userData.email
-      )
+      let coupons = await dispatch(getCouponsUsed())
+      coupons = coupons?.payload.data
+
       dispatch(
         updateSubscriptionData({
           subscription: {
             type: 'stripe',
             status: subscription_status,
           },
-          due: seconds,
-          couponUsed: checkCoupon.docs.length > 0,
+          due: expiration_date,
+          couponUsed: coupons.length > 0,
           priceData: {
             currency,
             unit_amount: amount,
@@ -146,9 +163,8 @@ const updateSubscriptionsDetails = (state, userData) => async (dispatch) => {
     dispatch(updateCreateSubscription(true))
   }
 
-  const exception = await getFirestoreDocumentData('referrals', userData.email)
-
-  if (exception?.data()) {
+  const exception = await dispatch(getReferrals())
+  if (exception?.payload.data) {
     dispatch(updateIsException(true))
   }
   dispatch(updateIsCheckingSub(false))
@@ -163,4 +179,6 @@ export {
   updateCreateSubscription,
   updateSubscriptionError,
   updateSubscriptionsDetails,
+  getSubscription,
+  getStripeplans,
 }

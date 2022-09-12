@@ -1,7 +1,9 @@
+import { API_URLS, BASE_URL } from 'constants/config'
 import httpClient from 'services/http'
 import createQueryString from 'utils/createQueryString'
 
-const BASE_URL = process.env.REACT_APP_API
+const platformMessageUrl = API_URLS['platform-messages']
+const noticeUrl = API_URLS['notice']
 
 const loadNotificationChannels = async () => {
   const apiUrl = `${BASE_URL}loadNotificationChannels`
@@ -31,9 +33,21 @@ const storeNotificationToken = async (fcmToken) => {
   return response.data
 }
 
+const fetchPlatformMessages = async () => {
+  const apiUrl = platformMessageUrl
+  return await httpClient(apiUrl, 'GET')
+}
+
+const fetchUserNotices = async () => {
+  const apiUrl = `${noticeUrl}/list`
+  return await httpClient(apiUrl, 'GET')
+}
+
 export {
   loadNotificationChannels,
   setTelegramNotification,
   setEmailNotification,
   storeNotificationToken,
+  fetchPlatformMessages,
+  fetchUserNotices,
 }
