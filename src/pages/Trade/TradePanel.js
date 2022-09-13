@@ -152,7 +152,7 @@ const Trade = () => {
 
   useEffect(() => {
     updateRemainingMinutes()
-  }, [show2FAModal])
+  }, [show2FAModal, tokenExpiry])
 
   useEffect(() => {
     dispatch(resetTradeState())
@@ -166,7 +166,7 @@ const Trade = () => {
     let minutes = Math.ceil(
       dayjs(new Date(tokenExpiry)).diff(dayjs(), 'minute')
     )
-    if (minutes >= 0) {
+    if (minutes > 0) {
       setShow2FAModal(false)
     }
     setRemainingMinutes(minutes)
@@ -178,9 +178,10 @@ const Trade = () => {
   )
 
   let isValid = useMemo(() => remainingMinutes >= 0, [remainingMinutes])
+
   return (
     <Fragment>
-      {show2FAModal && <Auth2FAModal />}
+      {show2FAModal ? <Auth2FAModal /> : null}
       <>
         <SymbolSelect showOnlyMarketSelection={true} />
         <div
