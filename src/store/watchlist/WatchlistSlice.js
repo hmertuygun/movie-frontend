@@ -36,14 +36,26 @@ const watchlistSlice = createSlice({
       state.watchLists = res?.lists || []
       state.activeWatchList = state.watchLists[res?.activeList] || {}
     })
+    builder.addCase(saveWatchList.pending, (state, action) => {
+      const { activeList } = action.meta.arg
+      if (activeList) state.activeWatchList = state.watchLists[activeList] || {}
+    })
     builder.addCase(saveWatchList.fulfilled, (state, action) => {
       const { lists, activeList } = action.meta.arg
+      const { status } = action.payload
       let key = ''
       if (lists) {
         key = Object.keys(lists)[0]
         state.watchLists[key] = lists[key]
       }
-      state.activeWatchList = state.watchLists[activeList || key] || {}
+      if (activeList) {
+        if (status === 200) {
+          state.watchListData.activeList = activeList
+        } else {
+          state.activeWatchList =
+            state.watchLists[state.watchListData.activeList] || {}
+        }
+      }
     })
     builder.addCase(deleteWatchList.fulfilled, (state, action) => {
       const { watchListName } = action.meta.arg
