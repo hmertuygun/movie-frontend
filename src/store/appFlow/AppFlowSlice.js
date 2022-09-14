@@ -67,7 +67,7 @@ const appFlowSlice = createSlice({
       state.platformMessages = platformMessages
     })
     builder.addCase(getUserNotices.fulfilled, (state, action) => {
-      const userNotices = action?.payload?.data.data || []
+      const userNotices = action?.payload?.data?.data || []
       state.userNotices = userNotices
     })
   },

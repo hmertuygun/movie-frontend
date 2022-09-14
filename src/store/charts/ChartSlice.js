@@ -56,8 +56,8 @@ const chartSlice = createSlice({
       state.chartMetaData = res
     })
     builder.addCase(getChartDrawing.fulfilled, (state, action) => {
-      const res = action.payload.data
-      if (res) {
+      const res = action.payload?.data
+      if (res && res[0]) {
         const data = LZUTF8.decompress(res[Object.keys(res)[0]], {
           inputEncoding: 'Base64',
         })

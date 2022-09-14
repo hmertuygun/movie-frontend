@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { config } from 'constants/config'
 import { session, storage } from 'services/storages'
-import { getUserData } from './UsersActions'
+import { getUserData, saveUserData } from './UsersActions'
 const userDetails = storage.get('user', true)
 const lRemember = storage.get('remember')
 const sRemember = session.get('remember')
@@ -30,7 +30,7 @@ const usersSlice = createSlice({
     userState: initialUserState,
     userContextLoaded: false,
     isSubOpen: config.subscription,
-    firstLogin: true,
+    firstLogin: false,
     isCanaryUser: false,
     country: '',
     isCountryAvailable: true,
@@ -64,6 +64,10 @@ const usersSlice = createSlice({
       state.firstLogin = res ? res.firstLogin : false
       state.country = res?.country
       state.isCountryAvailable = !!res
+    })
+    builder.addCase(saveUserData.fulfilled, (state, action) => {
+      const { firstLogin } = action.meta.arg
+      state.firstLogin = firstLogin || false
     })
   },
 })

@@ -30,6 +30,7 @@ import {
   setIsCanaryUser,
   setCountry,
   setIsCountryAvailable,
+  setFirstLogin,
 } from './UsersSlice'
 
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
@@ -56,13 +57,13 @@ const getUserData = createAsyncThunk('user/getUserData', async (data) => {
 })
 
 const saveUserData = createAsyncThunk('user/saveUserData', async (data) => {
-  return await updateUsersData({ data: data })
+  return await updateUsersData(data)
 })
 
 const saveInitialUserData = createAsyncThunk(
   'user/saveInitialUserData',
   async (data) => {
-    return await updateInitialUsersData({ data: data })
+    return await updateInitialUsersData({ data })
   }
 )
 
@@ -73,14 +74,14 @@ const getReferrals = createAsyncThunk('referrals/getReferrals', async () => {
 const saveReferrals = createAsyncThunk(
   'referrals/saveReferrals',
   async (data) => {
-    return await updateReferrals({ data: data })
+    return await updateReferrals({ data })
   }
 )
 
 const saveStripeUsers = createAsyncThunk(
   'user/saveStripeUsers',
   async (data) => {
-    return await updateStripeUsers({ data: data })
+    return await updateStripeUsers({ data })
   }
 )
 

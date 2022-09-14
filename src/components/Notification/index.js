@@ -20,6 +20,7 @@ const WarningAlert = () => {
   const { platformMessages, userNotices } = useSelector(
     (state) => state.appFlow
   )
+  const { firstLogin } = useSelector((state) => state.users)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -74,7 +75,7 @@ const WarningAlert = () => {
     }
   }
 
-  if (isLoggedIn) {
+  if (isLoggedIn && !firstLogin) {
     if (notices.length > 0)
       return (
         <div className="px-4 m-3" role="alert">

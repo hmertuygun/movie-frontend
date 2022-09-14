@@ -152,7 +152,6 @@ const Plans = ({ canShowTrial }) => {
           stripeId: customerId,
         })
       }
-      window.location.reload()
     } catch (error) {
       consoleLogger(error)
       dispatch(notify(MESSAGES['something-wrong'], 'error'))
