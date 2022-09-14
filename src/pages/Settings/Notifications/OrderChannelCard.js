@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-
+import PropTypes from 'prop-types'
 import TelegramSettingModal from './TelegramSettingModal'
 import { useSelector } from 'react-redux'
 
@@ -71,6 +71,15 @@ const OrderChannelCard = ({
       </div>
     </>
   )
+}
+
+OrderChannelCard.propTypes = {
+  channel: PropTypes.string,
+  channelId: PropTypes.string,
+  icon: PropTypes.string,
+  enabled: PropTypes.bool,
+  toggleChannelSetting: PropTypes.func,
+  showTelegramSetting: PropTypes.bool,
 }
 
 export default OrderChannelCard

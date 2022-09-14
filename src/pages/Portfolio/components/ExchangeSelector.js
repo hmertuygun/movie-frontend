@@ -3,6 +3,7 @@ import { ThemeContext } from 'contexts/ThemeContext'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
+import PropTypes from 'prop-types'
 import { updateSelectedExchanges } from 'store/actions'
 import getLogo from 'utils/getExchangeLogo'
 
@@ -107,6 +108,10 @@ const ExchangeSelector = ({ onChange }) => {
       options={exchanges}
     />
   )
+}
+
+ExchangeSelector.propTypes = {
+  props: PropTypes.object,
 }
 
 export default ExchangeSelector

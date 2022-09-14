@@ -30,7 +30,7 @@ import {
 import { consoleError, consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
 
-function MarketStatistics({ market }) {
+function MarketStatistics() {
   const [message, setMessage] = useState(null)
   const [finalData, setFinalData] = useState(null)
 

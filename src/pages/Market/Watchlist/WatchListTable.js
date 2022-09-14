@@ -1,6 +1,7 @@
 import { orderBy } from 'lodash'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import sortTemplate from 'utils/sortTemplate'
 import WatchListItem from './WatchListItem'
 
@@ -127,6 +128,13 @@ const WatchListTable = ({
       </div>
     </>
   )
+}
+
+WatchListTable.propTypes = {
+  styles: PropTypes.object,
+  isGroupByFlag: PropTypes.bool,
+  getWatchSymbolsList: PropTypes.func,
+  loading: PropTypes.bool,
 }
 
 export default WatchListTable

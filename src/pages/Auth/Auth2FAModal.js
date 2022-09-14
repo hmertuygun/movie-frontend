@@ -1,11 +1,9 @@
-import React, { lazy, useContext, useMemo, useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { UserContext } from 'contexts/UserContext'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateShowSubModal, verify2FA } from 'store/actions'
 
 import { Icon, Modal } from 'components'
+import { verify2FA } from 'store/actions'
+import MESSAGES from 'constants/Messages'
 
 const Auth2FAModal = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -40,9 +38,7 @@ const Auth2FAModal = () => {
                 if (t2faToken) {
                   doVerify2FA(t2faToken)
                 } else {
-                  setError(
-                    'You need to provide a valid Two Factor Authentication token'
-                  )
+                  setError(MESSAGES['invalid-2fa'])
                 }
               }}
             >

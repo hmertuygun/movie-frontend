@@ -1,4 +1,5 @@
 import React, { Fragment, useContext } from 'react'
+import PropTypes from 'prop-types'
 import { ThemeContext } from 'contexts/ThemeContext'
 import './ExchangeRow.css'
 
@@ -59,6 +60,13 @@ const ExchangeRow = ({ row, onDeleteClick, isLast, onUpdateClick }) => {
       {!isLast && <hr className="my-3" />}
     </Fragment>
   )
+}
+
+ExchangeRow.propTypes = {
+  row: PropTypes.object,
+  onDeleteClick: PropTypes.func,
+  isLast: PropTypes.bool,
+  onUpdateClick: PropTypes.func,
 }
 
 export default ExchangeRow

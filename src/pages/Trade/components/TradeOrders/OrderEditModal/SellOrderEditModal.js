@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import * as yup from 'yup'
-
+import PropTypes from 'prop-types'
 import { InlineInput } from 'components'
 import {
   getMaxInputLength,
@@ -518,6 +518,17 @@ const SellOrderEditModal = ({
       <div className="modal-backdrop fade show"></div>
     </div>
   )
+}
+
+SellOrderEditModal.propTypes = {
+  onClose: PropTypes.func,
+  onSave: PropTypes.func,
+  isLoading: PropTypes.bool,
+  selectedOrder: PropTypes.object,
+  isFullTrade: PropTypes.bool,
+  entryOrder: PropTypes.object,
+  stoplossOrder: PropTypes.object,
+  targetOrders: PropTypes.array,
 }
 
 export default SellOrderEditModal

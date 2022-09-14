@@ -20,7 +20,7 @@ import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
 import { getSubscription, saveUserData } from 'store/actions'
 
-const Plans = ({ canShowTrial }) => {
+const Plans = () => {
   const { products } = useSelector((state) => state.market)
 
   const location = useLocation()

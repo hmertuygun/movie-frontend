@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import styles from './SymbolSelect.module.css'
@@ -92,6 +93,10 @@ const SymbolSelect = ({ showOnlyMarketSelection }) => {
       </div>
     </div>
   )
+}
+
+SymbolSelect.propTypes = {
+  showOnlyMarketSelection: PropTypes.func,
 }
 
 export default SymbolSelect

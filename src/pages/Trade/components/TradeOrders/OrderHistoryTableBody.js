@@ -1,5 +1,6 @@
 /* eslint-disable css-modules/no-unused-class */
 import React from 'react'
+import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Moment from 'react-moment'
 
@@ -18,7 +19,6 @@ const OrderHistoryTableBody = ({
   lastFetchedData,
   isHideOtherPairs,
   callOrderHistoryAPI,
-  symbolClick,
 }) => {
   const { activeExchange } = useSelector((state) => state.exchanges)
   const { setSymbol } = useSymbolContext()
@@ -191,6 +191,14 @@ const OrderHistoryTableBody = ({
       </div>
     </>
   )
+}
+
+OrderHistoryTableBody.propTypes = {
+  data: PropTypes.array,
+  isFetching: PropTypes.bool,
+  lastFetchedData: PropTypes.object,
+  isHideOtherPairs: PropTypes.bool,
+  callOrderHistoryAPI: PropTypes.func,
 }
 
 export default OrderHistoryTableBody

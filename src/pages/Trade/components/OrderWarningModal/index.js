@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 const OrderWarningModal = ({ isLoading, onClose, placeOrder }) => {
   return (
@@ -53,6 +54,12 @@ const OrderWarningModal = ({ isLoading, onClose, placeOrder }) => {
       <div className="modal-backdrop fade show"></div>
     </div>
   )
+}
+
+OrderWarningModal.propTypes = {
+  isLoading: PropTypes.bool,
+  onClose: PropTypes.func,
+  placeOrder: PropTypes.func,
 }
 
 export default OrderWarningModal

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Modal, Button } from 'components'
 import { encryptData } from 'utils/secureData'
 import { DownloadCloud, UploadCloud } from 'react-feather'
@@ -104,6 +105,19 @@ const DrawingsMigrationModal = ({
       </div>
     </Modal>
   )
+}
+
+DrawingsMigrationModal.propTypes = {
+  chartDrawings: PropTypes.object,
+  handleFileUpload: PropTypes.func,
+  fileDrop: PropTypes.func,
+  fileName: PropTypes.string,
+  handleModalClose: PropTypes.func,
+  uploadedDrawings: PropTypes.bool,
+  handleProceedDrawings: PropTypes.func,
+  dragEnter: PropTypes.func,
+  dragOver: PropTypes.func,
+  dragLeave: PropTypes.func,
 }
 
 export default DrawingsMigrationModal

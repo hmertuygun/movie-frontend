@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Modal } from 'components'
 
 const CryptoStatusModal = ({ status, handleClickCancel }) => {
@@ -33,6 +34,11 @@ const CryptoStatusModal = ({ status, handleClickCancel }) => {
       </div>
     </Modal>
   )
+}
+
+CryptoStatusModal.propTypes = {
+  status: PropTypes.string,
+  handleClickCancel: PropTypes.func,
 }
 
 export default CryptoStatusModal

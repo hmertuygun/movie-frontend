@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 const DeletionModal = ({ onClose, onDelete, isLoading }) => {
   return (
@@ -57,6 +58,12 @@ const DeletionModal = ({ onClose, onDelete, isLoading }) => {
       <div className="modal-backdrop fade show"></div>
     </div>
   )
+}
+
+DeletionModal.propTypes = {
+  onClose: PropTypes.func,
+  onDelete: PropTypes.func,
+  isLoading: PropTypes.bool,
 }
 
 export default DeletionModal

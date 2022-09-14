@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { Button } from 'components'
 import { addPrecisionToNumber } from 'utils/tradeForm'
 import styles from './Table.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { resetStoploss, resetTarget, resetTradeState } from 'store/actions'
+
 const Table = ({
   labels = [],
   entry = {},
@@ -247,5 +249,13 @@ const Table = ({
 const TableTradeRow = ({ children }) => (
   <tr className={styles['Table-row']}>{children}</tr>
 )
+
+Table.propTypes = {
+  labels: PropTypes.array,
+  entry: PropTypes.object,
+  targets: PropTypes.array,
+  stoploss: PropTypes.array,
+  sell: PropTypes.bool,
+}
 
 export default Table

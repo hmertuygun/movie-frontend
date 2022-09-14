@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Modal } from 'components'
 import { AlertTriangle } from 'react-feather'
 
@@ -53,6 +54,12 @@ const CountrySelectionModal = ({
       </div>
     </Modal>
   )
+}
+
+CountrySelectionModal.propTypes = {
+  handleClickConfirm: PropTypes.func,
+  handleClickCancel: PropTypes.func,
+  isLoading: PropTypes.bool,
 }
 
 export default CountrySelectionModal

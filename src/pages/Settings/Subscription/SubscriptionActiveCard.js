@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
 import { UserCheck } from 'react-feather'
 import dayjs from 'dayjs'
 import { notify } from 'reapop'
@@ -28,9 +29,7 @@ const SubscriptionActiveCard = ({
   creds,
   card,
   subCreds,
-  logout,
   products,
-  email,
   getClientSecret,
 }) => {
   const [showCancelModal, setShowCancelModal] = useState(false)
@@ -188,18 +187,15 @@ const SubscriptionActiveCard = ({
     if (subscription.status === 'trialling') {
       return `Your trial will end on ${dayjs(due * 1000).format(
         'MMM DD, YYYY'
-      )}. Please add a payment method to keep your account active. If you don’t have a payment method added, your
-      subscription will be cancelled automatically.`
+      )}. ${MESSAGES['no-payment-method-added']}`
     } else if (subscription.status === 'trialling' && needPayment) {
-      return `Please add a payment method to keep your account active. If you don’t have a payment method added, your
-      subscription will be cancelled automatically.`
+      return MESSAGES['no-payment-method-added']
     } else if (SUBSCRIPTION_STATUSES.includes(subscription.status)) {
       return `Your subscription has expired at ${dayjs(due * 1000).format(
         'MMM DD, YYYY'
       )}. Please check your payment menthod or add a new one.`
     } else if (needPayment) {
-      return `Please add a payment method to keep your account active. If you don’t have a payment method added, your
-      subscription will be cancelled automatically.`
+      return MESSAGES['no-payment-method-added']
     } else if (subscriptionData.scheduledSubs) {
       const value =
         subscriptionData.scheduledSubs?.plan === 'Yearly' ? 'yearly' : 'monthly'
@@ -344,6 +340,16 @@ const SubscriptionActiveCard = ({
       )}
     </div>
   )
+}
+
+SubscriptionActiveCard.propTypes = {
+  subscriptionData: PropTypes.object,
+  needPayment: PropTypes.bool,
+  creds: PropTypes.object,
+  card: PropTypes.object,
+  subCreds: PropTypes.object,
+  products: PropTypes.array,
+  getClientSecret: PropTypes.func,
 }
 
 export default SubscriptionActiveCard

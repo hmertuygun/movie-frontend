@@ -1,6 +1,7 @@
 import React from 'react'
 import { Trash2 } from 'react-feather'
 import { formatDate } from 'utils/formatDate'
+import PropTypes from 'prop-types'
 
 const RemoveButton = ({ onClick }) => {
   return (
@@ -43,5 +44,12 @@ const T2FARow = ({ title, description, date, onRemove }) => (
     </div>
   </li>
 )
+
+T2FARow.propTypes = {
+  title: PropTypes.string,
+  description: PropTypes.string,
+  date: PropTypes.instanceOf(Date),
+  onRemove: PropTypes.func,
+}
 
 export default T2FARow

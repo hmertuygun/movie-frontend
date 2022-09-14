@@ -8,6 +8,7 @@ import { UserContext } from 'contexts/UserContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, updateRememberCheck } from 'store/actions'
 import { fbPixelTracking } from 'services/tracking'
+import MESSAGES from 'constants/Messages'
 
 const QuickLogin = () => {
   const { isLoggedInWithFirebase } = useContext(UserContext)
@@ -51,8 +52,7 @@ const QuickLogin = () => {
       setIsDisabled(true)
       setLoading(false)
       setError({
-        message:
-          'Email unverified with too many resend tries, please wait 1 minute before trying again',
+        message: MESSAGES['email-too-many-attempt'],
       })
       await timeout(60000)
       setIsDisabled(false)

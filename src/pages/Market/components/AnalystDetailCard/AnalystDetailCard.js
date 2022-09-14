@@ -2,6 +2,7 @@ import { ThemeContext } from 'contexts/ThemeContext'
 import { useContext } from 'react'
 import dayjs from 'dayjs'
 import { Globe, Youtube, Instagram, Twitter } from 'react-feather'
+import PropTypes from 'prop-types'
 
 const relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -102,4 +103,9 @@ const AnalystDetailCard = ({ selectedAnalyst }) => {
     </div>
   )
 }
+
+AnalystDetailCard.propTypes = {
+  selectedAnalyst: PropTypes.object,
+}
+
 export default AnalystDetailCard

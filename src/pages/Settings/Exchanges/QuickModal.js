@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { Key } from 'react-feather'
 import Select from 'react-select'
 import * as yup from 'yup'
@@ -11,13 +12,11 @@ import {
 } from 'constants/QuickModal'
 import { useSelector } from 'react-redux'
 import { getAllowedExchanges } from 'utils/exchangeSelection'
-import { EXCHANGES } from 'constants/Exchanges'
 
 const QuickModal = ({
   onClose,
   onSave,
   isLoading,
-  isVisible,
   isUpdate,
   selectedExchange,
 }) => {
@@ -318,6 +317,14 @@ const QuickModal = ({
       <div className="modal-backdrop fade show"></div>
     </div>
   )
+}
+
+QuickModal.propTypes = {
+  onClose: PropTypes.func,
+  onSave: PropTypes.func,
+  isLoading: PropTypes.bool,
+  isUpdate: PropTypes.bool,
+  selectedExchange: PropTypes.object,
 }
 
 export default QuickModal

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 const OrderNotificationCard = ({
   title,
@@ -32,5 +33,13 @@ const OrderNotificationCard = ({
     </div>
   </div>
 )
+
+OrderNotificationCard.propTypes = {
+  title: PropTypes.string,
+  description: PropTypes.string,
+  showImportantlabel: PropTypes.bool,
+  checkboxId: PropTypes.string,
+  enabled: PropTypes.bool,
+}
 
 export default OrderNotificationCard

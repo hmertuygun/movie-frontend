@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import Checkout from 'pages/Auth/Checkout'
@@ -37,6 +38,12 @@ const SubscriptionUpdate = ({ paymentCallback, creds, handleCancel }) => {
       </div>
     </Modal>
   )
+}
+
+SubscriptionUpdate.propTypes = {
+  paymentCallback: PropTypes.func,
+  creds: PropTypes.object,
+  handleCancel: PropTypes.func,
 }
 
 export default SubscriptionUpdate

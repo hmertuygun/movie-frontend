@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ThemeContext } from 'contexts/ThemeContext'
 import { useContext } from 'react'
+import PropTypes from 'prop-types'
+
 import './AnalystSelector.css'
 import { ChevronDown, ChevronRight, User, Info } from 'react-feather'
 import dayjs from 'dayjs'
@@ -164,6 +166,14 @@ const AnalystSelector = ({
       )}
     </>
   )
+}
+
+AnalystSelector.propTypes = {
+  traders: PropTypes.array,
+  handleChange: PropTypes.func,
+  activeValue: PropTypes.string,
+  userData: PropTypes.object,
+  showInfo: PropTypes.bool,
 }
 
 export default AnalystSelector

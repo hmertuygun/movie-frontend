@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import CoinbaseCommerceButton from 'react-coinbase-commerce'
 import { Modal } from 'components'
 import { config } from 'constants/config'
@@ -64,6 +65,15 @@ const SubscriptionChange = ({
       </div>
     </Modal>
   )
+}
+
+SubscriptionChange.propTypes = {
+  priceData: PropTypes.object,
+  isLoading: PropTypes.bool,
+  handleClickCancel: PropTypes.func,
+  handlePaymentDetected: PropTypes.func,
+  cryptoSuccessPayment: PropTypes.func,
+  updatePlan: PropTypes.func,
 }
 
 export default SubscriptionChange

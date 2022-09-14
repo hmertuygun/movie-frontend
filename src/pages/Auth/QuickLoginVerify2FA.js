@@ -4,6 +4,7 @@ import { Logo, Icon } from 'components'
 import { UserContext } from 'contexts/UserContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout, verify2FA } from 'store/actions'
+import MESSAGES from 'constants/Messages'
 
 const QuickLoginVerify2FA = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -17,7 +18,7 @@ const QuickLoginVerify2FA = () => {
       setIsLoading(true)
       const isVerified = await dispatch(verify2FA(t2faToken, userState))
       if (!isVerified) {
-        setError("Provided 2FA Token doesn't match.")
+        setError(MESSAGES['2fa-not-matching'])
       }
     } catch (error) {
       throw error

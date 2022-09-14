@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Modal } from 'components'
 import { UserCheck } from 'react-feather'
 
@@ -47,6 +48,12 @@ const EndTrialModal = ({ handleClickYes, handleClickCancel, isLoading }) => {
       </div>
     </Modal>
   )
+}
+
+EndTrialModal.propTypes = {
+  handleClickYes: PropTypes.func,
+  handleClickCancel: PropTypes.func,
+  isLoading: PropTypes.bool,
 }
 
 export default EndTrialModal

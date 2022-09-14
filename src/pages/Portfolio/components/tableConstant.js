@@ -1,6 +1,4 @@
-import { handleChangeTickSize } from 'utils/useTickSize'
-
-export const tableConstants = (handleEdit) => {
+export const tableConstants = () => {
   return {
     Header: 'BALANCES',
     isVisible: false,

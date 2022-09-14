@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { UserCheck } from 'react-feather'
 import { Modal } from 'components'
 import ReasoningModal from 'pages/Settings/Security/ReasoningModal'
@@ -60,6 +61,14 @@ const SubscriptionCancel = ({
       </div>
     </Modal>
   )
+}
+
+SubscriptionCancel.propTypes = {
+  handleSuccess: PropTypes.func,
+  isLoading: PropTypes.bool,
+  handleCancel: PropTypes.func,
+  handleChange: PropTypes.func,
+  showInfo: PropTypes.bool,
 }
 
 export default SubscriptionCancel

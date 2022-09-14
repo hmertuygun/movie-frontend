@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 
 const Checkout = ({ creds, paymentCallback, isUpdate }) => {
   const { userData } = useSelector((state) => state.users)
@@ -148,6 +149,12 @@ const Checkout = ({ creds, paymentCallback, isUpdate }) => {
       </form>
     </>
   )
+}
+
+Checkout.propTypes = {
+  creds: PropTypes.object,
+  paymentCallback: PropTypes.func,
+  isUpdate: PropTypes.bool,
 }
 
 export default withRouter(Checkout)

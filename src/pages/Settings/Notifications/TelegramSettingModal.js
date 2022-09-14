@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { notify } from 'reapop'
 import { useQuery } from 'react-query'
 import { connectTelegramLoadKey, disconnectTelegram } from 'services/api'
@@ -118,6 +119,11 @@ const TelegramSettingModal = ({ onClose, connected }) => {
       <div className="modal-backdrop fade show"></div>
     </div>
   )
+}
+
+TelegramSettingModal.propTypes = {
+  onClose: PropTypes.func,
+  connected: PropTypes.bool,
 }
 
 export default TelegramSettingModal

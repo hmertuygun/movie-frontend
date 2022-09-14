@@ -73,6 +73,15 @@ const MESSAGES = {
   'portfolio-create-failed':
     "Portfolio couldn't be created. Please try again later!",
   'last-price-fetch-failed': 'Error getting last price of market!',
+  'invalid-2fa': 'You need to provide a valid Two Factor Authentication token',
+  '2fa-not-matching': `Provided 2FA Token doesn't match.`,
+  'invalid-password':
+    'Password must contain at least 6 characters, including 1 uppercase letter, 1 lowercase letter and 1 number',
+  'empty-password': 'You need to provide a password..',
+  'email-too-many-attempt':
+    'Email unverified with too many resend tries, please wait 1 minute before trying again',
+  'no-payment-method-added': `Please add a payment method to keep your account active. If you don’t have a payment method added, your
+    subscription will be cancelled automatically.`,
 }
 
 export default MESSAGES

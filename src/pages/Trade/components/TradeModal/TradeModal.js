@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Typography, Button } from 'components'
 import styles from './TradeModal.module.css'
 import { addPrecisionToNumber } from 'utils/tradeForm'
@@ -133,6 +134,12 @@ const TradeModal = ({ onClose, placeOrder, btnDisabled }) => {
       </footer>
     </article>
   )
+}
+
+TradeModal.propTypes = {
+  onClose: PropTypes.func,
+  placeOrder: PropTypes.func,
+  btnDisabled: PropTypes.bool,
 }
 
 export default TradeModal

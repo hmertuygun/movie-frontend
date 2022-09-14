@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import PropTypes from 'prop-types'
 import { notify } from 'reapop'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { Tooltip, Icon } from 'components'
@@ -385,6 +386,12 @@ const OpenOrdersTableBody = ({
       ) : null}
     </>
   )
+}
+
+OpenOrdersTableBody.propTypes = {
+  entry: PropTypes.array,
+  deletedRow: PropTypes.func,
+  setDeletedRows: PropTypes.func,
 }
 
 export default OpenOrdersTableBody

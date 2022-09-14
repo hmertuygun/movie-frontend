@@ -1,5 +1,6 @@
 import { DELETION_REASONS } from 'constants/deletionReasons'
 import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 
 const ReasoningModal = ({ onChange }) => {
   const [checkedState, setCheckedState] = useState(
@@ -70,6 +71,10 @@ const ReasoningModal = ({ onChange }) => {
       ))}
     </div>
   )
+}
+
+ReasoningModal.propTypes = {
+  onChange: PropTypes.func,
 }
 
 export default ReasoningModal

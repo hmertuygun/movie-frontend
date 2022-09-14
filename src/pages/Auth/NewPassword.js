@@ -1,7 +1,9 @@
 import React, { useState, useEffect, Fragment } from 'react'
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import { auth } from 'services/firebase'
 import { Logo, Icon } from 'components'
+import MESSAGES from 'constants/Messages'
 
 const NewPassword = ({ actionCode }) => {
   const [recoverEmail, setRecoverEmail] = useState('')
@@ -105,8 +107,7 @@ const NewPassword = ({ actionCode }) => {
                         let validPassword = validationPattern.test(password)
                         if (!validPassword) {
                           setError({
-                            message:
-                              'Password must contain at least 6 characters, including 1 uppercase letter, 1 lowercase letter and 1 number',
+                            message: MESSAGES['invalid-password'],
                           })
                           return
                         }
@@ -114,7 +115,7 @@ const NewPassword = ({ actionCode }) => {
                         resetPassword(password)
                       } else {
                         setError({
-                          message: 'You need to provide a password..',
+                          message: MESSAGES['empty-password'],
                         })
                       }
                     }}
@@ -192,6 +193,10 @@ const NewPassword = ({ actionCode }) => {
       </div>
     </section>
   )
+}
+
+NewPassword.propTypes = {
+  actionCode: PropTypes.string,
 }
 
 export default NewPassword
