@@ -47,6 +47,7 @@ import {
 import {
   updateTemplateDrawings,
   updateTemplateDrawingsOpen,
+  updateAddTemplateModalOpen,
   getChartTemplate,
   saveChartTemplate,
   deleteChartTemplate,
@@ -242,6 +243,7 @@ export {
   refreshExchanges,
   updateTemplateDrawings,
   updateTemplateDrawingsOpen,
+  updateAddTemplateModalOpen,
   getChartTemplate,
   saveChartTemplate,
   deleteChartTemplate,

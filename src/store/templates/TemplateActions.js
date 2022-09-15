@@ -1,13 +1,20 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import httpClient from 'services/http'
 import { API_URLS } from 'constants/config'
-import { setTemplateDrawings, setTemplateDrawingsOpen } from './TemplateSlice'
+import {
+  setTemplateDrawings,
+  setTemplateDrawingsOpen,
+  setAddTemplateModalOpen,
+} from './TemplateSlice'
 
 const updateTemplateDrawings = (data) => (dispatch) => {
   dispatch(setTemplateDrawings(data))
 }
 const updateTemplateDrawingsOpen = (data) => (dispatch) => {
   dispatch(setTemplateDrawingsOpen(data))
+}
+const updateAddTemplateModalOpen = (data) => (dispatch) => {
+  dispatch(setAddTemplateModalOpen(data))
 }
 
 const templateUrl = `${API_URLS['chart']}/templates`
@@ -32,6 +39,7 @@ const deleteChartTemplate = createAsyncThunk(
 export {
   updateTemplateDrawings,
   updateTemplateDrawingsOpen,
+  updateAddTemplateModalOpen,
   saveChartTemplate,
   getChartTemplate,
   deleteChartTemplate,

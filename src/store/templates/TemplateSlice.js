@@ -11,20 +11,24 @@ const templateSlice = createSlice({
     templateDrawings: false,
     templateDrawingsOpen: false,
     templates: [],
+    addTemplateModalOpen: false,
   },
   reducers: {
-    setTemplateDrawings: (state, action) => {
-      state.templateDrawings = action.payload
+    setTemplateDrawings: (state, { payload }) => {
+      state.templateDrawings = payload
     },
-    setTemplateDrawingsOpen: (state, action) => {
-      state.templateDrawingsOpen = action.payload
+    setTemplateDrawingsOpen: (state, { payload }) => {
+      state.templateDrawingsOpen = payload
+    },
+    setAddTemplateModalOpen: (state, { payload }) => {
+      state.addTemplateModalOpen = payload
     },
   },
   extraReducers: (builder) => {
     builder.addCase(getChartTemplate.fulfilled, (state, action) => {
       const res = action.payload?.data?.data
       if (res) {
-        state.templates = res.map((template, id) => {
+        state.templates = res.map((template) => {
           const key = Object.keys(template)[0]
           let { data } = template[key]
           data = { ...JSON.parse(data), refId: key }
@@ -37,6 +41,9 @@ const templateSlice = createSlice({
   },
 })
 
-export const { setTemplateDrawings, setTemplateDrawingsOpen } =
-  templateSlice.actions
+export const {
+  setTemplateDrawings,
+  setTemplateDrawingsOpen,
+  setAddTemplateModalOpen,
+} = templateSlice.actions
 export default templateSlice.reducer

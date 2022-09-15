@@ -1,23 +1,62 @@
 import React, { useState, useMemo } from 'react'
 import capitalize from 'utils/capitalizeFirstLetter'
 import { Modal } from 'components'
-import PropTypes from 'prop-types'
+import { useDispatch, useSelector } from 'react-redux'
+import { notify } from 'reapop'
+import MESSAGES from 'constants/Messages'
+import {
+  getChartTemplate,
+  saveChartTemplate,
+  updateActiveDrawing,
+  updateAddTemplateModalOpen,
+} from 'store/actions'
+import { consoleLogger } from 'utils/logger'
 
-const AddTemplate = ({ onClose, onSave, name }) => {
+const AddTemplate = () => {
   const [templateName, setTemplateName] = useState('')
   const [error, setError] = useState('')
+  const { activeDrawing } = useSelector((state) => state.charts)
+  const { templates } = useSelector((state) => state.templates)
+
+  const dispatch = useDispatch()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!templateName) {
       setError('Name is required.')
     }
-    onSave({ templateName })
+    addTemplate({ templateName })
+  }
+
+  const onClose = () => {
+    dispatch(updateAddTemplateModalOpen(false))
+  }
+
+  const addTemplate = async ({ templateName }, template = null) => {
+    try {
+      const templateData = template ? template : activeDrawing
+      const isSame = templates.some((element) => element.id === templateData.id)
+      if (isSame) {
+        return dispatch(notify(MESSAGES['duplicate-template'], 'error'))
+      }
+      await dispatch(
+        saveChartTemplate(
+          JSON.stringify({ ...templateData, tempName: templateName })
+        )
+      )
+      dispatch(notify(MESSAGES['template-added'], 'success'))
+    } catch (error) {
+      consoleLogger(error)
+    } finally {
+      dispatch(getChartTemplate())
+      dispatch(updateAddTemplateModalOpen(false))
+      dispatch(updateActiveDrawing(null))
+    }
   }
 
   const editName = useMemo(() => {
-    return capitalize(name.replace('_', ' '))
-  }, [name])
+    return capitalize(activeDrawing?.name.replace('_', ' '))
+  }, [activeDrawing?.name])
 
   return (
     <Modal>
@@ -75,12 +114,6 @@ const AddTemplate = ({ onClose, onSave, name }) => {
       </form>
     </Modal>
   )
-}
-
-AddTemplate.propTypes = {
-  onClose: PropTypes.func,
-  onSave: PropTypes.func,
-  name: PropTypes.string,
 }
 
 export default AddTemplate

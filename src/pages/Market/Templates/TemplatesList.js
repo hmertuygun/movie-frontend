@@ -1,68 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { notify } from 'reapop'
 import { capitalize } from 'lodash'
-import { HelpCircle, X } from 'react-feather'
+import { HelpCircle } from 'react-feather'
 import { Tooltip } from 'components'
 import { AddTemplate } from '../components/Modals'
-
+import TemplateItem from './TemplateItem'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  deleteChartTemplate,
-  getChartTemplate,
-  saveChartTemplate,
-  updateActiveDrawing,
-  updateAddedDrawing,
-} from 'store/actions'
-import { consoleLogger } from 'utils/logger'
-import MESSAGES from 'constants/Messages'
+import { getChartTemplate, updateAddTemplateModalOpen } from 'store/actions'
+
+import CONTENTS from 'constants/Contents'
 
 const TemplatesList = () => {
   const { activeDrawingId, activeDrawing } = useSelector(
     (state) => state.charts
   )
-  const { templates } = useSelector((state) => state.templates)
+  const { addTemplateOpen } = useSelector((state) => state.templates)
   const dispatch = useDispatch()
-  const [addModalOpen, setAddModalOpen] = useState(false)
   const [infoShow, setInfoShow] = useState(false)
-  const addTemplate = async ({ templateName }, template = null) => {
-    try {
-      const templateData = template ? template : activeDrawing
-      const isSame = templates.some((element) => element.id === templateData.id)
-      if (isSame) {
-        return dispatch(notify(MESSAGES['duplicate-template'], 'error'))
-      }
-      await dispatch(
-        saveChartTemplate(
-          JSON.stringify({ ...templateData, tempName: templateName })
-        )
-      )
-    } catch (error) {
-      consoleLogger(error)
-    } finally {
-      initChartTemplate()
-      setAddModalOpen(false)
-      dispatch(updateActiveDrawing(null))
-    }
-  }
-  ///chart_drawings/hmert.uygun@hotmail.com
-  const removeTemplate = async (e, templateId) => {
-    e.stopPropagation()
-    try {
-      await dispatch(deleteChartTemplate(templateId))
-    } catch (error) {
-      consoleLogger(error)
-    } finally {
-      initChartTemplate()
-    }
-  }
-
-  const initChartTemplate = async () => {
-    dispatch(getChartTemplate())
-  }
-
-  const addToChart = (template) => {
-    dispatch(updateAddedDrawing(template))
-  }
 
   const templateName = useMemo(() => {
     return activeDrawing?.name
@@ -71,7 +24,7 @@ const TemplatesList = () => {
   }, [activeDrawing])
 
   useEffect(() => {
-    initChartTemplate()
+    dispatch(getChartTemplate())
   }, [])
 
   return (
@@ -82,14 +35,10 @@ const TemplatesList = () => {
             className="badge badge-primary masonry-filter"
             isdisabled={activeDrawing?.id}
             onClick={() => {
-              if (activeDrawing) setAddModalOpen(true)
+              if (activeDrawing) dispatch(updateAddTemplateModalOpen(true))
             }}
             data-for={`add-template`}
-            data-tip={
-              !activeDrawingId
-                ? 'Click on drawing that you want to add a template for.'
-                : null
-            }
+            data-tip={!activeDrawingId ? CONTENTS['add-drawing-info'] : null}
           >
             Add
           </span>
@@ -109,52 +58,17 @@ const TemplatesList = () => {
           <span className="h6 ml-3 "></span> <HelpCircle size={18} />
           {infoShow && (
             <div style={{ zIndex: '1000' }} className="tab-info">
-              <p className="mb-2">
-                This feature is still on Beta. You can add your own drawing
-                templates and use them. Give us feedback from{' '}
-                <a href="mailto:support@coinpanel.com">here</a>.
-              </p>
+              <p className="mb-2">{CONTENTS['template-beta']}</p>
             </div>
           )}
         </div>
       </div>
       <div style={{ height: '54.8vh', overflow: 'auto' }} className="row">
         <div className="col-11">
-          <div className="list-group">
-            {templates.length ? (
-              templates.map((template) => (
-                <span
-                  key={`template-${template.id}-${Math.random() * 1000}`}
-                  className="list-group-item list-group-item-action masonry-filter d-flex justify-content-between"
-                  onClick={() => {
-                    addToChart(template)
-                  }}
-                >
-                  <span className="text-muted">{template.tempName}</span>
-                  <span className="badge badge-danger badge-circle">
-                    <X
-                      size={15}
-                      onClick={(e) => removeTemplate(e, template.refId)}
-                      style={{ zIndex: 999 }}
-                    />
-                  </span>
-                </span>
-              ))
-            ) : (
-              <p className="p-2">
-                You don't have any drawing templates. Try it out!
-              </p>
-            )}
-          </div>
+          <TemplateItem />
         </div>
       </div>
-      {addModalOpen && (
-        <AddTemplate
-          onClose={() => setAddModalOpen(false)}
-          onSave={(name) => addTemplate(name)}
-          name={activeDrawing?.name}
-        />
-      )}
+      {addTemplateOpen && <AddTemplate name={activeDrawing?.name} />}
     </div>
   )
 }

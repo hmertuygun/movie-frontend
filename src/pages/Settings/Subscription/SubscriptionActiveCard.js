@@ -51,7 +51,7 @@ const SubscriptionActiveCard = ({
 
   const isCancelled = useMemo(
     () =>
-      subscription.status == 'canceled' &&
+      subscription.status === 'canceled' &&
       dayjs().isBefore(dayjs(subscriptionData.due * 1000)),
     [subscriptionData]
   )

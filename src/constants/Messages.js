@@ -4,6 +4,8 @@ const MESSAGES = {
   'dismiss-notice-error': "Couldn't dismiss notice. Please try again later!",
   'invalid-coupon': 'This coupon code is not valid.',
   'duplicate-template': `You cannot add the same template.`,
+  'template-added': 'New template created!',
+  'template-deleted': 'Template deleted!',
   'watchlist-failed': 'Cannot create watch lists, Please try again later.',
   'emoji-failed': 'Cannot add emoji, Please try again later!',
   'watchlist-created': 'Watch list created!',

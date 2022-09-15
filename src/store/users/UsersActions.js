@@ -30,7 +30,6 @@ import {
   setIsCanaryUser,
   setCountry,
   setIsCountryAvailable,
-  setFirstLogin,
 } from './UsersSlice'
 
 const T2FA_LOCAL_STORAGE = '2faUserDetails'
