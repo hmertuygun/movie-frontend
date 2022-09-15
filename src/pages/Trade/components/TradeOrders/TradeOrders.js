@@ -469,7 +469,7 @@ const TradeOrders = () => {
       <div
         className="ordersTable"
         style={{
-          overflow: 'scroll',
+          overflow: 'auto',
           height: '31vh',
         }}
       >

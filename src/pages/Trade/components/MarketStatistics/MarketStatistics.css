@@ -4,7 +4,7 @@
   align-items: center;
   padding: 14px;
   width: auto;
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
 }
 

@@ -264,12 +264,12 @@
 
 .watchLists {
   height: calc(100vh - 386px);
-  overflow: scroll;
+  overflow: auto;
 }
 
 .watchLists2 {
   height: calc(100vh - 518px);
-  overflow: scroll;
+  overflow: auto;
 }
 
 .groupEmojiWrapper {
@@ -291,7 +291,7 @@
 @media (max-width: 1260px) {
   .watchLists2 {
     height: calc(100vh - 540px);
-    overflow: scroll;
+    overflow: auto;
   }
 }
 
