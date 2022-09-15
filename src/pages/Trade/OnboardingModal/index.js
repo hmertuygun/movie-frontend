@@ -231,7 +231,7 @@ const OnboardingModal = () => {
       } catch (e) {
         consoleLogger(e)
       } finally {
-        updateLoadApiKeys(true)
+        dispatch(updateLoadApiKeys(true))
       }
     }
   }
