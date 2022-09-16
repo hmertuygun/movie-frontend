@@ -13,7 +13,7 @@ const TemplatesList = () => {
   const { activeDrawingId, activeDrawing } = useSelector(
     (state) => state.charts
   )
-  const { addTemplateOpen } = useSelector((state) => state.templates)
+  const { addTemplateModalOpen } = useSelector((state) => state.templates)
   const dispatch = useDispatch()
   const [infoShow, setInfoShow] = useState(false)
 
@@ -68,7 +68,7 @@ const TemplatesList = () => {
           <TemplateItem />
         </div>
       </div>
-      {addTemplateOpen && <AddTemplate name={activeDrawing?.name} />}
+      {addTemplateModalOpen && <AddTemplate name={activeDrawing?.name} />}
     </div>
   )
 }

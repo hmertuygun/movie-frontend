@@ -13,6 +13,7 @@ import {
   updateChartMirroring,
   updateTemplateDrawingsOpen,
   getChartMetaData,
+  updateAddTemplateModalOpen,
 } from 'store/actions'
 import AnalystSelector from './components/AnalystSelector'
 import { trackEvent } from 'services/tracking'
@@ -37,6 +38,7 @@ const MarketContainer = () => {
   }, [templateDrawingsOpen])
 
   useEffect(() => {
+    dispatch(updateAddTemplateModalOpen(false))
     dispatch(getChartMetaData())
   }, [userData.email])
 

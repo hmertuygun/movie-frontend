@@ -6,11 +6,14 @@ import {
   setSymbolsList,
   setWatchSymbolsLists,
 } from './WatchlistSlice'
+import { WATCHLIST_INIT_STATE } from 'constants/Trade'
 
 const getWatchList = createAsyncThunk(
   'watchlist/getWatchList',
-  async (email) => {
-    return await fetchWatchList(email)
+  async (email, thunkAPI) => {
+    const res = await fetchWatchList(email)
+    if (!res.data) thunkAPI.dispatch(saveWatchList(WATCHLIST_INIT_STATE))
+    return res
   }
 )
 
