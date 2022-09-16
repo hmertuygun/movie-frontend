@@ -53,13 +53,14 @@ const watchlistSlice = createSlice({
           state.watchLists = newData
         } else {
           state.watchLists[key] = lists[key]
+          state.activeWatchList = state.watchLists[key] || {}
         }
       }
       if (activeList) {
         if (status === 200) {
           let watchlistData = {}
           if (activeList !== DEFAULT_WATCHLIST)
-            watchlistData = JSON.parse(JSON.stringify(state.watchlistData))
+            watchlistData = JSON.parse(JSON.stringify(state.watchListData))
           watchlistData.activeList = activeList
           state.watchListData = watchlistData
         } else {

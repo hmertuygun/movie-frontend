@@ -19,7 +19,7 @@ const NewWatchListItem = () => {
   const { symbols } = useSelector((state) => state.symbols)
   const { isCanaryUser } = useSelector((state) => state.users)
   const { activeExchange } = useSelector((state) => state.exchanges)
-  const { activeWatchList, symbolsList } = useSelector(
+  const { activeWatchList, symbolsList, watchLists } = useSelector(
     (state) => state.watchlist
   )
   const [selectedSymbols, setSelectedSymbols] = useState([])
@@ -93,7 +93,7 @@ const NewWatchListItem = () => {
   useEffect(() => {
     if (updatedSymbols?.length !== selectedSymbols.length)
       setSelectedSymbols(updatedSymbols)
-  }, [updatedSymbols])
+  }, [updatedSymbols, watchLists])
 
   const getLogo = (symbol) => {
     const exchange = extractExchange(symbol).toLowerCase()
