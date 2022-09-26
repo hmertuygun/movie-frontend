@@ -9,6 +9,7 @@ const apiKeysSlice = createSlice({
     need2FA: false,
     tokenExpiry: null,
     secretKey: '',
+    show2FAModal: false,
   },
   reducers: {
     setLoadApiKeys: (state, action) => {
@@ -22,6 +23,9 @@ const apiKeysSlice = createSlice({
     },
     setNeed2FA: (state, action) => {
       state.need2FA = action.payload
+    },
+    setShow2FAModal: (state, action) => {
+      state.show2FAModal = action.payload
     },
     setTokenExpiry: (state, action) => {
       state.tokenExpiry = action.payload
@@ -37,6 +41,7 @@ export const {
   setLoadApiKeysError,
   setIsApiKeysLoading,
   setNeed2FA,
+  setShow2FAModal,
   setTokenExpiry,
   setSecretKey,
 } = apiKeysSlice.actions

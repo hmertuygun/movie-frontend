@@ -23,7 +23,7 @@ import { InlineInput, Button } from 'components'
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import MESSAGES from 'constants/Messages'
-import { responsiveFontSizes } from '@material-ui/core'
+import { updateShow2FAModal } from 'store/actions'
 
 const BuyLimitForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -34,6 +34,7 @@ const BuyLimitForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
+  const { need2FA } = useSelector((state) => state.apiKeys)
   const dispatch = useDispatch()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
@@ -441,7 +442,11 @@ const BuyLimitForm = () => {
         setShowWarning(true)
         return
       }
-      placeOrder()
+      if (!need2FA) {
+        placeOrder()
+      } else {
+        dispatch(updateShow2FAModal(true))
+      }
     }
   }
 

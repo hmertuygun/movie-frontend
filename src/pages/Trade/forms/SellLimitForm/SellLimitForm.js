@@ -25,6 +25,7 @@ import {
 import styles from '../LimitForm/LimitForm.module.css'
 import { useDispatch, useSelector } from 'react-redux'
 import MESSAGES from 'constants/Messages'
+import { updateShow2FAModal } from 'store/actions'
 
 const errorInitialValues = {
   price: '',
@@ -44,6 +45,7 @@ const SellLimitForm = () => {
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
   const dispatch = useDispatch()
+  const { need2FA } = useSelector((state) => state.apiKeys)
 
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
@@ -404,7 +406,11 @@ const SellLimitForm = () => {
         setShowWarning(true)
         return
       }
-      placeOrder()
+      if (!need2FA) {
+        placeOrder()
+      } else {
+        dispatch(updateShow2FAModal(true))
+      }
     }
   }
 

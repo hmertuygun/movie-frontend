@@ -27,6 +27,7 @@ import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import MESSAGES from 'constants/Messages'
+import { updateShow2FAModal } from 'store/actions'
 
 const BuyMarketForm = () => {
   const { isLoading, refreshBalance } = useSymbolContext()
@@ -38,6 +39,7 @@ const BuyMarketForm = () => {
     selectedSymbolLastPrice,
   } = useSelector((state) => state.symbols)
   const { activeExchange } = useSelector((state) => state.exchanges)
+  const { need2FA } = useSelector((state) => state.apiKeys)
   const dispatch = useDispatch()
   const [values, setValues] = useState({
     quantity: '',
@@ -310,55 +312,62 @@ const BuyMarketForm = () => {
 
     if (isFormValid) {
       setErrors({ price: '', quantity: '', total: '' })
-      try {
-        if (isBtnDisabled) return
-        setBtnVisibility(true)
+      if (!need2FA) {
+        try {
+          if (isBtnDisabled) return
+          setBtnVisibility(true)
 
-        const symbol =
-          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-        const { exchange, apiKeyName } = activeExchange
+          const symbol =
+            selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+          const { exchange, apiKeyName } = activeExchange
 
-        const payload = {
-          apiKeyName,
-          exchange,
-          order: {
-            type: 'market',
-            side: 'BUY',
-            symbol,
-            quantity: values.quantity,
-            total: values.total,
-          },
-        }
-        const res = await createBasicTrade(payload)
-        if (res?.status === 'error' || res.status !== 200) {
-          dispatch(
-            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
-          )
-        } else {
-          let data = {
-            orders: payload,
-            status_code: res.status,
+          const payload = {
+            apiKeyName,
+            exchange,
+            order: {
+              type: 'market',
+              side: 'BUY',
+              symbol,
+              quantity: values.quantity,
+              total: values.total,
+            },
           }
-          sendOrderInfo(data)
-          dispatch(notify(MESSAGES['order-created'], 'success'))
-          analytics.logEvent('placed_buy_market_order')
-          trackEvent(
-            'user',
-            'placed_buy_market_order',
-            'placed_buy_market_order'
-          )
-          refreshBalance()
+          const res = await createBasicTrade(payload)
+          if (res?.status === 'error' || res.status !== 200) {
+            dispatch(
+              notify(
+                res.data?.detail || MESSAGES['order-create-failed'],
+                'error'
+              )
+            )
+          } else {
+            let data = {
+              orders: payload,
+              status_code: res.status,
+            }
+            sendOrderInfo(data)
+            dispatch(notify(MESSAGES['order-created'], 'success'))
+            analytics.logEvent('placed_buy_market_order')
+            trackEvent(
+              'user',
+              'placed_buy_market_order',
+              'placed_buy_market_order'
+            )
+            refreshBalance()
+          }
+          setValues({
+            ...values,
+            quantity: '',
+            total: '',
+            quantityPercentage: '',
+          })
+        } catch (error) {
+          dispatch(notify(MESSAGES['order-create-error'], 'error'))
+        } finally {
+          setBtnVisibility(false)
         }
-        setValues({
-          ...values,
-          quantity: '',
-          total: '',
-          quantityPercentage: '',
-        })
-      } catch (error) {
-        dispatch(notify(MESSAGES['order-create-error'], 'error'))
-      } finally {
-        setBtnVisibility(false)
+      } else {
+        dispatch(updateShow2FAModal(true))
       }
     }
   }

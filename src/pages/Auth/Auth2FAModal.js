@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
+import { X } from 'react-feather'
 import { Icon, Modal } from 'components'
-import { verify2FA } from 'store/actions'
+import { verify2FA, updateShow2FAModal } from 'store/actions'
 import MESSAGES from 'constants/Messages'
 
-const Auth2FAModal = () => {
+const Auth2FAModal = ({ setShow2FAModal }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [t2faToken, set2faToken] = useState('')
   const [error, setError] = useState('')
@@ -29,8 +29,16 @@ const Auth2FAModal = () => {
     <Modal>
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
-          <div className="modal-body">
-            <h5>You need to enter your 2FA to keep trading</h5>
+          <div className="modal-body position-relative">
+            <div>
+              <h5>You need to enter your 2FA to keep trading</h5>
+
+              <X
+                size={18}
+                onClick={() => dispatch(updateShow2FAModal(false))}
+                className="position-absolute top-2 right-2 masonry-filter"
+              />
+            </div>
             <form
               onSubmit={(event) => {
                 event.preventDefault()

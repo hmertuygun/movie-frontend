@@ -1,6 +1,6 @@
 import signToken from './signToken'
 import store from 'store'
-import { updateNeed2FA } from 'store/actions'
+import { updateShow2FAModal } from 'store/actions'
 
 export function handleResponse(response, needSign) {
   if (needSign) {
@@ -12,7 +12,7 @@ export function handleResponse(response, needSign) {
 export function handleError(error) {
   const { response } = error
   if (response.status === 403 && response.data.detail === 'Token is invalid!') {
-    store.dispatch(updateNeed2FA(true))
+    store.dispatch(updateShow2FAModal(true))
   }
   return error
 }

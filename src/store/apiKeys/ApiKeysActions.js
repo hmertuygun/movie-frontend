@@ -5,6 +5,7 @@ import {
   setLoadApiKeysError,
   setIsApiKeysLoading,
   setNeed2FA,
+  setShow2FAModal,
   setTokenExpiry,
   setSecretKey,
 } from './ApiKeysSlice'
@@ -23,6 +24,10 @@ const updateIsApiKeysLoading = (value) => async (dispatch) => {
 
 const updateNeed2FA = (value) => async (dispatch) => {
   dispatch(setNeed2FA(value))
+}
+
+const updateShow2FAModal = (value) => async (dispatch) => {
+  dispatch(setShow2FAModal(value))
 }
 
 const updateTokenExpiry = (value) => async (dispatch) => {
@@ -46,6 +51,7 @@ export {
   updateLoadApiKeysError,
   updateIsApiKeysLoading,
   updateNeed2FA,
+  updateShow2FAModal,
   updateTokenExpiry,
   updateSecretKey,
   getApiKeys,

@@ -73,6 +73,7 @@ import {
   updateLoadApiKeysError,
   updateIsApiKeysLoading,
   updateNeed2FA,
+  updateShow2FAModal,
   updateTokenExpiry,
   updateSecretKey,
   getApiKeys,
@@ -364,4 +365,5 @@ export {
   updateSymbolsLists,
   updateWatchSymbolsLists,
   updateActiveWatchLists,
+  updateShow2FAModal,
 }

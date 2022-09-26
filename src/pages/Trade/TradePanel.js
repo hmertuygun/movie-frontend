@@ -54,7 +54,12 @@ import TakeProfitMarketForm from './forms/TakeProfitMarketForm/TakeProfitMarketF
 import { analytics } from 'services/firebase'
 import { trackEvent } from 'services/tracking'
 import { useDispatch, useSelector } from 'react-redux'
-import { resetTradeState, updateIsOrderPlaced } from 'store/actions'
+import {
+  resetTradeState,
+  updateIsOrderPlaced,
+  updateNeed2FA,
+  updateShow2FAModal,
+} from 'store/actions'
 import { useSymbolContext } from 'contexts/SymbolContext'
 import { consoleLogger } from 'utils/logger'
 import MESSAGES from 'constants/Messages'
@@ -67,12 +72,13 @@ const Trade = () => {
   const { refreshBalance } = useSymbolContext()
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [show2FAModal, setShow2FAModal] = useState(false)
   const { activeExchange } = useSelector((state) => state.exchanges)
   const { tradeState } = useSelector((state) => state.simpleTrade)
-  const { tokenExpiry } = useSelector((state) => state.apiKeys)
+  const { tokenExpiry, need2FA, show2FAModal } = useSelector(
+    (state) => state.apiKeys
+  )
   const { setIsTradePanelOpen } = useContext(TabContext)
-  const [remainingMinutes, setRemainingMinutes] = useState()
+  const [remainingSeconds, setRemainingSeconds] = useState()
 
   const { selectedSymbol } = useSelector((state) => state.symbols)
 
@@ -151,25 +157,28 @@ const Trade = () => {
   ])
 
   useEffect(() => {
-    updateRemainingMinutes()
-  }, [show2FAModal, tokenExpiry])
+    updateRemainingSeconds()
+  }, [need2FA, tokenExpiry])
 
   useEffect(() => {
     dispatch(resetTradeState())
   }, [resetTradeState, selectedSymbol])
 
   useInterval(() => {
-    updateRemainingMinutes()
-  }, 20000)
+    updateRemainingSeconds()
+  }, 1000)
 
-  const updateRemainingMinutes = () => {
-    let minutes = Math.ceil(
-      dayjs(new Date(tokenExpiry)).diff(dayjs(), 'minute')
+  const updateRemainingSeconds = () => {
+    let seconds = Math.ceil(
+      dayjs(new Date(tokenExpiry)).diff(dayjs(), 'second')
     )
-    if (minutes > 0) {
-      setShow2FAModal(false)
+    if (seconds > 0) {
+      dispatch(updateNeed2FA(false))
+      dispatch(updateShow2FAModal(false))
+    } else {
+      dispatch(updateNeed2FA(true))
     }
-    setRemainingMinutes(minutes)
+    setRemainingSeconds(seconds)
   }
 
   let isStepTwo = useMemo(
@@ -177,7 +186,16 @@ const Trade = () => {
     [tradeState]
   )
 
-  let isValid = useMemo(() => remainingMinutes >= 0, [remainingMinutes])
+  let isValid = useMemo(() => remainingSeconds >= 0, [remainingSeconds])
+
+  let minutes = useMemo(
+    () => String(Math.floor(remainingSeconds / 60)).padStart(2, 0),
+    [remainingSeconds]
+  )
+  let seconds = useMemo(
+    () => String(remainingSeconds % 60).padStart(2, 0),
+    [remainingSeconds]
+  )
 
   return (
     <Fragment>
@@ -197,13 +215,17 @@ const Trade = () => {
         >
           <div style={{ marginTop: '1rem' }}>
             {isValid ? (
-              <p className="mb-1 text-sm text-success">You have a valid 2FA</p>
+              <p className="mb-1 text-sm text-success">
+                2FA is valid for trading: {minutes}:{seconds}.
+              </p>
             ) : (
               <div className="d-flex align-items-center justify-content-between mb-1">
-                <p className="mb-1 text-sm text-danger">Your 2FA got expired</p>
+                <p className="mb-1 text-sm text-danger">
+                  2FA for trading has expired.
+                </p>
                 <button
                   className="btn btn-primary btn-xs"
-                  onClick={() => setShow2FAModal(true)}
+                  onClick={() => dispatch(updateShow2FAModal(true))}
                 >
                   Add 2FA
                 </button>
@@ -241,13 +263,17 @@ const Trade = () => {
           </div>
           <div style={{ marginTop: '1rem' }}>
             {isValid ? (
-              <p className="mb-1 text-sm text-success">You have a valid 2FA</p>
+              <p className="mb-1 text-sm text-success">
+                2FA is valid for trading: {minutes}:{seconds}.
+              </p>
             ) : (
               <div className="d-flex align-items-center justify-content-between mb-1">
-                <p className="mb-1 text-sm text-danger">Your 2FA got expired</p>
+                <p className="mb-1 text-sm text-danger">
+                  2FA for trading has expired.
+                </p>
                 <button
                   className="btn btn-primary btn-xs"
-                  onClick={() => setShow2FAModal(true)}
+                  onClick={() => dispatch(updateShow2FAModal(true))}
                 >
                   Add 2FA
                 </button>
@@ -324,7 +350,11 @@ const Trade = () => {
                     type="button"
                     className="btn btn-primary btn-sm w-100"
                     onClick={() => {
-                      setIsModalVisible(true)
+                      if (!need2FA) {
+                        setIsModalVisible(true)
+                      } else {
+                        dispatch(updateShow2FAModal(true))
+                      }
                     }}
                   >
                     Place Buy Full Trade
@@ -399,7 +429,11 @@ const Trade = () => {
                     type="button"
                     className="btn btn-primary btn-sm w-100"
                     onClick={() => {
-                      setIsModalVisible(true)
+                      if (!need2FA) {
+                        setIsModalVisible(true)
+                      } else {
+                        dispatch(updateShow2FAModal(true))
+                      }
                     }}
                   >
                     Place Sell Full Trade

@@ -28,6 +28,7 @@ import { trackEvent } from 'services/tracking'
 import { analytics } from 'services/firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import MESSAGES from 'constants/Messages'
+import { updateShow2FAModal } from 'store/actions'
 
 const errorInitialValues = {
   triggerPrice: '',
@@ -48,7 +49,7 @@ const TakeProfitLimitForm = () => {
   const { activeExchange } = useSelector((state) => state.exchanges)
   const [isBtnDisabled, setBtnVisibility] = useState(false)
   const dispatch = useDispatch()
-
+  const { need2FA } = useSelector((state) => state.apiKeys)
   const tickSize = selectedSymbolDetail && selectedSymbolDetail['tickSize']
   const pricePrecision = tickSize > 8 ? '' : tickSize
   const symbolPair = selectedSymbolDetail && selectedSymbolDetail['symbolpair']
@@ -376,57 +377,64 @@ const TakeProfitLimitForm = () => {
 
     if (isFormValid) {
       setErrors({ price: '', quantity: '', total: '' })
-      try {
-        if (isBtnDisabled) return
-        setBtnVisibility(true)
+      if (!need2FA) {
+        try {
+          if (isBtnDisabled) return
+          setBtnVisibility(true)
 
-        const symbol =
-          selectedSymbolDetail && selectedSymbolDetail['symbolpair']
-        const { exchange, apiKeyName } = activeExchange
+          const symbol =
+            selectedSymbolDetail && selectedSymbolDetail['symbolpair']
+          const { exchange, apiKeyName } = activeExchange
 
-        const payload = {
-          apiKeyName,
-          exchange,
-          order: {
-            type: 'stop-limit',
-            side: 'SELL',
-            symbol,
-            trigger: convertCommaNumberToDot(values.triggerPrice),
-            price: convertCommaNumberToDot(values.price),
-            quantity: convertCommaNumberToDot(values.quantity),
-            price_trigger: values.price_trigger.value,
-            total: values.total,
-          },
-        }
-        const res = await createBasicTrade(payload)
-        if (res?.status === 'error' || res.status !== 200) {
-          dispatch(
-            notify(res.data?.detail || MESSAGES['order-create-failed'], 'error')
-          )
-        } else {
-          let data = {
-            orders: payload,
-            status_code: res.status,
+          const payload = {
+            apiKeyName,
+            exchange,
+            order: {
+              type: 'stop-limit',
+              side: 'SELL',
+              symbol,
+              trigger: convertCommaNumberToDot(values.triggerPrice),
+              price: convertCommaNumberToDot(values.price),
+              quantity: convertCommaNumberToDot(values.quantity),
+              price_trigger: values.price_trigger.value,
+              total: values.total,
+            },
           }
-          sendOrderInfo(data)
-          dispatch(notify(MESSAGES['order-created'], 'success'))
-          analytics.logEvent('placed_sell_take_profit_limit_order')
-          trackEvent(
-            'user',
-            'placed_sell_take_profit_limit_order',
-            'placed_sell_take_profit_limit_order'
-          )
+          const res = await createBasicTrade(payload)
+          if (res?.status === 'error' || res.status !== 200) {
+            dispatch(
+              notify(
+                res.data?.detail || MESSAGES['order-create-failed'],
+                'error'
+              )
+            )
+          } else {
+            let data = {
+              orders: payload,
+              status_code: res.status,
+            }
+            sendOrderInfo(data)
+            dispatch(notify(MESSAGES['order-created'], 'success'))
+            analytics.logEvent('placed_sell_take_profit_limit_order')
+            trackEvent(
+              'user',
+              'placed_sell_take_profit_limit_order',
+              'placed_sell_take_profit_limit_order'
+            )
+          }
+          setValues({
+            ...values,
+            quantity: '',
+            total: '',
+            quantityPercentage: '',
+          })
+        } catch (error) {
+          dispatch(notify(MESSAGES['order-create-error'], 'error'))
+        } finally {
+          setBtnVisibility(false)
         }
-        setValues({
-          ...values,
-          quantity: '',
-          total: '',
-          quantityPercentage: '',
-        })
-      } catch (error) {
-        dispatch(notify(MESSAGES['order-create-error'], 'error'))
-      } finally {
-        setBtnVisibility(false)
+      } else {
+        dispatch(updateShow2FAModal(true))
       }
     }
   }

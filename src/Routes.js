@@ -168,7 +168,6 @@ const Routes = () => {
           )}
 
           {needOnboarding && <OnboardingModal />}
-          {isLoggedIn && userContextLoaded && need2FA && <Auth2FAModal />}
 
           {needLoading && (
             <p
