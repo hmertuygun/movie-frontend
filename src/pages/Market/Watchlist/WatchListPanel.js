@@ -35,7 +35,7 @@ const WatchListPanel = () => {
   const { activeWatchList, symbolsList, watchSymbolsList } = useSelector(
     (state) => state.watchlist
   )
-
+  const { symbols } = useSelector((state) => state.symbols)
   const [addWatchListModalOpen, setAddWatchListModalOpen] = useState(false)
   const [addEmojiModalOpen, setAddEmojiModalOpen] = useState(false)
   const [marketData, setMarketData] = useState([])
@@ -92,8 +92,9 @@ const WatchListPanel = () => {
     for (const symbol of watchSymbolsList) {
       let previousData = {}
       const activeMarketData = marketData[symbol.value.replace('/', '')]
-
-      const tickSize = 4
+      const { tickSize } = symbols.find((val) => {
+        return symbol.value === val.value
+      })
       if (!activeMarketData?.last) {
         previousData = symbolsList.find((curr) => symbol.value === curr.value)
       }

@@ -89,7 +89,8 @@
 }
 
 .newWatchListModal {
-  width: 60vw;
+  width: 32vw;
+  margin: auto;
   background: var(--modal-background);
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   border-radius: 10px;
@@ -104,7 +105,7 @@
   right: 10px;
 }
 .watchlistModalHeader {
-  padding: 22px 40px;
+  padding: 20px 35px;
   width: 100%;
   background: var(--modal-background);
 }
@@ -128,7 +129,7 @@
 
 .searchResult li p {
   display: inline-block;
-  width: 50%;
+  width: 42%;
   margin: 0;
   font-size: 0.875rem;
   padding: 5px 0;
@@ -141,8 +142,16 @@
 }
 
 .symbolLabel {
-  color: #2196f3;
+  color: #333;
+  font-weight: 600;
+}
+
+.searchResult li p.actions {
+  width: 10%;
+  font-size: 20px;
+  line-height: 0;
   cursor: pointer;
+  color: #2196f3;
 }
 
 .exchangeTabs {
@@ -163,6 +172,31 @@
   height: 15px;
   vertical-align: top;
 }
+
+.exchangeSelectionText {
+  border: 1px solid #ddd;
+  padding: 10px 10px 5px 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.exchangeSelectionText p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 90%;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  line-height: 14px;
+  height: auto;
+  vertical-align: text-top;
+}
+.alignRight {
+  float: right;
+}
+
 .searchBox {
   position: relative;
 }
@@ -174,6 +208,7 @@
   border-radius: 10px;
   padding: 10px;
   padding-right: 60px;
+  font-size: 14px;
 }
 
 .searchBox .icons {
@@ -188,16 +223,36 @@
   margin-left: 10px;
 }
 
+.searchMessage {
+  margin-top: 10%;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.exchangeFilterPopover {
+  width: 15vw;
+}
+
 .filterPopover {
   width: 120px;
 }
 
 .emojiPopover,
-.filterPopover {
+.filterPopover,
+.exchangeFilterPopover {
   padding: 1rem;
   background: var(--modal-background);
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   border-radius: 4px;
+}
+
+.exchangeFilterPopover label {
+  opacity: 0.8;
+}
+
+.exchangeFilterPopover label:hover {
+  opacity: 1;
+  cursor: pointer;
 }
 
 .emojiContainer {
@@ -295,6 +350,12 @@
   }
 }
 
+@media screen and (max-width: 992px) {
+  .newWatchListModal {
+    width: 60vw;
+  }
+}
+
 @media (max-width: 767px) {
   .watchLists {
     margin-bottom: 20px;
@@ -304,5 +365,9 @@
   .watchLists2 {
     height: auto;
     margin-bottom: 20px;
+  }
+
+  .newWatchListModal {
+    width: 100vw;
   }
 }
