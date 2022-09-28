@@ -7,7 +7,6 @@ import { Logo } from 'components'
 import { UserContext } from 'contexts/UserContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, updateRememberCheck } from 'store/actions'
-import { fbPixelTracking } from 'services/tracking'
 import MESSAGES from 'constants/Messages'
 
 const QuickLogin = () => {
@@ -23,10 +22,6 @@ const QuickLogin = () => {
   const [isLoading, setLoading] = useState(false)
   const [isDisabled, setIsDisabled] = useState(false)
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    fbPixelTracking('Login page view')
-  }, [])
 
   // clear errors
   useEffect(() => {
@@ -63,7 +58,6 @@ const QuickLogin = () => {
     }
     setLoading(false)
     analytics.logEvent('login')
-    fbPixelTracking('Sign in Button clicked')
     trackEvent('user', 'login', 'user')
   }
 

@@ -19,7 +19,6 @@ import {
   saveReferrals,
   saveStripeUsers,
 } from 'store/actions'
-import { fbPixelTracking } from 'services/tracking'
 import { consoleLogger } from 'utils/logger'
 import { ThemeContext } from 'contexts/ThemeContext'
 
@@ -74,10 +73,6 @@ const QuickRegister = () => {
         return <DefaultRegisterTemplate />
     }
   }, [registerType])
-
-  useEffect(() => {
-    fbPixelTracking('Register page view')
-  }, [])
 
   useEffect(() => {
     setError('')
@@ -179,7 +174,6 @@ const QuickRegister = () => {
       if (email && validPassword) {
         setIsLoading(true)
         actualRegister()
-        fbPixelTracking('Create my account button clicked')
       }
     }
   }
