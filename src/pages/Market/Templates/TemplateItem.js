@@ -29,7 +29,7 @@ const TemplateItem = () => {
 
   return (
     <div className="list-group">
-      {templates.length ? (
+      {templates?.length ? (
         templates.map((template) => (
           <span
             key={`template-${template.id}-${Math.random() * 1000}`}
