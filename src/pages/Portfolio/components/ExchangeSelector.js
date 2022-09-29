@@ -65,48 +65,53 @@ const ExchangeSelector = ({ onChange }) => {
   )
 
   return (
-    <Select
-      closeMenuOnSelect={false}
-      components={{ MultiValueLabel, Option }}
-      isLoading={portfolioLoading}
-      className="portfolio-exchange-select"
-      classNamePrefix="react-select"
-      styles={{
-        ...customStyles,
-        multiValueLabel: (base) => ({
-          ...base,
-        }),
-        control: (base) => ({
-          ...base,
-          background: theme === 'DARK' ? '#2c4056' : base.backgroundColor,
-          border:
-            theme === 'DARK'
-              ? '1px solid #223244'
-              : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
-        }),
-        multiValue: (base) => ({
-          ...base,
-          background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
-          border:
-            theme === 'DARK'
-              ? '1px solid #223244'
-              : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
-        }),
-        menu: (base) => ({
-          ...base,
-          background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
-          border:
-            theme === 'DARK'
-              ? '1px solid #223244'
-              : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
-        }),
-      }}
-      value={selectedExchanges}
-      hideSelectedOptions={false}
-      onChange={(values) => dispatch(updateSelectedExchanges(values))}
-      isMulti
-      options={exchanges}
-    />
+    <>
+      <Select
+        closeMenuOnSelect={false}
+        components={{ MultiValueLabel, Option }}
+        isLoading={portfolioLoading}
+        className="portfolio-exchange-select"
+        classNamePrefix="react-select"
+        styles={{
+          ...customStyles,
+          multiValueLabel: (base) => ({
+            ...base,
+          }),
+          control: (base) => ({
+            ...base,
+            background: theme === 'DARK' ? '#2c4056' : base.backgroundColor,
+            border:
+              theme === 'DARK'
+                ? '1px solid #223244'
+                : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
+          }),
+          multiValue: (base) => ({
+            ...base,
+            background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
+            border:
+              theme === 'DARK'
+                ? '1px solid #223244'
+                : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
+          }),
+          menu: (base) => ({
+            ...base,
+            background: theme === 'DARK' ? '#141d27' : base.backgroundColor,
+            border:
+              theme === 'DARK'
+                ? '1px solid #223244'
+                : `${base.borderWidth} ${base.borderStyle} ${base.borderColor}`,
+          }),
+        }}
+        value={selectedExchanges}
+        hideSelectedOptions={false}
+        onChange={(values) => dispatch(updateSelectedExchanges(values))}
+        isMulti
+        options={exchanges}
+      />
+      <p>
+        {selectedExchanges.length} selected of {exchanges.length}
+      </p>
+    </>
   )
 }
 

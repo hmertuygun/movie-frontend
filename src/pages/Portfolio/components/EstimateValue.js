@@ -62,24 +62,25 @@ const EstimateValue = () => {
 
   return (
     <>
-      <div className="card d-flex flex-row flex-column px-4">
-        <div>
+      <div className="card d-flex px-4 value-container">
+        <div className="estimated-value-container">
           <div className="card-header estimate-value-header">
             <div className="d-flex align-items-center">
-              <span className="h6">Estimated Value</span>
+              <span className="h6">Selected Exchanges Approximate Value</span>
             </div>
           </div>
           <div className="card-body estimated-value">
             {BTC && (
               <div className="d-flex align-items-center mb-2">
                 <div>
-                  <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm">
+                  <span className="icon icon-shape icon-lg text-primary text-sm">
                     <FontAwesomeIcon icon={['fab', 'bitcoin']} />
                   </span>
                 </div>
-                <div className="pl-2">
+                <div className="pl-3">
                   <span className="text-muted text-sm font-weight-bold">
-                    {BTC.value.toFixed(7)} {BTC.symbol}
+                    {BTC.value.toFixed(7)}{' '}
+                    <span className="text-primary">{BTC.symbol}</span>
                   </span>
                 </div>
               </div>
@@ -87,7 +88,7 @@ const EstimateValue = () => {
             {currency && (
               <div className="d-flex align-items-center mb-2">
                 <div>
-                  <span className="icon icon-shape icon-sm bg-soft-info text-primary text-sm icon-wrapper">
+                  <span className="icon icon-shape icon-lg text-white text-sm icon-wrapper">
                     <FontAwesomeIcon
                       icon={['fas', currencySymbols[currency.symbol]]}
                     />
@@ -109,9 +110,10 @@ const EstimateValue = () => {
                     )}
                   </span>
                 </div>
-                <div className="pl-2">
-                  <span className="text-muted text-sm font-weight-bold">
-                    {currency.value} {currency.symbol}
+                <div className="pl-3">
+                  <span className="text-muted text-sm font-weight-bold pl-1">
+                    {currency.value}{' '}
+                    <span className="text-primary">{currency.symbol}</span>
                   </span>
                 </div>
               </div>
@@ -124,7 +126,7 @@ const EstimateValue = () => {
               <span className="h6">Cashometer</span>
             </div>
           </div>
-          <div className="card-body">
+          <div className="card-body estimated-value">
             <CashoMeter />
           </div>
         </div>

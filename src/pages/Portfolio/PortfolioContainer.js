@@ -146,10 +146,10 @@ function PortfolioContainer() {
               {balance && balance.length ? (
                 <>
                   <div className="row">
-                    <div className="col-lg-5">
+                    <div className="col-lg-12">
                       <EstimateValue />
                     </div>
-                    <div className="col-lg-7">
+                    <div className="col-lg-12">
                       <PortfolioDistribution />
                     </div>
                   </div>

@@ -1,13 +1,16 @@
-import React, { useContext, useMemo } from 'react'
-import GaugeChart from 'react-gauge-chart'
+import React, { useMemo, useState, useEffect } from 'react'
 import { stableCoins } from 'constants/StableCoinsList'
-import { ThemeContext } from 'contexts/ThemeContext'
 import './CashoMeter.css'
 import { useSelector } from 'react-redux'
 
 const CashoMeter = () => {
+  const [bars, setBars] = useState([])
   const { balance } = useSelector((state) => state.portfolio)
-  const { theme } = useContext(ThemeContext)
+
+  useEffect(() => {
+    let data = [...new Array(50)].map((value, index) => ({ id: index + 1 }))
+    setBars(data)
+  }, [])
 
   let coins = useMemo(
     () =>
@@ -44,45 +47,28 @@ const CashoMeter = () => {
     [resultPercentage]
   )
 
-  let colors = useMemo(
-    () =>
-      theme === 'LIGHT'
-        ? ['#5cc9a7', '#ffbe3d', '#f25767']
-        : ['#82d6bc', '#ffcf70', '#f68692'],
-    [theme]
-  )
-
-  let textColor = useMemo(
-    () => (theme === 'LIGHT' ? '#718096' : '#a2aab5'),
-    [theme]
-  )
-
-  const style = {
-    height: 121.05,
-    width: '92%',
-  }
+  let finalPercent = Math.ceil(value / 2)
 
   return (
     <>
       {!isNaN(resultPercentage) ? (
-        <>
-          <GaugeChart
-            id="gauge-chart1"
-            nrOfLevels={20}
-            percent={resultPercentage}
-            textColor={textColor}
-            animate={false}
-            arcPadding={0.03}
-            arcsLength={[0.1, 0.5, 0.4]}
-            colors={colors}
-            className="gauge-chart"
-            style={style}
-            hideText={true}
-          />
-          <p className="text-muted text-sm font-weight-bold text-center value-mobile mt-2">
-            {value}%
-          </p>
-        </>
+        <div className="d-flex align-items-center bars-container">
+          {bars.map((bar) => (
+            <span
+              className={`${
+                bar.id <= 10
+                  ? 'bg-success'
+                  : bar.id <= 28
+                  ? 'bg-yellow'
+                  : 'bg-danger'
+              } bar ${finalPercent === bar.id ? 'marked-value' : ''}`}
+            >
+              {finalPercent === bar.id ? (
+                <span className="percentage">{value}%</span>
+              ) : null}
+            </span>
+          ))}
+        </div>
       ) : null}
     </>
   )

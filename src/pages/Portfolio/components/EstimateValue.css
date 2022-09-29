@@ -1,6 +1,10 @@
+.value-container {
+  flex-direction: row;
+}
+
 .card-content-right .card-body {
   padding: 0;
-  margin-top: 27px;
+  margin-top: 21px;
 }
 
 .card-content-right .card-body p {
@@ -13,14 +17,26 @@
 
 .icon-wrapper {
   position: relative;
+  background-color: #008aff;
+  border-radius: 50%;
+  width: 26px !important;
+  height: 26px !important;
+  margin-left: 4px;
+}
+
+.icon-wrapper svg {
+  font-size: 1rem !important;
 }
 
 .icon-wrapper svg:nth-child(2) {
   position: absolute;
-  bottom: 0;
-  right: 2px;
-  font-size: 0.6rem;
+  bottom: -7px;
+  right: -11px;
+  width: 14px !important;
+  height: 14px !important;
+  font-size: 0.4rem;
   cursor: pointer;
+  color: #008aff;
 }
 
 .custom-dropdown {
@@ -56,19 +72,54 @@
   margin-bottom: 0;
 }
 
+.estimated-value {
+  padding-top: 0;
+}
+
 .custom-dropdown p:hover {
   color: #008aff;
 }
 
-@media (max-width: 992px) {
-  .cashometer-container {
-    display: none;
-  }
+.estimated-value-container {
+  width: 50%;
+}
 
+.estimated-value-container .icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.cashometer-container {
+  width: 50%;
+}
+
+@media (max-width: 992px) {
   .estimated-value {
     display: flex;
     justify-content: space-between;
     padding: 0;
+  }
+
+  .estimated-value-container {
+    width: 100%;
+  }
+
+  .estimated-value-container span {
+    margin-bottom: 0;
+  }
+
+  .cashometer-container {
+    width: 100%;
+    padding-bottom: 40px;
+  }
+
+  .cashometer-container .card-header {
+    padding-top: 0;
+    padding-left: 0;
+  }
+
+  .value-container {
+    flex-direction: column;
   }
 
   .estimated-value .text-sm {

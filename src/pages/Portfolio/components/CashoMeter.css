@@ -1,3 +1,30 @@
+.bar {
+  width: 4px;
+  height: 26px;
+  display: block;
+  margin-right: 1px;
+}
+
+.bg-yellow {
+  background-color: #fff103 !important;
+}
+
+.marked-value {
+  background-color: var(--blue) !important;
+  height: 42px;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  position: relative;
+  width: 4px;
+}
+
+.percentage {
+  position: absolute;
+  bottom: -30px;
+  left: -16px;
+  color: var(--blue);
+}
+
 @media (max-width: 575.98px) {
   .value-mobile {
     margin-top: 10px;
