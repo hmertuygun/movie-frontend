@@ -57,17 +57,24 @@ const chartSlice = createSlice({
     })
     builder.addCase(getChartDrawing.fulfilled, (state, action) => {
       const res = action.payload?.data
-      if (res[Object.keys(res)[0]]) {
-        const data = LZUTF8.decompress(res[Object.keys(res)[0]], {
-          inputEncoding: 'Base64',
-        })
-        state.chartDrawings = data
-      }
+      const drawings = res[Object.keys(res)[0]]
+      if (drawings) setDrawingToState(state, drawings)
     })
-    builder.addCase(saveChartDrawings.fulfilled, (state, action) => {})
+    builder.addCase(saveChartDrawings.fulfilled, (state, action) => {
+      const { drawings } = action?.meta?.arg
+      if (drawings) setDrawingToState(state, drawings[Object.keys(drawings)[0]])
+    })
     builder.addCase(backupChartDrawing.fulfilled, (state, action) => {})
   },
 })
+
+const setDrawingToState = (state, drawings) => {
+  const data = LZUTF8.decompress(drawings, {
+    inputEncoding: 'Base64',
+  })
+  state.chartDrawings = data
+}
+
 export const {
   setChartData,
   setChartMirroring,
