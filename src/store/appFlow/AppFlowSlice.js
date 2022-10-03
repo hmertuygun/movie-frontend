@@ -19,6 +19,8 @@ const appFlowSlice = createSlice({
     showSubModalIfLessThan7Days: false,
     platformMessages: [],
     userNotices: [],
+    showThemeWarning: false,
+    chartNeedsThemeUpdate: false,
   },
   reducers: {
     setIsOnboardingSkipped: (state, action) => {
@@ -57,6 +59,12 @@ const appFlowSlice = createSlice({
     setShowSubModal: (state, action) => {
       state.showSubModalIfLessThan7Days = action.payload
     },
+    setShowThemeWarning: (state, action) => {
+      state.showThemeWarning = action.payload
+    },
+    setChartNeedsThemeUpdate: (state, action) => {
+      state.chartNeedsThemeUpdate = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getPlatformMessages.fulfilled, (state, action) => {
@@ -86,6 +94,8 @@ export const {
   setEndTrial,
   setNeedPayment,
   setShowSubModal,
+  setShowThemeWarning,
+  setChartNeedsThemeUpdate,
 } = appFlowSlice.actions
 
 export default appFlowSlice.reducer

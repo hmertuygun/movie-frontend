@@ -120,6 +120,8 @@ import {
   findFastServer,
   getPlatformMessages,
   getUserNotices,
+  updateSetChartNeedsThemeUpdate,
+  updateSetShowThemeWarning,
 } from './appFlow/AppFlowActions'
 
 import {
@@ -366,4 +368,6 @@ export {
   updateWatchSymbolsLists,
   updateActiveWatchLists,
   updateShow2FAModal,
+  updateSetChartNeedsThemeUpdate,
+  updateSetShowThemeWarning,
 }

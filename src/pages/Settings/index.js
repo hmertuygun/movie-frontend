@@ -1,4 +1,10 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react'
+import React, {
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { LogOut, Moon } from 'react-feather'
 
@@ -10,6 +16,8 @@ import Subscriptions from '../Settings/Subscription'
 import { ThemeContext } from 'contexts/ThemeContext'
 import { storage } from 'services/storages'
 import './Settings.css'
+import { useDispatch } from 'react-redux'
+import { updateSetShowThemeWarning } from 'store/actions'
 
 const SETTINGS_TAB = {
   '#exchanges': 0,
@@ -20,28 +28,13 @@ const SETTINGS_TAB = {
 
 const Settings = () => {
   const { hash } = useLocation()
+  const dispatch = useDispatch()
   const [tabIndex, setTabIndex] = useState(0)
   const { theme, setTheme } = useContext(ThemeContext)
 
-  const toggleTheme = () => {
-    setTheme((theme) => {
-      let newTheme = ''
-      switch (theme) {
-        case 'LIGHT':
-          newTheme = 'DARK'
-          break
-        case 'DARK':
-          newTheme = 'LIGHT'
-          break
-        default:
-          newTheme = 'LIGHT'
-          break
-      }
-      storage.set('theme', newTheme)
-
-      return newTheme
-    })
-  }
+  const askThemeForChart = useCallback(() => {
+    dispatch(updateSetShowThemeWarning(true))
+  }, [dispatch])
 
   useEffect(() => {
     setTabIndex(SETTINGS_TAB[hash])
@@ -69,7 +62,7 @@ const Settings = () => {
                         className={`ml-lg-auto d-flex d-lg-none mr-5 ${
                           theme === 'DARK' ? 'text-warning' : ''
                         }`}
-                        onClick={toggleTheme}
+                        onClick={askThemeForChart}
                       >
                         <Moon className="chevron-down" strokeWidth="2" />
                       </span>

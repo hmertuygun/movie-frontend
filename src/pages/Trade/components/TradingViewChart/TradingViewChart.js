@@ -119,8 +119,8 @@ export default class TradingViewChart extends Component {
         this.props.setIsChartReady(true)
         this.setState({ isChartReady: true })
         consoleLogger('Chart loaded')
-        const theme = storage.get('theme')
-        this.tradingViewWidget.changeTheme(theme)
+        //const theme = storage.get('theme')
+        //this.tradingViewWidget.changeTheme(theme)
       })
     } catch (e) {
       consoleLogger(e)
@@ -701,8 +701,12 @@ export default class TradingViewChart extends Component {
         }
       }
     } catch (err) {}
-    if (props.theme !== this.state.theme)
+    if (
+      props.theme !== this.state.theme &&
+      store.getState().appFlow.chartNeedsThemeUpdate
+    )
       this.tradingViewWidget.changeTheme(this.state.theme)
+
     this.changeSymbol(this.state.symbol)
 
     if (prevProps.exchange !== this.props.exchange && this.props.exchange) {

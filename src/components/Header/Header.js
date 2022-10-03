@@ -22,19 +22,24 @@ import './Header.css'
 import { storage } from 'services/storages'
 import {
   handleOnboardingShow,
+  updateSetShowThemeWarning,
   updateTour2CurrentStep,
   updateWatchListOpen,
 } from 'store/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import UserMenu from './UserMenu/UserMenu'
 import Help from './Help'
+import ThemeWarning from 'pages/Auth/components/templates/Modals/ThemeWarning'
 
 const Header = () => {
   const { isLoggedIn } = useContext(UserContext)
   const { theme, setTheme } = useContext(ThemeContext)
-  const { isOnboardingSkipped, onSecondTour, tour2CurrentStep } = useSelector(
-    (state) => state.appFlow
-  )
+  const {
+    isOnboardingSkipped,
+    onSecondTour,
+    tour2CurrentStep,
+    showThemeWarning,
+  } = useSelector((state) => state.appFlow)
   const { firstLogin } = useSelector((state) => state.users)
   const [stepIndex2, setStepIndex2] = useState(0)
   const [run2, setRun2] = useState(true)
@@ -67,25 +72,9 @@ const Header = () => {
     }
   }
 
-  const toggleTheme = () => {
-    setTheme((theme) => {
-      let newTheme = ''
-      switch (theme) {
-        case 'LIGHT':
-          newTheme = 'DARK'
-          break
-        case 'DARK':
-          newTheme = 'LIGHT'
-          break
-        default:
-          newTheme = 'LIGHT'
-          break
-      }
-      storage.set('theme', newTheme)
-
-      return newTheme
-    })
-  }
+  const askThemeForChart = useCallback(() => {
+    dispatch(updateSetShowThemeWarning(true))
+  }, [dispatch])
 
   const addDarkClassToBody = useCallback(() => {
     const element = document.body
@@ -198,7 +187,7 @@ const Header = () => {
                         ? 'switch-container-light'
                         : 'switch-container-dark'
                     }`}
-                    onClick={toggleTheme}
+                    onClick={askThemeForChart}
                   >
                     {theme === 'DARK' ? (
                       <>
@@ -319,6 +308,7 @@ const Header = () => {
           styles={styles}
         />
       )}
+      {showThemeWarning && <ThemeWarning currentTheme={theme} />}
     </header>
   )
 }

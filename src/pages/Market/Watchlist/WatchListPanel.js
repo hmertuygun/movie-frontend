@@ -91,10 +91,15 @@ const WatchListPanel = () => {
     const symbolArray = []
     for (const symbol of watchSymbolsList) {
       let previousData = {}
+      let tickSize = 5
       const activeMarketData = marketData[symbol.value.replace('/', '')]
-      const { tickSize } = symbols.find((val) => {
+      const foundSymbol = symbols.find((val) => {
         return symbol.value === val.value
       })
+      if (foundSymbol) {
+        tickSize = foundSymbol.tickSize
+      }
+
       if (!activeMarketData?.last) {
         previousData = symbolsList.find((curr) => symbol.value === curr.value)
       }

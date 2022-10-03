@@ -15,6 +15,8 @@ import {
   setEndTrial,
   setNeedPayment,
   setShowSubModal,
+  setChartNeedsThemeUpdate,
+  setShowThemeWarning,
 } from './AppFlowSlice'
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { fetchPlatformMessages, fetchUserNotices } from 'services/api'
@@ -65,6 +67,12 @@ const handleOnboardingSkip = () => async (dispatch) => {
 const handleOnboardingShow = () => async (dispatch) => {
   storage.remove('onboarding')
   dispatch(updateIsOnboardingSkipped(false))
+}
+const updateSetShowThemeWarning = (value) => async (dispatch) => {
+  dispatch(setShowThemeWarning(value))
+}
+const updateSetChartNeedsThemeUpdate = (value) => async (dispatch) => {
+  dispatch(setChartNeedsThemeUpdate(value))
 }
 
 const sendEmailAgain = (userState) => async (dispatch) => {
@@ -138,6 +146,8 @@ export {
   handleOnboardingShow,
   sendEmailAgain,
   findFastServer,
+  updateSetShowThemeWarning,
+  updateSetChartNeedsThemeUpdate,
   getPlatformMessages,
   getUserNotices,
 }
