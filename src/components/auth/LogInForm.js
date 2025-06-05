@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../store/actions";
 import { Navigate } from "react-router-dom";
 
-const RegisterForm = () => {
+const LogInForm = () => {
   const [formData, setFormData] = useState({ password: "", email: "" });
   const [formErrors, setFormErrors] = useState();
   const [hasError, setHasError] = useState();
@@ -45,6 +45,7 @@ const RegisterForm = () => {
 
     if (isValid && isUserExists) {
       dispatch(loginUser(formData.email));
+      return setHasError(false);
     }
 
     return setHasError(true);
@@ -96,4 +97,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm;
+export default LogInForm;
